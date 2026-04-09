@@ -176,6 +176,22 @@ export const createMapTokenSlice: StateCreator<GameStoreState, [], [], MapTokenS
     }
   },
 
+  // --- Audio emitter actions ---
+
+  toggleEmitterPlaying: (mapId: string, emitterId: string) => {
+    set((state) => ({
+      maps: state.maps.map((m) => {
+        if (m.id !== mapId) return m
+        return {
+          ...m,
+          audioEmitters: (m.audioEmitters ?? []).map((e) =>
+            e.id === emitterId ? { ...e, playing: !(e.playing ?? false) } : e
+          )
+        }
+      })
+    }))
+  },
+
   // --- Token selection actions ---
 
   setSelectedTokenIds: (tokenIds: string[]) => set({ selectedTokenIds: tokenIds }),
@@ -188,7 +204,7 @@ export const createMapTokenSlice: StateCreator<GameStoreState, [], [], MapTokenS
   },
   removeFromSelection: (tokenId: string) => {
     set((state) => ({
-      selectedTokenIds: state.selectedTokenIds.filter(id => id !== tokenId)
+      selectedTokenIds: state.selectedTokenIds.filter((id) => id !== tokenId)
     }))
   },
   clearSelection: () => set({ selectedTokenIds: [] }),

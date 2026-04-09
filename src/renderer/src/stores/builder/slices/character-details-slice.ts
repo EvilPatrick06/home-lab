@@ -2,6 +2,9 @@ import type { StateCreator } from 'zustand'
 import { load5eClasses } from '../../../services/data-provider'
 import type { BuilderState, CharacterDetailsSliceState } from '../types'
 
+/** Staleness guard for async equipment choice callbacks */
+let equipChoiceVersion = 0
+
 /** Default values for all character-details state fields. Shared with resetBuilder(). */
 export const DEFAULT_CHARACTER_DETAILS = {
   characterName: '' as string,
@@ -54,9 +57,10 @@ export const DEFAULT_CHARACTER_DETAILS = {
   classMandatorySkills: [] as string[],
   selectedSkills: [] as string[],
   maxSkills: 2,
-  customModal: null as 'ability-scores' | 'skills' | 'asi' | 'expertise' | null,
+  maxCantrips: 0,
+  maxPreparedSpells: 0,
+  spellLevelMap: {} as Record<string, number>,
   builderExpertiseSelections: {} as Record<string, string[]>,
-  activeExpertiseSlotId: null as string | null,
   builderFeatSelections: {} as Record<string, { id: string; name: string; description: string }>,
   backgroundAbilityBonuses: {} as Record<string, number>,
   backgroundEquipmentChoice: null as 'equipment' | 'gold' | null,
@@ -75,7 +79,11 @@ export const createCharacterDetailsSlice: StateCreator<BuilderState, [], [], Cha
   ...DEFAULT_CHARACTER_DETAILS,
 
   setCharacterName: (name) => set({ characterName: name }),
-  setSelectedSkills: (skills) => set({ selectedSkills: skills }),
+  setSelectedSkills: (skills) => {
+    const { maxSkills } = get()
+    if (maxSkills > 0 && skills.length > maxSkills) return
+    set({ selectedSkills: skills })
+  },
 
   setIconType: (type) => set({ iconType: type }),
   setIconPreset: (preset) => set({ iconType: 'preset', iconPreset: preset }),
@@ -96,8 +104,12 @@ export const createCharacterDetailsSlice: StateCreator<BuilderState, [], [], Cha
       set({ bgEquipment: get().bgEquipment.filter((_, i) => i !== index) })
     }
   },
-  addEquipmentItem: (item) => {
-    set({ classEquipment: [...get().classEquipment, item] })
+  addEquipmentItem: (item, target) => {
+    if (target === 'background') {
+      set({ bgEquipment: [...get().bgEquipment, { option: item.name, items: [item.name], source: item.source }] })
+    } else {
+      set({ classEquipment: [...get().classEquipment, item] })
+    }
   },
 
   deductCurrency: (key, amount) => {
@@ -108,6 +120,7 @@ export const createCharacterDetailsSlice: StateCreator<BuilderState, [], [], Cha
   setBackgroundAbilityBonuses: (bonuses) => set({ backgroundAbilityBonuses: bonuses }),
   setBackgroundEquipmentChoice: (choice) => set({ backgroundEquipmentChoice: choice }),
   setClassEquipmentChoice: (choice) => {
+    const version = ++equipChoiceVersion
     set({ classEquipmentChoice: choice })
     // Update class equipment based on the selected option
     const { buildSlots, gameSystem } = get()
@@ -115,6 +128,7 @@ export const createCharacterDetailsSlice: StateCreator<BuilderState, [], [], Cha
     const classSlot = buildSlots.find((s) => s.category === 'class')
     if (!classSlot?.selectedId) return
     load5eClasses().then((classes) => {
+      if (version !== equipChoiceVersion) return
       const cls = classes.find((c) => c.id === classSlot.selectedId)
       if (!cls) return
       const equipment = cls.coreTraits.startingEquipment
@@ -132,7 +146,18 @@ export const createCharacterDetailsSlice: StateCreator<BuilderState, [], [], Cha
     })
   },
   setSpeciesSize: (size) => set({ speciesSize: size }),
-  setSelectedSpellIds: (ids) => set({ selectedSpellIds: ids }),
+  setSelectedSpellIds: (ids) => {
+    const { maxCantrips, maxPreparedSpells, spellLevelMap } = get()
+    if ((maxCantrips > 0 || maxPreparedSpells > 0) && Object.keys(spellLevelMap).length > 0) {
+      const cantrips = ids.filter((id) => spellLevelMap[id] === 0).length
+      const leveled = ids.filter((id) => (spellLevelMap[id] ?? -1) > 0).length
+      if (maxCantrips > 0 && cantrips > maxCantrips) return
+      if (maxPreparedSpells > 0 && leveled > maxPreparedSpells) return
+    }
+    set({ selectedSpellIds: ids })
+  },
+  setSpellLimits: (maxCantrips, maxPreparedSpells) => set({ maxCantrips, maxPreparedSpells }),
+  setSpellLevelMap: (map) => set({ spellLevelMap: map }),
   setHigherLevelGoldBonus: (amount) => set({ higherLevelGoldBonus: amount }),
   setSelectedMagicItems: (items) => set({ selectedMagicItems: items }),
   setSpeciesSpellcastingAbility: (ability) => set({ speciesSpellcastingAbility: ability }),
@@ -150,7 +175,5 @@ export const createCharacterDetailsSlice: StateCreator<BuilderState, [], [], Cha
       delete prev[slotId]
     }
     set({ builderFeatSelections: prev })
-  },
-  openCustomModal: (modal) => set({ customModal: modal }),
-  closeCustomModal: () => set({ customModal: null, activeAsiSlotId: null, activeExpertiseSlotId: null })
+  }
 })
