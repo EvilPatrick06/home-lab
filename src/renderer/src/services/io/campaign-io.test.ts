@@ -52,7 +52,7 @@ describe('campaign-io', () => {
   describe('exportCampaign', () => {
     it('preserves players and journal entries', () => {
       const exported = exportCampaign(minimalCampaign)
-      const parsed = JSON.parse(exported)
+      const parsed = JSON.parse(exported).campaign
       expect(parsed.players).toEqual(minimalCampaign.players)
       expect(parsed.journal).toEqual(minimalCampaign.journal)
     })
@@ -61,7 +61,7 @@ describe('campaign-io', () => {
   describe('importCampaign', () => {
     it('succeeds with valid data', () => {
       const exported = exportCampaign(minimalCampaign)
-      const imported = importCampaign(exported)
+      const imported = importCampaign(exported).campaign
       expect(imported.id).toBe(minimalCampaign.id)
       expect(imported.name).toBe(minimalCampaign.name)
       expect(imported.system).toBe(minimalCampaign.system)
