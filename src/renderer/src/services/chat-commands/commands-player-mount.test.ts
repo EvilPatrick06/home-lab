@@ -1,52 +1,44 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import {
+  assertCommandShape,
+  assertUniqueCommandNames,
+  assertCommandNameFormat,
+  createCommandContext
+} from '../../test-helpers'
 
 import { commands } from './commands-player-mount'
 
+function makeCtx(overrides: Partial<Parameters<typeof createCommandContext>[0]> = {}) {
+  return createCommandContext({
+    isDM: false,
+    openModal: vi.fn(),
+    ...overrides
+  } as Parameters<typeof createCommandContext>[0])
+}
+
 describe('commands-player-mount', () => {
-  it('exports a commands array', () => {
+  // ── Shape tests ──────────────────────────────────────────────
+  it('exports a non-empty commands array', () => {
     expect(Array.isArray(commands)).toBe(true)
     expect(commands.length).toBeGreaterThan(0)
   })
 
-  it('every command has the required fields', () => {
-    for (const cmd of commands) {
-      expect(typeof cmd.name).toBe('string')
-      expect(cmd.name.length).toBeGreaterThan(0)
-      expect(Array.isArray(cmd.aliases)).toBe(true)
-      expect(typeof cmd.description).toBe('string')
-      expect(cmd.description.length).toBeGreaterThan(0)
-      expect(typeof cmd.usage).toBe('string')
-      expect(cmd.usage.length).toBeGreaterThan(0)
-      expect(['player', 'dm', 'ai']).toContain(cmd.category)
-      expect(typeof cmd.dmOnly).toBe('boolean')
-      expect(typeof cmd.execute).toBe('function')
-    }
-  })
+  it('every command has required fields', () => assertCommandShape(commands))
+  it('names are unique', () => assertUniqueCommandNames(commands))
+  it('names are lowercase without leading slash', () => assertCommandNameFormat(commands))
 
-  it('command names are unique within the module', () => {
-    const names = commands.map((c) => c.name)
-    expect(new Set(names).size).toBe(names.length)
-  })
-
-  it('contains expected command names', () => {
+  it('contains exactly mount and dismount', () => {
     const names = commands.map((c) => c.name)
     expect(names).toContain('mount')
     expect(names).toContain('dismount')
+    expect(commands).toHaveLength(2)
   })
 
-  it('all mount commands are player category and not dmOnly', () => {
+  it('all commands are player category and not dmOnly', () => {
     for (const cmd of commands) {
       expect(cmd.category).toBe('player')
       expect(cmd.dmOnly).toBe(false)
     }
-  })
-
-  it('aliases are unique across all commands in the module', () => {
-    const allAliases: string[] = []
-    for (const cmd of commands) {
-      allAliases.push(...cmd.aliases)
-    }
-    expect(new Set(allAliases).size).toBe(allAliases.length)
   })
 
   it('aliases do not collide with command names', () => {
@@ -56,5 +48,59 @@ describe('commands-player-mount', () => {
         expect(names.has(alias)).toBe(false)
       }
     }
+  })
+
+  // ── /mount ───────────────────────────────────────────────────
+  describe('mount', () => {
+    const cmd = () => commands.find((c) => c.name === 'mount')!
+
+    it('has alias "ride"', () => {
+      expect(cmd().aliases).toContain('ride')
+    })
+
+    it('calls openModal with "mount"', () => {
+      const ctx = makeCtx()
+      cmd().execute('', ctx)
+      expect(ctx.openModal).toHaveBeenCalledWith('mount')
+    })
+
+    it('ignores any args passed', () => {
+      const ctx = makeCtx()
+      cmd().execute('some args', ctx)
+      expect(ctx.openModal).toHaveBeenCalledWith('mount')
+    })
+
+    it('does not call broadcastSystemMessage', () => {
+      const ctx = makeCtx()
+      cmd().execute('', ctx)
+      expect(ctx.broadcastSystemMessage).not.toHaveBeenCalled()
+    })
+  })
+
+  // ── /dismount ────────────────────────────────────────────────
+  describe('dismount', () => {
+    const cmd = () => commands.find((c) => c.name === 'dismount')!
+
+    it('has no aliases', () => {
+      expect(cmd().aliases).toHaveLength(0)
+    })
+
+    it('calls openModal with "mount" (reuses same modal)', () => {
+      const ctx = makeCtx()
+      cmd().execute('', ctx)
+      expect(ctx.openModal).toHaveBeenCalledWith('mount')
+    })
+
+    it('ignores any args passed', () => {
+      const ctx = makeCtx()
+      cmd().execute('horse', ctx)
+      expect(ctx.openModal).toHaveBeenCalledWith('mount')
+    })
+
+    it('does not call broadcastSystemMessage', () => {
+      const ctx = makeCtx()
+      cmd().execute('', ctx)
+      expect(ctx.broadcastSystemMessage).not.toHaveBeenCalled()
+    })
   })
 })

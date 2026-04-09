@@ -12,20 +12,16 @@ vi.mock('../../stores/use-lobby-store', () => ({
   }
 }))
 
+import {
+  assertCommandShape,
+  assertUniqueCommandNames,
+  assertCommandNameFormat,
+  createCommandContext
+} from '../../test-helpers'
 import { commands } from './commands-social'
-import type { CommandContext } from './types'
 
-function makeCtx(overrides: Partial<CommandContext> = {}): CommandContext {
-  return {
-    isDM: false,
-    playerName: 'TestPlayer',
-    character: null,
-    localPeerId: 'local-peer',
-    addSystemMessage: vi.fn(),
-    broadcastSystemMessage: vi.fn(),
-    addErrorMessage: vi.fn(),
-    ...overrides
-  }
+function makeCtx(overrides: Partial<Parameters<typeof createCommandContext>[0]> = {}) {
+  return createCommandContext({ isDM: false, playerName: 'TestPlayer', ...overrides })
 }
 
 describe('commands-social', () => {
@@ -38,28 +34,16 @@ describe('commands-social', () => {
     expect(commands.length).toBeGreaterThan(0)
   })
 
-  it('each command has required fields: name, description, execute', () => {
-    for (const cmd of commands) {
-      expect(cmd).toHaveProperty('name')
-      expect(cmd).toHaveProperty('description')
-      expect(cmd).toHaveProperty('execute')
-      expect(typeof cmd.name).toBe('string')
-      expect(typeof cmd.description).toBe('string')
-      expect(typeof cmd.execute).toBe('function')
-    }
+  it('every command has required fields', () => {
+    assertCommandShape(commands)
   })
 
-  it('command names are unique within the module', () => {
-    const names = commands.map((c) => c.name)
-    const unique = new Set(names)
-    expect(unique.size).toBe(names.length)
+  it('command names are unique', () => {
+    assertUniqueCommandNames(commands)
   })
 
-  it('command names follow expected format (lowercase, no leading slash)', () => {
-    for (const cmd of commands) {
-      expect(cmd.name).not.toMatch(/^\//)
-      expect(cmd.name).toBe(cmd.name.toLowerCase())
-    }
+  it('command names are lowercase without leading slash', () => {
+    assertCommandNameFormat(commands)
   })
 
   it('each command has aliases array and category', () => {
