@@ -394,6 +394,33 @@ describe('getAttackConditionEffects', () => {
     })
   })
 
+  // ── Charmed: can't attack the charmer (PHB 2024) ───────────────
+
+  describe('Charmed condition', () => {
+    it('prevents attacking the charmer', () => {
+      const result = getAttackConditionEffects(
+        [{ name: 'Charmed', sourceEntityId: 'target-1' }],
+        [],
+        baseContext({ targetEntityId: 'target-1' })
+      )
+      expect(result.attackerCannotAct).toBe(true)
+    })
+
+    it('allows attacking a non-charmer', () => {
+      const result = getAttackConditionEffects(
+        [{ name: 'Charmed', sourceEntityId: 'npc-2' }],
+        [],
+        baseContext({ targetEntityId: 'target-1' })
+      )
+      expect(result.attackerCannotAct).toBe(false)
+    })
+
+    it('allows attacking when Charmed has no sourceEntityId', () => {
+      const result = getAttackConditionEffects([{ name: 'Charmed' }], [], baseContext({ targetEntityId: 'target-1' }))
+      expect(result.attackerCannotAct).toBe(false)
+    })
+  })
+
   // ── PHB 2024: Grappled no longer imposes attack penalty ───────
 
   describe('PHB 2024 Grappled rule', () => {

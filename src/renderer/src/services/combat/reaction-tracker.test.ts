@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import type { EntityCondition, TurnState } from '../../types/game-state'
-import { canReact, checkCounterspell, checkOpportunityAttack, getAvailableReactions } from './reaction-tracker'
+import {
+  canReact,
+  checkCounterspell,
+  checkOpportunityAttack,
+  checkSilveryBarbs,
+  executeReaction,
+  getAvailableReactions,
+  resolveMultipleReactions,
+  type ReactionPrompt
+} from './reaction-tracker'
 
 // ─── Helpers ────────────────────────────────────────────────────
 
@@ -417,5 +426,314 @@ describe('checkCounterspell', () => {
     const allies = [makeAlly({ x: 6, y: 0 })]
     const result = checkCounterspell('badwiz-1', 'Evil Mage', 0, 0, allies, cellSizeFt)
     expect(result[0].triggerDescription).toContain('ft')
+  })
+})
+
+// ─── checkSilveryBarbs ─────────────────────────────────────────
+
+describe('checkSilveryBarbs', () => {
+  const cellSizeFt = 5
+
+  function makeEnemy(
+    overrides: Partial<{
+      entityId: string
+      entityName: string
+      x: number
+      y: number
+      hasSilveryBarbs: boolean
+      hasSpellSlots: boolean
+    }> = {}
+  ) {
+    return {
+      entityId: 'wizard-1',
+      entityName: 'Gandalf',
+      x: 5,
+      y: 5,
+      hasSilveryBarbs: true,
+      hasSpellSlots: true,
+      ...overrides
+    }
+  }
+
+  it('generates prompt when enemy with Silvery Barbs is within 60ft', () => {
+    const enemies = [makeEnemy()]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'attack', enemies, cellSizeFt)
+    expect(result).toHaveLength(1)
+    expect(result[0].trigger).toBe('silvery-barbs')
+    expect(result[0].availableReactions).toEqual(['Silvery Barbs'])
+  })
+
+  it('does not generate prompt when enemy is beyond 60ft', () => {
+    const enemies = [makeEnemy({ x: 20, y: 0 })]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'attack', enemies, cellSizeFt)
+    expect(result).toHaveLength(0)
+  })
+
+  it('skips enemy without Silvery Barbs', () => {
+    const enemies = [makeEnemy({ hasSilveryBarbs: false })]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'attack', enemies, cellSizeFt)
+    expect(result).toHaveLength(0)
+  })
+
+  it('skips enemy without spell slots', () => {
+    const enemies = [makeEnemy({ hasSpellSlots: false })]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'attack', enemies, cellSizeFt)
+    expect(result).toHaveLength(0)
+  })
+
+  it('includes source entity info in prompt', () => {
+    const enemies = [makeEnemy()]
+    const result = checkSilveryBarbs('orc-1', 'Orc Warlord', 0, 0, 'save', enemies, cellSizeFt)
+    expect(result[0].sourceEntityId).toBe('orc-1')
+    expect(result[0].sourceEntityName).toBe('Orc Warlord')
+  })
+
+  it('describes attack success type in trigger description', () => {
+    const enemies = [makeEnemy()]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'attack', enemies, cellSizeFt)
+    expect(result[0].triggerDescription).toContain('a attack')
+  })
+
+  it('describes save success type in trigger description', () => {
+    const enemies = [makeEnemy()]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'save', enemies, cellSizeFt)
+    expect(result[0].triggerDescription).toContain('a save')
+  })
+
+  it('describes ability-check success type in trigger description', () => {
+    const enemies = [makeEnemy()]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'ability-check', enemies, cellSizeFt)
+    expect(result[0].triggerDescription).toContain('an ability check')
+  })
+
+  it('generates prompts for multiple qualifying enemies', () => {
+    const enemies = [
+      makeEnemy({ entityId: 'wiz-1', entityName: 'Gandalf', x: 2, y: 0 }),
+      makeEnemy({ entityId: 'wiz-2', entityName: 'Merlin', x: 3, y: 0 })
+    ]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'attack', enemies, cellSizeFt)
+    expect(result).toHaveLength(2)
+  })
+
+  it('returns empty array when enemies list is empty', () => {
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'attack', [], cellSizeFt)
+    expect(result).toEqual([])
+  })
+
+  it('enemy at exactly 60ft (12 cells) is within range', () => {
+    const enemies = [makeEnemy({ x: 12, y: 0 })]
+    const result = checkSilveryBarbs('orc-1', 'Orc', 0, 0, 'attack', enemies, cellSizeFt)
+    expect(result).toHaveLength(1)
+  })
+})
+
+// ─── executeReaction ───────────────────────────────────────────
+
+describe('executeReaction', () => {
+  function makePrompt(overrides: Partial<ReactionPrompt> = {}): ReactionPrompt {
+    return {
+      id: 'reaction-1',
+      entityId: 'fighter1',
+      entityName: 'Fighter',
+      trigger: 'opportunity-attack',
+      triggerDescription: 'Goblin moves out of reach',
+      availableReactions: ['Opportunity Attack'],
+      expiresInMs: 15_000,
+      ...overrides
+    }
+  }
+
+  it('succeeds when entity has unused reaction and valid choice', () => {
+    const turnStates: Record<string, TurnState> = {
+      fighter1: makeTurnState('fighter1')
+    }
+    const result = executeReaction(makePrompt(), 'Opportunity Attack', turnStates)
+    expect(result.success).toBe(true)
+    expect(result.description).toContain('Fighter')
+    expect(result.description).toContain('Opportunity Attack')
+  })
+
+  it('fails when entity has no turn state', () => {
+    const result = executeReaction(makePrompt(), 'Opportunity Attack', {})
+    expect(result.success).toBe(false)
+    expect(result.description).toContain('no active turn state')
+  })
+
+  it('fails when reaction already used', () => {
+    const turnStates: Record<string, TurnState> = {
+      fighter1: makeTurnState('fighter1', { reactionUsed: true })
+    }
+    const result = executeReaction(makePrompt(), 'Opportunity Attack', turnStates)
+    expect(result.success).toBe(false)
+    expect(result.description).toContain('already used their reaction')
+  })
+
+  it('fails when chosen reaction is not in available list', () => {
+    const turnStates: Record<string, TurnState> = {
+      fighter1: makeTurnState('fighter1')
+    }
+    const result = executeReaction(makePrompt(), 'Counterspell', turnStates)
+    expect(result.success).toBe(false)
+    expect(result.description).toContain('not available')
+  })
+
+  it('includes trigger description in success message', () => {
+    const turnStates: Record<string, TurnState> = {
+      fighter1: makeTurnState('fighter1')
+    }
+    const prompt = makePrompt({ triggerDescription: 'Goblin flees' })
+    const result = executeReaction(prompt, 'Opportunity Attack', turnStates)
+    expect(result.description).toContain('Goblin flees')
+  })
+
+  it('works with multiple available reactions choosing a valid one', () => {
+    const turnStates: Record<string, TurnState> = {
+      fighter1: makeTurnState('fighter1')
+    }
+    const prompt = makePrompt({
+      availableReactions: ['Opportunity Attack', 'Sentinel Strike']
+    })
+    const result = executeReaction(prompt, 'Sentinel Strike', turnStates)
+    expect(result.success).toBe(true)
+    expect(result.description).toContain('Sentinel Strike')
+  })
+})
+
+// ─── resolveMultipleReactions ──────────────────────────────────
+
+describe('resolveMultipleReactions', () => {
+  function makePrompt(entityId: string): ReactionPrompt {
+    return {
+      id: `reaction-${entityId}`,
+      entityId,
+      entityName: entityId,
+      trigger: 'opportunity-attack',
+      triggerDescription: 'test',
+      availableReactions: ['Opportunity Attack'],
+      expiresInMs: 15_000
+    }
+  }
+
+  it('returns same array for 0 or 1 prompts', () => {
+    expect(resolveMultipleReactions([], [], undefined)).toEqual([])
+
+    const single = [makePrompt('a')]
+    expect(resolveMultipleReactions(single, [], undefined)).toEqual(single)
+  })
+
+  it('sorts by initiative total (higher first) when no DM override', () => {
+    const prompts = [makePrompt('slow'), makePrompt('fast')]
+    const initiative = [
+      { entityId: 'slow', total: 5 },
+      { entityId: 'fast', total: 18 }
+    ]
+    const sorted = resolveMultipleReactions(prompts, initiative)
+    expect(sorted[0].entityId).toBe('fast')
+    expect(sorted[1].entityId).toBe('slow')
+  })
+
+  it('DM override order takes priority over initiative', () => {
+    const prompts = [makePrompt('a'), makePrompt('b'), makePrompt('c')]
+    const initiative = [
+      { entityId: 'a', total: 20 },
+      { entityId: 'b', total: 15 },
+      { entityId: 'c', total: 10 }
+    ]
+    const dmOrder = ['c', 'a', 'b']
+    const sorted = resolveMultipleReactions(prompts, initiative, dmOrder)
+    expect(sorted[0].entityId).toBe('c')
+    expect(sorted[1].entityId).toBe('a')
+    expect(sorted[2].entityId).toBe('b')
+  })
+
+  it('entities not in initiative order sort to end', () => {
+    const prompts = [makePrompt('unknown'), makePrompt('known')]
+    const initiative = [{ entityId: 'known', total: 10 }]
+    const sorted = resolveMultipleReactions(prompts, initiative)
+    expect(sorted[0].entityId).toBe('known')
+    expect(sorted[1].entityId).toBe('unknown')
+  })
+
+  it('entities not in DM override sort to end', () => {
+    const prompts = [makePrompt('a'), makePrompt('b')]
+    const initiative = [
+      { entityId: 'a', total: 20 },
+      { entityId: 'b', total: 10 }
+    ]
+    const sorted = resolveMultipleReactions(prompts, initiative, ['b'])
+    expect(sorted[0].entityId).toBe('b')
+    expect(sorted[1].entityId).toBe('a')
+  })
+
+  it('empty DM override array falls through to initiative order', () => {
+    const prompts = [makePrompt('slow'), makePrompt('fast')]
+    const initiative = [
+      { entityId: 'slow', total: 5 },
+      { entityId: 'fast', total: 18 }
+    ]
+    const sorted = resolveMultipleReactions(prompts, initiative, [])
+    expect(sorted[0].entityId).toBe('fast')
+    expect(sorted[1].entityId).toBe('slow')
+  })
+
+  it('does not mutate the original prompts array', () => {
+    const prompts = [makePrompt('b'), makePrompt('a')]
+    const initiative = [
+      { entityId: 'a', total: 20 },
+      { entityId: 'b', total: 10 }
+    ]
+    resolveMultipleReactions(prompts, initiative)
+    expect(prompts[0].entityId).toBe('b')
+    expect(prompts[1].entityId).toBe('a')
+  })
+
+  it('handles tied initiative values stably', () => {
+    const prompts = [makePrompt('x'), makePrompt('y'), makePrompt('z')]
+    const initiative = [
+      { entityId: 'x', total: 15 },
+      { entityId: 'y', total: 15 },
+      { entityId: 'z', total: 15 }
+    ]
+    const sorted = resolveMultipleReactions(prompts, initiative)
+    expect(sorted).toHaveLength(3)
+  })
+})
+
+// ─── getAvailableReactions — uncanny-dodge & deflect-missiles ──
+
+describe('getAvailableReactions — additional triggers', () => {
+  it('uncanny-dodge returns Uncanny Dodge with the feature', () => {
+    const result = getAvailableReactions('uncanny-dodge', ['Uncanny Dodge'], [], false)
+    expect(result).toEqual(['Uncanny Dodge'])
+  })
+
+  it('uncanny-dodge returns empty without the feature', () => {
+    const result = getAvailableReactions('uncanny-dodge', [], [], false)
+    expect(result).toEqual([])
+  })
+
+  it('deflect-missiles returns Deflect Missiles with the feature', () => {
+    const result = getAvailableReactions('deflect-missiles', ['Deflect Missiles'], [], false)
+    expect(result).toEqual(['Deflect Missiles'])
+  })
+
+  it('deflect-missiles returns empty without the feature', () => {
+    const result = getAvailableReactions('deflect-missiles', [], [], false)
+    expect(result).toEqual([])
+  })
+
+  it('silvery-barbs returns Silvery Barbs with spell and slots', () => {
+    const result = getAvailableReactions('silvery-barbs', [], ['Silvery Barbs'], true)
+    expect(result).toEqual(['Silvery Barbs'])
+  })
+
+  it('silvery-barbs returns empty without spell slots', () => {
+    const result = getAvailableReactions('silvery-barbs', [], ['Silvery Barbs'], false)
+    expect(result).toEqual([])
+  })
+
+  it('returns empty array for empty features and spells', () => {
+    const result = getAvailableReactions('shield', [], [], true)
+    expect(result).toEqual([])
   })
 })
