@@ -1,11 +1,14 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi, afterEach } from 'vitest'
 import type { ActiveLightSource } from '../../types/campaign'
-import type { GameMap, MapToken, WallSegment } from '../../types/map'
+import type { DarknessZone, GameMap, MapToken, WallSegment } from '../../types/map'
 import {
   buildMapLightSources,
   buildVisionSet,
   computePartyVision,
+  debouncedRecomputeVision,
+  flushDebouncedVision,
   getLightingAtPoint,
+  hasDarkvision,
   isTokenInVisionSet,
   isTokenVisibleToParty,
   type LightSource,
@@ -350,5 +353,232 @@ describe('buildMapLightSources', () => {
 
     const result = buildMapLightSources([active], [])
     expect(result).toHaveLength(0)
+  })
+})
+
+// ─── hasDarkvision ──────────────────────────────────────────────
+
+describe('hasDarkvision', () => {
+  it('returns true for known darkvision species', () => {
+    expect(hasDarkvision('elf')).toBe(true)
+    expect(hasDarkvision('dwarf')).toBe(true)
+    expect(hasDarkvision('gnome')).toBe(true)
+    expect(hasDarkvision('tiefling')).toBe(true)
+    expect(hasDarkvision('half-elf')).toBe(true)
+  })
+
+  it('is case-insensitive', () => {
+    expect(hasDarkvision('ELF')).toBe(true)
+    expect(hasDarkvision('Dwarf')).toBe(true)
+    expect(hasDarkvision('TIEFLING')).toBe(true)
+  })
+
+  it('returns false for species without darkvision', () => {
+    expect(hasDarkvision('human')).toBe(false)
+    expect(hasDarkvision('halfling')).toBe(false)
+    expect(hasDarkvision('dragonborn')).toBe(false)
+  })
+
+  it('returns false for undefined', () => {
+    expect(hasDarkvision(undefined)).toBe(false)
+  })
+
+  it('returns false for empty string', () => {
+    expect(hasDarkvision('')).toBe(false)
+  })
+})
+
+// ─── debouncedRecomputeVision / flushDebouncedVision ────────────
+
+describe('debouncedRecomputeVision', () => {
+  afterEach(() => {
+    // Clean up any pending timers and reset module-level state
+    flushDebouncedVision()
+    vi.useRealTimers()
+  })
+
+  it('calls callback after delay', async () => {
+    vi.useFakeTimers()
+    const player = makeToken({ gridX: 5, gridY: 5 })
+    const map = makeMap({ tokens: [player] })
+    const cb = vi.fn()
+
+    debouncedRecomputeVision(map, cb, [player], undefined, 50)
+    expect(cb).not.toHaveBeenCalled()
+
+    await vi.advanceTimersByTimeAsync(50)
+    expect(cb).toHaveBeenCalledOnce()
+    expect(cb.mock.calls[0][0]).toHaveProperty('partyPolygons')
+    expect(cb.mock.calls[0][0]).toHaveProperty('visibleCells')
+  })
+
+  it('debounces — only calls callback once for rapid invocations', async () => {
+    vi.useFakeTimers()
+    const player = makeToken({ gridX: 5, gridY: 5 })
+    const map = makeMap({ tokens: [player] })
+    const cb = vi.fn()
+
+    debouncedRecomputeVision(map, cb, [player], undefined, 50)
+    debouncedRecomputeVision(map, cb, [player], undefined, 50)
+    debouncedRecomputeVision(map, cb, [player], undefined, 50)
+
+    await vi.advanceTimersByTimeAsync(50)
+    expect(cb).toHaveBeenCalledOnce()
+  })
+
+  it('flushDebouncedVision cancels pending callback', async () => {
+    vi.useFakeTimers()
+    const player = makeToken({ gridX: 5, gridY: 5 })
+    const map = makeMap({ tokens: [player] })
+    const cb = vi.fn()
+
+    debouncedRecomputeVision(map, cb, [player], undefined, 50)
+    flushDebouncedVision()
+
+    await vi.advanceTimersByTimeAsync(100)
+    expect(cb).not.toHaveBeenCalled()
+  })
+})
+
+// ─── darkness zone blinding ─────────────────────────────────────
+
+describe('computePartyVision with darkness zones', () => {
+  function makeDarknessZone(overrides: Partial<DarknessZone> = {}): DarknessZone {
+    return {
+      id: 'dz-1',
+      x: 5, y: 5,
+      radius: 2,
+      magicLevel: 'nonmagical',
+      ...overrides
+    }
+  }
+
+  it('token inside nonmagical darkness with darkvision is NOT blinded', () => {
+    const token = makeToken({ gridX: 5, gridY: 5, darkvision: true })
+    const zone = makeDarknessZone({ x: 5.5, y: 5.5, radius: 3, magicLevel: 'nonmagical' })
+    const map = makeMap({ tokens: [token], darknessZones: [zone] })
+
+    const result = computePartyVision(map, [token])
+    // Token not blinded → produces a visibility polygon
+    expect(result.partyPolygons).toHaveLength(1)
+  })
+
+  it('token inside nonmagical darkness without darkvision is blinded (no polygon)', () => {
+    const token = makeToken({ gridX: 5, gridY: 5, darkvision: false, darkvisionRange: 0 })
+    // Zone centered right on token
+    const zone = makeDarknessZone({ x: 5.5, y: 5.5, radius: 3, magicLevel: 'nonmagical' })
+    const map = makeMap({ tokens: [token], darknessZones: [zone] })
+
+    const result = computePartyVision(map, [token])
+    // Token is blinded → no polygon added
+    expect(result.partyPolygons).toHaveLength(0)
+  })
+
+  it('token inside magical darkness is blinded even with darkvision', () => {
+    const token = makeToken({ gridX: 5, gridY: 5, darkvision: true })
+    const zone = makeDarknessZone({ x: 5.5, y: 5.5, radius: 3, magicLevel: 'darkness' })
+    const map = makeMap({ tokens: [token], darknessZones: [zone] })
+
+    const result = computePartyVision(map, [token])
+    expect(result.partyPolygons).toHaveLength(0)
+  })
+
+  it('token with blindsight is never blinded by darkness', () => {
+    const token = makeToken({
+      gridX: 5, gridY: 5,
+      darkvision: false,
+      specialSenses: [{ type: 'blindsight', range: 30 }]
+    })
+    const zone = makeDarknessZone({ x: 5.5, y: 5.5, radius: 3, magicLevel: 'deeper-darkness' })
+    const map = makeMap({ tokens: [token], darknessZones: [zone] })
+
+    const result = computePartyVision(map, [token])
+    expect(result.partyPolygons).toHaveLength(1)
+  })
+
+  it('token with tremorsense is never blinded by darkness', () => {
+    const token = makeToken({
+      gridX: 5, gridY: 5,
+      darkvision: false,
+      specialSenses: [{ type: 'tremorsense', range: 30 }]
+    })
+    const zone = makeDarknessZone({ x: 5.5, y: 5.5, radius: 3, magicLevel: 'darkness' })
+    const map = makeMap({ tokens: [token], darknessZones: [zone] })
+
+    const result = computePartyVision(map, [token])
+    expect(result.partyPolygons).toHaveLength(1)
+  })
+
+  it('token outside darkness zone is not blinded', () => {
+    const token = makeToken({ gridX: 0, gridY: 0, darkvision: false })
+    // Zone is at (5,5) far from token (0,0)
+    const zone = makeDarknessZone({ x: 5, y: 5, radius: 1, magicLevel: 'darkness' })
+    const map = makeMap({ tokens: [token], darknessZones: [zone] })
+
+    const result = computePartyVision(map, [token])
+    expect(result.partyPolygons).toHaveLength(1)
+  })
+})
+
+// ─── getLightingAtPoint floating-point precision ─────────────────
+
+describe('getLightingAtPoint edge cases', () => {
+  it('floating-point: point exactly at brightRadius boundary → bright', () => {
+    // source at (0,0), brightRadius=2, cellSize=50 → brightPx=100
+    // point at exactly (100, 0) → dist=100 == brightPx → bright
+    const source: LightSource = { x: 0, y: 0, brightRadius: 2, dimRadius: 2 }
+    expect(getLightingAtPoint({ x: 100, y: 0 }, [source], 'darkness', 50)).toBe('bright')
+  })
+
+  it('floating-point: point just beyond brightRadius but within dim → dim', () => {
+    const source: LightSource = { x: 0, y: 0, brightRadius: 2, dimRadius: 2 }
+    // bright=100px, dim extends to 200px, point at 150px
+    expect(getLightingAtPoint({ x: 150, y: 0 }, [source], 'darkness', 50)).toBe('dim')
+  })
+
+  it('multiple light sources: first matching source wins (dim source checked first)', () => {
+    const dim: LightSource = { x: 0, y: 0, brightRadius: 1, dimRadius: 5 }  // bright=50, dim=300
+    const bright: LightSource = { x: 4, y: 0, brightRadius: 3, dimRadius: 1 } // bright=150, at pixel (200,0)
+    // Point at (200, 0): dim source is checked first, dist=200 is within dim range (50<200<=300) → 'dim'
+    // Function returns on first match, so 'dim' wins even though bright source covers the same point
+    expect(getLightingAtPoint({ x: 200, y: 0 }, [dim, bright], 'darkness', 50)).toBe('dim')
+    // Reversing order: bright source checked first → 'bright'
+    expect(getLightingAtPoint({ x: 200, y: 0 }, [bright, dim], 'darkness', 50)).toBe('bright')
+  })
+
+  it('ambient bright overrides dim light condition', () => {
+    const source: LightSource = { x: 0, y: 0, brightRadius: 1, dimRadius: 3 }
+    // Point at (100px, 0): beyond bright(50px), within dim(200px)
+    // But ambient is bright → should still return bright
+    expect(getLightingAtPoint({ x: 100, y: 0 }, [source], 'bright', 50)).toBe('bright')
+  })
+})
+
+// ─── isTokenInVisionSet off-by-one ──────────────────────────────
+
+describe('isTokenInVisionSet edge cases', () => {
+  it('2x2 token: only corner cell visible → still true', () => {
+    const token = makeToken({ gridX: 3, gridY: 3, sizeX: 2, sizeY: 2 })
+    // Only (4,4) — the bottom-right corner — is visible
+    const set = buildVisionSet([{ x: 4, y: 4 }])
+    expect(isTokenInVisionSet(token, set)).toBe(true)
+  })
+
+  it('2x2 token: none of its cells visible → false', () => {
+    const token = makeToken({ gridX: 3, gridY: 3, sizeX: 2, sizeY: 2 })
+    const set = buildVisionSet([{ x: 2, y: 2 }, { x: 5, y: 5 }]) // adjacent but not overlapping
+    expect(isTokenInVisionSet(token, set)).toBe(false)
+  })
+
+  it('1x1 token off-by-one: cell (5,5) vs vision set containing (5,5)', () => {
+    const token = makeToken({ gridX: 5, gridY: 5 })
+    const set = buildVisionSet([{ x: 5, y: 5 }])
+    expect(isTokenInVisionSet(token, set)).toBe(true)
+  })
+
+  it('1x1 token off-by-one: cell (5,5) vs vision set containing only (6,5)', () => {
+    const token = makeToken({ gridX: 5, gridY: 5 })
+    const set = buildVisionSet([{ x: 6, y: 5 }])
+    expect(isTokenInVisionSet(token, set)).toBe(false)
   })
 })

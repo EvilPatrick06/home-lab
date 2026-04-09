@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { validateActionsAgainstState, filterValidActions } from './action-validator'
+import { filterValidActions, validateActionsAgainstState } from './action-validator'
 import type { ActiveMap, DmAction, GameStoreSnapshot } from './types'
 
-function makeMap(overrides: Partial<{
-  tokens: Array<{ label: string; gridX: number; gridY: number }>
-  gridWidth: number
-  gridHeight: number
-}> = {}): ActiveMap {
+function makeMap(
+  overrides: Partial<{
+    tokens: Array<{ label: string; gridX: number; gridY: number }>
+    gridWidth: number
+    gridHeight: number
+  }> = {}
+): ActiveMap {
   return {
     id: 'map-1',
     name: 'Test Map',
@@ -16,10 +18,12 @@ function makeMap(overrides: Partial<{
   } as unknown as ActiveMap
 }
 
-function makeGameStore(overrides: Partial<{
-  initiative: { entries: Array<{ label: string }> }
-  maps: Array<{ name: string; id: string }>
-}> = {}): GameStoreSnapshot {
+function makeGameStore(
+  overrides: Partial<{
+    initiative: { entries: Array<{ label: string }> }
+    maps: Array<{ name: string; id: string }>
+  }> = {}
+): GameStoreSnapshot {
   return {
     initiative: overrides.initiative ?? null,
     maps: overrides.maps ?? [{ name: 'Test Map', id: 'map-1' }]
@@ -138,11 +142,7 @@ describe('validateActionsAgainstState', () => {
     })
 
     it('next_turn fails when no initiative', () => {
-      const results = validateActionsAgainstState(
-        [{ action: 'next_turn' } as DmAction],
-        makeGameStore(),
-        makeMap()
-      )
+      const results = validateActionsAgainstState([{ action: 'next_turn' } as DmAction], makeGameStore(), makeMap())
       expect(results[0].valid).toBe(false)
       expect(results[0].reason).toContain('No active initiative')
     })
@@ -162,7 +162,12 @@ describe('validateActionsAgainstState', () => {
     it('passes when map exists', () => {
       const results = validateActionsAgainstState(
         [{ action: 'switch_map', mapName: 'Tavern' } as DmAction],
-        makeGameStore({ maps: [{ name: 'Tavern', id: 'm1' }, { name: 'Dungeon', id: 'm2' }] }),
+        makeGameStore({
+          maps: [
+            { name: 'Tavern', id: 'm1' },
+            { name: 'Dungeon', id: 'm2' }
+          ]
+        }),
         makeMap()
       )
       expect(results[0].valid).toBe(true)
@@ -191,7 +196,15 @@ describe('validateActionsAgainstState', () => {
   describe('fog actions', () => {
     it('passes when all cells are in bounds', () => {
       const results = validateActionsAgainstState(
-        [{ action: 'reveal_fog', cells: [{ x: 0, y: 0 }, { x: 19, y: 19 }] } as DmAction],
+        [
+          {
+            action: 'reveal_fog',
+            cells: [
+              { x: 0, y: 0 },
+              { x: 19, y: 19 }
+            ]
+          } as DmAction
+        ],
         makeGameStore(),
         makeMap({ gridWidth: 20, gridHeight: 20 })
       )
@@ -200,7 +213,15 @@ describe('validateActionsAgainstState', () => {
 
     it('fails when some cells are out of bounds', () => {
       const results = validateActionsAgainstState(
-        [{ action: 'reveal_fog', cells: [{ x: 5, y: 5 }, { x: 25, y: 5 }] } as DmAction],
+        [
+          {
+            action: 'reveal_fog',
+            cells: [
+              { x: 5, y: 5 },
+              { x: 25, y: 5 }
+            ]
+          } as DmAction
+        ],
         makeGameStore(),
         makeMap({ gridWidth: 20, gridHeight: 20 })
       )

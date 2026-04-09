@@ -677,7 +677,7 @@ describe('executeShortRest', () => {
 describe('executeLongRest', () => {
   it('advances time by 8 hours and broadcasts', () => {
     const gameStore = makeGameStore({
-      conditions: [{ id: 'c1', entityId: 'e2', condition: 'exhaustion' }],
+      conditions: [{ id: 'c1', entityId: 'e2', condition: 'exhaustion', value: 1 }],
       inGameTime: { totalSeconds: 36000 }
     })
     const activeMap = makeActiveMap()
@@ -686,9 +686,53 @@ describe('executeLongRest', () => {
     const result = executeLongRest(action, gameStore, activeMap, stores)
     expect(result).toBe(true)
     expect(gameStore.advanceTimeSeconds).toHaveBeenCalledWith(28800)
-    // Should remove exhaustion from Fighter
+    // Exhaustion at value 1 should be removed entirely
     expect(gameStore.removeCondition).toHaveBeenCalledWith('c1')
     expect(broadcastConditionSync).toHaveBeenCalled()
+  })
+
+  it('decrements exhaustion by 1 when value > 1 (PHB 2024)', () => {
+    const updateCondition = vi.fn()
+    const gameStore = makeGameStore({
+      conditions: [{ id: 'c1', entityId: 'e2', condition: 'exhaustion', value: 3 }],
+      inGameTime: { totalSeconds: 36000 },
+      updateCondition
+    })
+    const activeMap = makeActiveMap()
+    const stores = makeStores({ inGameTime: { totalSeconds: 64800 } })
+    const action: DmAction = { action: 'long_rest', characterNames: ['Fighter'] }
+    executeLongRest(action, gameStore, activeMap, stores)
+    // Should decrement, not remove
+    expect(gameStore.removeCondition).not.toHaveBeenCalled()
+    expect(updateCondition).toHaveBeenCalledWith('c1', { value: 2 })
+  })
+
+  it('removes exhaustion when decrementing from value 1', () => {
+    const updateCondition = vi.fn()
+    const gameStore = makeGameStore({
+      conditions: [{ id: 'c1', entityId: 'e2', condition: 'exhaustion', value: 1 }],
+      inGameTime: { totalSeconds: 36000 },
+      updateCondition
+    })
+    const activeMap = makeActiveMap()
+    const stores = makeStores({ inGameTime: { totalSeconds: 64800 } })
+    const action: DmAction = { action: 'long_rest', characterNames: ['Fighter'] }
+    executeLongRest(action, gameStore, activeMap, stores)
+    expect(gameStore.removeCondition).toHaveBeenCalledWith('c1')
+    expect(updateCondition).not.toHaveBeenCalled()
+  })
+
+  it('blocks long rest within 24 hours of last (PHB 2024)', () => {
+    const gameStore = makeGameStore({
+      restTracking: { lastLongRestSeconds: 36000, lastShortRestSeconds: null },
+      inGameTime: { totalSeconds: 50000 }
+    })
+    const stores = makeStores({ inGameTime: { totalSeconds: 50000 } })
+    const action: DmAction = { action: 'long_rest', characterNames: ['Fighter'] }
+    const result = executeLongRest(action, gameStore, undefined, stores)
+    expect(result).toBe(true)
+    // Should NOT advance time
+    expect(gameStore.advanceTimeSeconds).not.toHaveBeenCalled()
   })
 
   it('throws for empty character names', () => {
