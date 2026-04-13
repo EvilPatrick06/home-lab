@@ -1,3 +1,4 @@
+import { readdir, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, nativeImage, shell } from 'electron'
@@ -61,7 +62,7 @@ function createWindow(): void {
   const devConnect = is.dev ? ' ws://localhost:5173 http://localhost:5173' : ''
   const piConnect = ' ws://10.10.20.242:* http://10.10.20.242:*'
   const inlinePolicy = is.dev ? " 'unsafe-inline' 'unsafe-eval'" : ''
-  const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' plugin:${inlinePolicy}; connect-src 'self' plugin: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
+  const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' plugin:${inlinePolicy}; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
@@ -111,8 +112,26 @@ app.on('second-instance', () => {
   }
 })
 
+async function cleanupTmpFiles(dir: string): Promise<void> {
+  try {
+    // Requires Node 20+, which Electron 28+ supports
+    const entries = await readdir(dir, { recursive: true, withFileTypes: true })
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith('.tmp')) {
+        // Handle both older Node (entry.path) and newer Node (entry.parentPath)
+        const parentPath = (entry as any).parentPath || (entry as any).path || dir
+        await unlink(join(parentPath, entry.name)).catch(() => {})
+        logToFile('INFO', `Cleaned up orphaned tmp file: ${entry.name}`)
+      }
+    }
+  } catch (err) {
+    logToFile('WARN', `Failed to cleanup .tmp files: ${err}`)
+  }
+}
+
 app.whenReady().then(async () => {
   app.setAppUserModelId('com.dnd-vtt.app')
+  cleanupTmpFiles(app.getPath('userData'))
 
   // Install React DevTools in dev mode
   if (is.dev) {

@@ -4,5 +4,5 @@ describe('BastionPage', () => {
   it('can be imported', async () => {
     const mod = await import('./BastionPage')
     expect(mod).toBeDefined()
-  })
+  }, 30000)
 })

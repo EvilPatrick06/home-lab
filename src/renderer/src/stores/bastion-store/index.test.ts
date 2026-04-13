@@ -50,6 +50,10 @@ describe('bastion store index', () => {
     expect(typeof state.removeSpecialFacility).toBe('function')
     expect(typeof state.depositGold).toBe('function')
     expect(typeof state.withdrawGold).toBe('function')
+    expect(typeof state.grantCharm).toBe('function')
+    expect(typeof state.addDefender).toBe('function')
+    expect(typeof state.promoteLieutenant).toBe('function')
+    expect(typeof state.demoteLieutenant).toBe('function')
   })
 
   it('store has event action methods', async () => {

@@ -43,7 +43,20 @@ export interface MapEventRefs {
   drawingGraphics: React.MutableRefObject<Graphics | null>
 }
 
-type ActiveTool = 'select' | 'token' | 'fog-reveal' | 'fog-hide' | 'measure' | 'terrain' | 'wall' | 'fill' | 'draw-free' | 'draw-line' | 'draw-rect' | 'draw-circle' | 'draw-text'
+type ActiveTool =
+  | 'select'
+  | 'token'
+  | 'fog-reveal'
+  | 'fog-hide'
+  | 'measure'
+  | 'terrain'
+  | 'wall'
+  | 'fill'
+  | 'draw-free'
+  | 'draw-line'
+  | 'draw-rect'
+  | 'draw-circle'
+  | 'draw-text'
 
 // ── Wheel zoom ────────────────────────────────────────────────────────────────
 
@@ -171,10 +184,23 @@ interface MouseHandlerOptions {
   renderTokens: () => void
   drawingStrokeWidth?: number
   drawingColor?: string
+  fogBrushSize?: number
 }
 
 export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): () => void {
-  const { refs, map, activeTool, isHost, isInitiativeMode, turnState, selectedTokenIds, applyTransform, drawingStrokeWidth = 3, drawingColor = '#ffffff' } = opts
+  const {
+    refs,
+    map,
+    activeTool,
+    isHost,
+    isInitiativeMode,
+    turnState,
+    selectedTokenIds,
+    applyTransform,
+    drawingStrokeWidth = 3,
+    drawingColor = '#ffffff',
+    fogBrushSize = 1
+  } = opts
   const { onTokenMove, onTokenSelect, onCellClick, onWallPlace, onDoorToggle, renderTokens } = opts
 
   const onMouseDown = (e: MouseEvent): void => {
@@ -205,7 +231,13 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       if (activeTool === 'fog-reveal' || activeTool === 'fog-hide') {
         refs.isFogPainting.current = true
         refs.lastFogCell.current = { x: gridX, y: gridY }
-        onCellClick(gridX, gridY)
+        // Paint all cells within the brush radius
+        const halfBrush = Math.floor(fogBrushSize / 2)
+        for (let dx = -halfBrush; dx <= halfBrush; dx++) {
+          for (let dy = -halfBrush; dy <= halfBrush; dy++) {
+            onCellClick(gridX + dx, gridY + dy)
+          }
+        }
         return
       }
 
@@ -292,7 +324,13 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       const gy = Math.floor((worldY - (map.grid.offsetY % map.grid.cellSize)) / map.grid.cellSize)
       if (!refs.lastFogCell.current || refs.lastFogCell.current.x !== gx || refs.lastFogCell.current.y !== gy) {
         refs.lastFogCell.current = { x: gx, y: gy }
-        onCellClick(gx, gy)
+        // Paint all cells within the brush radius
+        const halfBrush = Math.floor(fogBrushSize / 2)
+        for (let dx = -halfBrush; dx <= halfBrush; dx++) {
+          for (let dy = -halfBrush; dy <= halfBrush; dy++) {
+            onCellClick(gx + dx, gy + dy)
+          }
+        }
       }
       return
     }
@@ -335,12 +373,10 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       const deltaX = worldX - refs.drag.current.offsetX - refs.drag.current.startGridX * map.grid.cellSize
       const deltaY = worldY - refs.drag.current.offsetY - refs.drag.current.startGridY * map.grid.cellSize
 
-      refs.drag.current.selectedTokenIds.forEach(tokenId => {
-        const tokenSprite = refs.tokenContainer.current?.children.find(
-          (c) => c.label === `token-${tokenId}`
-        )
+      refs.drag.current.selectedTokenIds.forEach((tokenId) => {
+        const tokenSprite = refs.tokenContainer.current?.children.find((c) => c.label === `token-${tokenId}`)
         if (tokenSprite) {
-          const startPos = refs.drag.current!.selectedStartPositions.find(p => p.tokenId === tokenId)
+          const startPos = refs.drag.current!.selectedStartPositions.find((p) => p.tokenId === tokenId)
           if (startPos) {
             tokenSprite.x = startPos.gridX * map.grid.cellSize + deltaX
             tokenSprite.y = startPos.gridY * map.grid.cellSize + deltaY
@@ -349,8 +385,8 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       })
     }
 
-    // Ghost token for click-to-place
-    handleGhostToken(e, el, refs, map)
+    // Ghost token for click-to-place and fog brush preview
+    handleCursorPreview(e, el, refs, map, activeTool, fogBrushSize)
 
     // Measurement tool
     if (refs.measureStart.current && refs.measureGraphics.current && map) {
@@ -391,7 +427,38 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
         refs.drawingPoints.current = [refs.drawingStart.current, { x: worldX, y: worldY }]
       }
 
-      // TODO: Render live preview
+      // Render live preview
+      const gfx = refs.drawingGraphics.current
+      gfx.clear()
+      const color = Number(drawingColor.replace('#', '0x')) || 0xffffff
+      gfx.setStrokeStyle({ width: drawingStrokeWidth, color, alpha: 0.6 })
+
+      if (activeTool === 'draw-free' && refs.drawingPoints.current.length > 1) {
+        const pts = refs.drawingPoints.current
+        gfx.moveTo(pts[0]!.x, pts[0]!.y)
+        for (let i = 1; i < pts.length; i++) {
+          gfx.lineTo(pts[i]!.x, pts[i]!.y)
+        }
+        gfx.stroke()
+      } else if (activeTool === 'draw-line') {
+        const start = refs.drawingStart.current
+        gfx.moveTo(start.x, start.y)
+        gfx.lineTo(worldX, worldY)
+        gfx.stroke()
+      } else if (activeTool === 'draw-rect') {
+        const start = refs.drawingStart.current
+        const w = worldX - start.x
+        const h = worldY - start.y
+        gfx.rect(start.x, start.y, w, h)
+        gfx.stroke()
+      } else if (activeTool === 'draw-circle') {
+        const start = refs.drawingStart.current
+        const dx = worldX - start.x
+        const dy = worldY - start.y
+        const radius = Math.sqrt(dx * dx + dy * dy)
+        gfx.circle(start.x, start.y, radius)
+        gfx.stroke()
+      }
     }
   }
 
@@ -420,8 +487,12 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
         const tokenRadius = (Math.min(token.sizeX, token.sizeY) * map.grid.cellSize) / 2
 
         // Check if token center is within selection box (with some tolerance for token size)
-        if (tokenCenterX + tokenRadius >= minX && tokenCenterX - tokenRadius <= maxX &&
-            tokenCenterY + tokenRadius >= minY && tokenCenterY - tokenRadius <= maxY) {
+        if (
+          tokenCenterX + tokenRadius >= minX &&
+          tokenCenterX - tokenRadius <= maxX &&
+          tokenCenterY + tokenRadius >= minY &&
+          tokenCenterY - tokenRadius <= maxY
+        ) {
           selectedTokenIds.push(token.id)
         }
       }
@@ -449,7 +520,7 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       // For text tool, prompt for text input
       if (activeTool === 'draw-text') {
         const text = prompt('Enter text:')
-        if (text && text.trim()) {
+        if (text?.trim()) {
           drawingData.text = text.trim()
           useGameStore.getState().addDrawing(map!.id, drawingData)
         }
@@ -480,7 +551,7 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       const worldY = (canvasY - refs.pan.current.y) / refs.zoom.current
 
       // Calculate the delta movement from the primary dragged token
-      const primaryToken = map.tokens.find(t => t.id === refs.drag.current!.tokenId)
+      const primaryToken = map.tokens.find((t) => t.id === refs.drag.current!.tokenId)
       if (!primaryToken) {
         refs.drag.current = null
         return
@@ -489,7 +560,10 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       let primaryNewGridX: number
       let primaryNewGridY: number
       const gridType = map.grid.type
-      if (gridType === 'hex' || gridType === 'hex-flat' || gridType === 'hex-pointy') {
+      if (gridType === 'gridless') {
+        primaryNewGridX = (worldX - refs.drag.current.offsetX) / map.grid.cellSize
+        primaryNewGridY = (worldY - refs.drag.current.offsetY) / map.grid.cellSize
+      } else if (gridType === 'hex' || gridType === 'hex-flat' || gridType === 'hex-pointy') {
         const orientation = gridType === 'hex-pointy' ? 'pointy' : 'flat'
         const hex = pixelToHex(
           worldX - refs.drag.current.offsetX,
@@ -511,11 +585,11 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       const deltaY = primaryNewGridY - primaryToken.gridY
 
       // Move all selected tokens by the same delta
-      refs.drag.current.selectedTokenIds.forEach(tokenId => {
-        const token = map.tokens.find(t => t.id === tokenId)
+      refs.drag.current.selectedTokenIds.forEach((tokenId) => {
+        const token = map.tokens.find((t) => t.id === tokenId)
         if (!token) return
 
-        const startPos = refs.drag.current!.selectedStartPositions.find(p => p.tokenId === tokenId)
+        const startPos = refs.drag.current!.selectedStartPositions.find((p) => p.tokenId === tokenId)
         if (!startPos) return
 
         const newGridX = startPos.gridX + deltaX
@@ -525,8 +599,8 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
         if (newGridX !== startPos.gridX || newGridY !== startPos.gridY) {
           // Check if walls block this movement (simplified - only check primary token for now)
           const walls = map.wallSegments ?? []
-          const movementBlocked = walls.length > 0 &&
-            isMovementBlockedByWall(startPos.gridX, startPos.gridY, newGridX, newGridY, walls)
+          const movementBlocked =
+            walls.length > 0 && isMovementBlockedByWall(startPos.gridX, startPos.gridY, newGridX, newGridY, walls)
 
           if (!movementBlocked) {
             if (isInitiativeMode && turnState && tokenId === refs.drag.current!.tokenId) {
@@ -541,9 +615,11 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
               )
               if (moveCheck.allowed) {
                 onTokenMove(tokenId, newGridX, newGridY)
+                checkPortalTeleport(map, tokenId, newGridX, newGridY, isHost)
               }
             } else {
               onTokenMove(tokenId, newGridX, newGridY)
+              checkPortalTeleport(map, tokenId, newGridX, newGridY, isHost)
             }
           }
         }
@@ -569,24 +645,58 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
   }
 }
 
+// ── Portal helper ────────────────────────────────────────────────────────────
+
+function checkPortalTeleport(
+  map: GameMap,
+  tokenId: string,
+  gridX: number,
+  gridY: number,
+  isHost: boolean
+): void {
+  const portal = map.terrain?.find(
+    (t) => t.type === 'portal' && t.x === Math.round(gridX) && t.y === Math.round(gridY)
+  )
+  if (!portal || !portal.portalTarget) return
+
+  const target = portal.portalTarget
+  const gs = useGameStore.getState()
+
+  // Teleport token
+  gs.teleportToken(tokenId, map.id, target.mapId, target.gridX, target.gridY)
+
+  // Deselect it just in case
+  gs.removeFromSelection(tokenId)
+
+  if (isHost && map.id !== target.mapId) {
+    if (window.confirm('Token entered portal. Switch to target map?')) {
+      gs.setActiveMap(target.mapId)
+    }
+  }
+}
+
 // ── Ghost token helper ───────────────────────────────────────────────────────
 
-function handleGhostToken(
+function handleCursorPreview(
   e: MouseEvent,
   el: HTMLElement,
   refs: Pick<MapEventRefs, 'pan' | 'zoom' | 'ghost' | 'world'>,
-  map: GameMap | null
+  map: GameMap | null,
+  activeTool: ActiveTool,
+  fogBrushSize: number
 ): void {
   const pending = useGameStore.getState().pendingPlacement
-  if (pending && map && refs.world.current) {
-    const rect = el.getBoundingClientRect()
-    const canvasX = e.clientX - rect.left
-    const canvasY = e.clientY - rect.top
-    const worldX = (canvasX - refs.pan.current.x) / refs.zoom.current
-    const worldY = (canvasY - refs.pan.current.y) / refs.zoom.current
-    const gx = Math.floor((worldX - (map.grid.offsetX % map.grid.cellSize)) / map.grid.cellSize)
-    const gy = Math.floor((worldY - (map.grid.offsetY % map.grid.cellSize)) / map.grid.cellSize)
+  if (!map || !refs.world.current) return
 
+  const rect = el.getBoundingClientRect()
+  const canvasX = e.clientX - rect.left
+  const canvasY = e.clientY - rect.top
+  const worldX = (canvasX - refs.pan.current.x) / refs.zoom.current
+  const worldY = (canvasY - refs.pan.current.y) / refs.zoom.current
+  const gx = Math.floor((worldX - (map.grid.offsetX % map.grid.cellSize)) / map.grid.cellSize)
+  const gy = Math.floor((worldY - (map.grid.offsetY % map.grid.cellSize)) / map.grid.cellSize)
+
+  if (pending || activeTool === 'fog-hide' || activeTool === 'fog-reveal') {
     if (!refs.ghost.current) {
       refs.ghost.current = new Graphics()
       refs.ghost.current.alpha = 0.5
@@ -594,17 +704,27 @@ function handleGhostToken(
     }
     const g = refs.ghost.current
     g.clear()
-    const sizeX = pending.tokenData.sizeX ?? 1
-    const sizeY = pending.tokenData.sizeY ?? 1
-    const px = (gx + map.grid.offsetX / map.grid.cellSize) * map.grid.cellSize
-    const py = (gy + map.grid.offsetY / map.grid.cellSize) * map.grid.cellSize
-    g.circle(
-      px + (sizeX * map.grid.cellSize) / 2,
-      py + (sizeY * map.grid.cellSize) / 2,
-      (Math.min(sizeX, sizeY) * map.grid.cellSize) / 2 - 2
-    )
-    g.fill({ color: 0x22d3ee, alpha: 0.4 })
-    g.stroke({ color: 0x22d3ee, width: 2, alpha: 0.8 })
+
+    if (pending) {
+      const sizeX = pending.tokenData.sizeX ?? 1
+      const sizeY = pending.tokenData.sizeY ?? 1
+      const px = (gx + map.grid.offsetX / map.grid.cellSize) * map.grid.cellSize
+      const py = (gy + map.grid.offsetY / map.grid.cellSize) * map.grid.cellSize
+      g.circle(
+        px + (sizeX * map.grid.cellSize) / 2,
+        py + (sizeY * map.grid.cellSize) / 2,
+        (Math.min(sizeX, sizeY) * map.grid.cellSize) / 2 - 2
+      )
+      g.fill({ color: 0x22d3ee, alpha: 0.4 })
+      g.stroke({ color: 0x22d3ee, width: 2, alpha: 0.8 })
+    } else if (activeTool === 'fog-hide' || activeTool === 'fog-reveal') {
+      const px = (gx + map.grid.offsetX / map.grid.cellSize) * map.grid.cellSize + map.grid.cellSize / 2
+      const py = (gy + map.grid.offsetY / map.grid.cellSize) * map.grid.cellSize + map.grid.cellSize / 2
+      const radius = Math.max(1, fogBrushSize) * map.grid.cellSize * 0.5
+      g.circle(px, py, radius)
+      g.fill({ color: activeTool === 'fog-reveal' ? 0xffffff : 0x000000, alpha: 0.4 })
+      g.stroke({ color: activeTool === 'fog-reveal' ? 0xffffff : 0x888888, width: 2, alpha: 0.8 })
+    }
   } else if (refs.ghost.current) {
     refs.ghost.current.clear()
   }

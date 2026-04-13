@@ -3,8 +3,20 @@
 from __future__ import annotations
 
 import json
+import threading
 
 from dev_tools import TOOL_DEFINITIONS, dispatch_tool
+
+# Thread-local auto-approve flag — set by IDE autopilot mode
+_auto_approve_local = threading.local()
+
+def set_auto_approve(enabled: bool):
+    """Set whether the current thread auto-approves destructive operations."""
+    _auto_approve_local.enabled = enabled
+
+def get_auto_approve() -> bool:
+    """Check if auto-approve is enabled for current thread."""
+    return getattr(_auto_approve_local, 'enabled', False)
 
 
 def _param_to_schema(desc: str) -> dict:
@@ -115,7 +127,9 @@ def claude_chat_with_tools(
             elif b.get("type") == "tool_use":
                 tool_uses.append(b)
 
-        print(f"[claude_tools] iter={iteration + 1} stop={stop_reason} text_blocks={len(text_parts)} tool_uses={len(tool_uses)}")
+        # Log what tools are being used
+        tool_names_used = [tu.get("name", "?") for tu in tool_uses]
+        print(f"[claude_tools] iter={iteration + 1} stop={stop_reason} tools=[{', '.join(tool_names_used) if tool_names_used else 'none'}]")
 
         if not tool_uses:
             return "".join(text_parts)
@@ -126,6 +140,24 @@ def claude_chat_with_tools(
             tool_id = tu.get("id", "")
             name = tu.get("name", "")
             args = tu.get("input", {}) or {}
+
+            # Descriptive tool logging — show what the agent is actually doing
+            if name in ("read_file", "write_file", "edit_file", "create_file"):
+                path = args.get("path", args.get("file_path", "?"))
+                print(f"  [tool] {name} → {path}")
+            elif name == "run_command":
+                cmd = args.get("command", "?")
+                print(f"  [tool] {name} → {cmd[:120]}")
+            elif name == "search_files":
+                q = args.get("query", args.get("pattern", "?"))
+                print(f"  [tool] {name} → {q}")
+            elif name == "list_directory":
+                d = args.get("path", args.get("directory", "?"))
+                print(f"  [tool] {name} → {d}")
+            else:
+                brief_args = ", ".join(f"{k}={str(v)[:40]}" for k, v in list(args.items())[:3])
+                print(f"  [tool] {name}({brief_args})")
+
             if on_progress:
                 on_progress(name, "running", "")
             result = tool_dispatch(name, args)
@@ -134,18 +166,39 @@ def claude_chat_with_tools(
                 on_progress(name, "done", preview)
 
             if isinstance(result, dict) and result.get("needs_confirmation"):
-                pending_confirm = result
-                if pending_confirmations_out is not None:
-                    pending_confirmations_out.append({
-                        "tool": name,
-                        "args": args,
-                        "reason": result.get("reason", ""),
-                        "command": result.get("command", ""),
-                    })
-                content = json.dumps(
-                    {"needs_confirmation": True, "reason": result.get("reason", ""), "command": result.get("command", "")},
-                    indent=2,
-                )
+                if get_auto_approve():
+                    # Autopilot mode — auto-execute the confirmed version
+                    cmd = result.get("command", "")
+                    path = result.get("path", "")
+                    print(f"  [autopilot] Auto-approving: {cmd or path}")
+                    from dev_tools import execute_confirmed, write_file_confirmed
+                    if name == "execute_command" and cmd:
+                        result = execute_confirmed(cmd, args.get("cwd"))
+                    elif name == "ssh_command" and cmd:
+                        # SSH confirmed — just run it directly
+                        result = execute_confirmed(cmd)
+                    elif name == "write_file" and path:
+                        result = write_file_confirmed(path, args.get("content", ""))
+                    elif name == "git_command" and cmd:
+                        result = execute_confirmed(cmd)
+                    elif name == "gh_command" and cmd:
+                        result = execute_confirmed(cmd)
+                    else:
+                        result = execute_confirmed(cmd or "echo 'auto-approved'")
+                    content = json.dumps(result, indent=2)[:8000]
+                else:
+                    pending_confirm = result
+                    if pending_confirmations_out is not None:
+                        pending_confirmations_out.append({
+                            "tool": name,
+                            "args": args,
+                            "reason": result.get("reason", ""),
+                            "command": result.get("command", ""),
+                        })
+                    content = json.dumps(
+                        {"needs_confirmation": True, "reason": result.get("reason", ""), "command": result.get("command", "")},
+                        indent=2,
+                    )
             else:
                 content = json.dumps(result, indent=2)[:8000]
             tool_results.append({"type": "tool_result", "tool_use_id": tool_id, "content": content})

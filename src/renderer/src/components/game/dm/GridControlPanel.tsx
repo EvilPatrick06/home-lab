@@ -108,10 +108,10 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
       {/* Grid Type */}
       <div className="space-y-1">
         <label className="text-[10px] text-gray-400 uppercase tracking-wider">Grid Type</label>
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           <button
             onClick={() => onUpdate({ type: 'square' })}
-            className={`flex-1 py-1.5 text-xs rounded cursor-pointer transition-colors ${
+            className={`flex-1 min-w-[60px] py-1.5 text-xs rounded cursor-pointer transition-colors ${
               grid.type === 'square' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
@@ -119,11 +119,19 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
           </button>
           <button
             onClick={() => onUpdate({ type: 'hex' })}
-            className={`flex-1 py-1.5 text-xs rounded cursor-pointer transition-colors ${
+            className={`flex-1 min-w-[60px] py-1.5 text-xs rounded cursor-pointer transition-colors ${
               grid.type === 'hex' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
             Hex
+          </button>
+          <button
+            onClick={() => onUpdate({ type: 'gridless' })}
+            className={`flex-1 min-w-[60px] py-1.5 text-xs rounded cursor-pointer transition-colors ${
+              grid.type === 'gridless' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            Gridless
           </button>
         </div>
       </div>

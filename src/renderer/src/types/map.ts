@@ -14,6 +14,8 @@ export interface GameMap {
   terrain: TerrainCell[]
   drawings?: DrawingData[]
   regions?: SceneRegion[]
+  darknessZones?: DarknessZone[]
+  occlusionTiles?: OcclusionTile[]
   floors?: Array<{ id: string; name: string }>
   audioEmitters?: Array<{
     id: string
@@ -24,6 +26,7 @@ export interface GameMap {
     radius: number
     volume: number
     spatial: boolean
+    playing?: boolean
   }>
 
   createdAt: string
@@ -58,7 +61,7 @@ export interface GridSettings {
   offsetY: number
   color: string
   opacity: number
-  type: 'square' | 'hex' | 'hex-flat' | 'hex-pointy'
+  type: 'square' | 'hex' | 'hex-flat' | 'hex-pointy' | 'gridless'
 }
 
 export interface MapToken {
@@ -167,16 +170,43 @@ export interface SceneRegion {
   floor?: number
 }
 
+// ─── Occlusion / Foreground Layer ─────────────────────────────
+
+export interface OcclusionTile {
+  id: string
+  imagePath: string
+  x: number
+  y: number
+  width: number
+  height: number
+  floor?: number
+  fadeOnProximity: boolean
+  fadeRadius: number
+}
+
 export interface WallSegment {
   id: string
   x1: number
   y1: number
   x2: number
   y2: number
-  type: 'solid' | 'door' | 'window'
+  type: 'solid' | 'door' | 'window' | 'one-way' | 'transparent'
   isOpen?: boolean
+  /** Direction angle in degrees for one-way walls. Defines the blocked side's facing. */
+  oneWayDirection?: number
   /** Floor index this wall is on (for multi-floor maps). Undefined = floor 0. */
   floor?: number
+}
+
+// ─── Darkness Zones ───────────────────────────────────────────
+
+export interface DarknessZone {
+  id: string
+  x: number
+  y: number
+  radius: number
+  floor?: number
+  magicLevel?: 'nonmagical' | 'darkness' | 'deeper-darkness'
 }
 
 export interface FogOfWarData {

@@ -1,0 +1,107 @@
+[
+  {
+    "name": "Speed",
+    "description": "Every character and monster has a speed, which is the distance in feet the creature can walk in 1 round. This number assumes short bursts of energetic movement in the midst of a life-threatening situation.",
+    "effects": [
+      "On your turn, you can move a distance up to your speed",
+      "You can break up your movement, using some before and after your action",
+      "You can move through a nonhostile creature's space",
+      "You can't willingly end your move in a space occupied by another creature",
+      "Moving through a hostile creature's space counts as Difficult Terrain",
+      "A creature can squeeze through a space one size smaller than it; squeezing costs 1 extra foot per foot of movement"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Difficult Terrain",
+    "description": "Combat rarely takes place in bare rooms or on featureless plains. Boulder-strewn caverns, briar-choked forests, treacherous staircases -- the setting of a typical fight contains difficult terrain.",
+    "effects": [
+      "Every foot of movement in difficult terrain costs 1 extra foot",
+      "This rule applies whether the creature is walking, climbing, swimming, or flying",
+      "Multiple sources of difficult terrain do not stack; terrain is either difficult or it is not",
+      "The spaces of other creatures count as difficult terrain whether they are hostile or not",
+      "Low furniture, rubble, undergrowth, steep stairs, snow, and shallow bogs are examples"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Jumping",
+    "description": "Your Strength determines how far you can jump. You can make a Long Jump or a High Jump as part of your movement.",
+    "effects": [
+      "Long Jump: With a 10-foot running start, jump a number of feet equal to your Strength score; standing long jump is half that",
+      "High Jump: With a 10-foot running start, jump a number of feet equal to 3 + your Strength modifier (minimum 0 feet); standing high jump is half that",
+      "Each foot you jump costs a foot of movement",
+      "In some circumstances, the DM might allow a Strength (Athletics) check to jump farther than normal",
+      "You can extend your arms half your height above yourself during a high jump to reach above"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Climbing",
+    "description": "While climbing, each foot of movement costs 1 extra foot (2 extra feet in difficult terrain), unless a creature has a climbing speed.",
+    "effects": [
+      "Each foot of climbing costs 1 extra foot of movement (2 extra in difficult terrain)",
+      "A creature with a climbing speed can climb at its full climbing speed without extra cost",
+      "The DM might require a Strength (Athletics) check to climb a slippery vertical surface or one with few handholds",
+      "At the DM's option, climbing a slippery or precarious surface requires a successful DC 15 Strength (Athletics) check"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Swimming",
+    "description": "While swimming, each foot of movement costs 1 extra foot (2 extra feet in difficult terrain), unless a creature has a swimming speed.",
+    "effects": [
+      "Each foot of swimming costs 1 extra foot of movement (2 extra in difficult terrain)",
+      "A creature with a swimming speed can swim at its full swimming speed without extra cost",
+      "The DM might require a Strength (Athletics) check in rough water or strong currents",
+      "A creature that runs out of breath or is choking can survive for a number of rounds equal to its Constitution modifier (minimum 1 round) before it drops to 0 HP"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Flying",
+    "description": "Flying creatures enjoy many benefits of mobility, but they must also deal with the danger of falling. If a flying creature is knocked Prone, has its speed reduced to 0, or is otherwise deprived of the ability to move, the creature falls.",
+    "effects": [
+      "A flying creature can move in any direction, including vertically",
+      "If a flying creature's speed is reduced to 0 while flying, it falls",
+      "If a flying creature is knocked Prone while flying, it falls",
+      "A creature with a flying speed can hover if its stat block says so; otherwise, it must keep moving to stay aloft",
+      "A falling creature descends up to 500 feet per round (at the end of its turn)",
+      "Fall damage: 1d6 Bludgeoning damage per 10 feet fallen, to a maximum of 20d6"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Falling",
+    "description": "A fall from a great height is one of the most common hazards facing an adventurer. At the end of a fall, a creature takes 1d6 Bludgeoning damage for every 10 feet it fell, to a maximum of 20d6.",
+    "effects": [
+      "1d6 Bludgeoning damage per 10 feet fallen",
+      "Maximum of 20d6 damage (200 feet)",
+      "The creature lands Prone unless it avoids taking damage from the fall",
+      "A creature falls 500 feet instantly at the end of its turn; if the fall is greater than 500 feet, the remaining distance is fallen at the start of its next turn"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Suffocating",
+    "description": "A creature can hold its breath for a number of minutes equal to 1 + its Constitution modifier (minimum 30 seconds). When a creature runs out of breath, it can survive for a number of rounds equal to its Constitution modifier (minimum 1 round). At the start of its next turn after that, it drops to 0 Hit Points and is dying.",
+    "effects": [
+      "Hold breath for 1 + Constitution modifier minutes (minimum 30 seconds)",
+      "After running out of breath, survive for a number of rounds equal to Constitution modifier (minimum 1 round)",
+      "After those rounds, the creature drops to 0 HP and is dying, and can't regain HP until it can breathe again",
+      "A creature that can't breathe takes damage at the start of each of its turns if already at 0 HP"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Travel Pace",
+    "description": "While traveling, a group of adventurers can move at a normal, fast, or slow pace. A fast pace makes characters less perceptive, while a slow pace allows for stealth.",
+    "effects": [
+      "Fast Pace: 400 feet per minute, 4 miles per hour, 30 miles per day; -5 penalty to passive Perception",
+      "Normal Pace: 300 feet per minute, 3 miles per hour, 24 miles per day; no modifiers",
+      "Slow Pace: 200 feet per minute, 2 miles per hour, 18 miles per day; able to use Stealth",
+      "Forced March: After 8 hours of travel, DC 10 Constitution saving throw each additional hour or gain 1 level of Exhaustion (DC increases by 1 per hour)"
+    ],
+    "source": "PHB 2024"
+  }
+]

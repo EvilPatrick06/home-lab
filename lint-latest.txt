@@ -1,0 +1,331 @@
+
+> dnd-vtt@1.9.9 lint
+> biome check src/
+
+src\main\ai\prompt-assembler.ts:38:5 lint/complexity/noUselessSwitchCase  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i Useless case clause.
+  
+    36 Γöé       parts.push(SOCIAL_RULES_PROMPT)
+    37 Γöé       break
+  > 38 Γöé     case 'general':
+       Γöé     ^^^^^^^^^^^^^^^
+    39 Γöé     default:
+    40 Γöé       parts.push(CHARACTER_RULES_PROMPT)
+  
+  i because the default clause is present:
+  
+    37 Γöé       break
+    38 Γöé     case 'general':
+  > 39 Γöé     default:
+       Γöé     ^^^^^^^^
+  > 40 Γöé       parts.push(CHARACTER_RULES_PROMPT)
+  > 41 Γöé       parts.push(COMBAT_RULES_PROMPT)
+  > 42 Γöé       parts.push(EXPLORATION_RULES_PROMPT)
+  > 43 Γöé       parts.push(SOCIAL_RULES_PROMPT)
+  > 44 Γöé       break
+       Γöé       ^^^^^
+    45 Γöé   }
+    46 Γöé 
+  
+  i Unsafe fix: Remove the useless case.
+  
+    36 36 Γöé         parts.push(SOCIAL_RULES_PROMPT)
+    37 37 Γöé         break
+    38    Γöé - ┬╖┬╖┬╖┬╖case┬╖'general':
+    39 38 Γöé       default:
+    40 39 Γöé         parts.push(CHARACTER_RULES_PROMPT)
+  
+
+src\main\index.ts:122:38 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    120 Γöé       if (entry.isFile() && entry.name.endsWith('.tmp')) {
+    121 Γöé         // Handle both older Node (entry.path) and newer Node (entry.parentPath)
+  > 122 Γöé         const parentPath = (entry as any).parentPath || (entry as any).path || dir
+        Γöé                                      ^^^
+    123 Γöé         await unlink(join(parentPath, entry.name)).catch(() => {})
+    124 Γöé         logToFile('INFO', `Cleaned up orphaned tmp file: ${entry.name}`)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\index.ts:122:67 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    120 Γöé       if (entry.isFile() && entry.name.endsWith('.tmp')) {
+    121 Γöé         // Handle both older Node (entry.path) and newer Node (entry.parentPath)
+  > 122 Γöé         const parentPath = (entry as any).parentPath || (entry as any).path || dir
+        Γöé                                                                   ^^^
+    123 Γöé         await unlink(join(parentPath, entry.name)).catch(() => {})
+    124 Γöé         logToFile('INFO', `Cleaned up orphaned tmp file: ${entry.name}`)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:291:65 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    289 Γöé     IPC_CHANNELS.AI_RESTORE_CONVERSATION,
+    290 Γöé     async (_event, campaignId: string, data: Record<string, unknown>) => {
+  > 291 Γöé       const result = await saveConversation(campaignId, data as any)
+        Γöé                                                                 ^^^
+    292 Γöé       if (!result.success) return { success: false, error: result.error }
+    293 Γöé       return { success: true }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:374:48 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    372 Γöé       try {
+    373 Γöé         const memMgr = getMemoryManager(campaignId)
+  > 374 Γöé         await memMgr.updateWorldState(state as any)
+        Γöé                                                ^^^
+    375 Γöé         return { success: true }
+    376 Γöé       } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:388:49 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    386 Γöé       try {
+    387 Γöé         const memMgr = getMemoryManager(campaignId)
+  > 388 Γöé         await memMgr.updateCombatState(state as any)
+        Γöé                                                 ^^^
+    389 Γöé         return { success: true }
+    390 Γöé       } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:549:49 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    547 Γöé     try {
+    548 Γöé       const { analyzeMapState } = await import('../ai/ai-vision')
+  > 549 Γöé       return await analyzeMapState(gameState as any)
+        Γöé                                                 ^^^
+    550 Γöé     } catch (error) {
+    551 Γöé       return { success: false, error: (error as Error).message }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:560:51 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    558 Γöé     try {
+    559 Γöé       const { processStateUpdate } = await import('../ai/ai-trigger-observer')
+  > 560 Γöé       const results = processStateUpdate(state as any)
+        Γöé                                                   ^^^
+    561 Γöé       return { success: true, fired: results }
+    562 Γöé     } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\index.ts:1:10 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Several of these imports are unused.
+  
+  > 1 Γöé import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
+      Γöé          ^^^^^
+    2 Γöé import { isAbsolute, join, relative, resolve } from 'node:path'
+    3 Γöé import { is } from '@electron-toolkit/utils'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    1 Γöé import┬╖{┬╖mkdir,┬╖readFile,┬╖stat,┬╖writeFile┬╖}┬╖from┬╖'node:fs/promises'
+      Γöé          -------                                                   
+
+src\main\ipc\index.ts:2:22 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Several of these imports are unused.
+  
+    1 Γöé import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
+  > 2 Γöé import { isAbsolute, join, relative, resolve } from 'node:path'
+      Γöé                      ^^^^
+    3 Γöé import { is } from '@electron-toolkit/utils'
+    4 Γöé import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    2 Γöé import┬╖{┬╖isAbsolute,┬╖join,┬╖relative,┬╖resolve┬╖}┬╖from┬╖'node:path'
+      Γöé                      ------                                    
+
+src\main\ipc\index.ts:7:8 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This import is unused.
+  
+    5 Γöé import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../shared/constants'
+    6 Γöé import { IPC_CHANNELS } from '../../shared/ipc-channels'
+  > 7 Γöé import { isValidUUID } from '../../shared/utils/uuid'
+      Γöé        ^^^^^^^^^^^^^^^
+    8 Γöé import { logToFile } from '../log'
+    9 Γöé import { registerAiHandlers } from './ai-handlers'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      5   5 Γöé   import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../shared/constants'
+      6   6 Γöé   import { IPC_CHANNELS } from '../../shared/ipc-channels'
+      7     Γöé - import┬╖{┬╖isValidUUID┬╖}┬╖from┬╖'../../shared/utils/uuid'
+      8   7 Γöé   import { logToFile } from '../log'
+      9   8 Γöé   import { registerAiHandlers } from './ai-handlers'
+  
+
+src\main\storage\campaign-storage.ts:1:58 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Several of these imports are unused.
+  
+  > 1 Γöé import { access, copyFile, mkdir, readdir, readFile, rm, stat, unlink } from 'node:fs/promises'
+      Γöé                                                          ^^^^
+    2 Γöé import { join } from 'node:path'
+    3 Γöé import { app } from 'electron'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    1 Γöé import┬╖{┬╖access,┬╖copyFile,┬╖mkdir,┬╖readdir,┬╖readFile,┬╖rm,┬╖stat,┬╖unlink┬╖}┬╖from┬╖'node:fs/promises'
+      Γöé                                                          ------                                
+
+src\main\storage\game-state-storage.ts:12:41 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    10 Γöé export const GAME_STATE_SCHEMA_VERSION = 1
+    11 Γöé 
+  > 12 Γöé export function migrateGameState(state: any): Record<string, unknown> {
+       Γöé                                         ^^^
+    13 Γöé   if (!state || typeof state !== 'object') {
+    14 Γöé     return { schemaVersion: GAME_STATE_SCHEMA_VERSION }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\storage\game-state-storage.ts:88:17 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    86 Γöé     }
+    87 Γöé     const data = await readFile(path, 'utf-8')
+  > 88 Γöé     let parsed: any
+       Γöé                 ^^^
+    89 Γöé     try {
+    90 Γöé       parsed = JSON.parse(data)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\preload\index.ts:207:29 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    205 Γöé     installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_INSTALL),
+    206 Γöé     onStatus: (cb: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => {
+  > 207 Γöé       const listener = (_e: any, status: any) => cb(status)
+        Γöé                             ^^^
+    208 Γöé       ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, listener)
+    209 Γöé       return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, listener)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\preload\index.ts:207:42 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    205 Γöé     installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_INSTALL),
+    206 Γöé     onStatus: (cb: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => {
+  > 207 Γöé       const listener = (_e: any, status: any) => cb(status)
+        Γöé                                          ^^^
+    208 Γöé       ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, listener)
+    209 Γöé       return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, listener)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\utils\chat-links.ts:57:7 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    55 Γöé   // 1. Parse [[name]] bracket syntax ΓÇö matches against content index
+    56 Γöé   const bracketRegex = /\[\[([^\]]+)\]\]/g
+  > 57 Γöé   let bracketMatch
+       Γöé       ^^^^^^^^^^^^
+    58 Γöé   while ((bracketMatch = bracketRegex.exec(content)) !== null) {
+    59 Γöé     const ref = lookupContent(bracketMatch[1])
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:74:9 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    72 Γöé   for (const monsterName of MONSTER_NAMES) {
+    73 Γöé     const regex = new RegExp(`\\b${monsterName}\\b`, 'gi')
+  > 74 Γöé     let match
+       Γöé         ^^^^^
+    75 Γöé     while ((match = regex.exec(content)) !== null) {
+    76 Γöé       links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:88:9 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    86 Γöé   for (const itemName of ITEM_NAMES) {
+    87 Γöé     const regex = new RegExp(`\\b${itemName}\\b`, 'gi')
+  > 88 Γöé     let match
+       Γöé         ^^^^^
+    89 Γöé     while ((match = regex.exec(content)) !== null) {
+    90 Γöé       links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:101:7 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+     99 Γöé   // Find spell references (basic patterns)
+    100 Γöé   const spellRegex = /\b(?:Magic Missile|Fireball|Lightning Bolt|Cure Wounds|Heal|Raise Dead|Wish)\b/gi
+  > 101 Γöé   let match
+        Γöé       ^^^^^
+    102 Γöé   while ((match = spellRegex.exec(content)) !== null) {
+    103 Γöé     links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 92.
+Checked 4471 files in 3s. No fixes applied.
+Found 4 errors.
+Found 94 warnings.
+Found 14 infos.
+check ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù Some errors were emitted while running checks.
+  
+

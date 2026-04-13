@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { CONDITIONS_5E } from '../../../data/conditions'
+import { resolveDeathSave } from '../../../services/combat/death-mechanics'
 import type { ResolvedEffects } from '../../../services/combat/effect-resolver-5e'
-import { rollSingle } from '../../../services/dice/dice-service'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import { is5eCharacter } from '../../../types/character'
@@ -227,6 +227,9 @@ export function PlayerHUDEffectsExpanded({
       }
 
       if (type === 'successes' && newVal >= 3) {
+        // PHB 2024: Stable creature regains 1 HP after 1d4 hours
+        const recoveryHours = Math.floor(Math.random() * 4) + 1
+        const inGameTime = useGameStore.getState().inGameTime
         useGameStore.getState().addCondition({
           id: `cond-${Date.now()}`,
           entityId: latest.id,
@@ -234,7 +237,9 @@ export function PlayerHUDEffectsExpanded({
           condition: 'Stable',
           duration: 'permanent',
           source: 'Death Saves',
-          appliedRound: useGameStore.getState().round
+          appliedRound: useGameStore.getState().round,
+          stabilizedAtSeconds: inGameTime?.totalSeconds ?? 0,
+          recoveryDurationSeconds: recoveryHours * 3600
         })
       }
 
@@ -247,42 +252,52 @@ export function PlayerHUDEffectsExpanded({
     const latest = useCharacterStore.getState().characters.find((c) => c.id === char5e.id) as Character5e | undefined
     if (!latest || !is5eCharacter(latest)) return
 
-    const roll = rollSingle(20)
+    // PHB 2024: Compute death save bonus from features
+    let deathSaveBonus = 0
 
-    if (roll === 20) {
-      const updated: Character5e = {
-        ...latest,
-        hitPoints: { ...latest.hitPoints, current: 1 },
-        deathSaves: { successes: 0, failures: 0 },
-        updatedAt: new Date().toISOString()
-      }
-      saveAndBroadcast(updated)
-      setDeathSaveResult({ roll, message: 'Natural 20! Regain 1 HP!' })
-      return
+    // Paladin Aura of Protection (Level 6+): add CHA mod to all saving throws for self
+    // In multiplayer, nearby allies also benefit, but self-buff is always applicable
+    const paladinLevel = latest.classes?.find((c) => c.name.toLowerCase() === 'paladin')?.level ?? 0
+    if (paladinLevel >= 6) {
+      const chaMod = Math.floor(((latest.abilityScores?.charisma ?? 10) - 10) / 2)
+      if (chaMod > 0) deathSaveBonus += chaMod
     }
 
-    let newSuccesses = latest.deathSaves.successes
-    let newFailures = latest.deathSaves.failures
-    let message: string
-
-    if (roll === 1) {
-      newFailures = Math.min(3, newFailures + 2)
-      message = `Natural 1! Two failures (${newFailures}/3)`
-    } else if (roll >= 10) {
-      newSuccesses = Math.min(3, newSuccesses + 1)
-      message = `Rolled ${roll} — Success (${newSuccesses}/3)`
-    } else {
-      newFailures = Math.min(3, newFailures + 1)
-      message = `Rolled ${roll} — Failure (${newFailures}/3)`
+    // Monk Diamond Soul (Level 14+): proficiency bonus to all saving throws
+    const monkLevel = latest.classes?.find((c) => c.name.toLowerCase() === 'monk')?.level ?? 0
+    if (monkLevel >= 14) {
+      const profBonus = latest.level >= 21 ? 7 : Math.ceil(latest.level / 4) + 1
+      deathSaveBonus += profBonus
     }
+
+    // Bless: if the character has the Bless condition, +1d4 (average 2, use actual roll)
+    const gameConditions = useGameStore.getState().conditions
+    const hasBless = gameConditions.some(
+      (c) => c.entityId === latest.id && c.condition.toLowerCase() === 'bless'
+    )
+    if (hasBless) {
+      // Roll 1d4 for Bless bonus
+      const blessRoll = Math.floor(Math.random() * 4) + 1
+      deathSaveBonus += blessRoll
+    }
+
+    const result = resolveDeathSave(char5e.id, char5e.name, latest.deathSaves, deathSaveBonus)
+    const roll = result.roll.natural20 ? 20 : result.roll.natural1 ? 1 : result.roll.total
 
     const updated: Character5e = {
       ...latest,
-      deathSaves: { successes: newSuccesses, failures: newFailures },
+      deathSaves: { successes: result.successes, failures: result.failures },
       updatedAt: new Date().toISOString()
     }
 
-    if (newSuccesses >= 3) {
+    if (result.outcome === 'revived') {
+      updated.hitPoints = { ...latest.hitPoints, current: 1 }
+    }
+
+    if (result.outcome === 'stabilized') {
+      // PHB 2024: Stable creature regains 1 HP after 1d4 hours
+      const recoveryHours = Math.floor(Math.random() * 4) + 1
+      const inGameTime = useGameStore.getState().inGameTime
       useGameStore.getState().addCondition({
         id: `cond-${Date.now()}`,
         entityId: latest.id,
@@ -290,17 +305,14 @@ export function PlayerHUDEffectsExpanded({
         condition: 'Stable',
         duration: 'permanent',
         source: 'Death Saves',
-        appliedRound: useGameStore.getState().round
+        appliedRound: useGameStore.getState().round,
+        stabilizedAtSeconds: inGameTime?.totalSeconds ?? 0,
+        recoveryDurationSeconds: recoveryHours * 3600
       })
-      message += ' — Stabilized!'
-    }
-
-    if (newFailures >= 3) {
-      message = `${latest.name} has died! (3 death save failures)`
     }
 
     saveAndBroadcast(updated)
-    setDeathSaveResult({ roll, message })
+    setDeathSaveResult({ roll, message: result.summary })
   }, [char5e, saveAndBroadcast])
 
   const dropConcentration = useCallback(() => {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { load5eMonsters, searchMonsters } from '../../../services/data-provider'
+import { monsterToTokenData } from '../../../services/map/monster-to-token'
 import type { MapToken } from '../../../types/map'
 import type { MonsterStatBlock } from '../../../types/monster'
 import { logger } from '../../../utils/logger'
@@ -30,6 +31,7 @@ export default function TokenPlacer({
   const [flySpeed, setFlySpeed] = useState('')
   const [swimSpeed, setSwimSpeed] = useState('')
   const [climbSpeed, setClimbSpeed] = useState('')
+  const [imagePath, setImagePath] = useState<string | undefined>()
 
   // Monster search
   const [allMonsters, setAllMonsters] = useState<MonsterStatBlock[]>([])
@@ -94,53 +96,31 @@ export default function TokenPlacer({
 
   const handlePlace = (): void => {
     if (!name.trim()) return
+    const base = selectedMonster
+      ? monsterToTokenData(selectedMonster)
+      : {
+          entityId: crypto.randomUUID(),
+          entityType: 'enemy' as const,
+          label: '',
+          sizeX: 1,
+          sizeY: 1,
+          visibleToPlayers: false,
+          conditions: []
+        }
     onPlaceToken({
-      entityId: crypto.randomUUID(),
+      ...base,
       entityType,
       label: name.trim(),
       sizeX,
       sizeY,
-      visibleToPlayers: false,
-      conditions: [],
-      currentHP: currentHP ? parseInt(currentHP, 10) : undefined,
-      maxHP: maxHP ? parseInt(maxHP, 10) : undefined,
-      ac: ac ? parseInt(ac, 10) : undefined,
-      walkSpeed: walkSpeed ? parseInt(walkSpeed, 10) : undefined,
-      monsterStatBlockId: selectedMonster?.id,
-      initiativeModifier: selectedMonster?.initiative?.modifier,
-      darkvision: selectedMonster?.senses.darkvision ? true : undefined,
-      darkvisionRange: selectedMonster?.senses.darkvision || undefined,
-      resistances: selectedMonster?.resistances,
-      vulnerabilities: selectedMonster?.vulnerabilities,
-      immunities: selectedMonster?.damageImmunities,
-      flySpeed: flySpeed ? parseInt(flySpeed, 10) : undefined,
-      swimSpeed: swimSpeed ? parseInt(swimSpeed, 10) : undefined,
-      climbSpeed: climbSpeed ? parseInt(climbSpeed, 10) : undefined,
-      specialSenses: selectedMonster
-        ? [
-            ...(selectedMonster.senses.blindsight
-              ? [{ type: 'blindsight' as const, range: selectedMonster.senses.blindsight }]
-              : []),
-            ...(selectedMonster.senses.tremorsense
-              ? [{ type: 'tremorsense' as const, range: selectedMonster.senses.tremorsense }]
-              : []),
-            ...(selectedMonster.senses.truesight
-              ? [{ type: 'truesight' as const, range: selectedMonster.senses.truesight }]
-              : [])
-          ].length > 0
-          ? [
-              ...(selectedMonster.senses.blindsight
-                ? [{ type: 'blindsight' as const, range: selectedMonster.senses.blindsight }]
-                : []),
-              ...(selectedMonster.senses.tremorsense
-                ? [{ type: 'tremorsense' as const, range: selectedMonster.senses.tremorsense }]
-                : []),
-              ...(selectedMonster.senses.truesight
-                ? [{ type: 'truesight' as const, range: selectedMonster.senses.truesight }]
-                : [])
-            ]
-          : undefined
-        : undefined
+      currentHP: currentHP ? parseInt(currentHP, 10) : base.currentHP,
+      maxHP: maxHP ? parseInt(maxHP, 10) : base.maxHP,
+      ac: ac ? parseInt(ac, 10) : base.ac,
+      walkSpeed: walkSpeed ? parseInt(walkSpeed, 10) : base.walkSpeed,
+      flySpeed: flySpeed ? parseInt(flySpeed, 10) : base.flySpeed,
+      swimSpeed: swimSpeed ? parseInt(swimSpeed, 10) : base.swimSpeed,
+      climbSpeed: climbSpeed ? parseInt(climbSpeed, 10) : base.climbSpeed,
+      imagePath: imagePath ?? base.imagePath
     })
     // Reset
     setName('')
@@ -151,7 +131,22 @@ export default function TokenPlacer({
     setFlySpeed('')
     setSwimSpeed('')
     setClimbSpeed('')
+    setImagePath(undefined)
     setSelectedMonster(null)
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 500 * 1024) {
+      alert('Image size must be less than 500KB')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      setImagePath(event.target?.result as string)
+    }
+    reader.readAsDataURL(file)
   }
 
   // 2024 PHB creature size presets
@@ -258,6 +253,27 @@ export default function TokenPlacer({
           className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
             placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
         />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="block text-xs text-gray-500">Token Image</label>
+        <div className="flex items-center gap-2">
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleImageUpload}
+            className="text-[10px] text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700 w-full"
+          />
+          {imagePath && (
+            <button
+              onClick={() => setImagePath(undefined)}
+              className="text-[10px] text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer flex-shrink-0"
+              title="Remove image"
+            >
+              &#x2715;
+            </button>
+          )}
+        </div>
       </div>
 
       <div>

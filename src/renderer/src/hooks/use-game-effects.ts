@@ -1,9 +1,9 @@
 import { type MutableRefObject, useCallback, useEffect } from 'react'
+import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
 import type { MessageType, TypingPayload } from '../network'
 import { startGameSync, stopGameSync } from '../network'
-import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
-import { startAiMemorySync, stopAiMemorySync } from '../services/io/ai-memory-sync'
 import { speakNarrationThroughBmo } from '../services/bmo-narration'
+import { startAiMemorySync, stopAiMemorySync } from '../services/io/ai-memory-sync'
 import { loadPersistedGameState, startAutoSave, stopAutoSave } from '../services/io/game-auto-save'
 import { init as initSounds } from '../services/sound-manager'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
@@ -22,6 +22,60 @@ interface UseGameEffectsOptions {
   aiInitRef: MutableRefObject<boolean>
   activeMap: GameMap | null
   setIsFullscreen: (fs: boolean) => void
+}
+
+/** Apply stat changes directly — used for auto-approve and after manual approval */
+function applyStatChangesDirectly(
+  statChanges: Array<{ type: string; [key: string]: unknown }>,
+  activeMap: GameMap | null
+): void {
+  const creatureChanges = statChanges.filter((c) => c.type.startsWith('creature_'))
+  const characterChanges = statChanges.filter((c) => !c.type.startsWith('creature_'))
+
+  // Apply character changes via IPC — route each change to the correct character by name
+  if (characterChanges.length > 0) {
+    const players = useLobbyStore.getState().players
+    const playersWithChars = players.filter((p) => p.characterId)
+    if (playersWithChars.length > 0) {
+      const changesByCharId = new Map<string, typeof characterChanges>()
+      for (const change of characterChanges) {
+        const named = (change as { characterName?: string }).characterName
+        let charId: string | undefined
+        if (named) {
+          const match = playersWithChars.find(
+            (p) =>
+              p.displayName?.toLowerCase() === named.toLowerCase() ||
+              p.characterName?.toLowerCase() === named.toLowerCase()
+          )
+          charId = match?.characterId ?? playersWithChars[0].characterId ?? undefined
+        } else {
+          charId = playersWithChars[0].characterId ?? undefined
+        }
+        if (charId) {
+          const existing = changesByCharId.get(charId) ?? []
+          existing.push(change)
+          changesByCharId.set(charId, existing)
+        }
+      }
+      for (const [charId, changes] of changesByCharId) {
+        window.api.ai.applyMutations(charId, changes)
+      }
+    }
+  }
+
+  // Apply creature changes directly to map tokens
+  if (creatureChanges.length > 0 && activeMap) {
+    import('../utils/creature-mutations').then(({ applyCreatureMutations }) => {
+      const gameStore = useGameStore.getState()
+      applyCreatureMutations(
+        creatureChanges,
+        activeMap,
+        (mapId: string, tokenId: string, updates: Partial<MapToken>) => {
+          gameStore.updateToken(mapId, tokenId, updates)
+        }
+      )
+    })
+  }
 }
 
 export function useGameEffects({
@@ -52,7 +106,7 @@ export function useGameEffects({
   // Add "Game session started" message on mount (once)
   useEffect(() => {
     addChatMessage({
-      id: 'system-game-start',
+      id: `system-game-start-${Date.now()}`,
       senderId: 'system',
       senderName: 'System',
       content: `Game session started for "${campaign.name}"`,
@@ -292,54 +346,21 @@ export function useGameEffects({
 
     narrateThroughBmo(lastMsg.content)
 
-    // Apply stat changes if any
+    // Apply stat changes if any — route through approval queue or auto-apply
     if (lastMsg.statChanges && lastMsg.statChanges.length > 0) {
-      const creatureChanges = lastMsg.statChanges.filter((c: { type: string }) => c.type.startsWith('creature_'))
-      const characterChanges = lastMsg.statChanges.filter((c: { type: string }) => !c.type.startsWith('creature_'))
+      const { autoApproveAiMutations, queueMutations } = useAiDmStore.getState()
 
-      // Apply character changes via IPC — route each change to the correct character by name
-      if (characterChanges.length > 0) {
-        const players = useLobbyStore.getState().players
-        const playersWithChars = players.filter((p) => p.characterId)
-        if (playersWithChars.length > 0) {
-          // Group changes by characterName; fall back to first character if unspecified
-          const changesByCharId = new Map<string, typeof characterChanges>()
-          for (const change of characterChanges) {
-            const named = (change as { characterName?: string }).characterName
-            let charId: string | undefined
-            if (named) {
-              const match = playersWithChars.find(
-                (p) =>
-                  p.displayName?.toLowerCase() === named.toLowerCase() ||
-                  p.characterName?.toLowerCase() === named.toLowerCase()
-              )
-              charId = match?.characterId ?? playersWithChars[0].characterId ?? undefined
-            } else {
-              charId = playersWithChars[0].characterId ?? undefined
-            }
-            if (charId) {
-              const existing = changesByCharId.get(charId) ?? []
-              existing.push(change)
-              changesByCharId.set(charId, existing)
-            }
-          }
-          for (const [charId, changes] of changesByCharId) {
-            window.api.ai.applyMutations(charId, changes)
-          }
-        }
-      }
-
-      // Apply creature changes directly to map tokens
-      if (creatureChanges.length > 0 && activeMap) {
-        import('../utils/creature-mutations').then(({ applyCreatureMutations }) => {
-          const gameStore = useGameStore.getState()
-          applyCreatureMutations(
-            creatureChanges,
-            activeMap,
-            (mapId: string, tokenId: string, updates: Partial<MapToken>) => {
-              gameStore.updateToken(mapId, tokenId, updates)
-            }
-          )
+      if (autoApproveAiMutations) {
+        // Auto-approve path: apply immediately (original behavior)
+        applyStatChangesDirectly(lastMsg.statChanges, activeMap)
+      } else {
+        // Queue for DM approval
+        queueMutations({
+          id: crypto.randomUUID(),
+          messageId: lastMsg.timestamp,
+          mutations: lastMsg.statChanges,
+          source: 'ai-dm',
+          timestamp: Date.now()
         })
       }
     }

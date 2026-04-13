@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react'
+import { addToast } from '../../../../hooks/use-toast'
+import { useCampaignStore } from '../../../../stores/use-campaign-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useNetworkStore } from '../../../../stores/use-network-store'
 import type { SharedJournalEntry } from '../../../../types/game-state'
@@ -100,12 +102,59 @@ export default function SharedJournalModal({
   const canEdit = (entry: SharedJournalEntry): boolean => isDM || entry.authorPeerId === localPeerId
   const canDelete = (entry: SharedJournalEntry): boolean => isDM || entry.authorPeerId === localPeerId
 
+  const handleArchiveToCampaign = async () => {
+    const campaign = useCampaignStore.getState().getActiveCampaign()
+    if (!campaign) return
+
+    try {
+      const maxSession = campaign.journal.entries.reduce((max, e) => Math.max(max, e.sessionNumber), 0)
+      const content = visibleEntries.map((e) => `[${e.authorName}] ${e.title}\n${e.content}`).join('\n\n---\n\n')
+
+      const newEntry = {
+        id: crypto.randomUUID(),
+        sessionNumber: maxSession + 1,
+        date: new Date().toISOString(),
+        title: `Shared Journal Archive`,
+        content,
+        isPrivate: false,
+        authorId: localPeerId,
+        createdAt: new Date().toISOString()
+      }
+
+      const updatedCampaign = {
+        ...campaign,
+        journal: {
+          ...campaign.journal,
+          entries: [...campaign.journal.entries, newEntry]
+        },
+        updatedAt: new Date().toISOString()
+      }
+
+      await useCampaignStore.getState().saveCampaign(updatedCampaign)
+      addToast('Shared Journal archived to Campaign', 'success')
+      onClose()
+    } catch {
+      addToast('Failed to archive journal to campaign', 'error')
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
-          <h3 className="text-sm font-semibold text-gray-200">Shared Journal</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-sm font-semibold text-gray-200">Shared Journal</h3>
+            {isDM && visibleEntries.length > 0 && (
+              <button
+                onClick={handleArchiveToCampaign}
+                className="px-2 py-0.5 text-[10px] bg-amber-600/30 text-amber-300 rounded hover:bg-amber-600/50 transition-colors"
+                title="Save these entries permanently to the Campaign Journal"
+              >
+                Archive to Campaign
+              </button>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"

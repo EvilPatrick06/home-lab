@@ -1,9 +1,34 @@
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { access, mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app } from 'electron'
+import { GameStateSaveSchema } from '../../shared/storage-schemas'
+import { atomicWriteFile } from './atomic-write'
 import type { StorageResult } from './types'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export const GAME_STATE_SCHEMA_VERSION = 1
+
+export function migrateGameState(state: any): Record<string, unknown> {
+  if (!state || typeof state !== 'object') {
+    return { schemaVersion: GAME_STATE_SCHEMA_VERSION }
+  }
+
+  let version = typeof state.schemaVersion === 'number' ? state.schemaVersion : 0
+
+  if (version < 1) {
+    // Migration logic for v0 -> v1
+    state.entities = Array.isArray(state.entities) ? state.entities : []
+    state.logs = Array.isArray(state.logs) ? state.logs : []
+    state.maps = Array.isArray(state.maps) ? state.maps : []
+    state.schemaVersion = 1
+    version = 1
+  }
+
+  // Future schemas logic goes here
+
+  return state
+}
 function isValidUUID(str: string): boolean {
   return UUID_RE.test(str)
 }
@@ -41,7 +66,9 @@ export async function saveGameState(campaignId: string, state: Record<string, un
   }
   try {
     const path = await getGameStatePath(campaignId)
-    await writeFile(path, JSON.stringify(state, null, 2), 'utf-8')
+    // Guarantee correct schema version on save
+    state.schemaVersion = GAME_STATE_SCHEMA_VERSION
+    await atomicWriteFile(path, JSON.stringify(state, null, 2))
     return { success: true }
   } catch (err) {
     return { success: false, error: `Failed to save game state: ${(err as Error).message}` }
@@ -58,7 +85,19 @@ export async function loadGameState(campaignId: string): Promise<StorageResult<R
       return { success: true, data: null }
     }
     const data = await readFile(path, 'utf-8')
-    return { success: true, data: JSON.parse(data) }
+    let parsed: any
+    try {
+      parsed = JSON.parse(data)
+    } catch {
+      // If corrupted, fallback to an empty migrated state
+      return { success: true, data: migrateGameState({}) }
+    }
+    const migrated = migrateGameState(parsed)
+    const validate = GameStateSaveSchema.safeParse(migrated)
+    if (!validate.success) {
+      return { success: true, data: migrateGameState({}) }
+    }
+    return { success: true, data: migrated }
   } catch (err) {
     return { success: false, error: `Failed to load game state: ${(err as Error).message}` }
   }

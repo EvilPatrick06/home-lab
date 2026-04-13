@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { SETTINGS_KEYS } from '../constants'
 
 export type ColorblindMode = 'none' | 'deuteranopia' | 'protanopia' | 'tritanopia'
 
@@ -27,7 +28,7 @@ interface AccessibilityState {
   resetAllKeybindings: () => void
 }
 
-const STORAGE_KEY = 'dnd-vtt-accessibility'
+const STORAGE_KEY = SETTINGS_KEYS.ACCESSIBILITY
 
 function loadPersistedState(): Partial<AccessibilityState> {
   try {

@@ -26,6 +26,7 @@ export interface AiChatRequest {
   campaignId: string
   message: string
   characterIds: string[]
+  actingCharacterId?: string
   senderName?: string
   activeCreatures?: ActiveCreatureInfo[]
   gameState?: string
@@ -221,3 +222,4 @@ export type StatChange =
   | { type: 'creature_add_condition'; targetLabel: string; name: string; reason: string }
   | { type: 'creature_remove_condition'; targetLabel: string; name: string; reason: string }
   | { type: 'creature_kill'; targetLabel: string; reason: string }
+  | { type: 'reduce_exhaustion'; characterName?: string; reason: string }

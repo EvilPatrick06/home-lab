@@ -124,6 +124,7 @@ export interface BastionDefender {
   barrackId: string
   isUndead?: boolean
   isConstruct?: boolean
+  isLieutenant?: boolean
 }
 
 // ---- Bastion Turn System ----
@@ -184,6 +185,16 @@ export interface InGameTime {
   turnFrequencyDays: number
 }
 
+// ---- Charms ----
+
+export interface BastionCharm {
+  name: string
+  description: string
+  facilityId: string
+  grantedOnDay: number
+  durationDays: number
+}
+
 // ---- Main Bastion Type ----
 
 export interface Bastion {
@@ -198,6 +209,9 @@ export interface Bastion {
   defensiveWalls: DefensiveWalls | null
   construction: ConstructionProject[]
   treasury: number
+  bastionPoints: number
+  factionRenown: Record<string, number>
+  activeCharms: BastionCharm[]
   inGameTime: InGameTime
   notes: string
   createdAt: string
@@ -269,11 +283,11 @@ export const ENLARGE_COSTS: Record<string, { gp: number; days: number }> = {
   'roomy-vast': { gp: 2000, days: 80 }
 }
 
-export const SPECIAL_FACILITY_COSTS: Record<number, { gp: number; days: number }> = {
-  5: { gp: 0, days: 0 },
-  9: { gp: 0, days: 0 },
-  13: { gp: 0, days: 0 },
-  17: { gp: 0, days: 0 }
+export const SPECIAL_FACILITY_COSTS: Record<number, { bp: number; gp: number; days: number }> = {
+  5: { bp: 2, gp: 0, days: 0 },
+  9: { bp: 4, gp: 0, days: 0 },
+  13: { bp: 6, gp: 0, days: 0 },
+  17: { bp: 8, gp: 0, days: 0 }
 }
 
 // ---- Helper Functions ----
@@ -291,6 +305,14 @@ export function getAvailableFacilityLevel(characterLevel: number): number {
   if (characterLevel >= 13) return 13
   if (characterLevel >= 9) return 9
   if (characterLevel >= 5) return 5
+  return 0
+}
+
+export function getBpPerTurn(characterLevel: number): number {
+  if (characterLevel >= 17) return 8
+  if (characterLevel >= 13) return 6
+  if (characterLevel >= 9) return 4
+  if (characterLevel >= 5) return 2
   return 0
 }
 
@@ -323,6 +345,9 @@ export function createDefaultBastion(ownerId: string, name: string, campaignId?:
     defensiveWalls: null,
     construction: [],
     treasury: 0,
+    bastionPoints: 0,
+    factionRenown: {},
+    activeCharms: [],
     inGameTime: {
       currentDay: 1,
       lastBastionTurnDay: 0,
@@ -355,7 +380,11 @@ const OLD_BASIC_TYPES = new Set(['bedroom', 'dining-hall', 'kitchen', 'storage']
 export function migrateBastion(raw: Record<string, unknown>): Bastion {
   // Already new format
   if ('basicFacilities' in raw && 'specialFacilities' in raw) {
-    return raw as unknown as Bastion
+    const bastion = raw as unknown as Bastion
+    if (!('bastionPoints' in raw)) (bastion as Record<string, unknown>).bastionPoints = 0
+    if (!('factionRenown' in raw)) (bastion as Record<string, unknown>).factionRenown = {}
+    if (!('activeCharms' in raw)) (bastion as Record<string, unknown>).activeCharms = []
+    return bastion
   }
 
   const old = raw as unknown as OldBastion
@@ -436,6 +465,9 @@ export function migrateBastion(raw: Record<string, unknown>): Bastion {
     defensiveWalls: null,
     construction: [],
     treasury: old.gold ?? 0,
+    bastionPoints: 0,
+    factionRenown: {},
+    activeCharms: [],
     inGameTime: {
       currentDay: turns.length > 0 ? turns[turns.length - 1].turnNumber * 7 : 1,
       lastBastionTurnDay: turns.length > 0 ? turns[turns.length - 1].turnNumber * 7 : 0,

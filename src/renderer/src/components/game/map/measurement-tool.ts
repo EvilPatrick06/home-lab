@@ -98,6 +98,9 @@ function calculateGridMeasurement(
   options: MeasurementOptions
 ): MeasurementResult {
   const gridType = options.gridType ?? 'square'
+  if (gridType === 'gridless') {
+    return calculateEuclideanMeasurement(start, end, cellSize)
+  }
   if (gridType === 'hex' || gridType === 'hex-flat' || gridType === 'hex-pointy') {
     return calculateHexMeasurement(start, end, cellSize, options, gridType)
   }

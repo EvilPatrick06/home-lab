@@ -95,6 +95,21 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
     }
   }
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 500 * 1024) {
+      alert('Image size must be less than 500KB')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string
+      applyUpdate({ imagePath: dataUrl })
+    }
+    reader.readAsDataURL(file)
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -192,6 +207,28 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Token Image */}
+          <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-800">
+            <label className="text-xs text-gray-400">Token Image</label>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleImageUpload}
+              className="text-[10px] text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700"
+            />
+            {token.imagePath && (
+              <div className="flex items-center gap-3 mt-1">
+                <img src={token.imagePath} alt="Token preview" className="w-12 h-12 rounded-full object-cover border border-gray-600" />
+                <button
+                  onClick={() => applyUpdate({ imagePath: undefined })}
+                  className="text-[10px] text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer"
+                >
+                  Remove Image
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

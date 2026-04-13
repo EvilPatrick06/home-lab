@@ -1,8 +1,9 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
-import { type CommandContext, executeCommand } from '../../../services/chat-commands'
 import { speakNarrationThroughBmo } from '../../../services/bmo-narration'
+import { type CommandContext, executeCommand } from '../../../services/chat-commands'
+import { lookupContent } from '../../../services/library/content-index'
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
 import type { ChatMessage } from '../../../stores/use-lobby-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -11,11 +12,12 @@ import type { Campaign } from '../../../types/campaign'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
+import type { LibraryCategory } from '../../../types/library'
+import { renderChatContent } from '../../../utils/chat-links'
 import { trigger3dDice } from '../dice3d'
 import DiceResult from '../dice3d/DiceResult'
 import SkillRollButton from '../player/SkillRollButton'
 import CommandAutocomplete from './CommandAutocomplete'
-import { renderChatContent } from '../../../utils/chat-links'
 
 const BottomChatMessage = memo(function BottomChatMessage({
   msg,
@@ -23,7 +25,8 @@ const BottomChatMessage = memo(function BottomChatMessage({
   onDispute,
   aiNarrationText,
   onSpeakNarration,
-  onLinkClick
+  onLinkClick,
+  renderPreview
 }: {
   msg: ChatMessage
   isDM: boolean
@@ -31,6 +34,7 @@ const BottomChatMessage = memo(function BottomChatMessage({
   aiNarrationText?: string
   onSpeakNarration?: (text: string) => void
   onLinkClick?: (category: string, name: string) => void
+  renderPreview?: (category: LibraryCategory, name: string) => React.ReactNode | null
 }): JSX.Element {
   if (msg.isDiceRoll && msg.diceResult) {
     return (
@@ -73,14 +77,20 @@ const BottomChatMessage = memo(function BottomChatMessage({
     )
   }
   if (msg.isSystem) {
-    return <div className="text-sm text-gray-400 text-center py-0.5 font-sans">{renderChatContent(msg.content, onLinkClick)}</div>
+    return (
+      <div className="text-sm text-gray-400 text-center py-0.5 font-sans">
+        {renderChatContent(msg.content, onLinkClick, renderPreview)}
+      </div>
+    )
   }
   return (
     <div className="py-0.5">
       <span className="text-xs font-medium font-sans" style={{ color: msg.senderColor || '#9CA3AF' }}>
         {msg.senderName}:
       </span>
-      <span className="text-sm text-gray-100 ml-1 font-sans">{renderChatContent(msg.content, onLinkClick)}</span>
+      <span className="text-sm text-gray-100 ml-1 font-sans">
+        {renderChatContent(msg.content, onLinkClick, renderPreview)}
+      </span>
     </div>
   )
 })
@@ -231,6 +241,20 @@ export default function ChatPanel({
     inputRef.current?.focus()
   }
 
+  const renderPreview = useCallback((category: LibraryCategory, name: string): React.ReactNode | null => {
+    const ref = lookupContent(name)
+    if (!ref) return null
+    // Compact preview card
+    return React.createElement(
+      'div',
+      {
+        className: 'bg-gray-900 border border-gray-700 rounded-lg p-3 text-xs'
+      },
+      React.createElement('div', { className: 'font-bold text-amber-400 mb-1' }, ref.name),
+      React.createElement('div', { className: 'text-gray-400 capitalize' }, ref.category.replace(/-/g, ' '))
+    )
+  }, [])
+
   const handleSpeakNarration = async (text: string): Promise<void> => {
     const result = await speakNarrationThroughBmo(text)
     if (!result.success) {
@@ -278,7 +302,7 @@ export default function ChatPanel({
               const msg = chatMessages[virtualItem.index]
               return (
                 <div
-                  key={msg.id}
+                  key={`${msg.id}-${virtualItem.index}`}
                   data-index={virtualItem.index}
                   ref={virtualizer.measureElement}
                   style={{
@@ -296,6 +320,7 @@ export default function ChatPanel({
                     aiNarrationText={msg.senderId === 'ai-dm' ? aiNarrationByTimestamp.get(msg.timestamp) : undefined}
                     onSpeakNarration={handleSpeakNarration}
                     onLinkClick={onLinkClick}
+                    renderPreview={renderPreview}
                   />
                 </div>
               )

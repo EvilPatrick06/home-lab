@@ -1,0 +1,161 @@
+[
+  {
+    "name": "Blinded",
+    "description": "A blinded creature can't see and automatically fails any ability check that requires sight. Attack rolls against the creature have Advantage, and the creature's attack rolls have Disadvantage.",
+    "effects": [
+      "Can't see and automatically fails any ability check that requires sight",
+      "Attack rolls against the creature have Advantage",
+      "The creature's attack rolls have Disadvantage"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Charmed",
+    "description": "A charmed creature can't attack the charmer or target the charmer with harmful abilities or magical effects. The charmer has Advantage on any ability check to interact socially with the creature.",
+    "effects": [
+      "Can't attack the charmer or target the charmer with harmful abilities or magical effects",
+      "The charmer has Advantage on any ability check to interact socially with the creature"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Deafened",
+    "description": "A deafened creature can't hear and automatically fails any ability check that requires hearing.",
+    "effects": ["Can't hear", "Automatically fails any ability check that requires hearing"],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Exhaustion",
+    "description": "Exhaustion is measured in levels. A creature suffers the effects of its current level of Exhaustion as well as all lower levels. Finishing a Long Rest removes one level of Exhaustion, provided the creature has also eaten and drunk water.",
+    "effects": [
+      "Each level of Exhaustion imposes a -2 penalty to all d20 rolls (ability checks, attack rolls, and saving throws)",
+      "Penalties stack with each level: Level 1 = -2, Level 2 = -4, Level 3 = -6, Level 4 = -8, Level 5 = -10",
+      "Level 6 (or higher): The creature's speed is reduced to 0",
+      "Level 10: The creature dies",
+      "Finishing a Long Rest removes one level of Exhaustion, provided the creature has eaten and drunk water",
+      "The Greater Restoration spell reduces Exhaustion by 1 level"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Frightened",
+    "description": "A frightened creature has Disadvantage on ability checks and attack rolls while the source of its fear is within line of sight. The creature can't willingly move closer to the source of its fear.",
+    "effects": [
+      "Disadvantage on ability checks and attack rolls while the source of fear is within line of sight",
+      "Can't willingly move closer to the source of its fear"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Grappled",
+    "description": "A grappled creature's speed becomes 0, and it can't benefit from any bonus to its speed. The condition ends if the grappler is Incapacitated or if the grappled creature is moved outside the grappler's reach.",
+    "effects": [
+      "Speed becomes 0 and can't benefit from any bonus to speed",
+      "The condition ends if the grappler is Incapacitated",
+      "The condition ends if an effect moves the grappled creature outside the grappler's reach",
+      "The grappled creature can use its action to escape by making a Strength (Athletics) or Dexterity (Acrobatics) check contested by the grappler's Strength (Athletics) check"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Incapacitated",
+    "description": "An incapacitated creature can't take actions or reactions.",
+    "effects": [
+      "Can't take actions",
+      "Can't take reactions",
+      "May still be able to move and speak depending on the source of the condition"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Invisible",
+    "description": "An invisible creature is impossible to see without the aid of magic or a special sense. For the purpose of hiding, the creature is Heavily Obscured. The creature's location can be detected by any noise it makes or tracks it leaves.",
+    "effects": [
+      "Impossible to see without magic or a special sense",
+      "Considered Heavily Obscured for the purpose of hiding",
+      "Location can still be detected by noise or tracks",
+      "Attack rolls against the creature have Disadvantage",
+      "The creature's attack rolls have Advantage"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Paralyzed",
+    "description": "A paralyzed creature is Incapacitated and can't move or speak. The creature automatically fails Strength and Dexterity saving throws. Attack rolls against the creature have Advantage, and any attack that hits is a critical hit if the attacker is within 5 feet.",
+    "effects": [
+      "Is Incapacitated (can't take actions or reactions)",
+      "Can't move or speak",
+      "Automatically fails Strength and Dexterity saving throws",
+      "Attack rolls against the creature have Advantage",
+      "Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Petrified",
+    "description": "A petrified creature is transformed, along with any nonmagical objects it is wearing or carrying, into a solid inanimate substance (usually stone). The creature is Incapacitated, can't move or speak, and is unaware of its surroundings.",
+    "effects": [
+      "Is Incapacitated (can't take actions or reactions), can't move or speak, and is unaware of surroundings",
+      "Attack rolls against the creature have Advantage",
+      "Automatically fails Strength and Dexterity saving throws",
+      "Has Resistance to all damage",
+      "Is immune to Poison and disease, though any poison or disease already in its system is suspended, not neutralized",
+      "Weight increases by a factor of ten"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Poisoned",
+    "description": "A poisoned creature has Disadvantage on attack rolls and ability checks.",
+    "effects": ["Disadvantage on attack rolls", "Disadvantage on ability checks"],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Prone",
+    "description": "A prone creature's only movement option is to crawl, unless it stands up and thereby ends the condition. The creature has Disadvantage on attack rolls. An attack roll against the creature has Advantage if the attacker is within 5 feet; otherwise, the attack roll has Disadvantage.",
+    "effects": [
+      "Only movement option is to crawl (every foot of movement costs 1 extra foot)",
+      "Standing up costs half of the creature's total movement speed",
+      "The creature has Disadvantage on attack rolls",
+      "An attack roll against the creature has Advantage if the attacker is within 5 feet of the creature",
+      "An attack roll against the creature has Disadvantage if the attacker is more than 5 feet away"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Restrained",
+    "description": "A restrained creature's speed becomes 0, and it can't benefit from any bonus to its speed. Attack rolls against the creature have Advantage, and the creature's attack rolls have Disadvantage. The creature has Disadvantage on Dexterity saving throws.",
+    "effects": [
+      "Speed becomes 0 and can't benefit from any bonus to speed",
+      "Attack rolls against the creature have Advantage",
+      "The creature's attack rolls have Disadvantage",
+      "The creature has Disadvantage on Dexterity saving throws"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Stunned",
+    "description": "A stunned creature is Incapacitated, can't move, and can speak only falteringly. The creature automatically fails Strength and Dexterity saving throws. Attack rolls against the creature have Advantage.",
+    "effects": [
+      "Is Incapacitated (can't take actions or reactions)",
+      "Can't move",
+      "Can speak only falteringly",
+      "Automatically fails Strength and Dexterity saving throws",
+      "Attack rolls against the creature have Advantage"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Unconscious",
+    "description": "An unconscious creature is Incapacitated, can't move or speak, and is unaware of its surroundings. The creature drops whatever it's holding and falls Prone. Attack rolls against the creature have Advantage, and any attack that hits is a critical hit if the attacker is within 5 feet.",
+    "effects": [
+      "Is Incapacitated (can't take actions or reactions)",
+      "Can't move or speak and is unaware of its surroundings",
+      "Drops whatever it is holding and falls Prone",
+      "Automatically fails Strength and Dexterity saving throws",
+      "Attack rolls against the creature have Advantage",
+      "Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature"
+    ],
+    "source": "PHB 2024"
+  }
+]

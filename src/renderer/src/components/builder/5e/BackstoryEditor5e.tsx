@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react'
-import { VARIANT_ITEMS } from '../../../data/variant-items'
+import { useCallback, useEffect, useState } from 'react'
+import { loadVariantItemsForUi, VARIANT_ITEMS } from '../../../data/variant-items'
 import { DATA_PATHS, loadJson, type TrinketsFile } from '../../../services/data-provider'
 
 type _TrinketsFile = TrinketsFile
@@ -70,6 +70,15 @@ export function VariantChoicesSection({
   bgEquipment: Array<{ option: string; items: string[]; source: string }>
 }): JSX.Element | null {
   const [rePickKey, setRePickKey] = useState<string | null>(null)
+  const [loadedVariants, setLoadedVariants] = useState<boolean>(false)
+
+  useEffect(() => {
+    loadVariantItemsForUi().finally(() => {
+      setLoadedVariants(true)
+    })
+  }, [])
+
+  if (!loadedVariants) return null
 
   const variantItems: VariantItem[] = []
   for (let i = 0; i < classEquipment.length; i++) {

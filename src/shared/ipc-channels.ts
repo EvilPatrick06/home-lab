@@ -39,6 +39,7 @@ export const IPC_CHANNELS = {
 
   // === File I/O ===
   FS_READ: 'fs:read-file',
+  FS_READ_BINARY: 'fs:read-file-binary',
   FS_WRITE: 'fs:write-file',
   FS_WRITE_BINARY: 'fs:write-file-binary',
 
@@ -70,6 +71,7 @@ export const IPC_CHANNELS = {
 
   // === AI DM: Conversation Persistence ===
   AI_SAVE_CONVERSATION: 'ai:save-conversation',
+  AI_RESTORE_CONVERSATION: 'ai:restore-conversation',
   AI_LOAD_CONVERSATION: 'ai:load-conversation',
   AI_DELETE_CONVERSATION: 'ai:delete-conversation',
 
@@ -108,6 +110,14 @@ export const IPC_CHANNELS = {
   AI_CONNECTION_STATUS: 'ai:connection-status',
   AI_TOKEN_BUDGET: 'ai:token-budget',
   AI_TOKEN_BUDGET_PREVIEW: 'ai:token-budget-preview',
+  AI_GENERATE_END_OF_SESSION_RECAP: 'ai:generate-end-of-session-recap',
+
+  // === AI DM: Vision / Map Analysis ===
+  AI_CAPTURE_MAP: 'ai:capture-map',
+  AI_ANALYZE_MAP: 'ai:analyze-map',
+
+  // === AI DM: Proactive Triggers ===
+  AI_TRIGGER_STATE_UPDATE: 'ai:trigger-state-update',
 
   // === AI DM: Events (main → renderer) ===
   AI_STREAM_CHUNK: 'ai:stream-chunk',
@@ -177,6 +187,11 @@ export const IPC_CHANNELS = {
   BMO_STOP_DM: 'bmo:stop-dm',
   BMO_NARRATE: 'bmo:narrate',
   BMO_STATUS: 'bmo:status',
+
+  // === BMO Pi Bridge: Sync (main → renderer, from Pi HTTP callbacks) ===
+  BMO_SYNC_EVENT: 'bmo:sync-event',
+  BMO_SYNC_INITIATIVE: 'bmo:sync-initiative',
+  BMO_SYNC_SEND_STATE: 'bmo:sync-send-state',
 
   // === Map Library ===
   MAP_LIBRARY_SAVE: 'map-library:save',

@@ -4940,5 +4940,61 @@
       "material": true
     },
     "path": "spells/prepared-spells/transmutation/level-9/non-ritual/v-s-m/true-polymorph.json"
+  },
+  {
+    "id": "find-greater-steed",
+    "name": "Find Greater Steed",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s/find-greater-steed.json"
+  },
+  {
+    "id": "spirit-shroud",
+    "name": "Spirit Shroud",
+    "school": "Necromancy",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-3/non-ritual/v-s/spirit-shroud.json"
+  },
+  {
+    "id": "intellect-fortress",
+    "name": "Intellect Fortress",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v/intellect-fortress.json"
+  },
+  {
+    "id": "blade-of-disaster",
+    "name": "Blade of Disaster",
+    "school": "Conjuration",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-9/non-ritual/v-s/blade-of-disaster.json"
   }
 ]

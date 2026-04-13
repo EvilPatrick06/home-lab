@@ -1,3 +1,4 @@
+import { dynamicKeys, SETTINGS_KEYS } from '../../constants'
 // ---------------------------------------------------------------------------
 // Auto-Save Service
 // ---------------------------------------------------------------------------
@@ -21,7 +22,7 @@ export interface SaveVersion {
 
 // ---- module-level state ----------------------------------------------------
 
-const CONFIG_STORAGE_KEY = 'autosave:config'
+const CONFIG_STORAGE_KEY = SETTINGS_KEYS.AUTOSAVE_CONFIG
 
 let config: AutoSaveConfig = loadConfigFromStorage()
 
@@ -30,11 +31,11 @@ let intervalId: ReturnType<typeof setInterval> | null = null
 // ---- helpers ---------------------------------------------------------------
 
 function versionListKey(campaignId: string): string {
-  return `autosave:${campaignId}:versions`
+  return dynamicKeys.autosaveVersions(campaignId)
 }
 
 function versionDataKey(campaignId: string, versionId: string): string {
-  return `autosave:${campaignId}:${versionId}`
+  return dynamicKeys.autosaveVersion(campaignId, versionId)
 }
 
 function loadConfigFromStorage(): AutoSaveConfig {

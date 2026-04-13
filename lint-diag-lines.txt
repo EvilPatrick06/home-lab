@@ -1,0 +1,110 @@
+src\main\ai\prompt-assembler.ts:38:5 lint/complexity/noUselessSwitchCase  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\utility\PartyInventoryModal.tsx:99:29 lint/correctness/useParseIntRadix  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\utility\PartyInventoryModal.tsx:157:19 lint/correctness/useParseIntRadix  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\utility\PartyInventoryModal.tsx:173:19 lint/correctness/useParseIntRadix  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\sidebar\TablesPanel.tsx:98:39 lint/correctness/useParseIntRadix  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\library\ItemCardView.test.tsx:17:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\library\ItemCardView.test.tsx:18:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\library\ItemCardView.test.tsx:19:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\library\ItemCardView.test.tsx:21:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\library\ItemCardView.test.tsx:22:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\library\ItemCardView.test.tsx:26:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\library\ItemCardView.tsx:90:26 lint/style/useTemplate  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\chat-commands\commands-player-checks.ts:134:40 lint/style/useTemplate  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\index.ts:122:38 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\index.ts:122:67 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\ipc\ai-handlers.ts:388:49 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\ipc\ai-handlers.ts:291:65 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\ipc\ai-handlers.ts:374:48 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\ipc\ai-handlers.ts:549:49 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\ipc\ai-handlers.ts:560:51 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\ipc\index.ts:2:22 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\ipc\index.ts:7:8 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\ipc\index.ts:1:10 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\storage\campaign-storage.ts:1:58 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\storage\game-state-storage.ts:12:41 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\main\storage\game-state-storage.ts:88:17 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\preload\index.ts:207:29 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\preload\index.ts:207:42 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\GameLayout.tsx:207:34 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\GameLayout.tsx:207:10 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\MapCanvas.tsx:360:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\MapCanvas.tsx:599:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\MapCanvas.tsx:599:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\MapCanvas.tsx:599:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\MapCanvas.tsx:599:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\audio-emitter-overlay.ts:141:17 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\map-event-handlers.ts:198:5 lint/correctness/noUnusedVariables ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\map-event-handlers.ts:204:79 lint/correctness/noUnusedVariables ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\map-event-handlers.ts:523:13 lint/complexity/useOptionalChain  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\map-overlay-effects.ts:144:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\map\map-overlay-effects.ts:170:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modal-groups\CombatModals.tsx:197:17 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modal-groups\MechanicsModals.tsx:93:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modal-groups\UtilityModals.tsx:68:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\combat\AttackModal.tsx:112:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\combat\MountModal.tsx:45:37 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\combat\MountModal.tsx:3:13 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\combat\MountModal.tsx:25:16 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\combat\MountModal.tsx:26:23 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\combat\MountModal.tsx:27:22 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\combat\MountModal.tsx:44:49 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\mechanics\AoETemplateModal.tsx:64:61 lint/correctness/useExhaustiveDependencies ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\mechanics\CraftingBrowser.tsx:116:30 lint/correctness/useExhaustiveDependencies ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\mechanics\MountModal.tsx:59:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\mechanics\MountModal.tsx:99:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\utility\EndOfSessionModal.tsx:40:14 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\modals\utility\EndOfSessionModal.tsx:79:14 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:120:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:113:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:127:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:134:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\GamePrompts.tsx:253:17 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\GamePrompts.tsx:58:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:86:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:96:28 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:118:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:153:24 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:171:27 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:191:26 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:211:26 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:230:29 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:240:21 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\ReactionPrompts.tsx:72:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\overlays\ReactionPrompts.tsx:190:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\sidebar\JournalPanel.tsx:180:10 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\components\game\sidebar\TablesPanel.tsx:22:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\hooks\use-game-handlers.ts:267:11 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\hooks\use-game-handlers.ts:271:11 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\pages\CharacterSheet5ePage.tsx:150:3 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\pages\InGamePage.tsx:89:52 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\pages\InGamePage.tsx:131:12 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\pages\MakeGamePage.tsx:19:11 lint/complexity/useOptionalChain  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\pages\bastion\FacilityModals.tsx:268:19 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\chat-commands\commands-player-movement.ts:35:7 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\combat\combat-resolver.ts:555:28 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:374:26 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:227:114 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:235:66 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:381:27 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:383:60 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:398:21 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:411:22 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:228:9 lint/complexity/useOptionalChain  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\io\import-export.ts:238:9 lint/complexity/useOptionalChain  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\map\sound-occlusion.ts:6:24 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\map\sound-occlusion.ts:8:8 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\map\sound-occlusion.ts:141:9 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\services\map\sound-occlusion.ts:142:9 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\stores\bastion-store\facility-slice.ts:5:3 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\stores\game\initiative-slice.ts:393:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\styles\globals.css:70:32 lint/complexity/noImportantStyles  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\styles\globals.css:71:34 lint/complexity/noImportantStyles  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\styles\globals.css:72:33 lint/complexity/noImportantStyles  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\styles\globals.css:73:27 lint/complexity/noImportantStyles  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\types\campaign.ts:244:16 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\types\campaign.ts:245:19 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\utils\chat-links.ts:74:9 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\utils\chat-links.ts:88:9 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\utils\chat-links.ts:101:7 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+src\renderer\src\utils\chat-links.ts:57:7 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü

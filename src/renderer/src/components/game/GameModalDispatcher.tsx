@@ -46,6 +46,7 @@ interface GameModalDispatcherProps {
       damage: number
     } | null
   ) => void
+  conditionTargetEntityId?: string | null
   handleCompanionSummon: (companion: Omit<Companion5e, 'id' | 'tokenId' | 'createdAt'>) => Promise<void>
   handleWildShapeTransform: (monster: MonsterStatBlock) => void
   handleWildShapeRevert: () => void
@@ -97,6 +98,7 @@ export default function GameModalDispatcher(props: GameModalDispatcherProps): JS
     viewingHandout,
     setViewingHandout,
     setConcCheckPrompt,
+    conditionTargetEntityId,
     handleCompanionSummon,
     handleWildShapeTransform,
     handleWildShapeRevert,
@@ -127,6 +129,7 @@ export default function GameModalDispatcher(props: GameModalDispatcherProps): JS
         addChatMessage={addChatMessage}
         sendMessage={sendMessage}
         setConcCheckPrompt={setConcCheckPrompt}
+        conditionTargetEntityId={conditionTargetEntityId}
       />
       <DmModals
         activeModal={activeModal}

@@ -15,10 +15,13 @@ export default function MakeGamePage(): JSX.Element {
     setImporting(true)
     setImportError(null)
     try {
-      const campaign = await importCampaignFromFile()
-      if (campaign) {
-        await saveCampaign(campaign)
-        navigate(`/campaign/${campaign.id}`)
+      const result = await importCampaignFromFile()
+      if (result?.campaign) {
+        await saveCampaign(result.campaign)
+        if (result.gameState) {
+          await window.api.saveGameState(result.campaign.id, result.gameState)
+        }
+        navigate(`/campaign/${result.campaign.id}`)
       }
     } catch (err) {
       setImportError(err instanceof Error ? err.message : 'Failed to import campaign')

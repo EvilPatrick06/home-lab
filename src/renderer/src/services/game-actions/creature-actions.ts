@@ -4,11 +4,82 @@
  */
 
 import type { InitiativeEntry } from '../../types/game-state'
+import type { MonsterStatBlock } from '../../types/monster'
 import { play as playSound } from '../sound-manager'
 import { broadcastConditionSync, broadcastInitiativeSync, broadcastTokenSync } from './broadcast-helpers'
 import { findTokensInArea, rollDiceFormula } from './dice-helpers'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
+
+// Monster cache for legendary action lookups
+let monsterCacheForLegendary: MonsterStatBlock[] | null = null
+
+async function ensureLegendaryMonsterCache(): Promise<MonsterStatBlock[]> {
+  if (monsterCacheForLegendary) return monsterCacheForLegendary
+  try {
+    const { load5eMonsters } = await import('../data-provider')
+    monsterCacheForLegendary = await load5eMonsters()
+    return monsterCacheForLegendary
+  } catch {
+    monsterCacheForLegendary = []
+    return []
+  }
+}
+
+// Eagerly load
+ensureLegendaryMonsterCache()
+
+/**
+ * Enriches an initiative entry with legendary actions, resistances, and recharge
+ * abilities from the monster stat block.
+ */
+function enrichWithLegendaryData(
+  entry: InitiativeEntry,
+  token: { monsterStatBlockId?: string } | undefined,
+  monsters: MonsterStatBlock[]
+): InitiativeEntry {
+  if (!token?.monsterStatBlockId) return entry
+  const statBlock = monsters.find((m) => m.id === token.monsterStatBlockId)
+  if (!statBlock) return entry
+
+  const enriched = { ...entry }
+
+  if (statBlock.legendaryActions) {
+    enriched.legendaryActions = { maximum: statBlock.legendaryActions.uses, used: 0 }
+  }
+
+  // Count legendary resistances from traits (typically named "Legendary Resistance")
+  const lrTrait = statBlock.traits?.find((t) => t.name.toLowerCase().includes('legendary resistance'))
+  if (lrTrait) {
+    // Parse "Legendary Resistance (3/Day)" pattern
+    const match = lrTrait.name.match(/\((\d+)/)
+    const count = match ? parseInt(match[1]!, 10) : 3
+    enriched.legendaryResistances = { max: count, remaining: count }
+  }
+
+  // Populate recharge abilities from actions
+  const rechargeAbilities: Array<{ name: string; rechargeOn: number; available: boolean }> = []
+  for (const action of [...statBlock.actions, ...(statBlock.bonusActions ?? [])]) {
+    const rechargeMatch = action.name.match(/\(Recharge (\d)(?:[–-]6)?\)/)
+    if (rechargeMatch) {
+      rechargeAbilities.push({
+        name: action.name.replace(/\s*\(Recharge.*?\)/, ''),
+        rechargeOn: parseInt(rechargeMatch[1]!, 10),
+        available: true
+      })
+    }
+  }
+  if (rechargeAbilities.length > 0) {
+    enriched.rechargeAbilities = rechargeAbilities
+  }
+
+  // Populate lair actions if the creature has them and is marked as inLair
+  if (statBlock.lairActions && entry.inLair) {
+    enriched.lairActions = statBlock.lairActions.actions
+  }
+
+  return enriched
+}
 
 // ── Internal Helpers ──
 
@@ -45,10 +116,11 @@ export function executeStartInitiative(
   }>
   if (!Array.isArray(rawEntries) || rawEntries.length === 0) throw new Error('No initiative entries')
 
+  const monsters = monsterCacheForLegendary ?? []
   const entries: InitiativeEntry[] = rawEntries.map((e) => {
     // Try to resolve entity ID from existing tokens
     const token = activeMap ? resolveTokenByLabel(activeMap.tokens, e.label) : undefined
-    return {
+    const baseEntry: InitiativeEntry = {
       id: crypto.randomUUID(),
       entityId: token?.entityId || crypto.randomUUID(),
       entityName: e.label,
@@ -58,6 +130,7 @@ export function executeStartInitiative(
       total: e.roll + (e.modifier || 0),
       isActive: false
     }
+    return enrichWithLegendaryData(baseEntry, token, monsters)
   })
   gameStore.startInitiative(entries)
 
@@ -77,7 +150,8 @@ export function executeAddToInitiative(
   stores: StoreAccessors
 ): boolean {
   const token = activeMap ? resolveTokenByLabel(activeMap.tokens, action.label as string) : undefined
-  const entry: InitiativeEntry = {
+  const monsters = monsterCacheForLegendary ?? []
+  const baseEntry: InitiativeEntry = {
     id: crypto.randomUUID(),
     entityId: token?.entityId || crypto.randomUUID(),
     entityName: action.label as string,
@@ -87,6 +161,7 @@ export function executeAddToInitiative(
     total: (action.roll as number) + ((action.modifier as number) || 0),
     isActive: false
   }
+  const entry = enrichWithLegendaryData(baseEntry, token, monsters)
   gameStore.addToInitiative(entry)
   gameStore.initTurnState(entry.entityId, token?.walkSpeed ?? 30)
   broadcastInitiativeSync(stores)
@@ -484,6 +559,15 @@ export function executeLongRest(
   const names = action.characterNames as string[]
   if (!Array.isArray(names) || names.length === 0) throw new Error('No character names for long_rest')
 
+  // PHB 2024: Cannot long rest again within 24 hours of last long rest
+  const lastLR = gameStore.restTracking?.lastLongRestSeconds
+  const currentSec = stores.getGameStore().getState().inGameTime?.totalSeconds ?? 0
+  if (lastLR != null && currentSec - lastLR < 86400) {
+    const hoursLeft = Math.ceil((86400 - (currentSec - lastLR)) / 3600)
+    postDmChatMessage(stores, 'ai-rest', `Cannot long rest yet. Must wait ${hoursLeft} more hours.`)
+    return true
+  }
+
   // Advance time by 8 hours
   gameStore.advanceTimeSeconds(28800)
 
@@ -494,22 +578,27 @@ export function executeLongRest(
     lastShortRestSeconds: gameStore.restTracking?.lastShortRestSeconds ?? null
   })
 
-  // Remove all Exhaustion conditions for named characters
+  // PHB 2024: Long rest reduces Exhaustion by 1 level (not remove all)
   if (activeMap) {
     for (const name of names) {
       const token = resolveTokenByLabel(activeMap.tokens, name)
       if (token) {
-        const exhaustionConditions = gameStore.conditions.filter(
+        const exhCondition = gameStore.conditions.find(
           (c) => c.entityId === token.entityId && c.condition.toLowerCase() === 'exhaustion'
         )
-        for (const ec of exhaustionConditions) {
-          gameStore.removeCondition(ec.id)
+        if (exhCondition) {
+          const currentLevel = exhCondition.value ?? 1
+          if (currentLevel <= 1) {
+            gameStore.removeCondition(exhCondition.id)
+          } else {
+            gameStore.updateCondition(exhCondition.id, { value: currentLevel - 1 })
+          }
         }
       }
     }
   }
 
-  const msg = `Long rest completed for ${names.join(', ')}. All HP restored, spell slots recovered, class resources reset, and all Exhaustion removed.`
+  const msg = `Long rest completed for ${names.join(', ')}. All HP restored, spell slots recovered, class resources reset, and Exhaustion reduced by 1 level.`
   postDmChatMessage(stores, 'ai-rest', msg)
 
   // Apply long rest mutations (HP, spell slots, class resources, hit dice)

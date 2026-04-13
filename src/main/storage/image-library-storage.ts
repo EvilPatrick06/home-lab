@@ -1,6 +1,7 @@
-import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, stat, unlink } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import { app } from 'electron'
+import { atomicWriteFile } from './atomic-write'
 import type { StorageResult } from './types'
 
 const IMAGE_ID_RE = /^[a-zA-Z0-9_-]+$/
@@ -63,7 +64,7 @@ export async function saveImage(
   try {
     const dir = await getImageLibraryDir()
     const fileName = `${id}${ext}`
-    await writeFile(join(dir, fileName), buffer)
+    await atomicWriteFile(join(dir, fileName), buffer)
 
     // Save metadata alongside the image
     const meta: ImageLibraryMeta = {
@@ -72,7 +73,7 @@ export async function saveImage(
       fileName,
       savedAt: new Date().toISOString()
     }
-    await writeFile(join(dir, `${id}.meta.json`), JSON.stringify(meta, null, 2), 'utf-8')
+    await atomicWriteFile(join(dir, `${id}.meta.json`), JSON.stringify(meta, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
     return { success: false, error: `Failed to save image: ${(err as Error).message}` }

@@ -161,6 +161,44 @@ class MusicRestoreBehaviorTests(unittest.TestCase):
         svc._save_playback_state.assert_called_once()
         svc._emit_state.assert_called_once()
 
+    def test_pause_toggles_from_paused_to_playing_for_pi(self):
+        svc = MusicService.__new__(MusicService)
+        svc._output_device = "pi"
+        svc._player = MagicMock()
+        svc._player.get_state.return_value = vlc.State.Paused
+        svc._cast_pause = MagicMock()
+        svc._cast_play = MagicMock()
+        svc._save_playback_state = MagicMock()
+        svc._emit_state = MagicMock()
+        svc._playback_intent = "paused"
+
+        svc.pause()
+
+        svc._player.play.assert_called_once()
+        svc._player.pause.assert_not_called()
+        self.assertEqual(svc._playback_intent, "playing")
+        svc._save_playback_state.assert_called_once()
+        svc._emit_state.assert_called_once()
+
+    def test_pause_toggles_from_playing_to_paused_for_pi(self):
+        svc = MusicService.__new__(MusicService)
+        svc._output_device = "pi"
+        svc._player = MagicMock()
+        svc._player.get_state.return_value = vlc.State.Playing
+        svc._cast_pause = MagicMock()
+        svc._cast_play = MagicMock()
+        svc._save_playback_state = MagicMock()
+        svc._emit_state = MagicMock()
+        svc._playback_intent = "playing"
+
+        svc.pause()
+
+        svc._player.set_pause.assert_called_once_with(1)
+        svc._player.play.assert_not_called()
+        self.assertEqual(svc._playback_intent, "paused")
+        svc._save_playback_state.assert_called_once()
+        svc._emit_state.assert_called_once()
+
     @patch("music_service.time.time", return_value=1700000000.0)
     @patch("music_service.os.makedirs")
     @patch("music_service.json.dump")

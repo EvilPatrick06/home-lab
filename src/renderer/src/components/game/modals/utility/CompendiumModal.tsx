@@ -1,3 +1,4 @@
+import Fuse from 'fuse.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { loadCategoryItems } from '../../../../services/library-service'
 import { useLibraryStore } from '../../../../stores/use-library-store'
@@ -36,7 +37,20 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
   const [tabData, setTabData] = useState<LibraryItem[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
   const cache = useRef(new Map<LibraryCategory, LibraryItem[]>())
+
+  // Allow drag-through: make modal backdrop transparent during drags so drop targets underneath are reachable
+  useEffect(() => {
+    const onStart = (): void => setIsDragging(true)
+    const onEnd = (): void => setIsDragging(false)
+    document.addEventListener('dragstart', onStart)
+    document.addEventListener('dragend', onEnd)
+    return () => {
+      document.removeEventListener('dragstart', onStart)
+      document.removeEventListener('dragend', onEnd)
+    }
+  }, [])
 
   const { homebrewEntries, favorites, toggleFavorite, loadHomebrew } = useLibraryStore()
 
@@ -66,12 +80,22 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
     loadTabData()
   }, [activeTab, homebrewEntries])
 
-  // Filtered items
+  // Fuse.js fuzzy search
+  const fuse = useMemo(
+    () =>
+      new Fuse(tabData, {
+        keys: ['name', 'summary', 'data.tags'],
+        threshold: 0.3,
+        distance: 100,
+        ignoreLocation: true
+      }),
+    [tabData]
+  )
+
   const filtered = useMemo(() => {
     if (!search.trim()) return tabData
-    const q = search.toLowerCase()
-    return tabData.filter((item) => item.name.toLowerCase().includes(q) || item.summary.toLowerCase().includes(q))
-  }, [tabData, search])
+    return fuse.search(search).map((r) => r.item)
+  }, [fuse, search, tabData])
 
   const handleTabChange = useCallback((tab: LibraryCategory) => {
     setActiveTab(tab)
@@ -84,7 +108,7 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
         open={true}
         onClose={onClose}
         title="Rules Compendium"
-        className="max-w-5xl w-full h-[80vh] !overflow-hidden"
+        className={`max-w-5xl w-full h-[80vh] !overflow-hidden ${isDragging ? 'pointer-events-none' : ''}`}
       >
         <div className="flex flex-col h-full min-h-0">
           {/* Search */}

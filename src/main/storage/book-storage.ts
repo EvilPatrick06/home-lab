@@ -1,7 +1,8 @@
 import { app } from 'electron'
-import { copyFile, mkdir, readdir, readFile, stat, unlink, writeFile } from 'fs/promises'
+import { copyFile, mkdir, readdir, readFile, stat, unlink } from 'fs/promises'
 import { basename, extname, join } from 'path'
 import { logToFile } from '../log'
+import { atomicWriteFile } from './atomic-write'
 
 export interface BookConfig {
   id: string
@@ -60,7 +61,7 @@ export async function saveBookConfig(configs: BookConfig[]): Promise<{ success: 
   try {
     const dir = app.getPath('userData')
     await mkdir(dir, { recursive: true })
-    await writeFile(getBookConfigPath(), JSON.stringify(configs, null, 2), 'utf-8')
+    await atomicWriteFile(getBookConfigPath(), JSON.stringify(configs, null, 2))
     return { success: true }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to save book config' }
@@ -167,7 +168,7 @@ export async function saveBookData(bookId: string, data: BookData): Promise<{ su
   try {
     const booksDir = getBooksDir()
     await mkdir(booksDir, { recursive: true })
-    await writeFile(getBookDataPath(bookId), JSON.stringify(data, null, 2), 'utf-8')
+    await atomicWriteFile(getBookDataPath(bookId), JSON.stringify(data, null, 2))
     return { success: true }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to save book data' }
@@ -188,17 +189,17 @@ const CORE_BOOK_DEFS = [
   {
     id: 'phb-2024',
     title: "Player's Handbook 2024",
-    path: 'C:\\Users\\evilp\\dnd\\5.5e References\\PHB2024\\PlayersHandbook2024.pdf'
+    path: join(app.getPath('userData'), 'core_books', 'PHB2024', 'PlayersHandbook2024.pdf')
   },
   {
     id: 'dmg-2024',
     title: "Dungeon Master's Guide 2024",
-    path: 'C:\\Users\\evilp\\dnd\\5.5e References\\DMG2024\\Dungeon_Masters_Guide_2024.pdf'
+    path: join(app.getPath('userData'), 'core_books', 'DMG2024', 'Dungeon_Masters_Guide_2024.pdf')
   },
   {
     id: 'mm-2025',
     title: 'Monster Manual 2025',
-    path: 'C:\\Users\\evilp\\dnd\\5.5e References\\MM2025\\Monster Manual 2024.pdf'
+    path: join(app.getPath('userData'), 'core_books', 'MM2025', 'Monster Manual 2024.pdf')
   }
 ]
 

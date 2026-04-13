@@ -14,7 +14,7 @@ const FEATURES = [
   'Initiative Tracker with surprise rules',
   '3D Dice with physics engine (Three.js + cannon-es)',
   'P2P Multiplayer via WebRTC',
-  'AI Dungeon Master (Ollama)',
+  'AI Dungeon Master (Claude, OpenAI, Gemini, Ollama)',
   'Bastion System (2024 DMG rules)',
   'Crafting System, Shop System',
   'NPC/Monster/Creature Management with stat blocks',
@@ -63,7 +63,7 @@ export default function AboutPage(): JSX.Element {
       .getVersion()
       .then(setAppVersion)
       .catch(() => logger.warn('[About] Failed to fetch app version'))
-    window.api.update.onStatus((status) => {
+    const removeListener = window.api.update.onStatus((status) => {
       if (status.state === 'not-available') setUpdateStatus('up-to-date')
       else if (status.state === 'available') {
         setUpdateStatus('available')
@@ -80,7 +80,7 @@ export default function AboutPage(): JSX.Element {
       } else if (status.state === 'checking') setUpdateStatus('checking')
     })
     return () => {
-      window.api.update.removeStatusListener()
+      removeListener()
     }
   }, [])
 

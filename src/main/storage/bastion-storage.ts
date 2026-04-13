@@ -1,8 +1,9 @@
-import { access, mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { access, mkdir, readdir, readFile, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app } from 'electron'
 import { isValidUUID } from '../../shared/utils/uuid'
 import { logToFile } from '../log'
+import { atomicWriteFile } from './atomic-write'
 import { CURRENT_SCHEMA_VERSION, migrateData } from './migrations'
 import type { StorageResult } from './types'
 
@@ -44,7 +45,7 @@ export async function saveBastion(bastion: Record<string, unknown>): Promise<Sto
     }
     bastion.schemaVersion = CURRENT_SCHEMA_VERSION
     const path = await getBastionPath(id)
-    await writeFile(path, JSON.stringify(bastion, null, 2), 'utf-8')
+    await atomicWriteFile(path, JSON.stringify(bastion, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
     return { success: false, error: `Failed to save bastion: ${(err as Error).message}` }

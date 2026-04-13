@@ -1,6 +1,5 @@
 # Enforce LF line endings for all text files
 * text=auto eol=lf
-
 # Ensure these are always treated as text
 *.ts text eol=lf
 *.tsx text eol=lf
@@ -9,7 +8,6 @@
 *.md text eol=lf
 *.css text eol=lf
 *.html text eol=lf
-
 # Keep these as binary
 *.png binary
 *.jpg binary
@@ -23,3 +21,7 @@
 *.mp3 binary
 *.wav binary
 *.ogg binary
+*.pdf filter=lfs diff=lfs merge=lfs -text
+*.PDF filter=lfs diff=lfs merge=lfs -text
+*.asar filter=lfs diff=lfs merge=lfs -text
+*.blockmap filter=lfs diff=lfs merge=lfs -text

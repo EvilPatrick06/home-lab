@@ -62,7 +62,11 @@ class AudioOutputService:
         self._resolve_and_apply_routing()
 
     def _ensure_pipewire(self):
-        """Start PipeWire stack if not already running."""
+        """Start PipeWire stack if not already running.
+
+        Uses start_new_session=True so PipeWire processes survive BMO restarts
+        (otherwise systemd kills them as children of the bmo.service cgroup).
+        """
         import time
         env = os.environ.copy()
         env["XDG_RUNTIME_DIR"] = "/run/user/1000"
@@ -87,20 +91,20 @@ class AudioOutputService:
             except OSError:
                 pass
 
-        print("[audio] Starting PipeWire stack...")
-        # Start PipeWire
-        pw = subprocess.Popen(["pipewire"], env=env)
-        self._pw_procs.append(pw)
+        print("[audio] Starting PipeWire stack (detached)...")
+        # Start detached: start_new_session=True puts processes in their own
+        # process group so systemd won't kill them when bmo.service restarts.
+        devnull = subprocess.DEVNULL
+        subprocess.Popen(["pipewire"], env=env,
+                         start_new_session=True, stdout=devnull, stderr=devnull)
         time.sleep(3)
 
-        # Start WirePlumber
-        wp = subprocess.Popen(["wireplumber"], env=env)
-        self._pw_procs.append(wp)
+        subprocess.Popen(["wireplumber"], env=env,
+                         start_new_session=True, stdout=devnull, stderr=devnull)
         time.sleep(2)
 
-        # Start PipeWire-Pulse
-        pp = subprocess.Popen(["pipewire-pulse"], env=env)
-        self._pw_procs.append(pp)
+        subprocess.Popen(["pipewire-pulse"], env=env,
+                         start_new_session=True, stdout=devnull, stderr=devnull)
         time.sleep(2)
 
         # Verify

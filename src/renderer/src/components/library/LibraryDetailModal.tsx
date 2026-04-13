@@ -1,7 +1,23 @@
 import React, { useEffect, useState } from 'react'
+import { setDragPayload } from '../../services/library/drag-data'
 import type { LibraryCategory, LibraryItem } from '../../types/library'
 import { getCategoryDef } from '../../types/library'
+import type { MonsterStatBlock } from '../../types/monster'
+import MonsterStatBlockView from '../game/dm/MonsterStatBlockView'
 import Modal from '../ui/Modal'
+import ItemCardView from './ItemCardView'
+import SpellCardView from './SpellCardView'
+
+const DRAGGABLE_CATEGORIES = new Set<LibraryCategory>([
+  'monsters',
+  'creatures',
+  'npcs',
+  'spells',
+  'weapons',
+  'armor',
+  'gear',
+  'magic-items'
+])
 
 interface LibraryDetailModalProps {
   item: LibraryItem
@@ -184,8 +200,32 @@ export default function LibraryDetailModal({
   return (
     <Modal open={true} onClose={onClose} title={item.name} className="max-w-2xl !p-0 !overflow-hidden" hideHeader>
       <div className="flex flex-col h-full max-h-[80vh]">
-        <div className="flex items-center justify-between p-5 border-b border-gray-800 shrink-0">
+        <div
+          className="flex items-center justify-between p-5 border-b border-gray-800 shrink-0"
+          draggable={DRAGGABLE_CATEGORIES.has(item.category)}
+          onDragStart={(e) => {
+            if (!DRAGGABLE_CATEGORIES.has(item.category)) return
+            const dragType = (['monsters', 'creatures', 'npcs'] as LibraryCategory[]).includes(item.category)
+              ? ('library-monster' as const)
+              : item.category === 'spells'
+                ? ('library-spell' as const)
+                : ('library-item' as const)
+            const payload =
+              dragType === 'library-item'
+                ? { type: dragType, itemId: item.id, itemName: item.name, category: item.category }
+                : { type: dragType, itemId: item.id, itemName: item.name }
+            setDragPayload(e, payload)
+          }}
+        >
           <div className="flex items-center gap-3">
+            {DRAGGABLE_CATEGORIES.has(item.category) && (
+              <span
+                className="text-gray-600 cursor-grab active:cursor-grabbing select-none"
+                title="Drag to map or character sheet"
+              >
+                ⠿
+              </span>
+            )}
             {catDef && <span className="text-2xl">{catDef.icon}</span>}
             <div>
               <h2 className="text-xl font-bold text-gray-100">{item.name}</h2>
@@ -212,11 +252,20 @@ export default function LibraryDetailModal({
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 min-h-0">
-          <dl className="space-y-4">
-            {fields.map(([key, value]) => (
-              <React.Fragment key={key}>{renderField(formatLabel(key), value)}</React.Fragment>
-            ))}
-          </dl>
+          {(['monsters', 'creatures', 'npcs'] as LibraryCategory[]).includes(item.category) &&
+          item.data.abilityScores ? (
+            <MonsterStatBlockView monster={item.data as unknown as MonsterStatBlock} />
+          ) : item.category === 'spells' ? (
+            <SpellCardView spell={item.data} />
+          ) : (['weapons', 'armor', 'gear', 'magic-items'] as LibraryCategory[]).includes(item.category) ? (
+            <ItemCardView item={item.data} category={item.category} />
+          ) : (
+            <dl className="space-y-4">
+              {fields.map(([key, value]) => (
+                <React.Fragment key={key}>{renderField(formatLabel(key), value)}</React.Fragment>
+              ))}
+            </dl>
+          )}
         </div>
 
         <div className="flex items-center gap-2 p-4 border-t border-gray-800 shrink-0">

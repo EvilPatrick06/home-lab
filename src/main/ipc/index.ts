@@ -1,13 +1,13 @@
-import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
-import { isAbsolute, join, relative, resolve } from 'node:path'
+import { readFile, stat, writeFile } from 'node:fs/promises'
+import { isAbsolute, relative, resolve } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
-import { isValidUUID } from '../../shared/utils/uuid'
 import { logToFile } from '../log'
 import { registerAiHandlers } from './ai-handlers'
 import { registerAudioHandlers } from './audio-handlers'
+import { registerBmoSyncHandlers } from './bmo-sync-handlers'
 import { registerCloudSyncHandlers } from './cloud-sync-handlers'
 import { registerDiscordHandlers } from './discord-handlers'
 import { registerGameDataHandlers } from './game-data-handlers'
@@ -58,66 +58,7 @@ export function registerIpcHandlers(): void {
   // --- Storage handlers (character, campaign, bastion, creature, game state, homebrew, settings) ---
   registerStorageHandlers()
 
-  // --- Ban storage ---
-
-  ipcMain.handle(IPC_CHANNELS.LOAD_BANS, async (_event, campaignId: string) => {
-    if (!isValidUUID(campaignId)) {
-      throw new Error('Invalid campaign ID')
-    }
-    try {
-      const bansDir = join(app.getPath('userData'), 'bans')
-      const banPath = join(bansDir, `${campaignId}.json`)
-      const content = await readFile(banPath, 'utf-8')
-      const parsed = JSON.parse(content)
-      return {
-        peerIds: Array.isArray(parsed.peerIds) ? (parsed.peerIds as string[]) : [],
-        names: Array.isArray(parsed.names) ? (parsed.names as string[]) : []
-      }
-    } catch {
-      return { peerIds: [] as string[], names: [] as string[] }
-    }
-  })
-
-  ipcMain.handle(
-    IPC_CHANNELS.SAVE_BANS,
-    async (_event, campaignId: string, banData: { peerIds: string[]; names: string[] }) => {
-      if (!isValidUUID(campaignId)) {
-        throw new Error('Invalid campaign ID')
-      }
-      if (!banData || typeof banData !== 'object') {
-        throw new Error('Invalid ban data: expected object')
-      }
-      const { peerIds, names } = banData
-      if (!Array.isArray(peerIds)) {
-        throw new Error('Invalid peer IDs: expected array')
-      }
-      if (!Array.isArray(names)) {
-        throw new Error('Invalid names: expected array')
-      }
-      if (peerIds.length > 1000 || names.length > 1000) {
-        throw new Error('Invalid ban data: too many entries')
-      }
-      for (const id of peerIds) {
-        if (typeof id !== 'string' || id.length > 64) {
-          throw new Error('Invalid peer ID in list')
-        }
-      }
-      for (const name of names) {
-        if (typeof name !== 'string' || name.length > 64) {
-          throw new Error('Invalid name in list')
-        }
-      }
-      try {
-        const bansDir = join(app.getPath('userData'), 'bans')
-        await mkdir(bansDir, { recursive: true })
-        const banPath = join(bansDir, `${campaignId}.json`)
-        await writeFile(banPath, JSON.stringify({ peerIds, names }), 'utf-8')
-        return { success: true }
-      } catch (err) {
-        return { success: false, error: (err as Error).message }
-      }
-    }
-  )
+  // --- Ban storage moved to storage-handlers.ts ---
 
   // --- File dialogs ---
 
@@ -174,6 +115,26 @@ export function registerIpcHandlers(): void {
       throw err
     }
     // Dialog path is NOT consumed on read so the caller can subsequently write to the same path.
+  })
+
+  ipcMain.handle(IPC_CHANNELS.FS_READ_BINARY, async (_event, filePath: string) => {
+    if (!isPathAllowed(filePath)) {
+      throw new Error('Access denied: path not allowed')
+    }
+    const resolvedPath = resolve(filePath)
+    try {
+      const fileStats = await stat(resolvedPath)
+      if (fileStats.size > MAX_READ_FILE_SIZE) {
+        throw new Error(`File too large: ${fileStats.size} bytes (max ${MAX_READ_FILE_SIZE})`)
+      }
+      const content = await readFile(resolvedPath)
+      const arrayBuffer = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength)
+      return arrayBuffer
+    } catch (err) {
+      if (err instanceof Error && err.message.startsWith('File too large')) throw err
+      logToFile('ERROR', 'fs:read-file-binary failed:', String(err))
+      throw err
+    }
   })
 
   ipcMain.handle(IPC_CHANNELS.FS_WRITE, async (_event, filePath: string, content: string) => {
@@ -250,4 +211,7 @@ export function registerIpcHandlers(): void {
 
   // --- Cloud sync handlers (Google Drive via Rclone on Pi) ---
   registerCloudSyncHandlers()
+
+  // --- BMO Pi Bridge: Sync receiver & handlers ---
+  registerBmoSyncHandlers()
 }

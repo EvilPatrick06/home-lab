@@ -1,6 +1,7 @@
-import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app } from 'electron'
+import { atomicWriteFile } from './atomic-write'
 import type { StorageResult } from './types'
 
 const MAP_ID_RE = /^[a-zA-Z0-9_-]+$/
@@ -52,7 +53,7 @@ export async function saveMapToLibrary(
       data,
       savedAt: new Date().toISOString()
     }
-    await writeFile(join(dir, `${id}.json`), JSON.stringify(entry, null, 2), 'utf-8')
+    await atomicWriteFile(join(dir, `${id}.json`), JSON.stringify(entry, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
     return { success: false, error: `Failed to save map: ${(err as Error).message}` }

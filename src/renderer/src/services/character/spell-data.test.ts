@@ -85,6 +85,16 @@ describe('getMulticlassSpellSlots', () => {
     expect(slots[1]).toBe(4)
   })
 
+  it('Wizard 3 / Paladin 4 = combined 3 + ceil(4/2) = level 5', () => {
+    const classes = [
+      { classId: 'wizard', level: 3 },
+      { classId: 'paladin', level: 4 }
+    ]
+    const slots = getMulticlassSpellSlots(classes)
+    // 3 (wizard full) + ceil(4/2)=2 (paladin half) = 5
+    expect(slots).toEqual({ 1: 4, 2: 3, 3: 2 })
+  })
+
   it('Wizard 5 / Paladin 6 = combined 5 + 3 = level 8', () => {
     const classes = [
       { classId: 'wizard', level: 5 },
@@ -122,6 +132,22 @@ describe('getMulticlassSpellSlots', () => {
     ]
     const slots = getMulticlassSpellSlots(classes)
     expect(slots).toEqual({})
+  })
+
+  it('single half caster (Paladin 6) uses half level', () => {
+    const slots = getMulticlassSpellSlots([{ classId: 'paladin', level: 6 }])
+    // ceil(6/2) = 3 → level 3 slots
+    expect(slots).toEqual({ 1: 4, 2: 2 })
+  })
+
+  it('level 1 half caster = ceil(1/2) = 1 → level 1 slots', () => {
+    const slots = getMulticlassSpellSlots([{ classId: 'ranger', level: 1 }])
+    expect(slots).toEqual({ 1: 2 })
+  })
+
+  it('third caster only: Fighter (EK) 9 = floor(9/3) = 3 → level 3 slots', () => {
+    const slots = getMulticlassSpellSlots([{ classId: 'fighter', subclassId: 'eldritch-knight', level: 9 }])
+    expect(slots).toEqual({ 1: 4, 2: 2 })
   })
 })
 

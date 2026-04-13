@@ -1,0 +1,119 @@
+[
+  {
+    "name": "Ability Check",
+    "description": "An ability check tests a creature's innate talent and training in an effort to overcome a challenge. The DM calls for an ability check when a creature attempts an action (other than an attack) that has a chance of failure. When the outcome is uncertain, the dice determine the results.",
+    "effects": [
+      "Roll 1d20 and add the relevant ability modifier",
+      "If you have proficiency in the relevant skill, add your Proficiency Bonus",
+      "The DM sets a DC (Difficulty Class); meet or exceed the DC to succeed",
+      "Typical DCs: Very Easy (5), Easy (10), Medium (15), Hard (20), Very Hard (25), Nearly Impossible (30)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Skill Checks",
+    "description": "Each ability covers a broad range of capabilities, including skills that a character or monster can be proficient in. A skill represents a specific aspect of an ability score, and an individual's proficiency in a skill demonstrates a focus on that aspect.",
+    "effects": [
+      "Strength: Athletics",
+      "Dexterity: Acrobatics, Sleight of Hand, Stealth",
+      "Intelligence: Arcana, History, Investigation, Nature, Religion",
+      "Wisdom: Animal Handling, Insight, Medicine, Perception, Survival",
+      "Charisma: Deception, Intimidation, Performance, Persuasion"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Proficiency Bonus",
+    "description": "Your Proficiency Bonus is added to ability checks, attack rolls, and saving throws that use a skill, tool, weapon, or saving throw in which you have proficiency. The bonus is determined by your character level.",
+    "effects": [
+      "Levels 1-4: +2",
+      "Levels 5-8: +3",
+      "Levels 9-12: +4",
+      "Levels 13-16: +5",
+      "Levels 17-20: +6",
+      "You never add your Proficiency Bonus more than once to a single roll"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Advantage and Disadvantage",
+    "description": "Advantage and Disadvantage reflect the extraordinary circumstances surrounding a d20 roll. When you have Advantage, you roll two d20s and use the higher result. When you have Disadvantage, you roll two d20s and use the lower result.",
+    "effects": [
+      "Advantage: Roll 2d20, use the higher roll",
+      "Disadvantage: Roll 2d20, use the lower roll",
+      "If you have both Advantage and Disadvantage, they cancel each other out regardless of how many sources of each you have",
+      "You never roll more than two d20s for Advantage or Disadvantage",
+      "If multiple situations apply that grant Advantage, you still only roll two d20s"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Passive Checks",
+    "description": "A passive check is a special kind of ability check that doesn't involve any die rolls. It represents the average result for a task done repeatedly or can be used when the DM wants to secretly determine whether the characters succeed at something without rolling dice.",
+    "effects": [
+      "Passive check total = 10 + all modifiers that normally apply to the check",
+      "If the creature has Advantage on the check, add 5 to the passive score",
+      "If the creature has Disadvantage on the check, subtract 5 from the passive score",
+      "Commonly used for Passive Perception to detect hidden creatures or traps"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Contests",
+    "description": "Sometimes one character's or monster's efforts are directly opposed to another's. This can occur when both of them are trying to do the same thing and only one can succeed, or when one is trying to prevent the other from accomplishing a goal.",
+    "effects": [
+      "Each participant makes an ability check appropriate to the effort",
+      "Apply all relevant bonuses and penalties",
+      "The higher check result wins the contest",
+      "On a tie, the situation remains the same as before the contest"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Tool Proficiency",
+    "description": "Having proficiency with a tool allows you to add your Proficiency Bonus to any ability check you make using that tool. Tool use is not tied to a single ability, since proficiency with a tool represents broader knowledge of its use.",
+    "effects": [
+      "Artisan's Tools cover various crafting proficiencies",
+      "Gaming Sets include dice sets and card games",
+      "Musical Instruments include various instruments you can play",
+      "Thieves' Tools are used to disarm traps and open locks",
+      "If you have proficiency in both a skill and a tool relevant to a check, you still only add your Proficiency Bonus once"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Saving Throws",
+    "description": "A saving throw represents an attempt to resist a spell, a trap, a poison, a disease, or a similar threat. You don't normally decide to make a saving throw; you are forced to make one because your character or monster is at risk of harm.",
+    "effects": [
+      "Roll 1d20 and add the appropriate ability modifier",
+      "Add your Proficiency Bonus if you are proficient in that saving throw",
+      "The DC is determined by the effect that causes the save",
+      "A success usually means the creature suffers no harm, or reduced harm, from the effect",
+      "Each class gives proficiency in at least two saving throws"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Group Checks",
+    "description": "When a number of individuals are trying to accomplish something as a group, the DM might ask for a group ability check. In such a situation, the characters who are skilled at a particular task help cover those who aren't.",
+    "effects": [
+      "Everyone in the group makes the ability check",
+      "If at least half the group succeeds, the whole group succeeds",
+      "Otherwise, the group fails",
+      "Commonly used for group Stealth checks when sneaking together"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Heroic Inspiration",
+    "description": "Heroic Inspiration is a special reward the DM can give to a player character. It represents the character's extraordinary resolve or luck in the moment.",
+    "effects": [
+      "The DM awards Heroic Inspiration to reward compelling roleplaying, clever thinking, or simply for fun",
+      "You can spend Heroic Inspiration to give yourself Advantage on a d20 roll",
+      "You must decide to spend it before you roll",
+      "You either have Heroic Inspiration or you don't; you can't stockpile multiple uses",
+      "If you already have Heroic Inspiration and gain it again, you can give it to another player character"
+    ],
+    "source": "PHB 2024"
+  }
+]

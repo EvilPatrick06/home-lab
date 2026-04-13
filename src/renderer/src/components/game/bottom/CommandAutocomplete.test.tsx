@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('../../../services/chat-commands', () => ({
+  getFilteredCommands: () => []
+}))
 
 describe('CommandAutocomplete', () => {
   it('can be imported', async () => {

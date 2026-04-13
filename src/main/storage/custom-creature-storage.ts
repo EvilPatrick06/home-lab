@@ -1,8 +1,9 @@
-import { access, mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { access, mkdir, readdir, readFile, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app } from 'electron'
 import { isValidUUID } from '../../shared/utils/uuid'
 import { logToFile } from '../log'
+import { atomicWriteFile } from './atomic-write'
 import type { StorageResult } from './types'
 
 let creaturesDirReady: Promise<string> | null = null
@@ -42,7 +43,7 @@ export async function saveCustomCreature(creature: Record<string, unknown>): Pro
       return { success: false, error: 'Invalid creature ID' }
     }
     const path = await getCreaturePath(id)
-    await writeFile(path, JSON.stringify(creature, null, 2), 'utf-8')
+    await atomicWriteFile(path, JSON.stringify(creature, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
     return { success: false, error: `Failed to save creature: ${(err as Error).message}` }

@@ -13,6 +13,7 @@ export interface MapLayers {
   moveOverlay: Graphics
   aoeOverlay: Graphics
   tokenContainer: Container
+  occlusionContainer: Container
   selectionBoxGraphics: Graphics
   pingGraphics: Graphics
   fogGraphics: Graphics
@@ -127,6 +128,11 @@ export function createMapLayers(app: Application): MapLayers {
   tokenContainer.label = 'tokens'
   world.addChild(tokenContainer)
 
+  // Occlusion / foreground layer (above tokens — fades on proximity to party tokens)
+  const occlusionContainer = new Container()
+  occlusionContainer.label = 'occlusion'
+  world.addChild(occlusionContainer)
+
   // Selection box overlay (above tokens, below pings)
   const selectionBoxGraphics = new Graphics()
   selectionBoxGraphics.label = 'selection-box'
@@ -173,6 +179,7 @@ export function createMapLayers(app: Application): MapLayers {
     moveOverlay,
     aoeOverlay,
     tokenContainer,
+    occlusionContainer,
     selectionBoxGraphics,
     pingGraphics,
     fogGraphics,

@@ -1,0 +1,2256 @@
+
+> dnd-vtt@1.9.9 lint
+> biome check src/ --max-diagnostics=500
+
+src\main\ai\prompt-assembler.ts:38:5 lint/complexity/noUselessSwitchCase  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i Useless case clause.
+  
+    36 Γöé       parts.push(SOCIAL_RULES_PROMPT)
+    37 Γöé       break
+  > 38 Γöé     case 'general':
+       Γöé     ^^^^^^^^^^^^^^^
+    39 Γöé     default:
+    40 Γöé       parts.push(CHARACTER_RULES_PROMPT)
+  
+  i because the default clause is present:
+  
+    37 Γöé       break
+    38 Γöé     case 'general':
+  > 39 Γöé     default:
+       Γöé     ^^^^^^^^
+  > 40 Γöé       parts.push(CHARACTER_RULES_PROMPT)
+  > 41 Γöé       parts.push(COMBAT_RULES_PROMPT)
+  > 42 Γöé       parts.push(EXPLORATION_RULES_PROMPT)
+  > 43 Γöé       parts.push(SOCIAL_RULES_PROMPT)
+  > 44 Γöé       break
+       Γöé       ^^^^^
+    45 Γöé   }
+    46 Γöé 
+  
+  i Unsafe fix: Remove the useless case.
+  
+    36 36 Γöé         parts.push(SOCIAL_RULES_PROMPT)
+    37 37 Γöé         break
+    38    Γöé - ┬╖┬╖┬╖┬╖case┬╖'general':
+    39 38 Γöé       default:
+    40 39 Γöé         parts.push(CHARACTER_RULES_PROMPT)
+  
+
+src\renderer\public\pdf.worker.min.mjs check ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i The size of the file is 1.7 MiB, which exceeds the configured maximum of 1.5 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+  
+
+src\renderer\src\components\game\modals\utility\PartyInventoryModal.tsx:99:29 lint/correctness/useParseIntRadix  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i Missing radix parameter
+  
+     97 Γöé       id: crypto.randomUUID(),
+     98 Γöé       name: newName.trim(),
+   > 99 Γöé       quantity: Math.max(1, parseInt(newQuantity) || 1),
+        Γöé                             ^^^^^^^^^^^^^^^^^^^^^
+    100 Γöé       weight: newWeight ? parseFloat(newWeight) : undefined,
+    101 Γöé       value: newValue ? parseFloat(newValue) : undefined,
+  
+  i Add a non-fractional number between 2 and 36
+  
+  i Unsafe fix: Add a radix of 10
+  
+    99 Γöé ┬╖┬╖┬╖┬╖┬╖┬╖quantity:┬╖Math.max(1,┬╖parseInt(newQuantity,┬╖10)┬╖||┬╖1),
+       Γöé                                                 ++++        
+
+src\renderer\src\components\game\modals\utility\PartyInventoryModal.tsx:157:19 lint/correctness/useParseIntRadix  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i Missing radix parameter
+  
+    155 Γöé     let hasAmount = false
+    156 Γöé     for (const [key, val] of Object.entries(currencyAmounts)) {
+  > 157 Γöé       const num = parseInt(val)
+        Γöé                   ^^^^^^^^^^^^^
+    158 Γöé       if (num > 0) {
+    159 Γöé         amounts[key] = num
+  
+  i Add a non-fractional number between 2 and 36
+  
+  i Unsafe fix: Add a radix of 10
+  
+    157 Γöé ┬╖┬╖┬╖┬╖┬╖┬╖const┬╖num┬╖=┬╖parseInt(val,┬╖10)
+        Γöé                               ++++ 
+
+src\renderer\src\components\game\modals\utility\PartyInventoryModal.tsx:173:19 lint/correctness/useParseIntRadix  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i Missing radix parameter
+  
+    171 Γöé     let hasAmount = false
+    172 Γöé     for (const [key, val] of Object.entries(currencyAmounts)) {
+  > 173 Γöé       const num = parseInt(val)
+        Γöé                   ^^^^^^^^^^^^^
+    174 Γöé       if (num > 0) {
+    175 Γöé         amounts[key] = num
+  
+  i Add a non-fractional number between 2 and 36
+  
+  i Unsafe fix: Add a radix of 10
+  
+    173 Γöé ┬╖┬╖┬╖┬╖┬╖┬╖const┬╖num┬╖=┬╖parseInt(val,┬╖10)
+        Γöé                               ++++ 
+
+src\renderer\src\components\game\sidebar\TablesPanel.tsx:98:39 lint/correctness/useParseIntRadix  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i Missing radix parameter
+  
+     96 Γöé           return rollResult.total >= min && rollResult.total <= max
+     97 Γöé         } else {
+   > 98 Γöé           return rollResult.total === parseInt(rollRange)
+        Γöé                                       ^^^^^^^^^^^^^^^^^^^
+     99 Γöé         }
+    100 Γöé       })
+  
+  i Add a non-fractional number between 2 and 36
+  
+  i Unsafe fix: Add a radix of 10
+  
+    98 Γöé ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖return┬╖rollResult.total┬╖===┬╖parseInt(rollRange,┬╖10)
+       Γöé                                                         ++++ 
+
+src\renderer\src\components\library\ItemCardView.test.tsx:17:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i The computed expression can be simplified without the use of a string literal.
+  
+    16 Γöé   it('maps each rarity to correct color class', () => {
+  > 17 Γöé     expect(RARITY_COLORS['common']).toBe('text-gray-400')
+       Γöé                          ^^^^^^^^
+    18 Γöé     expect(RARITY_COLORS['uncommon']).toBe('text-green-400')
+    19 Γöé     expect(RARITY_COLORS['rare']).toBe('text-blue-400')
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    15 15 Γöé   
+    16 16 Γöé     it('maps each rarity to correct color class', () => {
+    17    Γöé - ┬╖┬╖┬╖┬╖expect(RARITY_COLORS['common']).toBe('text-gray-400')
+       17 Γöé + ┬╖┬╖┬╖┬╖expect(RARITY_COLORS.common).toBe('text-gray-400')
+    18 18 Γöé       expect(RARITY_COLORS['uncommon']).toBe('text-green-400')
+    19 19 Γöé       expect(RARITY_COLORS['rare']).toBe('text-blue-400')
+  
+
+src\renderer\src\components\library\ItemCardView.test.tsx:18:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i The computed expression can be simplified without the use of a string literal.
+  
+    16 Γöé   it('maps each rarity to correct color class', () => {
+    17 Γöé     expect(RARITY_COLORS['common']).toBe('text-gray-400')
+  > 18 Γöé     expect(RARITY_COLORS['uncommon']).toBe('text-green-400')
+       Γöé                          ^^^^^^^^^^
+    19 Γöé     expect(RARITY_COLORS['rare']).toBe('text-blue-400')
+    20 Γöé     expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    16 16 Γöé     it('maps each rarity to correct color class', () => {
+    17 17 Γöé       expect(RARITY_COLORS['common']).toBe('text-gray-400')
+    18    Γöé - ┬╖┬╖┬╖┬╖expect(RARITY_COLORS['uncommon']).toBe('text-green-400')
+       18 Γöé + ┬╖┬╖┬╖┬╖expect(RARITY_COLORS.uncommon).toBe('text-green-400')
+    19 19 Γöé       expect(RARITY_COLORS['rare']).toBe('text-blue-400')
+    20 20 Γöé       expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
+  
+
+src\renderer\src\components\library\ItemCardView.test.tsx:19:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i The computed expression can be simplified without the use of a string literal.
+  
+    17 Γöé     expect(RARITY_COLORS['common']).toBe('text-gray-400')
+    18 Γöé     expect(RARITY_COLORS['uncommon']).toBe('text-green-400')
+  > 19 Γöé     expect(RARITY_COLORS['rare']).toBe('text-blue-400')
+       Γöé                          ^^^^^^
+    20 Γöé     expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
+    21 Γöé     expect(RARITY_COLORS['legendary']).toBe('text-amber-400')
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    17 17 Γöé       expect(RARITY_COLORS['common']).toBe('text-gray-400')
+    18 18 Γöé       expect(RARITY_COLORS['uncommon']).toBe('text-green-400')
+    19    Γöé - ┬╖┬╖┬╖┬╖expect(RARITY_COLORS['rare']).toBe('text-blue-400')
+       19 Γöé + ┬╖┬╖┬╖┬╖expect(RARITY_COLORS.rare).toBe('text-blue-400')
+    20 20 Γöé       expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
+    21 21 Γöé       expect(RARITY_COLORS['legendary']).toBe('text-amber-400')
+  
+
+src\renderer\src\components\library\ItemCardView.test.tsx:21:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i The computed expression can be simplified without the use of a string literal.
+  
+    19 Γöé     expect(RARITY_COLORS['rare']).toBe('text-blue-400')
+    20 Γöé     expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
+  > 21 Γöé     expect(RARITY_COLORS['legendary']).toBe('text-amber-400')
+       Γöé                          ^^^^^^^^^^^
+    22 Γöé     expect(RARITY_COLORS['artifact']).toBe('text-red-400')
+    23 Γöé   })
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    19 19 Γöé       expect(RARITY_COLORS['rare']).toBe('text-blue-400')
+    20 20 Γöé       expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
+    21    Γöé - ┬╖┬╖┬╖┬╖expect(RARITY_COLORS['legendary']).toBe('text-amber-400')
+       21 Γöé + ┬╖┬╖┬╖┬╖expect(RARITY_COLORS.legendary).toBe('text-amber-400')
+    22 22 Γöé       expect(RARITY_COLORS['artifact']).toBe('text-red-400')
+    23 23 Γöé     })
+  
+
+src\renderer\src\components\library\ItemCardView.test.tsx:22:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i The computed expression can be simplified without the use of a string literal.
+  
+    20 Γöé     expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
+    21 Γöé     expect(RARITY_COLORS['legendary']).toBe('text-amber-400')
+  > 22 Γöé     expect(RARITY_COLORS['artifact']).toBe('text-red-400')
+       Γöé                          ^^^^^^^^^^
+    23 Γöé   })
+    24 Γöé 
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    20 20 Γöé       expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
+    21 21 Γöé       expect(RARITY_COLORS['legendary']).toBe('text-amber-400')
+    22    Γöé - ┬╖┬╖┬╖┬╖expect(RARITY_COLORS['artifact']).toBe('text-red-400')
+       22 Γöé + ┬╖┬╖┬╖┬╖expect(RARITY_COLORS.artifact).toBe('text-red-400')
+    23 23 Γöé     })
+    24 24 Γöé   
+  
+
+src\renderer\src\components\library\ItemCardView.test.tsx:26:26 lint/complexity/useLiteralKeys  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i The computed expression can be simplified without the use of a string literal.
+  
+    25 Γöé   it('returns undefined for unknown rarities', () => {
+  > 26 Γöé     expect(RARITY_COLORS['unknown']).toBeUndefined()
+       Γöé                          ^^^^^^^^^
+    27 Γöé   })
+    28 Γöé })
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    24 24 Γöé   
+    25 25 Γöé     it('returns undefined for unknown rarities', () => {
+    26    Γöé - ┬╖┬╖┬╖┬╖expect(RARITY_COLORS['unknown']).toBeUndefined()
+       26 Γöé + ┬╖┬╖┬╖┬╖expect(RARITY_COLORS.unknown).toBeUndefined()
+    27 27 Γöé     })
+    28 28 Γöé   })
+  
+
+src\renderer\src\components\library\ItemCardView.tsx:90:26 lint/style/useTemplate  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i Template literals are preferred over string concatenation.
+  
+    88 Γöé       <div className="flex gap-1">
+    89 Γöé         <span className="text-amber-500 font-semibold">Rarity</span>
+  > 90 Γöé         <span className={rarityColor + ' capitalize'}>{rarity}</span>
+       Γöé                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    91 Γöé       </div>
+    92 Γöé       <Stat label="Type" value={item.type} />
+  
+  i Unsafe fix: Use a template literal.
+  
+     88  88 Γöé         <div className="flex gap-1">
+     89  89 Γöé           <span className="text-amber-500 font-semibold">Rarity</span>
+     90     Γöé - ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖<span┬╖className={rarityColor┬╖+┬╖'┬╖capitalize'}>{rarity}</span>
+         90 Γöé + ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖<span┬╖className={`${rarityColor}┬╖capitalize`}>{rarity}</span>
+     91  91 Γöé         </div>
+     92  92 Γöé         <Stat label="Type" value={item.type} />
+  
+
+src\renderer\src\services\chat-commands\commands-player-checks.ts:134:40 lint/style/useTemplate  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i Template literals are preferred over string concatenation.
+  
+    132 Γöé     const total = roll + modifier
+    133 Γöé     const tag = roll === 20 ? ' **Natural 20!**' : roll === 1 ? ' *Natural 1!*' : ''
+  > 134 Γöé     const abilityLabel = abilityName ? abilityName.charAt(0).toUpperCase() + abilityName.slice(1) + ' ' : ''
+        Γöé                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    135 Γöé 
+    136 Γöé     trigger3dDice({ formula: '1d20', rolls: [roll], total: roll, rollerName: ctx.playerName })
+  
+  i Unsafe fix: Use a template literal.
+  
+    132 132 Γöé       const total = roll + modifier
+    133 133 Γöé       const tag = roll === 20 ? ' **Natural 20!**' : roll === 1 ? ' *Natural 1!*' : ''
+    134     Γöé - ┬╖┬╖┬╖┬╖const┬╖abilityLabel┬╖=┬╖abilityName┬╖?┬╖abilityName.charAt(0).toUpperCase()┬╖+┬╖abilityName.slice(1)┬╖+┬╖'┬╖'┬╖:┬╖''
+        134 Γöé + ┬╖┬╖┬╖┬╖const┬╖abilityLabel┬╖=┬╖abilityName┬╖?┬╖`${abilityName.charAt(0).toUpperCase()┬╖+┬╖abilityName.slice(1)}┬╖`┬╖:┬╖''
+    135 135 Γöé   
+    136 136 Γöé       trigger3dDice({ formula: '1d20', rolls: [roll], total: roll, rollerName: ctx.playerName })
+  
+
+src\main\index.ts:122:38 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    120 Γöé       if (entry.isFile() && entry.name.endsWith('.tmp')) {
+    121 Γöé         // Handle both older Node (entry.path) and newer Node (entry.parentPath)
+  > 122 Γöé         const parentPath = (entry as any).parentPath || (entry as any).path || dir
+        Γöé                                      ^^^
+    123 Γöé         await unlink(join(parentPath, entry.name)).catch(() => {})
+    124 Γöé         logToFile('INFO', `Cleaned up orphaned tmp file: ${entry.name}`)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\index.ts:122:67 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    120 Γöé       if (entry.isFile() && entry.name.endsWith('.tmp')) {
+    121 Γöé         // Handle both older Node (entry.path) and newer Node (entry.parentPath)
+  > 122 Γöé         const parentPath = (entry as any).parentPath || (entry as any).path || dir
+        Γöé                                                                   ^^^
+    123 Γöé         await unlink(join(parentPath, entry.name)).catch(() => {})
+    124 Γöé         logToFile('INFO', `Cleaned up orphaned tmp file: ${entry.name}`)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:388:49 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    386 Γöé       try {
+    387 Γöé         const memMgr = getMemoryManager(campaignId)
+  > 388 Γöé         await memMgr.updateCombatState(state as any)
+        Γöé                                                 ^^^
+    389 Γöé         return { success: true }
+    390 Γöé       } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:291:65 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    289 Γöé     IPC_CHANNELS.AI_RESTORE_CONVERSATION,
+    290 Γöé     async (_event, campaignId: string, data: Record<string, unknown>) => {
+  > 291 Γöé       const result = await saveConversation(campaignId, data as any)
+        Γöé                                                                 ^^^
+    292 Γöé       if (!result.success) return { success: false, error: result.error }
+    293 Γöé       return { success: true }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:374:48 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    372 Γöé       try {
+    373 Γöé         const memMgr = getMemoryManager(campaignId)
+  > 374 Γöé         await memMgr.updateWorldState(state as any)
+        Γöé                                                ^^^
+    375 Γöé         return { success: true }
+    376 Γöé       } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:549:49 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    547 Γöé     try {
+    548 Γöé       const { analyzeMapState } = await import('../ai/ai-vision')
+  > 549 Γöé       return await analyzeMapState(gameState as any)
+        Γöé                                                 ^^^
+    550 Γöé     } catch (error) {
+    551 Γöé       return { success: false, error: (error as Error).message }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:560:51 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    558 Γöé     try {
+    559 Γöé       const { processStateUpdate } = await import('../ai/ai-trigger-observer')
+  > 560 Γöé       const results = processStateUpdate(state as any)
+        Γöé                                                   ^^^
+    561 Γöé       return { success: true, fired: results }
+    562 Γöé     } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\index.ts:2:22 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Several of these imports are unused.
+  
+    1 Γöé import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
+  > 2 Γöé import { isAbsolute, join, relative, resolve } from 'node:path'
+      Γöé                      ^^^^
+    3 Γöé import { is } from '@electron-toolkit/utils'
+    4 Γöé import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    2 Γöé import┬╖{┬╖isAbsolute,┬╖join,┬╖relative,┬╖resolve┬╖}┬╖from┬╖'node:path'
+      Γöé                      ------                                    
+
+src\main\ipc\index.ts:7:8 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This import is unused.
+  
+    5 Γöé import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../shared/constants'
+    6 Γöé import { IPC_CHANNELS } from '../../shared/ipc-channels'
+  > 7 Γöé import { isValidUUID } from '../../shared/utils/uuid'
+      Γöé        ^^^^^^^^^^^^^^^
+    8 Γöé import { logToFile } from '../log'
+    9 Γöé import { registerAiHandlers } from './ai-handlers'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      5   5 Γöé   import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../shared/constants'
+      6   6 Γöé   import { IPC_CHANNELS } from '../../shared/ipc-channels'
+      7     Γöé - import┬╖{┬╖isValidUUID┬╖}┬╖from┬╖'../../shared/utils/uuid'
+      8   7 Γöé   import { logToFile } from '../log'
+      9   8 Γöé   import { registerAiHandlers } from './ai-handlers'
+  
+
+src\main\ipc\index.ts:1:10 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Several of these imports are unused.
+  
+  > 1 Γöé import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
+      Γöé          ^^^^^
+    2 Γöé import { isAbsolute, join, relative, resolve } from 'node:path'
+    3 Γöé import { is } from '@electron-toolkit/utils'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    1 Γöé import┬╖{┬╖mkdir,┬╖readFile,┬╖stat,┬╖writeFile┬╖}┬╖from┬╖'node:fs/promises'
+      Γöé          -------                                                   
+
+src\main\storage\campaign-storage.ts:1:58 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Several of these imports are unused.
+  
+  > 1 Γöé import { access, copyFile, mkdir, readdir, readFile, rm, stat, unlink } from 'node:fs/promises'
+      Γöé                                                          ^^^^
+    2 Γöé import { join } from 'node:path'
+    3 Γöé import { app } from 'electron'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    1 Γöé import┬╖{┬╖access,┬╖copyFile,┬╖mkdir,┬╖readdir,┬╖readFile,┬╖rm,┬╖stat,┬╖unlink┬╖}┬╖from┬╖'node:fs/promises'
+      Γöé                                                          ------                                
+
+src\main\storage\game-state-storage.ts:12:41 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    10 Γöé export const GAME_STATE_SCHEMA_VERSION = 1
+    11 Γöé 
+  > 12 Γöé export function migrateGameState(state: any): Record<string, unknown> {
+       Γöé                                         ^^^
+    13 Γöé   if (!state || typeof state !== 'object') {
+    14 Γöé     return { schemaVersion: GAME_STATE_SCHEMA_VERSION }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\storage\game-state-storage.ts:88:17 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    86 Γöé     }
+    87 Γöé     const data = await readFile(path, 'utf-8')
+  > 88 Γöé     let parsed: any
+       Γöé                 ^^^
+    89 Γöé     try {
+    90 Γöé       parsed = JSON.parse(data)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\preload\index.ts:207:29 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    205 Γöé     installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_INSTALL),
+    206 Γöé     onStatus: (cb: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => {
+  > 207 Γöé       const listener = (_e: any, status: any) => cb(status)
+        Γöé                             ^^^
+    208 Γöé       ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, listener)
+    209 Γöé       return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, listener)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\preload\index.ts:207:42 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    205 Γöé     installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_INSTALL),
+    206 Γöé     onStatus: (cb: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => {
+  > 207 Γöé       const listener = (_e: any, status: any) => cb(status)
+        Γöé                                          ^^^
+    208 Γöé       ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, listener)
+    209 Γöé       return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, listener)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\components\game\GameLayout.tsx:207:34 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable setGroupConditionEntities is unused.
+  
+    205 Γöé   const [counterspellPrompt, setCounterspellPrompt] = useState<CounterspellPromptState | null>(null)
+    206 Γöé   const [showCompactHUD, _setShowCompactHUD] = useState(false)
+  > 207 Γöé   const [groupConditionEntities, setGroupConditionEntities] = useState<string[] | null>(null)
+        Γöé                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+    208 Γöé   const [conditionTargetEntityId, setConditionTargetEntityId] = useState<string | null>(null)
+    209 Γöé   const [pendingPortal, setPendingPortal] = useState<PortalEntryInfo | null>(null)
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend setGroupConditionEntities with an underscore.
+  
+     205  205 Γöé     const [counterspellPrompt, setCounterspellPrompt] = useState<CounterspellPromptState | null>(null)
+     206  206 Γöé     const [showCompactHUD, _setShowCompactHUD] = useState(false)
+     207      Γöé - ┬╖┬╖const┬╖[groupConditionEntities,┬╖setGroupConditionEntities]┬╖=┬╖useState<string[]┬╖|┬╖null>(null)
+          207 Γöé + ┬╖┬╖const┬╖[groupConditionEntities,┬╖_setGroupConditionEntities]┬╖=┬╖useState<string[]┬╖|┬╖null>(null)
+     208  208 Γöé     const [conditionTargetEntityId, setConditionTargetEntityId] = useState<string | null>(null)
+     209  209 Γöé     const [pendingPortal, setPendingPortal] = useState<PortalEntryInfo | null>(null)
+  
+
+src\renderer\src\components\game\GameLayout.tsx:207:10 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable groupConditionEntities is unused.
+  
+    205 Γöé   const [counterspellPrompt, setCounterspellPrompt] = useState<CounterspellPromptState | null>(null)
+    206 Γöé   const [showCompactHUD, _setShowCompactHUD] = useState(false)
+  > 207 Γöé   const [groupConditionEntities, setGroupConditionEntities] = useState<string[] | null>(null)
+        Γöé          ^^^^^^^^^^^^^^^^^^^^^^
+    208 Γöé   const [conditionTargetEntityId, setConditionTargetEntityId] = useState<string | null>(null)
+    209 Γöé   const [pendingPortal, setPendingPortal] = useState<PortalEntryInfo | null>(null)
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend groupConditionEntities with an underscore.
+  
+     205  205 Γöé     const [counterspellPrompt, setCounterspellPrompt] = useState<CounterspellPromptState | null>(null)
+     206  206 Γöé     const [showCompactHUD, _setShowCompactHUD] = useState(false)
+     207      Γöé - ┬╖┬╖const┬╖[groupConditionEntities,┬╖setGroupConditionEntities]┬╖=┬╖useState<string[]┬╖|┬╖null>(null)
+          207 Γöé + ┬╖┬╖const┬╖[_groupConditionEntities,┬╖setGroupConditionEntities]┬╖=┬╖useState<string[]┬╖|┬╖null>(null)
+     208  208 Γöé     const [conditionTargetEntityId, setConditionTargetEntityId] = useState<string | null>(null)
+     209  209 Γöé     const [pendingPortal, setPendingPortal] = useState<PortalEntryInfo | null>(null)
+  
+
+src\renderer\src\components\game\map\MapCanvas.tsx:360:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook specifies more dependencies than necessary: map?.id.
+  
+    359 Γöé   // Reset floor when switching maps (avoids stale floor index)
+  > 360 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    361 Γöé     if (currentFloor > 0 && (!map?.floors || currentFloor >= map.floors.length)) {
+    362 Γöé       setCurrentFloor(0)
+  
+  i This dependency can be removed from the list.
+  
+    362 Γöé       setCurrentFloor(0)
+    363 Γöé     }
+  > 364 Γöé   }, [map?.id, map?.floors, currentFloor, setCurrentFloor])
+        Γöé       ^^^^^^^
+    365 Γöé 
+    366 Γöé   // Auto-lock players to their character token's floor
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Specifying more dependencies than required can lead to unnecessary re-rendering
+    and degraded performance.
+  
+  i Unsafe fix: Remove the extra dependencies from the list.
+  
+    364 Γöé ┬╖┬╖},┬╖[map?.id,┬╖map?.floors,┬╖currentFloor,┬╖setCurrentFloor])
+        Γöé            ---------                                       
+
+src\renderer\src\components\game\map\MapCanvas.tsx:599:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook does not specify its dependency on drawingColor.
+  
+    598 Γöé   // Mouse events
+  > 599 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    600 Γöé     const el = containerRef.current
+    601 Γöé     if (!el) return
+  
+  i This dependency is being used here, but is not specified in the hook dependency list.
+  
+    638 Γöé       renderTokens,
+    639 Γöé       drawingStrokeWidth,
+  > 640 Γöé       drawingColor,
+        Γöé       ^^^^^^^^^^^^
+    641 Γöé       fogBrushSize
+    642 Γöé     })
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Failing to specify dependencies can result in Effects not updating correctly when state changes.
+    These "stale closures" are a common source of surprising bugs.
+  
+  i Unsafe fix: Add the missing dependency to the list.
+  
+    642 642 Γöé       })
+    643 643 Γöé     }, [
+    644     Γöé - ┬╖┬╖┬╖┬╖map,
+    645     Γöé - ┬╖┬╖┬╖┬╖activeTool,
+    646     Γöé - ┬╖┬╖┬╖┬╖isHost,
+    647     Γöé - ┬╖┬╖┬╖┬╖applyTransform,
+    648     Γöé - ┬╖┬╖┬╖┬╖onTokenMove,
+    649     Γöé - ┬╖┬╖┬╖┬╖onTokenSelect,
+    650     Γöé - ┬╖┬╖┬╖┬╖onCellClick,
+    651     Γöé - ┬╖┬╖┬╖┬╖renderTokens,
+    652     Γöé - ┬╖┬╖┬╖┬╖isInitiativeMode,
+    653     Γöé - ┬╖┬╖┬╖┬╖onWallPlace,
+    654     Γöé - ┬╖┬╖┬╖┬╖onDoorToggle,
+    655     Γöé - ┬╖┬╖┬╖┬╖turnState
+        644 Γöé + ┬╖┬╖┬╖┬╖map,┬╖
+        645 Γöé + ┬╖┬╖┬╖┬╖activeTool,┬╖
+        646 Γöé + ┬╖┬╖┬╖┬╖isHost,┬╖
+        647 Γöé + ┬╖┬╖┬╖┬╖applyTransform,┬╖
+        648 Γöé + ┬╖┬╖┬╖┬╖onTokenMove,┬╖
+        649 Γöé + ┬╖┬╖┬╖┬╖onTokenSelect,┬╖
+        650 Γöé + ┬╖┬╖┬╖┬╖onCellClick,┬╖
+        651 Γöé + ┬╖┬╖┬╖┬╖renderTokens,┬╖
+        652 Γöé + ┬╖┬╖┬╖┬╖isInitiativeMode,┬╖
+        653 Γöé + ┬╖┬╖┬╖┬╖onWallPlace,┬╖
+        654 Γöé + ┬╖┬╖┬╖┬╖onDoorToggle,┬╖
+        655 Γöé + ┬╖┬╖┬╖┬╖turnState,┬╖drawingColor
+    656 656 Γöé     ])
+    657 657 Γöé   
+  
+
+src\renderer\src\components\game\map\MapCanvas.tsx:599:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook does not specify its dependency on fogBrushSize.
+  
+    598 Γöé   // Mouse events
+  > 599 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    600 Γöé     const el = containerRef.current
+    601 Γöé     if (!el) return
+  
+  i This dependency is being used here, but is not specified in the hook dependency list.
+  
+    639 Γöé       drawingStrokeWidth,
+    640 Γöé       drawingColor,
+  > 641 Γöé       fogBrushSize
+        Γöé       ^^^^^^^^^^^^
+    642 Γöé     })
+    643 Γöé   }, [
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Failing to specify dependencies can result in Effects not updating correctly when state changes.
+    These "stale closures" are a common source of surprising bugs.
+  
+  i Unsafe fix: Add the missing dependency to the list.
+  
+    642 642 Γöé       })
+    643 643 Γöé     }, [
+    644     Γöé - ┬╖┬╖┬╖┬╖map,
+    645     Γöé - ┬╖┬╖┬╖┬╖activeTool,
+    646     Γöé - ┬╖┬╖┬╖┬╖isHost,
+    647     Γöé - ┬╖┬╖┬╖┬╖applyTransform,
+    648     Γöé - ┬╖┬╖┬╖┬╖onTokenMove,
+    649     Γöé - ┬╖┬╖┬╖┬╖onTokenSelect,
+    650     Γöé - ┬╖┬╖┬╖┬╖onCellClick,
+    651     Γöé - ┬╖┬╖┬╖┬╖renderTokens,
+    652     Γöé - ┬╖┬╖┬╖┬╖isInitiativeMode,
+    653     Γöé - ┬╖┬╖┬╖┬╖onWallPlace,
+    654     Γöé - ┬╖┬╖┬╖┬╖onDoorToggle,
+    655     Γöé - ┬╖┬╖┬╖┬╖turnState
+        644 Γöé + ┬╖┬╖┬╖┬╖map,┬╖
+        645 Γöé + ┬╖┬╖┬╖┬╖activeTool,┬╖
+        646 Γöé + ┬╖┬╖┬╖┬╖isHost,┬╖
+        647 Γöé + ┬╖┬╖┬╖┬╖applyTransform,┬╖
+        648 Γöé + ┬╖┬╖┬╖┬╖onTokenMove,┬╖
+        649 Γöé + ┬╖┬╖┬╖┬╖onTokenSelect,┬╖
+        650 Γöé + ┬╖┬╖┬╖┬╖onCellClick,┬╖
+        651 Γöé + ┬╖┬╖┬╖┬╖renderTokens,┬╖
+        652 Γöé + ┬╖┬╖┬╖┬╖isInitiativeMode,┬╖
+        653 Γöé + ┬╖┬╖┬╖┬╖onWallPlace,┬╖
+        654 Γöé + ┬╖┬╖┬╖┬╖onDoorToggle,┬╖
+        655 Γöé + ┬╖┬╖┬╖┬╖turnState,┬╖fogBrushSize
+    656 656 Γöé     ])
+    657 657 Γöé   
+  
+
+src\renderer\src\components\game\map\MapCanvas.tsx:599:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook does not specify its dependency on drawingStrokeWidth.
+  
+    598 Γöé   // Mouse events
+  > 599 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    600 Γöé     const el = containerRef.current
+    601 Γöé     if (!el) return
+  
+  i This dependency is being used here, but is not specified in the hook dependency list.
+  
+    637 Γöé       onDoorToggle,
+    638 Γöé       renderTokens,
+  > 639 Γöé       drawingStrokeWidth,
+        Γöé       ^^^^^^^^^^^^^^^^^^
+    640 Γöé       drawingColor,
+    641 Γöé       fogBrushSize
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Failing to specify dependencies can result in Effects not updating correctly when state changes.
+    These "stale closures" are a common source of surprising bugs.
+  
+  i Unsafe fix: Add the missing dependency to the list.
+  
+    642 642 Γöé       })
+    643 643 Γöé     }, [
+    644     Γöé - ┬╖┬╖┬╖┬╖map,
+    645     Γöé - ┬╖┬╖┬╖┬╖activeTool,
+    646     Γöé - ┬╖┬╖┬╖┬╖isHost,
+    647     Γöé - ┬╖┬╖┬╖┬╖applyTransform,
+    648     Γöé - ┬╖┬╖┬╖┬╖onTokenMove,
+    649     Γöé - ┬╖┬╖┬╖┬╖onTokenSelect,
+    650     Γöé - ┬╖┬╖┬╖┬╖onCellClick,
+    651     Γöé - ┬╖┬╖┬╖┬╖renderTokens,
+    652     Γöé - ┬╖┬╖┬╖┬╖isInitiativeMode,
+    653     Γöé - ┬╖┬╖┬╖┬╖onWallPlace,
+    654     Γöé - ┬╖┬╖┬╖┬╖onDoorToggle,
+    655     Γöé - ┬╖┬╖┬╖┬╖turnState
+        644 Γöé + ┬╖┬╖┬╖┬╖map,┬╖
+        645 Γöé + ┬╖┬╖┬╖┬╖activeTool,┬╖
+        646 Γöé + ┬╖┬╖┬╖┬╖isHost,┬╖
+        647 Γöé + ┬╖┬╖┬╖┬╖applyTransform,┬╖
+        648 Γöé + ┬╖┬╖┬╖┬╖onTokenMove,┬╖
+        649 Γöé + ┬╖┬╖┬╖┬╖onTokenSelect,┬╖
+        650 Γöé + ┬╖┬╖┬╖┬╖onCellClick,┬╖
+        651 Γöé + ┬╖┬╖┬╖┬╖renderTokens,┬╖
+        652 Γöé + ┬╖┬╖┬╖┬╖isInitiativeMode,┬╖
+        653 Γöé + ┬╖┬╖┬╖┬╖onWallPlace,┬╖
+        654 Γöé + ┬╖┬╖┬╖┬╖onDoorToggle,┬╖
+        655 Γöé + ┬╖┬╖┬╖┬╖turnState,┬╖drawingStrokeWidth
+    656 656 Γöé     ])
+    657 657 Γöé   
+  
+
+src\renderer\src\components\game\map\MapCanvas.tsx:599:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook does not specify its dependency on selectedTokenIds.
+  
+    598 Γöé   // Mouse events
+  > 599 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    600 Γöé     const el = containerRef.current
+    601 Γöé     if (!el) return
+  
+  i This dependency is being used here, but is not specified in the hook dependency list.
+  
+    629 Γöé       isInitiativeMode,
+    630 Γöé       turnState,
+  > 631 Γöé       selectedTokenIds,
+        Γöé       ^^^^^^^^^^^^^^^^
+    632 Γöé       applyTransform,
+    633 Γöé       onTokenMove,
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Failing to specify dependencies can result in Effects not updating correctly when state changes.
+    These "stale closures" are a common source of surprising bugs.
+  
+  i Unsafe fix: Add the missing dependency to the list.
+  
+    642 642 Γöé       })
+    643 643 Γöé     }, [
+    644     Γöé - ┬╖┬╖┬╖┬╖map,
+    645     Γöé - ┬╖┬╖┬╖┬╖activeTool,
+    646     Γöé - ┬╖┬╖┬╖┬╖isHost,
+    647     Γöé - ┬╖┬╖┬╖┬╖applyTransform,
+    648     Γöé - ┬╖┬╖┬╖┬╖onTokenMove,
+    649     Γöé - ┬╖┬╖┬╖┬╖onTokenSelect,
+    650     Γöé - ┬╖┬╖┬╖┬╖onCellClick,
+    651     Γöé - ┬╖┬╖┬╖┬╖renderTokens,
+    652     Γöé - ┬╖┬╖┬╖┬╖isInitiativeMode,
+    653     Γöé - ┬╖┬╖┬╖┬╖onWallPlace,
+    654     Γöé - ┬╖┬╖┬╖┬╖onDoorToggle,
+    655     Γöé - ┬╖┬╖┬╖┬╖turnState
+        644 Γöé + ┬╖┬╖┬╖┬╖map,┬╖
+        645 Γöé + ┬╖┬╖┬╖┬╖activeTool,┬╖
+        646 Γöé + ┬╖┬╖┬╖┬╖isHost,┬╖
+        647 Γöé + ┬╖┬╖┬╖┬╖applyTransform,┬╖
+        648 Γöé + ┬╖┬╖┬╖┬╖onTokenMove,┬╖
+        649 Γöé + ┬╖┬╖┬╖┬╖onTokenSelect,┬╖
+        650 Γöé + ┬╖┬╖┬╖┬╖onCellClick,┬╖
+        651 Γöé + ┬╖┬╖┬╖┬╖renderTokens,┬╖
+        652 Γöé + ┬╖┬╖┬╖┬╖isInitiativeMode,┬╖
+        653 Γöé + ┬╖┬╖┬╖┬╖onWallPlace,┬╖
+        654 Γöé + ┬╖┬╖┬╖┬╖onDoorToggle,┬╖
+        655 Γöé + ┬╖┬╖┬╖┬╖turnState,┬╖selectedTokenIds
+    656 656 Γöé     ])
+    657 657 Γöé   
+  
+
+src\renderer\src\components\game\map\audio-emitter-overlay.ts:141:17 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable id is unused.
+  
+    139 Γöé     if (!this.map || !this.listenerPosition) return
+    140 Γöé 
+  > 141 Γöé     for (const [id, entry] of this.emitters) {
+        Γöé                 ^^
+    142 Γöé       const emitter = entry.data
+    143 Γöé       if (emitter.spatial && emitter.playing) {
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend id with an underscore.
+  
+    139 139 Γöé       if (!this.map || !this.listenerPosition) return
+    140 140 Γöé   
+    141     Γöé - ┬╖┬╖┬╖┬╖for┬╖(const┬╖[id,┬╖entry]┬╖of┬╖this.emitters)┬╖{
+        141 Γöé + ┬╖┬╖┬╖┬╖for┬╖(const┬╖[_id,┬╖entry]┬╖of┬╖this.emitters)┬╖{
+    142 142 Γöé         const emitter = entry.data
+    143 143 Γöé         if (emitter.spatial && emitter.playing) {
+  
+
+src\renderer\src\components\game\map\map-event-handlers.ts:198:5 lint/correctness/noUnusedVariables ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable selectedTokenIds is unused.
+  
+    196 Γöé     isInitiativeMode,
+    197 Γöé     turnState,
+  > 198 Γöé     selectedTokenIds,
+        Γöé     ^^^^^^^^^^^^^^^^
+    199 Γöé     applyTransform,
+    200 Γöé     drawingStrokeWidth = 3,
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+src\renderer\src\components\game\map\map-event-handlers.ts:204:79 lint/correctness/noUnusedVariables ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable renderTokens is unused.
+  
+    202 Γöé     fogBrushSize = 1
+    203 Γöé   } = opts
+  > 204 Γöé   const { onTokenMove, onTokenSelect, onCellClick, onWallPlace, onDoorToggle, renderTokens } = opts
+        Γöé                                                                               ^^^^^^^^^^^^
+    205 Γöé 
+    206 Γöé   const onMouseDown = (e: MouseEvent): void => {
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+src\renderer\src\components\game\map\map-event-handlers.ts:523:13 lint/complexity/useOptionalChain  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Change to an optional chain.
+  
+    521 Γöé       if (activeTool === 'draw-text') {
+    522 Γöé         const text = prompt('Enter text:')
+  > 523 Γöé         if (text && text.trim()) {
+        Γöé             ^^^^^^^^^^^^^^^^^^^
+    524 Γöé           drawingData.text = text.trim()
+    525 Γöé           useGameStore.getState().addDrawing(map!.id, drawingData)
+  
+  i Unsafe fix: Change to an optional chain.
+  
+    521 521 Γöé         if (activeTool === 'draw-text') {
+    522 522 Γöé           const text = prompt('Enter text:')
+    523     Γöé - ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖if┬╖(text┬╖&&┬╖text.trim())┬╖{
+        523 Γöé + ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖if┬╖(text?.trim())┬╖{
+    524 524 Γöé             drawingData.text = text.trim()
+    525 525 Γöé             useGameStore.getState().addDrawing(map!.id, drawingData)
+  
+
+src\renderer\src\components\game\map\map-overlay-effects.ts:144:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook specifies more dependencies than necessary: activeLightSources.
+  
+    143 Γöé   // Register light animations whenever active light sources change
+  > 144 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    145 Γöé     if (!initialized) return
+    146 Γöé     const sources = useGameStore.getState().activeLightSources
+  
+  i This dependency can be removed from the list.
+  
+    155 Γöé       registerLightAnimation(ls.id, baseBright, baseDim, ls.animation)
+    156 Γöé     }
+  > 157 Γöé   }, [initialized, activeLightSources, map?.tokens])
+        Γöé                    ^^^^^^^^^^^^^^^^^^
+    158 Γöé 
+    159 Γöé   // Install light animation ticker
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Specifying more dependencies than required can lead to unnecessary re-rendering
+    and degraded performance.
+  
+  i Unsafe fix: Remove the extra dependencies from the list.
+  
+    157 Γöé ┬╖┬╖},┬╖[initialized,┬╖activeLightSources,┬╖map?.tokens])
+        Γöé                    --------------------             
+
+src\renderer\src\components\game\map\map-overlay-effects.ts:170:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook specifies more dependencies than necessary: activeLightSources.
+  
+    168 Γöé   // Draw lighting overlay (floor-filtered walls for shadow casting)
+    169 Γöé   // Sets up a per-frame redraw when light animations are active.
+  > 170 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    171 Γöé     if (!initialized || !refs.lightingGraphicsRef.current || !map) return
+    172 Γöé     const ambientLight = useGameStore.getState().ambientLight
+  
+  i This dependency can be removed from the list.
+  
+    229 Γöé       }
+    230 Γöé     }
+  > 231 Γöé   }, [initialized, map, isHost, refs, currentFloor, activeLightSources])
+        Γöé                                                     ^^^^^^^^^^^^^^^^^^
+    232 Γöé 
+    233 Γöé   // Draw terrain overlay (floor-filtered)
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Specifying more dependencies than required can lead to unnecessary re-rendering
+    and degraded performance.
+  
+  i Unsafe fix: Remove the extra dependencies from the list.
+  
+    231 Γöé ┬╖┬╖},┬╖[initialized,┬╖map,┬╖isHost,┬╖refs,┬╖currentFloor,┬╖activeLightSources])
+        Γöé                                                   --------------------  
+
+src\renderer\src\components\game\modal-groups\CombatModals.tsx:197:17 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    195 Γöé               const ts = gameStore.turnStates[attackerEntityId]
+    196 Γöé               if (ts && !ts.actionUsed) {
+  > 197 Γöé                 gameStore.useAction(attackerEntityId)
+        Γöé                 ^^^^^^^^^^^^^^^^^^^
+    198 Γöé               }
+    199 Γöé             }
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modal-groups\MechanicsModals.tsx:93:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    91 Γöé             close()
+    92 Γöé             if (character && gameStore.initiative) {
+  > 93 Γöé               gameStore.useAction(character.id)
+       Γöé               ^^^^^^^^^^^^^^^^^^^
+    94 Γöé             }
+    95 Γöé           }}
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modal-groups\UtilityModals.tsx:68:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    66 Γöé             close()
+    67 Γöé             if (character && gameStore.initiative) {
+  > 68 Γöé               gameStore.useAction(character.id)
+       Γöé               ^^^^^^^^^^^^^^^^^^^
+    69 Γöé             }
+    70 Γöé           }}
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\AttackModal.tsx:112:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    110 Γöé   const dexMod = abilityModifier(character.abilityScores.dexterity)
+    111 Γöé 
+  > 112 Γöé   const resolved = useMemo(() => resolveEffects(char5e), [char5e])
+        Γöé                    ^^^^^^^
+    113 Γöé 
+    114 Γöé   const weapons = [...realWeapons, UNARMED_STRIKE, IMPROVISED_WEAPON]
+  
+  i Hooks should not be called after an early return.
+  
+     90 Γöé   const turnStates = useGameStore((s) => s.turnStates)
+     91 Γöé 
+   > 92 Γöé   if (!character) {
+        Γöé                    
+   > 93 Γöé     return (
+         ...
+  > 102 Γöé       </div>
+  > 103 Γöé     )
+        Γöé     ^
+    104 Γöé   }
+    105 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:45:37 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    43 Γöé   // State for mount selection (when not already mounted)
+    44 Γöé   const [selectedMountId, setSelectedMountId] = useState<string | null>(null)
+  > 45 Γöé   const [mountType, setMountType] = useState<'controlled' | 'independent'>('controlled')
+       Γöé                                     ^^^^^^^^
+    46 Γöé 
+    47 Γöé   // Eligible mounts: tokens that are not the rider, have no current rider, and
+  
+  i Hooks should not be called after an early return.
+  
+    21 Γöé  */
+    22 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 23 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    24 Γöé 
+    25 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:3:13 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This import is unused.
+  
+    1 Γöé import { useState } from 'react'
+    2 Γöé import { useGameStore } from '../../../../stores/use-game-store'
+  > 3 Γöé import type { MapToken } from '../../../../types/map'
+      Γöé             ^^^^^^^^^^^^
+    4 Γöé import NarrowModalShell from '../shared/NarrowModalShell'
+    5 Γöé 
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      1   1 Γöé   import { useState } from 'react'
+      2   2 Γöé   import { useGameStore } from '../../../../stores/use-game-store'
+      3     Γöé - import┬╖type┬╖{┬╖MapToken┬╖}┬╖from┬╖'../../../../types/map'
+      4   3 Γöé   import NarrowModalShell from '../shared/NarrowModalShell'
+      5   4 Γöé   
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:25:16 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    23 Γöé   if (!isOpen) return null
+    24 Γöé 
+  > 25 Γöé   const maps = useGameStore((s) => s.maps)
+       Γöé                ^^^^^^^^^^^^
+    26 Γöé   const updateToken = useGameStore((s) => s.updateToken)
+    27 Γöé   const turnStates = useGameStore((s) => s.turnStates)
+  
+  i Hooks should not be called after an early return.
+  
+    21 Γöé  */
+    22 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 23 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    24 Γöé 
+    25 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:26:23 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    25 Γöé   const maps = useGameStore((s) => s.maps)
+  > 26 Γöé   const updateToken = useGameStore((s) => s.updateToken)
+       Γöé                       ^^^^^^^^^^^^
+    27 Γöé   const turnStates = useGameStore((s) => s.turnStates)
+    28 Γöé 
+  
+  i Hooks should not be called after an early return.
+  
+    21 Γöé  */
+    22 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 23 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    24 Γöé 
+    25 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:27:22 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    25 Γöé   const maps = useGameStore((s) => s.maps)
+    26 Γöé   const updateToken = useGameStore((s) => s.updateToken)
+  > 27 Γöé   const turnStates = useGameStore((s) => s.turnStates)
+       Γöé                      ^^^^^^^^^^^^
+    28 Γöé 
+    29 Γöé   const map = maps.find((m) => m.id === mapId)
+  
+  i Hooks should not be called after an early return.
+  
+    21 Γöé  */
+    22 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 23 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    24 Γöé 
+    25 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:44:49 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    43 Γöé   // State for mount selection (when not already mounted)
+  > 44 Γöé   const [selectedMountId, setSelectedMountId] = useState<string | null>(null)
+       Γöé                                                 ^^^^^^^^
+    45 Γöé   const [mountType, setMountType] = useState<'controlled' | 'independent'>('controlled')
+    46 Γöé 
+  
+  i Hooks should not be called after an early return.
+  
+    21 Γöé  */
+    22 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 23 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    24 Γöé 
+    25 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\mechanics\AoETemplateModal.tsx:64:61 lint/correctness/useExhaustiveDependencies ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! config changes on every re-render and should not be used as a hook dependency.
+  
+    63 Γöé   // Preview: count affected cells and tokens
+  > 64 Γöé   const affectedCells = useMemo(() => getAoECells(config), [config])
+       Γöé                                                             ^^^^^^
+    65 Γöé   const affectedTokens = useMemo(() => {
+    66 Γöé     const cellSet = new Set(affectedCells.map((c) => `${c.x},${c.y}`))
+  
+  i To fix this, wrap the definition of config in its own useMemo() hook.
+  
+
+src\renderer\src\components\game\modals\mechanics\CraftingBrowser.tsx:116:30 lint/correctness/useExhaustiveDependencies ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! hasTool changes on every re-render and should not be used as a hook dependency.
+  
+    115 Γöé     return items
+  > 116 Γöé   }, [craftingData, recipes, hasTool])
+        Γöé                              ^^^^^^^
+    117 Γöé 
+    118 Γöé   const filtered = useMemo(() => {
+  
+  i To fix this, wrap the definition of hasTool in its own useCallback() hook.
+  
+
+src\renderer\src\components\game\modals\mechanics\MountModal.tsx:59:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    57 Γöé       return
+    58 Γöé     }
+  > 59 Γöé     gameStore.useMovement(character.id, mountSpeed)
+       Γöé     ^^^^^^^^^^^^^^^^^^^^^
+    60 Γöé 
+    61 Γöé     // Clear mount state from turn state
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\mechanics\MountModal.tsx:99:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+     98 Γöé     const gameStore = useGameStore.getState()
+   > 99 Γöé     gameStore.useMovement(character.id, mountSpeed)
+        Γöé     ^^^^^^^^^^^^^^^^^^^^^
+    100 Γöé 
+    101 Γöé     // Set mount state on turn state
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\utility\EndOfSessionModal.tsx:40:14 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable e is unused.
+  
+    38 Γöé         addToast(result.error || 'Failed to generate recap.', 'error')
+    39 Γöé       }
+  > 40 Γöé     } catch (e) {
+       Γöé              ^
+    41 Γöé       addToast('An error occurred during generation.', 'error')
+    42 Γöé     } finally {
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend e with an underscore.
+  
+     38  38 Γöé           addToast(result.error || 'Failed to generate recap.', 'error')
+     39  39 Γöé         }
+     40     Γöé - ┬╖┬╖┬╖┬╖}┬╖catch┬╖(e)┬╖{
+         40 Γöé + ┬╖┬╖┬╖┬╖}┬╖catch┬╖(_e)┬╖{
+     41  41 Γöé         addToast('An error occurred during generation.', 'error')
+     42  42 Γöé       } finally {
+  
+
+src\renderer\src\components\game\modals\utility\EndOfSessionModal.tsx:79:14 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable e is unused.
+  
+    77 Γöé       useGameStore.getState().startNewSession()
+    78 Γöé       setTimeout(onClose, 1500)
+  > 79 Γöé     } catch (e) {
+       Γöé              ^
+    80 Γöé       addToast('Failed to save recap context to journal.', 'error')
+    81 Γöé     }
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend e with an underscore.
+  
+     77  77 Γöé         useGameStore.getState().startNewSession()
+     78  78 Γöé         setTimeout(onClose, 1500)
+     79     Γöé - ┬╖┬╖┬╖┬╖}┬╖catch┬╖(e)┬╖{
+         79 Γöé + ┬╖┬╖┬╖┬╖}┬╖catch┬╖(_e)┬╖{
+     80  80 Γöé         addToast('Failed to save recap context to journal.', 'error')
+     81  81 Γöé       }
+  
+
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:120:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    118 Γöé         used={bonusActionUsed}
+    119 Γöé         availableColor="bg-blue-500"
+  > 120 Γöé         onClick={isDM ? () => useBonusAction(entityId) : undefined}
+        Γöé                               ^^^^^^^^^^^^^^
+    121 Γöé       />
+    122 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:113:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    111 Γöé         availableColor="bg-green-500"
+    112 Γöé         statusLabel={actionStatusLabel}
+  > 113 Γöé         onClick={isDM ? () => useAction(entityId) : undefined}
+        Γöé                               ^^^^^^^^^
+    114 Γöé       />
+    115 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:127:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    125 Γöé         used={reactionUsed}
+    126 Γöé         availableColor="bg-yellow-500"
+  > 127 Γöé         onClick={isDM ? () => useReaction(entityId) : undefined}
+        Γöé                               ^^^^^^^^^^^
+    128 Γöé       />
+    129 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:134:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    132 Γöé         used={freeInteractionUsed}
+    133 Γöé         availableColor="bg-purple-500"
+  > 134 Γöé         onClick={isDM ? () => useFreeInteraction(entityId) : undefined}
+        Γöé                               ^^^^^^^^^^^^^^^^^^
+    135 Γöé       />
+    136 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\GamePrompts.tsx:253:17 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    252 Γöé               if (character && gameStore.initiative) {
+  > 253 Γöé                 gameStore.useAction(character.id)
+        Γöé                 ^^^^^^^^^^^^^^^^^^^
+    254 Γöé               }
+    255 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\GamePrompts.tsx:58:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    56 Γöé           <button
+    57 Γöé             onClick={() => {
+  > 58 Γöé               gameStore.useReaction(prompt.entityId)
+       Γöé               ^^^^^^^^^^^^^^^^^^^^^
+    59 Γöé               addChatMessage({
+    60 Γöé                 id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:86:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    85 Γöé   // Resolved effects for HUD indicators
+  > 86 Γöé   const resolved = useMemo(() => (char5e ? resolveEffects(char5e, myCustomEffects) : null), [char5e, myCustomEffects])
+       Γöé                    ^^^^^^^
+    87 Γöé 
+    88 Γöé   const hp = character.hitPoints
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:96:28 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    95 Γöé   // Save & broadcast helper
+  > 96 Γöé   const saveAndBroadcast = useCallback((updated: Character5e) => {
+       Γöé                            ^^^^^^^^^^^
+    97 Γöé     useCharacterStore.getState().saveCharacter(updated)
+    98 Γöé     const activeMap = useGameStore.getState().maps.find((m) => m.id === useGameStore.getState().activeMapId)
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:118:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    117 Γöé   // HP adjustment
+  > 118 Γöé   const adjustHP = useCallback(
+        Γöé                    ^^^^^^^^^^^
+    119 Γöé     (delta: number) => {
+    120 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:153:24 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    151 Γöé   )
+    152 Γöé 
+  > 153 Γöé   const handleHPEdit = useCallback(
+        Γöé                        ^^^^^^^^^^^
+    154 Γöé     (val: number) => {
+    155 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:171:27 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    170 Γöé   // Spell slot toggle
+  > 171 Γöé   const toggleSpellSlot = useCallback(
+        Γöé                           ^^^^^^^^^^^
+    172 Γöé     (level: number) => {
+    173 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:191:26 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    190 Γöé   // Pact slot toggle
+  > 191 Γöé   const togglePactSlot = useCallback(
+        Γöé                          ^^^^^^^^^^^
+    192 Γöé     (level: number) => {
+    193 Γöé       if (!char5e || !char5e.pactMagicSlotLevels) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:211:26 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    210 Γöé   // Class resource adjust
+  > 211 Γöé   const adjustResource = useCallback(
+        Γöé                          ^^^^^^^^^^^
+    212 Γöé     (resourceId: string, delta: number) => {
+    213 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:230:29 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    229 Γöé   // Heroic Inspiration toggle
+  > 230 Γöé   const toggleInspiration = useCallback(() => {
+        Γöé                             ^^^^^^^^^^^
+    231 Γöé     if (!char5e) return
+    232 Γöé     const latest = useCharacterStore.getState().characters.find((c) => c.id === char5e.id) as Character5e | undefined
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:240:21 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    239 Γöé   // Temp HP setter
+  > 240 Γöé   const setTempHP = useCallback(
+        Γöé                     ^^^^^^^^^^^
+    241 Γöé     (val: number) => {
+    242 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ReactionPrompts.tsx:72:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    70 Γöé           <button
+    71 Γöé             onClick={() => {
+  > 72 Γöé               gameStore.useReaction(prompt.entityId)
+       Γöé               ^^^^^^^^^^^^^^^^^^^^^
+    73 Γöé               const blocked = prompt.attackRoll < shieldedAC
+    74 Γöé               addChatMessage({
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ReactionPrompts.tsx:190:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    188 Γöé           <button
+    189 Γöé             onClick={() => {
+  > 190 Γöé               gameStore.useReaction(prompt.entityId)
+        Γöé               ^^^^^^^^^^^^^^^^^^^^^
+    191 Γöé               let resultText: string
+    192 Γöé               if (autoSuccess) {
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\sidebar\JournalPanel.tsx:180:10 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    178 Γöé       title: editTitle.trim() || 'Untitled Entry',
+    179 Γöé       content: html
+  > 180 Γöé     } as any)
+        Γöé          ^^^
+    181 Γöé     setIsEditing(false)
+    182 Γöé     editor.setEditable(false)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\components\game\sidebar\TablesPanel.tsx:22:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook does not specify its dependency on loadTables.
+  
+    20 Γöé   const addChatMessage = useLobbyStore((s) => s.addChatMessage)
+    21 Γöé 
+  > 22 Γöé   useEffect(() => {
+       Γöé   ^^^^^^^^^
+    23 Γöé     loadTables()
+    24 Γöé   }, [])
+  
+  i This dependency is being used here, but is not specified in the hook dependency list.
+  
+    22 Γöé   useEffect(() => {
+  > 23 Γöé     loadTables()
+       Γöé     ^^^^^^^^^^
+    24 Γöé   }, [])
+    25 Γöé 
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Failing to specify dependencies can result in Effects not updating correctly when state changes.
+    These "stale closures" are a common source of surprising bugs.
+  
+  i Either include it or remove the dependency array.
+  
+  i Unsafe fix: Add the missing dependency to the list.
+  
+    24 Γöé ┬╖┬╖},┬╖[loadTables])
+       Γöé       ++++++++++  
+
+src\renderer\src\hooks\use-game-handlers.ts:267:11 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    265 Γöé           break
+    266 Γöé         case 'hide':
+  > 267 Γöé           gameStore.useAction(entityId)
+        Γöé           ^^^^^^^^^^^^^^^^^^^
+    268 Γöé           gameStore.setHidden(entityId, true)
+    269 Γöé           break
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\hooks\use-game-handlers.ts:271:11 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    269 Γöé           break
+    270 Γöé         default:
+  > 271 Γöé           gameStore.useAction(entityId)
+        Γöé           ^^^^^^^^^^^^^^^^^^^
+    272 Γöé           break
+    273 Γöé       }
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\pages\CharacterSheet5ePage.tsx:150:3 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    148 Γöé   // XP-based level-up notification
+    149 Γöé   // eslint-disable-next-line react-hooks/exhaustive-deps
+  > 150 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    151 Γöé     if (character.levelingMode === 'xp' && shouldLevelUp(character.level, character.xp)) {
+    152 Γöé       setShowLevelUpBanner(true)
+  
+  i Hooks should not be called after an early return.
+  
+    62 Γöé   const [confirmRestoreFile, setConfirmRestoreFile] = useState<string | null>(null)
+    63 Γöé 
+  > 64 Γöé   if (!character) {
+       Γöé                    
+  > 65 Γöé     return (
+        ...
+  > 76 Γöé       </div>
+  > 77 Γöé     )
+       Γöé     ^
+    78 Γöé   }
+    79 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\pages\InGamePage.tsx:89:52 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    87 Γöé       // Ensure we don't overwrite a newer local auto-save with an older campaign state
+    88 Γöé       const currentStoreState = useGameStore.getState()
+  > 89 Γöé       const localTimestamp = (currentStoreState as any).lastSaveTimestamp || 0
+       Γöé                                                    ^^^
+    90 Γöé       const incomingTimestamp = saved?.lastSaveTimestamp || 0
+    91 Γöé 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\pages\InGamePage.tsx:131:12 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    129 Γöé         sharedJournal: saved?.sharedJournal,
+    130 Γöé         lastSaveTimestamp: saved?.lastSaveTimestamp
+  > 131 Γöé       } as any)
+        Γöé            ^^^
+    132 Γöé     }
+    133 Γöé   }, [campaign, gameCampaignId, loadGameState])
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\pages\JoinGamePage.tsx:24:3 suppressions/unused ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Suppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.
+  
+    23 Γöé   // Keep localStorage in sync with canonical settings.json source of truth
+  > 24 Γöé   // biome-ignore lint/correctness/useExhaustiveDependencies: intentional mount-only effect
+       Γöé   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    25 Γöé   useEffect(() => {
+    26 Γöé     window.api.loadSettings().then((settings) => {
+  
+
+src\renderer\src\pages\MakeGamePage.tsx:19:11 lint/complexity/useOptionalChain  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Change to an optional chain.
+  
+    17 Γöé     try {
+    18 Γöé       const result = await importCampaignFromFile()
+  > 19 Γöé       if (result && result.campaign) {
+       Γöé           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    20 Γöé         await saveCampaign(result.campaign)
+    21 Γöé         if (result.gameState) {
+  
+  i Unsafe fix: Change to an optional chain.
+  
+    17 17 Γöé       try {
+    18 18 Γöé         const result = await importCampaignFromFile()
+    19    Γöé - ┬╖┬╖┬╖┬╖┬╖┬╖if┬╖(result┬╖&&┬╖result.campaign)┬╖{
+       19 Γöé + ┬╖┬╖┬╖┬╖┬╖┬╖if┬╖(result?.campaign)┬╖{
+    20 20 Γöé           await saveCampaign(result.campaign)
+    21 21 Γöé           if (result.gameState) {
+  
+
+src\renderer\src\pages\bastion\FacilityModals.tsx:268:19 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable canAfford is unused.
+  
+    266 Γöé             const canAffordBp = selectedBastion ? selectedBastion.bastionPoints >= costs.bp : false
+    267 Γöé             const canAffordGp = selectedBastion ? selectedBastion.treasury >= costs.gp : false
+  > 268 Γöé             const canAfford = canAffordBp && canAffordGp
+        Γöé                   ^^^^^^^^^
+    269 Γöé             return (
+    270 Γöé               <div className="bg-gray-800/50 rounded p-3 border border-gray-700">
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend canAfford with an underscore.
+  
+    266 266 Γöé               const canAffordBp = selectedBastion ? selectedBastion.bastionPoints >= costs.bp : false
+    267 267 Γöé               const canAffordGp = selectedBastion ? selectedBastion.treasury >= costs.gp : false
+    268     Γöé - ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖const┬╖canAfford┬╖=┬╖canAffordBp┬╖&&┬╖canAffordGp
+        268 Γöé + ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖const┬╖_canAfford┬╖=┬╖canAffordBp┬╖&&┬╖canAffordGp
+    269 269 Γöé               return (
+    270 270 Γöé                 <div className="bg-gray-800/50 rounded p-3 border border-gray-700">
+  
+
+src\renderer\src\services\chat-commands\commands-player-movement.ts:35:7 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    34 Γöé     try {
+  > 35 Γöé       gameStore.useMovement(entityId, feet)
+       Γöé       ^^^^^^^^^^^^^^^^^^^^^
+    36 Γöé     } catch {
+    37 Γöé       return { handled: true, error: `${name} does not have ${feet} ft. of movement remaining.` }
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\services\combat\combat-resolver.ts:555:28 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    553 Γöé   let updatedAttackTracker: AttackTracker | undefined
+    554 Γöé   if (request.attackTracker) {
+  > 555 Γöé     updatedAttackTracker = useAttack(request.attackTracker)
+        Γöé                            ^^^^^^^^^
+    556 Γöé   }
+    557 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\services\io\import-export.ts:374:26 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    372 Γöé       return window.api.saveGameState(campId, actualState)
+    373 Γöé     }),
+  > 374 Γöé     ...aiConvos.map((ac: any) => {
+        Γöé                          ^^^
+    375 Γöé       return window.api.ai.restoreConversation(String(ac.campaignId), ac.data as Record<string, unknown>)
+    376 Γöé     }),
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:227:114 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    225 Γöé     if (state) gameStates.push({ ...state, campaignId: campaign.id })
+    226 Γöé 
+  > 227 Γöé     const convoResult = (await window.api.ai.loadConversation(campaign.id).catch(() => ({ success: false }))) as any
+        Γöé                                                                                                                  ^^^
+    228 Γöé     if (convoResult && convoResult.success && convoResult.data) {
+    229 Γöé       aiConversations.push({ data: convoResult.data, campaignId: campaign.id })
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:235:66 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    233 Γöé   // Load raw image buffers and meta
+    234 Γöé   const imageLibrary: Record<string, unknown>[] = []
+  > 235 Γöé   for (const imgMeta of Array.isArray(allImages) ? (allImages as any[]) : []) {
+        Γöé                                                                  ^^^
+    236 Γöé     if (!imgMeta.id) continue
+    237 Γöé     const imgResult = await window.api.imageLibrary.get(imgMeta.id as string).catch(() => null)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:381:27 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    379 Γöé       window.api.shopTemplates.save(s as { id: string; name: string; inventory: unknown[]; markup: number })
+    380 Γöé     ),
+  > 381 Γöé     ...booksData.map((bd: any) => {
+        Γöé                           ^^^
+    382 Γöé       const { id, ...data } = bd
+    383 Γöé       return window.api.books.saveData(String(id), data as any)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:383:60 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    381 Γöé     ...booksData.map((bd: any) => {
+    382 Γöé       const { id, ...data } = bd
+  > 383 Γöé       return window.api.books.saveData(String(id), data as any)
+        Γöé                                                            ^^^
+    384 Γöé     })
+    385 Γöé   ])
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:398:21 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    396 Γöé           String(img.id),
+    397 Γöé           String(img.name),
+  > 398 Γöé           buffer as any,
+        Γöé                     ^^^
+    399 Γöé           String(img.extension || 'png')
+    400 Γöé         )
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:411:22 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    409 Γöé     for (const book of booksConfig.customBooks) {
+    410 Γöé       await window.api.books
+  > 411 Γöé         .add(book as any)
+        Γöé                      ^^^
+    412 Γöé         .catch((e) => logger.warn(`[Import] Failed to add book config ${book.id}`, e))
+    413 Γöé     }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:228:9 lint/complexity/useOptionalChain  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Change to an optional chain.
+  
+    227 Γöé     const convoResult = (await window.api.ai.loadConversation(campaign.id).catch(() => ({ success: false }))) as any
+  > 228 Γöé     if (convoResult && convoResult.success && convoResult.data) {
+        Γöé         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    229 Γöé       aiConversations.push({ data: convoResult.data, campaignId: campaign.id })
+    230 Γöé     }
+  
+  i Unsafe fix: Change to an optional chain.
+  
+    226 226 Γöé   
+    227 227 Γöé       const convoResult = (await window.api.ai.loadConversation(campaign.id).catch(() => ({ success: false }))) as any
+    228     Γöé - ┬╖┬╖┬╖┬╖if┬╖(convoResult┬╖&&┬╖convoResult.success┬╖&&┬╖convoResult.data)┬╖{
+        228 Γöé + ┬╖┬╖┬╖┬╖if┬╖(convoResult?.success┬╖&&┬╖convoResult.data)┬╖{
+    229 229 Γöé         aiConversations.push({ data: convoResult.data, campaignId: campaign.id })
+    230 230 Γöé       }
+  
+
+src\renderer\src\services\io\import-export.ts:238:9 lint/complexity/useOptionalChain  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Change to an optional chain.
+  
+    236 Γöé     if (!imgMeta.id) continue
+    237 Γöé     const imgResult = await window.api.imageLibrary.get(imgMeta.id as string).catch(() => null)
+  > 238 Γöé     if (imgResult && imgResult.success && imgResult.data?.path) {
+        Γöé         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    239 Γöé       const buffer = await window.api.readFileBinary(imgResult.data.path).catch(() => null)
+    240 Γöé       if (buffer) {
+  
+  i Unsafe fix: Change to an optional chain.
+  
+    236 236 Γöé       if (!imgMeta.id) continue
+    237 237 Γöé       const imgResult = await window.api.imageLibrary.get(imgMeta.id as string).catch(() => null)
+    238     Γöé - ┬╖┬╖┬╖┬╖if┬╖(imgResult┬╖&&┬╖imgResult.success┬╖&&┬╖imgResult.data?.path)┬╖{
+        238 Γöé + ┬╖┬╖┬╖┬╖if┬╖(imgResult?.success┬╖&&┬╖imgResult.data?.path)┬╖{
+    239 239 Γöé         const buffer = await window.api.readFileBinary(imgResult.data.path).catch(() => null)
+    240 240 Γöé         if (buffer) {
+  
+
+src\renderer\src\services\map\sound-occlusion.ts:6:24 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Several of these imports are unused.
+  
+    4 Γöé  */
+    5 Γöé 
+  > 6 Γöé import type { GameMap, MapToken, WallSegment } from '../../types/map'
+      Γöé                        ^^^^^^^^
+    7 Γöé import type { Point, Segment } from './raycast-visibility'
+    8 Γöé import { wallsToSegments } from './raycast-visibility'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    6 Γöé import┬╖type┬╖{┬╖GameMap,┬╖MapToken,┬╖WallSegment┬╖}┬╖from┬╖'../../types/map'
+      Γöé                        ----------                                    
+
+src\renderer\src\services\map\sound-occlusion.ts:8:8 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This import is unused.
+  
+     6 Γöé import type { GameMap, MapToken, WallSegment } from '../../types/map'
+     7 Γöé import type { Point, Segment } from './raycast-visibility'
+   > 8 Γöé import { wallsToSegments } from './raycast-visibility'
+       Γöé        ^^^^^^^^^^^^^^^^^^^
+     9 Γöé 
+    10 Γöé // ΓöÇΓöÇΓöÇ Constants ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      6   6 Γöé   import type { GameMap, MapToken, WallSegment } from '../../types/map'
+      7   7 Γöé   import type { Point, Segment } from './raycast-visibility'
+      8     Γöé - import┬╖{┬╖wallsToSegments┬╖}┬╖from┬╖'./raycast-visibility'
+      9   8 Γöé   
+     10   9 Γöé   // ΓöÇΓöÇΓöÇ Constants ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  
+
+src\renderer\src\services\map\sound-occlusion.ts:141:9 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable dx is unused.
+  
+    140 Γöé   // Check for line intersection with any wall segment
+  > 141 Γöé   const dx = listenerPx.x - emitterPx.x
+        Γöé         ^^
+    142 Γöé   const dy = listenerPx.y - emitterPx.y
+    143 Γöé 
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend dx with an underscore.
+  
+    139 139 Γöé   
+    140 140 Γöé     // Check for line intersection with any wall segment
+    141     Γöé - ┬╖┬╖const┬╖dx┬╖=┬╖listenerPx.x┬╖-┬╖emitterPx.x
+        141 Γöé + ┬╖┬╖const┬╖_dx┬╖=┬╖listenerPx.x┬╖-┬╖emitterPx.x
+    142 142 Γöé     const dy = listenerPx.y - emitterPx.y
+    143 143 Γöé   
+  
+
+src\renderer\src\services\map\sound-occlusion.ts:142:9 lint/correctness/noUnusedVariables  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable dy is unused.
+  
+    140 Γöé   // Check for line intersection with any wall segment
+    141 Γöé   const dx = listenerPx.x - emitterPx.x
+  > 142 Γöé   const dy = listenerPx.y - emitterPx.y
+        Γöé         ^^
+    143 Γöé 
+    144 Γöé   for (const segment of segments) {
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend dy with an underscore.
+  
+    140 140 Γöé     // Check for line intersection with any wall segment
+    141 141 Γöé     const dx = listenerPx.x - emitterPx.x
+    142     Γöé - ┬╖┬╖const┬╖dy┬╖=┬╖listenerPx.y┬╖-┬╖emitterPx.y
+        142 Γöé + ┬╖┬╖const┬╖_dy┬╖=┬╖listenerPx.y┬╖-┬╖emitterPx.y
+    143 143 Γöé   
+    144 144 Γöé     for (const segment of segments) {
+  
+
+src\renderer\src\stores\bastion-store\facility-slice.ts:5:3 lint/correctness/noUnusedImports  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Several of these imports are unused.
+  
+    3 Γöé   BasicFacility,
+    4 Γöé   Bastion,
+  > 5 Γöé   BastionCharm,
+      Γöé   ^^^^^^^^^^^^
+    6 Γöé   BastionDefender,
+    7 Γöé   ConstructionProject,
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      3   3 Γöé     BasicFacility,
+      4   4 Γöé     Bastion,
+      5     Γöé - ┬╖┬╖BastionCharm,
+      6   5 Γöé     BastionDefender,
+      7   6 Γöé     ConstructionProject,
+  
+
+src\renderer\src\stores\game\initiative-slice.ts:393:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    392 Γöé     // Readying an action uses the action and ends the turn
+  > 393 Γöé     get().useAction(entityId)
+        Γöé     ^^^^^^^^^^^^^^^
+    394 Γöé     get().nextTurn()
+    395 Γöé   },
+  
+  i Hooks should not be called after an early return.
+  
+    380 Γöé   readyAction: (entityId: string, trigger: string, action: string) => {
+    381 Γöé     const { initiative } = get()
+  > 382 Γöé     if (!initiative) return
+        Γöé                      ^^^^^^
+    383 Γöé 
+    384 Γöé     // Set the ready action on the entry
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\styles\globals.css:70:32 lint/complexity/noImportantStyles  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Avoid the use of the !important style.
+  
+    68 Γöé   *::before,
+    69 Γöé   *::after {
+  > 70 Γöé     animation-duration: 0.01ms !important;
+       Γöé                                ^^^^^^^^^^
+    71 Γöé     animation-iteration-count: 1 !important;
+    72 Γöé     transition-duration: 0.01ms !important;
+  
+  i This style reverses the cascade logic, and precedence is reversed. This could lead to having styles with higher specificity being overridden by styles with lower specificity.
+  
+  i Unsafe fix: Remove the style.
+  
+    70 Γöé ┬╖┬╖┬╖┬╖animation-duration:┬╖0.01ms┬╖!important;
+       Γöé                               ----------- 
+
+src\renderer\src\styles\globals.css:71:34 lint/complexity/noImportantStyles  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Avoid the use of the !important style.
+  
+    69 Γöé   *::after {
+    70 Γöé     animation-duration: 0.01ms !important;
+  > 71 Γöé     animation-iteration-count: 1 !important;
+       Γöé                                  ^^^^^^^^^^
+    72 Γöé     transition-duration: 0.01ms !important;
+    73 Γöé     scroll-behavior: auto !important;
+  
+  i This style reverses the cascade logic, and precedence is reversed. This could lead to having styles with higher specificity being overridden by styles with lower specificity.
+  
+  i Unsafe fix: Remove the style.
+  
+    71 Γöé ┬╖┬╖┬╖┬╖animation-iteration-count:┬╖1┬╖!important;
+       Γöé                                 ----------- 
+
+src\renderer\src\styles\globals.css:72:33 lint/complexity/noImportantStyles  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Avoid the use of the !important style.
+  
+    70 Γöé     animation-duration: 0.01ms !important;
+    71 Γöé     animation-iteration-count: 1 !important;
+  > 72 Γöé     transition-duration: 0.01ms !important;
+       Γöé                                 ^^^^^^^^^^
+    73 Γöé     scroll-behavior: auto !important;
+    74 Γöé   }
+  
+  i This style reverses the cascade logic, and precedence is reversed. This could lead to having styles with higher specificity being overridden by styles with lower specificity.
+  
+  i Unsafe fix: Remove the style.
+  
+    72 Γöé ┬╖┬╖┬╖┬╖transition-duration:┬╖0.01ms┬╖!important;
+       Γöé                                ----------- 
+
+src\renderer\src\styles\globals.css:73:27 lint/complexity/noImportantStyles  FIXABLE  ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Avoid the use of the !important style.
+  
+    71 Γöé     animation-iteration-count: 1 !important;
+    72 Γöé     transition-duration: 0.01ms !important;
+  > 73 Γöé     scroll-behavior: auto !important;
+       Γöé                           ^^^^^^^^^^
+    74 Γöé   }
+    75 Γöé }
+  
+  i This style reverses the cascade logic, and precedence is reversed. This could lead to having styles with higher specificity being overridden by styles with lower specificity.
+  
+  i Unsafe fix: Remove the style.
+  
+    73 Γöé ┬╖┬╖┬╖┬╖scroll-behavior:┬╖auto┬╖!important;
+       Γöé                          ----------- 
+
+src\renderer\src\types\campaign.ts:244:16 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    242 Γöé   handouts: Handout[]
+    243 Γöé   combatTimer?: CombatTimerConfig
+  > 244 Γöé   sessionLog?: any[]
+        Γöé                ^^^
+    245 Γöé   sharedJournal?: any[]
+    246 Γöé   lastSaveTimestamp?: number
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\types\campaign.ts:245:19 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    243 Γöé   combatTimer?: CombatTimerConfig
+    244 Γöé   sessionLog?: any[]
+  > 245 Γöé   sharedJournal?: any[]
+        Γöé                   ^^^
+    246 Γöé   lastSaveTimestamp?: number
+    247 Γöé }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\utils\chat-links.ts:74:9 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    72 Γöé   for (const monsterName of MONSTER_NAMES) {
+    73 Γöé     const regex = new RegExp(`\\b${monsterName}\\b`, 'gi')
+  > 74 Γöé     let match
+       Γöé         ^^^^^
+    75 Γöé     while ((match = regex.exec(content)) !== null) {
+    76 Γöé       links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:88:9 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    86 Γöé   for (const itemName of ITEM_NAMES) {
+    87 Γöé     const regex = new RegExp(`\\b${itemName}\\b`, 'gi')
+  > 88 Γöé     let match
+       Γöé         ^^^^^
+    89 Γöé     while ((match = regex.exec(content)) !== null) {
+    90 Γöé       links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:101:7 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+     99 Γöé   // Find spell references (basic patterns)
+    100 Γöé   const spellRegex = /\b(?:Magic Missile|Fireball|Lightning Bolt|Cure Wounds|Heal|Raise Dead|Wish)\b/gi
+  > 101 Γöé   let match
+        Γöé       ^^^^^
+    102 Γöé   while ((match = spellRegex.exec(content)) !== null) {
+    103 Γöé     links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:57:7 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    55 Γöé   // 1. Parse [[name]] bracket syntax ΓÇö matches against content index
+    56 Γöé   const bracketRegex = /\[\[([^\]]+)\]\]/g
+  > 57 Γöé   let bracketMatch
+       Γöé       ^^^^^^^^^^^^
+    58 Γöé   while ((bracketMatch = bracketRegex.exec(content)) !== null) {
+    59 Γöé     const ref = lookupContent(bracketMatch[1])
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+Checked 4471 files in 3s. No fixes applied.
+Found 4 errors.
+Found 94 warnings.
+Found 14 infos.
+check ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù Some errors were emitted while running checks.
+  
+

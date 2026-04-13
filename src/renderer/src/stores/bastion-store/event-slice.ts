@@ -16,6 +16,7 @@ import {
   type TreasureResult
 } from '../../data/bastion-events'
 import type { Bastion, BastionTurn, TurnOrder } from '../../types/bastion'
+import { getBpPerTurn } from '../../types/bastion'
 import type { BastionState, EventSliceState } from './types'
 import { getBastion } from './types'
 
@@ -91,6 +92,9 @@ export const createEventSlice: StateCreator<BastionState, [], [], EventSliceStat
       }
     }
 
+    // Filter expired charms
+    const activeCharms = (bastion.activeCharms ?? []).filter((c) => c.grantedOnDay + c.durationDays > newDay)
+
     const updated: Bastion = {
       ...bastion,
       inGameTime: { ...bastion.inGameTime, currentDay: newDay },
@@ -98,6 +102,7 @@ export const createEventSlice: StateCreator<BastionState, [], [], EventSliceStat
       basicFacilities,
       specialFacilities,
       defensiveWalls,
+      activeCharms,
       updatedAt: new Date().toISOString()
     }
     get().saveBastion(updated)
@@ -256,12 +261,18 @@ export const createEventSlice: StateCreator<BastionState, [], [], EventSliceStat
     get().saveBastion(updated)
   },
 
-  completeTurn: (bastionId, turnNumber) => {
+  completeTurn: (bastionId, turnNumber, ownerLevel) => {
     const bastion = getBastion(get().bastions, bastionId)
     if (!bastion) return
 
+    let bastionPoints = bastion.bastionPoints
+    if (ownerLevel !== undefined) {
+      bastionPoints += getBpPerTurn(ownerLevel)
+    }
+
     const updated: Bastion = {
       ...bastion,
+      bastionPoints,
       turns: bastion.turns.map((t) =>
         t.turnNumber === turnNumber ? { ...t, resolvedAt: new Date().toISOString() } : t
       ),

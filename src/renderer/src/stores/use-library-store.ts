@@ -1,11 +1,12 @@
 import { create } from 'zustand'
+import { SETTINGS_KEYS } from '../constants'
 import type { HomebrewEntry, LibraryCategory, LibraryItem } from '../types/library'
 import { logger } from '../utils/logger'
 
 // Load recently viewed from localStorage
 function loadRecentlyViewed(): LibraryItem[] {
   try {
-    const raw = localStorage.getItem('library-recent')
+    const raw = localStorage.getItem(SETTINGS_KEYS.LIBRARY_RECENT)
     if (raw) return JSON.parse(raw) as LibraryItem[]
   } catch {
     /* ignore */
@@ -16,7 +17,7 @@ function loadRecentlyViewed(): LibraryItem[] {
 // Load favorites from localStorage
 function loadFavorites(): Set<string> {
   try {
-    const raw = localStorage.getItem('library-favorites')
+    const raw = localStorage.getItem(SETTINGS_KEYS.LIBRARY_FAVORITES)
     if (raw) return new Set(JSON.parse(raw) as string[])
   } catch {
     /* ignore */
@@ -113,7 +114,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     const next = [item, ...filtered].slice(0, 20)
     set({ recentlyViewed: next })
     try {
-      localStorage.setItem('library-recent', JSON.stringify(next))
+      localStorage.setItem(SETTINGS_KEYS.LIBRARY_RECENT, JSON.stringify(next))
     } catch {
       /* ignore */
     }
@@ -129,7 +130,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     }
     set({ favorites: next })
     try {
-      localStorage.setItem('library-favorites', JSON.stringify([...next]))
+      localStorage.setItem(SETTINGS_KEYS.LIBRARY_FAVORITES, JSON.stringify([...next]))
     } catch {
       /* ignore */
     }

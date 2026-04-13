@@ -410,6 +410,15 @@ export function handleHostMessage(
       break
     }
 
+    case 'pong': {
+      const payload = message.payload as { timestamp?: number }
+      if (payload.timestamp) {
+        const latencyMs = Date.now() - payload.timestamp
+        get().updatePeer(fromPeerId, { latencyMs })
+      }
+      break
+    }
+
     case 'player:time-request': {
       const payload = message.payload as TimeRequestPayload
       useLobbyStore.getState().addChatMessage({

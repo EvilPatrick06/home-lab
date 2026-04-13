@@ -8,6 +8,9 @@ nul
 .env
 .env.*
 .env.local
+
+# Local Google Drive OAuth secrets (never commit)
+scripts/fedora-migration/gdrive-oauth.local.env
 .vscode/
 .claude/
 .idea/

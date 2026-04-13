@@ -21,7 +21,7 @@ export default function TimerOverlay(): JSX.Element {
   const display = `${minutes}:${seconds.toString().padStart(2, '0')}`
 
   return (
-    <div className="absolute top-3 right-16 z-10">
+    <div className="absolute top-3 right-16 z-10" role="status" aria-label="Game timer">
       <div className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl px-4 py-2 min-w-[140px]">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -38,6 +38,7 @@ export default function TimerOverlay(): JSX.Element {
             onClick={stopTimer}
             className="text-gray-500 hover:text-red-400 text-xs cursor-pointer"
             title="Stop Timer"
+            aria-label="Stop timer"
           >
             &#10005;
           </button>

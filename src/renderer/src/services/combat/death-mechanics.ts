@@ -79,14 +79,21 @@ export interface DeathSaveResult {
  * - Nat 1: counts as 2 failures.
  * - >= 10: success. < 10: failure.
  * - 3 successes = stabilized. 3 failures = dead.
+ *
+ * @param deathSaveBonus - Optional bonus from features like Bless (+1d4), Paladin Aura of Protection (CHA mod), etc.
  */
-export function resolveDeathSave(entityId: string, entityName: string, currentState: DeathSaveState): DeathSaveResult {
-  const saveRoll = rollD20(0, { label: 'Death Save', silent: true })
+export function resolveDeathSave(
+  entityId: string,
+  entityName: string,
+  currentState: DeathSaveState,
+  deathSaveBonus: number = 0
+): DeathSaveResult {
+  const saveRoll = rollD20(deathSaveBonus, { label: 'Death Save', silent: true })
 
   let { successes, failures } = currentState
 
   if (saveRoll.natural20) {
-    // Nat 20: regain 1 HP
+    // Nat 20: regain 1 HP — always succeeds regardless of bonus
     successes = 0
     failures = 0
     const summary = `${entityName} rolls a Natural 20 on their death save — they regain 1 HP!`
@@ -105,6 +112,7 @@ export function resolveDeathSave(entityId: string, entityName: string, currentSt
   }
 
   if (saveRoll.natural1) {
+    // Nat 1: always 2 failures regardless of bonus
     failures += 2
   } else if (saveRoll.total >= 10) {
     successes += 1
@@ -115,15 +123,17 @@ export function resolveDeathSave(entityId: string, entityName: string, currentSt
   let outcome: DeathSaveResult['outcome'] = 'continue'
   let summary: string
 
+  const bonusNote = deathSaveBonus !== 0 ? ` (bonus: ${deathSaveBonus >= 0 ? '+' : ''}${deathSaveBonus})` : ''
+
   if (successes >= 3) {
     outcome = 'stabilized'
-    summary = `${entityName} is stabilized! (Death saves: ${successes} successes)`
+    summary = `${entityName} is stabilized! (Death saves: ${successes} successes)${bonusNote}`
   } else if (failures >= 3) {
     outcome = 'dead'
-    summary = `${entityName} has died! (Death saves: ${failures} failures)`
+    summary = `${entityName} has died! (Death saves: ${failures} failures)${bonusNote}`
   } else {
     const rollDesc = saveRoll.natural1 ? 'Natural 1 (2 failures!)' : `${saveRoll.total}`
-    summary = `${entityName} death save: ${rollDesc} — Successes: ${successes}/3, Failures: ${failures}/3`
+    summary = `${entityName} death save: ${rollDesc}${bonusNote} — Successes: ${successes}/3, Failures: ${failures}/3`
   }
 
   logCombatEntry({

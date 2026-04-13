@@ -1,7 +1,63 @@
 import type { StateCreator } from 'zustand'
-import type { ActiveLightSource } from '../../types/campaign'
+import { publishSystemChat } from '../../events/system-chat-bridge'
+import type { ActiveLightSource, LightAnimation } from '../../types/campaign'
+import type { Character5e } from '../../types/character-5e'
 import type { Handout, InGameTimeState } from '../../types/game-state'
 import type { GameStoreState, SessionLogEntry, TimeSliceState } from './types'
+
+/**
+ * PHB 2024: A stable creature at 0 HP regains 1 HP after 1d4 hours.
+ * Checks for Stable conditions whose recovery timer has elapsed.
+ */
+function checkStableCreatureRecovery(get: () => GameStoreState): void {
+  const { inGameTime, conditions, maps } = get()
+  if (!inGameTime) return
+
+  const stableConditions = conditions.filter(
+    (c) => c.condition === 'Stable' && c.stabilizedAtSeconds != null && c.recoveryDurationSeconds != null
+  )
+
+  for (const stableCond of stableConditions) {
+    const elapsed = inGameTime.totalSeconds - (stableCond.stabilizedAtSeconds ?? 0)
+    if (elapsed >= (stableCond.recoveryDurationSeconds ?? Infinity)) {
+      // Recovery time elapsed — set HP to 1 and remove Stable condition
+      get().removeCondition(stableCond.id)
+
+      // Set token HP to 1
+      for (const map of maps) {
+        const token = map.tokens.find((t) => t.entityId === stableCond.entityId)
+        if (token && token.currentHP != null && token.currentHP <= 0) {
+          get().updateToken(map.id, token.id, { currentHP: 1 })
+        }
+      }
+
+      // Sync character HP if player
+      try {
+        const { useCharacterStore } = require('../../stores/use-character-store')
+        const charStore = useCharacterStore.getState()
+        const char = charStore.characters.find((c: { id: string }) => c.id === stableCond.entityId) as Character5e | undefined
+        if (char && char.hitPoints.current <= 0) {
+          charStore.saveCharacter({
+            ...char,
+            hitPoints: { ...char.hitPoints, current: 1 },
+            deathSaves: { successes: 0, failures: 0 }
+          })
+        }
+      } catch {
+        // Character store may not be available in all contexts
+      }
+
+      const hours = Math.round((stableCond.recoveryDurationSeconds ?? 0) / 3600)
+      publishSystemChat({
+        senderId: 'system',
+        senderName: 'System',
+        content: `${stableCond.entityName} regains 1 HP after ${hours} hour${hours !== 1 ? 's' : ''} of being stable.`,
+        timestamp: Date.now(),
+        isSystem: true
+      })
+    }
+  }
+}
 
 export const createTimeSlice: StateCreator<GameStoreState, [], [], TimeSliceState> = (set, get) => ({
   // --- In-game time ---
@@ -13,6 +69,8 @@ export const createTimeSlice: StateCreator<GameStoreState, [], [], TimeSliceStat
     set({ inGameTime: { totalSeconds: inGameTime.totalSeconds + seconds } })
     // Check for expired custom effects after time advance
     get().checkExpiredEffects()
+    // PHB 2024: Check if stable creatures regain 1 HP
+    checkStableCreatureRecovery(get)
   },
   advanceTimeDays: (days: number) => {
     const { inGameTime } = get()
@@ -20,6 +78,8 @@ export const createTimeSlice: StateCreator<GameStoreState, [], [], TimeSliceStat
     set({ inGameTime: { totalSeconds: inGameTime.totalSeconds + days * 24 * 3600 } })
     // Check for expired custom effects after time advance
     get().checkExpiredEffects()
+    // PHB 2024: Check if stable creatures regain 1 HP
+    checkStableCreatureRecovery(get)
   },
 
   // --- Rest tracking ---
@@ -28,7 +88,13 @@ export const createTimeSlice: StateCreator<GameStoreState, [], [], TimeSliceStat
 
   // --- Light sources ---
   activeLightSources: [],
-  lightSource: (entityId: string, entityName: string, sourceName: string, durationSeconds: number) => {
+  lightSource: (
+    entityId: string,
+    entityName: string,
+    sourceName: string,
+    durationSeconds: number,
+    animation?: LightAnimation
+  ) => {
     const { inGameTime } = get()
     if (!inGameTime) return
     const source: ActiveLightSource = {
@@ -37,7 +103,8 @@ export const createTimeSlice: StateCreator<GameStoreState, [], [], TimeSliceStat
       entityName,
       sourceName,
       durationSeconds,
-      startedAtSeconds: inGameTime.totalSeconds
+      startedAtSeconds: inGameTime.totalSeconds,
+      ...(animation ? { animation } : {})
     }
     set((s) => ({ activeLightSources: [...s.activeLightSources, source] }))
   },

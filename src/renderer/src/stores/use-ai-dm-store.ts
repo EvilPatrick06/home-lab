@@ -36,6 +36,15 @@ interface PendingActionSet {
   statChanges: AiStatChange[]
 }
 
+export interface PendingMutationSet {
+  id: string
+  messageId: number
+  mutations: AiStatChange[]
+  source: 'ai-dm' | 'discord'
+  timestamp: number
+  timeoutId?: ReturnType<typeof setTimeout>
+}
+
 interface AiDmState {
   // Config
   enabled: boolean
@@ -70,6 +79,10 @@ interface AiDmState {
   fileReadStatus: { path: string; status: string } | null
   webSearchStatus: { query: string; status: string } | null
 
+  // Stat mutation approval
+  pendingMutations: PendingMutationSet[]
+  autoApproveAiMutations: boolean
+
   // Errors
   lastError: string | null
 
@@ -78,6 +91,11 @@ interface AiDmState {
   setPendingActions: (pending: PendingActionSet | null) => void
   approvePendingActions: () => void
   rejectPendingActions: (dmNote: string) => void
+  queueMutations: (set: PendingMutationSet) => void
+  approveMutations: (id: string) => void
+  rejectMutations: (id: string) => void
+  approveAllMutations: () => void
+  setAutoApproveAiMutations: (auto: boolean) => void
   initFromCampaign: (campaign: Campaign) => void
   sendMessage: (
     campaignId: string,
@@ -92,7 +110,8 @@ interface AiDmState {
       conditions: string[]
       monsterStatBlockId?: string
     }>,
-    gameState?: string
+    gameState?: string,
+    actingCharacterId?: string
   ) => Promise<void>
   cancelStream: () => Promise<void>
   setScene: (campaignId: string, characterIds: string[], gameState?: string) => Promise<void>
@@ -123,6 +142,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
   lastRuleCitations: [],
   fileReadStatus: null,
   webSearchStatus: null,
+  pendingMutations: [],
+  autoApproveAiMutations: false,
   lastError: null,
 
   setDmApprovalRequired: (required: boolean) => set({ dmApprovalRequired: required }),
@@ -153,6 +174,86 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
     })
     set({ pendingActions: null })
   },
+
+  queueMutations: (mutationSet: PendingMutationSet) => {
+    // Auto-reject after 60 seconds
+    const timeoutId = setTimeout(() => {
+      const state = get()
+      const still = state.pendingMutations.find((m) => m.id === mutationSet.id)
+      if (still) {
+        set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== mutationSet.id) })
+        pushDmAlert('warning', `AI mutations auto-rejected (60s timeout)`)
+      }
+    }, 60_000)
+    set((state) => ({
+      pendingMutations: [...state.pendingMutations, { ...mutationSet, timeoutId }]
+    }))
+  },
+
+  approveMutations: (id: string) => {
+    const state = get()
+    const found = state.pendingMutations.find((m) => m.id === id)
+    if (!found) return
+    if (found.timeoutId) clearTimeout(found.timeoutId)
+
+    // Apply via IPC
+    const players = useLobbyStore.getState().players
+    const playersWithChars = players.filter((p) => p.characterId)
+    if (playersWithChars.length > 0) {
+      const creatureChanges = found.mutations.filter((c) => c.type.startsWith('creature_'))
+      const characterChanges = found.mutations.filter((c) => !c.type.startsWith('creature_'))
+
+      if (characterChanges.length > 0) {
+        const changesByCharId = new Map<string, typeof characterChanges>()
+        for (const change of characterChanges) {
+          const named = change.characterName as string | undefined
+          let charId: string | undefined
+          if (named) {
+            const match = playersWithChars.find(
+              (p) =>
+                p.displayName?.toLowerCase() === named.toLowerCase() ||
+                p.characterName?.toLowerCase() === named.toLowerCase()
+            )
+            charId = match?.characterId ?? playersWithChars[0].characterId ?? undefined
+          } else {
+            charId = playersWithChars[0].characterId ?? undefined
+          }
+          if (charId) {
+            const existing = changesByCharId.get(charId) ?? []
+            existing.push(change)
+            changesByCharId.set(charId, existing)
+          }
+        }
+        for (const [charId, changes] of changesByCharId) {
+          window.api.ai.applyMutations(charId, changes)
+        }
+      }
+
+      // Creature changes are applied via game store event (emitted from use-game-effects)
+      if (creatureChanges.length > 0) {
+        // Emit a custom event so use-game-effects can pick it up
+        window.dispatchEvent(new CustomEvent('ai-mutations-approved', { detail: { mutations: creatureChanges } }))
+      }
+    }
+
+    set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== id) })
+  },
+
+  rejectMutations: (id: string) => {
+    const state = get()
+    const found = state.pendingMutations.find((m) => m.id === id)
+    if (found?.timeoutId) clearTimeout(found.timeoutId)
+    set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== id) })
+  },
+
+  approveAllMutations: () => {
+    const state = get()
+    for (const m of state.pendingMutations) {
+      state.approveMutations(m.id)
+    }
+  },
+
+  setAutoApproveAiMutations: (auto: boolean) => set({ autoApproveAiMutations: auto }),
 
   initFromCampaign: (campaign) => {
     const aiDm = campaign.aiDm
@@ -196,7 +297,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
     })
   },
 
-  sendMessage: async (campaignId, content, characterIds, senderName, activeCreatures, gameState) => {
+  sendMessage: async (campaignId, content, characterIds, senderName, activeCreatures, gameState, actingCharacterId) => {
     const state = get()
     if (!state.enabled || state.paused) return
 
@@ -233,6 +334,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
         campaignId,
         message: content,
         characterIds,
+        actingCharacterId,
         senderName,
         activeCreatures,
         gameState

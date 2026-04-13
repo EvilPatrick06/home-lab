@@ -369,25 +369,17 @@ export function useTokenMovement({
       // Scene region trigger detection
       const regions = activeMap.regions ?? []
       if (regions.length > 0) {
-        processTokenRegionTriggers(
-          movingToken,
-          movingToken.gridX,
-          movingToken.gridY,
-          gridX,
-          gridY,
-          regions,
-          {
-            token: movingToken,
-            mapId: activeMap.id,
-            addChatMessage,
-            moveToken: gameStore.moveToken,
-            updateToken: gameStore.updateToken,
-            addCondition: gameStore.addCondition,
-            updateRegion: gameStore.updateRegion,
-            setActiveMap: gameStore.setActiveMap,
-            round: gameStore.round
-          }
-        )
+        processTokenRegionTriggers(movingToken, movingToken.gridX, movingToken.gridY, gridX, gridY, regions, {
+          token: movingToken,
+          mapId: activeMap.id,
+          addChatMessage,
+          moveToken: gameStore.moveToken,
+          updateToken: gameStore.updateToken,
+          addCondition: gameStore.addCondition,
+          updateRegion: gameStore.updateRegion,
+          setActiveMap: gameStore.setActiveMap,
+          round: gameStore.round
+        })
       }
     },
     [activeMap, gameStore, teleportMove, addChatMessage, setOaPrompt, onPortalEntry]

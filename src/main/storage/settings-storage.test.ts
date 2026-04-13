@@ -24,24 +24,25 @@ describe('settings-storage', () => {
       vi.mocked(readFile).mockRejectedValue(new Error('ENOENT'))
 
       const result = await loadSettings()
-      expect(result).toEqual({})
+      expect(result).toEqual({ success: true, data: { version: 1 } })
     })
 
     it('should parse and return settings from file', async () => {
       const settings: AppSettings = {
+        version: 1,
         turnServers: [{ urls: 'turn:example.com', username: 'user', credential: 'pass' }]
       }
       vi.mocked(readFile).mockResolvedValue(JSON.stringify(settings))
 
       const result = await loadSettings()
-      expect(result).toEqual(settings)
+      expect(result).toEqual({ success: true, data: { ...settings, version: 1 } })
     })
 
     it('should return empty object on parse error', async () => {
       vi.mocked(readFile).mockResolvedValue('invalid json{{{')
 
       const result = await loadSettings()
-      expect(result).toEqual({})
+      expect(result).toEqual({ success: true, data: { version: 1 } })
     })
   })
 
@@ -51,6 +52,7 @@ describe('settings-storage', () => {
       vi.mocked(writeFile).mockResolvedValue(undefined)
 
       const settings: AppSettings = {
+        version: 1,
         turnServers: [{ urls: 'stun:stun.example.com' }]
       }
 
@@ -59,7 +61,7 @@ describe('settings-storage', () => {
       expect(mkdir).toHaveBeenCalledWith(expect.any(String), { recursive: true })
       expect(writeFile).toHaveBeenCalledWith(
         expect.stringContaining('settings.json'),
-        JSON.stringify(settings, null, 2),
+        JSON.stringify({ ...settings, version: 1 }, null, 2),
         'utf-8'
       )
     })
@@ -68,9 +70,13 @@ describe('settings-storage', () => {
       vi.mocked(mkdir).mockResolvedValue(undefined)
       vi.mocked(writeFile).mockResolvedValue(undefined)
 
-      await saveSettings({})
+      await saveSettings({ version: 1 })
 
-      expect(writeFile).toHaveBeenCalledWith(expect.stringContaining('settings.json'), '{}', 'utf-8')
+      expect(writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('settings.json'),
+        JSON.stringify({ version: 1 }, null, 2),
+        'utf-8'
+      )
     })
   })
 })

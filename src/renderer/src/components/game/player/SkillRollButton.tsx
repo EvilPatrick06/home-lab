@@ -4,6 +4,7 @@ import {
   getToolSkillAdvantage as getToolAdvantage,
   TOOL_SKILL_INTERACTIONS
 } from '../../../services/character/stat-calculator-5e'
+import { rollSingle } from '../../../services/dice/dice-service'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
@@ -28,7 +29,7 @@ const ABILITY_LABELS: Record<AbilityName, string> = {
 const SAVE_ORDER: AbilityName[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
 
 function rollD20(): number {
-  return Math.floor(Math.random() * 20) + 1
+  return rollSingle(20)
 }
 
 export default function SkillRollButton({ character, onRoll }: SkillRollButtonProps): JSX.Element {
@@ -43,6 +44,9 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
 
   const char5e = character as Character5e
   const profBonus = Math.ceil(character.level / 4) + 1
+
+  // Jack of All Trades: Bard level 2+ adds half proficiency to non-proficient checks
+  const hasJackOfAllTrades = char5e.classFeatures?.some((f) => f.name.toLowerCase() === 'jack of all trades') ?? false
 
   const getSkillMod = (skillName: string): number => {
     const skillDef = SKILLS_5E.find((s) => s.name === skillName)
@@ -63,6 +67,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
     const skill = char5e.skills.find((s) => s.name === skillName)
     if (skill?.expertise) return mod + profBonus * 2
     if (skill?.proficient) return mod + profBonus
+    if (hasJackOfAllTrades) return mod + Math.floor(profBonus / 2)
     return mod
   }
 
@@ -101,6 +106,20 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
         setOpen(false)
         return
       }
+    }
+
+    // PHB 2024: Deafened — auto-fail hearing-based Perception checks
+    if (isSkillCheck && skillName === 'Perception' && entityConditions.some((ec) => ec.condition === 'Deafened')) {
+      onRoll({ formula: `${label}: Auto-FAIL (Deafened — hearing-based)`, total: 0, rolls: [0] })
+      setOpen(false)
+      return
+    }
+
+    // PHB 2024: Blinded — auto-fail sight-based Perception checks
+    if (isSkillCheck && skillName === 'Perception' && entityConditions.some((ec) => ec.condition === 'Blinded')) {
+      onRoll({ formula: `${label}: Auto-FAIL (Blinded — sight-based)`, total: 0, rolls: [0] })
+      setOpen(false)
+      return
     }
 
     // Apply exhaustion penalty to the modifier for this d20 Test

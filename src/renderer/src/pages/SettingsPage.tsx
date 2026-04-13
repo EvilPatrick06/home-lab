@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import OllamaManagement, { type AvailableModelList, type InstalledModelList } from '../components/ui/OllamaManagement'
 import DiscordIntegrationSettings from '../components/ui/DiscordIntegrationSettings'
+import OllamaManagement, { type AvailableModelList, type InstalledModelList } from '../components/ui/OllamaManagement'
+import { SETTINGS_KEYS } from '../constants'
 
 /** Re-exported Ollama model list components for use by consumers importing from SettingsPage. */
 type _AvailableModelList = typeof AvailableModelList
@@ -44,6 +45,16 @@ type _NotificationEvent = NotificationEvent
 
 import { DISPLAY_NAME_KEY } from '../constants'
 import * as NotificationService from '../services/notification-service'
+import {
+  getAmbientVolume,
+  getVolume,
+  isEnabled as isAudioSystemEnabled,
+  isMuted as isAudioSystemMuted,
+  setAmbientVolume as setGlobalAmbientVolume,
+  setEnabled as setGlobalAudioEnabled,
+  setMuted as setGlobalAudioMuted,
+  setVolume as setGlobalVolume
+} from '../services/sound-manager'
 import { getTheme, getThemeNames, setTheme, type ThemeName } from '../services/theme-manager'
 import { type ColorblindMode, type KeyCombo, useAccessibilityStore } from '../stores/use-accessibility-store'
 import { usePluginStore } from '../stores/use-plugin-store'
@@ -388,18 +399,373 @@ function PluginManager(): JSX.Element {
   )
 }
 
+type UpdateState = 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'downloaded' | 'error'
+
+interface UpdateStatusInfo {
+  state: UpdateState
+  version?: string
+  percent?: number
+  message?: string
+}
+
+function UpdateSection(): JSX.Element {
+  const [status, setStatus] = useState<UpdateStatusInfo>({ state: 'idle' })
+  const [appVersion, setAppVersion] = useState<string>('')
+  const listenerRegistered = useRef(false)
+
+  useEffect(() => {
+    window.api
+      .getVersion()
+      .then(setAppVersion)
+      .catch(() => {})
+    if (!listenerRegistered.current) {
+      listenerRegistered.current = true
+      window.api.update.onStatus((s) => {
+        setStatus(s as UpdateStatusInfo)
+      })
+    }
+    return () => {
+      window.api.update.removeStatusListener()
+      listenerRegistered.current = false
+    }
+  }, [])
+
+  const handleCheck = async (): Promise<void> => {
+    setStatus({ state: 'checking' })
+    try {
+      const result = await window.api.update.checkForUpdates()
+      setStatus(result as UpdateStatusInfo)
+    } catch {
+      setStatus({ state: 'error', message: 'Failed to check for updates' })
+    }
+  }
+
+  const handleDownload = async (): Promise<void> => {
+    setStatus({ state: 'downloading', percent: 0, version: status.version })
+    try {
+      const result = await window.api.update.downloadUpdate()
+      setStatus(result as UpdateStatusInfo)
+    } catch {
+      setStatus({ state: 'error', message: 'Download failed' })
+    }
+  }
+
+  const handleInstall = async (): Promise<void> => {
+    try {
+      await window.api.update.installUpdate()
+    } catch {
+      setStatus({ state: 'error', message: 'Install failed' })
+    }
+  }
+
+  const statusLabel = (): string => {
+    switch (status.state) {
+      case 'idle':
+        return ''
+      case 'checking':
+        return 'Checking for updates...'
+      case 'available':
+        return `Version ${status.version ?? 'unknown'} is available`
+      case 'not-available':
+        return 'You are on the latest version'
+      case 'downloading':
+        return `Downloading update... ${status.percent ?? 0}%`
+      case 'downloaded':
+        return `Version ${status.version ?? 'unknown'} downloaded and ready to install`
+      case 'error':
+        return status.message ?? 'An error occurred'
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      {appVersion && <p className="text-xs text-gray-500">Current version: {appVersion}</p>}
+
+      {/* Status display */}
+      {status.state !== 'idle' && (
+        <div
+          className={`text-sm px-3 py-2 rounded-lg ${
+            status.state === 'error'
+              ? 'bg-red-900/30 text-red-300 border border-red-700/50'
+              : status.state === 'downloaded'
+                ? 'bg-green-900/30 text-green-300 border border-green-700/50'
+                : status.state === 'available'
+                  ? 'bg-amber-900/30 text-amber-300 border border-amber-700/50'
+                  : 'bg-gray-800/50 text-gray-300 border border-gray-700/50'
+          }`}
+        >
+          {statusLabel()}
+        </div>
+      )}
+
+      {/* Download progress bar */}
+      {status.state === 'downloading' && (
+        <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-amber-500 rounded-full transition-all duration-300"
+            style={{ width: `${status.percent ?? 0}%` }}
+          />
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        {(status.state === 'idle' || status.state === 'not-available' || status.state === 'error') && (
+          <button
+            onClick={handleCheck}
+            className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer"
+          >
+            Check for Updates
+          </button>
+        )}
+        {status.state === 'available' && (
+          <button
+            onClick={handleDownload}
+            className="px-4 py-1.5 text-sm rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer"
+          >
+            Download Update
+          </button>
+        )}
+        {status.state === 'downloaded' && (
+          <button
+            onClick={handleInstall}
+            className="px-4 py-1.5 text-sm rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors cursor-pointer"
+          >
+            Install & Restart
+          </button>
+        )}
+        {status.state === 'checking' && <span className="text-sm text-gray-400 animate-pulse">Checking...</span>}
+      </div>
+    </div>
+  )
+}
+
+interface CloudSyncState {
+  configured: boolean
+  remotes: string[]
+  version?: string
+  error?: string
+  lastBackupTime?: string
+  campaigns: Array<{ id: string; name: string }>
+}
+
+function CloudBackupSection(): JSX.Element {
+  const [syncState, setSyncState] = useState<CloudSyncState>({
+    configured: false,
+    remotes: [],
+    campaigns: []
+  })
+  const [loading, setLoading] = useState<string | null>(null)
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+
+  const handleCheckStatus = async (): Promise<void> => {
+    setLoading('status')
+    setMessage(null)
+    try {
+      const result = await window.api.cloudSync.getStatus()
+      setSyncState((prev) => ({
+        ...prev,
+        configured: result.configured,
+        remotes: result.remotes,
+        version: result.version,
+        error: result.error
+      }))
+      if (!result.configured && result.error) {
+        setMessage({ text: `Pi unreachable: ${result.error}`, type: 'error' })
+      } else if (result.configured) {
+        setMessage({ text: 'Connected to BMO Pi', type: 'success' })
+      }
+    } catch {
+      setMessage({ text: 'Failed to connect to BMO Pi. Is it running?', type: 'error' })
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleBackupNow = async (): Promise<void> => {
+    setLoading('backup')
+    setMessage(null)
+    try {
+      // Load the current campaigns to pick the first one (or the most recently used)
+      const campaigns = await window.api.loadCampaigns()
+      if (!campaigns || campaigns.length === 0) {
+        setMessage({ text: 'No campaigns to backup', type: 'error' })
+        return
+      }
+      const campaign = campaigns[0] as { id: string; name: string }
+      const result = await window.api.cloudSync.backupCampaign(campaign.id, campaign.name)
+      if (result.success) {
+        setSyncState((prev) => ({
+          ...prev,
+          lastBackupTime: new Date().toISOString()
+        }))
+        setMessage({ text: result.message ?? 'Backup completed successfully', type: 'success' })
+      } else {
+        setMessage({ text: result.error ?? 'Backup failed', type: 'error' })
+      }
+    } catch {
+      setMessage({ text: 'Backup failed. Is BMO Pi reachable?', type: 'error' })
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleListBackups = async (): Promise<void> => {
+    setLoading('list')
+    setMessage(null)
+    try {
+      const result = await window.api.cloudSync.listRemoteCampaigns()
+      if (result.success && result.campaigns) {
+        setSyncState((prev) => ({
+          ...prev,
+          campaigns: result.campaigns ?? []
+        }))
+        setMessage({
+          text:
+            result.campaigns.length > 0
+              ? `Found ${result.campaigns.length} backed-up campaign${result.campaigns.length !== 1 ? 's' : ''}`
+              : 'No backups found on Google Drive',
+          type: 'success'
+        })
+      } else {
+        setMessage({ text: result.error ?? 'Failed to list backups', type: 'error' })
+      }
+    } catch {
+      setMessage({ text: 'Failed to list backups. Is BMO Pi reachable?', type: 'error' })
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-gray-400">
+        Back up campaign data to Google Drive via rclone on BMO Pi. Credentials are stored on the Pi — nothing is stored
+        locally.
+      </p>
+
+      {/* Status display */}
+      {message && (
+        <div
+          className={`text-sm px-3 py-2 rounded-lg ${
+            message.type === 'error'
+              ? 'bg-red-900/30 text-red-300 border border-red-700/50'
+              : 'bg-green-900/30 text-green-300 border border-green-700/50'
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
+
+      {/* Remote info */}
+      {syncState.configured && (
+        <div className="text-xs text-gray-400 space-y-1">
+          {syncState.remotes.length > 0 && <p>Configured remotes: {syncState.remotes.join(', ')}</p>}
+          {syncState.version && <p>Rclone version: {syncState.version}</p>}
+          {syncState.lastBackupTime && <p>Last backup: {new Date(syncState.lastBackupTime).toLocaleString()}</p>}
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={handleCheckStatus}
+          disabled={loading === 'status'}
+          className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
+        >
+          {loading === 'status' ? 'Checking...' : 'Check Status'}
+        </button>
+        <button
+          onClick={handleBackupNow}
+          disabled={loading === 'backup'}
+          className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
+        >
+          {loading === 'backup' ? 'Backing up...' : 'Backup Now'}
+        </button>
+        <button
+          onClick={handleListBackups}
+          disabled={loading === 'list'}
+          className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
+        >
+          {loading === 'list' ? 'Loading...' : 'List Backups'}
+        </button>
+      </div>
+
+      {/* Backed-up campaigns list */}
+      {syncState.campaigns.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-xs text-gray-400 font-semibold">Backed-up Campaigns</p>
+          {syncState.campaigns.map((c) => (
+            <div
+              key={c.id}
+              className="flex items-center justify-between py-1.5 px-2 rounded bg-gray-800/30 border border-gray-700/30"
+            >
+              <span className="text-sm text-gray-300">{c.name}</span>
+              <span className="text-[10px] text-gray-500 font-mono">{c.id.slice(0, 8)}...</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export async function factoryResetAllSettings(): Promise<void> {
+  // 1. Clear all localStorage keys
+  const keysToRemove: string[] = []
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (
+      key?.startsWith('dnd-vtt-') ||
+      key?.startsWith('autosave:') ||
+      key?.startsWith('notification') ||
+      key?.startsWith('lobby-') ||
+      key?.startsWith('macro-storage-') ||
+      key?.startsWith('builder-draft-') ||
+      key?.startsWith('library-') ||
+      key?.startsWith('dice-tray') ||
+      key?.startsWith('narration-') ||
+      key?.startsWith('encounter-')
+    ) {
+      keysToRemove.push(key)
+    }
+  }
+  keysToRemove.forEach((k) => localStorage.removeItem(k))
+
+  // 2. Reset file-based settings
+  await window.api.saveSettings({ turnServers: undefined, userProfile: undefined })
+
+  // 3. Reset in-memory state
+  setGlobalVolume(1)
+  setGlobalAmbientVolume(0.3)
+  setGlobalAudioMuted(false)
+  setGlobalAudioEnabled(true)
+
+  // 4. Reset accessibility store
+  const accessStore = useAccessibilityStore.getState()
+  accessStore.resetAllKeybindings()
+  accessStore.setUiScale(100)
+  accessStore.setColorblindMode('none')
+  accessStore.setReducedMotion(false)
+  accessStore.setScreenReaderMode(false)
+  accessStore.setTooltipsEnabled(true)
+
+  // 5. Reset theme
+  setTheme('dark')
+}
+
 export default function SettingsPage(): JSX.Element {
   const navigate = useNavigate()
   const [activeTheme, setActiveTheme] = useState<ThemeName>(getTheme())
   const [gridOpacity, setGridOpacity] = useState(() => {
-    const saved = localStorage.getItem('dnd-vtt-grid-opacity')
+    const saved = localStorage.getItem(SETTINGS_KEYS.GRID_OPACITY)
     return saved ? Number(saved) : 40
   })
   const [gridColor, setGridColor] = useState(() => {
-    return localStorage.getItem('dnd-vtt-grid-color') ?? '#ffffff'
+    return localStorage.getItem(SETTINGS_KEYS.GRID_COLOR) ?? '#ffffff'
   })
   const [diceRollMode, setDiceRollMode] = useState<'3d' | '2d'>(() => {
-    return (localStorage.getItem('dnd-vtt-dice-mode') as '3d' | '2d') ?? '3d'
+    return (localStorage.getItem(SETTINGS_KEYS.DICE_MODE) as '3d' | '2d') ?? '3d'
   })
 
   // Profile settings
@@ -454,6 +820,32 @@ export default function SettingsPage(): JSX.Element {
   const tooltipsEnabled = useAccessibilityStore((s) => s.tooltipsEnabled)
   const setTooltipsEnabled = useAccessibilityStore((s) => s.setTooltipsEnabled)
 
+  // Audio settings
+  const [masterVolume, setMasterVolume] = useState(() => getVolume() * 100)
+  const [ambientVolume, setAmbientVolumeState] = useState(() => getAmbientVolume() * 100)
+  const [audioMuted, setAudioMuted] = useState(() => isAudioSystemMuted())
+  const [audioEnabled, setAudioEnabled] = useState(() => isAudioSystemEnabled())
+
+  const handleMasterVolumeChange = useCallback((val: number) => {
+    setMasterVolume(val)
+    setGlobalVolume(val / 100)
+  }, [])
+
+  const handleAmbientVolumeChange = useCallback((val: number) => {
+    setAmbientVolumeState(val)
+    setGlobalAmbientVolume(val / 100)
+  }, [])
+
+  const handleMutedChange = useCallback((val: boolean) => {
+    setAudioMuted(val)
+    setGlobalAudioMuted(val)
+  }, [])
+
+  const handleEnabledChange = useCallback((val: boolean) => {
+    setAudioEnabled(val)
+    setGlobalAudioEnabled(val)
+  }, [])
+
   const handleThemeChange = useCallback((theme: ThemeName) => {
     setTheme(theme)
     setActiveTheme(theme)
@@ -461,17 +853,17 @@ export default function SettingsPage(): JSX.Element {
 
   const handleGridOpacityChange = useCallback((val: number) => {
     setGridOpacity(val)
-    localStorage.setItem('dnd-vtt-grid-opacity', String(val))
+    localStorage.setItem(SETTINGS_KEYS.GRID_OPACITY, String(val))
   }, [])
 
   const handleGridColorChange = useCallback((val: string) => {
     setGridColor(val)
-    localStorage.setItem('dnd-vtt-grid-color', val)
+    localStorage.setItem(SETTINGS_KEYS.GRID_COLOR, val)
   }, [])
 
   const handleDiceModeChange = useCallback((mode: '3d' | '2d') => {
     setDiceRollMode(mode)
-    localStorage.setItem('dnd-vtt-dice-mode', mode)
+    localStorage.setItem(SETTINGS_KEYS.DICE_MODE, mode)
   }, [])
 
   return (
@@ -551,8 +943,95 @@ export default function SettingsPage(): JSX.Element {
           </div>
         </Section>
 
+        {/* Audio */}
+        <Section title="Audio">
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => {
+                handleMasterVolumeChange(100)
+                handleAmbientVolumeChange(30)
+                handleMutedChange(false)
+                handleEnabledChange(true)
+              }}
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+            >
+              Reset Audio Defaults
+            </button>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-300">Sound System</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={audioEnabled}
+                  onChange={(e) => handleEnabledChange(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border after:border-gray-300 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600" />
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-300">Mute All Sounds</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={audioMuted}
+                  onChange={(e) => handleMutedChange(e.target.checked)}
+                  disabled={!audioEnabled}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border after:border-gray-300 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600 peer-disabled:opacity-50" />
+              </label>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-300 w-32">Master Volume</span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={masterVolume}
+                onChange={(e) => handleMasterVolumeChange(Number(e.target.value))}
+                disabled={!audioEnabled || audioMuted}
+                className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
+              />
+              <span className="text-xs text-gray-400 w-8 text-right">{Math.round(masterVolume)}%</span>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-300 w-32">Ambient Music</span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={ambientVolume}
+                onChange={(e) => handleAmbientVolumeChange(Number(e.target.value))}
+                disabled={!audioEnabled || audioMuted}
+                className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
+              />
+              <span className="text-xs text-gray-400 w-8 text-right">{Math.round(ambientVolume)}%</span>
+            </div>
+          </div>
+        </Section>
+
         {/* Accessibility */}
         <Section title="Accessibility">
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => {
+                setUiScale(100)
+                setColorblindMode('none')
+                setReducedMotion(false)
+                setScreenReaderMode(false)
+                setTooltipsEnabled(true)
+              }}
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+            >
+              Reset Accessibility Defaults
+            </button>
+          </div>
           <div className="space-y-5">
             {/* UI Scale */}
             <div>
@@ -654,6 +1133,17 @@ export default function SettingsPage(): JSX.Element {
 
         {/* Grid Preferences */}
         <Section title="Grid">
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => {
+                handleGridOpacityChange(40)
+                handleGridColorChange('#ffffff')
+              }}
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+            >
+              Reset Grid Defaults
+            </button>
+          </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-300">Grid Opacity</span>
@@ -708,6 +1198,18 @@ export default function SettingsPage(): JSX.Element {
 
         {/* Notifications */}
         <Section title="Notifications">
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => {
+                setNotificationsEnabled(true)
+                NotificationService.setEnabled(true)
+                NotificationService.setSoundEnabled(true)
+              }}
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+            >
+              Reset Notification Defaults
+            </button>
+          </div>
           {!NotificationService.isSupported() && (
             <p className="text-xs text-yellow-400 mb-3">Desktop notifications are not available in this environment.</p>
           )}
@@ -786,6 +1288,18 @@ export default function SettingsPage(): JSX.Element {
 
         {/* Auto-Save */}
         <Section title="Auto-Save">
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => {
+                setAutoSaveEnabled(true)
+                setAutoSaveInterval(5)
+                AutoSave.setConfig({ enabled: true, intervalMs: 300000 })
+              }}
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+            >
+              Reset Auto-Save Defaults
+            </button>
+          </div>
           <div className="space-y-4">
             <label className="flex items-center justify-between cursor-pointer">
               <div>
@@ -835,9 +1349,13 @@ export default function SettingsPage(): JSX.Element {
                   const prefs: Record<string, string> = {}
                   for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i)
-                    if (key?.startsWith('dnd-vtt-')) prefs[key] = localStorage.getItem(key) ?? ''
+                    // Export all settings keys, even those without dnd-vtt- prefixes
+                    if (key) prefs[key] = localStorage.getItem(key) ?? ''
                   }
-                  const ok = await exportEntities('settings', [{ settings, preferences: prefs }])
+
+                  // Use the globally defined __APP_VERSION__ constant
+                  const appVersion = __APP_VERSION__
+                  const ok = await exportEntities('settings', [{ settings, preferences: prefs, appVersion }])
                   if (ok) addToast('Settings exported', 'success')
                 } catch {
                   addToast('Settings export failed', 'error')
@@ -853,20 +1371,34 @@ export default function SettingsPage(): JSX.Element {
                   const result = await importEntities<{
                     settings?: Record<string, unknown>
                     preferences?: Record<string, string>
+                    appVersion?: string
                   }>('settings')
                   if (!result) return
                   const item = result.items[0]
+
+                  if (item.appVersion && item.appVersion !== __APP_VERSION__) {
+                    if (
+                      !window.confirm(
+                        `These settings are from app version ${item.appVersion}, but you are running ${__APP_VERSION__}. Import anyway?`
+                      )
+                    ) {
+                      return
+                    }
+                  }
+
                   if (item.settings) {
                     await window.api.saveSettings(item.settings as Parameters<typeof window.api.saveSettings>[0])
                   }
                   if (item.preferences) {
                     for (const [key, value] of Object.entries(item.preferences)) {
-                      if (key.startsWith('dnd-vtt-') && typeof value === 'string') {
+                      if (typeof value === 'string') {
                         localStorage.setItem(key, value)
                       }
                     }
                   }
-                  addToast('Settings imported. Reload to apply all changes.', 'success')
+
+                  addToast('Settings imported. Reloading to apply modifications...', 'success')
+                  setTimeout(() => window.location.reload(), 1500)
                 } catch (err) {
                   addToast(err instanceof Error ? err.message : 'Settings import failed', 'error')
                 }
@@ -931,6 +1463,16 @@ export default function SettingsPage(): JSX.Element {
           })()}
         </Section>
 
+        {/* Updates */}
+        <Section title="Updates">
+          <UpdateSection />
+        </Section>
+
+        {/* Cloud Backup */}
+        <Section title="Cloud Backup">
+          <CloudBackupSection />
+        </Section>
+
         {/* Ollama AI */}
         <Section title="Ollama AI">
           <OllamaManagement />
@@ -944,6 +1486,24 @@ export default function SettingsPage(): JSX.Element {
         {/* Keybindings */}
         <Section title="Keybindings">
           <KeybindingEditor />
+        </Section>
+
+        {/* Factory Reset */}
+        <Section title="Reset Everything">
+          <p className="text-xs text-red-400 mb-3">
+            This will reset ALL settings to their defaults. Campaigns, characters, and custom data will not be deleted.
+          </p>
+          <button
+            onClick={async () => {
+              if (window.confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+                await factoryResetAllSettings()
+                window.location.reload()
+              }
+            }}
+            className="px-4 py-1.5 text-sm rounded-lg border bg-red-900/30 border-red-700/50 text-red-300 hover:bg-red-800/50 hover:text-red-100 transition-colors cursor-pointer"
+          >
+            Factory Reset
+          </button>
         </Section>
       </div>
     </div>

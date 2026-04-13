@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import type { CombatLogEntry } from '../../types/game-state'
+import { logger } from '../../utils/logger'
 
 // --- Export functions --------------------------------------------------------
 
@@ -113,4 +114,35 @@ export function filterCombatLog(entries: CombatLogEntry[], filter: CombatLogFilt
   }
 
   return result
+}
+
+/**
+ * Prompt user with a save dialog and export the log contents safely via IPC boundary.
+ */
+export async function saveCombatLogToFile(
+  entries: CombatLogEntry[],
+  format: 'text' | 'json' | 'csv'
+): Promise<boolean> {
+  const content =
+    format === 'json'
+      ? exportCombatLogJSON(entries)
+      : format === 'csv'
+        ? exportCombatLogCSV(entries)
+        : exportCombatLogText(entries)
+  const extensions = format === 'json' ? ['json'] : format === 'csv' ? ['csv'] : ['txt']
+
+  try {
+    const savePath = await window.api.showSaveDialog({
+      title: `Save Combat Log (${format.toUpperCase()})`,
+      filters: [{ name: `${format.toUpperCase()} File`, extensions }]
+    })
+
+    if (savePath) {
+      await window.api.writeFile(savePath, content)
+      return true
+    }
+  } catch (err) {
+    logger.error('Failed to save combat log:', err)
+  }
+  return false
 }

@@ -1,8 +1,4 @@
-/**
- * Effect & state actions — time, shops, sidebar, timers, communication,
- * hidden dice, journal, map switching, bastion management.
- */
-
+import { useCampaignStore } from '../../stores/use-campaign-store'
 import { rollDiceFormula } from './dice-helpers'
 import { findBastionByOwnerName, resolveMapByName, resolvePlayerByName } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
@@ -332,11 +328,55 @@ export function executeSystemMessage(
 
 // ── Journal ──
 
-export function executeAddJournalEntry(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+export function executeAddJournalEntry(action: DmAction, _gameStore: GameStoreSnapshot): boolean {
   const content = action.content as string
+  const title = (action.title as string) || 'AI DM Reflection'
   if (!content) throw new Error('No content for journal entry')
-  const inGameTime = gameStore.inGameTime
-  gameStore.addLogEntry(content, inGameTime ? String(inGameTime.totalSeconds) : undefined)
+
+  const inGameTimestamp =
+    _gameStore.inGameTime && typeof _gameStore.inGameTime.totalSeconds === 'number'
+      ? String(_gameStore.inGameTime.totalSeconds)
+      : undefined
+  _gameStore.addLogEntry(content, inGameTimestamp)
+
+  const campaignStore = useCampaignStore.getState()
+  const campaign = campaignStore.getActiveCampaign()
+  if (!campaign) {
+    // Fallback to postDmChatMessage if no campaign is found
+    postDmChatMessage(
+      {
+        getLobbyStore: () => ({ getState: () => ({ addChatMessage: () => {} }) }),
+        getNetworkStore: () => ({ getState: () => ({ sendMessage: () => {} }) })
+      } as unknown as StoreAccessors,
+      'ai-journal',
+      `Journal Entry (${title}): ${content}`
+    )
+    return true
+  }
+
+  const maxSession = campaign.journal.entries.reduce((max, e) => Math.max(max, e.sessionNumber), 0)
+
+  const newEntry = {
+    id: crypto.randomUUID(),
+    sessionNumber: maxSession, // Post to the current active session number
+    date: new Date().toISOString(),
+    title,
+    content,
+    isPrivate: true,
+    authorId: 'ai-dm',
+    createdAt: new Date().toISOString()
+  }
+
+  const updatedCampaign = {
+    ...campaign,
+    journal: {
+      ...campaign.journal,
+      entries: [...campaign.journal.entries, newEntry]
+    },
+    updatedAt: new Date().toISOString()
+  }
+
+  campaignStore.saveCampaign(updatedCampaign)
   return true
 }
 

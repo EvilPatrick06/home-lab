@@ -1002,6 +1002,31 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
         return hbItems
       }
     }
+    case 'rules': {
+      const ruleFiles = [
+        'ability-checks',
+        'combat',
+        'conditions',
+        'movement',
+        'spellcasting',
+        'resting',
+        'death-saves',
+        'actions-in-combat'
+      ]
+      const allRules: Record<string, unknown>[] = []
+      for (const file of ruleFiles) {
+        try {
+          const resp = await fetch(`/data/5e/rules/${file}.json`)
+          if (resp.ok) {
+            const data = await resp.json()
+            if (Array.isArray(data)) allRules.push(...data)
+          }
+        } catch {
+          /* skip missing files */
+        }
+      }
+      return toLibraryItems(allRules, category)
+    }
     default:
       return hbItems
   }
@@ -1069,7 +1094,8 @@ export async function searchAllCategories(query: string, homebrew: HomebrewEntry
     'sounds',
     'maps',
     'shop-templates',
-    'portraits'
+    'portraits',
+    'rules'
   ]
 
   const results = await Promise.allSettled(allCategories.map((cat) => loadCategoryItems(cat, homebrew)))
@@ -1082,7 +1108,7 @@ export async function searchAllCategories(query: string, homebrew: HomebrewEntry
   }
 
   const fuse = new Fuse(allItems, {
-    keys: ['name', 'summary'],
+    keys: ['name', 'summary', 'data.tags'],
     threshold: 0.3,
     distance: 100,
     ignoreLocation: true

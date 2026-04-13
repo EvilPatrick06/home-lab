@@ -63,6 +63,7 @@ export default function BastionModals(props: BastionModalsProps): JSX.Element {
         facilityDefs={props.facilityDefs}
         activeTurnNumber={activeTurnNumber}
         setActiveTurnNumber={setActiveTurnNumber}
+        ownerLevel={props.ownerLevel}
         startTurn={props.startTurn}
         issueOrder={props.issueOrder}
         issueMaintainOrder={props.issueMaintainOrder}

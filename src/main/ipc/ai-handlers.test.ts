@@ -51,6 +51,7 @@ vi.mock('../ai/context-builder', () => ({
 }))
 
 vi.mock('../ai/ollama-manager', () => ({
+  OLLAMA_BASE_URL: 'http://localhost:11434',
   CURATED_MODELS: [],
   checkOllamaUpdate: vi.fn(async () => ({ installed: '0.0.0', updateAvailable: false })),
   deleteModel: vi.fn(async () => {}),

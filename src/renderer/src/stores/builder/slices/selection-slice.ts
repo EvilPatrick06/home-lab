@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand'
 import { addToast } from '../../../hooks/use-toast'
+import { getCantripsKnown, getPreparedSpellMax } from '../../../services/character/spell-data'
 import { getOptionsForSlot, load5eBackgrounds, load5eClasses, load5eSpecies } from '../../../services/data-provider'
 import { filterOptions } from '../../../types/builder'
 import type { SelectableOption } from '../../../types/character-common'
@@ -286,12 +287,17 @@ export const createSelectionSlice: StateCreator<BuilderState, [], [], SelectionS
               equipment.length === 1
                 ? equipment[0].items.map((name: string) => ({ name, quantity: 1, source: cls.name }))
                 : []
+            const targetLvl = get().targetLevel
+            const cantripsMax = getCantripsKnown(optionId, targetLvl)
+            const preparedMax = getPreparedSpellMax(optionId, targetLvl) ?? 0
             set({
               classEquipment: autoItems,
               classSkillOptions: cls.coreTraits.skillProficiencies.from,
               classEquipmentChoice: equipment.length === 1 ? equipment[0].label : null, // reset when class changes — user must choose
               classExtraLangCount: optionId === 'rogue' ? 1 : optionId === 'ranger' ? 2 : 0,
-              chosenLanguages: [] // reset when class changes (language grants may differ)
+              chosenLanguages: [], // reset when class changes (language grants may differ)
+              maxCantrips: cantripsMax,
+              maxPreparedSpells: preparedMax
             })
           }
         })

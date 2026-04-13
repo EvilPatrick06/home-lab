@@ -1,3 +1,4 @@
+import { SETTINGS_KEYS } from '../constants'
 /**
  * Theme manager for the application.
  * Overrides Tailwind v4 CSS custom properties (--color-gray-*, --color-amber-*)
@@ -11,7 +12,7 @@ type _ThemesFile = ThemesFile
 
 export type ThemeName = 'dark' | 'parchment' | 'high-contrast' | 'royal-purple'
 
-const STORAGE_KEY = 'dnd-vtt-theme'
+const STORAGE_KEY = SETTINGS_KEYS.THEME
 
 const THEME_DEFINITIONS = themesJson as Record<ThemeName, Record<string, string>>
 

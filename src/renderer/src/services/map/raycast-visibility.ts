@@ -21,6 +21,7 @@ export interface Segment {
   b: Point
   type: WallSegment['type']
   isOpen?: boolean
+  oneWayDirection?: number
 }
 
 export interface VisibilityPolygon {
@@ -74,14 +75,29 @@ export function computeVisibility(
   }
 
   // Add boundary walls
+  // Filter out wall types that don't block vision:
+  // - windows: see-through
+  // - open doors: passable & see-through
+  // - transparent: force-wall, blocks movement but not vision
+  // One-way walls are handled directionally in computeVisibilityDirectional
   const allSegments: Segment[] = [
-    ...walls.filter((w) => w.type !== 'window' && !(w.type === 'door' && w.isOpen)),
+    ...walls.filter(
+      (w) => w.type !== 'window' && w.type !== 'transparent' && !(w.type === 'door' && w.isOpen) && w.type !== 'one-way'
+    ),
     // Boundary segments
     { a: { x: 0, y: 0 }, b: { x: bounds.width, y: 0 }, type: 'solid' },
     { a: { x: bounds.width, y: 0 }, b: { x: bounds.width, y: bounds.height }, type: 'solid' },
     { a: { x: bounds.width, y: bounds.height }, b: { x: 0, y: bounds.height }, type: 'solid' },
     { a: { x: 0, y: bounds.height }, b: { x: 0, y: 0 }, type: 'solid' }
   ]
+
+  // Add one-way walls that block vision from this origin's side
+  for (const w of walls) {
+    if (w.type !== 'one-way') continue
+    if (isBlockedByOneWayWall(origin, w)) {
+      allSegments.push(w)
+    }
+  }
 
   // Collect unique endpoints
   const uniqueAngles: number[] = []
@@ -174,6 +190,43 @@ function raySegmentIntersection(
   }
 }
 
+// ─── One-way wall direction check ─────────────────────────────
+
+/**
+ * Check if a one-way wall blocks vision/movement from the given point.
+ * The wall's `oneWayDirection` (degrees) defines the normal of the blocked side.
+ * If the dot product of (point → wall midpoint direction) and the wall normal
+ * is negative, the viewer is on the blocked side.
+ */
+export function isBlockedByOneWayWall(point: Point, wall: Segment): boolean {
+  if (wall.type !== 'one-way') return false
+
+  const midX = (wall.a.x + wall.b.x) / 2
+  const midY = (wall.a.y + wall.b.y) / 2
+
+  // Wall normal direction (the blocked side)
+  let normalAngle: number
+  if (wall.oneWayDirection !== undefined) {
+    normalAngle = (wall.oneWayDirection * Math.PI) / 180
+  } else {
+    // Default: perpendicular to wall, using left-hand normal
+    const wallDx = wall.b.x - wall.a.x
+    const wallDy = wall.b.y - wall.a.y
+    normalAngle = Math.atan2(-wallDx, wallDy)
+  }
+
+  const normalX = Math.cos(normalAngle)
+  const normalY = Math.sin(normalAngle)
+
+  // Vector from wall midpoint to the point
+  const toPointX = point.x - midX
+  const toPointY = point.y - midY
+
+  // If dot product > 0, the point is on the blocked side (same side as the normal)
+  const dot = toPointX * normalX + toPointY * normalY
+  return dot > 0
+}
+
 // ─── Convert WallSegments to Segments ─────────────────────────
 
 export function wallsToSegments(walls: WallSegment[], cellSize: number): Segment[] {
@@ -181,7 +234,8 @@ export function wallsToSegments(walls: WallSegment[], cellSize: number): Segment
     a: { x: w.x1 * cellSize, y: w.y1 * cellSize },
     b: { x: w.x2 * cellSize, y: w.y2 * cellSize },
     type: w.type,
-    isOpen: w.isOpen
+    isOpen: w.isOpen,
+    oneWayDirection: w.oneWayDirection
   }))
 }
 
@@ -272,8 +326,16 @@ export function isMovementBlocked(from: Point, to: Point, walls: Segment[]): boo
   for (const seg of walls) {
     // Doors that are open don't block movement
     if (seg.type === 'door' && seg.isOpen) continue
+
+    // One-way walls: only block movement from the blocked side
+    if (seg.type === 'one-way') {
+      if (!isBlockedByOneWayWall(from, seg)) continue
+    }
+
     // Windows block movement
     // Solid walls block movement
+    // Transparent walls block movement (force walls)
+    // One-way walls (if we get here) block movement from the blocked side
     const intersection = raySegmentIntersection(from, dx, dy, seg.a, seg.b)
     if (intersection && intersection.dist > EPSILON && intersection.dist < 1 - EPSILON) {
       return true

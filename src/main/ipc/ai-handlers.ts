@@ -259,29 +259,54 @@ export function registerAiHandlers(): void {
     }
   })
 
+  ipcMain.handle(IPC_CHANNELS.AI_GENERATE_END_OF_SESSION_RECAP, async (_event, campaignId: string) => {
+    try {
+      const summary = await aiService.generateSessionSummary(campaignId)
+      if (summary) {
+        return { success: true, data: summary }
+      }
+      return { success: false, error: 'Failed to generate recap or conversation history was empty.' }
+    } catch (e) {
+      return { success: false, error: e instanceof Error ? e.message : 'Unknown error generating recap' }
+    }
+  })
+
   // ── Conversation Persistence ──
 
   ipcMain.handle(IPC_CHANNELS.AI_SAVE_CONVERSATION, async (_event, campaignId: string) => {
     const conv = aiService.getConversationManager(campaignId)
     const data = conv.serialize()
-    await saveConversation(campaignId, data)
+    const saveResult = await saveConversation(campaignId, data)
+    if (!saveResult.success) {
+      return { success: false, error: saveResult.error, summary: null }
+    }
     // Generate a session summary alongside the save
     const summary = await aiService.generateSessionSummary(campaignId).catch(() => null)
     return { success: true, summary }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_LOAD_CONVERSATION, async (_event, campaignId: string) => {
-    const data = await loadConversation(campaignId)
-    if (data) {
-      const conv = aiService.getConversationManager(campaignId)
-      conv.restore(data)
-      return { success: true, data }
+  ipcMain.handle(
+    IPC_CHANNELS.AI_RESTORE_CONVERSATION,
+    async (_event, campaignId: string, data: Record<string, unknown>) => {
+      const result = await saveConversation(campaignId, data as any)
+      if (!result.success) return { success: false, error: result.error }
+      return { success: true }
     }
-    return { success: false }
+  )
+
+  ipcMain.handle(IPC_CHANNELS.AI_LOAD_CONVERSATION, async (_event, campaignId: string) => {
+    const result = await loadConversation(campaignId)
+    if (result.success && result.data) {
+      const conv = aiService.getConversationManager(campaignId)
+      conv.restore(result.data)
+      return { success: true, data: result.data }
+    }
+    return { success: false, error: result.error }
   })
 
   ipcMain.handle(IPC_CHANNELS.AI_DELETE_CONVERSATION, async (_event, campaignId: string) => {
-    await deleteConversation(campaignId)
+    const result = await deleteConversation(campaignId)
+    if (!result.success) return { success: false, error: result.error }
     return { success: true }
   })
 
@@ -346,7 +371,7 @@ export function registerAiHandlers(): void {
     async (_event, campaignId: string, state: Record<string, unknown>) => {
       try {
         const memMgr = getMemoryManager(campaignId)
-        await memMgr.updateWorldState(state as Parameters<typeof memMgr.updateWorldState>[0])
+        await memMgr.updateWorldState(state as any)
         return { success: true }
       } catch (error) {
         logToFile('error', `[AI Memory] Failed to sync world state: ${(error as Error).message}`)
@@ -360,7 +385,7 @@ export function registerAiHandlers(): void {
     async (_event, campaignId: string, state: Record<string, unknown>) => {
       try {
         const memMgr = getMemoryManager(campaignId)
-        await memMgr.updateCombatState(state as Parameters<typeof memMgr.updateCombatState>[0])
+        await memMgr.updateCombatState(state as any)
         return { success: true }
       } catch (error) {
         logToFile('error', `[AI Memory] Failed to sync combat state: ${(error as Error).message}`)
@@ -500,6 +525,40 @@ export function registerAiHandlers(): void {
     try {
       await deleteModel(model)
       return { success: true }
+    } catch (error) {
+      return { success: false, error: (error as Error).message }
+    }
+  })
+
+  // ── AI Vision / Map Analysis ──
+
+  ipcMain.handle(IPC_CHANNELS.AI_CAPTURE_MAP, async () => {
+    try {
+      const { captureMapScreenshot } = await import('../ai/ai-vision')
+      const buffer = await captureMapScreenshot()
+      if (!buffer) return { success: false, error: 'No window available' }
+      return { success: true, data: buffer.toString('base64') }
+    } catch (error) {
+      return { success: false, error: (error as Error).message }
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.AI_ANALYZE_MAP, async (_event, gameState: Record<string, unknown>) => {
+    try {
+      const { analyzeMapState } = await import('../ai/ai-vision')
+      return await analyzeMapState(gameState as any)
+    } catch (error) {
+      return { success: false, error: (error as Error).message }
+    }
+  })
+
+  // ── AI Proactive Triggers ──
+
+  ipcMain.handle(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, async (_event, state: Record<string, unknown>) => {
+    try {
+      const { processStateUpdate } = await import('../ai/ai-trigger-observer')
+      const results = processStateUpdate(state as any)
+      return { success: true, fired: results }
     } catch (error) {
       return { success: false, error: (error as Error).message }
     }

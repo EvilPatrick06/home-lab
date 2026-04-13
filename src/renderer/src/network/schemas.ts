@@ -75,7 +75,14 @@ const DiceResultPayloadSchema = z.object({
 
 const StateUpdatePayloadSchema = z.object({
   path: z.string(),
-  value: z.unknown()
+  value: z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.null(),
+    z.array(z.unknown()),
+    z.record(z.string(), z.unknown())
+  ])
 })
 
 const TokenMovePayloadSchema = z.object({
@@ -128,7 +135,7 @@ const BanPayloadSchema = z.object({
 
 const CharacterUpdatePayloadSchema = z.object({
   characterId: z.string(),
-  characterData: z.unknown(),
+  characterData: z.record(z.string(), z.unknown()),
   targetPeerId: z.string().optional()
 })
 

@@ -1,0 +1,39 @@
+{
+  "name": "Intellect Fortress",
+  "level": 3,
+  "school": "Abjuration",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false,
+    "material": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "For the duration, you or one willing creature you can see within range has Resistance to Psychic damage, as well as Advantage on Intelligence, Wisdom, and Charisma saving throws.",
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "custom",
+        "baseSpellLevel": 3,
+        "description": "When you cast this spell using a spell slot of 4th level or higher, you can target one additional creature for each slot level above 3rd. The creatures must be within 30 feet of each other when you target them."
+      }
+    ]
+  },
+  "spellList": ["arcane"],
+  "tags": ["protection", "psychic", "buff"]
+}

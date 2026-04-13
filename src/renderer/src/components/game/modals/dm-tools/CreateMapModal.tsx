@@ -7,7 +7,7 @@ interface CreateMapConfig {
   width: number
   height: number
   cellSize: number
-  gridType: 'square' | 'hex'
+  gridType: 'square' | 'hex' | 'gridless'
   backgroundColor: string
   imageData?: string
 }
@@ -21,7 +21,7 @@ interface CreateMapModalProps {
 function drawGridPreview(
   canvas: HTMLCanvasElement,
   cellSize: number,
-  gridType: 'square' | 'hex',
+  gridType: 'square' | 'hex' | 'gridless',
   bgColor: string,
   imageData: string | null
 ): void {
@@ -44,6 +44,8 @@ function drawGridPreview(
       ctx.drawImage(img, 0, 0, w, h)
     }
   }
+
+  if (gridType === 'gridless') return
 
   // Draw semi-transparent grid overlay
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)'
@@ -93,7 +95,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
   const [width, setWidth] = useState(30)
   const [height, setHeight] = useState(30)
   const [cellSize, setCellSize] = useState(DEFAULT_CELL_SIZE)
-  const [gridType, setGridType] = useState<'square' | 'hex'>('square')
+  const [gridType, setGridType] = useState<'square' | 'hex' | 'gridless'>('square')
   const [backgroundColor, setBackgroundColor] = useState('#111827')
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
 
@@ -297,6 +299,16 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
                 }`}
               >
                 Hex
+              </button>
+              <button
+                onClick={() => setGridType('gridless')}
+                className={`flex-1 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
+                  gridType === 'gridless'
+                    ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
+                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
+                }`}
+              >
+                Gridless
               </button>
             </div>
           </div>

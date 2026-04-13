@@ -1,3 +1,4 @@
+import { SETTINGS_KEYS } from '../constants'
 // ---------------------------------------------------------------------------
 // notification-service.ts — Desktop notification wrapper for D&D VTT game events
 // Uses the Web Notification API (available in the Electron renderer process).
@@ -32,7 +33,7 @@ const DEFAULT_TEMPLATES: Record<NotificationEvent, { title: string; body: string
 
 // ---- Persistence helpers ----
 
-const STORAGE_KEY = 'notification-config'
+const STORAGE_KEY = SETTINGS_KEYS.NOTIFICATION_CONFIG
 
 interface SerializedConfig {
   enabled: boolean

@@ -2,7 +2,7 @@ import type { StateCreator } from 'zustand'
 import type { AbilityScoreSet } from '../../../types/character-common'
 import { ABILITY_NAMES } from '../../../types/character-common'
 import type { AbilityScoreSliceState, BuilderState } from '../types'
-import { DEFAULT_SCORES, POINT_BUY_START, roll4d6DropLowest } from '../types'
+import { DEFAULT_SCORES, POINT_BUY_BUDGET, POINT_BUY_START, pointBuyTotal, roll4d6DropLowest } from '../types'
 
 export const createAbilityScoreSlice: StateCreator<BuilderState, [], [], AbilityScoreSliceState> = (set, get) => ({
   abilityScores: { ...DEFAULT_SCORES },
@@ -18,7 +18,16 @@ export const createAbilityScoreSlice: StateCreator<BuilderState, [], [], Ability
   activeAsiSlotId: null,
   asiSelections: {},
 
-  setAbilityScores: (scores) => set({ abilityScores: scores }),
+  setAbilityScores: (scores) => {
+    if (get().abilityScoreMethod === 'pointBuy') {
+      const clamped = { ...scores }
+      for (const ab of ABILITY_NAMES) clamped[ab] = Math.max(8, Math.min(15, clamped[ab]))
+      if (pointBuyTotal(clamped) > POINT_BUY_BUDGET) return
+      set({ abilityScores: clamped })
+    } else {
+      set({ abilityScores: scores })
+    }
+  },
 
   setAbilityScoreMethod: (method) => {
     if (method === 'pointBuy') {

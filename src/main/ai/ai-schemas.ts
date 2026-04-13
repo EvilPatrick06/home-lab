@@ -216,6 +216,12 @@ const CreatureKillSchema = z.object({
   reason: z.string()
 })
 
+const ReduceExhaustionSchema = z.object({
+  type: z.literal('reduce_exhaustion'),
+  characterName: z.string().optional(),
+  reason: z.string()
+})
+
 export const StatChangeSchema = z.discriminatedUnion('type', [
   DamageSchema,
   HealSchema,
@@ -242,7 +248,8 @@ export const StatChangeSchema = z.discriminatedUnion('type', [
   CreatureHealSchema,
   CreatureAddConditionSchema,
   CreatureRemoveConditionSchema,
-  CreatureKillSchema
+  CreatureKillSchema,
+  ReduceExhaustionSchema
 ])
 
 export const StatChangesBlockSchema = z.object({

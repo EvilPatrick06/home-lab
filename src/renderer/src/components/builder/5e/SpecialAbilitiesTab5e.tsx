@@ -149,10 +149,21 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
     setBackgroundAbilityBonuses(current)
   }
 
+  const openSelectionModal = useBuilderStore((s) => s.openSelectionModal)
+
   if (!hasBackground) {
+    const bgSlot = buildSlots.find((s) => s.category === 'background')
     return (
-      <div className="px-4 py-8 text-center">
+      <div className="px-4 py-8 text-center space-y-3">
         <p className="text-sm text-gray-500">Select a background first to configure ability bonuses.</p>
+        {bgSlot && (
+          <button
+            onClick={() => openSelectionModal(bgSlot.id)}
+            className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer"
+          >
+            Choose Background
+          </button>
+        )}
       </div>
     )
   }

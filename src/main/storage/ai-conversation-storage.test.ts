@@ -9,6 +9,7 @@ vi.mock('node:fs', () => ({
 }))
 
 vi.mock('node:fs/promises', () => ({
+  rename: vi.fn(),
   readFile: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),
@@ -28,10 +29,10 @@ describe('ai-conversation-storage', () => {
   })
 
   describe('saveConversation', () => {
-    it('should reject invalid campaign ID', async () => {
+    it('should return error for invalid campaign ID', async () => {
       await expect(
         saveConversation(INVALID_UUID, { messages: [], summaries: [], activeCharacterIds: [] } as never)
-      ).rejects.toThrow('Invalid campaign ID')
+      ).resolves.toEqual({ success: false, error: 'Invalid campaign ID' })
     })
 
     it('should create directory if it does not exist', async () => {
@@ -57,15 +58,15 @@ describe('ai-conversation-storage', () => {
   })
 
   describe('loadConversation', () => {
-    it('should reject invalid campaign ID', async () => {
-      await expect(loadConversation(INVALID_UUID)).rejects.toThrow('Invalid campaign ID')
+    it('should return error for invalid campaign ID', async () => {
+      await expect(loadConversation(INVALID_UUID)).resolves.toEqual({ success: false, error: 'Invalid campaign ID' })
     })
 
     it('should return null if file does not exist', async () => {
       vi.mocked(existsSync).mockReturnValue(false)
 
       const result = await loadConversation(VALID_UUID)
-      expect(result).toBeNull()
+      expect(result).toEqual({ success: true, data: null })
     })
 
     it('should parse and return conversation data', async () => {
@@ -74,7 +75,7 @@ describe('ai-conversation-storage', () => {
       vi.mocked(readFile).mockResolvedValue(JSON.stringify(mockData))
 
       const result = await loadConversation(VALID_UUID)
-      expect(result).toEqual(mockData)
+      expect(result).toEqual({ success: true, data: mockData })
     })
 
     it('should return null on parse error', async () => {
@@ -82,19 +83,19 @@ describe('ai-conversation-storage', () => {
       vi.mocked(readFile).mockResolvedValue('not valid json{{{')
 
       const result = await loadConversation(VALID_UUID)
-      expect(result).toBeNull()
+      expect(result).toEqual({ success: true, data: null })
     })
   })
 
   describe('deleteConversation', () => {
-    it('should reject invalid campaign ID', async () => {
-      await expect(deleteConversation(INVALID_UUID)).rejects.toThrow('Invalid campaign ID')
+    it('should return error for invalid campaign ID', async () => {
+      await expect(deleteConversation(INVALID_UUID)).resolves.toEqual({ success: false, error: 'Invalid campaign ID' })
     })
 
-    it('should not throw if file does not exist', async () => {
+    it('should return false if file does not exist', async () => {
       vi.mocked(existsSync).mockReturnValue(false)
 
-      await expect(deleteConversation(VALID_UUID)).resolves.toBeUndefined()
+      await expect(deleteConversation(VALID_UUID)).resolves.toEqual({ success: true, data: false })
     })
 
     it('should delete file if it exists', async () => {

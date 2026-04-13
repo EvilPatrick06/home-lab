@@ -33,6 +33,9 @@ export const createCoreSlice: StateCreator<BuilderState, [], [], CoreSliceState>
   targetLevel: 1,
   editingCharacterId: null,
   classLevelChoices: {},
+  customModal: null,
+  activeExpertiseSlotId: null,
+  guidedMode: false,
 
   selectGameSystem: (system) => {
     const slots = generate5eBuildSlots(1)
@@ -43,6 +46,10 @@ export const createCoreSlice: StateCreator<BuilderState, [], [], CoreSliceState>
       get().openSelectionModal(firstSlot.id)
     }
   },
+
+  openCustomModal: (modal) => set({ customModal: modal }),
+  closeCustomModal: () => set({ customModal: null, activeAsiSlotId: null, activeExpertiseSlotId: null }),
+  setGuidedMode: (enabled) => set({ guidedMode: enabled }),
 
   resetBuilder: () =>
     set({
@@ -55,6 +62,9 @@ export const createCoreSlice: StateCreator<BuilderState, [], [], CoreSliceState>
       targetLevel: 1,
       editingCharacterId: null,
       classLevelChoices: {},
+      customModal: null,
+      activeExpertiseSlotId: null,
+      guidedMode: false,
       // Ability score slice defaults
       abilityScores: { ...DEFAULT_SCORES },
       abilityScoreMethod: 'standard',

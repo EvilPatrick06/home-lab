@@ -48,6 +48,12 @@ export const createFacilitySlice: StateCreator<BastionState, [], [], FacilitySli
     const facilityLevel = def?.level ?? 5
     const costs = SPECIAL_FACILITY_COSTS[facilityLevel] ?? SPECIAL_FACILITY_COSTS[5]
 
+    // Check BP
+    if (bastion.bastionPoints < costs.bp) {
+      logger.warn(`[Bastion] Not enough BP to build ${name}. Need ${costs.bp} BP, have ${bastion.bastionPoints} BP`)
+      return
+    }
+
     // Check treasury
     if (bastion.treasury < costs.gp) {
       logger.warn(`[Bastion] Not enough gold to build ${name}. Need ${costs.gp} gp, have ${bastion.treasury} gp`)
@@ -71,6 +77,7 @@ export const createFacilitySlice: StateCreator<BastionState, [], [], FacilitySli
       ...bastion,
       construction: [...bastion.construction, project],
       treasury: bastion.treasury - costs.gp,
+      bastionPoints: bastion.bastionPoints - costs.bp,
       updatedAt: new Date().toISOString()
     }
     get().saveBastion(updated)
@@ -427,6 +434,50 @@ export const createFacilitySlice: StateCreator<BastionState, [], [], FacilitySli
     const updated: Bastion = {
       ...bastion,
       defenders: bastion.defenders.map((d) => (d.id === defenderId ? { ...d, barrackId: newFacilityId } : d)),
+      updatedAt: new Date().toISOString()
+    }
+    get().saveBastion(updated)
+  },
+
+  addDefender: (bastionId, defender) => {
+    const bastion = getBastion(get().bastions, bastionId)
+    if (!bastion) return
+    const updated: Bastion = {
+      ...bastion,
+      defenders: [...bastion.defenders, { ...defender, id: crypto.randomUUID() }],
+      updatedAt: new Date().toISOString()
+    }
+    get().saveBastion(updated)
+  },
+
+  grantCharm: (bastionId, charm) => {
+    const bastion = getBastion(get().bastions, bastionId)
+    if (!bastion) return
+    const updated: Bastion = {
+      ...bastion,
+      activeCharms: [...(bastion.activeCharms ?? []), charm],
+      updatedAt: new Date().toISOString()
+    }
+    get().saveBastion(updated)
+  },
+
+  promoteLieutenant: (bastionId, defenderId) => {
+    const bastion = getBastion(get().bastions, bastionId)
+    if (!bastion) return
+    const updated: Bastion = {
+      ...bastion,
+      defenders: bastion.defenders.map((d) => (d.id === defenderId ? { ...d, isLieutenant: true } : d)),
+      updatedAt: new Date().toISOString()
+    }
+    get().saveBastion(updated)
+  },
+
+  demoteLieutenant: (bastionId, defenderId) => {
+    const bastion = getBastion(get().bastions, bastionId)
+    if (!bastion) return
+    const updated: Bastion = {
+      ...bastion,
+      defenders: bastion.defenders.map((d) => (d.id === defenderId ? { ...d, isLieutenant: false } : d)),
       updatedAt: new Date().toISOString()
     }
     get().saveBastion(updated)

@@ -62,7 +62,9 @@ interface StartStepProps {
 
 export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Element {
   const navigate = useNavigate()
-  const campaigns = useCampaignStore((s) => s.campaigns)
+  const allCampaigns = useCampaignStore((s) => s.campaigns)
+  const campaigns = allCampaigns.filter((c) => !c.archived)
+  const archivedCampaigns = allCampaigns.filter((c) => c.archived)
   const loadCampaigns = useCampaignStore((s) => s.loadCampaigns)
   const deleteCampaign = useCampaignStore((s) => s.deleteCampaign)
   const deleteAllCampaigns = useCampaignStore((s) => s.deleteAllCampaigns)
@@ -240,11 +242,22 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
           </h3>
           <p className="text-xs text-gray-500 mt-1">
             {campaigns.length > 0
-              ? `${campaigns.length} hosted campaign${campaigns.length !== 1 ? 's' : ''} found.`
-              : 'No hosted campaigns yet.'}
+              ? `${campaigns.length} active campaign${campaigns.length !== 1 ? 's' : ''} found.`
+              : 'No active campaigns yet.'}
           </p>
         </button>
       </div>
+
+      {archivedCampaigns.length > 0 && (
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => setShowHosted(!showHosted)}
+            className="text-xs text-gray-500 hover:text-amber-400 transition-colors underline"
+          >
+            {showHosted && campaigns.length === 0 ? `Show ${archivedCampaigns.length} Archived` : ''}
+          </button>
+        </div>
+      )}
 
       {/* Joined Games section */}
       {joinedSessionsList.length > 0 && (
@@ -326,84 +339,150 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
 
       {/* Hosted campaign list */}
       {showHosted && (
-        <div className="border border-gray-700 rounded-xl overflow-hidden mb-6">
-          {campaigns.length === 0 ? (
-            <div className="px-6 py-8 text-center text-gray-500 text-sm">No hosted campaigns. Create one first!</div>
-          ) : (
-            <div>
-              <div className="px-4 py-2 flex justify-end border-b border-gray-800">
-                <button
-                  onClick={() => setShowDeleteAllConfirm(true)}
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
-                    text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
-                >
-                  Delete All
-                </button>
+        <div className="space-y-6 mb-6">
+          <div className="border border-gray-700 rounded-xl overflow-hidden">
+            {campaigns.length === 0 ? (
+              <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                No active hosted campaigns. Create one first!
               </div>
-              <div className="max-h-80 overflow-y-auto divide-y divide-gray-800">
-                {campaigns.map((c) => (
-                  <div key={c.id} className="px-4 py-3 flex items-center gap-3 hover:bg-gray-800/50">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-gray-100 truncate">{c.name}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-red-900/40 text-red-400">
-                          {c.system ?? '5e'}
-                        </span>
+            ) : (
+              <div>
+                <div className="px-4 py-2 flex justify-between items-center border-b border-gray-800 bg-gray-800/30">
+                  <h4 className="text-sm font-semibold text-gray-300">Active Campaigns</h4>
+                  <button
+                    onClick={() => setShowDeleteAllConfirm(true)}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
+                      text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                  >
+                    Delete All
+                  </button>
+                </div>
+                <div className="max-h-80 overflow-y-auto divide-y divide-gray-800">
+                  {campaigns.map((c) => (
+                    <div key={c.id} className="px-4 py-3 flex items-center gap-3 hover:bg-gray-800/50">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-gray-100 truncate">{c.name}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-red-900/40 text-red-400">
+                            {c.system ?? '5e'}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">
+                          Updated {formatDate(c.updatedAt)}
+                          {c.maps?.length > 0 && (
+                            <>
+                              {' '}
+                              &middot; {c.maps.length} map{c.maps.length !== 1 ? 's' : ''}
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-[10px] text-gray-500 mt-0.5">
-                        Updated {formatDate(c.updatedAt)}
-                        {c.maps?.length > 0 && (
-                          <>
-                            {' '}
-                            &middot; {c.maps.length} map{c.maps.length !== 1 ? 's' : ''}
-                          </>
+                      <div className="flex gap-1.5 shrink-0">
+                        <button
+                          onClick={() => navigate(`/campaign/${c.id}`)}
+                          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500
+                            text-white transition-colors cursor-pointer"
+                        >
+                          Open
+                        </button>
+                        <button
+                          onClick={() => handleExport(c)}
+                          className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-gray-600
+                            text-gray-300 transition-colors cursor-pointer"
+                          title="Export to file"
+                        >
+                          Export
+                        </button>
+                        {confirmDelete === c.id ? (
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleDelete(c.id)}
+                              className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500
+                                text-white transition-colors cursor-pointer"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => setConfirmDelete(null)}
+                              className="px-2 py-1.5 text-xs rounded-lg bg-gray-700 hover:bg-gray-600
+                                text-gray-300 transition-colors cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmDelete(c.id)}
+                            className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
+                              text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                            title="Delete campaign"
+                          >
+                            Delete
+                          </button>
                         )}
                       </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {archivedCampaigns.length > 0 && (
+            <div className="border border-gray-700 rounded-xl overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
+              <div className="px-4 py-2 border-b border-gray-800 bg-gray-800/30">
+                <h4 className="text-sm font-semibold text-gray-400">Archived Campaigns</h4>
+              </div>
+              <div className="max-h-80 overflow-y-auto divide-y divide-gray-800">
+                {archivedCampaigns.map((c) => (
+                  <div key={c.id} className="px-4 py-3 flex items-center gap-3 hover:bg-gray-800/50">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-gray-400 truncate">{c.name}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-gray-700 text-gray-300">
+                          Archived
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-gray-600 mt-0.5">Updated {formatDate(c.updatedAt)}</div>
+                    </div>
                     <div className="flex gap-1.5 shrink-0">
                       <button
-                        onClick={() => navigate(`/campaign/${c.id}`)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500
-                          text-white transition-colors cursor-pointer"
+                        onClick={async () => {
+                          await useCampaignStore.getState().unarchiveCampaign(c.id)
+                          addToast('Campaign unarchived', 'success')
+                        }}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-gray-600
+                          text-gray-300 transition-colors cursor-pointer"
                       >
-                        Open
+                        Unarchive
                       </button>
                       <button
-                        onClick={() => handleExport(c)}
-                        className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-gray-600
-                          text-gray-300 transition-colors cursor-pointer"
-                        title="Export to file"
+                        onClick={() => setConfirmDelete(c.id)}
+                        className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
+                          text-gray-500 hover:text-red-400 transition-colors cursor-pointer"
+                        title="Delete campaign"
                       >
-                        Export
+                        Delete
                       </button>
-                      {confirmDelete === c.id ? (
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => handleDelete(c.id)}
-                            className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500
-                              text-white transition-colors cursor-pointer"
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={() => setConfirmDelete(null)}
-                            className="px-2 py-1.5 text-xs rounded-lg bg-gray-700 hover:bg-gray-600
-                              text-gray-300 transition-colors cursor-pointer"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setConfirmDelete(c.id)}
-                          className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
-                            text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
-                          title="Delete campaign"
-                        >
-                          Delete
-                        </button>
-                      )}
                     </div>
+                    {confirmDelete === c.id && (
+                      <div className="absolute right-4 flex gap-1 bg-gray-800 p-1 rounded-lg border border-gray-700 shadow-lg">
+                        <button
+                          onClick={() => handleDelete(c.id)}
+                          className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500
+                            text-white transition-colors cursor-pointer"
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(null)}
+                          className="px-2 py-1.5 text-xs rounded-lg bg-gray-700 hover:bg-gray-600
+                            text-gray-300 transition-colors cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

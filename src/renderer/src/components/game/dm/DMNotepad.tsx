@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { addToast } from '../../../hooks/use-toast'
 import { saveGameState } from '../../../services/io/game-state-saver'
 import { useCampaignStore } from '../../../stores/use-campaign-store'
 import { type SessionLogEntry, useGameStore } from '../../../stores/use-game-store'
@@ -90,6 +91,46 @@ export default function DMNotepad(): JSX.Element {
     startNewSession()
     scheduleAutoSave()
   }, [startNewSession, scheduleAutoSave])
+
+  const handleExportToJournal = useCallback(async (sessionId: string, entries: SessionLogEntry[], label: string) => {
+    const campaign = useCampaignStore.getState().getActiveCampaign()
+    if (!campaign) return
+
+    try {
+      const maxSession = campaign.journal.entries.reduce((max, e) => Math.max(max, e.sessionNumber), 0)
+      const content = entries
+        .map((e) => {
+          const time = e.inGameTimestamp ? `[${e.inGameTimestamp}] ` : ''
+          return `${time}${e.content}`
+        })
+        .join('\n\n')
+
+      const newEntry = {
+        id: crypto.randomUUID(),
+        sessionNumber: maxSession + 1,
+        date: new Date().toISOString(),
+        title: `DM Notes: ${label}`,
+        content,
+        isPrivate: true,
+        authorId: 'dm',
+        createdAt: new Date().toISOString()
+      }
+
+      const updatedCampaign = {
+        ...campaign,
+        journal: {
+          ...campaign.journal,
+          entries: [...campaign.journal.entries, newEntry]
+        },
+        updatedAt: new Date().toISOString()
+      }
+
+      await useCampaignStore.getState().saveCampaign(updatedCampaign)
+      addToast('Notes exported to Campaign Journal', 'success')
+    } catch {
+      addToast('Failed to export notes', 'error')
+    }
+  }, [])
 
   // Group entries by session (reverse chronological — newest first)
   const filteredEntries = searchQuery
@@ -190,6 +231,7 @@ export default function DMNotepad(): JSX.Element {
                 onRequestDelete={setConfirmDeleteId}
                 onConfirmDelete={handleDelete}
                 onCancelDelete={() => setConfirmDeleteId(null)}
+                onExportJournal={() => handleExportToJournal(sessionId, group.entries, group.label)}
                 formatRealTime={formatRealTime}
               />
             ))}
@@ -221,6 +263,7 @@ interface SessionGroupProps {
   onRequestDelete: (id: string) => void
   onConfirmDelete: (id: string) => void
   onCancelDelete: () => void
+  onExportJournal: () => void
   formatRealTime: (ts: number) => string
 }
 
@@ -237,6 +280,7 @@ function SessionGroup({
   onRequestDelete,
   onConfirmDelete,
   onCancelDelete,
+  onExportJournal,
   formatRealTime
 }: SessionGroupProps): JSX.Element {
   const [collapsed, setCollapsed] = useState(false)
@@ -253,6 +297,16 @@ function SessionGroup({
         </span>
         <span className="text-[11px] font-medium text-amber-300">{label}</span>
         <span className="text-[9px] text-gray-500 ml-auto">{entries.length} notes</span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onExportJournal()
+          }}
+          className="ml-2 px-1.5 py-0.5 text-[9px] bg-blue-600/30 text-blue-300 rounded hover:bg-blue-600/50 transition-colors"
+          title="Export to Campaign Journal"
+        >
+          Export
+        </button>
       </button>
 
       {/* Entries */}

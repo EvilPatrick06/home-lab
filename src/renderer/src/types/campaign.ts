@@ -115,6 +115,8 @@ export interface Campaign {
   savedGameState?: SavedGameState
   createdAt: string
   updatedAt: string
+  archived?: boolean
+  lootHistory?: LootEntry[]
 }
 
 export interface OptionalRules {
@@ -239,6 +241,17 @@ export interface SavedGameState {
   activeLightSources: ActiveLightSource[]
   handouts: Handout[]
   combatTimer?: CombatTimerConfig
+  sessionLog?: any[]
+  sharedJournal?: any[]
+  lastSaveTimestamp?: number
+}
+
+export type LightAnimationType = 'flicker' | 'pulse' | 'wave'
+
+export interface LightAnimation {
+  type: LightAnimationType
+  intensity: number
+  speed: number
 }
 
 export interface ActiveLightSource {
@@ -248,6 +261,7 @@ export interface ActiveLightSource {
   sourceName: string
   durationSeconds: number
   startedAtSeconds: number
+  animation?: LightAnimation
 }
 
 export interface DowntimeProgressEntry {
@@ -265,6 +279,15 @@ export interface DowntimeProgressEntry {
   trainingTarget?: string
   craftingRecipeId?: string
   status: 'in-progress' | 'completed' | 'abandoned'
+}
+
+export interface LootEntry {
+  id: string
+  date: string
+  sessionNumber: number
+  description: string
+  awardedTo?: string // characterId or 'party'
+  valueFormatted?: string
 }
 
 export type { GameMap } from './map'

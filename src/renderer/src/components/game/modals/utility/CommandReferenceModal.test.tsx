@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('../../../../services/chat-commands', () => ({
+  getCommands: () => []
+}))
 
 describe('CommandReferenceModal', () => {
   it('can be imported', async () => {

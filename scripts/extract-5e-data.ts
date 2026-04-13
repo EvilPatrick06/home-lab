@@ -332,7 +332,7 @@ async function featsFinalValidator(state: typeof ExtractionState.State) {
     return { currentAgentInControl: 'Feats.FinalValidator', finalApprovedJson: state.sanitizedJson }
 }
 
-// Domain 4: Backgrounds
+// Domain 4: Backgrounds (Active)
 async function backgroundsPreProcessor(state: typeof ExtractionState.State) {
     console.log(`[Domain 4 - Backgrounds] PreProcessor cleaning raw markdown text...`)
     const response = await processWithOpus(
@@ -390,6 +390,318 @@ async function backgroundsSyntaxSanitizer(state: typeof ExtractionState.State) {
 async function backgroundsFinalValidator(state: typeof ExtractionState.State) {
     console.log(`[Domain 4 - Backgrounds] Final Validator approving output...`)
     return { currentAgentInControl: 'Backgrounds.FinalValidator', finalApprovedJson: state.sanitizedJson }
+}
+
+// Domain 5: Items
+async function itemsPreProcessor(state: typeof ExtractionState.State) {
+    console.log(`[Domain 5 - Items] PreProcessor cleaning raw markdown text...`)
+    const response = await processWithOpus(
+        'You are a Markdown pre-processor for D&D 2024 Items (equipment, weapons, armor, adventuring gear, magic items). Remove any unrelated flavor text or adjacent items from this chunk so we isolate exactly one item definition.',
+        state.rawMarkdownSource || ''
+    )
+    return { currentAgentInControl: 'Items.PreProcessor', rawMarkdownSource: response }
+}
+
+async function itemsArchitect(state: typeof ExtractionState.State) {
+    console.log(`[Domain 5 - Items] Architect building perfect Zod Schema from markdown...`)
+    const response = await processWithOpus(
+        'You are the Master Data Architect for D&D 2024 Items. Read the provided text and output ONLY a typescript interface that perfectly captures every single field, array, and nested object required to fully digitize this specific item (cost, weight, damage, properties, rarity, attunement, etc.). Output nothing else.',
+        state.rawMarkdownSource
+    )
+    return { currentAgentInControl: 'Items.Architect', extractedZodSchema: response }
+}
+
+async function itemsExtractor(state: typeof ExtractionState.State) {
+    console.log(`[Domain 5 - Items] Extractor translating markdown into JSON following schema...`)
+    const response = await processWithOpus(
+        `Extract the markdown item into JSON matching this exact structure:\n${state.extractedZodSchema}\nOutput ONLY valid JSON wrapped in \`\`\`json.`,
+        state.rawMarkdownSource
+    )
+
+    const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/)
+    const rawJson = jsonMatch ? JSON.parse(jsonMatch[1]) : JSON.parse(response)
+
+    return { currentAgentInControl: 'Items.Extractor', rawExtractedJson: rawJson }
+}
+
+async function itemsSchemaEnforcer(_state: typeof ExtractionState.State) {
+    console.log(`[Domain 5 - Items] Schema Enforcer verifying keys...`)
+    return { currentAgentInControl: 'Items.SchemaEnforcer' }
+}
+
+async function itemsMathVerifier(state: typeof ExtractionState.State) {
+    console.log(`[Domain 5 - Items] Math Verifier checking costs, weights, damage dice, and AC values...`)
+    const response = await processWithOpus(
+        `Verify that all costs (gp/sp/cp), weights (lb), damage dice, AC bonuses, and item properties are accurately represented. Does this JSON perfectly match the mechanics in the source markdown?\n\nJSON:\n${JSON.stringify(state.rawExtractedJson)}\n\nMarkdown:\n${state.rawMarkdownSource}\n\nReply EXACTLY with "PASS" or "FAIL: [reason]".`,
+        'Verify.'
+    )
+    const result = response
+    if (result.startsWith('FAIL')) {
+        return { errorMessage: result, retryLoopCount: (state.retryLoopCount || 0) + 1 }
+    }
+    return { currentAgentInControl: 'Items.MathVerifier', errorMessage: null }
+}
+
+async function itemsSyntaxSanitizer(state: typeof ExtractionState.State) {
+    console.log(`[Domain 5 - Items] Syntax Sanitizer ensuring proper formatting...`)
+    return { currentAgentInControl: 'Items.SyntaxSanitizer', sanitizedJson: state.rawExtractedJson }
+}
+
+async function itemsFinalValidator(state: typeof ExtractionState.State) {
+    console.log(`[Domain 5 - Items] Final Validator approving output...`)
+    return { currentAgentInControl: 'Items.FinalValidator', finalApprovedJson: state.sanitizedJson }
+}
+
+// ==========================================
+// FACTORY DOMAINS (6-31): Config-driven agent generation
+// ==========================================
+interface FactoryDomainConfig {
+    id: number
+    name: string
+    label: string
+    singular: string
+    preProcessorHint: string
+    architectHint: string
+    mathVerifierHint: string
+}
+
+const FACTORY_DOMAINS: FactoryDomainConfig[] = [
+    {
+        id: 6, name: 'Subclasses', label: 'Subclasses', singular: 'subclass',
+        preProcessorHint: 'Subclasses (e.g., Champion Fighter, Evocation Wizard). Isolate exactly one subclass definition with all its features by level.',
+        architectHint: 'D&D 2024 Subclasses. Capture subclass name, parent class, features by level, spell lists, and all mechanical benefits.',
+        mathVerifierHint: 'Verify that all subclass feature levels, spell slot progressions, damage dice, and ability modifiers are accurate.'
+    },
+    {
+        id: 7, name: 'Monsters', label: 'Monsters', singular: 'monster',
+        preProcessorHint: 'Monsters/Creatures from the Monster Manual. Isolate exactly one monster stat block.',
+        architectHint: 'D&D 2024 Monsters. Capture CR, HP, AC, speeds, ability scores, saving throws, skills, resistances, immunities, senses, languages, traits, actions, reactions, legendary actions, and lair actions.',
+        mathVerifierHint: 'Verify that AC, HP (hit dice formula matches average), attack bonuses (+prof+ability), damage dice, save DCs (8+prof+ability), and CR-to-proficiency mapping are all mathematically correct.'
+    },
+    {
+        id: 8, name: 'Species', label: 'Races/Species', singular: 'species',
+        preProcessorHint: 'Races/Species (e.g., Elf, Dwarf, Human). Isolate exactly one species definition with all traits and subraces.',
+        architectHint: 'D&D 2024 Species. Capture species name, traits, ability score increases, size, speed, darkvision, resistances, proficiencies, and any subrace variants.',
+        mathVerifierHint: 'Verify that ability score bonuses, movement speeds, darkvision ranges, and trait mechanics match the source exactly.'
+    },
+    {
+        id: 9, name: 'MagicItems', label: 'Magic Items', singular: 'magic item',
+        preProcessorHint: 'Magic Items (weapons, armor, wondrous items, potions, scrolls, rings, etc.). Isolate exactly one magic item definition.',
+        architectHint: 'D&D 2024 Magic Items. Capture name, type, rarity, attunement requirements, properties, charges, recharge mechanics, spell effects, and bonus values.',
+        mathVerifierHint: 'Verify that attack/damage bonuses, AC bonuses, charge counts, recharge dice, save DCs, spell levels, and rarity classification are accurate.'
+    },
+    {
+        id: 10, name: 'Equipment', label: 'Equipment', singular: 'equipment item',
+        preProcessorHint: 'Mundane Equipment (weapons, armor, adventuring gear, tools, mounts, trade goods). Isolate exactly one equipment entry.',
+        architectHint: 'D&D 2024 Equipment. Capture name, category, cost (gp/sp/cp), weight (lb), damage dice, damage type, weapon properties, AC value, strength requirement, stealth disadvantage.',
+        mathVerifierHint: 'Verify that all costs, weights, damage dice, AC values, range values, and weapon properties match the PHB equipment tables exactly.'
+    },
+    {
+        id: 11, name: 'Conditions', label: 'Conditions', singular: 'condition',
+        preProcessorHint: 'Conditions (Blinded, Charmed, Frightened, etc.). Isolate exactly one condition definition with all its mechanical effects.',
+        architectHint: 'D&D 2024 Conditions. Capture condition name, mechanical effects (advantage/disadvantage grants, speed changes, incapacitation, auto-fail conditions), and removal triggers.',
+        mathVerifierHint: 'Verify that all mechanical effects (advantage/disadvantage, speed modifiers, automatic failures) exactly match the 2024 PHB condition descriptions.'
+    },
+    {
+        id: 12, name: 'Languages', label: 'Languages', singular: 'language',
+        preProcessorHint: 'Languages (Common, Elvish, Dwarvish, etc.). Isolate exactly one language entry with its typical speakers and script.',
+        architectHint: 'D&D 2024 Languages. Capture language name, script used, typical speakers, whether it is standard or exotic, and any special properties.',
+        mathVerifierHint: 'Verify that language classifications (standard/exotic), scripts, and typical speaker lists match the PHB language tables.'
+    },
+    {
+        id: 13, name: 'Skills', label: 'Skills', singular: 'skill',
+        preProcessorHint: 'Skills (Athletics, Arcana, Perception, etc.). Isolate exactly one skill definition with its associated ability and usage examples.',
+        architectHint: 'D&D 2024 Skills. Capture skill name, associated ability score, typical usage descriptions, and example DCs where provided.',
+        mathVerifierHint: 'Verify that each skill is mapped to the correct ability score and descriptions match the PHB skill list.'
+    },
+    {
+        id: 14, name: 'AbilityScores', label: 'Ability Scores', singular: 'ability score',
+        preProcessorHint: 'Ability Scores (Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma). Isolate exactly one ability score definition.',
+        architectHint: 'D&D 2024 Ability Scores. Capture name, abbreviation, description, associated skills, common checks, and modifier calculation rules.',
+        mathVerifierHint: 'Verify that associated skills and check examples match the PHB ability score descriptions.'
+    },
+    {
+        id: 15, name: 'Alignments', label: 'Alignments', singular: 'alignment',
+        preProcessorHint: 'Alignments (Lawful Good, Chaotic Neutral, etc.). Isolate exactly one alignment definition.',
+        architectHint: 'D&D 2024 Alignments. Capture alignment name, abbreviation, description, and behavioral tendencies.',
+        mathVerifierHint: 'Verify that alignment descriptions and categorizations match the PHB alignment section.'
+    },
+    {
+        id: 16, name: 'DamageTypes', label: 'Damage Types', singular: 'damage type',
+        preProcessorHint: 'Damage Types (Fire, Cold, Radiant, Necrotic, etc.). Isolate exactly one damage type definition.',
+        architectHint: 'D&D 2024 Damage Types. Capture damage type name, description, common sources, and any special interaction rules.',
+        mathVerifierHint: 'Verify that damage type descriptions and source examples match the PHB/DMG damage type listings.'
+    },
+    {
+        id: 17, name: 'Environments', label: 'Environments', singular: 'environment',
+        preProcessorHint: 'Environments/Terrains (Arctic, Desert, Forest, Underdark, etc.). Isolate exactly one environment type.',
+        architectHint: 'D&D 2024 Environments. Capture environment name, terrain features, typical hazards, encounter types, travel pace modifiers, and foraging DCs.',
+        mathVerifierHint: 'Verify that travel DCs, foraging DCs, hazard damage, and navigation checks match the DMG environment rules.'
+    },
+    {
+        id: 18, name: 'NPCStatBlocks', label: 'NPC Stat Blocks', singular: 'NPC stat block',
+        preProcessorHint: 'NPC Stat Blocks (Commoner, Noble, Bandit Captain, Archmage, etc.). Isolate exactly one NPC stat block.',
+        architectHint: 'D&D 2024 NPC Stat Blocks. Same structure as Monsters: CR, HP, AC, speeds, ability scores, saves, skills, actions, and any spellcasting.',
+        mathVerifierHint: 'Verify that AC, HP formula, attack bonuses, damage dice, save DCs, and spellcasting details are mathematically correct.'
+    },
+    {
+        id: 19, name: 'Traps', label: 'Traps', singular: 'trap',
+        preProcessorHint: 'Traps and Hazards (pit traps, poison darts, collapsing ceiling, etc.). Isolate exactly one trap definition.',
+        architectHint: 'D&D 2024 Traps. Capture trap name, severity (setback/dangerous/deadly), trigger, effect, damage, save DC, detection DC, disable DC, and countermeasures.',
+        mathVerifierHint: 'Verify that trap DCs, damage dice, severity ratings, and level-appropriate values match the DMG trap tables.'
+    },
+    {
+        id: 20, name: 'DiseasesPoisons', label: 'Diseases & Poisons', singular: 'disease or poison',
+        preProcessorHint: 'Diseases and Poisons (Cackle Fever, Sight Rot, Assassin\'s Blood, etc.). Isolate exactly one disease or poison definition.',
+        architectHint: 'D&D 2024 Diseases & Poisons. Capture name, type (contact/ingested/inhaled/injury for poisons; disease for diseases), save DC, onset time, effects per failed save, cure conditions, and duration.',
+        mathVerifierHint: 'Verify that save DCs, damage dice, onset durations, and cure conditions match the DMG disease/poison tables.'
+    },
+    {
+        id: 21, name: 'Vehicles', label: 'Vehicles', singular: 'vehicle',
+        preProcessorHint: 'Vehicles (Rowboat, Sailing Ship, Airship, Infernal War Machine, etc.). Isolate exactly one vehicle definition.',
+        architectHint: 'D&D 2024 Vehicles. Capture name, type, size, AC, HP, speed, capacity, crew requirements, components (hull, control, movement, weapons), and any special features.',
+        mathVerifierHint: 'Verify that vehicle AC, HP, speed, damage thresholds, and crew requirements match the DMG vehicle rules.'
+    },
+    {
+        id: 22, name: 'Deities', label: 'Deities', singular: 'deity',
+        preProcessorHint: 'Deities and Pantheons (Pelor, Tiamat, Moradin, etc.). Isolate exactly one deity definition.',
+        architectHint: 'D&D 2024 Deities. Capture deity name, alignment, domains, symbol, pantheon, description, and associated holy days or rites.',
+        mathVerifierHint: 'Verify that deity alignment, domains, and pantheon classifications match the PHB/DMG deity tables.'
+    },
+    {
+        id: 23, name: 'Planes', label: 'Planes of Existence', singular: 'plane',
+        preProcessorHint: 'Planes of Existence (Material, Feywild, Shadowfell, Elemental Planes, Outer Planes, etc.). Isolate exactly one planar definition.',
+        architectHint: 'D&D 2024 Planes. Capture plane name, category (Inner/Outer/Transitive), traits (gravity, time, morphic, elemental/energy), notable locations, inhabitants, and travel methods.',
+        mathVerifierHint: 'Verify that planar traits, categorizations, and optional rule effects match the DMG planar descriptions.'
+    },
+    {
+        id: 24, name: 'WildMagicSurges', label: 'Wild Magic Surges', singular: 'wild magic surge entry',
+        preProcessorHint: 'Wild Magic Surge table entries. Isolate exactly one surge result with its d100 range and effect.',
+        architectHint: 'D&D 2024 Wild Magic Surges. Capture d100 range (e.g., 01-02), effect description, duration, damage (if any), and any saving throw information.',
+        mathVerifierHint: 'Verify that d100 ranges are contiguous and non-overlapping, damage dice are correct, and spell effects reference valid spells.'
+    },
+    {
+        id: 25, name: 'MadnessTables', label: 'Madness Tables', singular: 'madness entry',
+        preProcessorHint: 'Madness table entries (Short-Term, Long-Term, Indefinite Madness). Isolate one madness entry with its roll range and effect.',
+        architectHint: 'D&D 2024 Madness. Capture madness type (short/long/indefinite), d100 or d10 range, effect description, and duration.',
+        mathVerifierHint: 'Verify that roll ranges are correct, durations match DMG madness rules, and effects are accurately transcribed.'
+    },
+    {
+        id: 26, name: 'RandomEncounters', label: 'Random Encounters', singular: 'random encounter entry',
+        preProcessorHint: 'Random Encounter table entries organized by environment and level. Isolate one encounter table entry.',
+        architectHint: 'D&D 2024 Random Encounters. Capture environment type, level range, d100 range, encounter description, monster types and quantities, and any special conditions.',
+        mathVerifierHint: 'Verify that d100 ranges are valid, monster quantities make sense for the CR budget, and environment types are correctly categorized.'
+    },
+    {
+        id: 27, name: 'Weather', label: 'Weather', singular: 'weather entry',
+        preProcessorHint: 'Weather table entries (temperature, wind, precipitation by climate). Isolate one weather condition or table entry.',
+        architectHint: 'D&D 2024 Weather. Capture climate zone, d20 roll range, temperature range, wind conditions, precipitation type, and mechanical effects on travel/visibility/combat.',
+        mathVerifierHint: 'Verify that roll ranges, temperature effects, visibility penalties, and travel modifiers match the DMG weather rules.'
+    },
+    {
+        id: 28, name: 'DowntimeActivities', label: 'Downtime Activities', singular: 'downtime activity',
+        preProcessorHint: 'Downtime Activities (Crafting, Research, Training, Carousing, etc.). Isolate exactly one downtime activity.',
+        architectHint: 'D&D 2024 Downtime Activities. Capture activity name, time required, cost (gp), ability checks needed, DC, possible outcomes, complications table, and resources consumed.',
+        mathVerifierHint: 'Verify that time requirements, gold costs, check DCs, and complication roll ranges match the DMG downtime rules.'
+    },
+    {
+        id: 29, name: 'CharCreationOptions', label: 'Character Creation Options', singular: 'character creation option',
+        preProcessorHint: 'Character Creation supplementary options (trinkets, bonds, ideals, flaws, life events). Isolate one table or option set.',
+        architectHint: 'D&D 2024 Character Creation Options. Capture table name, roll type (d6/d8/d10/d100), entries with roll ranges, and category.',
+        mathVerifierHint: 'Verify that roll ranges cover the full die range without gaps or overlaps and entries match the PHB tables.'
+    },
+    {
+        id: 30, name: 'RuleVariants', label: 'Rule Variants', singular: 'rule variant',
+        preProcessorHint: 'Optional/Variant Rules (Flanking, Cleave, Massive Damage, Hero Points, etc.). Isolate exactly one variant rule.',
+        architectHint: 'D&D 2024 Rule Variants. Capture rule name, category (combat/exploration/social), description, mechanical changes, and any DM guidelines.',
+        mathVerifierHint: 'Verify that mechanical values (bonus amounts, DCs, damage thresholds) match the DMG variant rules section.'
+    },
+    {
+        id: 31, name: 'ToolsKits', label: 'Tools & Kits', singular: 'tool or kit',
+        preProcessorHint: 'Tools and Kits (Thieves\' Tools, Herbalism Kit, Smith\'s Tools, etc.). Isolate exactly one tool or kit definition.',
+        architectHint: 'D&D 2024 Tools & Kits. Capture tool name, cost, weight, associated ability, proficiency uses, crafting capabilities, and example activities with DCs.',
+        mathVerifierHint: 'Verify that costs, weights, example DCs, and crafting capabilities match the PHB tools tables.'
+    },
+    {
+        id: 32, name: 'ClassFeatures', label: 'Class Features', singular: 'class feature',
+        preProcessorHint: 'Class or Subclass Features (Sneak Attack, Channel Divinity, etc.). Isolate exactly one class feature.',
+        architectHint: 'D&D 2024 Class Features. Capture feature name, required level, class/subclass, limited uses/rest rules, and mechanical effects.',
+        mathVerifierHint: 'Verify that required levels and mechanical scaling exactly match the PHB classes chapter.'
+    },
+    {
+        id: 33, name: 'Invocations', label: 'Eldritch Invocations', singular: 'invocation',
+        preProcessorHint: 'Eldritch Invocations. Isolate exactly one invocation definition.',
+        architectHint: 'D&D 2024 Invocations. Capture invocation name, prerequisites (level, pact boon, etc.), and mechanical effect.',
+        mathVerifierHint: 'Verify that prerequisites and spell effects match the PHB Warlock chapter.'
+    },
+    {
+        id: 34, name: 'Metamagic', label: 'Metamagic Options', singular: 'metamagic option',
+        preProcessorHint: 'Metamagic Options (Careful Spell, Quickened Spell, etc.). Isolate exactly one option.',
+        architectHint: 'D&D 2024 Metamagic. Capture metamagic name, Sorcery Point cost, and mechanic description.',
+        mathVerifierHint: 'Verify that Sorcery Point costs match the PHB Sorcerer chapter.'
+    }
+]
+
+function domainAgentFactory(domain: FactoryDomainConfig) {
+    const { name, label, singular, preProcessorHint, architectHint, mathVerifierHint } = domain
+
+    const preProcessor = async (state: typeof ExtractionState.State) => {
+        console.log(`[Domain ${domain.id} - ${label}] PreProcessor cleaning raw markdown text...`)
+        const response = await processWithOpus(
+            `You are a Markdown pre-processor for D&D 2024 ${label}. ${preProcessorHint}`,
+            state.rawMarkdownSource || ''
+        )
+        return { currentAgentInControl: `${name}.PreProcessor`, rawMarkdownSource: response }
+    }
+
+    const architect = async (state: typeof ExtractionState.State) => {
+        console.log(`[Domain ${domain.id} - ${label}] Architect building perfect Zod Schema from markdown...`)
+        const response = await processWithOpus(
+            `You are the Master Data Architect for ${architectHint} Read the provided text and output ONLY a typescript interface that perfectly captures every single field, array, and nested object required to fully digitize this specific ${singular}. Output nothing else.`,
+            state.rawMarkdownSource
+        )
+        return { currentAgentInControl: `${name}.Architect`, extractedZodSchema: response }
+    }
+
+    const extractor = async (state: typeof ExtractionState.State) => {
+        console.log(`[Domain ${domain.id} - ${label}] Extractor translating markdown into JSON following schema...`)
+        const response = await processWithOpus(
+            `Extract the markdown ${singular} into JSON matching this exact structure:\n${state.extractedZodSchema}\nOutput ONLY valid JSON wrapped in \`\`\`json.`,
+            state.rawMarkdownSource
+        )
+        const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/)
+        const rawJson = jsonMatch ? JSON.parse(jsonMatch[1]) : JSON.parse(response)
+        return { currentAgentInControl: `${name}.Extractor`, rawExtractedJson: rawJson }
+    }
+
+    const schemaEnforcer = async (_state: typeof ExtractionState.State) => {
+        console.log(`[Domain ${domain.id} - ${label}] Schema Enforcer verifying keys...`)
+        return { currentAgentInControl: `${name}.SchemaEnforcer` }
+    }
+
+    const mathVerifier = async (state: typeof ExtractionState.State) => {
+        console.log(`[Domain ${domain.id} - ${label}] Math Verifier checking numerical accuracy...`)
+        const response = await processWithOpus(
+            `${mathVerifierHint} Does this JSON perfectly match the mechanics in the source markdown?\n\nJSON:\n${JSON.stringify(state.rawExtractedJson)}\n\nMarkdown:\n${state.rawMarkdownSource}\n\nReply EXACTLY with "PASS" or "FAIL: [reason]".`,
+            'Verify.'
+        )
+        if (response.startsWith('FAIL')) {
+            return { errorMessage: response, retryLoopCount: (state.retryLoopCount || 0) + 1 }
+        }
+        return { currentAgentInControl: `${name}.MathVerifier`, errorMessage: null }
+    }
+
+    const syntaxSanitizer = async (state: typeof ExtractionState.State) => {
+        console.log(`[Domain ${domain.id} - ${label}] Syntax Sanitizer ensuring proper formatting...`)
+        return { currentAgentInControl: `${name}.SyntaxSanitizer`, sanitizedJson: state.rawExtractedJson }
+    }
+
+    const finalValidator = async (state: typeof ExtractionState.State) => {
+        console.log(`[Domain ${domain.id} - ${label}] Final Validator approving output...`)
+        return { currentAgentInControl: `${name}.FinalValidator`, finalApprovedJson: state.sanitizedJson }
+    }
+
+    return { preProcessor, architect, extractor, schemaEnforcer, mathVerifier, syntaxSanitizer, finalValidator }
 }
 
 // Router function to handle the 3-loop Retry Logic
@@ -458,11 +770,26 @@ export function buildGodSwarmGraph() {
     builder.addNode("Backgrounds.SyntaxSanitizer", backgroundsSyntaxSanitizer)
     builder.addNode("Backgrounds.Validator", backgroundsFinalValidator)
 
-    // TODO: Add Nodes for the other 27 Domains...
-    // Domain 2: Classes
-    // Domain 3: Subclasses
-    // ...
-    // Domain 31: Tools/Kits
+    // Add Domain 5: Items Agents (Nodes)
+    builder.addNode("Items.PreProcessor", itemsPreProcessor)
+    builder.addNode("Items.Architect", itemsArchitect)
+    builder.addNode("Items.Extractor", itemsExtractor)
+    builder.addNode("Items.SchemaEnforcer", itemsSchemaEnforcer)
+    builder.addNode("Items.MathVerifier", itemsMathVerifier)
+    builder.addNode("Items.SyntaxSanitizer", itemsSyntaxSanitizer)
+    builder.addNode("Items.Validator", itemsFinalValidator)
+
+    // Domains 6-31: Factory-generated agents
+    for (const domain of FACTORY_DOMAINS) {
+        const agents = domainAgentFactory(domain)
+        builder.addNode(`${domain.name}.PreProcessor`, agents.preProcessor)
+        builder.addNode(`${domain.name}.Architect`, agents.architect)
+        builder.addNode(`${domain.name}.Extractor`, agents.extractor)
+        builder.addNode(`${domain.name}.SchemaEnforcer`, agents.schemaEnforcer)
+        builder.addNode(`${domain.name}.MathVerifier`, agents.mathVerifier)
+        builder.addNode(`${domain.name}.SyntaxSanitizer`, agents.syntaxSanitizer)
+        builder.addNode(`${domain.name}.Validator`, agents.finalValidator)
+    }
 
     // Define Graph Edges (The Pipeline Flow)
     // 1. Initial Load Balancing routes to correct domain
@@ -474,6 +801,10 @@ export function buildGodSwarmGraph() {
         if (state.targetDomain === '2_Classes') return 'Classes.PreProcessor'
         if (state.targetDomain === '3_Feats') return 'Feats.PreProcessor'
         if (state.targetDomain === '4_Backgrounds') return 'Backgrounds.PreProcessor'
+        if (state.targetDomain === '5_Items') return 'Items.PreProcessor'
+        // Factory domains (6-31)
+        const factoryDomain = FACTORY_DOMAINS.find(d => state.targetDomain === `${d.id}_${d.name}`)
+        if (factoryDomain) return `${factoryDomain.name}.PreProcessor`
         return 'FormatAdjuster' // Fallback
     })
 
@@ -509,6 +840,25 @@ export function buildGodSwarmGraph() {
     builder.addEdge('Backgrounds.MathVerifier', 'Backgrounds.SyntaxSanitizer')
     builder.addEdge('Backgrounds.SyntaxSanitizer', 'Backgrounds.Validator')
 
+    // Items Domain Flow
+    builder.addEdge('Items.PreProcessor', 'Items.Architect')
+    builder.addEdge('Items.Architect', 'Items.Extractor')
+    builder.addEdge('Items.Extractor', 'Items.SchemaEnforcer')
+    builder.addEdge('Items.SchemaEnforcer', 'Items.MathVerifier')
+    builder.addEdge('Items.MathVerifier', 'Items.SyntaxSanitizer')
+    builder.addEdge('Items.SyntaxSanitizer', 'Items.Validator')
+
+    // Factory Domain Flows (6-31)
+    for (const domain of FACTORY_DOMAINS) {
+        const n = domain.name
+        builder.addEdge(`${n}.PreProcessor`, `${n}.Architect`)
+        builder.addEdge(`${n}.Architect`, `${n}.Extractor`)
+        builder.addEdge(`${n}.Extractor`, `${n}.SchemaEnforcer`)
+        builder.addEdge(`${n}.SchemaEnforcer`, `${n}.MathVerifier`)
+        builder.addEdge(`${n}.MathVerifier`, `${n}.SyntaxSanitizer`)
+        builder.addEdge(`${n}.SyntaxSanitizer`, `${n}.Validator`)
+    }
+
     // 4. The Cyclical Validation Loop
     builder.addConditionalEdges('Spells.Validator', shouldRetryOrEnd, {
         retryExtractor: 'Spells.Extractor',
@@ -536,6 +886,22 @@ export function buildGodSwarmGraph() {
         humanIntervention: 'ArchLibrarian',
         nextDomainNode: 'ContextCrossRouter'
     })
+
+    // Items Validation Loop
+    builder.addConditionalEdges('Items.Validator', shouldRetryOrEnd, {
+        retryExtractor: 'Items.Extractor',
+        humanIntervention: 'ArchLibrarian',
+        nextDomainNode: 'ContextCrossRouter'
+    })
+
+    // Factory Domain Validation Loops (6-31)
+    for (const domain of FACTORY_DOMAINS) {
+        builder.addConditionalEdges(`${domain.name}.Validator`, shouldRetryOrEnd, {
+            retryExtractor: `${domain.name}.Extractor`,
+            humanIntervention: 'ArchLibrarian',
+            nextDomainNode: 'ContextCrossRouter'
+        })
+    }
 
     // 5. Post-Domain Global Checks
     builder.addEdge('ContextCrossRouter', 'GlobalCombiner')

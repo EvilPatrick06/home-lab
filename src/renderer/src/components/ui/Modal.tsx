@@ -9,7 +9,14 @@ interface ModalProps {
   hideHeader?: boolean
 }
 
-export default function Modal({ open, onClose, title, children, className = 'max-w-lg', hideHeader = false }: ModalProps): JSX.Element | null {
+export default function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  className = 'max-w-lg',
+  hideHeader = false
+}: ModalProps): JSX.Element | null {
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const titleId = useId()
@@ -70,6 +77,7 @@ export default function Modal({ open, onClose, title, children, className = 'max
         role="dialog"
         aria-modal="true"
         aria-labelledby={title && !hideHeader ? titleId : undefined}
+        aria-label={title && hideHeader ? title : undefined}
         className={`relative bg-gray-900 border border-gray-700 rounded-lg p-6 w-full mx-4 max-h-[80vh] overflow-y-auto flex flex-col ${className}`}
       >
         {!hideHeader && (

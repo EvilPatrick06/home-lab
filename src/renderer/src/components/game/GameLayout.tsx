@@ -1,11 +1,15 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { SETTINGS_KEYS } from '../../constants'
+import { useAiMemorySync } from '../../hooks/use-ai-memory-sync'
 import { useGameEffects } from '../../hooks/use-game-effects'
 import { useGameHandlers } from '../../hooks/use-game-handlers'
 import { useGameNetwork } from '../../hooks/use-game-network'
 import { useGameShortcuts } from '../../hooks/use-game-shortcuts'
 import type { PortalEntryInfo } from '../../hooks/use-token-movement'
 import { useTokenMovement } from '../../hooks/use-token-movement'
+import { buildContentIndex } from '../../services/library/content-index'
+import { loadCategoryItems } from '../../services/library-service'
 import { executeMacro } from '../../services/macro-engine'
 import { buildMapLightSources, hasDarkvision, recomputeVision } from '../../services/map/vision-computation'
 import { useAiDmStore } from '../../stores/use-ai-dm-store'
@@ -38,7 +42,6 @@ import MapCanvas from './map/MapCanvas'
 import ActionEconomyBar from './overlays/ActionEconomyBar'
 import ClockOverlay from './overlays/ClockOverlay'
 import DmAlertTray from './overlays/DmAlertTray'
-
 import EmptyCellContextMenu from './overlays/EmptyCellContextMenu'
 import {
   type ConcCheckPromptState,
@@ -61,6 +64,7 @@ import {
 import Hotbar from './overlays/Hotbar'
 import InitiativeOverlay from './overlays/InitiativeOverlay'
 import LairActionPrompt from './overlays/LairActionPrompt'
+import MutationApprovalPanel from './overlays/MutationApprovalPanel'
 import PlayerHUDOverlay from './overlays/PlayerHUDOverlay'
 import PortalPrompt from './overlays/PortalPrompt'
 import {
@@ -116,14 +120,14 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const [bottomCollapsed, setBottomCollapsed] = useState(false)
   const [bottomBarHeight, setBottomBarHeight] = useState(() => {
     try {
-      return parseInt(localStorage.getItem('dnd-vtt-bottom-bar-height') || '320', 10)
+      return parseInt(localStorage.getItem(SETTINGS_KEYS.BOTTOM_BAR_HEIGHT) || '320', 10)
     } catch {
       return 320
     }
   })
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     try {
-      return parseInt(localStorage.getItem('dnd-vtt-sidebar-width') || '280', 10)
+      return parseInt(localStorage.getItem(SETTINGS_KEYS.SIDEBAR_WIDTH) || '280', 10)
     } catch {
       return 280
     }
@@ -152,7 +156,17 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     [campaign.id]
   )
   const [showCharacterPicker, setShowCharacterPicker] = useState(false)
-  const [activeTool, setActiveTool] = useState<'select' | 'fog-reveal' | 'fog-hide' | 'wall' | 'draw-free' | 'draw-line' | 'draw-rect' | 'draw-circle' | 'draw-text'>('select')
+  const [activeTool, setActiveTool] = useState<
+    | 'select'
+    | 'fog-reveal'
+    | 'fog-hide'
+    | 'wall'
+    | 'draw-free'
+    | 'draw-line'
+    | 'draw-rect'
+    | 'draw-circle'
+    | 'draw-text'
+  >('select')
   const [fogBrushSize, setFogBrushSize] = useState(1)
   const [wallType, setWallType] = useState<'solid' | 'door' | 'window'>('solid')
   const [drawingStrokeWidth, setDrawingStrokeWidth] = useState(3)
@@ -167,7 +181,13 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     null
   )
   const [disputeContext, setDisputeContext] = useState<{ ruling: string; citation: string } | null>(null)
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; token: MapToken; mapId: string; selectedTokenIds: string[] } | null>(null)
+  const [contextMenu, setContextMenu] = useState<{
+    x: number
+    y: number
+    token: MapToken
+    mapId: string
+    selectedTokenIds: string[]
+  } | null>(null)
   const [emptyCellMenu, setEmptyCellMenu] = useState<{
     gridX: number
     gridY: number
@@ -184,9 +204,26 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const [shieldPrompt, setShieldPrompt] = useState<ShieldPromptState | null>(null)
   const [counterspellPrompt, setCounterspellPrompt] = useState<CounterspellPromptState | null>(null)
   const [showCompactHUD, _setShowCompactHUD] = useState(false)
-  const [groupConditionEntities, setGroupConditionEntities] = useState<string[] | null>(null)
+  const [_groupConditionEntities, _setGroupConditionEntities] = useState<string[] | null>(null)
+  const [conditionTargetEntityId, setConditionTargetEntityId] = useState<string | null>(null)
   const [pendingPortal, setPendingPortal] = useState<PortalEntryInfo | null>(null)
   const prevEntityIdRef = useRef<string | null>(null)
+
+  // Clear condition target when quickCondition modal closes
+  useEffect(() => {
+    if (activeModal !== 'quickCondition') {
+      setConditionTargetEntityId(null)
+    }
+  }, [activeModal])
+
+  // Build content index for [[name]] linking in chat
+  useEffect(() => {
+    const categories = ['monsters', 'spells', 'magic-items', 'weapons', 'armor', 'gear', 'conditions'] as const
+    Promise.allSettled(categories.map((c) => loadCategoryItems(c, []))).then((results) => {
+      const allItems = results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
+      buildContentIndex(allItems)
+    })
+  }, [])
 
   const gameStore = useGameStore()
   const networkRole = useNetworkStore((s) => s.role)
@@ -208,7 +245,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const handleBottomResize = useCallback((delta: number) => {
     setBottomBarHeight((h) => {
       const newH = Math.max(160, Math.min(window.innerHeight * 0.6, h - delta))
-      localStorage.setItem('dnd-vtt-bottom-bar-height', String(newH))
+      localStorage.setItem(SETTINGS_KEYS.BOTTOM_BAR_HEIGHT, String(newH))
       return newH
     })
   }, [])
@@ -224,7 +261,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const handleSidebarResize = useCallback((delta: number) => {
     setSidebarWidth((w) => {
       const newW = Math.max(200, Math.min(500, w + delta))
-      localStorage.setItem('dnd-vtt-sidebar-width', String(newW))
+      localStorage.setItem(SETTINGS_KEYS.SIDEBAR_WIDTH, String(newW))
       return newW
     })
   }, [])
@@ -394,6 +431,9 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     window.api.toggleFullscreen().then((fs) => setIsFullscreen(fs))
   }
 
+  // AI memory sync — only runs when host with a valid campaign
+  useAiMemorySync(isDM ? campaign.id : null)
+
   useGameEffects({ campaign, isDM, addChatMessage, sendMessage, aiInitRef, activeMap, setIsFullscreen })
   useGameNetwork({
     networkRole,
@@ -480,9 +520,13 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const sidebarLeftPx = sidebarCollapsed ? 12 : sidebarWidth
 
   return (
-    <div className="h-screen w-screen relative overflow-hidden bg-gray-950 text-gray-100">
+    <div
+      className="h-screen w-screen relative overflow-hidden bg-gray-950 text-gray-100"
+      role="application"
+      aria-label="Game session"
+    >
       {/* Map layer */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" role="region" aria-label="Game map">
         <MapCanvas
           key={mapKey}
           map={activeMap}
@@ -526,7 +570,9 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           }}
           activeAoE={activeAoE}
           activeEntityId={gameStore.initiative?.entries[gameStore.initiative.currentIndex]?.entityId ?? null}
-          onTokenContextMenu={(x, y, token, mapId, selectedTokenIds) => setContextMenu({ x, y, token, mapId, selectedTokenIds })}
+          onTokenContextMenu={(x, y, token, mapId, selectedTokenIds) =>
+            setContextMenu({ x, y, token, mapId, selectedTokenIds })
+          }
           onEmptyCellContextMenu={
             effectiveIsDM
               ? (gridX, gridY, screenX, screenY) => setEmptyCellMenu({ gridX, gridY, screenX, screenY })
@@ -560,7 +606,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       </div>
 
       {/* Left sidebar */}
-      <div className="absolute top-0 left-0 bottom-0 z-10 flex">
+      <div className="absolute top-0 left-0 bottom-0 z-10 flex" role="region" aria-label="Game sidebar">
         <div
           style={{ width: sidebarCollapsed ? 48 : sidebarWidth }}
           className="h-full shrink-0 transition-[width] duration-200"
@@ -602,6 +648,8 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       <div
         className="absolute bottom-0 right-0 z-10 flex flex-col"
         style={{ left: sidebarLeftPx, height: bottomCollapsed ? 40 : bottomBarHeight }}
+        role="region"
+        aria-label="Game controls"
       >
         {!bottomCollapsed && (
           <ResizeHandle direction="vertical" onResize={handleBottomResize} onDoubleClick={handleBottomDoubleClick} />
@@ -659,7 +707,11 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       </div>
 
       {/* Floating overlays */}
-      <div className="absolute top-3 right-3 z-40 flex items-center gap-2">
+      <div
+        className="absolute top-3 right-3 z-40 flex items-center gap-2"
+        role="region"
+        aria-label="Game controls toolbar"
+      >
         {isDM && <ViewModeToggle viewMode={viewMode} onToggle={handleViewModeToggle} characterName={character?.name} />}
         {campaign.calendar && (
           <ClockOverlay
@@ -680,6 +732,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           />
         )}
         {isDM && <DmAlertTray />}
+        {isDM && <MutationApprovalPanel />}
         <SettingsDropdown
           campaign={campaign}
           isDM={effectiveIsDM}
@@ -739,6 +792,14 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
             })
             setContextMenu(null)
           }}
+          onApplyCondition={(tokenId) => {
+            const targetToken = activeMap?.tokens.find((t) => t.id === tokenId)
+            if (targetToken) {
+              setConditionTargetEntityId(targetToken.entityId)
+              setActiveModal('quickCondition')
+            }
+            setContextMenu(null)
+          }}
         />
       )}
       {effectiveIsDM && <LairActionPrompt />}
@@ -776,7 +837,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
             <div className="hidden">
               <CharacterMiniSheet character={character} />
               <ConditionTracker conditions={playerConditions} isHost={false} onRemoveCondition={() => {}} />
-              <SpellSlotTracker />
+              <SpellSlotTracker characterId={character.id} />
             </div>
           )}
         </div>
@@ -830,11 +891,16 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       )}
       {/* Drawing tools button - appears when not in drawing mode */}
       {activeTool === 'select' && (
-        <div className="absolute top-16 right-4 z-20 flex flex-col gap-1 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-xl">
+        <div
+          className="absolute top-16 right-4 z-20 flex flex-col gap-1 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-xl"
+          role="toolbar"
+          aria-label="Drawing tools"
+        >
           <p className="text-[10px] text-gray-500 uppercase tracking-wider text-center mb-1">Drawing</p>
           <button
             onClick={() => setActiveTool('draw-free')}
             title="Free Draw (F)"
+            aria-label="Free draw"
             className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
             ✏️
@@ -842,6 +908,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           <button
             onClick={() => setActiveTool('draw-line')}
             title="Draw Line (L)"
+            aria-label="Draw line"
             className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
             📏
@@ -849,6 +916,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           <button
             onClick={() => setActiveTool('draw-rect')}
             title="Draw Rectangle (R)"
+            aria-label="Draw rectangle"
             className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
             ▭
@@ -856,6 +924,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           <button
             onClick={() => setActiveTool('draw-circle')}
             title="Draw Circle (C)"
+            aria-label="Draw circle"
             className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
             ○
@@ -863,6 +932,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           <button
             onClick={() => setActiveTool('draw-text')}
             title="Add Text (T)"
+            aria-label="Add text"
             className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
             📝
@@ -871,7 +941,11 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       )}
 
       {/* Drawing toolbar - appears when in drawing mode */}
-      {(activeTool === 'draw-free' || activeTool === 'draw-line' || activeTool === 'draw-rect' || activeTool === 'draw-circle' || activeTool === 'draw-text') && (
+      {(activeTool === 'draw-free' ||
+        activeTool === 'draw-line' ||
+        activeTool === 'draw-rect' ||
+        activeTool === 'draw-circle' ||
+        activeTool === 'draw-text') && (
         <DrawingToolbar
           activeTool={activeTool}
           strokeWidth={drawingStrokeWidth}
@@ -930,6 +1004,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           viewingHandout={viewingHandout}
           setViewingHandout={setViewingHandout}
           setConcCheckPrompt={setConcCheckPrompt}
+          conditionTargetEntityId={conditionTargetEntityId}
           handleCompanionSummon={handleCompanionSummon}
           handleWildShapeTransform={handleWildShapeTransform}
           handleWildShapeRevert={handleWildShapeRevert}

@@ -112,6 +112,30 @@ export const createMapTokenSlice: StateCreator<GameStoreState, [], [], MapTokenS
     }))
   },
 
+  teleportToken: (tokenId: string, sourceMapId: string, targetMapId: string, targetGridX: number, targetGridY: number) => {
+    const state = get()
+    const sourceMap = state.maps.find(m => m.id === sourceMapId)
+    if (!sourceMap) return
+
+    const token = sourceMap.tokens.find(t => t.id === tokenId)
+    if (!token) return
+
+    set((s) => ({
+      maps: s.maps.map((m) => {
+        if (m.id === sourceMapId && m.id === targetMapId) {
+           return applyTokenUpdates(m, tokenId, { gridX: targetGridX, gridY: targetGridY })
+        }
+        if (m.id === sourceMapId) {
+          return { ...m, tokens: m.tokens.filter(t => t.id !== tokenId) }
+        }
+        if (m.id === targetMapId) {
+          return { ...m, tokens: [...m.tokens, { ...token, gridX: targetGridX, gridY: targetGridY }] }
+        }
+        return m
+      })
+    }))
+  },
+
   updateToken: (mapId: string, tokenId: string, updates: Partial<MapToken>) => {
     const state = get()
     const map = state.maps.find((m) => m.id === mapId)

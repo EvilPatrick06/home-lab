@@ -1,0 +1,137 @@
+[
+  {
+    "name": "Spell Slots",
+    "description": "Regardless of how many spells a caster knows or prepares, they can cast only a limited number of spells before resting. Manipulating the fabric of magic and channeling its energy into even a simple spell is physically and mentally taxing. Each spell has a level from 0 to 9. Spell slots represent a caster's capacity to cast spells of 1st level and higher.",
+    "effects": [
+      "To cast a spell of 1st level or higher, you must expend a slot of the spell's level or higher",
+      "You regain all expended spell slots when you finish a Long Rest",
+      "Some classes (Warlock) regain spell slots on a Short Rest",
+      "Cantrips (level 0 spells) can be cast at will without expending a spell slot",
+      "Cantrips scale in power as you gain levels (typically at levels 5, 11, and 17)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Casting a Spell at a Higher Level",
+    "description": "When a spellcaster casts a spell using a slot that is of a higher level than the spell, the spell assumes the higher level for that casting. Many spells have more powerful effects when cast at a higher level.",
+    "effects": [
+      "Some spells deal additional damage or have enhanced effects when cast with a higher-level slot",
+      "The spell description specifies what happens when cast at higher levels",
+      "The spell is considered to be the level of the slot used to cast it",
+      "Counterspell and Dispel Magic check against the level of the slot used, not the spell's base level"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Spell Components",
+    "description": "A spell's components are the physical requirements you must meet in order to cast it. Each spell's description indicates whether it requires Verbal (V), Somatic (S), or Material (M) components.",
+    "effects": [
+      "Verbal (V): The caster must speak words of power; being unable to speak prevents casting",
+      "Somatic (S): The caster must gesture with at least one free hand; being restrained may prevent this",
+      "Material (M): The caster must have the specified materials in hand or a spellcasting focus",
+      "A spellcasting focus (arcane focus, druidic focus, holy symbol) can replace material components that have no cost listed",
+      "Material components with a specified gold cost must be provided and are not replaced by a focus",
+      "Components that are consumed by the spell must be provided each time you cast it"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Concentration",
+    "description": "Some spells require you to maintain Concentration in order to keep their magic active. If you lose Concentration, such a spell ends. You can end Concentration at any time (no action required).",
+    "effects": [
+      "You can concentrate on only one spell at a time; casting a new Concentration spell ends the current one",
+      "Taking damage requires a Constitution saving throw to maintain Concentration (DC = 10 or half the damage taken, whichever is higher)",
+      "Being Incapacitated or killed ends Concentration immediately",
+      "The DM might decide environmental phenomena (a wave crashing over you) require a DC 10 Constitution saving throw",
+      "Normal activity such as moving and attacking doesn't break Concentration",
+      "You can end Concentration at any time on your turn (no action required)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Ritual Casting",
+    "description": "Certain spells have a special tag: ritual. Such a spell can be cast following the normal rules for spellcasting, or it can be cast as a ritual. The ritual version of a spell takes 10 minutes longer to cast than normal and doesn't expend a spell slot.",
+    "effects": [
+      "Casting a spell as a ritual takes 10 minutes longer than its normal casting time",
+      "Ritual casting does not expend a spell slot",
+      "The caster must have the spell prepared or on their spell list (depending on class features)",
+      "Wizards can cast ritual spells from their spellbook without having them prepared",
+      "The spell must have the Ritual tag to be cast as a ritual",
+      "The spell is cast at its base level when cast as a ritual (no upcasting)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Counterspell and Dispel Magic",
+    "description": "Counterspell and Dispel Magic are key spells for interacting with other spellcasters. Counterspell interrupts a spell being cast, while Dispel Magic ends an ongoing spell effect.",
+    "effects": [
+      "Counterspell: Reaction when you see a creature within 60 feet casting a spell",
+      "If the target spell is 3rd level or lower, it automatically fails (when Counterspell is cast at 3rd level)",
+      "If the target spell is 4th level or higher, make a spellcasting ability check (DC = 10 + spell's level) to counter it",
+      "Casting Counterspell at a higher level automatically counters spells of that level or lower",
+      "Dispel Magic: Automatically ends spells of 3rd level or lower on a target",
+      "For spells of 4th level or higher, make a spellcasting ability check (DC = 10 + spell's level)",
+      "Casting Dispel Magic at a higher level automatically dispels spells of that level or lower"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Spell Attack Rolls",
+    "description": "Some spells require the caster to make an attack roll to determine whether the spell effect hits the intended target. Your attack bonus with a spell attack equals your spellcasting ability modifier + your Proficiency Bonus.",
+    "effects": [
+      "Spell attack modifier = spellcasting ability modifier + Proficiency Bonus",
+      "Melee spell attacks are made against targets within the spell's reach (usually touch)",
+      "Ranged spell attacks are made against targets within the spell's range",
+      "Ranged spell attacks have Disadvantage if a hostile creature is within 5 feet of you",
+      "A natural 20 is a critical hit; a natural 1 always misses"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Spell Save DC",
+    "description": "Many spells specify that a target can make a saving throw to avoid some or all of the spell's effects. The spell specifies the ability that the target uses for the save and what happens on a success or failure.",
+    "effects": [
+      "Spell Save DC = 8 + spellcasting ability modifier + Proficiency Bonus",
+      "The spell description specifies which saving throw the target makes",
+      "On a successful save, the target typically takes half damage or avoids the effect entirely",
+      "Legendary Resistance allows some creatures to choose to succeed on a failed save (limited uses)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Areas of Effect",
+    "description": "Spells such as Burning Hands and Cone of Cold cover an area, allowing them to affect multiple creatures at once. A spell's description specifies its area of effect.",
+    "effects": [
+      "Cone: Extends from the point of origin in a direction the caster chooses; width at any point equals the distance from the point of origin",
+      "Cube: The point of origin is on one face of the cube; the size is the length of each side",
+      "Cylinder: The point of origin is the center of a circle of a particular radius; the cylinder extends from that circle to a certain height",
+      "Line: Extends from its point of origin in a straight path up to its length and covers an area defined by its width",
+      "Sphere: Extends outward from its point of origin; the size is the radius of the sphere",
+      "A spell's effect expands in straight lines from the point of origin; if no unblocked straight line extends from the point of origin, a creature is not affected"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Combining Magical Effects",
+    "description": "The effects of different spells add together while the durations of those spells overlap. The effects of the same spell cast multiple times don't combine, however.",
+    "effects": [
+      "Different spells can stack their effects (e.g., Bless and Shield of Faith both apply)",
+      "The same spell from multiple sources does not stack; only the most potent version applies",
+      "The most potent effect applies while durations overlap (e.g., two castings of Bless - only one applies)",
+      "This rule applies to spells specifically; class features and other effects may stack differently"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Prepared and Known Spells",
+    "description": "Before a spellcaster can use a spell, they must have the spell firmly fixed in mind or must have access to the spell in a magic item. Different classes have different rules for how they prepare and learn spells.",
+    "effects": [
+      "Prepared casters (Cleric, Druid, Paladin, Wizard) choose spells from their list each day after a Long Rest",
+      "Known casters (Bard, Ranger, Sorcerer, Warlock) know a fixed set of spells and swap one when they level up",
+      "The number of spells you can prepare or know depends on your class level and spellcasting ability modifier",
+      "You always have your cantrips available regardless of preparation",
+      "Some subclass features grant spells that are always prepared and don't count against your limit"
+    ],
+    "source": "PHB 2024"
+  }
+]

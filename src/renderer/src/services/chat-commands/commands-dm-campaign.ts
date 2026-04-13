@@ -119,7 +119,7 @@ const sessionCommand: ChatCommand = {
   usage: '/session <start|end|recap>',
   dmOnly: true,
   category: 'dm',
-  execute: (args, _ctx) => {
+  execute: (args, ctx) => {
     const sub = args.trim().toLowerCase()
 
     switch (sub) {
@@ -130,17 +130,12 @@ const sessionCommand: ChatCommand = {
         }
 
       case 'end':
+      case 'recap':
+        ctx.openModal?.('recaps')
         return {
           type: 'broadcast',
-          content: `**Session Ended.** Thank you for playing! See you next time.`
+          content: `**Session Ended.** Recap has been opened.`
         }
-
-      case 'recap': {
-        return {
-          type: 'broadcast',
-          content: `**Session Recap:** (DM, describe what happened last session here via /announce)`
-        }
-      }
 
       default:
         return { type: 'error', content: 'Usage: /session <start|end|recap>' }

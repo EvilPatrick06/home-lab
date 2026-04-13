@@ -1,5 +1,11 @@
-import { Container, Graphics, Text, TextStyle } from 'pixi.js'
+import { Assets, Container, Graphics, Sprite, Text, TextStyle, type Texture } from 'pixi.js'
 import type { MapToken } from '../../../types/map'
+import { drawTokenStatusRing } from './combat-animations'
+
+// Module-level cache for loaded token image textures
+const tokenTextureCache = new Map<string, Texture>()
+
+const VALID_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp']
 
 const ENTITY_COLORS: Record<string, number> = {
   player: 0x3b82f6, // blue
@@ -48,9 +54,14 @@ export function createTokenSprite(
   isActiveTurn = false,
   showHpBar = true,
   lightingCondition?: 'bright' | 'dim' | 'darkness',
-  isDM = true
+  isDM = true,
+  existingContainer?: Container
 ): Container {
-  const container = new Container()
+  const container = existingContainer ?? new Container()
+  // Clean up all overlay elements, but keep avatar if it's the exact same
+  const oldAvatar = container.children.find((c) => c.label === 'avatar-container')
+  container.removeChildren()
+
   container.label = `token-${token.id}`
 
   const tokenSize = cellSize * Math.max(token.sizeX, token.sizeY)
@@ -98,14 +109,98 @@ export function createTokenSprite(
     container.addChild(selRing)
   }
 
-  // Main circle
-  const circle = new Graphics()
-  const color = ENTITY_COLORS[token.entityType] ?? 0x6b7280
-  circle.circle(cx, cy, radius)
-  circle.fill({ color, alpha: 0.85 })
-  circle.circle(cx, cy, radius)
-  circle.stroke({ width: 2, color: 0x1f2937, alpha: 1 })
-  container.addChild(circle)
+  const fillColor = token.color
+    ? parseInt(token.color.replace('#', ''), 16)
+    : ENTITY_COLORS[token.entityType] ?? 0x6b7280
+
+  const borderColorHex = token.borderColor
+    ? parseInt(token.borderColor.replace('#', ''), 16)
+    : 0x1f2937
+
+  const hasValidImage =
+    token.imagePath && VALID_IMAGE_EXTENSIONS.some((ext) => token.imagePath!.toLowerCase().endsWith(ext))
+  const cachedTexture = hasValidImage ? tokenTextureCache.get(token.imagePath!) : undefined
+
+  let avatarContainer: Container | null = null
+
+  // Can we reuse old avatar? (Must check if the imagePath is still the same, usually it is)
+  const isImageMatch = oldAvatar?.name === token.imagePath
+  const isFallbackMatch = oldAvatar?.name === `fallback-${fillColor}`
+
+  if (oldAvatar && (isImageMatch || (!hasValidImage && isFallbackMatch))) {
+    avatarContainer = oldAvatar
+    container.addChild(avatarContainer)
+  } else {
+    avatarContainer = new Container()
+    avatarContainer.label = 'avatar-container'
+    avatarContainer.name = token.imagePath ?? `fallback-${fillColor}`
+
+    if (cachedTexture) {
+      const imgSprite = new Sprite(cachedTexture)
+      const diameter = radius * 2
+      imgSprite.width = diameter
+      imgSprite.height = diameter
+      imgSprite.x = cx - radius
+      imgSprite.y = cy - radius
+
+      const mask = new Graphics()
+      mask.circle(cx, cy, radius)
+      mask.fill({ color: 0xffffff })
+      imgSprite.mask = mask
+      avatarContainer.addChild(mask)
+      avatarContainer.addChild(imgSprite)
+    } else {
+      const circle = new Graphics()
+      circle.circle(cx, cy, radius)
+      circle.fill({ color: fillColor, alpha: 0.85 })
+      avatarContainer.addChild(circle)
+
+      if (hasValidImage && !tokenTextureCache.has(token.imagePath!)) {
+        tokenTextureCache.set(token.imagePath!, null as unknown as Texture)
+        Assets.load(token.imagePath!)
+          .then((texture: Texture) => {
+            tokenTextureCache.set(token.imagePath!, texture)
+          })
+          .catch(() => {
+            tokenTextureCache.delete(token.imagePath!)
+          })
+      }
+    }
+
+    // Draw border
+    const border = new Graphics()
+    switch (token.borderStyle) {
+      case 'dashed': {
+        const segments = 12
+        const arcLength = (2 * Math.PI) / segments
+        for (let i = 0; i < segments; i += 2) {
+          border.moveTo(cx + radius * Math.cos(i * arcLength), cy + radius * Math.sin(i * arcLength))
+          border.arc(cx, cy, radius, i * arcLength, (i + 1) * arcLength)
+        }
+        border.stroke({ width: 2, color: borderColorHex, alpha: 1 })
+        break
+      }
+      case 'double': {
+        border.circle(cx, cy, radius)
+        border.stroke({ width: 2, color: borderColorHex, alpha: 1 })
+        border.circle(cx, cy, radius + 3)
+        border.stroke({ width: 1, color: borderColorHex, alpha: 0.8 })
+        break
+      }
+      default:
+        border.circle(cx, cy, radius)
+        border.stroke({ width: 2, color: borderColorHex, alpha: 1 })
+        break
+    }
+    avatarContainer.addChild(border)
+
+    container.addChild(avatarContainer)
+  }
+
+  // Destroy old avatar if we didn't reuse it
+  if (oldAvatar && oldAvatar !== avatarContainer) {
+    oldAvatar.destroy({ children: true })
+  }
 
   // Label — show full name for DM or when nameVisible is true, otherwise first letter
   const showFullName = isDM || token.nameVisible !== false
@@ -148,6 +243,14 @@ export function createTokenSprite(
       hpBar.fill({ color: hpColor, alpha: 0.9 })
       container.addChild(hpBar)
     }
+  }
+
+  // Status ring based on HP percentage
+  if (token.currentHP !== undefined && token.maxHP !== undefined && token.maxHP > 0) {
+    const hpPercent = Math.max(0, Math.min(1, token.currentHP / token.maxHP))
+    const statusRing = new Graphics()
+    drawTokenStatusRing(statusRing, cx, cy, tokenSize - 4, hpPercent)
+    container.addChild(statusRing)
   }
 
   // Condition indicator dots (color-coded, max 3 visible + overflow)
@@ -241,6 +344,33 @@ export function createTokenSprite(
       icon.fill({ color: 0x4b5563, alpha: 0.9 })
     }
     container.addChild(icon)
+  }
+
+  // Rider indicator badge (top-left, shown when a rider is on this mount)
+  if (token.riderId) {
+    const badgeRadius = Math.max(5, radius * 0.25)
+    const badgeX = cx - radius * 0.6
+    const badgeY = cy - radius * 0.6
+
+    // Background circle
+    const riderBadgeBg = new Graphics()
+    riderBadgeBg.circle(badgeX, badgeY, badgeRadius + 1)
+    riderBadgeBg.fill({ color: 0x16a34a, alpha: 0.9 }) // green-600
+    container.addChild(riderBadgeBg)
+
+    // "R" label for rider
+    const riderStyle = new TextStyle({
+      fontFamily: 'Arial, sans-serif',
+      fontSize: Math.max(7, badgeRadius * 1.2),
+      fontWeight: 'bold',
+      fill: 0xffffff,
+      align: 'center'
+    })
+    const riderLabel = new Text({ text: 'R', style: riderStyle })
+    riderLabel.anchor.set(0.5, 0.5)
+    riderLabel.x = badgeX
+    riderLabel.y = badgeY
+    container.addChild(riderLabel)
   }
 
   // Position on grid

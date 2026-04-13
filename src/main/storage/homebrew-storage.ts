@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto'
-import { access, mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { access, mkdir, readdir, readFile, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app } from 'electron'
 import { isValidUUID } from '../../shared/utils/uuid'
+import { atomicWriteFile } from './atomic-write'
 import type { StorageResult } from './types'
 
 let homebrewDirReady: Promise<string> | null = null
@@ -54,7 +55,7 @@ export async function saveHomebrewEntry(entry: Record<string, unknown>): Promise
     }
 
     const writePath = join(dir, `${id}.json`)
-    await writeFile(writePath, JSON.stringify(entry, null, 2), 'utf-8')
+    await atomicWriteFile(writePath, JSON.stringify(entry, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
     return { success: false, error: `Failed to save homebrew entry: ${(err as Error).message}` }

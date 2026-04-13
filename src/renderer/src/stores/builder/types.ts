@@ -63,12 +63,18 @@ export interface CoreSliceState {
   targetLevel: number
   editingCharacterId: string | null
   classLevelChoices: Record<number, string>
+  customModal: 'ability-scores' | 'skills' | 'asi' | 'expertise' | null
+  activeExpertiseSlotId: string | null
+  guidedMode: boolean
 
   selectGameSystem: (system: GameSystem) => void
   resetBuilder: () => void
   setTargetLevel: (level: number) => void
   setActiveTab: (tab: ContentTab) => void
   setClassLevelChoice: (level: number, classId: string) => void
+  openCustomModal: (modal: 'ability-scores' | 'skills' | 'asi' | 'expertise') => void
+  closeCustomModal: () => void
+  setGuidedMode: (enabled: boolean) => void
 }
 
 export interface AbilityScoreSliceState {
@@ -149,9 +155,10 @@ export interface CharacterDetailsSliceState {
   classMandatorySkills: string[]
   selectedSkills: string[]
   maxSkills: number
-  customModal: 'ability-scores' | 'skills' | 'asi' | 'expertise' | null
+  maxCantrips: number
+  maxPreparedSpells: number
+  spellLevelMap: Record<string, number>
   builderExpertiseSelections: Record<string, string[]>
-  activeExpertiseSlotId: string | null
   builderFeatSelections: Record<string, { id: string; name: string; description: string }>
   backgroundAbilityBonuses: Record<string, number>
   backgroundEquipmentChoice: 'equipment' | 'gold' | null
@@ -174,13 +181,15 @@ export interface CharacterDetailsSliceState {
   addCondition: (name: string, type: 'condition' | 'buff', isCustom: boolean) => void
   removeCondition: (index: number) => void
   removeEquipmentItem: (source: 'class' | 'bg', index: number) => void
-  addEquipmentItem: (item: { name: string; quantity: number; source: string }) => void
+  addEquipmentItem: (item: { name: string; quantity: number; source: string }, target?: 'class' | 'background') => void
   deductCurrency: (key: 'pp' | 'gp' | 'sp' | 'cp', amount: number) => void
   setBackgroundAbilityBonuses: (bonuses: Record<string, number>) => void
   setBackgroundEquipmentChoice: (choice: 'equipment' | 'gold') => void
   setClassEquipmentChoice: (choice: string) => void
   setSpeciesSize: (size: string) => void
   setSelectedSpellIds: (ids: string[]) => void
+  setSpellLimits: (maxCantrips: number, maxPreparedSpells: number) => void
+  setSpellLevelMap: (map: Record<string, number>) => void
   setHigherLevelGoldBonus: (amount: number) => void
   setSelectedMagicItems: (items: Array<{ slotRarity: string; itemId: string; itemName: string }>) => void
   speciesSpellcastingAbility: 'intelligence' | 'wisdom' | 'charisma' | null
@@ -194,8 +203,6 @@ export interface CharacterDetailsSliceState {
   setVersatileFeat: (featId: string | null) => void
   setBuilderExpertiseSelections: (slotId: string, skills: string[]) => void
   setBuilderFeatSelection: (slotId: string, feat: { id: string; name: string; description: string } | null) => void
-  openCustomModal: (modal: 'ability-scores' | 'skills' | 'asi' | 'expertise') => void
-  closeCustomModal: () => void
 }
 
 export interface BuildActionsSliceState {

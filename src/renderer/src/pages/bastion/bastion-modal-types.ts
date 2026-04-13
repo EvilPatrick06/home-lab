@@ -43,6 +43,7 @@ export interface BastionModalsProps {
   basicFacilityDefs: BasicFacilityDef[]
   maxSpecial: number
   maxFacilityLevel: number
+  ownerLevel: number
   owner5e: Character5e | null
 
   // Store callbacks
@@ -64,7 +65,7 @@ export interface BastionModalsProps {
   ) => void
   issueMaintainOrder: (bastionId: string, turnNumber: number) => void
   rollAndResolveEvent: (bastionId: string, turnNumber: number) => void
-  completeTurn: (bastionId: string, turnNumber: number) => void
+  completeTurn: (bastionId: string, turnNumber: number, ownerLevel?: number) => void
   recruitDefenders: (bastionId: string, barrackId: string, names: string[]) => void
   buildDefensiveWalls: (bastionId: string, squares: number) => void
   depositGold: (bastionId: string, amount: number) => void

@@ -3,6 +3,7 @@ import type { ActiveLightSource, CombatTimerConfig } from '../../types/campaign'
 import type { Handout, InGameTimeState, SidebarEntry } from '../../types/game-state'
 import { createCombatLogSlice } from './combat-log-slice'
 import { createConditionsSlice } from './conditions-slice'
+import { createDarknessZoneSlice } from './darkness-zone-slice'
 import { createDrawingSlice } from './drawing-slice'
 import { createEffectsSlice } from './effects-slice'
 import { createFloorSlice } from './floor-slice'
@@ -10,11 +11,14 @@ import { createFogSlice } from './fog-slice'
 import { createInitiativeSlice } from './initiative-slice'
 import { createJournalSlice } from './journal-slice'
 import { createMapTokenSlice } from './map-token-slice'
+import { createOcclusionSlice } from './occlusion-slice'
+import { createPartyInventorySlice } from './party-inventory-slice'
 import { createRegionSlice } from './region-slice'
 import { createShopSlice } from './shop-slice'
 import { createSidebarSlice } from './sidebar-slice'
 import { createTimeSlice } from './time-slice'
 import { createTimerSlice } from './timer-slice'
+import { createTriggerSlice } from './trigger-slice'
 import { type GameStoreState, initialState, type SessionLogEntry } from './types'
 import { createVisionSlice } from './vision-slice'
 
@@ -39,7 +43,11 @@ export const useGameStore = create<GameStoreState>()((...a) => {
     ...createVisionSlice(...a),
     ...createDrawingSlice(...a),
     ...createRegionSlice(...a),
+    ...createTriggerSlice(...a),
+    ...createOcclusionSlice(...a),
+    ...createDarknessZoneSlice(...a),
     ...createJournalSlice(...a),
+    ...createPartyInventorySlice(...a),
 
     // --- Reaction prompt ---
     pendingReactionPrompt: null,
@@ -104,6 +112,8 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         partyVisionCells: [],
         pendingReactionPrompt: null,
         sharedJournal: [],
+        partyInventory: { items: [], currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 }, transactionLog: [] },
+        triggers: [],
         pendingTradeOffer: null,
         pendingTradeResult: null,
         inspectedCharacterData: null
@@ -126,6 +136,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         handouts?: Handout[]
         combatTimer?: CombatTimerConfig | null
         sharedJournal?: import('../../types/game-state').SharedJournalEntry[]
+        partyInventory?: import('../../types/game-state').PartyInventory
       }
     ) => {
       const {
@@ -144,6 +155,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         handouts,
         combatTimer,
         sharedJournal,
+        partyInventory,
         ...gameState
       } = state
       set({
@@ -162,7 +174,8 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         ...(savedWeatherPresets ? { savedWeatherPresets } : {}),
         ...(handouts ? { handouts } : {}),
         ...(combatTimer !== undefined ? { combatTimer } : {}),
-        ...(sharedJournal ? { sharedJournal } : {})
+        ...(sharedJournal ? { sharedJournal } : {}),
+        ...(partyInventory ? { partyInventory } : {})
       })
     },
 

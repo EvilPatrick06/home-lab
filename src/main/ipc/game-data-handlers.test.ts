@@ -12,6 +12,7 @@ vi.mock('@electron-toolkit/utils', () => ({
 }))
 
 vi.mock('node:fs/promises', () => ({
+  rename: vi.fn(),
   readFile: vi.fn()
 }))
 

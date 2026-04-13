@@ -249,6 +249,9 @@ export default function BastionPage(): JSX.Element {
                       <span className="text-xs px-2 py-0.5 rounded bg-yellow-900/50 text-yellow-300 border border-yellow-700">
                         Treasury: {selectedBastion.treasury} GP
                       </span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-purple-900/50 text-purple-300 border border-purple-700">
+                        {selectedBastion.bastionPoints} BP
+                      </span>
                       <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">
                         {selectedBastion.specialFacilities.length +
                           selectedBastion.construction.filter((p) => p.projectType === 'add-special').length}
@@ -371,6 +374,7 @@ export default function BastionPage(): JSX.Element {
         basicFacilityDefs={basicFacilityDefs}
         maxSpecial={maxSpecial}
         maxFacilityLevel={maxFacilityLevel}
+        ownerLevel={ownerLevel}
         owner5e={owner5e}
         saveBastion={saveBastion}
         setSelectedBastionId={setSelectedBastionId}

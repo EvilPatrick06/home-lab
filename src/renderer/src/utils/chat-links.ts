@@ -1,21 +1,49 @@
 import React from 'react'
+import ContentTooltip from '../components/ui/ContentTooltip'
+import { lookupContent } from '../services/library/content-index'
 import type { LibraryCategory } from '../types/library'
 
-// Known monster names and item names that should be linkable
-// In a full implementation, this would be populated from the library
+// Known monster names and item names that should be linkable (fallback for auto-detection)
 const MONSTER_NAMES = [
-  'Goblin', 'Orc', 'Dragon', 'Skeleton', 'Zombie', 'Troll', 'Giant', 'Beholder',
-  'Mind Flayer', 'Lich', 'Vampire', 'Werewolf', 'Demon', 'Devil', 'Angel',
-  'Elemental', 'Golem', 'Mimic', 'Gelatinous Cube', 'Owlbear', 'Displacer Beast'
+  'Goblin',
+  'Orc',
+  'Dragon',
+  'Skeleton',
+  'Zombie',
+  'Troll',
+  'Giant',
+  'Beholder',
+  'Mind Flayer',
+  'Lich',
+  'Vampire',
+  'Werewolf',
+  'Demon',
+  'Devil',
+  'Angel',
+  'Elemental',
+  'Golem',
+  'Mimic',
+  'Gelatinous Cube',
+  'Owlbear',
+  'Displacer Beast'
 ]
 
 const ITEM_NAMES = [
-  'Potion of Healing', 'Magic Missile', 'Fireball', 'Lightning Bolt',
-  'Sword', 'Shield', 'Armor', 'Ring', 'Amulet', 'Wand', 'Staff'
+  'Potion of Healing',
+  'Magic Missile',
+  'Fireball',
+  'Lightning Bolt',
+  'Sword',
+  'Shield',
+  'Armor',
+  'Ring',
+  'Amulet',
+  'Wand',
+  'Staff'
 ]
 
 export interface ChatLink {
-  type: 'monster' | 'item' | 'spell'
+  type: 'monster' | 'item' | 'spell' | LibraryCategory
   name: string
   start: number
   end: number
@@ -24,6 +52,22 @@ export interface ChatLink {
 export function parseChatLinks(content: string): ChatLink[] {
   const links: ChatLink[] = []
 
+  // 1. Parse [[name]] bracket syntax — matches against content index
+  const bracketRegex = /\[\[([^\]]+)\]\]/g
+  let bracketMatch
+  while ((bracketMatch = bracketRegex.exec(content)) !== null) {
+    const ref = lookupContent(bracketMatch[1])
+    if (ref) {
+      links.push({
+        type: ref.category,
+        name: ref.name,
+        start: bracketMatch.index,
+        end: bracketMatch.index + bracketMatch[0].length
+      })
+    }
+  }
+
+  // 2. Fallback auto-detection for known names
   // Find monster references
   for (const monsterName of MONSTER_NAMES) {
     const regex = new RegExp(`\\b${monsterName}\\b`, 'gi')
@@ -64,13 +108,14 @@ export function parseChatLinks(content: string): ChatLink[] {
     })
   }
 
-  // Remove overlapping links (keep the first one)
+  // Remove overlapping links (keep the first one — bracket syntax takes priority)
   links.sort((a, b) => a.start - b.start)
   const filteredLinks: ChatLink[] = []
   for (const link of links) {
-    const overlaps = filteredLinks.some(existing =>
-      (link.start >= existing.start && link.start < existing.end) ||
-      (link.end > existing.start && link.end <= existing.end)
+    const overlaps = filteredLinks.some(
+      (existing) =>
+        (link.start >= existing.start && link.start < existing.end) ||
+        (link.end > existing.start && link.end <= existing.end)
     )
     if (!overlaps) {
       filteredLinks.push(link)
@@ -80,42 +125,72 @@ export function parseChatLinks(content: string): ChatLink[] {
   return filteredLinks
 }
 
-export function renderChatContent(content: string, onLinkClick?: (type: LibraryCategory, name: string) => void): JSX.Element {
+function linkTypeToCategory(type: string): LibraryCategory {
+  if (type === 'monster') return 'monsters'
+  if (type === 'item') return 'magic-items'
+  if (type === 'spell') return 'spells'
+  return type as LibraryCategory
+}
+
+export function renderChatContent(
+  content: string,
+  onLinkClick?: (type: LibraryCategory, name: string) => void,
+  renderPreview?: (category: LibraryCategory, name: string) => React.ReactNode | null
+): React.ReactElement {
   const links = parseChatLinks(content)
 
   if (links.length === 0) {
-    return <span>{content}</span>
+    return React.createElement('span', null, content)
   }
 
-  const parts: JSX.Element[] = []
+  const parts: React.ReactElement[] = []
   let lastIndex = 0
 
   for (const link of links) {
     // Add text before the link
     if (link.start > lastIndex) {
-      parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex, link.start)}</span>)
+      parts.push(React.createElement('span', { key: `text-${lastIndex}` }, content.slice(lastIndex, link.start)))
     }
 
-    // Add the link
-    const linkText = content.slice(link.start, link.end)
-    parts.push(
-      <button
-        key={`link-${link.start}`}
-        onClick={() => onLinkClick?.(link.type === 'monster' ? 'monsters' : link.type === 'item' ? 'magic-items' : 'spells', link.name)}
-        className="text-amber-400 hover:text-amber-300 underline cursor-pointer"
-        title={`Open ${link.name} in compendium`}
-      >
-        {linkText}
-      </button>
+    // For bracket syntax, display without the [[ ]] delimiters
+    const rawText = content.slice(link.start, link.end)
+    const linkText = rawText.startsWith('[[') ? rawText.slice(2, -2) : rawText
+    const category = linkTypeToCategory(link.type)
+    const button = React.createElement(
+      'button',
+      {
+        key: `link-${link.start}`,
+        onClick: () => onLinkClick?.(category, link.name),
+        className: 'text-amber-400 hover:text-amber-300 underline cursor-pointer',
+        title: `Open ${link.name} in compendium`
+      },
+      linkText
     )
+
+    if (renderPreview) {
+      parts.push(
+        React.createElement(
+          ContentTooltip,
+          {
+            key: `tooltip-${link.start}`,
+            category,
+            name: link.name,
+            renderPreview
+          },
+          button
+        )
+      )
+    } else {
+      parts.push(button)
+    }
 
     lastIndex = link.end
   }
 
   // Add remaining text
   if (lastIndex < content.length) {
-    parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex)}</span>)
+    parts.push(React.createElement('span', { key: `text-${lastIndex}` }, content.slice(lastIndex)))
   }
 
-  return <span>{parts}</span>
+  return React.createElement('span', null, ...parts)
 }

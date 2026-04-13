@@ -5,6 +5,7 @@ vi.mock('electron', () => ({
 }))
 
 vi.mock('node:fs/promises', () => ({
+  rename: vi.fn(),
   readFile: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),

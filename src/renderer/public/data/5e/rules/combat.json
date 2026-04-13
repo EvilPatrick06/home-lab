@@ -1,0 +1,171 @@
+[
+  {
+    "name": "Attack Rolls",
+    "description": "When you make an attack, your attack roll determines whether the attack hits or misses. To make an attack roll, roll a d20 and add the appropriate modifiers. If the total of the roll plus modifiers equals or exceeds the target's Armor Class (AC), the attack hits.",
+    "effects": [
+      "Melee weapon attack: 1d20 + Strength modifier + Proficiency Bonus (if proficient)",
+      "Ranged weapon attack: 1d20 + Dexterity modifier + Proficiency Bonus (if proficient)",
+      "Finesse weapons let you choose Strength or Dexterity for both attack and damage",
+      "Spell attack: 1d20 + spellcasting ability modifier + Proficiency Bonus",
+      "A natural 20 always hits (critical hit); a natural 1 always misses"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Damage Rolls",
+    "description": "Each weapon, spell, and harmful ability specifies the damage it deals. You roll the damage die or dice, add any modifiers, and apply the damage to your target.",
+    "effects": [
+      "Melee weapon damage: weapon die + Strength modifier (or Dexterity for finesse weapons)",
+      "Ranged weapon damage: weapon die + Dexterity modifier",
+      "You do NOT add your ability modifier to damage from spell attacks unless a feature says otherwise",
+      "Damage types include: Acid, Bludgeoning, Cold, Fire, Force, Lightning, Necrotic, Piercing, Poison, Psychic, Radiant, Slashing, Thunder",
+      "Resistance halves the damage; Vulnerability doubles the damage; Immunity negates the damage"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Critical Hits",
+    "description": "When you score a critical hit, you get to roll extra dice for the attack's damage against the target. Roll all of the attack's damage dice twice and add them together. Then add any relevant modifiers as normal.",
+    "effects": [
+      "A natural 20 on an attack roll is a critical hit",
+      "Roll each of the attack's damage dice an additional time (double the dice, not the modifiers)",
+      "Only the attack's base weapon or spell damage dice are doubled",
+      "Extra damage dice from features like Sneak Attack are also doubled on a critical hit",
+      "Critical hits only apply to attack rolls, not saving throws or ability checks"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Cover",
+    "description": "Walls, trees, creatures, and other obstacles can provide cover during combat, making a target more difficult to harm. A target benefits from cover only when an attack or other effect originates on the opposite side of the cover.",
+    "effects": [
+      "Half Cover: +2 bonus to AC and Dexterity saving throws (e.g., low wall, furniture, another creature)",
+      "Three-Quarters Cover: +5 bonus to AC and Dexterity saving throws (e.g., portcullis, arrow slit, thick tree trunk)",
+      "Total Cover: Can't be targeted directly by an attack or spell (completely concealed by an obstacle)",
+      "A target with Total Cover can still be affected by area effects that reach around the cover"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Flanking (Optional Rule)",
+    "description": "If you regularly use miniatures, flanking gives combatants a simple way to gain Advantage on attack rolls against a common enemy.",
+    "effects": [
+      "A creature has Advantage on melee attack rolls against a target if an ally is on the opposite side of the target",
+      "On a grid, the flanking creatures must be on opposite sides or corners of the target's space",
+      "The flanking creature and ally must both be able to see the target and not be Incapacitated",
+      "This is an optional rule; the DM decides whether to use it"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Grappling",
+    "description": "When you want to grab a creature or wrestle with it, you can use the Attack action to make a special melee attack: a grapple. The target of your grapple must be no more than one size larger than you.",
+    "effects": [
+      "Uses the Attack action; replaces one of your attacks",
+      "Make a Strength (Athletics) check contested by the target's Strength (Athletics) or Dexterity (Acrobatics) check",
+      "If you succeed, the target has the Grappled condition",
+      "The grappled creature's speed becomes 0 and can't benefit from any bonus to its speed",
+      "You can drag or carry the grappled creature with you, but your speed is halved unless the creature is two or more sizes smaller than you",
+      "The grapple ends if you are Incapacitated, if the target is moved out of your reach, or if the target uses its action to escape"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Shoving",
+    "description": "Using the Attack action, you can make a special melee attack to shove a creature. The target must be no more than one size larger than you and must be within your reach.",
+    "effects": [
+      "Uses the Attack action; replaces one of your attacks",
+      "Make a Strength (Athletics) check contested by the target's Strength (Athletics) or Dexterity (Acrobatics) check",
+      "If you succeed, you either knock the target Prone or push it 5 feet away from you",
+      "You choose the effect when you succeed on the contest"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Two-Weapon Fighting",
+    "description": "When you take the Attack action and attack with a Light melee weapon that you're holding in one hand, you can make one extra attack as part of the same action with a different Light melee weapon that you're holding in the other hand.",
+    "effects": [
+      "Both weapons must have the Light property",
+      "The extra attack is part of the Attack action, not a Bonus Action",
+      "You don't add your ability modifier to the damage of the extra attack unless that modifier is negative",
+      "The Two-Weapon Fighting style lets you add your ability modifier to the damage of the extra attack",
+      "If either weapon has the Thrown property, you can throw it instead of making a melee attack"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Opportunity Attacks",
+    "description": "In a fight, everyone is constantly watching for enemies to drop their guard. You can rarely move heedlessly past your foes without putting yourself in danger; doing so provokes an Opportunity Attack.",
+    "effects": [
+      "Triggered when a hostile creature you can see leaves your reach using its movement",
+      "You use your Reaction to make one melee attack against the provoking creature",
+      "The attack occurs right before the creature leaves your reach",
+      "You can avoid provoking Opportunity Attacks by taking the Disengage action",
+      "Teleportation and forced movement do not provoke Opportunity Attacks",
+      "You can make only one Opportunity Attack per round (uses your Reaction)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Mounted Combat",
+    "description": "A willing creature that is at least one size larger than you and has an appropriate anatomy can serve as a mount. Once mounted, you benefit from shared movement but must contend with the risks of your mount being targeted.",
+    "effects": [
+      "Mounting or dismounting costs movement equal to half your speed",
+      "You can use the mount's movement on your turn instead of your own",
+      "An independent mount acts on its own initiative and moves as it wishes",
+      "A controlled mount acts on your initiative, can only Dash, Disengage, or Dodge",
+      "If the mount is forced to move or knocked Prone, you must succeed on a DC 10 Dexterity saving throw or fall off (land Prone within 5 feet)",
+      "If you are knocked Prone while mounted, you must make the same saving throw",
+      "Attacks targeting you while mounted can target either you or the mount"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Underwater Combat",
+    "description": "When adventurers pursue underwater foes, fight off sharks, or find themselves in a flooded dungeon room, they must fight in a challenging environment.",
+    "effects": [
+      "Melee weapon attacks have Disadvantage unless the weapon deals Piercing damage or has the Thrown property",
+      "Ranged weapon attacks automatically miss beyond the weapon's normal range",
+      "Within normal range, ranged weapon attacks have Disadvantage unless the weapon is a crossbow, net, or javelin",
+      "Creatures that have a swimming speed do not suffer these penalties for melee attacks",
+      "Fire damage is halved for creatures and objects that are fully submerged"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Initiative",
+    "description": "Initiative determines the order of turns during combat. When combat starts, every participant makes a Dexterity check to determine their place in the initiative order.",
+    "effects": [
+      "Roll 1d20 + Dexterity modifier to determine initiative",
+      "Some features allow you to add other bonuses to your initiative roll",
+      "The DM ranks the combatants in order from highest to lowest initiative",
+      "Ties are broken by comparing Dexterity scores; if still tied, the DM decides",
+      "The initiative order remains the same from round to round",
+      "A round represents about 6 seconds of game time"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Surprise",
+    "description": "A band of adventurers sneaks up on a bandit camp. An owlbear crashes through the undergrowth. In these situations, one side of the battle gains surprise over the other.",
+    "effects": [
+      "The DM determines who might be surprised based on Dexterity (Stealth) checks vs. passive Perception",
+      "A surprised creature has Disadvantage on its Initiative roll",
+      "A surprised creature cannot take Reactions until after its first turn in combat",
+      "Any member of a group can be surprised even if other members aren't"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Damage Resistance and Vulnerability",
+    "description": "Some creatures and objects are resistant or vulnerable to certain types of damage. Resistance reduces damage, while Vulnerability increases it.",
+    "effects": [
+      "Resistance: The creature takes half damage from the specified damage type",
+      "Vulnerability: The creature takes double damage from the specified damage type",
+      "Immunity: The creature takes no damage from the specified damage type",
+      "Resistance/Vulnerability is applied after all other modifiers to damage",
+      "Multiple sources of Resistance or Vulnerability to the same type do not stack"
+    ],
+    "source": "PHB 2024"
+  }
+]

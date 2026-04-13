@@ -100,6 +100,19 @@ def execute_command(cmd: str, cwd: str | None = None, timeout: int = 30, setting
 
 def execute_confirmed(cmd: str, cwd: str | None = None, timeout: int = 30) -> dict:
     """Execute a previously confirmed destructive command."""
+    # Intercept self-restart — delay so agent turn completes first
+    if re.search(r"systemctl\s+(restart|stop)\s+bmo\b", cmd):
+        delayed_cmd = f"nohup bash -c 'sleep 5 && {cmd}' > /dev/null 2>&1 &"
+        try:
+            subprocess.Popen(delayed_cmd, shell=True, cwd=cwd)
+            return {
+                "output": f"BMO restart scheduled in 5 seconds. Agent can continue working.",
+                "exit_code": 0,
+                "delayed_restart": True,
+            }
+        except Exception as e:
+            return {"output": str(e), "exit_code": -1}
+
     try:
         result = subprocess.run(
             cmd, shell=True, capture_output=True, text=True,

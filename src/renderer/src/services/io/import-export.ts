@@ -130,7 +130,7 @@ export async function importCampaign(): Promise<Record<string, unknown> | null> 
 // Full backup: Export / Import ALL data
 // ---------------------------------------------------------------------------
 
-const BACKUP_VERSION = 2
+const BACKUP_VERSION = 3
 const BACKUP_FILTER = [{ name: 'D&D VTT Backup', extensions: ['dndbackup'] }]
 
 const PREFERENCE_PREFIX = 'dnd-vtt-'
@@ -145,6 +145,16 @@ interface BackupPayload {
   homebrew: Record<string, unknown>[]
   appSettings: Record<string, unknown>
   preferences: Record<string, string>
+  // Added in v3
+  gameStates?: Record<string, unknown>[]
+  aiConversations?: Record<string, unknown>[]
+  imageLibrary?: Record<string, unknown>[]
+  mapLibrary?: Record<string, unknown>[]
+  shopTemplates?: Record<string, unknown>[]
+  books?: {
+    config: Record<string, unknown>
+    data: Record<string, unknown>[]
+  }
 }
 
 function gatherLocalStoragePreferences(): Record<string, string> {
@@ -164,6 +174,13 @@ export interface BackupStats {
   bastions: number
   customCreatures: number
   homebrew: number
+  // Added in v3
+  gameStates?: number
+  aiConversations?: number
+  imageLibrary?: number
+  mapLibrary?: number
+  shopTemplates?: number
+  books?: number
 }
 
 /**
@@ -171,25 +188,98 @@ export interface BackupStats {
  * and write it to a single .dndbackup file via a save dialog.
  */
 export async function exportAllData(): Promise<BackupStats | null> {
-  const [characters, campaigns, bastions, customCreatures, homebrew, appSettings] = await Promise.all([
+  const [
+    characters,
+    campaigns,
+    bastions,
+    customCreatures,
+    homebrew,
+    appSettings,
+    allMaps,
+    allShops,
+    allImages,
+    bookConfig
+  ] = await Promise.all([
     window.api.loadCharacters().catch(() => []),
     window.api.loadCampaigns().catch(() => []),
     window.api.loadBastions().catch(() => []),
     window.api.loadCustomCreatures().catch(() => []),
     window.api.loadAllHomebrew().catch(() => []),
-    window.api.loadSettings().catch(() => ({}))
+    window.api.loadSettings().catch(() => ({})),
+    // v3 additions - Library data
+    window.api.mapLibrary.list().catch(() => []),
+    window.api.shopTemplates.list().catch(() => []),
+    window.api.imageLibrary.list().catch(() => []),
+    window.api.books.loadConfig().catch(() => ({ customBooks: [] }))
   ])
+
+  const safeCampaigns = Array.isArray(campaigns) ? campaigns : []
+
+  // Load game states and AI conversations for all campaigns
+  const gameStates: Record<string, unknown>[] = []
+  const aiConversations: Record<string, unknown>[] = []
+
+  for (const campaign of safeCampaigns) {
+    if (!campaign.id || typeof campaign.id !== 'string') continue
+    const state = await window.api.loadGameState(campaign.id).catch(() => null)
+    if (state) gameStates.push({ ...state, campaignId: campaign.id })
+
+    const convoResult = (await window.api.ai.loadConversation(campaign.id).catch(() => ({ success: false }))) as any
+    if (convoResult?.success && convoResult.data) {
+      aiConversations.push({ data: convoResult.data, campaignId: campaign.id })
+    }
+  }
+
+  // Load raw image buffers and meta
+  const imageLibrary: Record<string, unknown>[] = []
+  for (const imgMeta of Array.isArray(allImages) ? (allImages as any[]) : []) {
+    if (!imgMeta.id) continue
+    const imgResult = await window.api.imageLibrary.get(imgMeta.id as string).catch(() => null)
+    if (imgResult?.success && imgResult.data?.path) {
+      const buffer = await window.api.readFileBinary(imgResult.data.path).catch(() => null)
+      if (buffer) {
+        // Encoding to base64 for backup export
+        const base64 =
+          typeof Buffer !== 'undefined'
+            ? Buffer.from(buffer).toString('base64')
+            : btoa(String.fromCharCode(...new Uint8Array(buffer)))
+
+        imageLibrary.push({
+          id: imgMeta.id,
+          name: imgMeta.name,
+          extension: imgMeta.extension || 'png',
+          bufferBase64: base64
+        })
+      }
+    }
+  }
+
+  // Load custom books' data
+  const bookData: Record<string, unknown>[] = []
+  const safeConfig = bookConfig as { customBooks?: Array<{ id: string }> }
+  if (safeConfig?.customBooks && Array.isArray(safeConfig.customBooks)) {
+    for (const book of safeConfig.customBooks) {
+      const bData = await window.api.books.loadData(book.id).catch(() => null)
+      if (bData) bookData.push({ id: book.id, ...bData })
+    }
+  }
 
   const payload: BackupPayload = {
     version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
     characters: Array.isArray(characters) ? characters : [],
-    campaigns: Array.isArray(campaigns) ? campaigns : [],
+    campaigns: safeCampaigns,
     bastions: Array.isArray(bastions) ? bastions : [],
     customCreatures: Array.isArray(customCreatures) ? customCreatures : [],
     homebrew: Array.isArray(homebrew) ? homebrew : [],
     appSettings: (appSettings ?? {}) as Record<string, unknown>,
-    preferences: gatherLocalStoragePreferences()
+    preferences: gatherLocalStoragePreferences(),
+    gameStates,
+    aiConversations,
+    imageLibrary,
+    mapLibrary: Array.isArray(allMaps) ? allMaps : [],
+    shopTemplates: Array.isArray(allShops) ? allShops : [],
+    books: { config: safeConfig, data: bookData }
   }
 
   const filePath = await window.api.showSaveDialog({
@@ -198,12 +288,14 @@ export async function exportAllData(): Promise<BackupStats | null> {
   })
   if (!filePath) return null
 
-  const json = JSON.stringify(payload, null, 2)
+  const json = JSON.stringify(payload)
 
   // Validate against IPC write size limit
   if (json.length > MAX_WRITE_CONTENT_SIZE) {
     const limitMb = (MAX_WRITE_CONTENT_SIZE / 1024 / 1024).toFixed(0)
-    throw new Error(`Backup is too large to export (limit: ${limitMb} MB). Consider removing unused data first.`)
+    throw new Error(
+      `Backup is too large to export (${(json.length / 1024 / 1024).toFixed(1)} MB / limit: ${limitMb} MB). Consider removing unused images or data first.`
+    )
   }
 
   await window.api.writeFile(filePath, json)
@@ -212,7 +304,13 @@ export async function exportAllData(): Promise<BackupStats | null> {
     campaigns: payload.campaigns.length,
     bastions: payload.bastions.length,
     customCreatures: payload.customCreatures.length,
-    homebrew: payload.homebrew.length
+    homebrew: payload.homebrew.length,
+    gameStates: payload.gameStates?.length || 0,
+    aiConversations: payload.aiConversations?.length || 0,
+    imageLibrary: payload.imageLibrary?.length || 0,
+    mapLibrary: payload.mapLibrary?.length || 0,
+    shopTemplates: payload.shopTemplates?.length || 0,
+    books: payload.books?.data.length || 0
   }
 }
 
@@ -252,13 +350,68 @@ export async function importAllData(): Promise<BackupStats | null> {
   const creatures = Array.isArray(payload.customCreatures) ? payload.customCreatures : []
   const hb = Array.isArray(payload.homebrew) ? payload.homebrew : []
 
+  // v3 fields
+  const gameStates = Array.isArray(payload.gameStates) ? payload.gameStates : []
+  const aiConvos = Array.isArray(payload.aiConversations) ? payload.aiConversations : []
+  const images = Array.isArray(payload.imageLibrary) ? payload.imageLibrary : []
+  const maps = Array.isArray(payload.mapLibrary) ? payload.mapLibrary : []
+  const shops = Array.isArray(payload.shopTemplates) ? payload.shopTemplates : []
+  const booksConfig = payload.books?.config
+  const booksData = Array.isArray(payload.books?.data) ? payload.books?.data : []
+
   const results = await Promise.allSettled([
     ...chars.map((c) => window.api.saveCharacter(c as Record<string, unknown>)),
     ...camps.map((c) => window.api.saveCampaign(c as Record<string, unknown>)),
     ...basts.map((b) => window.api.saveBastion(b as Record<string, unknown>)),
     ...creatures.map((cr) => window.api.saveCustomCreature(cr as Record<string, unknown>)),
-    ...hb.map((h) => window.api.saveHomebrew(h as Record<string, unknown>))
+    ...hb.map((h) => window.api.saveHomebrew(h as Record<string, unknown>)),
+    ...gameStates.map((gs) => {
+      const campId = String(gs.campaignId)
+      // Remove the injected lookup key when saving natively
+      const { campaignId, ...actualState } = gs
+      return window.api.saveGameState(campId, actualState)
+    }),
+    ...aiConvos.map((ac: any) => {
+      return window.api.ai.restoreConversation(String(ac.campaignId), ac.data as Record<string, unknown>)
+    }),
+    ...maps.map((m) => window.api.mapLibrary.save(String(m.id), String(m.name), m as Record<string, unknown>)),
+    ...shops.map((s) =>
+      window.api.shopTemplates.save(s as { id: string; name: string; inventory: unknown[]; markup: number })
+    ),
+    ...booksData.map((bd: any) => {
+      const { id, ...data } = bd
+      return window.api.books.saveData(String(id), data as any)
+    })
   ])
+
+  // Sequentially import images because buffer decoding might be synchronous/heavy
+  for (const img of images) {
+    if (img.id && img.bufferBase64) {
+      try {
+        const buffer =
+          typeof Buffer !== 'undefined'
+            ? Buffer.from(String(img.bufferBase64), 'base64')
+            : Uint8Array.from(atob(String(img.bufferBase64)), (c) => c.charCodeAt(0)).buffer
+        await window.api.imageLibrary.save(
+          String(img.id),
+          String(img.name),
+          buffer as any,
+          String(img.extension || 'png')
+        )
+      } catch (e) {
+        logger.warn(`[Import] Failed to save image ${img.id}`, e)
+      }
+    }
+  }
+
+  // Restore book config
+  if (booksConfig?.customBooks && Array.isArray(booksConfig.customBooks)) {
+    for (const book of booksConfig.customBooks) {
+      await window.api.books
+        .add(book as any)
+        .catch((e) => logger.warn(`[Import] Failed to add book config ${book.id}`, e))
+    }
+  }
 
   const failed = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
   if (failed.length > 0) {
@@ -287,7 +440,13 @@ export async function importAllData(): Promise<BackupStats | null> {
     campaigns: camps.length,
     bastions: basts.length,
     customCreatures: creatures.length,
-    homebrew: hb.length
+    homebrew: hb.length,
+    gameStates: gameStates.length,
+    aiConversations: aiConvos.length,
+    imageLibrary: images.length,
+    mapLibrary: maps.length,
+    shopTemplates: shops.length,
+    books: booksData.length
   }
 }
 

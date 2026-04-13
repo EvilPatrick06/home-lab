@@ -93,20 +93,51 @@ const abilityCommand: ChatCommand = {
   dmOnly: false,
   category: 'player',
   execute: (args, ctx) => {
-    // The command name itself might be the ability (e.g., /str +5)
     const parts = args.trim().split(/\s+/)
-    const mod = parseInt(parts[0], 10)
-    const modifier = Number.isNaN(mod) ? 0 : mod
+    const abilityMap: Record<string, string> = {
+      str: 'strength',
+      dex: 'dexterity',
+      con: 'constitution',
+      int: 'intelligence',
+      wis: 'wisdom',
+      cha: 'charisma',
+      strength: 'strength',
+      dexterity: 'dexterity',
+      constitution: 'constitution',
+      intelligence: 'intelligence',
+      wisdom: 'wisdom',
+      charisma: 'charisma'
+    }
+
+    // Try to detect ability name from first arg
+    const firstArg = parts[0]?.toLowerCase() ?? ''
+    const abilityName = abilityMap[firstArg]
+    let modifier: number
+
+    if (abilityName && ctx.character) {
+      // Auto-detect modifier from character ability scores
+      const char = ctx.character as { abilityScores?: Record<string, number> }
+      const score = char.abilityScores?.[abilityName] ?? 10
+      modifier = Math.floor((score - 10) / 2)
+      // Allow manual override if a second arg is provided
+      const manualMod = parts[1] ? parseInt(parts[1], 10) : NaN
+      if (!Number.isNaN(manualMod)) modifier = manualMod
+    } else {
+      // Fallback: treat first arg as modifier
+      const mod = parseInt(parts[0], 10)
+      modifier = Number.isNaN(mod) ? 0 : mod
+    }
 
     const roll = rollSingle(20)
     const total = roll + modifier
     const tag = roll === 20 ? ' **Natural 20!**' : roll === 1 ? ' *Natural 1!*' : ''
+    const abilityLabel = abilityName ? `${abilityName.charAt(0).toUpperCase() + abilityName.slice(1)} ` : ''
 
     trigger3dDice({ formula: '1d20', rolls: [roll], total: roll, rollerName: ctx.playerName })
 
     return {
       type: 'broadcast',
-      content: `**${ctx.playerName}** Ability Check: d20 (${roll}) ${modifier >= 0 ? '+' : ''}${modifier} = **${total}**${tag}`
+      content: `**${ctx.playerName}** ${abilityLabel}Ability Check: d20 (${roll}) ${modifier >= 0 ? '+' : ''}${modifier} = **${total}**${tag}`
     }
   }
 }
@@ -139,8 +170,29 @@ const saveCommand: ChatCommand = {
     if (!ability) {
       return { type: 'error', content: 'Usage: /save <str|dex|con|int|wis|cha> [modifier]' }
     }
-    const mod = parts[1] ? parseInt(parts[1], 10) : 0
-    const modifier = Number.isNaN(mod) ? 0 : mod
+
+    let modifier: number
+    const manualMod = parts[1] ? parseInt(parts[1], 10) : NaN
+
+    if (!Number.isNaN(manualMod)) {
+      modifier = manualMod
+    } else if (ctx.character) {
+      // Auto-detect modifier from character ability scores + save proficiency
+      const char = ctx.character as {
+        abilityScores?: Record<string, number>
+        level?: number
+        proficiencies?: { savingThrows?: string[] }
+      }
+      const abilityNameLower = ability.toLowerCase()
+      const score = char.abilityScores?.[abilityNameLower] ?? 10
+      modifier = Math.floor((score - 10) / 2)
+      const profBonus = (char.level ?? 1) >= 21 ? 7 : Math.ceil((char.level ?? 1) / 4) + 1
+      const isProficient = char.proficiencies?.savingThrows?.includes(abilityNameLower)
+      if (isProficient) modifier += profBonus
+    } else {
+      modifier = 0
+    }
+
     const roll = rollSingle(20)
     const total = roll + modifier
     const tag = roll === 20 ? ' **Natural 20!**' : roll === 1 ? ' *Natural 1!*' : ''

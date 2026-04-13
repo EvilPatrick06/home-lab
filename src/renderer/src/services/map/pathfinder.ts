@@ -49,8 +49,34 @@ export function isMovementBlockedByWall(
   const dy = toY - fromY
 
   for (const wall of walls) {
-    // Skip open doors and windows
-    if (wall.isOpen || wall.type === 'window') continue
+    // Skip open doors and windows — they don't block movement
+    if (wall.isOpen && wall.type === 'door') continue
+    if (wall.type === 'window') continue
+    // Transparent walls block movement (force walls — see through but not pass)
+    // One-way walls: only block from the blocked side
+    if (wall.type === 'one-way') {
+      // Compute whether the mover is on the blocked side of the one-way wall
+      const midX = (wall.x1 + wall.x2) / 2
+      const midY = (wall.y1 + wall.y2) / 2
+      let normalAngle: number
+      if (wall.oneWayDirection !== undefined) {
+        normalAngle = (wall.oneWayDirection * Math.PI) / 180
+      } else {
+        const wallDx = wall.x2 - wall.x1
+        const wallDy = wall.y2 - wall.y1
+        normalAngle = Math.atan2(-wallDx, wallDy)
+      }
+      const normalX = Math.cos(normalAngle)
+      const normalY = Math.sin(normalAngle)
+      // Use cell center as origin point
+      const fromCenterX = fromX + 0.5
+      const fromCenterY = fromY + 0.5
+      const toPointX = fromCenterX - midX
+      const toPointY = fromCenterY - midY
+      const dot = toPointX * normalX + toPointY * normalY
+      // Not on the blocked side — skip this wall
+      if (dot <= 0) continue
+    }
 
     // Check if this wall segment blocks movement from (fromX,fromY) to (toX,toY)
     if (wallBlocksMovement(fromX, fromY, dx, dy, wall)) return true

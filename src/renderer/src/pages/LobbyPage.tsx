@@ -18,11 +18,12 @@ export default function LobbyPage(): JSX.Element {
   const { campaignId } = useParams<{ campaignId: string }>()
 
   const { setCampaignId, setIsHost, addPlayer, reset: resetLobby } = useLobbyStore()
-  const { connectionState, inviteCode, localPeerId, displayName, role, disconnect } = useNetworkStore()
+  const { connectionState, inviteCode, localPeerId, displayName, role, disconnect, latencyMs } = useNetworkStore()
   const { campaigns, loadCampaigns } = useCampaignStore()
 
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [codeCopied, setCodeCopied] = useState(false)
+  const [reconnecting, setReconnecting] = useState(false)
   const hasInitialized = useRef(false)
 
   const campaign = campaigns.find((c) => c.id === campaignId)
@@ -63,12 +64,20 @@ export default function LobbyPage(): JSX.Element {
   const error = useNetworkStore((s) => s.error)
 
   useEffect(() => {
-    if (connectionState === 'disconnected' && error) {
-      logger.warn('Lobby disconnected with error:', error)
-      resetLobby()
-      navigate('/', { replace: true })
+    if (connectionState === 'disconnected') {
+      const reason = error || 'unknown'
+      if (reason === 'kicked' || reason === 'banned' || reason === 'host-closed' || role === 'host') {
+        logger.warn('Lobby disconnected with intentional reason:', reason)
+        resetLobby()
+        navigate('/', { replace: true })
+      } else {
+        // Temporary disconnect — keep chat, show reconnecting UI
+        setReconnecting(true)
+      }
+    } else if (connectionState === 'connected') {
+      setReconnecting(false)
     }
-  }, [connectionState, error, navigate, resetLobby])
+  }, [connectionState, error, navigate, resetLobby, role])
 
   // Initialize lobby state
   useEffect(() => {
@@ -212,14 +221,17 @@ export default function LobbyPage(): JSX.Element {
           <div className="flex items-center gap-1.5">
             <div
               className={`w-2 h-2 rounded-full ${
-                connectionState === 'connected'
+                connectionState === 'connected' && !reconnecting
                   ? 'bg-green-400'
-                  : connectionState === 'connecting'
+                  : connectionState === 'connecting' || reconnecting
                     ? 'bg-amber-400 animate-pulse'
                     : 'bg-red-400'
               }`}
             />
-            <span className="text-xs text-gray-500 capitalize">{connectionState}</span>
+            <span className="text-xs text-gray-500 capitalize">{reconnecting ? 'reconnecting' : connectionState}</span>
+            {role === 'client' && latencyMs != null && (
+              <span className="text-xs text-gray-400 ml-1">Ping: {latencyMs}ms</span>
+            )}
           </div>
 
           {/* AI DM scene preparation status */}

@@ -117,6 +117,45 @@ function EditableHP({
   )
 }
 
+function CompletionBadge(): JSX.Element {
+  const characterName = useBuilderStore((s) => s.characterName)
+  const buildSlots = useBuilderStore((s) => s.buildSlots)
+
+  const completionInfo = useMemo(() => {
+    let completed = 0
+    const total = 6
+    if (characterName.trim()) completed++
+    const ancestrySlot = buildSlots.find((s) => s.category === 'ancestry')
+    if (ancestrySlot?.selectedId) completed++
+    const classSlot = buildSlots.find((s) => s.category === 'class')
+    if (classSlot?.selectedId) completed++
+    const bgSlot = buildSlots.find((s) => s.category === 'background')
+    if (bgSlot?.selectedId) completed++
+    const abilitySlot = buildSlots.find((s) => s.id === 'ability-scores')
+    if (abilitySlot?.selectedId) completed++
+    const skillSlot = buildSlots.find((s) => s.id === 'skill-choices')
+    if (skillSlot?.selectedId) completed++
+    return { completed, total }
+  }, [characterName, buildSlots])
+
+  const { completed, total } = completionInfo
+  const color =
+    completed === total
+      ? 'bg-green-600 text-green-100'
+      : completed >= 4
+        ? 'bg-amber-600 text-amber-100'
+        : 'bg-red-600 text-red-100'
+
+  return (
+    <span
+      className={`${color} text-xs font-bold px-1.5 py-0.5 rounded`}
+      title={`${completed}/${total} foundation steps complete`}
+    >
+      {completed}/{total}
+    </span>
+  )
+}
+
 export default function CharacterSummaryBar5e(): JSX.Element {
   const { buildSlots, characterName, abilityScores, targetLevel, iconType, iconPreset, iconCustom } = useBuilderStore()
   const currentHP = useBuilderStore((s) => s.currentHP)
@@ -263,6 +302,8 @@ export default function CharacterSummaryBar5e(): JSX.Element {
           </div>
         </div>
       </div>
+
+      <CompletionBadge />
 
       <div className="w-px h-8 bg-gray-700" />
 

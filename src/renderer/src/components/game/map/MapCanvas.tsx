@@ -28,7 +28,9 @@ type _Point = Point
 type _Segment = Segment
 type _VisibilityPolygon = VisibilityPolygon
 
+import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { getPlayerFloor, getTokenFloor } from '../../../services/map/floor-filtering'
+import { monsterToTokenData } from '../../../services/map/monster-to-token'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { TurnState } from '../../../types/game-state'
 import type { GameMap, MapToken } from '../../../types/map'
@@ -63,7 +65,20 @@ interface MapCanvasProps {
   isHost: boolean
   myCharacterId?: string | null
   selectedTokenIds: string[]
-  activeTool: 'select' | 'token' | 'fog-reveal' | 'fog-hide' | 'measure' | 'terrain' | 'wall' | 'fill' | 'draw-free' | 'draw-line' | 'draw-rect' | 'draw-circle' | 'draw-text'
+  activeTool:
+    | 'select'
+    | 'token'
+    | 'fog-reveal'
+    | 'fog-hide'
+    | 'measure'
+    | 'terrain'
+    | 'wall'
+    | 'fill'
+    | 'draw-free'
+    | 'draw-line'
+    | 'draw-rect'
+    | 'draw-circle'
+    | 'draw-text'
   drawingStrokeWidth?: number
   drawingColor?: string
   fogBrushSize: number
@@ -89,7 +104,7 @@ export default function MapCanvas({
   myCharacterId,
   selectedTokenIds,
   activeTool,
-  fogBrushSize: _fogBrushSize,
+  fogBrushSize,
   onTokenMove,
   onTokenSelect,
   onCellClick,
@@ -123,6 +138,7 @@ export default function MapCanvas({
   const weatherOverlayRef = useRef<WeatherOverlayLayer | null>(null)
   const combatAnimLayerRef = useRef<{ container: Container; destroy: () => void } | null>(null)
   const audioEmitterLayerRef = useRef<AudioEmitterLayer | null>(null)
+  const occlusionContainerRef = useRef<Container | null>(null)
   const tokenSpriteMapRef = useRef(new Map<string, { sprite: Container; key: string }>())
 
   // Pan and zoom state
@@ -165,7 +181,6 @@ export default function MapCanvas({
   // Drawing refs
   const drawingStartRef = useRef<{ x: number; y: number } | null>(null)
   const drawingPointsRef = useRef<Array<{ x: number; y: number }>>([])
-  const drawingGraphicsRef = useRef<Graphics | null>(null)
 
   const [initialized, setInitialized] = useState(false)
   const [initError, setInitError] = useState<string | null>(null)
@@ -232,6 +247,7 @@ export default function MapCanvas({
       moveOverlayRef.current = layers.moveOverlay
       aoeOverlayRef.current = layers.aoeOverlay
       tokenContainerRef.current = layers.tokenContainer
+      occlusionContainerRef.current = layers.occlusionContainer
       selectionBoxGraphicsRef.current = layers.selectionBoxGraphics
       pingGraphicsRef.current = layers.pingGraphics
       fogGraphicsRef.current = layers.fogGraphics
@@ -243,6 +259,13 @@ export default function MapCanvas({
       layers.world.addChild(combatLayer.container)
       combatAnimLayerRef.current = combatLayer
       const audioEmitterLayer = new AudioEmitterLayer()
+      audioEmitterLayer.onToggle((emitterId) => {
+        const state = useGameStore.getState()
+        const activeMapId = state.activeMapId
+        if (activeMapId) {
+          state.toggleEmitterPlaying(activeMapId, emitterId)
+        }
+      })
       layers.world.addChild(audioEmitterLayer.getContainer())
       audioEmitterLayerRef.current = audioEmitterLayer
       setInitialized(true)
@@ -338,7 +361,7 @@ export default function MapCanvas({
     if (currentFloor > 0 && (!map?.floors || currentFloor >= map.floors.length)) {
       setCurrentFloor(0)
     }
-  }, [map?.id, map?.floors, currentFloor, setCurrentFloor])
+  }, [map?.floors, currentFloor, setCurrentFloor])
 
   // Auto-lock players to their character token's floor
   useEffect(() => {
@@ -349,42 +372,40 @@ export default function MapCanvas({
     }
   }, [isHost, map?.tokens, myCharacterId, currentFloor, setCurrentFloor, map])
 
-  const hasMultipleFloors = useMemo(
-    () => (map?.floors?.length ?? 0) > 1,
-    [map?.floors?.length]
-  )
+  const hasMultipleFloors = useMemo(() => (map?.floors?.length ?? 0) > 1, [map?.floors?.length])
 
-    // All overlay rendering effects (grid, fog, walls, lighting, terrain, AoE, movement, weather, audio)
-    useMapOverlayEffects({
-      initialized,
-      map,
-      isHost,
-      selectedTokenId,
-      isInitiativeMode,
-      turnState,
-      activeAoE,
-      currentFloor,
-      applyTransform,
-      refs: {
-        containerRef,
-        appRef,
-        gridGraphicsRef,
-        gridLabelContainerRef,
-        fogGraphicsRef,
-        wallGraphicsRef,
-        lightingGraphicsRef,
-        terrainOverlayRef,
-        regionGraphicsRef,
-        drawingGraphicsRef,
-        aoeOverlayRef,
-        moveOverlayRef,
-        weatherOverlayRef,
-        audioEmitterLayerRef,
-        bgSpriteRef,
-        zoomRef,
-        panRef
-      }
-    })
+  // All overlay rendering effects (grid, fog, walls, lighting, terrain, AoE, movement, weather, audio)
+  useMapOverlayEffects({
+    initialized,
+    map,
+    isHost,
+    selectedTokenId: selectedTokenIds[0] ?? null,
+    isInitiativeMode,
+    turnState,
+    activeAoE,
+    currentFloor,
+    applyTransform,
+    refs: {
+      containerRef,
+      appRef,
+      gridGraphicsRef,
+      gridLabelContainerRef,
+      fogGraphicsRef,
+      wallGraphicsRef,
+      lightingGraphicsRef,
+      terrainOverlayRef,
+      regionGraphicsRef,
+      drawingGraphicsRef,
+      aoeOverlayRef,
+      moveOverlayRef,
+      weatherOverlayRef,
+      audioEmitterLayerRef,
+      occlusionContainerRef,
+      bgSpriteRef,
+      zoomRef,
+      panRef
+    }
+  })
 
   // Render tokens (diff-based)
   const hpBarsVisibility = useGameStore((s) => s.hpBarsVisibility)
@@ -455,8 +476,10 @@ export default function MapCanvas({
       }
 
       if (cached) {
-        container.removeChild(cached.sprite)
-        cached.sprite.destroy({ children: true })
+        // Reuse container, removes children but preserves avatar container if possible
+        createTokenSprite(token, map.grid.cellSize, isSelected, isActive, showHpBar, lighting, isHost, cached.sprite)
+        cache.set(token.id, { sprite: cached.sprite, key })
+        continue
       }
       const sprite = createTokenSprite(token, map.grid.cellSize, isSelected, isActive, showHpBar, lighting, isHost)
       sprite.label = `token-${token.id}`
@@ -479,7 +502,7 @@ export default function MapCanvas({
           // Add/remove from selection
           if (selectedTokenIds.includes(token.id)) {
             // Remove from selection
-            newSelection = selectedTokenIds.filter(id => id !== token.id)
+            newSelection = selectedTokenIds.filter((id) => id !== token.id)
           } else {
             // Add to selection
             newSelection = [...selectedTokenIds, token.id]
@@ -501,14 +524,18 @@ export default function MapCanvas({
         const worldPos = worldRef.current?.toLocal(e.global)
         if (!worldPos) return
         // Get starting positions for all selected tokens
-        const selectedStartPositions = selectedTokenIds.map(tokenId => {
-          const selectedToken = map.tokens.find(t => t.id === tokenId)
-          return selectedToken ? {
-            tokenId,
-            gridX: selectedToken.gridX,
-            gridY: selectedToken.gridY
-          } : null
-        }).filter(Boolean) as Array<{ tokenId: string; gridX: number; gridY: number }>
+        const selectedStartPositions = selectedTokenIds
+          .map((tokenId) => {
+            const selectedToken = map.tokens.find((t) => t.id === tokenId)
+            return selectedToken
+              ? {
+                  tokenId,
+                  gridX: selectedToken.gridX,
+                  gridY: selectedToken.gridY
+                }
+              : null
+          })
+          .filter(Boolean) as Array<{ tokenId: string; gridX: number; gridY: number }>
 
         dragRef.current = {
           tokenId: token.id,
@@ -538,7 +565,7 @@ export default function MapCanvas({
         cache.delete(tokenId)
       }
     }
-  },     [
+  }, [
     map,
     selectedTokenIds,
     isHost,
@@ -612,7 +639,8 @@ export default function MapCanvas({
       onDoorToggle,
       renderTokens,
       drawingStrokeWidth,
-      drawingColor
+      drawingColor,
+      fogBrushSize
     })
   }, [
     map,
@@ -626,7 +654,11 @@ export default function MapCanvas({
     isInitiativeMode,
     onWallPlace,
     onDoorToggle,
-    turnState
+    turnState,
+    drawingColor,
+    drawingStrokeWidth,
+    fogBrushSize,
+    selectedTokenIds
   ])
 
   // Clear measurement when tool changes
@@ -702,6 +734,44 @@ export default function MapCanvas({
   }, [map, isHost])
 
   const pendingPlacement = useGameStore((s) => s.pendingPlacement)
+
+  // Library drag-and-drop: monsters from library → map tokens
+  const handleLibraryDragOver = useCallback((e: React.DragEvent) => {
+    if (hasLibraryDrag(e)) {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'copy'
+    }
+  }, [])
+
+  const handleLibraryDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault()
+      const payload = getDragPayload(e)
+      if (!payload || payload.type !== 'library-monster' || !map) return
+
+      const el = containerRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const canvasX = e.clientX - rect.left
+      const canvasY = e.clientY - rect.top
+      const worldX = (canvasX - panRef.current.x) / zoomRef.current
+      const worldY = (canvasY - panRef.current.y) / zoomRef.current
+      const cellSize = map.grid.cellSize
+      const gridX = Math.floor(worldX / cellSize)
+      const gridY = Math.floor(worldY / cellSize)
+
+      const { loadAllStatBlocks } = await import('../../../services/data-provider')
+      const allMonsters = await loadAllStatBlocks()
+      const monster = allMonsters.find((m) => m.id === payload.itemId)
+      if (!monster) return
+      const tokenData = monsterToTokenData(monster)
+      useGameStore
+        .getState()
+        .addToken(map.id, { ...tokenData, id: crypto.randomUUID(), gridX, gridY, floor: currentFloor })
+    },
+    [map, currentFloor]
+  )
+
   const handleResetView = useCallback((): void => {
     zoomRef.current = 1
     panRef.current = { x: 0, y: 0 }
@@ -769,6 +839,8 @@ export default function MapCanvas({
     <div
       className={`relative w-full h-full overflow-hidden bg-gray-900 ${pendingPlacement ? 'cursor-crosshair' : ''}`}
       onContextMenu={(e) => e.preventDefault()}
+      onDragOver={handleLibraryDragOver}
+      onDrop={handleLibraryDrop}
       role="img"
       aria-label="Game map canvas"
     >

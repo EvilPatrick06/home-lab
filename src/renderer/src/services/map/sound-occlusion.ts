@@ -3,9 +3,8 @@
  * Uses raycast visibility algorithms to determine line-of-sight between sound source and listener.
  */
 
-import type { GameMap, MapToken, WallSegment } from '../../types/map'
+import type { GameMap, WallSegment } from '../../types/map'
 import type { Point, Segment } from './raycast-visibility'
-import { wallsToSegments } from './raycast-visibility'
 
 // ─── Constants ────────────────────────────────────────────────────
 
@@ -77,7 +76,7 @@ export function calculateSoundOcclusion(
   }
 
   // Calculate distance-based volume falloff
-  const distanceFactor = 1 - Math.pow(distance / maxRadius, SOUND_OCCLUSION.DISTANCE_FALLOFF_EXPONENT)
+  const distanceFactor = 1 - (distance / maxRadius) ** SOUND_OCCLUSION.DISTANCE_FALLOFF_EXPONENT
   let volume = baseVolume * Math.max(0, distanceFactor)
 
   // Check for wall occlusion
@@ -101,9 +100,7 @@ export function calculateSoundOcclusion(
   return {
     volume,
     isOccluded,
-    lowPassFrequency: isOccluded
-      ? SOUND_OCCLUSION.OCCLUDED_LOW_PASS_FREQ
-      : SOUND_OCCLUSION.NORMAL_LOW_PASS_FREQ,
+    lowPassFrequency: isOccluded ? SOUND_OCCLUSION.OCCLUDED_LOW_PASS_FREQ : SOUND_OCCLUSION.NORMAL_LOW_PASS_FREQ,
     distance
   }
 }
@@ -118,12 +115,7 @@ export function calculateSoundOcclusion(
  * @param cellSize Size of each grid cell in pixels
  * @returns true if sound is occluded by walls
  */
-export function checkWallOcclusion(
-  emitter: Point,
-  listener: Point,
-  walls: WallSegment[],
-  cellSize: number
-): boolean {
+export function checkWallOcclusion(emitter: Point, listener: Point, walls: WallSegment[], cellSize: number): boolean {
   // Convert grid positions to pixel coordinates
   const emitterPx: Point = {
     x: emitter.x * cellSize,
@@ -136,8 +128,8 @@ export function checkWallOcclusion(
 
   // Convert walls to segments (only solid walls and closed doors block sound)
   const segments: Segment[] = walls
-    .filter(wall => wall.type === 'solid' || (wall.type === 'door' && wall.isOpen === false))
-    .map(wall => ({
+    .filter((wall) => wall.type === 'solid' || (wall.type === 'door' && wall.isOpen === false))
+    .map((wall) => ({
       a: { x: wall.x1 * cellSize, y: wall.y1 * cellSize },
       b: { x: wall.x2 * cellSize, y: wall.y2 * cellSize },
       type: wall.type,
@@ -145,8 +137,8 @@ export function checkWallOcclusion(
     }))
 
   // Check for line intersection with any wall segment
-  const dx = listenerPx.x - emitterPx.x
-  const dy = listenerPx.y - emitterPx.y
+  const _dx = listenerPx.x - emitterPx.x
+  const _dy = listenerPx.y - emitterPx.y
 
   for (const segment of segments) {
     if (lineIntersectsLine(emitterPx, listenerPx, segment.a, segment.b)) {
@@ -162,8 +154,10 @@ export function checkWallOcclusion(
  * Uses the standard line intersection algorithm.
  */
 function lineIntersectsLine(
-  a: Point, b: Point, // First line segment
-  c: Point, d: Point  // Second line segment
+  a: Point,
+  b: Point, // First line segment
+  c: Point,
+  d: Point // Second line segment
 ): boolean {
   const denom = (a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)
   if (Math.abs(denom) < 0.0001) return false // Lines are parallel
@@ -180,7 +174,7 @@ function lineIntersectsLine(
  * Uses the first player token found on the map.
  */
 export function getPlayerListenerPosition(map: GameMap): Point | null {
-  const playerToken = map.tokens.find(token => token.entityType === 'player')
+  const playerToken = map.tokens.find((token) => token.entityType === 'player')
   if (!playerToken) return null
 
   return {

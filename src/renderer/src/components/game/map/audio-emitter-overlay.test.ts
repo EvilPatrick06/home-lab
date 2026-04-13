@@ -22,7 +22,10 @@ vi.mock('pixi.js', () => {
       circle: vi.fn().mockReturnThis(),
       fill: vi.fn().mockReturnThis(),
       stroke: vi.fn().mockReturnThis(),
-      destroy: vi.fn()
+      destroy: vi.fn(),
+      on: vi.fn().mockReturnThis(),
+      eventMode: 'none',
+      cursor: 'default'
     }
   })
 

@@ -74,6 +74,7 @@ interface BanAPI {
 
 interface FileAPI {
   readFile: (path: string) => Promise<string>
+  readFileBinary: (path: string) => Promise<ArrayBuffer>
   writeFile: (path: string, content: string) => Promise<void>
   writeFileBinary: (path: string, buffer: ArrayBuffer) => Promise<void>
 }
@@ -188,6 +189,7 @@ interface AiAPI {
     campaignId: string
     message: string
     characterIds: string[]
+    actingCharacterId?: string
     senderName?: string
     activeCreatures?: Array<{
       label: string
@@ -203,7 +205,8 @@ interface AiAPI {
   applyMutations: (characterId: string, changes: AiStatChange[]) => Promise<AiMutationResult>
   longRest: (characterId: string) => Promise<AiMutationResult>
   shortRest: (characterId: string) => Promise<AiMutationResult>
-  saveConversation: (campaignId: string) => Promise<{ success: boolean }>
+  saveConversation: (campaignId: string) => Promise<{ success: boolean; summary?: string | null }>
+  restoreConversation: (campaignId: string, data: Record<string, unknown>) => Promise<{ success: boolean }>
   loadConversation: (campaignId: string) => Promise<{ success: boolean; data?: unknown }>
   deleteConversation: (campaignId: string) => Promise<{ success: boolean }>
   // Ollama management
@@ -256,10 +259,38 @@ interface AiAPI {
     relationship: string,
     disposition: string
   ) => Promise<{ success: boolean }>
+  generateEndOfSessionRecap: (campaignId: string) => Promise<{ success: boolean; data?: string; error?: string }>
   // Memory files
   listMemoryFiles: (campaignId: string) => Promise<Array<{ name: string; size: number }>>
   readMemoryFile: (campaignId: string, fileName: string) => Promise<string>
   clearMemory: (campaignId: string) => Promise<void>
+  // Vision / Map Analysis
+  captureMap: () => Promise<{ success: boolean; data?: string; error?: string }>
+  analyzeMap: (gameState: Record<string, unknown>) => Promise<{
+    success: boolean
+    analysis?: string
+    error?: string
+  }>
+  // Proactive Triggers
+  triggerStateUpdate: (state: Record<string, unknown>) => Promise<{
+    success: boolean
+    fired?: Array<{
+      triggerId: string
+      triggerName: string
+      action: string
+      actionPayload: Record<string, unknown>
+    }>
+    error?: string
+  }>
+  onTriggerFired: (
+    cb: (data: {
+      triggerId: string
+      triggerName: string
+      action: string
+      actionPayload: Record<string, unknown>
+    }) => void
+  ) => void
+  removeTriggerListener: () => void
   // Event listeners
   onStreamChunk: (cb: (data: AiStreamChunkData) => void) => void
   onStreamDone: (cb: (data: AiStreamDoneData) => void) => void
@@ -289,7 +320,7 @@ interface UpdateAPI {
   checkForUpdates: () => Promise<UpdateStatusData>
   downloadUpdate: () => Promise<UpdateStatusData>
   installUpdate: () => Promise<void>
-  onStatus: (cb: (status: UpdateStatusData) => void) => void
+  onStatus: (cb: (status: UpdateStatusData) => void) => () => void
   removeStatusListener: () => void
 }
 
@@ -576,6 +607,51 @@ interface BooksAPI {
   saveData: (bookId: string, data: BookDataEntry) => Promise<{ success: boolean; error?: string }>
 }
 
+interface CloudSyncStatusResult {
+  success: boolean
+  configured: boolean
+  remotes: string[]
+  version?: string
+  error?: string
+}
+
+interface CloudSyncResult {
+  success: boolean
+  message?: string
+  error?: string
+  details?: Record<string, unknown>
+}
+
+interface CampaignBackupResult extends CloudSyncResult {
+  campaignId: string
+  campaignName: string
+}
+
+interface CloudSyncAPI {
+  getStatus: () => Promise<CloudSyncStatusResult>
+  backupCampaign: (campaignId: string, campaignName: string) => Promise<CampaignBackupResult>
+  checkCampaignStatus: (
+    campaignId: string
+  ) => Promise<CloudSyncResult & { campaignId: string; hasRemoteData?: boolean; lastSync?: string }>
+  listRemoteCampaigns: () => Promise<CloudSyncResult & { campaigns?: Array<{ id: string; name: string }> }>
+}
+
+interface DiscordConfig {
+  enabled: boolean
+  botToken: string
+  webhookUrl: string
+  channelId?: string
+  userId?: string
+  dmMode: 'webhook' | 'bot-api'
+}
+
+interface DiscordAPI {
+  getConfig: () => Promise<DiscordConfig>
+  saveConfig: (config: DiscordConfig) => Promise<{ success: boolean }>
+  testConnection: () => Promise<{ success: boolean; error?: string }>
+  sendMessage: (text: string, campaignName?: string) => Promise<{ success: boolean; error?: string }>
+}
+
 declare global {
   interface Window {
     api: CharacterAPI &
@@ -598,6 +674,8 @@ declare global {
         imageLibrary: ImageLibraryAPI
         books: BooksAPI
         plugins: PluginAPI
+        cloudSync: CloudSyncAPI
+        discord: DiscordAPI
         getVersion: () => Promise<string>
         // BMO Pi Bridge
         bmoStartDm: (campaignId: string) => Promise<{ ok?: boolean; error?: string }>

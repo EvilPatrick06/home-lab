@@ -1,3 +1,4 @@
+import { useBastionStore } from '../../stores/use-bastion-store'
 import type { Bastion } from '../../types/bastion'
 import { SummaryCard } from './OverviewTab'
 
@@ -95,6 +96,60 @@ export function DefendersTab({
           </div>
         )}
       </div>
+
+      {/* Lieutenants (War Room) */}
+      {(() => {
+        const warRoom = bastion.specialFacilities.find((f) => f.type === 'war-room')
+        if (!warRoom) return null
+        const maxLieutenants = warRoom.space === 'vast' ? 4 : 2
+        const lieutenants = bastion.defenders.filter((d) => d.isLieutenant)
+        const nonLieutenants = bastion.defenders.filter((d) => !d.isLieutenant)
+        return (
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-gray-200 mb-3">
+              Lieutenants ({lieutenants.length}/{maxLieutenants})
+            </h3>
+            {lieutenants.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {lieutenants.map((d) => (
+                  <div
+                    key={d.id}
+                    className="flex items-center gap-1 text-xs bg-amber-900/30 rounded px-2 py-1 border border-amber-700"
+                  >
+                    <span className="text-amber-200 font-medium">{d.name}</span>
+                    <button
+                      onClick={() => useBastionStore.getState().demoteLieutenant(bastion.id, d.id)}
+                      className="text-red-400 hover:text-red-300 ml-1 transition-colors"
+                      title="Demote"
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {lieutenants.length < maxLieutenants && nonLieutenants.length > 0 && (
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Promote a defender to lieutenant:</p>
+                <div className="flex flex-wrap gap-1">
+                  {nonLieutenants.map((d) => (
+                    <button
+                      key={d.id}
+                      onClick={() => useBastionStore.getState().promoteLieutenant(bastion.id, d.id)}
+                      className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1 rounded border border-gray-700 transition-colors"
+                    >
+                      {d.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {lieutenants.length >= maxLieutenants && (
+              <p className="text-xs text-gray-500">Maximum lieutenants reached.</p>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Defensive Walls */}
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">

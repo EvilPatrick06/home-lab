@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { CombatLogEntry } from '../../../types/game-state'
+import {
+  exportCombatLogCSV,
+  exportCombatLogJSON
+} from '../../../services/io/combat-log-export'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -282,8 +286,38 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
     clearCombatLog()
   }
 
+  const handleExport = (format: 'csv' | 'json'): void => {
+    if (combatLog.length === 0) return
+    
+    let data = ''
+    let mime = ''
+    let ext = ''
+    
+    if (format === 'csv') {
+      data = exportCombatLogCSV(combatLog)
+      mime = 'text/csv'
+      ext = 'csv'
+    } else {
+      data = exportCombatLogJSON(combatLog)
+      mime = 'application/json'
+      ext = 'json'
+    }
+
+    const blob = new Blob([data], { type: mime })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `combat-log-${new Date().toISOString().slice(0, 10)}.${ext}`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
-    <div className="w-80 h-full bg-gray-900/95 border-l border-gray-700 flex flex-col min-h-0">
+    <div
+      className="w-80 h-full bg-gray-900/95 border-l border-gray-700 flex flex-col min-h-0"
+      role="region"
+      aria-label="Combat log"
+    >
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700">
         <div className="flex items-center gap-2">
@@ -296,8 +330,23 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
         </div>
         <div className="flex items-center gap-1">
           <button
+            onClick={() => handleExport('csv')}
+            title="Export CSV"
+            className="px-1.5 py-0.5 text-[9px] font-bold text-gray-400 bg-gray-800 rounded hover:text-amber-400 hover:bg-gray-700 transition-colors uppercase cursor-pointer"
+          >
+            CSV
+          </button>
+          <button
+            onClick={() => handleExport('json')}
+            title="Export JSON"
+            className="px-1.5 py-0.5 text-[9px] font-bold text-gray-400 bg-gray-800 rounded hover:text-amber-400 hover:bg-gray-700 transition-colors uppercase cursor-pointer mr-1"
+          >
+            JSON
+          </button>
+          <button
             onClick={handleClear}
             title="Clear log"
+            aria-label="Clear combat log"
             className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-400 rounded hover:bg-gray-800 cursor-pointer transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
@@ -313,6 +362,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
               onClick={onClose}
               className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-800 cursor-pointer transition-colors"
               title="Close"
+              aria-label="Close combat log"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
@@ -348,7 +398,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
 
       {/* Content */}
       {activeTab === 'log' ? (
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-3 py-2 min-h-0 space-y-1">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-3 py-2 min-h-0 space-y-1" aria-live="polite">
           {combatLog.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <p className="text-xs text-gray-500">No combat events recorded yet.</p>

@@ -84,6 +84,17 @@ export default memo(function PlayerCard({
           ) : (
             <p className="text-xs text-gray-500 truncate">{player.characterName || 'No character selected'}</p>
           )}
+          {player.status === 'reconnecting' ? (
+            <span className="text-[10px] text-amber-400 animate-pulse">Reconnecting...</span>
+          ) : player.latencyMs != null && (
+            <span className={`text-[10px] ${
+              player.latencyMs < 100 ? 'text-green-400' :
+              player.latencyMs < 250 ? 'text-yellow-400' :
+              'text-red-400'
+            }`}>
+              Ping: {player.latencyMs}ms
+            </span>
+          )}
         </div>
 
         {/* Status icons & controls */}

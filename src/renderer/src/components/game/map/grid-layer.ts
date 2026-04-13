@@ -9,7 +9,7 @@ import type { GridSettings } from '../../../types/map'
 export function drawGrid(graphics: Graphics, settings: GridSettings, mapWidth: number, mapHeight: number): void {
   graphics.clear()
 
-  if (!settings.enabled) return
+  if (!settings.enabled || settings.type === 'gridless') return
 
   const { cellSize, offsetX, offsetY, color, opacity, type } = settings
 
@@ -230,47 +230,78 @@ export function drawGridLabels(
   }
 
   // Only show labels when zoomed in enough and grid is enabled
-  if (!settings.enabled || zoom < 0.5) return
-  // Only for square grids
-  if (settings.type !== 'square') return
+  if (!settings.enabled || zoom < 0.5 || settings.type === 'gridless') return
 
   const { cellSize } = settings
-  const labels = generateGridLabels(mapWidth, mapHeight, cellSize)
-
   const fontSize = Math.max(8, Math.min(14, cellSize * 0.3))
   const labelColor = 0xaaaaaa
 
-  // Column labels along top edge
-  for (const col of labels.columns) {
-    const text = new Text({
-      text: col.label,
-      style: {
-        fontSize,
-        fill: labelColor,
-        fontFamily: 'monospace'
-      }
-    })
-    text.anchor.set(0.5, 0)
-    text.x = col.x
-    text.y = 2
-    text.alpha = 0.6
-    container.addChild(text)
-  }
+  if (settings.type === 'square') {
+    const labels = generateGridLabels(mapWidth, mapHeight, cellSize)
 
-  // Row labels along left edge
-  for (const row of labels.rows) {
-    const text = new Text({
-      text: row.label,
-      style: {
-        fontSize,
-        fill: labelColor,
-        fontFamily: 'monospace'
+    // Column labels along top edge
+    for (const col of labels.columns) {
+      const text = new Text({
+        text: col.label,
+        style: {
+          fontSize,
+          fill: labelColor,
+          fontFamily: 'monospace'
+        }
+      })
+      text.anchor.set(0.5, 0)
+      text.x = col.x
+      text.y = 2
+      text.alpha = 0.6
+      container.addChild(text)
+    }
+
+    // Row labels along left edge
+    for (const row of labels.rows) {
+      const text = new Text({
+        text: row.label,
+        style: {
+          fontSize,
+          fill: labelColor,
+          fontFamily: 'monospace'
+        }
+      })
+      text.anchor.set(0, 0.5)
+      text.x = 2
+      text.y = row.y
+      text.alpha = 0.6
+      container.addChild(text)
+    }
+  } else {
+    // Hex labels (flat or pointy)
+    const orientation = settings.type === 'hex-pointy' ? 'pointy' : 'flat'
+    const hexWidth = orientation === 'flat' ? cellSize * 2 : Math.sqrt(3) * cellSize
+    const hexHeight = orientation === 'flat' ? Math.sqrt(3) * cellSize : cellSize * 2
+    const horizSpacing = orientation === 'flat' ? hexWidth * 0.75 : hexWidth
+    const vertSpacing = orientation === 'flat' ? hexHeight : hexHeight * 0.75
+
+    const cols = Math.ceil((mapWidth - settings.offsetX) / horizSpacing) + 1
+    const rows = Math.ceil((mapHeight - settings.offsetY) / vertSpacing) + 1
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const center = getHexCenter(col, row, cellSize, settings.offsetX, settings.offsetY, orientation)
+        if (center.x - hexWidth / 2 > mapWidth || center.y - hexHeight / 2 > mapHeight) continue
+
+        const text = new Text({
+          text: `${col},${row}`,
+          style: {
+            fontSize: fontSize * 0.7,
+            fill: labelColor,
+            fontFamily: 'monospace'
+          }
+        })
+        text.anchor.set(0.5, 0.5)
+        text.x = center.x
+        text.y = center.y
+        text.alpha = 0.4
+        container.addChild(text)
       }
-    })
-    text.anchor.set(0, 0.5)
-    text.x = 2
-    text.y = row.y
-    text.alpha = 0.6
-    container.addChild(text)
+    }
   }
 }

@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  StatChangeSchema,
-  repairJson,
-  validateDmActions,
-  validateDmAction,
-  validateStatChanges
-} from './ai-schemas'
+import { repairJson, StatChangeSchema, validateDmAction, validateDmActions, validateStatChanges } from './ai-schemas'
 
 // ── repairJson ──
 
@@ -66,34 +60,26 @@ describe('validateStatChanges', () => {
   })
 
   it('validates a correct heal change', () => {
-    const { valid, issues } = validateStatChanges([
-      { type: 'heal', value: 10, reason: 'cure wounds' }
-    ])
+    const { valid, issues } = validateStatChanges([{ type: 'heal', value: 10, reason: 'cure wounds' }])
     expect(valid).toHaveLength(1)
     expect(issues).toHaveLength(0)
   })
 
   it('rejects damage with missing reason', () => {
-    const { valid, issues } = validateStatChanges([
-      { type: 'damage', value: 5 }
-    ])
+    const { valid, issues } = validateStatChanges([{ type: 'damage', value: 5 }])
     expect(valid).toHaveLength(0)
     expect(issues).toHaveLength(1)
     expect(issues[0].errors.some((e) => e.includes('reason'))).toBe(true)
   })
 
   it('rejects damage with non-numeric value', () => {
-    const { valid, issues } = validateStatChanges([
-      { type: 'damage', value: 'five', reason: 'test' }
-    ])
+    const { valid, issues } = validateStatChanges([{ type: 'damage', value: 'five', reason: 'test' }])
     expect(valid).toHaveLength(0)
     expect(issues).toHaveLength(1)
   })
 
   it('rejects unknown change type', () => {
-    const { valid, issues } = validateStatChanges([
-      { type: 'teleport', reason: 'magic' }
-    ])
+    const { valid, issues } = validateStatChanges([{ type: 'teleport', reason: 'magic' }])
     expect(valid).toHaveLength(0)
     expect(issues).toHaveLength(1)
   })
@@ -145,21 +131,15 @@ describe('validateStatChanges', () => {
   })
 
   it('validates gold denomination enum', () => {
-    const { valid } = validateStatChanges([
-      { type: 'gold', value: 10, denomination: 'pp', reason: 'reward' }
-    ])
+    const { valid } = validateStatChanges([{ type: 'gold', value: 10, denomination: 'pp', reason: 'reward' }])
     expect(valid).toHaveLength(1)
 
-    const { issues } = validateStatChanges([
-      { type: 'gold', value: 10, denomination: 'diamonds', reason: 'reward' }
-    ])
+    const { issues } = validateStatChanges([{ type: 'gold', value: 10, denomination: 'diamonds', reason: 'reward' }])
     expect(issues).toHaveLength(1)
   })
 
   it('validates ability score enum', () => {
-    const { valid } = validateStatChanges([
-      { type: 'set_ability_score', ability: 'cha', value: 20, reason: 'boon' }
-    ])
+    const { valid } = validateStatChanges([{ type: 'set_ability_score', ability: 'cha', value: 20, reason: 'boon' }])
     expect(valid).toHaveLength(1)
 
     const { issues } = validateStatChanges([
@@ -181,9 +161,7 @@ describe('validateDmActions', () => {
   })
 
   it('rejects place_token with missing required fields', () => {
-    const { valid, issues } = validateDmActions([
-      { action: 'place_token', label: 'Goblin 1' }
-    ])
+    const { valid, issues } = validateDmActions([{ action: 'place_token', label: 'Goblin 1' }])
     expect(valid).toHaveLength(0)
     expect(issues).toHaveLength(1)
   })
@@ -197,30 +175,32 @@ describe('validateDmActions', () => {
   })
 
   it('validates move_token action', () => {
-    const { valid, issues } = validateDmActions([
-      { action: 'move_token', label: 'Goblin 1', gridX: 10, gridY: 10 }
-    ])
+    const { valid, issues } = validateDmActions([{ action: 'move_token', label: 'Goblin 1', gridX: 10, gridY: 10 }])
     expect(valid).toHaveLength(1)
     expect(issues).toHaveLength(0)
   })
 
   it('validates start_initiative with entries', () => {
-    const { valid, issues } = validateDmActions([{
-      action: 'start_initiative',
-      entries: [
-        { label: 'Goblin 1', roll: 14, modifier: 2, entityType: 'enemy' },
-        { label: 'Aria', roll: 18, modifier: 3, entityType: 'player' }
-      ]
-    }])
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'start_initiative',
+        entries: [
+          { label: 'Goblin 1', roll: 14, modifier: 2, entityType: 'enemy' },
+          { label: 'Aria', roll: 18, modifier: 3, entityType: 'player' }
+        ]
+      }
+    ])
     expect(valid).toHaveLength(1)
     expect(issues).toHaveLength(0)
   })
 
   it('rejects start_initiative with malformed entries', () => {
-    const { valid, issues } = validateDmActions([{
-      action: 'start_initiative',
-      entries: [{ label: 'Goblin 1' }]
-    }])
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'start_initiative',
+        entries: [{ label: 'Goblin 1' }]
+      }
+    ])
     expect(valid).toHaveLength(0)
     expect(issues).toHaveLength(1)
   })
@@ -236,9 +216,7 @@ describe('validateDmActions', () => {
   })
 
   it('rejects set_ambient_light with invalid level', () => {
-    const { issues } = validateDmActions([
-      { action: 'set_ambient_light', level: 'dark' }
-    ])
+    const { issues } = validateDmActions([{ action: 'set_ambient_light', level: 'dark' }])
     expect(issues).toHaveLength(1)
   })
 
@@ -256,25 +234,19 @@ describe('validateDmActions', () => {
   })
 
   it('rejects objects without action field', () => {
-    const { valid, issues } = validateDmActions([
-      { type: 'damage', value: 5 }
-    ])
+    const { valid, issues } = validateDmActions([{ type: 'damage', value: 5 }])
     expect(valid).toHaveLength(0)
     expect(issues).toHaveLength(1)
   })
 
   it('rejects unknown action types', () => {
-    const { valid, issues } = validateDmActions([
-      { action: 'teleport_party', destination: 'moon' }
-    ])
+    const { valid, issues } = validateDmActions([{ action: 'teleport_party', destination: 'moon' }])
     expect(valid).toHaveLength(0)
     expect(issues).toHaveLength(1)
   })
 
   it('passes through plugin-prefixed actions without schema validation', () => {
-    const { valid, issues } = validateDmActions([
-      { action: 'plugin:custom-action', data: 'anything' }
-    ])
+    const { valid, issues } = validateDmActions([{ action: 'plugin:custom-action', data: 'anything' }])
     expect(valid).toHaveLength(1)
     expect(issues).toHaveLength(0)
   })
@@ -291,41 +263,45 @@ describe('validateDmActions', () => {
   })
 
   it('validates shop actions', () => {
-    const { valid, issues } = validateDmActions([{
-      action: 'open_shop',
-      name: 'Ye Olde Shoppe',
-      items: [{
-        name: 'Longsword',
-        category: 'weapon',
-        price: { gp: 15 },
-        quantity: 3
-      }]
-    }])
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'open_shop',
+        name: 'Ye Olde Shoppe',
+        items: [
+          {
+            name: 'Longsword',
+            category: 'weapon',
+            price: { gp: 15 },
+            quantity: 3
+          }
+        ]
+      }
+    ])
     expect(valid).toHaveLength(1)
     expect(issues).toHaveLength(0)
   })
 
   it('validates area effect action', () => {
-    const { valid, issues } = validateDmActions([{
-      action: 'apply_area_effect',
-      shape: 'sphere',
-      originX: 10,
-      originY: 10,
-      radiusOrLength: 4,
-      damageFormula: '8d6',
-      damageType: 'fire',
-      saveType: 'dex',
-      saveDC: 15,
-      halfOnSave: true
-    }])
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'apply_area_effect',
+        shape: 'sphere',
+        originX: 10,
+        originY: 10,
+        radiusOrLength: 4,
+        damageFormula: '8d6',
+        damageType: 'fire',
+        saveType: 'dex',
+        saveDC: 15,
+        halfOnSave: true
+      }
+    ])
     expect(valid).toHaveLength(1)
     expect(issues).toHaveLength(0)
   })
 
   it('validates advance_time action', () => {
-    const { valid, issues } = validateDmActions([
-      { action: 'advance_time', hours: 8 }
-    ])
+    const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)
     expect(issues).toHaveLength(0)
   })

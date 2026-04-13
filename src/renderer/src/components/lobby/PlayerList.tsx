@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { banPeer, chatMutePeer, kickPeer } from '../../network'
 import { useCampaignStore } from '../../stores/use-campaign-store'
@@ -35,6 +35,40 @@ export default function PlayerList(): JSX.Element {
       }),
     [players]
   )
+
+  const [announcements, setAnnouncements] = useState<Array<{ id: string; text: string }>>([])
+  const prevPlayersRef = useRef(players)
+
+  useEffect(() => {
+    const prev = prevPlayersRef.current
+    const newAnns: typeof announcements = []
+
+    // Check joins and ready states
+    for (const player of players) {
+      const pPlayer = prev.find((p) => p.peerId === player.peerId)
+      if (!pPlayer) {
+        newAnns.push({ id: `join-${player.peerId}-${Date.now()}`, text: `${player.displayName} has joined the lobby` })
+      } else if (pPlayer.isReady !== player.isReady) {
+        newAnns.push({
+          id: `ready-${player.peerId}-${Date.now()}`,
+          text: `${player.displayName} is ${player.isReady ? 'ready' : 'no longer ready'}`
+        })
+      }
+    }
+
+    // Check leaves
+    for (const pPlayer of prev) {
+      if (!players.find((p) => p.peerId === pPlayer.peerId)) {
+        newAnns.push({ id: `leave-${pPlayer.peerId}-${Date.now()}`, text: `${pPlayer.displayName} has left the lobby` })
+      }
+    }
+
+    if (newAnns.length > 0) {
+      setAnnouncements((a) => [...a, ...newAnns].slice(-10))
+    }
+
+    prevPlayersRef.current = players
+  }, [players])
 
   const handleViewCharacter = (characterId: string | null): void => {
     if (!characterId) return
@@ -74,6 +108,11 @@ export default function PlayerList(): JSX.Element {
 
   return (
     <div className="flex flex-col h-full">
+      <div className="sr-only" aria-live="polite">
+        {announcements.map((a) => (
+          <div key={a.id}>{a.text}</div>
+        ))}
+      </div>
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
         <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Players</h2>
         <span className="text-xs text-gray-500">{players.length} connected</span>

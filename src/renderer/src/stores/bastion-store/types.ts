@@ -1,6 +1,8 @@
 import type {
   BasicFacilityType,
   Bastion,
+  BastionCharm,
+  BastionDefender,
   BastionOrderType,
   BastionTurn,
   ConstructionProject,
@@ -67,6 +69,10 @@ export interface FacilitySliceState {
   rollBackTurn: (bastionId: string, turnNumber: number) => void
   clearConstruction: (bastionId: string, projectId: string) => void
   reassignDefenders: (bastionId: string, defenderId: string, newFacilityId: string) => void
+  addDefender: (bastionId: string, defender: Omit<BastionDefender, 'id'>) => void
+  grantCharm: (bastionId: string, charm: BastionCharm) => void
+  promoteLieutenant: (bastionId: string, defenderId: string) => void
+  demoteLieutenant: (bastionId: string, defenderId: string) => void
 }
 
 export interface EventSliceState {
@@ -83,7 +89,7 @@ export interface EventSliceState {
   ) => void
   issueMaintainOrder: (bastionId: string, turnNumber: number) => void
   rollAndResolveEvent: (bastionId: string, turnNumber: number) => void
-  completeTurn: (bastionId: string, turnNumber: number) => void
+  completeTurn: (bastionId: string, turnNumber: number, ownerLevel?: number) => void
 }
 
 export type BastionState = CrudSliceState & FacilitySliceState & EventSliceState

@@ -1,0 +1,55 @@
+Single USB / one ISO workflow (single-boot, Wi‑Fi firmware, scripts on disc)
+============================================================================
+
+WHAT THIS DOES
+--------------
+  fedora-patrick.ks uses:
+    cdrom          → install Fedora base from the SAME Everything DVD ISO (no mirror for OS packages).
+    clearpart      → wipes the whole disk (single-boot). Edit nvme0n1 if your disk differs.
+    @hardware-support + linux-firmware + NetworkManager-wifi + wpa_supplicant → Wi‑Fi stack + firmware for the installed system.
+
+  During Anaconda %post, dnf still downloads RPM Fusion, NVIDIA, Steam, Flatpak/Prism from the
+  internet. Keep Ethernet, USB tether, or working installer Wi‑Fi for that phase.
+
+  build-custom-iso.sh runs mkksiso and also adds folder /patrick-migration/ on the ISO with
+  kickstart copy + backup scripts + google-drive-rclone.txt so the USB carries backups if Drive is unavailable.
+
+GOOGLE DRIVE (Windows11BackUp)
+------------------------------
+  See ../google-drive-rclone.txt for folder ID 1cntyEzO2tdhQwAr8kU9xy_G6DHTmHoPu and rclone setup.
+  Upload the same patrick-migration files there from Windows before you wipe the disk (recommended).
+
+DOWNLOAD BASE ISO (must match this kickstart’s Fedora generation)
+-----------------------------------------------------------------
+  Use the full Everything x86_64 DVD ISO (large), NOT netinst, e.g.:
+    Fedora-Everything-x86_64-DVD-42-1.1.iso
+  https://download.fedoraproject.org/pub/fedora/linux/releases/
+  (pick your version → Everything → x86_64 → iso)
+
+EDIT fedora-patrick.ks BEFORE mkksiso
+-------------------------------------
+  - Disk: nvme0n1 → your target (lsblk from a live USB on the laptop).
+  - Patrick password hash (openssl passwd -6, escape $ as \ in the kickstart file).
+
+BUILD (on Fedora, as root)
+--------------------------
+  sudo dnf install -y mkksiso
+  sudo ./build-custom-iso.sh /path/to/Fedora-Everything-x86_64-DVD-*.iso
+
+  Output: fedora-patrick-unattended.iso (flash to a USB large enough; >8 GB typical).
+
+INSTALL
+-------
+  Boot the laptop from that USB. Install should be unattended and reboot.
+  If NVIDIA was installed, reboot again once if the driver is still building.
+
+WHY NOT 100% OFFLINE
+--------------------
+  Fedora’s DVD does not include RPM Fusion, proprietary NVIDIA, or Steam. Those are pulled during
+  %post. True fully-offline would require a custom side-repo on the ISO (advanced).
+
+WI‑FI IN THE INSTALLER
+----------------------
+  Fedora’s installer image already includes many iwlwifi firmware blobs; your Zephyrus Intel Wi‑Fi
+  often works. If it does not, use USB phone tether or Ethernet until %post finishes; installed
+  system gets full linux-firmware from packages above.

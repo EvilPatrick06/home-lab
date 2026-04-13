@@ -55,6 +55,7 @@ const api = {
 
   // File I/O
   readFile: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.FS_READ, path),
+  readFileBinary: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.FS_READ_BINARY, path),
   writeFile: (path: string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.FS_WRITE, path, content),
   writeFileBinary: (path: string, buffer: ArrayBuffer) =>
     ipcRenderer.invoke(IPC_CHANNELS.FS_WRITE_BINARY, path, buffer),
@@ -82,6 +83,8 @@ const api = {
     longRest: (characterId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LONG_REST, characterId),
     shortRest: (characterId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_SHORT_REST, characterId),
     saveConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_SAVE_CONVERSATION, campaignId),
+    restoreConversation: (campaignId: string, data: Record<string, unknown>) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_RESTORE_CONVERSATION, campaignId, data),
     loadConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LOAD_CONVERSATION, campaignId),
     deleteConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_DELETE_CONVERSATION, campaignId),
     // Cloud provider models
@@ -132,6 +135,25 @@ const api = {
     readMemoryFile: (campaignId: string, fileName: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_READ_MEMORY_FILE, campaignId, fileName),
     clearMemory: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CLEAR_MEMORY, campaignId),
+    // Vision / Map Analysis
+    captureMap: () => ipcRenderer.invoke(IPC_CHANNELS.AI_CAPTURE_MAP),
+    analyzeMap: (gameState: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.AI_ANALYZE_MAP, gameState),
+    // Proactive Triggers
+    triggerStateUpdate: (state: Record<string, unknown>) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, state),
+    onTriggerFired: (
+      cb: (data: {
+        triggerId: string
+        triggerName: string
+        action: string
+        actionPayload: Record<string, unknown>
+      }) => void
+    ) => {
+      ipcRenderer.on('ai:trigger-fired', (_e, data) => cb(data))
+    },
+    removeTriggerListener: () => {
+      ipcRenderer.removeAllListeners('ai:trigger-fired')
+    },
     // Event listeners (main → renderer)
     onStreamChunk: (cb: (data: { streamId: string; text: string }) => void) => {
       ipcRenderer.on(IPC_CHANNELS.AI_STREAM_CHUNK, (_e, data) => cb(data))
@@ -182,7 +204,9 @@ const api = {
     downloadUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_DOWNLOAD),
     installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_INSTALL),
     onStatus: (cb: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, (_e, status) => cb(status))
+      const listener = (_e: any, status: any) => cb(status)
+      ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, listener)
     },
     removeStatusListener: () => {
       ipcRenderer.removeAllListeners(IPC_CHANNELS.UPDATE_STATUS)

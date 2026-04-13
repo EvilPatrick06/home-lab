@@ -1,0 +1,1190 @@
+
+> dnd-vtt@1.9.9 lint
+> biome check src/ --max-diagnostics=500
+
+src\renderer\public\pdf.worker.min.mjs check ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  i The size of the file is 1.7 MiB, which exceeds the configured maximum of 1.5 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+  
+
+src\main\index.ts:122:67 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    120 Γöé       if (entry.isFile() && entry.name.endsWith('.tmp')) {
+    121 Γöé         // Handle both older Node (entry.path) and newer Node (entry.parentPath)
+  > 122 Γöé         const parentPath = (entry as any).parentPath || (entry as any).path || dir
+        Γöé                                                                   ^^^
+    123 Γöé         await unlink(join(parentPath, entry.name)).catch(() => {})
+    124 Γöé         logToFile('INFO', `Cleaned up orphaned tmp file: ${entry.name}`)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\index.ts:122:38 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    120 Γöé       if (entry.isFile() && entry.name.endsWith('.tmp')) {
+    121 Γöé         // Handle both older Node (entry.path) and newer Node (entry.parentPath)
+  > 122 Γöé         const parentPath = (entry as any).parentPath || (entry as any).path || dir
+        Γöé                                      ^^^
+    123 Γöé         await unlink(join(parentPath, entry.name)).catch(() => {})
+    124 Γöé         logToFile('INFO', `Cleaned up orphaned tmp file: ${entry.name}`)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:291:65 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    289 Γöé     IPC_CHANNELS.AI_RESTORE_CONVERSATION,
+    290 Γöé     async (_event, campaignId: string, data: Record<string, unknown>) => {
+  > 291 Γöé       const result = await saveConversation(campaignId, data as any)
+        Γöé                                                                 ^^^
+    292 Γöé       if (!result.success) return { success: false, error: result.error }
+    293 Γöé       return { success: true }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:374:48 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    372 Γöé       try {
+    373 Γöé         const memMgr = getMemoryManager(campaignId)
+  > 374 Γöé         await memMgr.updateWorldState(state as any)
+        Γöé                                                ^^^
+    375 Γöé         return { success: true }
+    376 Γöé       } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:388:49 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    386 Γöé       try {
+    387 Γöé         const memMgr = getMemoryManager(campaignId)
+  > 388 Γöé         await memMgr.updateCombatState(state as any)
+        Γöé                                                 ^^^
+    389 Γöé         return { success: true }
+    390 Γöé       } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:549:49 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    547 Γöé     try {
+    548 Γöé       const { analyzeMapState } = await import('../ai/ai-vision')
+  > 549 Γöé       return await analyzeMapState(gameState as any)
+        Γöé                                                 ^^^
+    550 Γöé     } catch (error) {
+    551 Γöé       return { success: false, error: (error as Error).message }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\ipc\ai-handlers.ts:560:51 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    558 Γöé     try {
+    559 Γöé       const { processStateUpdate } = await import('../ai/ai-trigger-observer')
+  > 560 Γöé       const results = processStateUpdate(state as any)
+        Γöé                                                   ^^^
+    561 Γöé       return { success: true, fired: results }
+    562 Γöé     } catch (error) {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\storage\game-state-storage.ts:12:41 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    10 Γöé export const GAME_STATE_SCHEMA_VERSION = 1
+    11 Γöé 
+  > 12 Γöé export function migrateGameState(state: any): Record<string, unknown> {
+       Γöé                                         ^^^
+    13 Γöé   if (!state || typeof state !== 'object') {
+    14 Γöé     return { schemaVersion: GAME_STATE_SCHEMA_VERSION }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\main\storage\game-state-storage.ts:88:17 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    86 Γöé     }
+    87 Γöé     const data = await readFile(path, 'utf-8')
+  > 88 Γöé     let parsed: any
+       Γöé                 ^^^
+    89 Γöé     try {
+    90 Γöé       parsed = JSON.parse(data)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\preload\index.ts:207:29 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    205 Γöé     installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_INSTALL),
+    206 Γöé     onStatus: (cb: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => {
+  > 207 Γöé       const listener = (_e: any, status: any) => cb(status)
+        Γöé                             ^^^
+    208 Γöé       ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, listener)
+    209 Γöé       return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, listener)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\preload\index.ts:207:42 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    205 Γöé     installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_INSTALL),
+    206 Γöé     onStatus: (cb: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => {
+  > 207 Γöé       const listener = (_e: any, status: any) => cb(status)
+        Γöé                                          ^^^
+    208 Γöé       ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, listener)
+    209 Γöé       return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, listener)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\components\game\map\map-event-handlers.ts:198:5 lint/correctness/noUnusedVariables ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable selectedTokenIds is unused.
+  
+    196 Γöé     isInitiativeMode,
+    197 Γöé     turnState,
+  > 198 Γöé     selectedTokenIds,
+        Γöé     ^^^^^^^^^^^^^^^^
+    199 Γöé     applyTransform,
+    200 Γöé     drawingStrokeWidth = 3,
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+src\renderer\src\components\game\map\map-event-handlers.ts:204:79 lint/correctness/noUnusedVariables ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This variable renderTokens is unused.
+  
+    202 Γöé     fogBrushSize = 1
+    203 Γöé   } = opts
+  > 204 Γöé   const { onTokenMove, onTokenSelect, onCellClick, onWallPlace, onDoorToggle, renderTokens } = opts
+        Γöé                                                                               ^^^^^^^^^^^^
+    205 Γöé 
+    206 Γöé   const onMouseDown = (e: MouseEvent): void => {
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+src\renderer\src\components\game\modal-groups\CombatModals.tsx:197:17 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    195 Γöé               const ts = gameStore.turnStates[attackerEntityId]
+    196 Γöé               if (ts && !ts.actionUsed) {
+  > 197 Γöé                 gameStore.useAction(attackerEntityId)
+        Γöé                 ^^^^^^^^^^^^^^^^^^^
+    198 Γöé               }
+    199 Γöé             }
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modal-groups\MechanicsModals.tsx:93:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    91 Γöé             close()
+    92 Γöé             if (character && gameStore.initiative) {
+  > 93 Γöé               gameStore.useAction(character.id)
+       Γöé               ^^^^^^^^^^^^^^^^^^^
+    94 Γöé             }
+    95 Γöé           }}
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modal-groups\UtilityModals.tsx:68:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    66 Γöé             close()
+    67 Γöé             if (character && gameStore.initiative) {
+  > 68 Γöé               gameStore.useAction(character.id)
+       Γöé               ^^^^^^^^^^^^^^^^^^^
+    69 Γöé             }
+    70 Γöé           }}
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\AttackModal.tsx:112:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    110 Γöé   const dexMod = abilityModifier(character.abilityScores.dexterity)
+    111 Γöé 
+  > 112 Γöé   const resolved = useMemo(() => resolveEffects(char5e), [char5e])
+        Γöé                    ^^^^^^^
+    113 Γöé 
+    114 Γöé   const weapons = [...realWeapons, UNARMED_STRIKE, IMPROVISED_WEAPON]
+  
+  i Hooks should not be called after an early return.
+  
+     90 Γöé   const turnStates = useGameStore((s) => s.turnStates)
+     91 Γöé 
+   > 92 Γöé   if (!character) {
+        Γöé                    
+   > 93 Γöé     return (
+         ...
+  > 102 Γöé       </div>
+  > 103 Γöé     )
+        Γöé     ^
+    104 Γöé   }
+    105 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:24:16 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    22 Γöé   if (!isOpen) return null
+    23 Γöé 
+  > 24 Γöé   const maps = useGameStore((s) => s.maps)
+       Γöé                ^^^^^^^^^^^^
+    25 Γöé   const updateToken = useGameStore((s) => s.updateToken)
+    26 Γöé   const turnStates = useGameStore((s) => s.turnStates)
+  
+  i Hooks should not be called after an early return.
+  
+    20 Γöé  */
+    21 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 22 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    23 Γöé 
+    24 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:25:23 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    24 Γöé   const maps = useGameStore((s) => s.maps)
+  > 25 Γöé   const updateToken = useGameStore((s) => s.updateToken)
+       Γöé                       ^^^^^^^^^^^^
+    26 Γöé   const turnStates = useGameStore((s) => s.turnStates)
+    27 Γöé 
+  
+  i Hooks should not be called after an early return.
+  
+    20 Γöé  */
+    21 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 22 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    23 Γöé 
+    24 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:26:22 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    24 Γöé   const maps = useGameStore((s) => s.maps)
+    25 Γöé   const updateToken = useGameStore((s) => s.updateToken)
+  > 26 Γöé   const turnStates = useGameStore((s) => s.turnStates)
+       Γöé                      ^^^^^^^^^^^^
+    27 Γöé 
+    28 Γöé   const map = maps.find((m) => m.id === mapId)
+  
+  i Hooks should not be called after an early return.
+  
+    20 Γöé  */
+    21 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 22 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    23 Γöé 
+    24 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:43:49 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    42 Γöé   // State for mount selection (when not already mounted)
+  > 43 Γöé   const [selectedMountId, setSelectedMountId] = useState<string | null>(null)
+       Γöé                                                 ^^^^^^^^
+    44 Γöé   const [mountType, setMountType] = useState<'controlled' | 'independent'>('controlled')
+    45 Γöé 
+  
+  i Hooks should not be called after an early return.
+  
+    20 Γöé  */
+    21 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 22 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    23 Γöé 
+    24 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\combat\MountModal.tsx:44:37 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    42 Γöé   // State for mount selection (when not already mounted)
+    43 Γöé   const [selectedMountId, setSelectedMountId] = useState<string | null>(null)
+  > 44 Γöé   const [mountType, setMountType] = useState<'controlled' | 'independent'>('controlled')
+       Γöé                                     ^^^^^^^^
+    45 Γöé 
+    46 Γöé   // Eligible mounts: tokens that are not the rider, have no current rider, and
+  
+  i Hooks should not be called after an early return.
+  
+    20 Γöé  */
+    21 Γöé export default function MountModal({ isOpen, onClose, riderId, mountId, mapId }: MountModalProps): JSX.Element | null {
+  > 22 Γöé   if (!isOpen) return null
+       Γöé                ^^^^^^^^^^^
+    23 Γöé 
+    24 Γöé   const maps = useGameStore((s) => s.maps)
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\mechanics\AoETemplateModal.tsx:64:61 lint/correctness/useExhaustiveDependencies ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! config changes on every re-render and should not be used as a hook dependency.
+  
+    63 Γöé   // Preview: count affected cells and tokens
+  > 64 Γöé   const affectedCells = useMemo(() => getAoECells(config), [config])
+       Γöé                                                             ^^^^^^
+    65 Γöé   const affectedTokens = useMemo(() => {
+    66 Γöé     const cellSet = new Set(affectedCells.map((c) => `${c.x},${c.y}`))
+  
+  i To fix this, wrap the definition of config in its own useMemo() hook.
+  
+
+src\renderer\src\components\game\modals\mechanics\CraftingBrowser.tsx:116:30 lint/correctness/useExhaustiveDependencies ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! hasTool changes on every re-render and should not be used as a hook dependency.
+  
+    115 Γöé     return items
+  > 116 Γöé   }, [craftingData, recipes, hasTool])
+        Γöé                              ^^^^^^^
+    117 Γöé 
+    118 Γöé   const filtered = useMemo(() => {
+  
+  i To fix this, wrap the definition of hasTool in its own useCallback() hook.
+  
+
+src\renderer\src\components\game\modals\mechanics\MountModal.tsx:59:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    57 Γöé       return
+    58 Γöé     }
+  > 59 Γöé     gameStore.useMovement(character.id, mountSpeed)
+       Γöé     ^^^^^^^^^^^^^^^^^^^^^
+    60 Γöé 
+    61 Γöé     // Clear mount state from turn state
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\modals\mechanics\MountModal.tsx:99:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+     98 Γöé     const gameStore = useGameStore.getState()
+   > 99 Γöé     gameStore.useMovement(character.id, mountSpeed)
+        Γöé     ^^^^^^^^^^^^^^^^^^^^^
+    100 Γöé 
+    101 Γöé     // Set mount state on turn state
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:127:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    125 Γöé         used={reactionUsed}
+    126 Γöé         availableColor="bg-yellow-500"
+  > 127 Γöé         onClick={isDM ? () => useReaction(entityId) : undefined}
+        Γöé                               ^^^^^^^^^^^
+    128 Γöé       />
+    129 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:113:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    111 Γöé         availableColor="bg-green-500"
+    112 Γöé         statusLabel={actionStatusLabel}
+  > 113 Γöé         onClick={isDM ? () => useAction(entityId) : undefined}
+        Γöé                               ^^^^^^^^^
+    114 Γöé       />
+    115 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:120:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    118 Γöé         used={bonusActionUsed}
+    119 Γöé         availableColor="bg-blue-500"
+  > 120 Γöé         onClick={isDM ? () => useBonusAction(entityId) : undefined}
+        Γöé                               ^^^^^^^^^^^^^^
+    121 Γöé       />
+    122 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ActionEconomyBar.tsx:134:31 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    132 Γöé         used={freeInteractionUsed}
+    133 Γöé         availableColor="bg-purple-500"
+  > 134 Γöé         onClick={isDM ? () => useFreeInteraction(entityId) : undefined}
+        Γöé                               ^^^^^^^^^^^^^^^^^^
+    135 Γöé       />
+    136 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\GamePrompts.tsx:58:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    56 Γöé           <button
+    57 Γöé             onClick={() => {
+  > 58 Γöé               gameStore.useReaction(prompt.entityId)
+       Γöé               ^^^^^^^^^^^^^^^^^^^^^
+    59 Γöé               addChatMessage({
+    60 Γöé                 id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\GamePrompts.tsx:253:17 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    252 Γöé               if (character && gameStore.initiative) {
+  > 253 Γöé                 gameStore.useAction(character.id)
+        Γöé                 ^^^^^^^^^^^^^^^^^^^
+    254 Γöé               }
+    255 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:86:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    85 Γöé   // Resolved effects for HUD indicators
+  > 86 Γöé   const resolved = useMemo(() => (char5e ? resolveEffects(char5e, myCustomEffects) : null), [char5e, myCustomEffects])
+       Γöé                    ^^^^^^^
+    87 Γöé 
+    88 Γöé   const hp = character.hitPoints
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:96:28 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    95 Γöé   // Save & broadcast helper
+  > 96 Γöé   const saveAndBroadcast = useCallback((updated: Character5e) => {
+       Γöé                            ^^^^^^^^^^^
+    97 Γöé     useCharacterStore.getState().saveCharacter(updated)
+    98 Γöé     const activeMap = useGameStore.getState().maps.find((m) => m.id === useGameStore.getState().activeMapId)
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:118:20 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    117 Γöé   // HP adjustment
+  > 118 Γöé   const adjustHP = useCallback(
+        Γöé                    ^^^^^^^^^^^
+    119 Γöé     (delta: number) => {
+    120 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:153:24 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    151 Γöé   )
+    152 Γöé 
+  > 153 Γöé   const handleHPEdit = useCallback(
+        Γöé                        ^^^^^^^^^^^
+    154 Γöé     (val: number) => {
+    155 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:171:27 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    170 Γöé   // Spell slot toggle
+  > 171 Γöé   const toggleSpellSlot = useCallback(
+        Γöé                           ^^^^^^^^^^^
+    172 Γöé     (level: number) => {
+    173 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:191:26 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    190 Γöé   // Pact slot toggle
+  > 191 Γöé   const togglePactSlot = useCallback(
+        Γöé                          ^^^^^^^^^^^
+    192 Γöé     (level: number) => {
+    193 Γöé       if (!char5e || !char5e.pactMagicSlotLevels) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:211:26 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    210 Γöé   // Class resource adjust
+  > 211 Γöé   const adjustResource = useCallback(
+        Γöé                          ^^^^^^^^^^^
+    212 Γöé     (resourceId: string, delta: number) => {
+    213 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:230:29 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    229 Γöé   // Heroic Inspiration toggle
+  > 230 Γöé   const toggleInspiration = useCallback(() => {
+        Γöé                             ^^^^^^^^^^^
+    231 Γöé     if (!char5e) return
+    232 Γöé     const latest = useCharacterStore.getState().characters.find((c) => c.id === char5e.id) as Character5e | undefined
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\PlayerHUDOverlay.tsx:240:21 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    239 Γöé   // Temp HP setter
+  > 240 Γöé   const setTempHP = useCallback(
+        Γöé                     ^^^^^^^^^^^
+    241 Γöé     (val: number) => {
+    242 Γöé       if (!char5e) return
+  
+  i Hooks should not be called after an early return.
+  
+    80 Γöé   )
+    81 Γöé 
+  > 82 Γöé   if (!character) return <></>
+       Γöé                   ^^^^^^^^^^^^
+    83 Γöé   const char5e = is5eCharacter(character) ? character : null
+    84 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ReactionPrompts.tsx:72:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    70 Γöé           <button
+    71 Γöé             onClick={() => {
+  > 72 Γöé               gameStore.useReaction(prompt.entityId)
+       Γöé               ^^^^^^^^^^^^^^^^^^^^^
+    73 Γöé               const blocked = prompt.attackRoll < shieldedAC
+    74 Γöé               addChatMessage({
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\overlays\ReactionPrompts.tsx:190:15 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called from a nested function, but all hooks must be called unconditionally from the top-level component.
+  
+    188 Γöé           <button
+    189 Γöé             onClick={() => {
+  > 190 Γöé               gameStore.useReaction(prompt.entityId)
+        Γöé               ^^^^^^^^^^^^^^^^^^^^^
+    191 Γöé               let resultText: string
+    192 Γöé               if (autoSuccess) {
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\components\game\sidebar\JournalPanel.tsx:180:10 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    178 Γöé       title: editTitle.trim() || 'Untitled Entry',
+    179 Γöé       content: html
+  > 180 Γöé     } as any)
+        Γöé          ^^^
+    181 Γöé     setIsEditing(false)
+    182 Γöé     editor.setEditable(false)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\components\game\sidebar\TablesPanel.tsx:24:7 lint/correctness/useExhaustiveDependencies ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! loadTables changes on every re-render and should not be used as a hook dependency.
+  
+    22 Γöé   useEffect(() => {
+    23 Γöé     loadTables()
+  > 24 Γöé   }, [loadTables])
+       Γöé       ^^^^^^^^^^
+    25 Γöé 
+    26 Γöé   const loadTables = async (): Promise<void> => {
+  
+  i To fix this, wrap the definition of loadTables in its own useCallback() hook.
+  
+
+src\renderer\src\hooks\use-game-handlers.ts:267:11 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    265 Γöé           break
+    266 Γöé         case 'hide':
+  > 267 Γöé           gameStore.useAction(entityId)
+        Γöé           ^^^^^^^^^^^^^^^^^^^
+    268 Γöé           gameStore.setHidden(entityId, true)
+    269 Γöé           break
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\hooks\use-game-handlers.ts:271:11 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    269 Γöé           break
+    270 Γöé         default:
+  > 271 Γöé           gameStore.useAction(entityId)
+        Γöé           ^^^^^^^^^^^^^^^^^^^
+    272 Γöé           break
+    273 Γöé       }
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\pages\CharacterSheet5ePage.tsx:150:3 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    148 Γöé   // XP-based level-up notification
+    149 Γöé   // eslint-disable-next-line react-hooks/exhaustive-deps
+  > 150 Γöé   useEffect(() => {
+        Γöé   ^^^^^^^^^
+    151 Γöé     if (character.levelingMode === 'xp' && shouldLevelUp(character.level, character.xp)) {
+    152 Γöé       setShowLevelUpBanner(true)
+  
+  i Hooks should not be called after an early return.
+  
+    62 Γöé   const [confirmRestoreFile, setConfirmRestoreFile] = useState<string | null>(null)
+    63 Γöé 
+  > 64 Γöé   if (!character) {
+       Γöé                    
+  > 65 Γöé     return (
+        ...
+  > 76 Γöé       </div>
+  > 77 Γöé     )
+       Γöé     ^
+    78 Γöé   }
+    79 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\pages\InGamePage.tsx:89:52 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    87 Γöé       // Ensure we don't overwrite a newer local auto-save with an older campaign state
+    88 Γöé       const currentStoreState = useGameStore.getState()
+  > 89 Γöé       const localTimestamp = (currentStoreState as any).lastSaveTimestamp || 0
+       Γöé                                                    ^^^
+    90 Γöé       const incomingTimestamp = saved?.lastSaveTimestamp || 0
+    91 Γöé 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\pages\InGamePage.tsx:131:12 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    129 Γöé         sharedJournal: saved?.sharedJournal,
+    130 Γöé         lastSaveTimestamp: saved?.lastSaveTimestamp
+  > 131 Γöé       } as any)
+        Γöé            ^^^
+    132 Γöé     }
+    133 Γöé   }, [campaign, gameCampaignId, loadGameState])
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\pages\JoinGamePage.tsx:24:3 suppressions/unused ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Suppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.
+  
+    23 Γöé   // Keep localStorage in sync with canonical settings.json source of truth
+  > 24 Γöé   // biome-ignore lint/correctness/useExhaustiveDependencies: intentional mount-only effect
+       Γöé   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    25 Γöé   useEffect(() => {
+    26 Γöé     window.api.loadSettings().then((settings) => {
+  
+
+src\renderer\src\services\chat-commands\commands-player-movement.ts:35:7 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    34 Γöé     try {
+  > 35 Γöé       gameStore.useMovement(entityId, feet)
+       Γöé       ^^^^^^^^^^^^^^^^^^^^^
+    36 Γöé     } catch {
+    37 Γöé       return { handled: true, error: `${name} does not have ${feet} ft. of movement remaining.` }
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\services\combat\combat-resolver.ts:555:28 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    553 Γöé   let updatedAttackTracker: AttackTracker | undefined
+    554 Γöé   if (request.attackTracker) {
+  > 555 Γöé     updatedAttackTracker = useAttack(request.attackTracker)
+        Γöé                            ^^^^^^^^^
+    556 Γöé   }
+    557 Γöé 
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\services\io\import-export.ts:235:66 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    233 Γöé   // Load raw image buffers and meta
+    234 Γöé   const imageLibrary: Record<string, unknown>[] = []
+  > 235 Γöé   for (const imgMeta of Array.isArray(allImages) ? (allImages as any[]) : []) {
+        Γöé                                                                  ^^^
+    236 Γöé     if (!imgMeta.id) continue
+    237 Γöé     const imgResult = await window.api.imageLibrary.get(imgMeta.id as string).catch(() => null)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:227:114 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    225 Γöé     if (state) gameStates.push({ ...state, campaignId: campaign.id })
+    226 Γöé 
+  > 227 Γöé     const convoResult = (await window.api.ai.loadConversation(campaign.id).catch(() => ({ success: false }))) as any
+        Γöé                                                                                                                  ^^^
+    228 Γöé     if (convoResult?.success && convoResult.data) {
+    229 Γöé       aiConversations.push({ data: convoResult.data, campaignId: campaign.id })
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:374:26 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    372 Γöé       return window.api.saveGameState(campId, actualState)
+    373 Γöé     }),
+  > 374 Γöé     ...aiConvos.map((ac: any) => {
+        Γöé                          ^^^
+    375 Γöé       return window.api.ai.restoreConversation(String(ac.campaignId), ac.data as Record<string, unknown>)
+    376 Γöé     }),
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:381:27 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    379 Γöé       window.api.shopTemplates.save(s as { id: string; name: string; inventory: unknown[]; markup: number })
+    380 Γöé     ),
+  > 381 Γöé     ...booksData.map((bd: any) => {
+        Γöé                           ^^^
+    382 Γöé       const { id, ...data } = bd
+    383 Γöé       return window.api.books.saveData(String(id), data as any)
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:383:60 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    381 Γöé     ...booksData.map((bd: any) => {
+    382 Γöé       const { id, ...data } = bd
+  > 383 Γöé       return window.api.books.saveData(String(id), data as any)
+        Γöé                                                            ^^^
+    384 Γöé     })
+    385 Γöé   ])
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:398:21 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    396 Γöé           String(img.id),
+    397 Γöé           String(img.name),
+  > 398 Γöé           buffer as any,
+        Γöé                     ^^^
+    399 Γöé           String(img.extension || 'png')
+    400 Γöé         )
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\services\io\import-export.ts:411:22 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    409 Γöé     for (const book of booksConfig.customBooks) {
+    410 Γöé       await window.api.books
+  > 411 Γöé         .add(book as any)
+        Γöé                      ^^^
+    412 Γöé         .catch((e) => logger.warn(`[Import] Failed to add book config ${book.id}`, e))
+    413 Γöé     }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\stores\game\initiative-slice.ts:393:5 lint/correctness/useHookAtTopLevel ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! This hook is being called conditionally, but all hooks must be called in the exact same order in every component render.
+  
+    392 Γöé     // Readying an action uses the action and ends the turn
+  > 393 Γöé     get().useAction(entityId)
+        Γöé     ^^^^^^^^^^^^^^^
+    394 Γöé     get().nextTurn()
+    395 Γöé   },
+  
+  i Hooks should not be called after an early return.
+  
+    380 Γöé   readyAction: (entityId: string, trigger: string, action: string) => {
+    381 Γöé     const { initiative } = get()
+  > 382 Γöé     if (!initiative) return
+        Γöé                      ^^^^^^
+    383 Γöé 
+    384 Γöé     // Set the ready action on the entry
+  
+  i For React to preserve state between calls, hooks needs to be called unconditionally and always in the same order.
+  
+  i See https://react.dev/reference/rules/rules-of-hooks
+  
+
+src\renderer\src\types\campaign.ts:244:16 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    242 Γöé   handouts: Handout[]
+    243 Γöé   combatTimer?: CombatTimerConfig
+  > 244 Γöé   sessionLog?: any[]
+        Γöé                ^^^
+    245 Γöé   sharedJournal?: any[]
+    246 Γöé   lastSaveTimestamp?: number
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\types\campaign.ts:245:19 lint/suspicious/noExplicitAny ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ! Unexpected any. Specify a different type.
+  
+    243 Γöé   combatTimer?: CombatTimerConfig
+    244 Γöé   sessionLog?: any[]
+  > 245 Γöé   sharedJournal?: any[]
+        Γöé                   ^^^
+    246 Γöé   lastSaveTimestamp?: number
+    247 Γöé }
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\renderer\src\components\game\sidebar\TablesPanel.tsx:24:7 lint/correctness/noInvalidUseBeforeDeclaration ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable is used before its declaration.
+  
+    22 Γöé   useEffect(() => {
+    23 Γöé     loadTables()
+  > 24 Γöé   }, [loadTables])
+       Γöé       ^^^^^^^^^^
+    25 Γöé 
+    26 Γöé   const loadTables = async (): Promise<void> => {
+  
+  i The variable is declared here:
+  
+    24 Γöé   }, [loadTables])
+    25 Γöé 
+  > 26 Γöé   const loadTables = async (): Promise<void> => {
+       Γöé         ^^^^^^^^^^
+    27 Γöé     try {
+    28 Γöé       setLoading(true)
+  
+
+src\renderer\src\utils\chat-links.ts:57:7 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    55 Γöé   // 1. Parse [[name]] bracket syntax ΓÇö matches against content index
+    56 Γöé   const bracketRegex = /\[\[([^\]]+)\]\]/g
+  > 57 Γöé   let bracketMatch
+       Γöé       ^^^^^^^^^^^^
+    58 Γöé   while ((bracketMatch = bracketRegex.exec(content)) !== null) {
+    59 Γöé     const ref = lookupContent(bracketMatch[1])
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:88:9 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    86 Γöé   for (const itemName of ITEM_NAMES) {
+    87 Γöé     const regex = new RegExp(`\\b${itemName}\\b`, 'gi')
+  > 88 Γöé     let match
+       Γöé         ^^^^^
+    89 Γöé     while ((match = regex.exec(content)) !== null) {
+    90 Γöé       links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:74:9 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+    72 Γöé   for (const monsterName of MONSTER_NAMES) {
+    73 Γöé     const regex = new RegExp(`\\b${monsterName}\\b`, 'gi')
+  > 74 Γöé     let match
+       Γöé         ^^^^^
+    75 Γöé     while ((match = regex.exec(content)) !== null) {
+    76 Γöé       links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src\renderer\src\utils\chat-links.ts:101:7 lint/suspicious/noImplicitAnyLet ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù This variable implicitly has the any type.
+  
+     99 Γöé   // Find spell references (basic patterns)
+    100 Γöé   const spellRegex = /\b(?:Magic Missile|Fireball|Lightning Bolt|Cure Wounds|Heal|Raise Dead|Wish)\b/gi
+  > 101 Γöé   let match
+        Γöé       ^^^^^
+    102 Γöé   while ((match = spellRegex.exec(content)) !== null) {
+    103 Γöé     links.push({
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+Checked 4471 files in 3s. No fixes applied.
+Found 5 errors.
+Found 63 warnings.
+Found 1 info.
+check ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+  ├ù Some errors were emitted while running checks.
+  
+

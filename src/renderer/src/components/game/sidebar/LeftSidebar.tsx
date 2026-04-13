@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { addToast } from '../../../hooks/use-toast'
 import { load5eMonsterById } from '../../../services/data-provider'
@@ -19,7 +19,10 @@ import { NPCManager } from '../dm'
 import SidebarEntryList from './SidebarEntryList'
 import TablesPanel from './TablesPanel'
 
-type SectionId = 'characters' | 'bastions' | 'tables' | SidebarPanelType
+const CombatLogPanel = lazy(() => import('./CombatLogPanel'))
+const JournalPanel = lazy(() => import('./JournalPanel'))
+
+type SectionId = 'characters' | 'bastions' | 'tables' | 'combat-log' | 'journal' | 'party-loot' | SidebarPanelType
 
 interface LeftSidebarProps {
   campaign: Campaign
@@ -38,7 +41,10 @@ const SECTIONS: { id: SectionId; label: string; icon: string }[] = [
   { id: 'enemies', label: 'Enemies', icon: '\u{2694}' },
   { id: 'places', label: 'Places', icon: '\u{1F3F0}' },
   { id: 'bastions', label: 'Bastions', icon: '\u{1F3D7}' },
-  { id: 'tables', label: 'Tables', icon: '\u{1F3B2}' }
+  { id: 'tables', label: 'Tables', icon: '\u{1F3B2}' },
+  { id: 'party-loot', label: 'Party Loot', icon: '\u{1F4B0}' },
+  { id: 'combat-log', label: 'Combat Log', icon: '\u{1F4CB}' },
+  { id: 'journal', label: 'Journal', icon: '\u{1F4D6}' }
 ]
 
 export default function LeftSidebar({
@@ -58,6 +64,7 @@ export default function LeftSidebar({
   const places = useGameStore((s) => s.places)
   const addToInitiative = useGameStore((s) => s.addToInitiative)
   const activeMapId = useGameStore((s) => s.activeMapId)
+  const partyInventory = useGameStore((s) => s.partyInventory)
 
   const players = useLobbyStore((s) => s.players)
   const remoteCharacters = useLobbyStore((s) => s.remoteCharacters)
@@ -281,16 +288,79 @@ export default function LeftSidebar({
         )
       case 'tables':
         return <TablesPanel />
+      case 'party-loot':
+        return (
+          <div className="space-y-1.5">
+            {/* Currency summary */}
+            <div className="bg-gray-800/50 rounded-lg p-2">
+              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Currency</div>
+              <div className="flex items-center gap-2 text-[10px] flex-wrap">
+                {partyInventory.currency.pp > 0 && (
+                  <span className="text-gray-200">{partyInventory.currency.pp} PP</span>
+                )}
+                <span className="text-yellow-400">{partyInventory.currency.gp} GP</span>
+                {partyInventory.currency.ep > 0 && (
+                  <span className="text-gray-400">{partyInventory.currency.ep} EP</span>
+                )}
+                {partyInventory.currency.sp > 0 && (
+                  <span className="text-gray-300">{partyInventory.currency.sp} SP</span>
+                )}
+                {partyInventory.currency.cp > 0 && (
+                  <span className="text-amber-600">{partyInventory.currency.cp} CP</span>
+                )}
+              </div>
+            </div>
+            {/* Items summary */}
+            {partyInventory.items.length === 0 ? (
+              <p className="text-xs text-gray-500 text-center py-2">No loot items</p>
+            ) : (
+              partyInventory.items.slice(0, 8).map((item) => (
+                <div key={item.id} className="bg-gray-800/50 rounded-lg p-2 flex items-center justify-between">
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-200 truncate block">{item.name}</span>
+                    {item.rarity && item.rarity !== 'common' && (
+                      <span className="text-[9px] text-gray-500 capitalize">{item.rarity}</span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-gray-400 shrink-0 ml-1">x{item.quantity}</span>
+                </div>
+              ))
+            )}
+            {partyInventory.items.length > 8 && (
+              <p className="text-[10px] text-gray-500 text-center">+{partyInventory.items.length - 8} more items</p>
+            )}
+          </div>
+        )
+      case 'combat-log':
+        return (
+          <Suspense fallback={<p className="text-xs text-gray-500 text-center py-4">Loading...</p>}>
+            <CombatLogPanel />
+          </Suspense>
+        )
+      case 'journal': {
+        const localPlayer = players.find((p) => p.peerId === localPeerId)
+        const playerName = localPlayer?.displayName ?? 'Player'
+        return (
+          <Suspense fallback={<p className="text-xs text-gray-500 text-center py-4">Loading...</p>}>
+            <JournalPanel campaignId={campaignId} isDM={isDM} playerName={playerName} />
+          </Suspense>
+        )
+      }
     }
   }
 
   // Collapsed state: thin strip with expand button
   if (collapsed) {
     return (
-      <div className="w-3 h-full bg-gray-900/85 backdrop-blur-sm border-r border-gray-700/50 flex flex-col items-center">
+      <div
+        className="w-3 h-full bg-gray-900/85 backdrop-blur-sm border-r border-gray-700/50 flex flex-col items-center"
+        role="region"
+        aria-label="Game sidebar collapsed"
+      >
         <button
           onClick={onToggleCollapse}
           title="Expand sidebar"
+          aria-label="Expand sidebar"
           className="mt-2 w-3 h-8 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
@@ -306,13 +376,18 @@ export default function LeftSidebar({
   }
 
   return (
-    <div className="w-56 h-full bg-gray-900/85 backdrop-blur-sm border-r border-gray-700/50 flex flex-col min-h-0">
+    <div
+      className="w-56 h-full bg-gray-900/85 backdrop-blur-sm border-r border-gray-700/50 flex flex-col min-h-0"
+      role="region"
+      aria-label="Game sidebar"
+    >
       {/* Sidebar header with collapse */}
       <div className="shrink-0 px-3 pt-2 pb-2 border-b border-gray-700/50">
         <div className="flex items-center justify-end">
           <button
             onClick={onToggleCollapse}
             title="Collapse sidebar"
+            aria-label="Collapse sidebar"
             className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer rounded hover:bg-gray-800"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
@@ -339,12 +414,13 @@ export default function LeftSidebar({
       )}
 
       {/* Accordion sections */}
-      <div className="flex-1 overflow-y-auto min-h-0">
+      <nav className="flex-1 overflow-y-auto min-h-0" role="navigation" aria-label="Sidebar sections">
         {SECTIONS.map((section) => (
           <div key={section.id} className="border-b border-gray-800/50">
             <div className="flex items-center">
               <button
                 onClick={() => toggleSection(section.id)}
+                aria-expanded={expandedSection === section.id}
                 className="flex-1 flex items-center gap-2 px-3 py-2.5 text-left hover:bg-gray-800/50 transition-colors cursor-pointer"
               >
                 <svg
@@ -363,12 +439,18 @@ export default function LeftSidebar({
                 </svg>
                 <span className="text-sm shrink-0">{section.icon}</span>
                 <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">{section.label}</span>
+                {section.id === 'party-loot' && partyInventory.items.length > 0 && (
+                  <span className="ml-auto text-[9px] bg-amber-600/30 text-amber-300 border border-amber-700/30 rounded-full px-1.5 py-0.5 leading-none">
+                    {partyInventory.items.length}
+                  </span>
+                )}
               </button>
               {isDM && section.id === 'npcs' && expandedSection === 'npcs' && (
                 <div className="flex items-center gap-1 pr-2">
                   <button
                     onClick={handleImportNpcs}
                     title="Import NPCs"
+                    aria-label="Import NPCs"
                     className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer rounded hover:bg-gray-800"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
@@ -379,6 +461,7 @@ export default function LeftSidebar({
                   <button
                     onClick={handleExportNpcs}
                     title="Export NPCs"
+                    aria-label="Export NPCs"
                     className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer rounded hover:bg-gray-800"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
@@ -393,7 +476,7 @@ export default function LeftSidebar({
             {expandedSection === section.id && <div className="px-3 pb-3">{renderSectionContent(section.id)}</div>}
           </div>
         ))}
-      </div>
+      </nav>
     </div>
   )
 }

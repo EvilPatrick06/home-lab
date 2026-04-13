@@ -13,7 +13,7 @@ When the user asks you to play music, pause, skip, etc., output command blocks:
 ```
 
 Available music commands:
-- music_play: {"query": "search term"} — Search and play
+- music_play: {"query": "search term", "queue": false} — Search and play immediately. Set "queue": true ONLY if user explicitly says "add to queue" or "queue up"
 - music_pause: {} — Toggle pause/resume
 - music_next: {} — Skip to next track
 - music_previous: {} — Previous track

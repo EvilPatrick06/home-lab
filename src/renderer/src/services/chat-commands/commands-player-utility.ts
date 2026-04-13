@@ -1,4 +1,5 @@
 import { SKILLS_5E } from '../../data/skills'
+import { rollSingle } from '../dice/dice-service'
 import { useLobbyStore } from '../../stores/use-lobby-store'
 import { useNetworkStore } from '../../stores/use-network-store'
 import type { AbilityName } from '../../types/character-common'
@@ -7,7 +8,7 @@ import { broadcastDiceResult, getLatestCharacter } from './helpers'
 import type { ChatCommand } from './types'
 
 function rollD20(): number {
-  return Math.floor(Math.random() * 20) + 1
+  return rollSingle(20)
 }
 
 const REFERENCE_DATA: Record<string, string> = {
@@ -149,19 +150,51 @@ export const commands: ChatCommand[] = [
     category: 'player',
     dmOnly: false,
     description: 'Roll a skill or ability check',
-    usage: '/check <skill|ability>',
+    usage: '/check <skill|ability> [adv|dis]',
     execute: (_args, context) => {
       if (!context.character) return { type: 'error', content: 'No active character.' }
       const char = getLatestCharacter(context.character.id)
       if (!char) return { type: 'error', content: 'No active character.' }
 
-      const rawArgs = _args.trim().toLowerCase()
+      // Parse advantage/disadvantage from args
+      const rawParts = _args.trim().toLowerCase().split(/\s+/)
+      const lastArg = rawParts[rawParts.length - 1]
+      let advMode: 'advantage' | 'disadvantage' | 'normal' = 'normal'
+      if (lastArg === 'adv' || lastArg === 'advantage') {
+        advMode = 'advantage'
+        rawParts.pop()
+      } else if (lastArg === 'dis' || lastArg === 'disadvantage') {
+        advMode = 'disadvantage'
+        rawParts.pop()
+      }
+      const rawArgs = rawParts.join(' ')
+
       if (!rawArgs) {
-        return { type: 'error', content: 'Usage: /check <skill or ability name>' }
+        return { type: 'error', content: 'Usage: /check <skill or ability name> [adv|dis]' }
       }
 
       const abilities = char.abilityScores
-      const profBonus = Math.ceil(char.level / 4) + 1
+      const profBonus = char.level >= 21 ? 7 : Math.ceil(char.level / 4) + 1
+
+      // Jack of All Trades: Bard level 2+ adds half proficiency to non-proficient checks
+      const hasJackOfAllTrades =
+        char.classFeatures?.some((f: { name: string }) => f.name.toLowerCase() === 'jack of all trades') ?? false
+
+      // Roll with advantage/disadvantage
+      const doRoll = (): { roll: number; allRolls: number[] } => {
+        if (advMode === 'advantage') {
+          const r1 = rollD20(),
+            r2 = rollD20()
+          return { roll: Math.max(r1, r2), allRolls: [r1, r2] }
+        } else if (advMode === 'disadvantage') {
+          const r1 = rollD20(),
+            r2 = rollD20()
+          return { roll: Math.min(r1, r2), allRolls: [r1, r2] }
+        }
+        const r = rollD20()
+        return { roll: r, allRolls: [r] }
+      }
+      const advLabel = advMode === 'advantage' ? ' (Adv)' : advMode === 'disadvantage' ? ' (Dis)' : ''
 
       // Check if it's a skill
       const skill = SKILLS_5E.find((s) => s.name.toLowerCase() === rawArgs || s.name.toLowerCase().startsWith(rawArgs))
@@ -170,23 +203,31 @@ export const commands: ChatCommand[] = [
         const abilityScore = abilities[skill.ability as keyof typeof abilities] ?? 10
         const mod = abilityModifier(abilityScore)
         const charSkills = char.skills ?? []
-        const skillEntry = charSkills.find((s) => s.name.toLowerCase() === skill.name.toLowerCase())
+        const skillEntry = charSkills.find((s: { name: string }) => s.name.toLowerCase() === skill.name.toLowerCase())
         const isProf = skillEntry?.proficient ?? false
         const isExpert = skillEntry?.expertise ?? false
 
         let totalMod = mod
         if (isExpert) totalMod += profBonus * 2
         else if (isProf) totalMod += profBonus
+        else if (hasJackOfAllTrades) totalMod += Math.floor(profBonus / 2)
 
-        const roll = rollD20()
+        const { roll, allRolls } = doRoll()
         const total = roll + totalMod
-        const profText = isExpert ? ' (expertise)' : isProf ? ' (proficient)' : ''
+        const profText = isExpert
+          ? ' (expertise)'
+          : isProf
+            ? ' (proficient)'
+            : hasJackOfAllTrades && !isProf
+              ? ' (jack)'
+              : ''
 
-        const result = `**${skill.name} Check${profText}**: [${roll}] ${formatMod(totalMod)} = **${total}**`
+        const rollDisplay = allRolls.length > 1 ? `[${allRolls.join(', ')}]→${roll}` : `[${roll}]`
+        const result = `**${skill.name} Check${profText}${advLabel}**: ${rollDisplay} ${formatMod(totalMod)} = **${total}**`
 
         broadcastDiceResult(
           `d20${totalMod >= 0 ? '+' : ''}${totalMod} (${skill.name} check)`,
-          [roll],
+          allRolls,
           total,
           context.playerName
         )
@@ -198,13 +239,16 @@ export const commands: ChatCommand[] = [
       const ability = ABILITY_NAMES.find((a) => a.startsWith(rawArgs))
       if (ability) {
         const score = abilities[ability] ?? 10
-        const mod = abilityModifier(score)
-        const roll = rollD20()
+        let mod = abilityModifier(score)
+        if (hasJackOfAllTrades) mod += Math.floor(profBonus / 2)
+
+        const { roll, allRolls } = doRoll()
         const total = roll + mod
 
-        const result = `**${ability.charAt(0).toUpperCase() + ability.slice(1)} Check**: [${roll}] ${formatMod(mod)} = **${total}**`
+        const rollDisplay = allRolls.length > 1 ? `[${allRolls.join(', ')}]→${roll}` : `[${roll}]`
+        const result = `**${ability.charAt(0).toUpperCase() + ability.slice(1)} Check${advLabel}**: ${rollDisplay} ${formatMod(mod)} = **${total}**`
 
-        broadcastDiceResult(`d20${mod >= 0 ? '+' : ''}${mod} (${ability} check)`, [roll], total, context.playerName)
+        broadcastDiceResult(`d20${mod >= 0 ? '+' : ''}${mod} (${ability} check)`, allRolls, total, context.playerName)
 
         return { type: 'broadcast', content: result }
       }

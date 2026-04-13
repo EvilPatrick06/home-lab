@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { isWearableItem } from '../../../data/wearable-items'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
+import { loadCategoryItems } from '../../../services/library-service'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import type { ArmorEntry } from '../../../types/character-common'
@@ -35,6 +37,37 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
   const [buyWarning, setBuyWarning] = useState<string | null>(null)
 
   const gearDatabase = useGearDatabase()
+  const [equipDragOver, setEquipDragOver] = useState(false)
+
+  // Library equipment drop handler
+  const handleEquipmentDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault()
+      setEquipDragOver(false)
+      const payload = getDragPayload(e)
+      if (!payload || payload.type !== 'library-item') return
+      const latest = getLatest() as Character5e | undefined
+      if (!latest) return
+      const items = await loadCategoryItems(payload.category, [])
+      const libItem = items.find((i) => i.id === payload.itemId)
+      if (!libItem) return
+      const data = libItem.data
+      const newItem = {
+        name: (data.name as string) ?? payload.itemName,
+        quantity: 1,
+        weight: data.weight as number | undefined,
+        description: data.description as string | undefined,
+        cost: data.cost as string | undefined,
+        type: payload.category
+      }
+      saveAndBroadcast({
+        ...latest,
+        equipment: [...(latest.equipment ?? []), newItem],
+        updatedAt: new Date().toISOString()
+      } as Character)
+    },
+    [getLatest, saveAndBroadcast]
+  )
 
   const filteredGear = gearSearch
     ? gearDatabase.filter((g) => g.name.toLowerCase().includes(gearSearch.toLowerCase()))
@@ -207,7 +240,18 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
   }
 
   return (
-    <div className="mb-3">
+    <div
+      className={`mb-3 ${equipDragOver ? 'ring-2 ring-amber-500/50 ring-inset rounded-lg' : ''}`}
+      onDragOver={(e) => {
+        if (hasLibraryDrag(e)) {
+          e.preventDefault()
+          e.dataTransfer.dropEffect = 'copy'
+          setEquipDragOver(true)
+        }
+      }}
+      onDragLeave={() => setEquipDragOver(false)}
+      onDrop={handleEquipmentDrop}
+    >
       <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Equipment</div>
       {hasEquipment ? (
         <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-3">

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { VARIANT_ITEMS } from '../../../data/variant-items'
+import { clearBuilderDraft } from '../../../hooks/use-auto-save'
 import { addToast } from '../../../hooks/use-toast'
 import { getCantripsKnown, getPreparedSpellMax, hasAnySpellcasting } from '../../../services/character/spell-data'
 import { getHeritageOptions5e, load5eSpells, resolveDataPath } from '../../../services/data-provider'
@@ -62,6 +63,8 @@ export default function CharacterBuilder5e(): JSX.Element {
   const blessedWarriorCantrips = useBuilderStore((s) => s.blessedWarriorCantrips)
   const druidicWarriorCantrips = useBuilderStore((s) => s.druidicWarriorCantrips)
   const classExtraLangCount = useBuilderStore((s) => s.classExtraLangCount)
+  const guidedMode = useBuilderStore((s) => s.guidedMode)
+  const setGuidedMode = useBuilderStore((s) => s.setGuidedMode)
   const saveCharacter = useCharacterStore((s) => s.saveCharacter)
   const [saving, setSaving] = useState(false)
   const savingRef = useRef(false)
@@ -69,20 +72,26 @@ export default function CharacterBuilder5e(): JSX.Element {
   const [showLeaveDialog, setShowLeaveDialog] = useState(false)
 
   // Load spell level map for spell validation
+  const setSpellLevelMapStore = useBuilderStore((s) => s.setSpellLevelMap)
   const [spellLevelMap, setSpellLevelMap] = useState<Map<string, number>>(new Map())
   const [spellDataError, setSpellDataError] = useState(false)
   useEffect(() => {
     load5eSpells()
       .then((spells) => {
         const map = new Map<string, number>()
-        for (const s of spells) map.set(s.id, s.level)
+        const record: Record<string, number> = {}
+        for (const s of spells) {
+          map.set(s.id, s.level)
+          record[s.id] = s.level
+        }
         setSpellLevelMap(map)
+        setSpellLevelMapStore(record)
       })
       .catch((err) => {
         logger.error('Failed to load spell data:', err)
         setSpellDataError(true)
       })
-  }, [])
+  }, [setSpellLevelMapStore])
 
   // Preload heritage options for the selected species
   const speciesSlot = useBuilderStore((s) => s.buildSlots.find((sl) => sl.id === 'ancestry'))
@@ -331,6 +340,7 @@ export default function CharacterBuilder5e(): JSX.Element {
         useLobbyStore.getState().setRemoteCharacter(character.id, character)
       }
 
+      clearBuilderDraft()
       resetBuilder()
       navigate(returnTo || `/characters/5e/${character.id}`)
     } catch (err) {
@@ -376,24 +386,35 @@ export default function CharacterBuilder5e(): JSX.Element {
           <span className="text-xs text-gray-500">{editingCharacterId ? 'Edit Character' : 'Character Builder'}</span>
         </div>
 
-        <div className="flex flex-col items-end gap-0.5">
-          <button
-            onClick={handleSave}
-            disabled={saving || !canSave}
-            className="px-4 py-1.5 text-sm font-medium bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
-          >
-            {saving ? 'Saving...' : editingCharacterId ? 'Save Changes' : 'Save Character'}
-          </button>
-          {!canSave && validation.length > 0 && (
-            <span
-              role="alert"
-              aria-live="polite"
-              className="text-[10px] text-red-400 max-w-60 text-right truncate"
-              title={validation.join(', ')}
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5 text-xs text-gray-400 select-none cursor-pointer">
+            <input
+              type="checkbox"
+              checked={guidedMode}
+              onChange={(e) => setGuidedMode(e.target.checked)}
+              className="rounded"
+            />
+            Guided
+          </label>
+          <div className="flex flex-col items-end gap-0.5">
+            <button
+              onClick={handleSave}
+              disabled={saving || !canSave}
+              className="px-4 py-1.5 text-sm font-medium bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
             >
-              {validation[0]}
-            </span>
-          )}
+              {saving ? 'Saving...' : editingCharacterId ? 'Save Changes' : 'Save Character'}
+            </button>
+            {!canSave && validation.length > 0 && (
+              <span
+                role="alert"
+                aria-live="polite"
+                className="text-[10px] text-red-400 max-w-60 text-right truncate"
+                title={validation.join(', ')}
+              >
+                {validation[0]}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

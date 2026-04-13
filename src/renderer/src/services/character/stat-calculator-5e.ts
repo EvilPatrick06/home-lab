@@ -95,7 +95,8 @@ export function calculate5eStats(
   draconicSorcererLevel?: number,
   resolvedEffects?: ResolvedEffects,
   armorForAC?: ArmorForAC[],
-  classNamesForAC?: string[]
+  classNamesForAC?: string[],
+  classFeatures?: Array<{ name: string }> | null
 ): DerivedStats5e {
   // Apply background ability bonuses (2024 PHB - ability scores come from background)
   const scores: AbilityScoreSet = { ...baseScores }
@@ -125,7 +126,7 @@ export function calculate5eStats(
     charisma: abilityModifier(scores.charisma)
   }
 
-  const proficiencyBonus = level <= 20 ? Math.ceil(level / 4) + 1 : Math.ceil((level - 1) / 4) + 1
+  const proficiencyBonus = level >= 21 ? 7 : Math.ceil(level / 4) + 1
   const hitDie = cls?.hitDie || 8
   const conMod = modifiers.constitution
 
@@ -153,6 +154,10 @@ export function calculate5eStats(
   // Initiative: DEX mod + proficiency bonus if Alert feat
   let initiative = modifiers.dexterity
   if (feats?.some((f) => f.id === 'alert')) initiative += proficiencyBonus
+  // Jack of All Trades: initiative is a DEX check, add half proficiency if not already proficient via Alert
+  else if (classFeatures?.some((f) => f.name.toLowerCase() === 'jack of all trades')) {
+    initiative += Math.floor(proficiencyBonus / 2)
+  }
   // Add initiative bonuses from resolved effects (supplements feat check above)
   if (resolvedEffects) initiative += resolvedEffects.initiativeBonus
 

@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('../../../services/chat-commands', () => ({
+  executeCommand: () => null
+}))
 
 describe('ChatPanel', () => {
   it('can be imported', async () => {

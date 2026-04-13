@@ -974,84 +974,85 @@ class HealthChecker:
                 )
                 return
 
-        # 2. Check blocking status and stats
-        try:
-            # Get blocking state
-            r_block = self._session.get(
-                f"{pihole_api}/dns/blocking",
-                headers={"sid": sid},
-                timeout=5,
-            )
-            if r_block.status_code == 200:
-                block_data = r_block.json()
-                blocking_enabled = block_data.get("blocking") == "enabled"
-                if not blocking_enabled:
+        # 2. Check blocking status/stats only if API session is available.
+        if sid:
+            try:
+                # Get blocking state
+                r_block = self._session.get(
+                    f"{pihole_api}/dns/blocking",
+                    headers={"sid": sid},
+                    timeout=5,
+                )
+                if r_block.status_code == 200:
+                    block_data = r_block.json()
+                    blocking_enabled = block_data.get("blocking") == "enabled"
+                    if not blocking_enabled:
+                        self._service_status["pihole"] = {
+                            "status": "degraded", "last_check": now,
+                            "message": "Blocking DISABLED",
+                            "response_time": None,
+                        }
+                        self._emit_alert(
+                            Severity.WARNING, "pihole",
+                            "🛡️ Pi-hole blocking is DISABLED — ads/trackers are not being filtered",
+                        )
+                        return
+
+                # Get gravity stats
+                r_ftl = self._session.get(
+                    f"{pihole_api}/info/ftl",
+                    headers={"sid": sid},
+                    timeout=5,
+                )
+                if r_ftl.status_code == 200:
+                    ftl = r_ftl.json().get("ftl", {})
+                    gravity_count = ftl.get("database", {}).get("gravity", 0)
+                    num_lists = ftl.get("database", {}).get("lists", 0)
+
                     self._service_status["pihole"] = {
-                        "status": "degraded", "last_check": now,
-                        "message": "Blocking DISABLED",
+                        "status": "up", "last_check": now,
+                        "message": f"Blocking {gravity_count:,} domains ({num_lists} lists)",
                         "response_time": None,
                     }
-                    self._emit_alert(
-                        Severity.WARNING, "pihole",
-                        "🛡️ Pi-hole blocking is DISABLED — ads/trackers are not being filtered",
-                    )
-                    return
-
-            # Get gravity stats
-            r_ftl = self._session.get(
-                f"{pihole_api}/info/ftl",
-                headers={"sid": sid},
-                timeout=5,
-            )
-            if r_ftl.status_code == 200:
-                ftl = r_ftl.json().get("ftl", {})
-                gravity_count = ftl.get("database", {}).get("gravity", 0)
-                num_lists = ftl.get("database", {}).get("lists", 0)
-
+            except Exception as e:
                 self._service_status["pihole"] = {
-                    "status": "up", "last_check": now,
-                    "message": f"Blocking {gravity_count:,} domains ({num_lists} lists)",
-                    "response_time": None,
+                    "status": "unknown", "last_check": now,
+                    "message": f"Stats check failed: {e}", "response_time": None,
                 }
-        except Exception as e:
-            self._service_status["pihole"] = {
-                "status": "unknown", "last_check": now,
-                "message": f"Stats check failed: {e}", "response_time": None,
-            }
 
-        # 3. Check for inaccessible blocklists
-        # Pi-hole v6 status: 1=new/pending, 2=OK, 3=inaccessible, 4=disabled
-        try:
-            r = self._session.get(
-                f"{pihole_api}/lists?type=block",
-                headers={"sid": sid},
-                timeout=10,
-            )
-            if r.status_code == 200:
-                lists_data = r.json()
-                blocklists = lists_data.get("lists", lists_data) if isinstance(lists_data, dict) else lists_data
-                if isinstance(blocklists, list):
-                    failed = [bl for bl in blocklists if bl.get("status") == 3]
-                    if failed:
-                        names = ", ".join(bl.get("comment", bl.get("address", "?"))[:30] for bl in failed[:5])
-                        self._emit_alert(
-                            Severity.WARNING, "pihole_lists",
-                            f"🛡️ {len(failed)} Pi-hole blocklist(s) failed to update: {names}",
-                        )
-                        self._service_status["pihole_lists"] = {
-                            "status": "degraded", "last_check": now,
-                            "message": f"{len(failed)} list(s) inaccessible",
-                            "response_time": None,
-                        }
-                    else:
-                        enabled = [bl for bl in blocklists if bl.get("enabled")]
-                        self._service_status["pihole_lists"] = {
-                            "status": "up", "last_check": now,
-                            "message": f"All {len(enabled)} active lists OK",
-                            "response_time": None,
-                        }
-        except Exception:
-            pass  # Non-critical — main status already set
+            # 3. Check for inaccessible blocklists
+            # Pi-hole v6 status: 1=new/pending, 2=OK, 3=inaccessible, 4=disabled
+            try:
+                r = self._session.get(
+                    f"{pihole_api}/lists?type=block",
+                    headers={"sid": sid},
+                    timeout=10,
+                )
+                if r.status_code == 200:
+                    lists_data = r.json()
+                    blocklists = lists_data.get("lists", lists_data) if isinstance(lists_data, dict) else lists_data
+                    if isinstance(blocklists, list):
+                        failed = [bl for bl in blocklists if bl.get("status") == 3]
+                        if failed:
+                            names = ", ".join(bl.get("comment", bl.get("address", "?"))[:30] for bl in failed[:5])
+                            self._emit_alert(
+                                Severity.WARNING, "pihole_lists",
+                                f"🛡️ {len(failed)} Pi-hole blocklist(s) failed to update: {names}",
+                            )
+                            self._service_status["pihole_lists"] = {
+                                "status": "degraded", "last_check": now,
+                                "message": f"{len(failed)} list(s) inaccessible",
+                                "response_time": None,
+                            }
+                        else:
+                            enabled = [bl for bl in blocklists if bl.get("enabled")]
+                            self._service_status["pihole_lists"] = {
+                                "status": "up", "last_check": now,
+                                "message": f"All {len(enabled)} active lists OK",
+                                "response_time": None,
+                            }
+            except Exception:
+                pass  # Non-critical — main status already set
 
         # 4. Quick DNS resolution test
         try:
@@ -1238,6 +1239,17 @@ class HealthChecker:
         9000: "PeerJS",
         11434: "Ollama",
     }
+
+    @staticmethod
+    def _is_local_port_reachable(port: int, host: str = "127.0.0.1", timeout: float = 0.5) -> bool:
+        """Best-effort TCP connect check used to reduce false negatives from ss parsing."""
+        import socket
+
+        try:
+            with socket.create_connection((host, port), timeout=timeout):
+                return True
+        except Exception:
+            return False
 
     def _check_ports(self):
         """Verify critical ports are bound and listening."""

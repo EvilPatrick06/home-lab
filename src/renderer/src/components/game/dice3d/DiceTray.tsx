@@ -116,7 +116,14 @@ export default function DiceTray(): JSX.Element {
   if (entries.length === 0) return <></>
 
   return (
-    <div ref={trayRef} className="fixed z-50 pointer-events-auto" style={{ left: position.x, top: position.y }}>
+    <div
+      ref={trayRef}
+      className="fixed z-50 pointer-events-auto"
+      style={{ left: position.x, top: position.y }}
+      role="region"
+      aria-label="Dice results"
+      aria-live="polite"
+    >
       {/* Header — draggable */}
       <div
         className={`flex items-center justify-between px-3 py-1.5 bg-gray-800/95 border border-gray-600 rounded-t-lg select-none ${
@@ -134,10 +141,16 @@ export default function DiceTray(): JSX.Element {
             onClick={() => setCollapsed((c) => !c)}
             className="text-gray-400 hover:text-gray-200 text-xs px-1"
             title={collapsed ? 'Expand' : 'Collapse'}
+            aria-label={collapsed ? 'Expand dice tray' : 'Collapse dice tray'}
           >
             {collapsed ? '+' : '-'}
           </button>
-          <button onClick={clearAll} className="text-gray-400 hover:text-red-400 text-xs px-1" title="Clear all">
+          <button
+            onClick={clearAll}
+            className="text-gray-400 hover:text-red-400 text-xs px-1"
+            title="Clear all"
+            aria-label="Clear all dice results"
+          >
             x
           </button>
         </div>
@@ -165,6 +178,7 @@ export default function DiceTray(): JSX.Element {
                 <span className="text-lg font-bold text-amber-300">{entry.total}</span>
                 <button
                   onClick={() => removeEntry(entry.id)}
+                  aria-label={`Dismiss ${entry.formula} result`}
                   className="text-gray-500 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   x

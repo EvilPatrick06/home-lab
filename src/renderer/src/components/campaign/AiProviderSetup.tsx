@@ -245,10 +245,17 @@ export default function AiProviderSetup({
                       setSetupPhase('idle')
                       setErrorMessage(null)
                       setKeyValid(null)
+                      // Set a sensible default model for each provider
+                      const defaultModels: Record<string, string> = {
+                        ollama: 'llama3.1',
+                        claude: 'claude-sonnet-4-20250514',
+                        openai: 'gpt-4o',
+                        gemini: 'gemini-2.0-flash'
+                      }
                       onChange({
                         enabled,
                         provider: p,
-                        model: p === 'ollama' ? 'llama3.1' : '',
+                        model: defaultModels[p] ?? '',
                         ollamaUrl: p === 'ollama' ? ollamaUrl : DEFAULT_OLLAMA_URL,
                         apiKey: p === provider ? apiKey : ''
                       })

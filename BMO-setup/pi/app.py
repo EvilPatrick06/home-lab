@@ -870,7 +870,7 @@ def api_wifi_scan():
 
 @app.route("/api/wifi/connect", methods=["POST"])
 def api_wifi_connect():
-    data = request.get_json(silent=True) or {}
+    data = request.json or {}
     ssid = str(data.get("ssid", "")).strip()
     password = str(data.get("password", ""))
     if not ssid:

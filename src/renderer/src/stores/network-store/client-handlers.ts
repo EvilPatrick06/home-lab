@@ -10,8 +10,8 @@ import type {
   DiceRoll3dPayload,
   DiceRollHiddenPayload,
   DrawingAddPayload,
-  DrawingsClearPayload,
   DrawingRemovePayload,
+  DrawingsClearPayload,
   FileSharingPayload,
   FogRevealPayload,
   GameStateFullPayload,
@@ -61,6 +61,12 @@ import type { NetworkState } from './index'
 
 /** Apply a partial game state update from the network */
 function applyGameState(data: Record<string, unknown>): void {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return
+  // Prototype pollution protection
+  if ('__proto__' in data || 'constructor' in data || 'prototype' in data) {
+    console.warn('[Network] Blocked state update with unsafe prototype keys')
+    return
+  }
   useGameStore.getState().loadGameState(data)
 }
 

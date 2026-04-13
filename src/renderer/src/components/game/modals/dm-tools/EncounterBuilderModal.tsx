@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { addToast } from '../../../../hooks/use-toast'
-import { load5eEncounterBudgets, load5eMonsters } from '../../../../services/data-provider'
+import {
+  calculateEncounterDifficulty,
+  type EncounterDifficulty,
+  getMonsterXP
+} from '../../../../services/combat/encounter-cr-calculator'
+import { load5eMonsters } from '../../../../services/data-provider'
 import { logger } from '../../../../utils/logger'
 
 interface EncounterBuilderModalProps {
@@ -16,13 +21,6 @@ interface MonsterEntry {
   count: number
 }
 
-interface BudgetEntry {
-  level: number
-  low: number
-  moderate: number
-  high: number
-}
-
 interface MonsterData {
   name: string
   cr: string
@@ -30,65 +28,13 @@ interface MonsterData {
   [key: string]: unknown
 }
 
-const CR_XP_MAP: Record<string, number> = {
-  '0': 10,
-  '1/8': 25,
-  '1/4': 50,
-  '1/2': 100,
-  '1': 200,
-  '2': 450,
-  '3': 700,
-  '4': 1100,
-  '5': 1800,
-  '6': 2300,
-  '7': 2900,
-  '8': 3900,
-  '9': 5000,
-  '10': 5900,
-  '11': 7200,
-  '12': 8400,
-  '13': 10000,
-  '14': 11500,
-  '15': 13000,
-  '16': 15000,
-  '17': 18000,
-  '18': 20000,
-  '19': 22000,
-  '20': 25000,
-  '21': 33000,
-  '22': 41000,
-  '23': 50000,
-  '24': 62000,
-  '25': 75000,
-  '26': 90000,
-  '27': 105000,
-  '28': 120000,
-  '29': 135000,
-  '30': 155000
+const DIFFICULTY_STYLES: Record<EncounterDifficulty, { color: string; bg: string }> = {
+  None: { color: 'text-gray-500', bg: 'bg-gray-700' },
+  Low: { color: 'text-green-400', bg: 'bg-green-600' },
+  Moderate: { color: 'text-amber-400', bg: 'bg-amber-600' },
+  High: { color: 'text-orange-400', bg: 'bg-orange-600' },
+  'Over Budget': { color: 'text-red-400', bg: 'bg-red-600' }
 }
-
-const DEFAULT_BUDGETS: BudgetEntry[] = [
-  { level: 1, low: 50, moderate: 75, high: 100 },
-  { level: 2, low: 100, moderate: 150, high: 200 },
-  { level: 3, low: 150, moderate: 225, high: 400 },
-  { level: 4, low: 250, moderate: 375, high: 500 },
-  { level: 5, low: 500, moderate: 750, high: 1100 },
-  { level: 6, low: 600, moderate: 1000, high: 1400 },
-  { level: 7, low: 750, moderate: 1300, high: 1700 },
-  { level: 8, low: 1000, moderate: 1700, high: 2100 },
-  { level: 9, low: 1300, moderate: 2000, high: 2600 },
-  { level: 10, low: 1600, moderate: 2300, high: 3100 },
-  { level: 11, low: 1900, moderate: 2900, high: 4100 },
-  { level: 12, low: 2200, moderate: 3700, high: 4700 },
-  { level: 13, low: 2600, moderate: 4200, high: 5400 },
-  { level: 14, low: 2900, moderate: 4900, high: 6200 },
-  { level: 15, low: 3300, moderate: 5400, high: 7800 },
-  { level: 16, low: 3800, moderate: 6100, high: 9800 },
-  { level: 17, low: 4500, moderate: 7200, high: 11700 },
-  { level: 18, low: 5000, moderate: 8700, high: 14200 },
-  { level: 19, low: 5500, moderate: 10700, high: 17200 },
-  { level: 20, low: 6400, moderate: 13200, high: 22000 }
-]
 
 export default function EncounterBuilderModal({ onClose, onBroadcastResult }: EncounterBuilderModalProps): JSX.Element {
   const [partySize, setPartySize] = useState(4)
@@ -96,7 +42,6 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
   const [monsterSearch, setMonsterSearch] = useState('')
   const [searchResults, setSearchResults] = useState<MonsterData[]>([])
   const [selectedMonsters, setSelectedMonsters] = useState<MonsterEntry[]>([])
-  const [budgetData, setBudgetData] = useState<BudgetEntry[]>(DEFAULT_BUDGETS)
   const [allMonsters, setAllMonsters] = useState<MonsterData[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [presetName, setPresetName] = useState('')
@@ -110,16 +55,6 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
         logger.error('Failed to load monsters', err)
         addToast('Failed to load monsters', 'error')
         setAllMonsters([])
-      })
-
-    load5eEncounterBudgets()
-      .then((data) => {
-        const entries = data as unknown as BudgetEntry[]
-        if (Array.isArray(entries) && entries.length > 0) setBudgetData(entries)
-      })
-      .catch((err) => {
-        logger.error('[EncounterBuilder] Failed to load budget data', err)
-        addToast('Failed to load encounter budget data', 'error')
       })
   }, [])
 
@@ -145,10 +80,6 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const getMonsterXp = (cr: string): number => {
-    return CR_XP_MAP[cr] ?? 0
-  }
-
   const addMonster = (monster: MonsterData): void => {
     const existing = selectedMonsters.find((m) => m.name === monster.name && m.cr === monster.cr)
     if (existing) {
@@ -160,7 +91,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           id: crypto.randomUUID(),
           name: monster.name,
           cr: monster.cr,
-          xp: monster.xp ?? getMonsterXp(monster.cr),
+          xp: monster.xp ?? getMonsterXP(monster.cr),
           count: 1
         }
       ])
@@ -179,36 +110,32 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
     setSelectedMonsters((prev) => prev.filter((m) => m.id !== id))
   }
 
-  const totalXp = selectedMonsters.reduce((sum, m) => sum + m.xp * m.count, 0)
-  const totalMonsterCount = selectedMonsters.reduce((sum, m) => sum + m.count, 0)
+  // Build the flat CR array and compute encounter difficulty using the service
+  const encounter = useMemo(() => {
+    const partyLevels = Array.from({ length: partySize }, () => partyLevel)
+    const monsterCRs = selectedMonsters.flatMap((m) => Array.from({ length: m.count }, () => m.cr))
+    return calculateEncounterDifficulty(partyLevels, monsterCRs)
+  }, [partySize, partyLevel, selectedMonsters])
 
-  const budget = budgetData.find((b) => b.level === partyLevel) ?? (budgetData.length > 0 ? budgetData[0] : undefined)
-  const partyLow = (budget?.low ?? 0) * partySize
-  const partyModerate = (budget?.moderate ?? 0) * partySize
-  const partyHigh = (budget?.high ?? 0) * partySize
+  const totalMonsterCount = encounter.monsterCount
+  const diffStyle = DIFFICULTY_STYLES[encounter.difficulty]
 
-  const getDifficultyRating = (): { label: string; color: string } => {
-    if (totalXp === 0) return { label: 'None', color: 'text-gray-500' }
-    if (totalXp <= partyLow) return { label: 'Low', color: 'text-green-400' }
-    if (totalXp <= partyModerate) return { label: 'Moderate', color: 'text-amber-400' }
-    if (totalXp <= partyHigh) return { label: 'High', color: 'text-orange-400' }
-    return { label: 'Over Budget', color: 'text-red-400' }
-  }
-
-  const difficulty = getDifficultyRating()
-
-  const budgetBarMax = partyHigh * 1.3
-  const lowPct = Math.min((partyLow / budgetBarMax) * 100, 100)
-  const modPct = Math.min(((partyModerate - partyLow) / budgetBarMax) * 100, 100 - lowPct)
-  const highPct = Math.min(((partyHigh - partyModerate) / budgetBarMax) * 100, 100 - lowPct - modPct)
-  const xpPct = Math.min((totalXp / budgetBarMax) * 100, 100)
+  // Budget bar calculations
+  const budgetBarMax = encounter.budget.high * 1.3 || 1
+  const lowPct = Math.min((encounter.budget.low / budgetBarMax) * 100, 100)
+  const modPct = Math.min(((encounter.budget.moderate - encounter.budget.low) / budgetBarMax) * 100, 100 - lowPct)
+  const highPct = Math.min(
+    ((encounter.budget.high - encounter.budget.moderate) / budgetBarMax) * 100,
+    100 - lowPct - modPct
+  )
+  const xpPct = Math.min((encounter.adjustedXP / budgetBarMax) * 100, 100)
 
   const handleStartInitiative = (): void => {
     const monsterList = selectedMonsters
       .flatMap((m) => Array.from({ length: m.count }, (_, i) => (m.count > 1 ? `${m.name} ${i + 1}` : m.name)))
       .join(', ')
     onBroadcastResult(
-      `Encounter started! Monsters: ${monsterList} (Total XP: ${totalXp.toLocaleString()}, Difficulty: ${difficulty.label})`
+      `Encounter started! Monsters: ${monsterList} (Total XP: ${encounter.totalXP.toLocaleString()}, Adjusted XP: ${encounter.adjustedXP.toLocaleString()}, Difficulty: ${encounter.difficulty})`
     )
     onClose()
   }
@@ -278,8 +205,8 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               />
             </div>
             <div className="text-xs text-gray-500 pb-1">
-              Budgets: Low {partyLow.toLocaleString()} / Moderate {partyModerate.toLocaleString()} / High{' '}
-              {partyHigh.toLocaleString()} XP
+              Budgets: Low {encounter.budget.low.toLocaleString()} / Moderate{' '}
+              {encounter.budget.moderate.toLocaleString()} / High {encounter.budget.high.toLocaleString()} XP
             </div>
           </div>
 
@@ -297,10 +224,10 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                 style={{ left: `${lowPct + modPct}%`, width: `${highPct}%` }}
               />
               {/* XP marker */}
-              {totalXp > 0 && (
+              {encounter.adjustedXP > 0 && (
                 <div className="absolute top-0 h-full w-0.5 bg-white shadow-lg" style={{ left: `${xpPct}%` }}>
                   <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] text-white whitespace-nowrap bg-gray-900 px-1 rounded">
-                    {totalXp.toLocaleString()} XP
+                    {encounter.adjustedXP.toLocaleString()} XP
                   </div>
                 </div>
               )}
@@ -333,7 +260,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                   >
                     <span>{m.name}</span>
                     <span className="text-gray-500">
-                      CR {m.cr} ({(m.xp ?? getMonsterXp(m.cr)).toLocaleString()} XP)
+                      CR {m.cr} ({(m.xp ?? getMonsterXP(m.cr)).toLocaleString()} XP)
                     </span>
                   </button>
                 ))}
@@ -391,16 +318,26 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
             </div>
           )}
 
-          {/* Summary */}
+          {/* Summary with color-coded difficulty indicator */}
           <div className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3 border border-gray-700">
             <div className="text-sm text-gray-300">
               <span className="text-gray-500">Monsters:</span>{' '}
               <span className="text-white font-medium">{totalMonsterCount}</span>
-              <span className="mx-3 text-gray-600">|</span>
-              <span className="text-gray-500">Total XP:</span>{' '}
-              <span className="text-amber-400 font-bold">{totalXp.toLocaleString()}</span>
+              <span className="mx-2 text-gray-600">|</span>
+              <span className="text-gray-500">Raw XP:</span>{' '}
+              <span className="text-amber-400 font-bold">{encounter.totalXP.toLocaleString()}</span>
+              {encounter.multiplier > 1 && (
+                <>
+                  <span className="mx-2 text-gray-600">|</span>
+                  <span className="text-gray-500">x{encounter.multiplier} =</span>{' '}
+                  <span className="text-amber-300 font-bold">{encounter.adjustedXP.toLocaleString()}</span>
+                </>
+              )}
             </div>
-            <div className={`text-sm font-bold ${difficulty.color}`}>{difficulty.label}</div>
+            <div className="flex items-center gap-2">
+              <div className={`w-2.5 h-2.5 rounded-full ${diffStyle.bg}`} />
+              <span className={`text-sm font-bold ${diffStyle.color}`}>{encounter.difficulty}</span>
+            </div>
           </div>
 
           {/* Save Preset */}

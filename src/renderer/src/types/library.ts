@@ -58,6 +58,7 @@ export type LibraryCategory =
   | 'portraits'
   | 'maps'
   | 'shop-templates'
+  | 'rules'
 
 export type LibraryGroup =
   | 'core-books'
@@ -188,7 +189,8 @@ export const LIBRARY_GROUPS: LibraryGroupDef[] = [
       { id: 'dcs', label: 'DCs', group: 'rules-reference', source: 'static', icon: '🎯' },
       { id: 'weapon-mastery', label: 'Weapon Mastery', group: 'rules-reference', source: 'static', icon: '⚔️' },
       { id: 'languages', label: 'Languages', group: 'rules-reference', source: 'static', icon: '🗣️' },
-      { id: 'skills', label: 'Skills', group: 'rules-reference', source: 'static', icon: '🎯' }
+      { id: 'skills', label: 'Skills', group: 'rules-reference', source: 'static', icon: '🎯' },
+      { id: 'rules', label: 'Rules', group: 'rules-reference', source: 'static', icon: '📖' }
     ]
   },
   {

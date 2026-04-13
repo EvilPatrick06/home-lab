@@ -1,7 +1,25 @@
 import { create } from 'zustand'
+import { dynamicKeys } from '../constants'
 import type { Campaign } from '../types/campaign'
 import { generateInviteCode } from '../utils/invite-code'
 import { logger } from '../utils/logger'
+
+function cleanupCampaignLocalStorage(campaignId: string) {
+  localStorage.removeItem(dynamicKeys.lobbyChat(campaignId))
+  const versionsKey = dynamicKeys.autosaveVersions(campaignId)
+  try {
+    const raw = localStorage.getItem(versionsKey)
+    if (raw) {
+      const versions = JSON.parse(raw) as string[]
+      versions.forEach((vid) => {
+        localStorage.removeItem(dynamicKeys.autosaveVersion(campaignId, vid))
+      })
+    }
+  } catch {
+    // ignore
+  }
+  localStorage.removeItem(versionsKey)
+}
 
 function generateId(): string {
   return crypto.randomUUID()
@@ -21,6 +39,8 @@ interface CampaignState {
   createCampaign: (
     data: Omit<Campaign, 'id' | 'createdAt' | 'updatedAt' | 'inviteCode' | 'players' | 'journal'>
   ) => Promise<Campaign>
+  archiveCampaign: (id: string) => Promise<void>
+  unarchiveCampaign: (id: string) => Promise<void>
 }
 
 export const useCampaignStore = create<CampaignState>((set, get) => ({
@@ -77,6 +97,7 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
         campaigns: get().campaigns.filter((c) => c.id !== id),
         activeCampaignId: activeCampaignId === id ? null : activeCampaignId
       })
+      cleanupCampaignLocalStorage(id)
     } catch (error) {
       logger.error('Failed to delete campaign:', error)
     }
@@ -87,6 +108,7 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
     for (const c of campaigns) {
       try {
         await window.api.deleteCampaign(c.id)
+        cleanupCampaignLocalStorage(c.id)
       } catch (error) {
         logger.error('Failed to delete campaign:', c.id, error)
       }
@@ -124,5 +146,19 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
 
     await get().saveCampaign(campaign)
     return campaign
+  },
+
+  archiveCampaign: async (id: string) => {
+    const campaign = get().campaigns.find((c) => c.id === id)
+    if (!campaign) return
+    const updated = { ...campaign, archived: true, updatedAt: new Date().toISOString() }
+    await get().saveCampaign(updated)
+  },
+
+  unarchiveCampaign: async (id: string) => {
+    const campaign = get().campaigns.find((c) => c.id === id)
+    if (!campaign) return
+    const updated = { ...campaign, archived: false, updatedAt: new Date().toISOString() }
+    await get().saveCampaign(updated)
   }
 }))

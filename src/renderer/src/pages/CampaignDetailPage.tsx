@@ -19,6 +19,7 @@ import RuleManager from './campaign-detail/RuleManager'
 const AiDmCard = lazy(() => import('./campaign-detail/AiDmCard'))
 const AudioManager = lazy(() => import('./campaign-detail/AudioManager'))
 const MonsterLinker = lazy(() => import('./campaign-detail/MonsterLinker'))
+const JournalEntryModal = lazy(() => import('../components/campaign/JournalEntryModal'))
 const CalendarCard = lazy(() => import('./campaign-detail/CalendarCard'))
 const MapManager = lazy(() => import('./campaign-detail/MapManager'))
 const MetricsCard = lazy(() => import('./campaign-detail/MetricsCard'))
@@ -36,6 +37,9 @@ export default function CampaignDetailPage(): JSX.Element {
   const [exporting, setExporting] = useState(false)
   const [starting, setStarting] = useState(false)
   const [linkedMonster, setLinkedMonster] = useState<MonsterStatBlock | null>(null)
+
+  const [showJournalModal, setShowJournalModal] = useState(false)
+  const [editingEntry, setEditingEntry] = useState<import('../types/campaign').JournalEntry | null>(null)
 
   const campaign: Campaign | undefined = campaigns.find((c) => c.id === id)
 
@@ -137,6 +141,42 @@ export default function CampaignDetailPage(): JSX.Element {
     }
   }
 
+  const handleSaveJournalEntry = async (entryData: { title: string; content: string; isPrivate: boolean }) => {
+    if (!campaign) return
+    const entries = [...campaign.journal.entries]
+
+    if (editingEntry) {
+      const idx = entries.findIndex((e) => e.id === editingEntry.id)
+      if (idx >= 0) {
+        entries[idx] = { ...entries[idx], ...entryData }
+      }
+    } else {
+      const maxSession = entries.reduce((max, e) => Math.max(max, e.sessionNumber), 0)
+      entries.push({
+        id: crypto.randomUUID(),
+        sessionNumber: maxSession + 1,
+        date: new Date().toISOString(),
+        title: entryData.title,
+        content: entryData.content,
+        isPrivate: entryData.isPrivate,
+        authorId: 'dm',
+        createdAt: new Date().toISOString()
+      })
+    }
+
+    await saveCampaign({ ...campaign, journal: { entries }, updatedAt: new Date().toISOString() })
+    setEditingEntry(null)
+    setShowJournalModal(false)
+    addToast(editingEntry ? 'Entry updated' : 'Entry created', 'success')
+  }
+
+  const handleDeleteJournalEntry = async (entryId: string) => {
+    if (!campaign) return
+    const entries = campaign.journal.entries.filter((e) => e.id !== entryId)
+    await saveCampaign({ ...campaign, journal: { entries }, updatedAt: new Date().toISOString() })
+    addToast('Entry deleted', 'success')
+  }
+
   if (loading) {
     return (
       <div className="p-8 h-screen overflow-y-auto">
@@ -191,6 +231,21 @@ export default function CampaignDetailPage(): JSX.Element {
           </Button>
           <Button variant="secondary" onClick={handleExport} disabled={exporting}>
             {exporting ? 'Exporting...' : 'Export'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={async () => {
+              if (campaign.archived) {
+                await useCampaignStore.getState().unarchiveCampaign(campaign.id)
+                addToast('Campaign unarchived', 'success')
+              } else {
+                await useCampaignStore.getState().archiveCampaign(campaign.id)
+                addToast('Campaign archived', 'success')
+                navigate('/')
+              }
+            }}
+          >
+            {campaign.archived ? 'Unarchive' : 'Archive'}
           </Button>
           <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
             Delete
@@ -256,6 +311,88 @@ export default function CampaignDetailPage(): JSX.Element {
           <TimelineCard campaign={campaign} saveCampaign={saveCampaign} />
         </Suspense>
 
+        {/* Loot History */}
+        <Card>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Loot History ({campaign.lootHistory?.length ?? 0})</h3>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const desc = window.prompt('Enter loot description:')
+                  if (!desc) return
+                  const val = window.prompt('Enter value (optional):') || undefined
+                  const maxSession = campaign.journal.entries.reduce((max, e) => Math.max(max, e.sessionNumber), 0)
+
+                  const newEntry = {
+                    id: crypto.randomUUID(),
+                    date: new Date().toISOString(),
+                    sessionNumber: maxSession,
+                    description: desc,
+                    valueFormatted: val,
+                    awardedTo: 'party'
+                  }
+
+                  saveCampaign({
+                    ...campaign,
+                    lootHistory: [...(campaign.lootHistory || []), newEntry],
+                    updatedAt: new Date().toISOString()
+                  })
+                  addToast('Loot added', 'success')
+                }}
+                className="text-[10px] bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
+              >
+                + Add Loot
+              </button>
+            </div>
+          </div>
+          {!campaign.lootHistory || campaign.lootHistory.length === 0 ? (
+            <p className="text-gray-500 text-sm">No loot recorded yet. Add items and gold awarded to the party.</p>
+          ) : (
+            <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+              {campaign.lootHistory
+                .slice()
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .map((entry) => (
+                  <div key={entry.id} className="bg-gray-800/50 rounded-lg p-3 group">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold text-sm">{entry.description}</span>
+                      <div className="flex items-center gap-3">
+                        {entry.valueFormatted && (
+                          <span className="text-amber-400 font-mono text-xs">{entry.valueFormatted}</span>
+                        )}
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Delete this loot entry?')) {
+                              saveCampaign({
+                                ...campaign,
+                                lootHistory: campaign.lootHistory!.filter((l) => l.id !== entry.id),
+                                updatedAt: new Date().toISOString()
+                              })
+                            }
+                          }}
+                          className="opacity-0 group-hover:opacity-100 text-[10px] text-red-400 hover:text-red-300 cursor-pointer transition-opacity"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 flex items-center gap-2">
+                      <span>Session {entry.sessionNumber}</span>
+                      <span>&middot;</span>
+                      <span>{new Date(entry.date).toLocaleDateString()}</span>
+                      {entry.awardedTo && (
+                        <>
+                          <span>&middot;</span>
+                          <span className="capitalize">To: {entry.awardedTo}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </Card>
+
         <Suspense fallback={null}>
           <AiDmCard campaign={campaign} saveCampaign={saveCampaign} />
         </Suspense>
@@ -281,6 +418,15 @@ export default function CampaignDetailPage(): JSX.Element {
             <h3 className="text-lg font-semibold">Session Journal ({campaign.journal.entries.length})</h3>
             <div className="flex items-center gap-2">
               <button
+                onClick={() => {
+                  setEditingEntry(null)
+                  setShowJournalModal(true)
+                }}
+                className="text-[10px] bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
+              >
+                + New Entry
+              </button>
+              <button
                 onClick={handleImportJournal}
                 className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer"
               >
@@ -298,7 +444,7 @@ export default function CampaignDetailPage(): JSX.Element {
           </div>
           {campaign.journal.entries.length === 0 ? (
             <p className="text-gray-500 text-sm">
-              No journal entries yet. Entries are created during and after game sessions.
+              No journal entries yet. Add session recaps, notes, and story summaries.
             </p>
           ) : (
             <div className="space-y-2">
@@ -306,12 +452,35 @@ export default function CampaignDetailPage(): JSX.Element {
                 .slice()
                 .sort((a, b) => b.sessionNumber - a.sessionNumber)
                 .map((entry) => (
-                  <div key={entry.id} className="bg-gray-800/50 rounded-lg p-3">
+                  <div key={entry.id} className="bg-gray-800/50 rounded-lg p-3 group">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-sm">
                         Session {entry.sessionNumber}: {entry.title}
                       </span>
-                      <span className="text-gray-500 text-xs">{new Date(entry.date).toLocaleDateString()}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-gray-500 text-xs">{new Date(entry.date).toLocaleDateString()}</span>
+                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-2 transition-opacity">
+                          <button
+                            onClick={() => {
+                              setEditingEntry(entry)
+                              setShowJournalModal(true)
+                            }}
+                            className="text-[10px] text-amber-400 hover:text-amber-300 cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Delete this journal entry?')) {
+                                handleDeleteJournalEntry(entry.id)
+                              }
+                            }}
+                            className="text-[10px] text-red-400 hover:text-red-300 cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
                     </div>
                     <p className="text-gray-400 text-xs line-clamp-2">{entry.content}</p>
                     {entry.isPrivate && <span className="text-xs text-yellow-400 mt-1 inline-block">DM Only</span>}
@@ -321,6 +490,18 @@ export default function CampaignDetailPage(): JSX.Element {
           )}
         </Card>
       </div>
+
+      <Suspense fallback={null}>
+        <JournalEntryModal
+          open={showJournalModal}
+          onClose={() => {
+            setShowJournalModal(false)
+            setEditingEntry(null)
+          }}
+          onSave={handleSaveJournalEntry}
+          initialData={editingEntry}
+        />
+      </Suspense>
 
       <ConfirmDialog
         open={showDeleteConfirm}

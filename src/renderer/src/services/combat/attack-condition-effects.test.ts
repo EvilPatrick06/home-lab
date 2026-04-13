@@ -88,9 +88,27 @@ describe('getAttackConditionEffects', () => {
       expect(result.rollMode).toBe('disadvantage')
     })
 
-    it('Frightened attacker has disadvantage', () => {
+    it('Frightened attacker has disadvantage (no source tracking = always visible)', () => {
       const result = getAttackConditionEffects([{ name: 'Frightened' }], [], baseContext())
-      expect(result.disadvantageSources).toContain('Frightened (source of fear in sight)')
+      expect(result.disadvantageSources).toContain('Frightened (source of fear visible)')
+    })
+
+    it('Frightened attacker has disadvantage when fear source is visible', () => {
+      const result = getAttackConditionEffects(
+        [{ name: 'Frightened', sourceEntityId: 'dragon-1' }],
+        [],
+        baseContext({ visibleEntityIds: ['dragon-1', 'goblin-2'] })
+      )
+      expect(result.disadvantageSources).toContain('Frightened (source of fear visible)')
+    })
+
+    it('Frightened attacker has NO disadvantage when fear source is NOT visible', () => {
+      const result = getAttackConditionEffects(
+        [{ name: 'Frightened', sourceEntityId: 'dragon-1' }],
+        [],
+        baseContext({ visibleEntityIds: ['goblin-2'] })
+      )
+      expect(result.disadvantageSources).not.toContain('Frightened (source of fear visible)')
     })
 
     it('Poisoned attacker has disadvantage', () => {

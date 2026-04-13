@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { play as playSound } from '../../../services/sound-manager'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { CombatTimerConfig } from '../../../types/campaign'
@@ -7,7 +8,6 @@ import type { MapToken } from '../../../types/map'
 import InitiativeControls from './InitiativeControls'
 import InitiativeEntryRow from './InitiativeEntry'
 import type { NewEntry } from './InitiativeSetupForm'
-import type { MapToken } from '../../../types/map'
 import InitiativeSetupForm from './InitiativeSetupForm'
 
 interface InitiativeTrackerProps {
@@ -216,6 +216,42 @@ export default function InitiativeTracker({
     setEditTotal('')
   }
 
+  // Handle library monster drop into initiative tracker
+  const [dragOver, setDragOver] = useState(false)
+  const handleInitDragOver = useCallback((e: React.DragEvent) => {
+    if (hasLibraryDrag(e)) {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'copy'
+      setDragOver(true)
+    }
+  }, [])
+  const handleInitDragLeave = useCallback(() => setDragOver(false), [])
+  const handleInitDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault()
+      setDragOver(false)
+      const payload = getDragPayload(e)
+      if (!payload || payload.type !== 'library-monster' || !onAddEntry) return
+      const { loadAllStatBlocks } = await import('../../../services/data-provider')
+      const allMonsters = await loadAllStatBlocks()
+      const monster = allMonsters.find((m) => m.id === payload.itemId)
+      if (!monster) return
+      const mod = monster.initiative?.modifier ?? Math.floor((monster.abilityScores.dex - 10) / 2)
+      const roll = Math.floor(Math.random() * 20) + 1
+      onAddEntry({
+        id: crypto.randomUUID(),
+        entityId: crypto.randomUUID(),
+        entityName: monster.name,
+        entityType: 'enemy',
+        roll,
+        modifier: mod,
+        total: roll + mod,
+        isActive: false
+      })
+    },
+    [onAddEntry]
+  )
+
   // Initiative not active -- show setup
   if (!initiative) {
     return (
@@ -271,7 +307,15 @@ export default function InitiativeTracker({
 
   // Initiative is active -- show tracker
   return (
-    <div className="space-y-3" aria-live="polite">
+    <div
+      className={`space-y-3 ${dragOver ? 'ring-2 ring-amber-500/50 ring-inset rounded-lg' : ''}`}
+      role="region"
+      aria-label="Initiative tracker"
+      aria-live="polite"
+      onDragOver={handleInitDragOver}
+      onDragLeave={handleInitDragLeave}
+      onDrop={handleInitDrop}
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Initiative</h3>
         <span className="text-xs text-amber-400 font-semibold">Round {initiative.round}</span>
@@ -335,7 +379,7 @@ export default function InitiativeTracker({
         timerAction={timerAction}
         timeRemaining={timeRemaining}
         timerSeconds={timerSeconds}
-        delayedEntries={initiative?.entries.filter(e => e.isDelaying) ?? []}
+        delayedEntries={initiative?.entries.filter((e) => e.isDelaying) ?? []}
         onAddEntry={onAddEntry}
         onReenterDelayed={(entry) => {
           if (onUndelay) {

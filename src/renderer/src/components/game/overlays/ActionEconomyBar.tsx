@@ -87,7 +87,11 @@ export default function ActionEconomyBar({
         : undefined
 
   return (
-    <div className="absolute top-14 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl shadow-lg">
+    <div
+      className="absolute top-14 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl shadow-lg"
+      role="status"
+      aria-label={`Turn resources for ${entityName}`}
+    >
       <span className="text-[10px] text-gray-500 font-semibold mr-1 max-w-[80px] truncate" title={entityName}>
         {entityName}
       </span>

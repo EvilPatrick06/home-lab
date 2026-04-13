@@ -532,9 +532,187 @@ def handle_disconnect():
     terminal_mgr.close_all(request.sid)
 
 
+# ── Agent System ─────────────────────────────────────────────────
+
+# Agent registry — populated once at startup
+_agent_info = []  # cached list of {name, display_name, tier}
+_chat_history = []  # shared chat history for IDE sessions
+_agent_override = None  # pinned agent name or None for auto-routing
+_model_override = None  # model tier override
+
+
+def _discover_agents():
+    """Scan the agents directory and build a lightweight list."""
+    global _agent_info
+    agents_dir = os.path.join(os.path.dirname(__file__), '..', 'agents')
+
+    AGENT_TIERS = {
+        'code': 'opus', 'dnd_dm': 'opus',
+        'plan': 'pro', 'research': 'pro', 'review': 'pro', 'design': 'pro',
+        'security': 'pro', 'deploy': 'pro', 'docs': 'pro', 'test': 'pro', 'learning': 'pro',
+        'conversation': 'flash', 'music': 'flash', 'smart_home': 'flash',
+        'timer': 'flash', 'calendar': 'flash', 'weather': 'flash',
+        'monitoring': 'flash', 'cleanup': 'flash',
+    }
+
+    AGENT_ICONS = {
+        'code': '💻', 'dnd_dm': '🐉', 'plan': '📋', 'conversation': '💬',
+        'music': '🎵', 'weather': '🌤️', 'timer': '⏲️', 'calendar': '📅',
+        'smart_home': '🏠', 'security': '🔒', 'deploy': '🚀', 'docs': '📝',
+        'research': '🔬', 'design': '🎨', 'test': '🧪', 'review': '👁️',
+        'learning': '📚', 'monitoring': '📊', 'cleanup': '🧹',
+        'alert': '🚨', 'encounter': '⚔️', 'npc_dialogue': '🗣️',
+        'lore': '📜', 'rules': '📖', 'treasure': '💰',
+        'session_recap': '📝', 'list': '📋', 'routine': '🔄',
+    }
+
+    if os.path.isdir(agents_dir):
+        for fname in sorted(os.listdir(agents_dir)):
+            if fname.endswith('_agent.py') or fname.endswith('.py'):
+                name = fname.replace('_agent.py', '').replace('.py', '')
+                if name in ('base', 'orchestrator', 'router', 'scratchpad',
+                            'hooks', 'memory', 'settings', 'conversation',
+                            '__init__', 'mcp_manager'):
+                    continue
+                display = name.replace('_', ' ').title() + ' Agent'
+                _agent_info.append({
+                    'name': name,
+                    'display_name': display,
+                    'icon': AGENT_ICONS.get(name, '🤖'),
+                    'tier': AGENT_TIERS.get(name, 'pro'),
+                    'status': 'idle',
+                })
+
+    # Always ensure conversation agent is present
+    if not any(a['name'] == 'conversation' for a in _agent_info):
+        _agent_info.insert(0, {
+            'name': 'conversation',
+            'display_name': 'Conversation Agent',
+            'icon': '💬', 'tier': 'flash', 'status': 'idle',
+        })
+    print(f'[ide] Discovered {len(_agent_info)} agents')
+
+
+@app.route('/api/agents')
+def agent_list():
+    """List all registered agents."""
+    return jsonify({'agents': _agent_info})
+
+
+@app.route('/api/agents/chat', methods=['POST'])
+def agent_chat():
+    """Send message to BMO agent system via internal HTTP proxy."""
+    global _agent_override
+    data = request.get_json()
+    message = data.get('message', '').strip()
+    override = data.get('agent_override', _agent_override)
+
+    if not message:
+        return jsonify({'error': 'Empty message'}), 400
+
+    # Add user message to history
+    user_msg = {'role': 'user', 'content': message}
+    _chat_history.append(user_msg)
+
+    # Try to proxy to main BMO app via SocketIO client
+    try:
+        import socketio as sio_client
+        client = sio_client.SimpleClient()
+        client.connect('http://localhost:5000', wait_timeout=3)
+        # Send chat message
+        client.emit('send_message', {
+            'text': message,
+            'speaker': 'IDE User',
+            'agent_override': override or 'auto',
+        })
+        # Wait for response (with timeout)
+        import time as _time
+        response_text = None
+        agent_used = 'unknown'
+        deadline = _time.time() + 15
+        while _time.time() < deadline:
+            try:
+                events = client.receive(timeout=1)
+                if events and len(events) >= 2:
+                    event_name, event_data = events[0], events[1]
+                    if event_name == 'bot_reply':
+                        response_text = event_data.get('text', '')
+                        agent_used = event_data.get('agent', 'unknown')
+                        break
+            except Exception:
+                break
+
+        client.disconnect()
+
+        if response_text is None:
+            response_text = "BMO didn't respond in time. The main app might be busy."
+            agent_used = 'system'
+
+    except Exception as e:
+        # Fallback — BMO app not reachable, use a simple echo
+        response_text = (
+            f"*BMO main app not reachable on port 5000.* "
+            f"Make sure `bmo.service` is running.\n\n"
+            f"Error: {str(e)[:200]}"
+        )
+        agent_used = 'system'
+
+    # Add assistant response to history
+    assistant_msg = {
+        'role': 'assistant',
+        'content': response_text,
+        'agent': agent_used,
+    }
+    _chat_history.append(assistant_msg)
+
+    # Notify connected IDE clients via SocketIO
+    socketio.emit('agent_response', {
+        'text': response_text,
+        'agent': agent_used,
+    })
+
+    return jsonify({
+        'text': response_text,
+        'agent': agent_used,
+    })
+
+
+@app.route('/api/agents/history')
+def agent_history():
+    """Get chat history."""
+    limit = request.args.get('limit', 50, type=int)
+    return jsonify({'history': _chat_history[-limit:]})
+
+
+@app.route('/api/agents/history', methods=['DELETE'])
+def agent_clear_history():
+    """Clear chat history."""
+    _chat_history.clear()
+    return jsonify({'success': True})
+
+
+@app.route('/api/agents/override', methods=['POST'])
+def agent_set_override():
+    """Set or clear agent override (pin to specific agent)."""
+    global _agent_override
+    data = request.get_json()
+    _agent_override = data.get('agent', None)
+    return jsonify({'override': _agent_override})
+
+
+@app.route('/api/agents/model', methods=['POST'])
+def agent_set_model():
+    """Switch LLM model tier."""
+    global _model_override
+    data = request.get_json()
+    _model_override = data.get('model', None)
+    return jsonify({'model': _model_override})
+
+
 # ── Main ─────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
     print('🔧 BMO IDE Test App starting on port 5001...')
+    _discover_agents()
     socketio.run(app, host='0.0.0.0', port=5001, debug=True,
                  allow_unsafe_werkzeug=True)

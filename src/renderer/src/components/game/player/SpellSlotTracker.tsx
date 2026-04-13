@@ -1,8 +1,13 @@
 import { useState } from 'react'
+import { useGameStore } from '../../../stores/use-game-store'
+import { useCharacterStore } from '../../../stores/use-character-store'
+import type { Character5e } from '../../../types/character-5e'
 
 interface SpellSlotTrackerProps {
   spellSlots?: Record<number, { total: number; used: number }>
   onSlotChange?: (level: number, used: number) => void
+  /** Entity ID of the character for action economy tracking */
+  characterId?: string
 }
 
 // Default 5e spell slots if none provided
@@ -20,11 +25,15 @@ const DEFAULT_5E_SLOTS: Record<number, { total: number; used: number }> = {
 
 export default function SpellSlotTracker({
   spellSlots: externalSlots,
-  onSlotChange
+  onSlotChange,
+  characterId
 }: SpellSlotTrackerProps): JSX.Element {
   const [localSlots, setLocalSlots] = useState(externalSlots ?? DEFAULT_5E_SLOTS)
+  const [lastCastMessage, setLastCastMessage] = useState<string | null>(null)
 
   const slots = externalSlots ?? localSlots
+  const initiative = useGameStore((s) => s.initiative)
+  const turnStates = useGameStore((s) => s.turnStates)
 
   // 5e spell slot display
   const handleSlotClick = (level: number): void => {
@@ -32,6 +41,8 @@ export default function SpellSlotTracker({
     if (!current) return
 
     const newUsed = current.used < current.total ? current.used + 1 : 0
+    const isExpending = newUsed > current.used // spending a slot (not resetting)
+
     if (onSlotChange) {
       onSlotChange(level, newUsed)
     } else {
@@ -39,6 +50,45 @@ export default function SpellSlotTracker({
         ...slots,
         [level]: { ...current, used: newUsed }
       })
+    }
+
+    // PHB 2024: Spending a spell slot during combat consumes the action
+    // (most spells are 1 action; bonus action spells are tracked separately)
+    if (isExpending && initiative && characterId) {
+      const ts = turnStates[characterId]
+      if (ts && !ts.actionUsed) {
+        useGameStore.getState().useAction(characterId)
+        setLastCastMessage(`Level ${level} slot used — Action consumed`)
+        // Auto-clear message after 3s
+        setTimeout(() => setLastCastMessage(null), 3000)
+      } else if (ts && ts.actionUsed && !ts.bonusActionUsed) {
+        // If action already used, this might be a bonus action spell
+        useGameStore.getState().useBonusAction(characterId)
+        setLastCastMessage(`Level ${level} slot used — Bonus Action consumed`)
+        setTimeout(() => setLastCastMessage(null), 3000)
+      }
+    }
+
+    // Sync with character store if we have a characterId
+    if (isExpending && characterId) {
+      try {
+        const charStore = useCharacterStore.getState()
+        const char = charStore.characters.find((c) => c.id === characterId) as Character5e | undefined
+        if (char?.spellSlotLevels?.[level]) {
+          const slotData = char.spellSlotLevels[level]
+          if (slotData.current > 0) {
+            charStore.saveCharacter({
+              ...char,
+              spellSlotLevels: {
+                ...char.spellSlotLevels,
+                [level]: { ...slotData, current: slotData.current - 1 }
+              }
+            })
+          }
+        }
+      } catch {
+        // Character store sync is best-effort
+      }
     }
   }
 
@@ -54,6 +104,11 @@ export default function SpellSlotTracker({
   return (
     <div className="space-y-2">
       <h4 className="text-[10px] text-gray-500 uppercase tracking-wider">Spell Slots</h4>
+      {lastCastMessage && (
+        <div className="text-[9px] text-amber-300 bg-amber-900/20 border border-amber-700/30 rounded px-1.5 py-0.5">
+          {lastCastMessage}
+        </div>
+      )}
       <div className="space-y-1">
         {activeLevels.map((level) => {
           const slot = slots[level]

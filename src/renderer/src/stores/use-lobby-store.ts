@@ -101,6 +101,8 @@ export interface LobbyPlayer {
   color?: string
   isCoDM?: boolean
   diceColors?: DiceColors
+  status?: 'connected' | 'reconnecting' | 'disconnected'
+  latencyMs?: number
 }
 
 export interface ChatMessage {
@@ -136,6 +138,7 @@ interface LobbyState {
   addPlayer: (player: LobbyPlayer) => void
   removePlayer: (peerId: string) => void
   updatePlayer: (peerId: string, updates: Partial<LobbyPlayer>) => void
+  setPlayerStatus: (peerId: string, status: 'connected' | 'reconnecting' | 'disconnected') => void
   setPlayerReady: (peerId: string, ready: boolean) => void
   addChatMessage: (msg: ChatMessage) => void
   sendChat: (content: string) => void
@@ -190,6 +193,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
         const available = PLAYER_COLORS.find((c) => !usedColors.has(c))
         player = { ...player, color: available || PLAYER_COLORS[state.players.length % PLAYER_COLORS.length] }
       }
+      player.status = player.status || 'connected'
       return { players: [...state.players, player] }
     })
 
@@ -229,6 +233,12 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
   updatePlayer: (peerId, updates) => {
     set((state) => ({
       players: state.players.map((p) => (p.peerId === peerId ? { ...p, ...updates } : p))
+    }))
+  },
+
+  setPlayerStatus: (peerId, status) => {
+    set((state) => ({
+      players: state.players.map((p) => (p.peerId === peerId ? { ...p, status } : p))
     }))
   },
 

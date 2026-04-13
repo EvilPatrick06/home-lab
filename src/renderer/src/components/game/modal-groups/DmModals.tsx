@@ -25,6 +25,8 @@ const HandoutViewerModal = lazy(() => import('../modals/dm-tools/HandoutViewerMo
 const TimerModal = lazy(() => import('../modals/utility/TimerModal'))
 const DmScreenPanel = lazy(() => import('../modals/dm-tools/DmScreenPanel'))
 const RollTableModal = lazy(() => import('../modals/dm-tools/RollTableModal'))
+const TriggerManagerModal = lazy(() => import('../modals/dm-tools/TriggerManagerModal'))
+const AiMapAnalysisModal = lazy(() => import('../modals/dm-tools/AiMapAnalysisModal'))
 
 interface DmModalsProps {
   activeModal: ActiveModal
@@ -163,6 +165,8 @@ export default function DmModals({
       )}
       {activeModal === 'dm-screen' && effectiveIsDM && <DmScreenPanel onClose={close} />}
       {activeModal === 'roll-table' && effectiveIsDM && <RollTableModal onClose={close} />}
+      {activeModal === 'triggerManager' && effectiveIsDM && <TriggerManagerModal onClose={close} />}
+      {activeModal === 'aiMapAnalysis' && effectiveIsDM && <AiMapAnalysisModal onClose={close} />}
     </Suspense>
   )
 }

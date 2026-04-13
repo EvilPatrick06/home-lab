@@ -184,7 +184,9 @@ export function AddSpecialFacilityModal({
         {/* Facility list */}
         <div className="max-h-72 overflow-y-auto space-y-2">
           {filteredFacilities.map((def) => {
-            const eligibility = owner5e ? getFacilityEligibility(owner5e, def) : { eligible: true }
+            const eligibility = owner5e
+              ? getFacilityEligibility(owner5e, def, selectedBastion?.factionRenown)
+              : { eligible: true }
             const isFaction = def.prerequisite?.type === 'faction-renown'
             const canSelect = eligibility.eligible || (isFaction && factionOverride)
             const isSelected = selectedSpecialType === def.type
@@ -215,7 +217,9 @@ export function AddSpecialFacilityModal({
                     >
                       {SETTING_LABELS[def.setting]}
                     </span>
-                    <span className="text-xs text-gray-600">Lv {def.level}</span>
+                    <span className="text-xs text-gray-600">
+                      Lv {def.level} &mdash; {(SPECIAL_FACILITY_COSTS[def.level] ?? SPECIAL_FACILITY_COSTS[5]).bp} BP
+                    </span>
                   </div>
                   {eligibility.eligible ? (
                     <span className="text-xs text-green-400">Eligible</span>
@@ -259,7 +263,9 @@ export function AddSpecialFacilityModal({
         {selectedSpecialDef &&
           (() => {
             const costs = SPECIAL_FACILITY_COSTS[selectedSpecialDef.level] ?? SPECIAL_FACILITY_COSTS[5]
-            const canAfford = selectedBastion ? selectedBastion.treasury >= costs.gp : false
+            const canAffordBp = selectedBastion ? selectedBastion.bastionPoints >= costs.bp : false
+            const canAffordGp = selectedBastion ? selectedBastion.treasury >= costs.gp : false
+            const _canAfford = canAffordBp && canAffordGp
             return (
               <div className="bg-gray-800/50 rounded p-3 border border-gray-700">
                 <h4 className="font-medium text-sm text-gray-100">{selectedSpecialDef.name}</h4>
@@ -273,10 +279,21 @@ export function AddSpecialFacilityModal({
                   <div className="mt-1 text-xs text-amber-300">Benefit: {selectedSpecialDef.permanentBenefit}</div>
                 )}
                 <div className="mt-2 text-xs text-gray-400">
-                  Cost: <span className={canAfford ? 'text-yellow-400' : 'text-red-400'}>{costs.gp} GP</span> &middot;
-                  Construction: {costs.days} days
+                  Cost: <span className={canAffordBp ? 'text-purple-400' : 'text-red-400'}>{costs.bp} BP</span>
+                  {costs.gp > 0 && (
+                    <>
+                      {' '}
+                      &middot; <span className={canAffordGp ? 'text-yellow-400' : 'text-red-400'}>{costs.gp} GP</span>
+                    </>
+                  )}
+                  {costs.days > 0 && <> &middot; Construction: {costs.days} days</>}
                 </div>
-                {!canAfford && (
+                {!canAffordBp && (
+                  <div className="mt-1 text-xs text-red-400">
+                    Not enough BP (have {selectedBastion?.bastionPoints ?? 0} BP, need {costs.bp} BP)
+                  </div>
+                )}
+                {!canAffordGp && costs.gp > 0 && (
                   <div className="mt-1 text-xs text-red-400">
                     Not enough gold (have {selectedBastion?.treasury ?? 0} GP, need {costs.gp} GP)
                   </div>
@@ -303,14 +320,14 @@ export function AddSpecialFacilityModal({
                   maxSpecial) ||
               (selectedSpecialDef != null &&
                 selectedBastion != null &&
-                selectedBastion.treasury <
-                  (SPECIAL_FACILITY_COSTS[selectedSpecialDef.level]?.gp ?? SPECIAL_FACILITY_COSTS[5].gp))
+                selectedBastion.bastionPoints <
+                  (SPECIAL_FACILITY_COSTS[selectedSpecialDef.level]?.bp ?? SPECIAL_FACILITY_COSTS[5].bp))
             }
             className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
             Build Facility
             {selectedSpecialDef
-              ? ` (${(SPECIAL_FACILITY_COSTS[selectedSpecialDef.level] ?? SPECIAL_FACILITY_COSTS[5]).gp} GP)`
+              ? ` (${(SPECIAL_FACILITY_COSTS[selectedSpecialDef.level] ?? SPECIAL_FACILITY_COSTS[5]).bp} BP)`
               : ''}
           </button>
         </div>

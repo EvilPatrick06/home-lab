@@ -1,20 +1,42 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
 import CharacterBuilder5e from '../components/builder/5e/CharacterBuilder5e'
-import { clearBuilderDraft, loadBuilderDraft, useAutoSaveBuilderDraft } from '../hooks/use-auto-save'
+import { applyBuilderDraft, clearBuilderDraft, loadBuilderDraft, useAutoSaveBuilderDraft } from '../hooks/use-auto-save'
 import { addToast } from '../hooks/use-toast'
 import { useBuilderStore } from '../stores/use-builder-store'
+import type { Character } from '../types/character'
 
 export default function CreateCharacterPage(): JSX.Element {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const phase = useBuilderStore((s) => s.phase)
   const selectGameSystem = useBuilderStore((s) => s.selectGameSystem)
   const editingCharacterId = useBuilderStore((s) => s.editingCharacterId)
+  const loadCharacterForEdit = useBuilderStore((s) => s.loadCharacterForEdit)
   const [draftPrompt, setDraftPrompt] = useState(false)
 
+  // Hydrate builder from URL param when editing via direct link
   useEffect(() => {
-    if (phase === 'system-select') {
+    if (!id || editingCharacterId === id) return
+    let cancelled = false
+    window.api.loadCharacter(id).then((raw) => {
+      if (cancelled) return
+      if (!raw) {
+        navigate('/characters', { replace: true })
+        return
+      }
+      loadCharacterForEdit(raw as Character)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [id, editingCharacterId, loadCharacterForEdit, navigate])
+
+  useEffect(() => {
+    if (phase === 'system-select' && !id) {
       selectGameSystem('dnd5e')
     }
-  }, [phase, selectGameSystem])
+  }, [phase, selectGameSystem, id])
 
   // Auto-save builder drafts to localStorage
   useAutoSaveBuilderDraft()
@@ -29,6 +51,10 @@ export default function CreateCharacterPage(): JSX.Element {
   }, [editingCharacterId])
 
   const handleResumeDraft = useCallback((): void => {
+    const draft = loadBuilderDraft()
+    if (draft) {
+      applyBuilderDraft(draft)
+    }
     setDraftPrompt(false)
     addToast('Draft resumed', 'info')
   }, [])

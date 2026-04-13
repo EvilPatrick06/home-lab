@@ -14,7 +14,7 @@ export default function UpdatePrompt(): JSX.Element | null {
     // Only check once per app launch — skip if already dismissed this session
     const dismissed = sessionStorage.getItem(DISMISSED_KEY)
 
-    window.api.update.onStatus((status) => {
+    const removeListener = window.api.update.onStatus((status) => {
       if (status.state === 'available' && status.version) {
         // Don't re-prompt for a version dismissed this session
         if (dismissed === status.version) return
@@ -41,9 +41,7 @@ export default function UpdatePrompt(): JSX.Element | null {
 
     return () => {
       clearTimeout(timer)
-      // Don't call removeStatusListener — it removes ALL listeners including
-      // those registered by other components (e.g. AboutPage). This component
-      // lives for the entire app lifetime so cleanup is not needed.
+      removeListener()
     }
   }, [])
 

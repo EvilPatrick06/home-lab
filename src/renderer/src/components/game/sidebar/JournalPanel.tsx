@@ -1,21 +1,14 @@
-import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useCallback, useMemo, useState } from 'react'
+import { useGameStore } from '../../../stores/use-game-store'
+import { useNetworkStore } from '../../../stores/use-network-store'
+import type { SharedJournalEntry } from '../../../types/game-state'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-interface JournalEntry {
-  id: string
-  title: string
-  content: string // HTML
-  createdAt: number
-  updatedAt: number
-  author: string // 'DM' or playerName
-}
 
 interface JournalPanelProps {
   campaignId: string
@@ -54,8 +47,12 @@ function ToolbarButton({ onClick, isActive, title, children }: ToolbarButtonProp
 // ---------------------------------------------------------------------------
 
 export default function JournalPanel({ campaignId, isDM, playerName }: JournalPanelProps): JSX.Element {
-  // All entries, keyed by campaignId in a real app. Here we keep them in state.
-  const [entries, setEntries] = useState<JournalEntry[]>([])
+  const entries = useGameStore((s) => s.sharedJournal)
+  const addJournalEntry = useGameStore((s) => s.addJournalEntry)
+  const updateJournalEntry = useGameStore((s) => s.updateJournalEntry)
+  const deleteJournalEntry = useGameStore((s) => s.deleteJournalEntry)
+  const localPeerId = useNetworkStore((s) => s.localPeerId)
+
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isEditing, setIsEditing] = useState(false)
@@ -69,14 +66,16 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
   // The currently selected entry
   const selectedEntry = useMemo(() => entries.find((e) => e.id === selectedId) ?? null, [entries, selectedId])
 
-  // Filtered entries: DM sees all, players see only their own
+  // Filtered entries: DM sees all, players see only their own + public entries
   const visibleEntries = useMemo(() => {
-    let list = isDM ? entries : entries.filter((e) => e.author === playerName)
+    let list = isDM ? entries : entries.filter((e) => e.visibility === 'public' || e.authorName === playerName)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
       list = list.filter(
         (e) =>
-          e.title.toLowerCase().includes(q) || e.content.toLowerCase().includes(q) || e.author.toLowerCase().includes(q)
+          e.title.toLowerCase().includes(q) ||
+          e.content.toLowerCase().includes(q) ||
+          e.authorName.toLowerCase().includes(q)
       )
     }
     // Sort newest first
@@ -90,11 +89,11 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: { levels: [1, 2, 3] }
-      }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: { class: 'text-amber-400 underline hover:text-amber-300' }
+        heading: { levels: [1, 2, 3] },
+        link: {
+          openOnClick: false,
+          HTMLAttributes: { class: 'text-amber-400 underline hover:text-amber-300' }
+        }
       }),
       Placeholder.configure({
         placeholder: 'Write your journal entry here...'
@@ -129,15 +128,19 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
 
   const handleCreate = (): void => {
     const now = Date.now()
-    const newEntry: JournalEntry = {
+    const newEntry: SharedJournalEntry = {
       id: crypto.randomUUID(),
       title: 'Untitled Entry',
       content: '',
+      authorPeerId: localPeerId || 'local',
+      authorName,
+      visibility: isDM ? 'public' : 'private',
       createdAt: now,
-      updatedAt: now,
-      author: authorName
+      updatedAt: now
     }
-    setEntries((prev) => [newEntry, ...prev])
+    const sendMessage = useNetworkStore.getState().sendMessage
+    sendMessage('player:journal-add', { entry: newEntry })
+    addJournalEntry(newEntry)
     setSelectedId(newEntry.id)
     setEditTitle(newEntry.title)
     setIsEditing(true)
@@ -162,13 +165,19 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
   const handleSave = (): void => {
     if (!selectedEntry || !editor) return
     const html = editor.getHTML()
-    setEntries((prev) =>
-      prev.map((e) =>
-        e.id === selectedEntry.id
-          ? { ...e, title: editTitle.trim() || 'Untitled Entry', content: html, updatedAt: Date.now() }
-          : e
-      )
-    )
+    const now = Date.now()
+
+    useNetworkStore.getState().sendMessage('player:journal-update', {
+      entryId: selectedEntry.id,
+      title: editTitle.trim() || 'Untitled Entry',
+      content: html,
+      updatedAt: now
+    })
+
+    updateJournalEntry(selectedEntry.id, {
+      title: editTitle.trim() || 'Untitled Entry',
+      content: html
+    } as any)
     setIsEditing(false)
     editor.setEditable(false)
   }
@@ -181,7 +190,8 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
   }
 
   const handleDelete = (id: string): void => {
-    setEntries((prev) => prev.filter((e) => e.id !== id))
+    useNetworkStore.getState().sendMessage('player:journal-delete', { entryId: id })
+    deleteJournalEntry(id)
     if (selectedId === id) {
       setSelectedId(null)
       setIsEditing(false)
@@ -217,7 +227,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
   // Can the current user edit the selected entry?
   // -------------------------------------------------------------------------
 
-  const canEdit = selectedEntry ? isDM || selectedEntry.author === playerName : false
+  const canEdit = selectedEntry ? isDM || selectedEntry.authorName === playerName : false
 
   // -------------------------------------------------------------------------
   // Render
@@ -270,7 +280,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 >
                   <div className="flex items-center justify-between gap-1">
                     <span className="text-xs font-medium text-gray-200 truncate flex-1">{entry.title}</span>
-                    {(isDM || entry.author === playerName) && (
+                    {(isDM || entry.authorName === playerName) && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -284,7 +294,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-gray-500">{entry.author}</span>
+                    <span className="text-[10px] text-gray-500">{entry.authorName}</span>
                     <span className="text-[10px] text-gray-600">{formatDate(entry.updatedAt)}</span>
                   </div>
                 </div>
@@ -427,7 +437,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
 
             {/* Entry metadata footer */}
             <div className="shrink-0 px-3 py-1 border-t border-gray-700/50 flex items-center justify-between">
-              <span className="text-[10px] text-gray-600">by {selectedEntry.author}</span>
+              <span className="text-[10px] text-gray-600">by {selectedEntry.authorName}</span>
               <span className="text-[10px] text-gray-600">Updated {formatDate(selectedEntry.updatedAt)}</span>
             </div>
           </div>

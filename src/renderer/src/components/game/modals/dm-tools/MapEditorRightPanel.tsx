@@ -17,10 +17,11 @@ interface MapEditorRightPanelProps {
   activeMap: GameMap | null
   activeTool: DmToolId
   setActiveTool: (tool: DmToolId) => void
-  fogBrushSize: number
   setFogBrushSize: (size: number) => void
   terrainPaintType: TerrainCell['type']
   setTerrainPaintType: (type: TerrainCell['type']) => void
+  portalTarget: { mapId: string; gridX: number; gridY: number } | undefined
+  setPortalTarget: (target: { mapId: string; gridX: number; gridY: number } | undefined) => void
   selectedTokenId: string | null
   setSelectedTokenId: (id: string | null) => void
   campaign: Campaign
@@ -36,6 +37,8 @@ export default function MapEditorRightPanel({
   setFogBrushSize,
   terrainPaintType,
   setTerrainPaintType,
+  portalTarget,
+  setPortalTarget,
   selectedTokenId,
   setSelectedTokenId,
   campaign
@@ -161,23 +164,86 @@ export default function MapEditorRightPanel({
                   label: 'Climbing',
                   desc: '2x cost (free with Climb Speed)',
                   color: 'bg-purple-900/50'
+                },
+                {
+                  type: 'portal' as const,
+                  label: 'Portal',
+                  desc: 'Teleports tokens',
+                  color: 'bg-fuchsia-900/50'
                 }
               ].map(({ type, label, desc, color }) => (
-                <button
-                  key={type}
-                  onClick={() => {
-                    setTerrainPaintType(type)
-                    setActiveTool('terrain')
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-lg border text-xs transition-colors cursor-pointer ${
-                    activeTool === 'terrain' && terrainPaintType === type
-                      ? `border-amber-500 ${color}`
-                      : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
-                  }`}
-                >
-                  <div className="font-semibold text-gray-200">{label}</div>
-                  <div className="text-gray-500">{desc}</div>
-                </button>
+                <div key={type} className="flex flex-col gap-1">
+                  <button
+                    onClick={() => {
+                      setTerrainPaintType(type)
+                      setActiveTool('terrain')
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg border text-xs transition-colors cursor-pointer ${
+                      activeTool === 'terrain' && terrainPaintType === type
+                        ? `border-amber-500 ${color}`
+                        : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
+                    }`}
+                  >
+                    <div className="font-semibold text-gray-200">{label}</div>
+                    <div className="text-gray-500">{desc}</div>
+                  </button>
+
+                  {type === 'portal' && activeTool === 'terrain' && terrainPaintType === 'portal' && (
+                    <div className="mt-1 p-2 rounded bg-gray-800/50 border border-fuchsia-900/30 flex flex-col gap-2">
+                      <div className="text-[10px] text-fuchsia-300 font-semibold mb-1">Portal Configuration</div>
+                      <select
+                        className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
+                        value={portalTarget?.mapId ?? ''}
+                        onChange={(e) =>
+                          setPortalTarget({
+                            mapId: e.target.value,
+                            gridX: portalTarget?.gridX ?? 0,
+                            gridY: portalTarget?.gridY ?? 0
+                          })
+                        }
+                      >
+                        <option value="">Select target map...</option>
+                        {gameStore.maps.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <label className="text-[10px] text-gray-400 block mb-0.5">Target X</label>
+                          <input
+                            type="number"
+                            className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
+                            value={portalTarget?.gridX ?? 0}
+                            onChange={(e) =>
+                              setPortalTarget({
+                                mapId: portalTarget?.mapId ?? '',
+                                gridX: parseInt(e.target.value, 10) || 0,
+                                gridY: portalTarget?.gridY ?? 0
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="text-[10px] text-gray-400 block mb-0.5">Target Y</label>
+                          <input
+                            type="number"
+                            className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
+                            value={portalTarget?.gridY ?? 0}
+                            onChange={(e) =>
+                              setPortalTarget({
+                                mapId: portalTarget?.mapId ?? '',
+                                gridX: portalTarget?.gridX ?? 0,
+                                gridY: parseInt(e.target.value, 10) || 0
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
             {activeMap && (activeMap.terrain ?? []).length > 0 && (

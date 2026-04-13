@@ -165,6 +165,10 @@ function validateChange(char: Record<string, unknown>, change: StatChange): stri
     case 'grant_feature':
     case 'revoke_feature':
       return null
+    case 'reduce_exhaustion': {
+      const conditions = (char.conditions as Array<{ name: string; value?: number }>) || []
+      return !conditions.some((c) => c.name.toLowerCase() === 'exhaustion') ? 'No exhaustion to reduce' : null
+    }
     default:
       return `Unknown change type: ${(change as { type: string }).type}`
   }
@@ -347,6 +351,18 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
       }
       break
     }
+    case 'reduce_exhaustion': {
+      const conditions = char.conditions as Array<{ name: string; value?: number }> | undefined
+      const exh = conditions?.find((c) => c.name.toLowerCase() === 'exhaustion')
+      if (exh) {
+        if (exh.value && exh.value > 1) {
+          exh.value -= 1
+        } else {
+          char.conditions = conditions!.filter((c) => c !== exh)
+        }
+      }
+      break
+    }
   }
 }
 
@@ -453,11 +469,11 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
     }
   }
 
-  // Remove one level of Exhaustion (handled via remove_condition)
-  const conditions = char.conditions as Array<{ name: string }> | undefined
+  // PHB 2024: Long rest reduces Exhaustion by 1 level
+  const conditions = char.conditions as Array<{ name: string; value?: number }> | undefined
   const exhaustion = conditions?.find((c) => c.name.toLowerCase() === 'exhaustion')
   if (exhaustion) {
-    changes.push({ type: 'remove_condition', name: 'Exhaustion', reason: 'long rest' })
+    changes.push({ type: 'reduce_exhaustion', reason: 'long rest' })
   }
 
   if (changes.length === 0) {

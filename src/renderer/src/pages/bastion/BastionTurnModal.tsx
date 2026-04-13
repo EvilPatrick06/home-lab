@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Modal from '../../components/ui/Modal'
 import type { Bastion, BastionOrderType, SpecialFacilityDef } from '../../types/bastion'
+import { getBpPerTurn } from '../../types/bastion'
 import { ORDER_LABELS } from './bastion-constants'
 import type { BastionModalsProps } from './bastion-modal-types'
 
@@ -11,6 +12,7 @@ export function BastionTurnModal({
   facilityDefs,
   activeTurnNumber,
   setActiveTurnNumber,
+  ownerLevel,
   startTurn: _startTurn,
   issueOrder,
   issueMaintainOrder,
@@ -23,6 +25,7 @@ export function BastionTurnModal({
   facilityDefs: SpecialFacilityDef[]
   activeTurnNumber: number | null
   setActiveTurnNumber: (n: number | null) => void
+  ownerLevel: number
   startTurn: BastionModalsProps['startTurn']
   issueOrder: BastionModalsProps['issueOrder']
   issueMaintainOrder: BastionModalsProps['issueMaintainOrder']
@@ -68,7 +71,7 @@ export function BastionTurnModal({
 
   const handleCompleteTurn = (): void => {
     if (!selectedBastion || activeTurnNumber === null) return
-    completeTurn(selectedBastion.id, activeTurnNumber)
+    completeTurn(selectedBastion.id, activeTurnNumber, ownerLevel)
     onClose()
     setActiveTurnNumber(null)
   }
@@ -203,6 +206,12 @@ export function BastionTurnModal({
                 ))}
               </div>
             )}
+            {getBpPerTurn(ownerLevel) > 0 && (
+              <div className="bg-purple-900/20 rounded p-2 border border-purple-800">
+                <span className="text-xs text-purple-400">Bastion Points earned:</span>
+                <span className="text-xs text-gray-200 ml-1">+{getBpPerTurn(ownerLevel)} BP</span>
+              </div>
+            )}
             {activeTurn.eventOutcome && (
               <div className="bg-gray-800 rounded p-3 border border-gray-700">
                 <div className="flex items-center gap-2 mb-1">
@@ -212,6 +221,14 @@ export function BastionTurnModal({
                   <span className="text-xs text-gray-400">{activeTurn.eventType}</span>
                 </div>
                 <p className="text-sm text-gray-200">{activeTurn.eventOutcome}</p>
+              </div>
+            )}
+            {activeTurn.eventDetails?.gamingHallWinnings && (
+              <div className="bg-yellow-900/20 rounded p-2 border border-yellow-800">
+                <span className="text-xs text-yellow-400">Gaming Hall Winnings:</span>
+                <span className="text-xs text-gray-200 ml-1">
+                  {(activeTurn.eventDetails.gamingHallWinnings as { goldEarned: number }).goldEarned} GP earned
+                </span>
               </div>
             )}
             <div className="flex gap-2 justify-end">

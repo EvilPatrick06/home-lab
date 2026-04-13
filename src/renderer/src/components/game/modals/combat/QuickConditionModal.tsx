@@ -8,7 +8,10 @@ interface QuickConditionModalProps {
   preselectedEntities?: string[]
 }
 
-export default function QuickConditionModal({ onClose, preselectedEntities = [] }: QuickConditionModalProps): JSX.Element {
+export default function QuickConditionModal({
+  onClose,
+  preselectedEntities = []
+}: QuickConditionModalProps): JSX.Element {
   const conditions = useGameStore((s) => s.conditions)
   const initiative = useGameStore((s) => s.initiative)
   const maps = useGameStore((s) => s.maps)
@@ -46,7 +49,7 @@ export default function QuickConditionModal({ onClose, preselectedEntities = [] 
   const handleApply = (): void => {
     if (selectedEntities.length === 0 || !selectedCondition) return
 
-    selectedEntities.forEach(entityId => {
+    selectedEntities.forEach((entityId) => {
       const entity = entities.find((e) => e.id === entityId)
       if (!entity) return
 
@@ -105,7 +108,10 @@ export default function QuickConditionModal({ onClose, preselectedEntities = [] 
         <div className="space-y-2 mb-4">
           <div className="max-h-32 overflow-y-auto space-y-1">
             {entities.map((entity) => (
-              <label key={entity.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 px-2 py-1 rounded">
+              <label
+                key={entity.id}
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 px-2 py-1 rounded"
+              >
                 <input
                   type="checkbox"
                   checked={selectedEntities.includes(entity.id)}
@@ -113,7 +119,7 @@ export default function QuickConditionModal({ onClose, preselectedEntities = [] 
                     if (e.target.checked) {
                       setSelectedEntities([...selectedEntities, entity.id])
                     } else {
-                      setSelectedEntities(selectedEntities.filter(id => id !== entity.id))
+                      setSelectedEntities(selectedEntities.filter((id) => id !== entity.id))
                     }
                   }}
                   className="w-3 h-3 text-amber-500 bg-gray-800 border-gray-600 rounded focus:ring-amber-500 focus:ring-2"
@@ -122,19 +128,18 @@ export default function QuickConditionModal({ onClose, preselectedEntities = [] 
               </label>
             ))}
           </div>
-            <select
-              value={selectedCondition}
-              onChange={(e) => setSelectedCondition(e.target.value)}
-              className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
-            >
-              <option value="">Condition...</option>
-              {CONDITIONS_5E.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={selectedCondition}
+            onChange={(e) => setSelectedCondition(e.target.value)}
+            className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
+          >
+            <option value="">Condition...</option>
+            {CONDITIONS_5E.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
           {needsValue && (
             <div className="flex items-center gap-2">
               <label className="text-xs text-gray-400 whitespace-nowrap">Exhaustion Level:</label>
@@ -159,7 +164,7 @@ export default function QuickConditionModal({ onClose, preselectedEntities = [] 
               >
                 <option value="">No source...</option>
                 {entities
-                  .filter((e) => e.id !== selectedEntity)
+                  .filter((e) => !selectedEntities.includes(e.id))
                   .map((e) => (
                     <option key={e.id} value={e.id}>
                       {e.name}

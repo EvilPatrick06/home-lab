@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type {
   AttackEventResult,
   BastionEventResult,
@@ -24,6 +25,7 @@ import {
   SAMPLE_GUILDS,
   TREASURE_TABLE
 } from '../../data/bastion-events'
+import { useBastionStore } from '../../stores/use-bastion-store'
 import type { BasicFacilityDef, Bastion, BastionFacilitiesData, SpecialFacilityDef } from '../../types/bastion'
 import { ENLARGE_COSTS, FACILITY_SPACE_SQUARES } from '../../types/bastion'
 import type { Character5e } from '../../types/character-5e'
@@ -184,6 +186,104 @@ export function BasicTab({
   )
 }
 
+function AcquireCreaturePanel({
+  bastion,
+  facilityId,
+  facilityType
+}: {
+  bastion: Bastion
+  facilityId: string
+  facilityType: string
+}): JSX.Element {
+  const creatures =
+    facilityType === 'emerald-enclave-grove'
+      ? EMERALD_ENCLAVE_CREATURES.map((c) => ({
+          name: c.creatureType,
+          creatureType: c.creatureType,
+          size: 'medium' as const,
+          cost: CREATURE_COSTS_BY_CR.find((e) => e.cr === c.cr)?.cost ?? 100,
+          cr: c.cr
+        }))
+      : MENAGERIE_CREATURES
+
+  return (
+    <div className="mt-2 bg-gray-800/50 rounded p-3 border border-gray-700">
+      <h4 className="text-xs font-medium text-gray-300 mb-2">Acquire Creature</h4>
+      <div className="space-y-1 max-h-40 overflow-y-auto">
+        {creatures.map((c) => (
+          <div
+            key={c.name}
+            className="flex items-center justify-between text-xs bg-gray-800 rounded px-2 py-1 border border-gray-700"
+          >
+            <span className="text-gray-200">
+              {c.name}{' '}
+              <span className="text-gray-500">
+                (CR {c.cr}, {c.size})
+              </span>
+            </span>
+            <button
+              onClick={() => {
+                const store = useBastionStore.getState()
+                if (bastion.treasury < c.cost) return
+                store.withdrawGold(bastion.id, c.cost)
+                store.addCreature(bastion.id, facilityId, {
+                  name: c.name,
+                  creatureType: c.creatureType,
+                  size: c.size,
+                  isDefender: false
+                })
+              }}
+              disabled={bastion.treasury < c.cost}
+              className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
+            >
+              {c.cost} GP
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CreateConstructPanel({ bastion }: { bastion: Bastion }): JSX.Element {
+  return (
+    <div className="mt-2 bg-gray-800/50 rounded p-3 border border-gray-700">
+      <h4 className="text-xs font-medium text-gray-300 mb-2">Create Construct</h4>
+      <div className="space-y-1 max-h-40 overflow-y-auto">
+        {FORGE_CONSTRUCTS.map((c) => (
+          <div
+            key={c.name}
+            className="flex items-center justify-between text-xs bg-gray-800 rounded px-2 py-1 border border-gray-700"
+          >
+            <div>
+              <span className="text-gray-200">{c.name}</span>
+              <span className="text-gray-500 ml-1">
+                (CR {c.cr}, {c.timeDays} days)
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                const store = useBastionStore.getState()
+                if (bastion.treasury < c.costGP) return
+                store.withdrawGold(bastion.id, c.costGP)
+                store.addDefender(bastion.id, {
+                  name: c.name,
+                  barrackId: '',
+                  isConstruct: true
+                })
+              }}
+              disabled={bastion.treasury < c.costGP}
+              className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
+            >
+              {c.costGP} GP
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function SpecialTab({
   bastion,
   facilityDefs,
@@ -201,6 +301,7 @@ export function SpecialTab({
   onRemove: (id: string) => void
   onConfigure: (id: string, config: Record<string, unknown>) => void
 }): JSX.Element {
+  const [expandedPanel, setExpandedPanel] = useState<string | null>(null)
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -342,6 +443,32 @@ export function SpecialTab({
                   )}
                 {/* Facility-specific reference data from event tables */}
                 <FacilityReferenceData facilityType={f.type} />
+                {/* Acquire creature button for menagerie/grove */}
+                {(f.type === 'menagerie' || f.type === 'emerald-enclave-grove') && (
+                  <>
+                    <button
+                      onClick={() => setExpandedPanel(expandedPanel === f.id ? null : f.id)}
+                      className="mt-2 px-2 py-1 text-xs bg-green-700 hover:bg-green-600 text-white rounded transition-colors"
+                    >
+                      {expandedPanel === f.id ? 'Hide Creatures' : 'Acquire Creature'}
+                    </button>
+                    {expandedPanel === f.id && (
+                      <AcquireCreaturePanel bastion={bastion} facilityId={f.id} facilityType={f.type} />
+                    )}
+                  </>
+                )}
+                {/* Create construct button for forges */}
+                {(f.type === 'construct-forge' || f.type === 'artificers-forge') && (
+                  <>
+                    <button
+                      onClick={() => setExpandedPanel(expandedPanel === f.id ? null : f.id)}
+                      className="mt-2 px-2 py-1 text-xs bg-orange-700 hover:bg-orange-600 text-white rounded transition-colors"
+                    >
+                      {expandedPanel === f.id ? 'Hide Constructs' : 'Create Construct'}
+                    </button>
+                    {expandedPanel === f.id && <CreateConstructPanel bastion={bastion} />}
+                  </>
+                )}
               </div>
             )
           })}

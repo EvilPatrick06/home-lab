@@ -155,9 +155,10 @@ const versionCommand: ChatCommand = {
   dmOnly: false,
   category: 'player',
   execute: () => {
+    const ver = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'Local Dev'
     return {
       type: 'system',
-      content: 'D&D VTT — 5e 2024 Edition | Electron + React 19 + PixiJS'
+      content: `D&D VTT — 5e 2024 Edition | Version: ${ver} | Electron + React 19 + PixiJS`
     }
   }
 }

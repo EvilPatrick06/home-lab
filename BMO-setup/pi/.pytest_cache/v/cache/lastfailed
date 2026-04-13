@@ -1,0 +1,3 @@
+{
+  "tests/test_voice_pipeline.py::TestUtilityMethods::test_strip_markdown_removes_relay_tags": true
+}

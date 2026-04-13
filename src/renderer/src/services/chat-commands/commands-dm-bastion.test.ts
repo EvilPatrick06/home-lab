@@ -15,6 +15,12 @@ vi.mock('../../stores/use-bastion-store', () => ({
   }
 }))
 
+vi.mock('../../stores/use-character-store', () => ({
+  useCharacterStore: {
+    getState: () => ({ characters: [] })
+  }
+}))
+
 import { commands } from './commands-dm-bastion'
 
 describe('commands-dm-bastion', () => {

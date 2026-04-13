@@ -32,7 +32,9 @@ import {
   unarmedStrikeDC
 } from './combat-rules'
 import { calculateCover } from './cover-calculator'
+import { getCustomEffectBonuses } from './custom-effect-bridge'
 import { type DamageApplication, type DamageResolutionSummary, resolveDamage } from './damage-resolver'
+import { enforceMountedCombatRestrictions } from './mount-rules'
 import { type AttackTracker, useAttack } from './multi-attack-tracker'
 import { checkCounterspell, type ReactionPrompt } from './reaction-tracker'
 
@@ -338,6 +340,32 @@ export function resolveAttack(
 
   const isRanged = attackType === 'ranged_weapon' || attackType === 'ranged_spell'
 
+  // ── Check mounted combat restrictions ──
+  // A rider on a controlled mount cannot take the Attack action (mount can only
+  // Dash, Disengage, or Dodge). The rider can still attack freely on an
+  // independent mount.
+  const attackerTurnState = turnStates[attackerToken.entityId]
+  if (attackerTurnState?.mountType === 'controlled') {
+    const mountRestriction = enforceMountedCombatRestrictions('controlled', 'Attack')
+    if (!mountRestriction.allowed) {
+      const emptyConditions: ConditionEffectResult = {
+        rollMode: 'normal',
+        advantageSources: [],
+        disadvantageSources: [],
+        attackerCannotAct: false,
+        autoCrit: false,
+        exhaustionPenalty: 0
+      }
+      return makeFailedAttackResult(
+        `${attackerName} cannot attack while on a controlled mount. ${mountRestriction.reason ?? ''}`.trim(),
+        targetToken.ac ?? 10,
+        'none',
+        emptyConditions,
+        { attackerBlocked: true }
+      )
+    }
+  }
+
   // ── Check attacker conditions ──
   const attackerConditions = conditions
     .filter((c) => c.entityId === attackerToken.entityId)
@@ -413,7 +441,10 @@ export function resolveAttack(
   }
 
   const coverACBonus = getCoverACBonus(cover)
-  const targetAC = (targetToken.ac ?? 10) + coverACBonus
+  // Apply custom DM effect bonuses to AC, attack, and damage
+  const targetEffects = getCustomEffectBonuses(targetToken.entityId)
+  const attackerEffects = getCustomEffectBonuses(attackerToken.entityId)
+  const targetAC = (targetToken.ac ?? 10) + coverACBonus + targetEffects.acBonus
 
   // ── Determine advantage/disadvantage ──
   const rollOptions: DiceRollOptions = {
@@ -444,7 +475,7 @@ export function resolveAttack(
   }
 
   // ── Roll attack ──
-  const totalBonus = attackBonus + conditionEffects.exhaustionPenalty
+  const totalBonus = attackBonus + conditionEffects.exhaustionPenalty + attackerEffects.attackBonus
   const attackRoll = rollD20(totalBonus, rollOptions)
 
   // ── Determine hit/miss ──
@@ -468,19 +499,19 @@ export function resolveAttack(
     // Build damage applications
     const damages: DamageApplication[] = [
       {
-        rawDamage: rawDamageRoll.total + extraDamageBonus,
+        rawDamage: rawDamageRoll.total + extraDamageBonus + attackerEffects.damageBonus,
         damageType,
         isMagical,
         isFromSilveredWeapon: isSilvered
       }
     ]
 
-    // Resolve against target resistances/immunities
+    // Resolve against target resistances/immunities (include custom effects)
     damage = resolveDamage(
       damages,
-      targetToken.resistances ?? [],
-      targetToken.immunities ?? [],
-      targetToken.vulnerabilities ?? [],
+      [...(targetToken.resistances ?? []), ...targetEffects.resistances],
+      [...(targetToken.immunities ?? []), ...targetEffects.immunities],
+      [...(targetToken.vulnerabilities ?? []), ...targetEffects.vulnerabilities],
       false, // Heavy Armor Master (would need character data)
       false, // Wearing heavy armor
       underwaterCombat

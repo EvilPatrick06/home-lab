@@ -37,7 +37,13 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
   const selectedSummary = selectedCharacter ? getCharacterSummary(selectedCharacter) : null
   const isNoneSelected = selectedId === '__none__'
 
+  const campaignCharacters = characters.filter((c) => c.campaignId === campaignId)
+  const otherCharacters = characters.filter((c) => c.campaignId !== campaignId)
+
   const handleSelect = (character: Character): void => {
+    if (campaignId && character.campaignId && character.campaignId !== campaignId) {
+      console.warn(`Character ${character.name} is from a different campaign.`)
+    }
     const summary = getCharacterSummary(character)
     setSelectedId(character.id)
     setIsOpen(false)
@@ -114,24 +120,60 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
           ) : characters.length === 0 && !isHost && !isCoDM ? (
             <p className="p-3 text-sm text-gray-500 text-center">No characters found</p>
           ) : (
-            characters.map((character) => {
-              const summary = getCharacterSummary(character)
-              const isSelected = character.id === selectedId
-              return (
-                <button
-                  key={character.id}
-                  onClick={() => handleSelect(character)}
-                  className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
-                    border-b border-gray-700/50 last:border-b-0
-                    ${isSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
-                >
-                  <p className="text-sm font-medium">{summary.name}</p>
-                  <p className="text-xs text-gray-500">
-                    Level {summary.level} {summary.className}
-                  </p>
-                </button>
-              )
-            })
+            <>
+              {campaignCharacters.length > 0 && (
+                <div className="px-3 py-1 bg-gray-900/80 text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+                  Campaign Characters
+                </div>
+              )}
+              {campaignCharacters.map((character) => {
+                const summary = getCharacterSummary(character)
+                const isSelected = character.id === selectedId
+                return (
+                  <button
+                    key={character.id}
+                    onClick={() => handleSelect(character)}
+                    className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
+                      border-b border-gray-700/50 last:border-b-0
+                      ${isSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
+                  >
+                    <p className="text-sm font-medium">{summary.name}</p>
+                    <p className="text-xs text-gray-500">
+                      Level {summary.level} {summary.className}
+                    </p>
+                  </button>
+                )
+              })}
+
+              {otherCharacters.length > 0 && (
+                <div className="px-3 py-1 bg-gray-900/80 text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+                  Other Characters
+                </div>
+              )}
+              {otherCharacters.map((character) => {
+                const summary = getCharacterSummary(character)
+                const isSelected = character.id === selectedId
+                return (
+                  <button
+                    key={character.id}
+                    onClick={() => handleSelect(character)}
+                    className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
+                      border-b border-gray-700/50 last:border-b-0
+                      ${isSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <p className="text-sm font-medium">{summary.name}</p>
+                      {character.campaignId && character.campaignId !== campaignId && (
+                        <span className="text-[9px] text-amber-500/80 border border-amber-500/30 rounded px-1 ml-2 pointer-events-none">Diff Campaign</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Level {summary.level} {summary.className}
+                    </p>
+                  </button>
+                )
+              })}
+            </>
           )}
         </div>
       )}

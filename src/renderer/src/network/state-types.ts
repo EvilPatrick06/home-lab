@@ -11,6 +11,7 @@ export interface PeerInfo {
   isCoDM?: boolean
   /** Transiently set by the host heartbeat check when a peer stops responding but hasn't yet been removed. */
   isDisconnected?: boolean
+  latencyMs?: number
 }
 
 export type ShopItemCategory =

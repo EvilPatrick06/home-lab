@@ -83,8 +83,8 @@ vi.mock('../storage/homebrew-storage', () => ({
 }))
 
 vi.mock('../storage/settings-storage', () => ({
-  loadSettings: vi.fn(() => ({})),
-  saveSettings: vi.fn()
+  loadSettings: vi.fn(() => ({ success: true, data: {} })),
+  saveSettings: vi.fn(() => ({ success: true }))
 }))
 
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
@@ -142,9 +142,9 @@ describe('storage-handlers', () => {
     expect(registeredChannels).toContain(IPC_CHANNELS.LOAD_SETTINGS)
   })
 
-  it('should register exactly 46 handlers', () => {
+  it('should register exactly 48 handlers', () => {
     registerStorageHandlers()
-    expect(mockHandle).toHaveBeenCalledTimes(46)
+    expect(mockHandle).toHaveBeenCalledTimes(48)
   })
 
   describe('SAVE_CHARACTER handler', () => {
@@ -153,7 +153,7 @@ describe('storage-handlers', () => {
 
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.SAVE_CHARACTER)![1]
 
-      const result = await handler({}, { id: 'test', name: 'Hero' })
+      const result = await handler({}, { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Hero' })
       expect(result).toEqual({ success: true, error: undefined })
     })
   })

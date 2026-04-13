@@ -40,7 +40,15 @@ vi.stubGlobal('window', {
     saveBastion: mockSaveBastion,
     saveCustomCreature: mockSaveCustomCreature,
     saveHomebrew: mockSaveHomebrew,
-    saveSettings: mockSaveSettings
+    saveSettings: mockSaveSettings,
+    mapLibrary: { list: vi.fn(), save: vi.fn() },
+    shopTemplates: { list: vi.fn(), save: vi.fn() },
+    imageLibrary: { list: vi.fn(), save: vi.fn(), readFile: vi.fn() },
+    books: { list: vi.fn(), loadConfig: vi.fn() },
+    loadGameState: vi.fn(),
+    saveGameState: vi.fn(),
+    ai: { restoreConversation: vi.fn(), loadConversation: vi.fn() },
+    readFileBinary: vi.fn()
   }
 })
 
@@ -236,6 +244,13 @@ describe('import-export', () => {
       mockLoadCustomCreatures.mockResolvedValue([{ id: 'cr1' }])
       mockLoadAllHomebrew.mockResolvedValue([])
       mockLoadSettings.mockResolvedValue({ theme: 'dark' })
+      window.api.mapLibrary.list = vi.fn().mockResolvedValue([])
+      window.api.shopTemplates.list = vi.fn().mockResolvedValue([])
+      window.api.imageLibrary.list = vi.fn().mockResolvedValue([])
+      window.api.books.loadConfig = vi.fn().mockResolvedValue([])
+      window.api.books.list = vi.fn().mockResolvedValue([])
+      window.api.ai.loadConversation = vi.fn().mockResolvedValue({ success: true, data: null })
+      window.api.loadGameState = vi.fn().mockResolvedValue(null)
       mockShowSaveDialog.mockResolvedValue('/tmp/backup.dndbackup')
       mockWriteFile.mockResolvedValue(undefined)
 
@@ -249,12 +264,18 @@ describe('import-export', () => {
         campaigns: 1,
         bastions: 0,
         customCreatures: 1,
-        homebrew: 0
+        homebrew: 0,
+        gameStates: 0,
+        aiConversations: 0,
+        mapLibrary: 0,
+        shopTemplates: 0,
+        imageLibrary: 0,
+        books: 0
       })
       expect(mockWriteFile).toHaveBeenCalledTimes(1)
 
       const writtenJson = JSON.parse(mockWriteFile.mock.calls[0][1])
-      expect(writtenJson.version).toBe(2)
+      expect(writtenJson.version).toBe(3)
       expect(writtenJson.preferences['dnd-vtt-volume']).toBe('0.8')
       expect(writtenJson.preferences['other-key']).toBeUndefined()
     })
@@ -266,6 +287,11 @@ describe('import-export', () => {
       mockLoadCustomCreatures.mockResolvedValue([])
       mockLoadAllHomebrew.mockResolvedValue([])
       mockLoadSettings.mockResolvedValue({})
+      window.api.mapLibrary.list = vi.fn().mockResolvedValue([])
+      window.api.shopTemplates.list = vi.fn().mockResolvedValue([])
+      window.api.imageLibrary.list = vi.fn().mockResolvedValue([])
+      window.api.books.list = vi.fn().mockResolvedValue([])
+      window.api.loadGameState = vi.fn().mockResolvedValue(null)
       mockShowSaveDialog.mockResolvedValue(null)
 
       expect(await exportAllData()).toBeNull()
@@ -278,6 +304,13 @@ describe('import-export', () => {
       mockLoadCustomCreatures.mockRejectedValue(new Error('fail'))
       mockLoadAllHomebrew.mockRejectedValue(new Error('fail'))
       mockLoadSettings.mockRejectedValue(new Error('fail'))
+      window.api.mapLibrary.list = vi.fn().mockRejectedValue(new Error('fail'))
+      window.api.shopTemplates.list = vi.fn().mockRejectedValue(new Error('fail'))
+      window.api.imageLibrary.list = vi.fn().mockRejectedValue(new Error('fail'))
+      window.api.books.loadConfig = vi.fn().mockRejectedValue(new Error('fail'))
+      window.api.books.list = vi.fn().mockRejectedValue(new Error('fail'))
+      window.api.ai.loadConversation = vi.fn().mockRejectedValue(new Error('fail'))
+      window.api.loadGameState = vi.fn().mockRejectedValue(new Error('fail'))
       mockShowSaveDialog.mockResolvedValue('/tmp/backup.dndbackup')
       mockWriteFile.mockResolvedValue(undefined)
 
@@ -288,7 +321,13 @@ describe('import-export', () => {
         campaigns: 0,
         bastions: 0,
         customCreatures: 0,
-        homebrew: 0
+        homebrew: 0,
+        gameStates: 0,
+        aiConversations: 0,
+        mapLibrary: 0,
+        shopTemplates: 0,
+        imageLibrary: 0,
+        books: 0
       })
     })
   })
@@ -326,7 +365,13 @@ describe('import-export', () => {
         campaigns: 1,
         bastions: 1,
         customCreatures: 1,
-        homebrew: 1
+        homebrew: 1,
+        gameStates: 0,
+        aiConversations: 0,
+        mapLibrary: 0,
+        shopTemplates: 0,
+        imageLibrary: 0,
+        books: 0
       })
       expect(mockSaveCharacter).toHaveBeenCalledWith({ id: 'c1' })
       expect(mockSaveCampaign).toHaveBeenCalledWith({ id: 'camp1' })
@@ -377,7 +422,13 @@ describe('import-export', () => {
         campaigns: 0,
         bastions: 0,
         customCreatures: 0,
-        homebrew: 0
+        homebrew: 0,
+        gameStates: 0,
+        aiConversations: 0,
+        mapLibrary: 0,
+        shopTemplates: 0,
+        imageLibrary: 0,
+        books: 0
       })
     })
 

@@ -71,7 +71,11 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
 
   if (expanded) {
     return (
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-80">
+      <div
+        className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-80"
+        role="region"
+        aria-label="Initiative tracker expanded"
+      >
         <div className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-amber-400 font-semibold">Round {initiative.round}</span>
@@ -106,7 +110,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
   }
 
   return (
-    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
+    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10" role="region" aria-label="Initiative tracker">
       <div
         className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2 cursor-pointer hover:bg-gray-900/80 transition-colors"
         onClick={() => setExpanded(true)}

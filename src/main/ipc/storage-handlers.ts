@@ -1,5 +1,14 @@
 import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
+import {
+  BastionSaveSchema,
+  CampaignSaveSchema,
+  CharacterSaveSchema,
+  CustomCreatureSaveSchema,
+  GameStateSaveSchema,
+  HomebrewSaveSchema
+} from '../../shared/storage-schemas'
+import { loadBans, saveBans } from '../storage/ban-storage'
 import { deleteBastion, loadBastion, loadBastions, saveBastion } from '../storage/bastion-storage'
 import {
   addBook,
@@ -56,7 +65,9 @@ export function registerStorageHandlers(): void {
   // --- Character storage ---
 
   ipcMain.handle(IPC_CHANNELS.SAVE_CHARACTER, async (_event, character) => {
-    const result = await saveCharacter(character)
+    const parsed = CharacterSaveSchema.safeParse(character)
+    if (!parsed.success) return { success: false, error: `Invalid character data: ${parsed.error.message}` }
+    const result = await saveCharacter(parsed.data)
     return { success: result.success, error: result.error }
   })
 
@@ -95,7 +106,9 @@ export function registerStorageHandlers(): void {
   // --- Campaign storage ---
 
   ipcMain.handle(IPC_CHANNELS.SAVE_CAMPAIGN, async (_event, campaign) => {
-    const result = await saveCampaign(campaign)
+    const parsed = CampaignSaveSchema.safeParse(campaign)
+    if (!parsed.success) return { success: false, error: `Invalid campaign data: ${parsed.error.message}` }
+    const result = await saveCampaign(parsed.data)
     return { success: result.success, error: result.error }
   })
 
@@ -126,7 +139,9 @@ export function registerStorageHandlers(): void {
   // --- Bastion storage ---
 
   ipcMain.handle(IPC_CHANNELS.SAVE_BASTION, async (_event, bastion) => {
-    const result = await saveBastion(bastion)
+    const parsed = BastionSaveSchema.safeParse(bastion)
+    if (!parsed.success) return { success: false, error: `Invalid bastion data: ${parsed.error.message}` }
+    const result = await saveBastion(parsed.data)
     return { success: result.success, error: result.error }
   })
 
@@ -157,7 +172,9 @@ export function registerStorageHandlers(): void {
   // --- Custom creature storage ---
 
   ipcMain.handle(IPC_CHANNELS.SAVE_CUSTOM_CREATURE, async (_event, creature) => {
-    const result = await saveCustomCreature(creature)
+    const parsed = CustomCreatureSaveSchema.safeParse(creature)
+    if (!parsed.success) return { success: false, error: `Invalid creature data: ${parsed.error.message}` }
+    const result = await saveCustomCreature(parsed.data)
     return { success: result.success, error: result.error }
   })
 
@@ -188,7 +205,9 @@ export function registerStorageHandlers(): void {
   // --- Game state storage ---
 
   ipcMain.handle(IPC_CHANNELS.SAVE_GAME_STATE, async (_event, campaignId: string, state: Record<string, unknown>) => {
-    const result = await saveGameStateStorage(campaignId, state)
+    const parsed = GameStateSaveSchema.safeParse(state)
+    if (!parsed.success) return { success: false, error: `Invalid state data: ${parsed.error.message}` }
+    const result = await saveGameStateStorage(campaignId, parsed.data)
     return { success: result.success, error: result.error }
   })
 
@@ -211,7 +230,9 @@ export function registerStorageHandlers(): void {
   // --- Homebrew storage ---
 
   ipcMain.handle(IPC_CHANNELS.SAVE_HOMEBREW, async (_event, entry) => {
-    const result = await saveHomebrewEntry(entry)
+    const parsed = HomebrewSaveSchema.safeParse(entry)
+    if (!parsed.success) return { success: false, error: `Invalid homebrew data: ${parsed.error.message}` }
+    const result = await saveHomebrewEntry(parsed.data)
     return { success: result.success, error: result.error }
   })
 
@@ -236,13 +257,27 @@ export function registerStorageHandlers(): void {
   // --- Settings storage ---
 
   ipcMain.handle(IPC_CHANNELS.LOAD_SETTINGS, async () => {
-    return loadSettings()
+    const result = await loadSettings()
+    return result.data ?? {}
   })
 
   ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, async (_event, settings: AppSettings) => {
-    await saveSettings(settings)
-    return { success: true }
+    return await saveSettings(settings)
   })
+
+  // --- Ban storage ---
+
+  ipcMain.handle(IPC_CHANNELS.LOAD_BANS, async (_event, campaignId: string) => {
+    const result = await loadBans(campaignId)
+    return result.data ?? { peerIds: [], names: [] }
+  })
+
+  ipcMain.handle(
+    IPC_CHANNELS.SAVE_BANS,
+    async (_event, campaignId: string, banData: { peerIds: string[]; names: string[] }) => {
+      return await saveBans(campaignId, banData)
+    }
+  )
 
   // --- Map Library storage ---
 

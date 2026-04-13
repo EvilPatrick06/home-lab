@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('../components/campaign', () => ({
+  CampaignWizard: () => null
+}))
 
 describe('MakeGamePage', () => {
   it('can be imported', async () => {

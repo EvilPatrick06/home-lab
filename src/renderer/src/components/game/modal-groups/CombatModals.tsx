@@ -1,9 +1,12 @@
 import { lazy, Suspense } from 'react'
 import type { MessageType } from '../../../network'
+import { deathSaveDamageAtZero } from '../../../services/combat/death-mechanics'
 import type { GameStoreState } from '../../../stores/game/types'
+import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { ChatMessage } from '../../../stores/use-lobby-store'
 import type { Character } from '../../../types/character'
+import type { Character5e } from '../../../types/character-5e'
 import type { GameMap } from '../../../types/map'
 import type { ActiveModal } from '../active-modal-types'
 import { triggerCombatAnimation } from '../map/combat-animations'
@@ -56,6 +59,7 @@ interface CombatModalsProps {
       damage: number
     } | null
   ) => void
+  conditionTargetEntityId?: string | null
 }
 
 function applyTokenDamage(
@@ -63,7 +67,8 @@ function applyTokenDamage(
   activeMap: GameMap,
   targetTokenId: string,
   damage: number,
-  damageColor = 0xff4444
+  damageColor = 0xff4444,
+  isCritical = false
 ): { target: GameMap['tokens'][number]; effectiveDamage: number } | null {
   const target = activeMap.tokens.find((t) => t.id === targetTokenId)
   if (!target || target.currentHP == null) return null
@@ -83,6 +88,46 @@ function applyTokenDamage(
       textColor: damageColor
     })
   }
+
+  // Sync character HP for player tokens
+  if (target.entityType === 'player' && target.entityId) {
+    const charStore = useCharacterStore.getState()
+    const char = charStore.characters.find((c) => c.id === target.entityId) as Character5e | undefined
+    if (char) {
+      charStore.saveCharacter({
+        ...char,
+        hitPoints: {
+          ...char.hitPoints,
+          current: newHP,
+          temporary: Math.max(0, char.hitPoints.temporary ?? 0)
+        }
+      })
+    }
+  }
+
+  // PHB 2024: Death save failures when a PC at 0 HP takes damage
+  if (target.currentHP === 0 && newHP === 0 && target.entityType === 'player' && target.entityId && damage > 0) {
+    const charStore = useCharacterStore.getState()
+    const char = charStore.characters.find((c) => c.id === target.entityId) as Character5e | undefined
+    if (char) {
+      const dsResult = deathSaveDamageAtZero(
+        target.entityId,
+        target.label,
+        char.deathSaves,
+        damage,
+        isCritical,
+        char.hitPoints.maximum
+      )
+      charStore.saveCharacter({
+        ...char,
+        deathSaves: {
+          successes: char.deathSaves.successes,
+          failures: dsResult.failures
+        }
+      })
+    }
+  }
+
   return { target, effectiveDamage: damage }
 }
 
@@ -98,7 +143,8 @@ export default function CombatModals({
   broadcast,
   addChatMessage,
   sendMessage,
-  setConcCheckPrompt
+  setConcCheckPrompt,
+  conditionTargetEntityId
 }: CombatModalsProps): JSX.Element {
   const gameStore = useGameStore()
 
@@ -108,7 +154,12 @@ export default function CombatModals({
         <ActionModal isMyTurn={isMyTurn} playerName={playerName} onAction={handleAction} onClose={close} />
       )}
       {activeModal === 'hiddenDice' && effectiveIsDM && <HiddenDiceModal onClose={close} />}
-      {activeModal === 'quickCondition' && <QuickConditionModal onClose={close} />}
+      {activeModal === 'quickCondition' && (
+        <QuickConditionModal
+          onClose={close}
+          preselectedEntities={conditionTargetEntityId ? [conditionTargetEntityId] : undefined}
+        />
+      )}
       {activeModal === 'attack' && (
         <AttackModal
           character={character}
@@ -136,6 +187,14 @@ export default function CombatModals({
                   dc,
                   damage: effectiveDmg
                 })
+              }
+            }
+            // Consume action for the attacker (first attack uses the action)
+            const attackerEntityId = character?.id
+            if (attackerEntityId && gameStore.initiative) {
+              const ts = gameStore.turnStates[attackerEntityId]
+              if (ts && !ts.actionUsed) {
+                gameStore.useAction(attackerEntityId)
               }
             }
           }}

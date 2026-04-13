@@ -137,6 +137,10 @@ export interface EntityCondition {
   /** Entity ID of the source of this condition (e.g., caster for Charmed/Frightened, grappler for Grappled) */
   sourceEntityId?: string
   appliedRound: number
+  /** In-game time (totalSeconds) when a creature was stabilized (for Stable condition recovery) */
+  stabilizedAtSeconds?: number
+  /** Duration in seconds until stable creature regains 1 HP (1d4 hours per PHB 2024) */
+  recoveryDurationSeconds?: number
 }
 
 export interface SidebarEntryStatBlock {
@@ -274,4 +278,52 @@ export interface DiceRollRecord {
   reason?: string
   isCritical: boolean
   isFumble: boolean
+}
+
+export interface PartyInventoryItem {
+  id: string
+  name: string
+  quantity: number
+  weight?: number
+  value?: number // in GP
+  description?: string
+  rarity?: 'common' | 'uncommon' | 'rare' | 'very-rare' | 'legendary' | 'artifact'
+  attunement?: boolean
+  assignedTo?: string // player entity ID
+}
+
+export interface PartyInventory {
+  items: PartyInventoryItem[]
+  currency: { cp: number; sp: number; ep: number; gp: number; pp: number }
+  transactionLog: Array<{
+    id: string
+    type: 'add' | 'remove' | 'transfer' | 'currency'
+    description: string
+    timestamp: number
+  }>
+}
+
+export interface DmTrigger {
+  id: string
+  name: string
+  event:
+    | 'initiative_change'
+    | 'hp_threshold'
+    | 'time_elapsed'
+    | 'token_enter_region'
+    | 'condition_applied'
+    | 'combat_start'
+    | 'combat_end'
+  condition: {
+    entityId?: string
+    threshold?: number
+    regionId?: string
+    conditionName?: string
+    elapsed?: number
+  }
+  action: 'narrate' | 'spawn_creature' | 'play_sound' | 'change_lighting' | 'show_message'
+  actionPayload: Record<string, unknown>
+  enabled: boolean
+  oneShot: boolean
+  firedCount?: number
 }

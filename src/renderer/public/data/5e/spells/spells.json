@@ -503,6 +503,21 @@
     "spellList": ["divine"]
   },
   {
+    "id": "blade-of-disaster",
+    "name": "Blade of Disaster",
+    "level": 9,
+    "school": "Conjuration",
+    "castingTime": "1 bonus action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 minute",
+    "concentration": true,
+    "ritual": false,
+    "components": "V, S",
+    "description": "You create a blade-shaped planar rift about 3 feet long in an unoccupied space you can see within range. The blade lasts for the duration. When you cast this spell, you can make up to two melee spell attacks with the blade, each one against a creature, loose object, or structure within 5 feet of the blade. On a hit, the target takes 4d12 Force damage. This attack scores a Critical Hit if the number on the d20 is 18 or higher. On a Critical Hit, the blade deals an extra 8d12 Force damage (for a total of 12d12 Force damage). As a Bonus Action on your turn, you can move the blade up to 30 feet to an unoccupied space you can see and then make up to two melee spell attacks with it again. The blade can harmlessly pass through any barrier, including a Wall of Force.",
+    "classes": ["sorcerer", "warlock", "wizard"],
+    "spellList": ["arcane"]
+  },
+  {
     "id": "blade-ward",
     "name": "Blade Ward",
     "level": 0,
@@ -2083,6 +2098,21 @@
     "spellList": ["arcane"]
   },
   {
+    "id": "find-greater-steed",
+    "name": "Find Greater Steed",
+    "level": 4,
+    "school": "Conjuration",
+    "castingTime": "10 minutes",
+    "range": "30 feet",
+    "duration": "Instantaneous",
+    "concentration": false,
+    "ritual": false,
+    "components": "V, S",
+    "description": "You summon a spirit that assumes the form of a loyal, majestic mount. Appearing in an unoccupied space within range, the spirit takes on a form you choose: a Griffon, a Pegasus, a Peryton, a Dire Wolf, a Rhinoceros, or a Saber-Toothed Tiger. The creature has the statistics provided in the Monster Manual for the chosen form, though it is a Celestial, a Fey, or a Fiend (your choice) instead of its normal creature type. Additionally, if it has an Intelligence score of 5 or less, its Intelligence becomes 6, and it gains the ability to understand one language of your choice that you speak. You control the mount in combat. While the mount is within 1 mile of you, you can communicate with it telepathically. While mounted on it, you can make any spell you cast that targets only you also target the mount.",
+    "classes": ["paladin"],
+    "spellList": ["divine"]
+  },
+  {
     "id": "find-steed",
     "name": "Find Steed",
     "level": 2,
@@ -3062,6 +3092,22 @@
     "higherLevels": "Using a Higher-Level Spell Slot. the damage increases by 1d10 for each slot level above 5th.",
     "classes": ["cleric", "druid", "sorcerer"],
     "spellList": ["divine", "primal"]
+  },
+  {
+    "id": "intellect-fortress",
+    "name": "Intellect Fortress",
+    "level": 3,
+    "school": "Abjuration",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "duration": "Concentration, up to 1 hour",
+    "concentration": true,
+    "ritual": false,
+    "components": "V",
+    "description": "For the duration, you or one willing creature you can see within range has Resistance to Psychic damage, as well as Advantage on Intelligence, Wisdom, and Charisma saving throws.",
+    "higherLevels": "When you cast this spell using a spell slot of 4th level or higher, you can target one additional creature for each slot level above 3rd. The creatures must be within 30 feet of each other when you target them.",
+    "classes": ["bard", "sorcerer", "warlock", "wizard"],
+    "spellList": ["arcane"]
   },
   {
     "id": "invisibility",
@@ -4925,6 +4971,22 @@
     "higherLevels": "Using a Higher-Level Spell Slot. the damage increases by 1d8 for each slot level above 3rd.",
     "classes": ["cleric"],
     "spellList": ["divine"]
+  },
+  {
+    "id": "spirit-shroud",
+    "name": "Spirit Shroud",
+    "level": 3,
+    "school": "Necromancy",
+    "castingTime": "1 bonus action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 minute",
+    "concentration": true,
+    "ritual": false,
+    "components": "V, S",
+    "description": "You call forth spirits of the dead, which flit around you for the spell's duration. The spirits are intangible and invulnerable. Until the spell ends, any attack you make deals 1d8 extra damage when you hit a creature within 10 feet of you. This damage is Radiant, Necrotic, or Cold (your choice when you cast the spell). Any creature that takes this damage can't regain Hit Points until the start of your next turn. In addition, any creature of your choice that you can see that starts its turn within 10 feet of you has its Speed reduced by 10 feet until the start of your next turn.",
+    "higherLevels": "The extra damage increases by 1d8 for every two spell slot levels above 3rd.",
+    "classes": ["cleric", "paladin", "warlock", "wizard"],
+    "spellList": ["arcane", "divine"]
   },
   {
     "id": "spiritual-weapon",

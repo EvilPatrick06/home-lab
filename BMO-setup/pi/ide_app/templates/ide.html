@@ -12,18 +12,15 @@
   <!-- IDE Styles -->
   <link rel="stylesheet" href="/static/css/ide.css">
 
-  <!-- Monaco Editor -->
-  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js"></script>
-
-  <!-- Xterm.js -->
+  <!-- Xterm.js (load BEFORE Monaco to avoid AMD conflicts) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
 
-  <!-- Socket.IO -->
+  <!-- Socket.IO (load BEFORE Monaco) -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-  <!-- Marked.js for markdown rendering -->
+  <!-- Marked.js (load BEFORE Monaco) -->
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
 </head>
 <body>
@@ -52,8 +49,11 @@
         </button>
       </div>
       <div class="menu-right">
-        <span id="connection-status" class="status-dot offline" title="Disconnected"></span>
         <span id="file-status" class="file-status"></span>
+        <span id="connection-label" class="connection-label" title="Server connection">
+          <span id="connection-status" class="status-dot offline"></span>
+          <span id="connection-text">Offline</span>
+        </span>
       </div>
     </header>
 
@@ -144,12 +144,36 @@
         <div id="panel-agents" class="sidebar-panel">
           <div class="panel-header">
             <span class="panel-title">AGENTS</span>
-          </div>
-          <div class="panel-content" id="agent-list">
-            <div class="empty-state">
-              <span class="empty-icon">🤖</span>
-              <p>Agent system coming soon</p>
+            <div class="panel-actions">
+              <button class="icon-btn" id="btn-agent-list" title="Agent List">📋</button>
+              <button class="icon-btn" id="btn-clear-chat" title="Clear Chat">🗑️</button>
             </div>
+          </div>
+          <!-- Agent Controls Bar -->
+          <div class="agent-controls">
+            <select id="agent-selector" class="agent-select" title="Route to agent">
+              <option value="auto">🤖 Auto-Route</option>
+            </select>
+            <select id="model-selector" class="agent-select" title="Model tier">
+              <option value="auto">⚡ Auto</option>
+              <option value="flash">⚡ Flash</option>
+              <option value="pro">🧠 Pro</option>
+              <option value="opus">🎯 Opus</option>
+              <option value="local">📡 Local</option>
+            </select>
+          </div>
+          <!-- Chat Messages -->
+          <div class="panel-content agent-chat-area" id="agent-chat">
+            <div class="agent-welcome">
+              <span class="agent-welcome-icon">🤖</span>
+              <p>Chat with BMO's agents</p>
+              <p class="agent-welcome-hint">Messages route to the best agent automatically</p>
+            </div>
+          </div>
+          <!-- Chat Input -->
+          <div class="agent-input-area">
+            <input type="text" id="agent-chat-input" placeholder="Ask BMO anything..." class="panel-input agent-input">
+            <button id="btn-send-chat" class="btn-send" title="Send">➤</button>
           </div>
         </div>
       </div>
@@ -239,6 +263,8 @@
 
   </div>
 
+  <!-- Monaco Editor loader — MUST be last before ide.js to avoid AMD conflicts -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js"></script>
   <!-- IDE Logic -->
   <script src="/static/js/ide.js"></script>
 </body>

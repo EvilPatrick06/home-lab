@@ -18,6 +18,8 @@ const ThemeSelector = lazy(() => import('../overlays/ThemeSelector'))
 const ItemTradeModal = lazy(() => import('../modals/utility/ItemTradeModal'))
 const SharedJournalModal = lazy(() => import('../modals/utility/SharedJournalModal'))
 const CompendiumModal = lazy(() => import('../modals/utility/CompendiumModal'))
+const PartyInventoryModal = lazy(() => import('../modals/utility/PartyInventoryModal'))
+const EndOfSessionModal = lazy(() => import('../modals/utility/EndOfSessionModal'))
 const DiceRoller = lazy(() => import('../dice3d/DiceRoller'))
 
 interface UtilityModalsProps {
@@ -127,6 +129,10 @@ export default function UtilityModals({
       )}
 
       {activeModal === 'compendium' && <CompendiumModal onClose={close} />}
+
+      {activeModal === 'partyInventory' && <PartyInventoryModal isDM={effectiveIsDM} onClose={close} />}
+
+      {activeModal === 'recaps' && effectiveIsDM && <EndOfSessionModal open={true} onClose={close} onSkip={close} />}
 
       {activeModal === 'diceRoller' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

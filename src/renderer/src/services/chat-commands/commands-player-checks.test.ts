@@ -167,6 +167,15 @@ describe('commands-player-checks', () => {
       expect(result).toHaveProperty('type', 'broadcast')
       expect((result as { content: string }).content).toContain('Ability Check')
     })
+
+    it('auto-detects modifier from character ability scores', () => {
+      const char = { abilityScores: { strength: 18 } }
+      const result = abilityCmd.execute('str', makeCtx({ character: char as any }))
+      expect(result).toHaveProperty('type', 'broadcast')
+      // STR 18 = +4 modifier
+      expect((result as { content: string }).content).toContain('Strength')
+      expect((result as { content: string }).content).toContain('+4')
+    })
   })
 
   describe('/save command', () => {
@@ -194,6 +203,18 @@ describe('commands-player-checks', () => {
       const result = saveCmd.execute('dexterity', makeCtx())
       expect(result).toHaveProperty('type', 'broadcast')
       expect((result as { content: string }).content).toContain('Dexterity')
+    })
+
+    it('auto-detects modifier and proficiency from character', () => {
+      const char = {
+        abilityScores: { constitution: 16 },
+        level: 5,
+        proficiencies: { savingThrows: ['constitution'] }
+      }
+      const result = saveCmd.execute('con', makeCtx({ character: char as any }))
+      expect(result).toHaveProperty('type', 'broadcast')
+      // CON 16 = +3, level 5 prof = +3, total = +6
+      expect((result as { content: string }).content).toContain('+6')
     })
   })
 

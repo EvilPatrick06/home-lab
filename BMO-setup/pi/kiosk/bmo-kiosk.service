@@ -6,6 +6,7 @@ Wants=bmo.service
 [Service]
 Type=simple
 User=patrick
+EnvironmentFile=-/home/patrick/DnD/BMO-setup/pi/.env
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=GDK_BACKEND=wayland
 Environment=WLR_DRM_DEVICES=/dev/dri/card0
@@ -20,36 +21,7 @@ Environment=XCURSOR_PATH=/home/patrick/.icons:/usr/share/icons
 # Wait for BMO Flask to be ready
 ExecStartPre=/bin/bash -c 'for i in {1..30}; do curl -sf http://localhost:5000/health > /dev/null && break; sleep 1; done'
 
-ExecStart=/usr/bin/cage -- chromium \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-features=TranslateUI \
-    --disable-background-networking \
-    --disable-component-update \
-    --disable-domain-reliability \
-    --disable-sync \
-    --dns-prefetch-disable \
-    --no-default-browser-check \
-    --password-store=basic \
-    --check-for-update-interval=31536000 \
-    --no-first-run \
-    --start-fullscreen \
-    --touch-events=enabled \
-    --ash-hide-cursor-on-touch \
-    --enable-touchview \
-    --enable-pinch \
-    --use-fake-ui-for-media-stream \
-    --autoplay-policy=no-user-gesture-required \
-    --force-device-scale-factor=1 \
-    --high-dpi-support=1 \
-    --window-size=800,480 \
-    --enable-logging=stderr \
-    --v=1 \
-    --unsafely-treat-insecure-origin-as-secure=http://127.0.0.1:5000 \
-    http://127.0.0.1:5000/?kiosk=1
+ExecStart=/bin/bash -lc 'export GOOGLE_API_KEY="${GOOGLE_MAPS_API_KEY:-}"; exec /usr/bin/cage -- chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --disable-restore-session-state --disable-features=TranslateUI --disable-component-update --disable-domain-reliability --disable-sync --dns-prefetch-disable --no-default-browser-check --password-store=basic --check-for-update-interval=31536000 --no-first-run --start-fullscreen --touch-events=enabled --ash-hide-cursor-on-touch --enable-touchview --enable-pinch --use-fake-ui-for-media-stream --autoplay-policy=no-user-gesture-required --force-device-scale-factor=1 --high-dpi-support=1 --window-size=800,480 --user-data-dir=/home/patrick/.config/chromium-bmo --enable-logging=stderr --v=1 --unsafely-treat-insecure-origin-as-secure=http://127.0.0.1:5000,http://localhost:5000 http://127.0.0.1:5000/?kiosk=1'
 
 ExecStartPost=/bin/bash -c 'sleep 20; /usr/bin/chromium --headless --disable-gpu --no-sandbox --use-fake-ui-for-media-stream --virtual-time-budget=25000 --run-all-compositor-stages-before-draw --dump-dom http://127.0.0.1:5000/?kiosk=1 > /dev/null 2>&1 || true'
 

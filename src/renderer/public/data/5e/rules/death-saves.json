@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Death Saving Throws",
+    "description": "Whenever you start your turn with 0 Hit Points, you must make a special saving throw, called a Death Saving Throw, to determine whether you creep closer to death or hang on to life. Unlike other saving throws, this one isn't tied to any ability score.",
+    "effects": [
+      "Roll 1d20 at the start of each of your turns while at 0 HP",
+      "A roll of 10 or higher is a success; a roll of 9 or lower is a failure",
+      "Three successes: You become Stable (still at 0 HP but no longer dying)",
+      "Three failures: You die",
+      "A natural 20: You regain 1 HP and are no longer dying",
+      "A natural 1: Counts as two failures",
+      "Successes and failures don't need to be consecutive; track each separately",
+      "The number of both resets to zero when you regain any Hit Points or become Stable"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Stabilizing a Creature",
+    "description": "You can use your action to administer first aid to an unconscious creature and attempt to stabilize it, which requires a successful DC 10 Wisdom (Medicine) check. A stable creature doesn't make Death Saving Throws, even though it has 0 HP, but it does remain Unconscious.",
+    "effects": [
+      "Use your action to make a DC 10 Wisdom (Medicine) check",
+      "On a success, the creature becomes Stable",
+      "A stable creature is still at 0 HP but no longer makes Death Saving Throws",
+      "A stable creature remains Unconscious",
+      "A stable creature that isn't healed regains 1 HP after 1d4 hours",
+      "If the stable creature takes damage, it starts making Death Saving Throws again",
+      "The Spare the Dying cantrip automatically stabilizes a creature without a check"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Damage at 0 Hit Points",
+    "description": "If you take any damage while you have 0 Hit Points, you suffer a Death Saving Throw failure. If the damage is from a critical hit, you suffer two failures instead. If the damage equals or exceeds your Hit Point maximum, you suffer Instant Death.",
+    "effects": [
+      "Any damage taken at 0 HP causes one automatic Death Saving Throw failure",
+      "A critical hit against a creature at 0 HP causes two Death Saving Throw failures",
+      "If the damage equals or exceeds your Hit Point maximum while at 0 HP, you die instantly",
+      "A melee attack against an Unconscious creature within 5 feet is automatically a critical hit"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Massive Damage (Instant Death)",
+    "description": "Massive damage can kill you instantly. When damage reduces you to 0 Hit Points and there is damage remaining, you die if the remaining damage equals or exceeds your Hit Point maximum.",
+    "effects": [
+      "If damage reduces you to 0 HP and there is leftover damage, compare the leftover to your HP maximum",
+      "If the leftover damage equals or exceeds your HP maximum, you die instantly",
+      "Example: A character with 12 HP max who takes 24 damage (reducing to 0 HP with 12 leftover) dies instantly because 12 equals their HP max",
+      "This applies to any source of damage, not just attacks",
+      "This check happens before Death Saving Throws would begin"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Dropping to 0 Hit Points",
+    "description": "When you drop to 0 Hit Points, you either die outright or fall Unconscious. For most player characters, falling Unconscious is the more common result.",
+    "effects": [
+      "If damage reduces you to 0 HP without killing you outright, you fall Unconscious (and gain that condition)",
+      "You drop whatever you are holding and fall Prone",
+      "This unconsciousness ends if you regain any Hit Points",
+      "You remain Unconscious and start making Death Saving Throws at the start of each of your turns",
+      "Healing of any amount brings you back to consciousness and ends the dying state"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Monsters and Death",
+    "description": "Most DMs have a monster die the instant it drops to 0 Hit Points, rather than having it fall Unconscious and make Death Saving Throws. Mighty villains and special NPCs are common exceptions; the DM might have them follow the same rules as player characters.",
+    "effects": [
+      "Monsters typically die instantly at 0 HP without making Death Saving Throws",
+      "The DM can choose to have important NPCs or villains make Death Saving Throws like player characters",
+      "Knocked-out monsters can be left alive for interrogation or other purposes at the DM's discretion",
+      "The DM can apply the Instant Death rule from massive damage to any creature"
+    ],
+    "source": "PHB 2024"
+  }
+]

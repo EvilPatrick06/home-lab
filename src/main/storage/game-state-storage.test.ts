@@ -5,6 +5,7 @@ vi.mock('electron', () => ({
 }))
 
 vi.mock('node:fs/promises', () => ({
+  rename: vi.fn(),
   readFile: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),
@@ -69,7 +70,13 @@ describe('game-state-storage', () => {
 
       const result = await loadGameState(VALID_UUID)
       expect(result.success).toBe(true)
-      expect(result.data).toEqual(mockState)
+      expect(result.data).toEqual({
+        ...mockState,
+        entities: [],
+        logs: [],
+        maps: [],
+        schemaVersion: 1
+      })
     })
 
     it('should return error on read failure', async () => {

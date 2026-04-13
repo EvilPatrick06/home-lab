@@ -63,7 +63,8 @@ export function handleTerrainCellClick(
   gridY: number,
   terrain: TerrainCell[],
   terrainPaintType: TerrainCell['type'],
-  triggerRerender: () => void
+  triggerRerender: () => void,
+  portalTarget?: { mapId: string; gridX: number; gridY: number }
 ): boolean {
   const { fx, fy } = floorGrid(gridX, gridY)
   const existing = terrain.findIndex((t) => t.x === fx && t.y === fy)
@@ -71,7 +72,7 @@ export function handleTerrainCellClick(
   const newTerrain =
     existing >= 0
       ? terrain.filter((_, i) => i !== existing)
-      : [...terrain, { x: fx, y: fy, type: terrainPaintType, movementCost: terrainPaintType === 'hazard' ? 1 : 2 }]
+      : [...terrain, { x: fx, y: fy, type: terrainPaintType, movementCost: terrainPaintType === 'hazard' ? 1 : 2, portalTarget: terrainPaintType === 'portal' ? portalTarget : undefined }]
 
   applyTerrainToMap(mapId, newTerrain)
   pushTerrainUndo(mapId, 'terrain-paint', `Paint terrain at (${fx}, ${fy})`, oldTerrain, newTerrain, triggerRerender)
@@ -91,7 +92,8 @@ export function handleFillCellClick(
   gridY: number,
   terrain: TerrainCell[],
   terrainPaintType: TerrainCell['type'],
-  triggerRerender: () => void
+  triggerRerender: () => void,
+  portalTarget?: { mapId: string; gridX: number; gridY: number }
 ): boolean {
   const { fx, fy } = floorGrid(gridX, gridY)
   const terrainSet = new Set(terrain.map((t) => `${t.x},${t.y}`))
@@ -149,7 +151,8 @@ export function handleFillCellClick(
       x: cx,
       y: cy,
       type: terrainPaintType,
-      movementCost: terrainPaintType === 'hazard' ? 1 : 2
+      movementCost: terrainPaintType === 'hazard' ? 1 : 2,
+      portalTarget: terrainPaintType === 'portal' ? portalTarget : undefined
     })
     for (const [dx, dy] of [
       [0, 1],

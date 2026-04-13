@@ -1,8 +1,9 @@
-import { access, copyFile, mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
+import { access, copyFile, mkdir, readdir, readFile, stat, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app } from 'electron'
 import { isValidUUID } from '../../shared/utils/uuid'
 import { logToFile } from '../log'
+import { atomicWriteFile } from './atomic-write'
 import { CURRENT_SCHEMA_VERSION, migrateData } from './migrations'
 import type { StorageResult } from './types'
 
@@ -71,7 +72,7 @@ export async function saveCharacter(character: Record<string, unknown>): Promise
       }
     }
 
-    await writeFile(path, JSON.stringify(character, null, 2), 'utf-8')
+    await atomicWriteFile(path, JSON.stringify(character, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
     return { success: false, error: `Failed to save character: ${(err as Error).message}` }

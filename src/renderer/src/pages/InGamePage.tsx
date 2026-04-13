@@ -83,6 +83,17 @@ export default function InGamePage(): JSX.Element {
     if (!campaign) return
     if (gameCampaignId !== campaign.id) {
       const saved = campaign.savedGameState
+
+      // Ensure we don't overwrite a newer local auto-save with an older campaign state
+      const currentStoreState = useGameStore.getState()
+      const localTimestamp = (currentStoreState as any).lastSaveTimestamp || 0
+      const incomingTimestamp = saved?.lastSaveTimestamp || 0
+
+      if (localTimestamp > 0 && incomingTimestamp > 0 && incomingTimestamp < localTimestamp) {
+        console.warn('Skipping state load: Local game state is newer than campaign saved state')
+        return
+      }
+
       loadGameState({
         campaignId: campaign.id,
         system: campaign.system,
@@ -113,8 +124,11 @@ export default function InGamePage(): JSX.Element {
         restTracking: saved?.restTracking ?? null,
         activeLightSources: saved?.activeLightSources ?? [],
         handouts: saved?.handouts ?? [],
-        combatTimer: saved?.combatTimer ?? null
-      })
+        combatTimer: saved?.combatTimer ?? null,
+        sessionLog: saved?.sessionLog,
+        sharedJournal: saved?.sharedJournal,
+        lastSaveTimestamp: saved?.lastSaveTimestamp
+      } as any)
     }
   }, [campaign, gameCampaignId, loadGameState])
 

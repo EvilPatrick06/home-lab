@@ -1,8 +1,9 @@
-import { access, mkdir, readdir, readFile, rm, unlink, writeFile } from 'node:fs/promises'
+import { access, copyFile, mkdir, readdir, readFile, rm, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app } from 'electron'
 import { isValidUUID } from '../../shared/utils/uuid'
 import { logToFile } from '../log'
+import { atomicWriteFile } from './atomic-write'
 import { CURRENT_SCHEMA_VERSION, migrateData } from './migrations'
 import type { StorageResult } from './types'
 
@@ -44,7 +45,29 @@ export async function saveCampaign(campaign: Record<string, unknown>): Promise<S
     }
     campaign.schemaVersion = CURRENT_SCHEMA_VERSION
     const path = await getCampaignPath(id)
-    await writeFile(path, JSON.stringify(campaign, null, 2), 'utf-8')
+
+    // Create versioned backup of existing file before overwriting
+    if (await fileExists(path)) {
+      try {
+        const dir = await getCampaignsDir()
+        const versionsDir = join(dir, '.versions', id)
+        await mkdir(versionsDir, { recursive: true })
+        const ts = new Date().toISOString().replace(/[:.]/g, '-')
+        const bakPath = join(versionsDir, `${id}_${ts}.json`)
+        await copyFile(path, bakPath)
+
+        // Prune old versions, keep latest 20
+        const allVersions = (await readdir(versionsDir)).filter((f) => f.endsWith('.json')).sort()
+        if (allVersions.length > 20) {
+          const toDelete = allVersions.slice(0, allVersions.length - 20)
+          await Promise.allSettled(toDelete.map((f) => unlink(join(versionsDir, f))))
+        }
+      } catch {
+        // Non-fatal: versioning failure shouldn't block saving
+      }
+    }
+
+    await atomicWriteFile(path, JSON.stringify(campaign, null, 2))
     return { success: true }
   } catch (err) {
     return { success: false, error: `Failed to save campaign: ${(err as Error).message}` }
@@ -58,7 +81,7 @@ export async function loadCampaigns(): Promise<StorageResult<Record<string, unkn
     const results = await Promise.allSettled(
       files.map(async (f) => {
         const data = await readFile(join(dir, f), 'utf-8')
-        return JSON.parse(data)
+        return migrateData(JSON.parse(data))
       })
     )
     const campaigns: Record<string, unknown>[] = []

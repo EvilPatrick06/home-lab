@@ -82,6 +82,32 @@ describe('calculate5eStats', () => {
     expect(calculate5eStats(baseScores, null, { hitDie: 8, savingThrows: [] }, 17).proficiencyBonus).toBe(6)
   })
 
+  it('returns +7 proficiency for epic levels 21-24 (PHB 2024)', () => {
+    expect(calculate5eStats(baseScores, null, { hitDie: 8, savingThrows: [] }, 21).proficiencyBonus).toBe(7)
+    expect(calculate5eStats(baseScores, null, { hitDie: 8, savingThrows: [] }, 24).proficiencyBonus).toBe(7)
+  })
+
+  it('adds Jack of All Trades half proficiency to initiative', () => {
+    const features = [{ name: 'Jack of All Trades' }]
+    const withJoAT = calculate5eStats(
+      baseScores,
+      null,
+      { hitDie: 8, savingThrows: [] },
+      5,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      features
+    )
+    const without = calculate5eStats(baseScores, null, { hitDie: 8, savingThrows: [] }, 5)
+    // Level 5 prof bonus = 3, half = 1. DEX mod = 2.
+    expect(withJoAT.initiative).toBe(without.initiative + 1)
+  })
+
   it('computes HP at level 1 as hitDie + CON mod', () => {
     const result = calculate5eStats({ ...baseScores, constitution: 14 }, null, { hitDie: 10, savingThrows: [] }, 1)
     expect(result.maxHP).toBe(12)

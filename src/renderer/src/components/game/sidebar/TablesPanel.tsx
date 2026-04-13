@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { load5eRandomTables } from '../../../services/data-provider'
-import { useLobbyStore } from '../../../stores/use-lobby-store'
 import { rollFormula } from '../../../services/dice/dice-engine'
+import { useLobbyStore } from '../../../stores/use-lobby-store'
 
 interface RandomTableData {
   [key: string]: unknown
@@ -21,7 +21,7 @@ export default function TablesPanel(): JSX.Element {
 
   useEffect(() => {
     loadTables()
-  }, [])
+  }, [loadTables])
 
   const loadTables = async (): Promise<void> => {
     try {
@@ -95,11 +95,13 @@ export default function TablesPanel(): JSX.Element {
           const [min, max] = rollRange.split('-').map(Number)
           return rollResult.total >= min && rollResult.total <= max
         } else {
-          return rollResult.total === parseInt(rollRange)
+          return rollResult.total === parseInt(rollRange, 10)
         }
       })
 
-      result = matchedEntry ? String(matchedEntry[Object.keys(matchedEntry).find(k => k !== 'roll')!] || 'Unknown') : 'No matching entry'
+      result = matchedEntry
+        ? String(matchedEntry[Object.keys(matchedEntry).find((k) => k !== 'roll')!] || 'Unknown')
+        : 'No matching entry'
       rollInfo = `${rollResult.formula}: ${rollResult.total}`
     } else if (table.type === 'nested') {
       // For nested tables like npcTraits, pick a random sub-table and then random entry
@@ -163,12 +165,8 @@ export default function TablesPanel(): JSX.Element {
             </button>
           </div>
           <div className="text-[10px] text-gray-400">
-            {table.type === 'array' && (
-              <span>{(table.data as unknown[]).length} entries</span>
-            )}
-            {table.type === 'diceTable' && (
-              <span>Dice table ({(table.data as { die: string }).die})</span>
-            )}
+            {table.type === 'array' && <span>{(table.data as unknown[]).length} entries</span>}
+            {table.type === 'diceTable' && <span>Dice table ({(table.data as { die: string }).die})</span>}
             {table.type === 'nested' && (
               <span>Nested table ({Object.keys(table.data as Record<string, unknown>).length} categories)</span>
             )}

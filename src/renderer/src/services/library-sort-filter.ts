@@ -206,6 +206,11 @@ export function getSortOptions(category: LibraryCategory | 'global' | null): Sor
         { field: 'type', label: 'Category' },
         { field: 'dc', label: 'Save DC' }
       ]
+    case 'rules':
+      return [
+        { field: 'name', label: 'Name' },
+        { field: 'type', label: 'Category' }
+      ]
     case 'adventure-seeds':
       return [
         { field: 'name', label: 'Name' },
@@ -293,6 +298,10 @@ export function getFilterConfigs(category: LibraryCategory | 'global' | null, it
       if (types.length > 1) configs.push({ field: 'type', label: 'Type', values: types })
       const sizes = uniqueStrings('size')
       if (sizes.length > 1) configs.push({ field: 'size', label: 'Size', values: sizes })
+      const crs = [...new Set(items.map((i) => String(i.data.cr ?? '')))]
+        .filter(Boolean)
+        .sort((a, b) => parseCR(a) - parseCR(b))
+      if (crs.length > 1) configs.push({ field: 'cr', label: 'CR', values: crs })
       break
     }
     case 'spells': {
@@ -300,6 +309,14 @@ export function getFilterConfigs(category: LibraryCategory | 'global' | null, it
       if (schools.length > 1) configs.push({ field: 'school', label: 'School', values: schools })
       const levels = uniqueNumbers('level')
       if (levels.length > 1) configs.push({ field: 'level', label: 'Level', values: levels })
+      const rituals = ['Yes', 'No']
+      configs.push({ field: 'ritual', label: 'Ritual', values: rituals })
+      const concentration = ['Yes', 'No']
+      configs.push({ field: 'concentration', label: 'Concentration', values: concentration })
+      const classes = [
+        ...new Set(items.flatMap((i) => (i.data.classes as string[]) ?? (i.data.spellList as string[]) ?? []))
+      ].sort()
+      if (classes.length > 1) configs.push({ field: 'classes', label: 'Class', values: classes })
       break
     }
     case 'invocations': {
@@ -573,9 +590,12 @@ export function filterItems(items: LibraryItem[], filters: Record<string, string
         if (!values.includes(item.source)) return false
       } else if (field === 'category') {
         if (!values.includes(item.category)) return false
-      } else if (field === 'attunement') {
-        const hasAttunement = item.data.attunement ? 'Yes' : 'No'
-        if (!values.includes(hasAttunement)) return false
+      } else if (field === 'attunement' || field === 'ritual' || field === 'concentration') {
+        const boolVal = item.data[field] ? 'Yes' : 'No'
+        if (!values.includes(boolVal)) return false
+      } else if (field === 'classes') {
+        const itemClasses = (item.data.classes as string[]) ?? (item.data.spellList as string[]) ?? []
+        if (!values.some((v) => itemClasses.includes(v))) return false
       } else {
         const itemVal = String(item.data[field] ?? '')
         if (!values.includes(itemVal)) return false

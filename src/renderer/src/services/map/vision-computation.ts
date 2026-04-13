@@ -7,7 +7,7 @@
 
 import { LIGHT_SOURCES } from '../../data/light-sources'
 import type { ActiveLightSource } from '../../types/campaign'
-import type { GameMap, MapToken } from '../../types/map'
+import type { DarknessZone, GameMap, MapToken } from '../../types/map'
 import { DARKVISION_SPECIES } from '../../types/map'
 import {
   clipToRadius,
@@ -54,8 +54,8 @@ export function computePartyVision(
   }
 
   const cellSize = map.grid.cellSize
-  const pixelWidth = map.width * cellSize
-  const pixelHeight = map.height * cellSize
+  const pixelWidth = map.width
+  const pixelHeight = map.height
   const allWalls = map.wallSegments ?? []
   const bounds = { width: pixelWidth, height: pixelHeight }
 
@@ -72,8 +72,12 @@ export function computePartyVision(
   }
 
   // Compute visibility polygon for each player token using that token's floor walls
+  const darknessZones = map.darknessZones ?? []
   const partyPolygons: VisibilityPolygon[] = []
   for (const token of playerTokens) {
+    // Skip tokens blinded by darkness zones (unless they have blindsight/tremorsense)
+    if (isTokenBlindedByDarkness(token, darknessZones, cellSize)) continue
+
     const tokenFloor = token.floor ?? 0
     const segments = getFloorSegments(tokenFloor)
 
@@ -105,6 +109,9 @@ export function computePartyVision(
         x: (col + 0.5) * cellSize,
         y: (row + 0.5) * cellSize
       }
+
+      // Cells inside darkness zones are not visible from outside
+      if (isCellInDarknessZone(col, row, darknessZones, cellSize)) continue
 
       let visible = false
       for (const poly of partyPolygons) {
@@ -323,6 +330,68 @@ export function flushDebouncedVision(): void {
     clearTimeout(_visionDebounceTimer)
     _visionDebounceTimer = null
   }
+}
+
+// ─── Darkness zone helpers ────────────────────────────────────
+
+/**
+ * Check if a token is blinded by being inside a darkness zone.
+ * Tokens with blindsight or tremorsense are never blinded.
+ * Darkvision can see through nonmagical darkness but NOT magical darkness.
+ */
+function isTokenBlindedByDarkness(token: MapToken, darknessZones: DarknessZone[], cellSize: number): boolean {
+  if (darknessZones.length === 0) return false
+
+  // Blindsight/tremorsense bypass all darkness
+  if (token.specialSenses?.some((s) => s.type === 'blindsight' || s.type === 'tremorsense')) {
+    return false
+  }
+
+  const tokenCenterX = (token.gridX + token.sizeX / 2) * cellSize
+  const tokenCenterY = (token.gridY + token.sizeY / 2) * cellSize
+
+  for (const zone of darknessZones) {
+    const zx = zone.x * cellSize
+    const zy = zone.y * cellSize
+    const zr = zone.radius * cellSize
+    const dx = tokenCenterX - zx
+    const dy = tokenCenterY - zy
+    if (dx * dx + dy * dy <= zr * zr) {
+      const level = zone.magicLevel ?? 'nonmagical'
+      // Nonmagical darkness: darkvision can see through it
+      if (level === 'nonmagical') {
+        if (token.darkvision || (token.darkvisionRange && token.darkvisionRange > 0)) {
+          return false
+        }
+      }
+      // Magical darkness / deeper-darkness: darkvision cannot penetrate
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Check if a grid cell's center falls inside any darkness zone.
+ * Cells inside darkness zones are not visible to outside observers.
+ */
+function isCellInDarknessZone(col: number, row: number, darknessZones: DarknessZone[], cellSize: number): boolean {
+  if (darknessZones.length === 0) return false
+
+  const cx = (col + 0.5) * cellSize
+  const cy = (row + 0.5) * cellSize
+
+  for (const zone of darknessZones) {
+    const zx = zone.x * cellSize
+    const zy = zone.y * cellSize
+    const zr = zone.radius * cellSize
+    const dx = cx - zx
+    const dy = cy - zy
+    if (dx * dx + dy * dy <= zr * zr) {
+      return true
+    }
+  }
+  return false
 }
 
 // Re-export needed types

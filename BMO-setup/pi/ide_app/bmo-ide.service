@@ -7,10 +7,11 @@ Type=simple
 User=patrick
 Group=patrick
 WorkingDirectory=/home/patrick/DnD/BMO-setup/pi/ide_app
-ExecStart=/usr/bin/python3 /home/patrick/DnD/BMO-setup/pi/ide_app/ide_app.py
+Environment=PATH=/home/patrick/DnD/BMO-setup/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/patrick/DnD/BMO-setup/pi/venv/bin/python /home/patrick/DnD/BMO-setup/pi/ide_app/ide_app.py
 Restart=always
 RestartSec=3
-Environment=PYTHONUNBUFFERED=1
 
 [Install]
 WantedBy=multi-user.target

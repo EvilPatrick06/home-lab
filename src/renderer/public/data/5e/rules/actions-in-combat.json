@@ -1,0 +1,186 @@
+[
+  {
+    "name": "Action",
+    "description": "On your turn, you can take one action. The most common actions are described here, but many class features and other abilities provide additional actions. The Attack action is the most common action in combat, but there are many others available.",
+    "effects": [
+      "You get one action per turn unless a feature grants an additional action",
+      "You choose which action to take from the available options",
+      "Some actions require specific conditions to be met before you can take them",
+      "Common actions: Attack, Cast a Spell, Dash, Disengage, Dodge, Help, Hide, Ready, Search, Use an Object, Utilize"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Attack Action",
+    "description": "The most common action to take in combat is the Attack action, whether you are swinging a sword, firing an arrow from a bow, or brawling with your fists. With this action, you make one melee or ranged attack.",
+    "effects": [
+      "Make one melee or ranged attack",
+      "Certain features, such as Extra Attack, allow you to make more than one attack with this action",
+      "You can replace one of your attacks with a Grapple or Shove",
+      "Two-Weapon Fighting: When you attack with a Light weapon, you can make one extra attack with a different Light weapon as part of this action",
+      "You can move between attacks if you have multiple attacks"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Cast a Spell Action",
+    "description": "Spellcasters such as Wizards and Clerics, as well as many monsters, have access to spells and can use them to great effect in combat. Each spell has a casting time, which specifies whether the caster must use an action, a reaction, minutes, or even hours to cast the spell.",
+    "effects": [
+      "Casting a spell with a casting time of 1 action uses your action for the turn",
+      "You can still take a Bonus Action or Reaction on the same turn",
+      "If you cast a spell as a Bonus Action, the only other spell you can cast that turn is a cantrip with a casting time of 1 action",
+      "Some spells have longer casting times and require concentration across multiple turns"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Dash",
+    "description": "When you take the Dash action, you gain extra movement for the current turn. The increase equals your speed, after applying any modifiers.",
+    "effects": [
+      "You gain additional movement equal to your speed for the current turn",
+      "This stacks with any increase or decrease to your speed",
+      "Example: A character with 30 feet of speed who takes the Dash action can move up to 60 feet on that turn",
+      "Some classes can Dash as a Bonus Action (e.g., Rogue's Cunning Action, Monk's Step of the Wind)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Disengage",
+    "description": "If you take the Disengage action, your movement doesn't provoke Opportunity Attacks for the rest of the turn.",
+    "effects": [
+      "Your movement does not provoke Opportunity Attacks for the rest of the turn",
+      "This does not grant any additional movement",
+      "Some classes can Disengage as a Bonus Action (e.g., Rogue's Cunning Action, Monk's Step of the Wind)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Dodge",
+    "description": "When you take the Dodge action, you focus entirely on avoiding attacks. Until the start of your next turn, any attack roll made against you has Disadvantage if you can see the attacker, and you make Dexterity saving throws with Advantage.",
+    "effects": [
+      "Until the start of your next turn, attack rolls against you have Disadvantage (if you can see the attacker)",
+      "You make Dexterity saving throws with Advantage",
+      "You lose these benefits if you are Incapacitated or if your speed drops to 0",
+      "Dodging does not prevent effects that do not require an attack roll or Dexterity save"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Help",
+    "description": "You can lend your aid to another creature in the completion of a task. When you take the Help action, the creature you aid gains Advantage on the next ability check it makes to perform the task you are helping with, provided that it makes the check before the start of your next turn.",
+    "effects": [
+      "The helped creature gains Advantage on its next ability check for the specified task",
+      "The check must be made before the start of your next turn",
+      "Alternatively, you can Help a friendly creature attack a target within 5 feet of you",
+      "When Helping with an attack, the next attack roll against that target (by the helped creature) has Advantage, if made before your next turn",
+      "You must be able to see or otherwise perceive the target to Help with an attack"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Hide",
+    "description": "When you take the Hide action, you make a Dexterity (Stealth) check in an attempt to hide. If you succeed, you gain certain benefits until you are discovered or stop hiding.",
+    "effects": [
+      "Make a Dexterity (Stealth) check",
+      "The result is contested by the Passive Perception of creatures that might notice you",
+      "You must be Heavily Obscured or behind Three-Quarters or Total Cover to attempt to hide",
+      "If you succeed, you have the Invisible condition for purposes of creatures that haven't detected you",
+      "You stop hiding if you make noise, make an attack, cast a spell, or are discovered",
+      "Some classes can Hide as a Bonus Action (e.g., Rogue's Cunning Action)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Ready",
+    "description": "Sometimes you want to get the jump on a foe or wait for a particular circumstance before you act. To do so, you can take the Ready action on your turn, which lets you act using your Reaction before the start of your next turn.",
+    "effects": [
+      "Decide what perceivable circumstance will trigger your reaction",
+      "Choose the action you will take in response to that trigger (or choose to move up to your speed)",
+      "When the trigger occurs, you can either take your Reaction immediately after the trigger finishes or ignore it",
+      "If you Ready a spell, you cast it as normal but hold its energy (requires Concentration until you release it)",
+      "If you don't use your Readied action before your next turn, the action is lost",
+      "Readying a spell expends the spell slot even if you never release it"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Search",
+    "description": "When you take the Search action, you devote your attention to finding something. Depending on the nature of your search, the DM might have you make a Wisdom (Perception) check or an Intelligence (Investigation) check.",
+    "effects": [
+      "The DM calls for a Wisdom (Perception) check to spot hidden creatures or objects",
+      "The DM calls for an Intelligence (Investigation) check to deduce the location of a hidden object or find clues",
+      "The type of check depends on what you are searching for and how you describe your search"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Utilize",
+    "description": "You normally interact with an object while doing something else, such as when you draw a sword as part of the Attack action. When an object requires your action for its use, you take the Utilize action.",
+    "effects": [
+      "Use a non-magical object that requires an action (e.g., using a Healer's Kit, throwing oil, caltrops)",
+      "Drinking or administering a potion takes a Bonus Action",
+      "You can interact with one object for free on your turn (e.g., draw or sheathe a weapon, open a door)",
+      "Interacting with a second object requires this action"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Bonus Action",
+    "description": "Various class features, spells, and other abilities let you take an additional action on your turn called a Bonus Action. You can only take a Bonus Action if a special ability, spell, or feature states that you can do something as a Bonus Action.",
+    "effects": [
+      "You can take only one Bonus Action per turn",
+      "You choose when to take your Bonus Action during your turn, unless the timing is specified",
+      "Anything that deprives you of your ability to take actions also prevents you from taking a Bonus Action",
+      "You can't take a Bonus Action unless a feature specifically grants you one",
+      "If you cast a spell as a Bonus Action, you can only cast a cantrip with a casting time of 1 action on the same turn"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Reaction",
+    "description": "Certain special abilities, spells, and situations allow you to take a special action called a Reaction. A Reaction is an instant response to a trigger of some kind, which can occur on your turn or on someone else's.",
+    "effects": [
+      "You get one Reaction per round; it refreshes at the start of your turn",
+      "A Reaction is taken in response to a specific trigger",
+      "The Reaction occurs immediately after the trigger unless the description says otherwise",
+      "Opportunity Attacks are the most common type of Reaction",
+      "Other common Reactions: Counterspell, Shield, Absorb Elements, Hellish Rebuke",
+      "If you use your Reaction on your own turn, you can't use it again until the start of your next turn"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Magic Action",
+    "description": "You take the Magic action when you cast a spell that has a casting time of one action or use a feature that requires the Magic action. If you have a feature that lets you cast a spell as part of another action, you don't take the Magic action to cast that spell.",
+    "effects": [
+      "Used when casting a spell with a casting time of 1 action",
+      "Certain magic items and class features also use the Magic action",
+      "This replaces the older 'Cast a Spell' action terminology in the 2024 PHB",
+      "If a Bonus Action spell is cast, only cantrips with a casting time of 1 action can be cast using the Magic action on the same turn"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Study Action",
+    "description": "When you take the Study action, you make an ability check to study your memory, a book, a clue, or another source of knowledge and call to mind an important piece of information about it.",
+    "effects": [
+      "Used to recall or deduce information during combat or exploration",
+      "The DM determines the appropriate ability check (often Intelligence-based)",
+      "Common checks: Intelligence (Arcana), Intelligence (History), Intelligence (Nature), Intelligence (Religion)",
+      "Can be used to identify a creature's abilities, resistances, or weaknesses"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Influence Action",
+    "description": "When you take the Influence action, you urge a monster to do something. You make a Charisma check contested by the target's Wisdom check. The DM determines which Charisma skill applies.",
+    "effects": [
+      "Make a Charisma (Deception, Intimidation, Performance, or Persuasion) check contested by the target's Wisdom check",
+      "The Charmed condition gives Advantage on Influence checks against the charmed creature",
+      "On a success, the creature is friendly or follows a reasonable suggestion",
+      "On a failure, the creature is uncooperative and may become hostile",
+      "Hostile creatures cannot normally be influenced to help unless magic is involved"
+    ],
+    "source": "PHB 2024"
+  }
+]

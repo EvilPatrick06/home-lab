@@ -1,4 +1,4 @@
-import type { Application, Graphics } from 'pixi.js'
+import type { Application, Container, Graphics } from 'pixi.js'
 import { useEffect } from 'react'
 import { LIGHT_SOURCES } from '../../../data/light-sources'
 import { filterDrawingsByFloor, filterTerrainByFloor, filterWallsByFloor } from '../../../services/map/floor-filtering'
@@ -9,13 +9,47 @@ import type { GameMap } from '../../../types/map'
 import { type AoEConfig, clearAoEOverlay, drawAoEOverlay } from './aoe-overlay'
 import type { AudioEmitterLayer } from './audio-emitter-overlay'
 import { clearDrawingLayer, drawDrawings } from './drawing-layer'
-import { drawRegions } from './region-layer'
 import { destroyFogAnimation, drawFogOfWar, initFogAnimation } from './fog-overlay'
 import { drawGrid, drawGridLabels } from './grid-layer'
+import {
+  getAnimatedRadius,
+  hasActiveAnimations,
+  installLightAnimationTicker,
+  registerLightAnimation
+} from './light-animation'
 import { drawLightingOverlay, type LightingConfig } from './lighting-overlay'
 import { clearMovementOverlay, drawMovementOverlay, drawTerrainOverlay } from './movement-overlay'
+import { clearOcclusionLayer, updateOcclusionLayer } from './occlusion-layer'
+import { drawRegions } from './region-layer'
 import { drawWalls } from './wall-layer'
 import { presetToWeatherType, type WeatherOverlayLayer } from './weather-overlay'
+
+// TODO: Add playing state management
+export interface OverlayEffectState {
+  id: string
+  type: 'audio' | 'visual'
+  playing: boolean
+  startedAt: number
+  duration?: number  // ms, undefined = looping
+}
+
+const activeEffects = new Map<string, OverlayEffectState>()
+
+export function startEffect(id: string, type: 'audio' | 'visual', duration?: number): void {
+  activeEffects.set(id, { id, type, playing: true, startedAt: Date.now(), duration })
+}
+
+export function stopEffect(id: string): void {
+  activeEffects.delete(id)
+}
+
+export function getActiveEffects(): OverlayEffectState[] {
+  return Array.from(activeEffects.values())
+}
+
+export function isEffectPlaying(id: string): boolean {
+  return activeEffects.has(id)
+}
 
 /** Refs passed into the overlay effects hook */
 export interface OverlayRefs {
@@ -33,6 +67,7 @@ export interface OverlayRefs {
   moveOverlayRef: React.RefObject<Graphics | null>
   weatherOverlayRef: React.RefObject<WeatherOverlayLayer | null>
   audioEmitterLayerRef: React.RefObject<AudioEmitterLayer | null>
+  occlusionContainerRef: React.RefObject<Container | null>
   bgSpriteRef: React.RefObject<import('pixi.js').Sprite | null>
   zoomRef: React.MutableRefObject<number>
   panRef: React.MutableRefObject<{ x: number; y: number }>
@@ -132,29 +167,64 @@ export function useMapOverlayEffects(opts: OverlayEffectsOptions): void {
     }
   }, [initialized, map?.wallSegments, map?.grid, isHost, map, refs, currentFloor])
 
+  // Register light animations whenever active light sources change
+  useEffect(() => {
+    if (!initialized) return
+    const sources = useGameStore.getState().activeLightSources
+    const tokens = map?.tokens ?? []
+
+    for (const ls of sources) {
+      const token = tokens.find((t) => t.id === ls.entityId)
+      if (!token) continue
+      const def = LIGHT_SOURCES[ls.sourceName]
+      const baseBright = def ? Math.ceil(def.brightRadius / 5) : 4
+      const baseDim = def ? Math.ceil(def.dimRadius / 5) : 4
+      registerLightAnimation(ls.id, baseBright, baseDim, ls.animation)
+    }
+  }, [initialized, map?.tokens])
+
+  // Install light animation ticker
+  useEffect(() => {
+    if (!initialized || !refs.appRef.current) return
+    const cleanup = installLightAnimationTicker(refs.appRef.current.ticker)
+    return () => {
+      cleanup()
+    }
+  }, [initialized, refs])
+
   // Draw lighting overlay (floor-filtered walls for shadow casting)
+  // Sets up a per-frame redraw when light animations are active.
   useEffect(() => {
     if (!initialized || !refs.lightingGraphicsRef.current || !map) return
     const ambientLight = useGameStore.getState().ambientLight
-    const activeLightSources = useGameStore.getState().activeLightSources
+    const currentActiveLightSources = useGameStore.getState().activeLightSources
     const walls = filterWallsByFloor(map.wallSegments ?? [], currentFloor)
 
-    if (walls.length === 0 && ambientLight === 'bright') {
+    const darknessZones = map.darknessZones ?? []
+    if (walls.length === 0 && ambientLight === 'bright' && darknessZones.length === 0) {
       refs.lightingGraphicsRef.current.clear()
       return
     }
 
     const tokens = map.tokens ?? []
-    const lightSources = activeLightSources.map((ls) => {
-      const token = tokens.find((t) => t.id === ls.entityId)
-      const def = LIGHT_SOURCES[ls.sourceName]
-      return {
-        x: token?.gridX ?? 0,
-        y: token?.gridY ?? 0,
-        brightRadius: def ? Math.ceil(def.brightRadius / 5) : 4,
-        dimRadius: def ? Math.ceil(def.dimRadius / 5) : 4
-      }
-    })
+
+    const buildLightSources = () => {
+      return currentActiveLightSources.map((ls) => {
+        const token = tokens.find((t) => t.id === ls.entityId)
+        const def = LIGHT_SOURCES[ls.sourceName]
+        const baseBright = def ? Math.ceil(def.brightRadius / 5) : 4
+        const baseDim = def ? Math.ceil(def.dimRadius / 5) : 4
+
+        // Use animated radii if available
+        const animated = getAnimatedRadius(ls.id)
+        return {
+          x: token?.gridX ?? 0,
+          y: token?.gridY ?? 0,
+          brightRadius: animated ? animated.brightRadius : baseBright,
+          dimRadius: animated ? animated.dimRadius : baseDim
+        }
+      })
+    }
 
     const viewerTokens = !isHost ? tokens.filter((t) => t.entityType === 'player') : []
     // Build per-token darkvision ranges (in grid cells: feet / 5)
@@ -167,7 +237,24 @@ export function useMapOverlayEffects(opts: OverlayEffectsOptions): void {
       ambientLight,
       tokenDarkvisionRanges
     }
+
+    // Initial draw
+    const lightSources = buildLightSources()
     drawLightingOverlay(refs.lightingGraphicsRef.current, map, viewerTokens, lightSources, config, isHost)
+
+    // If any lights are animated, set up a per-frame redraw via ticker
+    if (hasActiveAnimations() && refs.appRef.current) {
+      const gfx = refs.lightingGraphicsRef.current
+      const app = refs.appRef.current
+      const redraw = (): void => {
+        const animatedSources = buildLightSources()
+        drawLightingOverlay(gfx, map, viewerTokens, animatedSources, config, isHost)
+      }
+      app.ticker.add(redraw)
+      return () => {
+        app.ticker.remove(redraw)
+      }
+    }
   }, [initialized, map, isHost, refs, currentFloor])
 
   // Draw terrain overlay (floor-filtered)
@@ -298,11 +385,9 @@ export function useMapOverlayEffects(opts: OverlayEffectsOptions): void {
     refs.audioEmitterLayerRef.current.setMap(map)
 
     const emitters = map.audioEmitters ?? []
-    // For now, assume all emitters are playing if they exist
-    // TODO: Add playing state management
     const emittersWithPlaying = emitters.map((emitter) => ({
       ...emitter,
-      playing: true // Temporary: will be managed by game state
+      playing: emitter.playing ?? false
     }))
     refs.audioEmitterLayerRef.current.updateEmitters(emittersWithPlaying)
   }, [initialized, map?.audioEmitters, map, refs])
@@ -318,4 +403,16 @@ export function useMapOverlayEffects(opts: OverlayEffectsOptions): void {
       refs.audioEmitterLayerRef.current.setListenerPosition(listenerX, listenerY)
     }
   }, [initialized, map?.tokens, map, refs])
+
+  // Occlusion / foreground tiles (above tokens, fade on proximity to party)
+  useEffect(() => {
+    if (!initialized || !refs.occlusionContainerRef.current || !map) return
+    const tiles = map.occlusionTiles ?? []
+    if (tiles.length === 0) {
+      clearOcclusionLayer(refs.occlusionContainerRef.current)
+      return
+    }
+    const partyTokens = map.tokens.filter((t) => t.entityType === 'player')
+    updateOcclusionLayer(refs.occlusionContainerRef.current, tiles, partyTokens, map.grid.cellSize, currentFloor)
+  }, [initialized, map?.occlusionTiles, map?.tokens, map?.grid.cellSize, map, refs, currentFloor])
 }

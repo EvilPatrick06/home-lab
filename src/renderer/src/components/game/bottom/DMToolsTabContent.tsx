@@ -1,5 +1,7 @@
 import lightingTravelData from '@data/5e/game/mechanics/lighting-travel.json'
 import { lazy, Suspense } from 'react'
+import { generateSentientItem } from '../../../data/sentient-items'
+import { addToast } from '../../../hooks/use-toast'
 import { load5eLightingTravel } from '../../../services/data-provider'
 import { useGameStore } from '../../../stores/use-game-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -35,6 +37,10 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
   const travelPace = useGameStore((s) => s.travelPace)
   const setTravelPace = useGameStore((s) => s.setTravelPace)
 
+  const clearVision = useGameStore((s) => s.clearVision)
+  const clearAllVision = useGameStore((s) => s.clearAllVision)
+  const activeMapId = useGameStore((s) => s.activeMapId)
+
   const { addChatMessage } = useLobbyStore()
 
   const broadcastSystem = (prefix: string) => (message: string) => {
@@ -49,7 +55,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
   }
 
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-1.5" role="toolbar" aria-label="DM tools">
       <button className={btnClass} onClick={() => onOpenModal('whisper')}>
         Whisper
       </button>
@@ -74,6 +80,40 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
       <button className={btnClass} onClick={() => onOpenModal('roll-table')}>
         Roll Tables
       </button>
+      <button className={btnClass} onClick={() => onOpenModal('partyInventory')}>
+        Party Inventory
+      </button>
+      <button className={btnClass} onClick={() => onOpenModal('triggerManager')}>
+        AI Triggers
+      </button>
+      <button className={btnClass} onClick={() => onOpenModal('aiMapAnalysis')}>
+        AI Map Analysis
+      </button>
+      <button
+        className={btnClass}
+        onClick={() => {
+          const item = generateSentientItem()
+          const msg = [
+            `Sentient Item Generated:`,
+            `Alignment: ${item.alignment}`,
+            `Communication: ${item.communication.method} - ${item.communication.description}`,
+            `Senses: ${item.senses}`,
+            `INT ${item.mentalScores.intelligence} / WIS ${item.mentalScores.wisdom} / CHA ${item.mentalScores.charisma}`,
+            `Purpose: ${item.specialPurpose.name} - ${item.specialPurpose.description}`
+          ].join('\n')
+          addToast(msg, 'info', 10000)
+          addChatMessage({
+            id: `sentient-item-${Date.now()}-${crypto.randomUUID().slice(0, 6)}`,
+            senderId: 'system',
+            senderName: 'System',
+            content: msg,
+            timestamp: Date.now(),
+            isSystem: true
+          })
+        }}
+      >
+        Sentient Item
+      </button>
 
       {/* Environment toggles */}
       <div className="w-full border-t border-gray-700/40 mt-1 pt-1.5">
@@ -82,6 +122,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
           <button
             className={underwaterCombat ? toggleOnClass : btnClass}
             onClick={() => setUnderwaterCombat(!underwaterCombat)}
+            aria-pressed={underwaterCombat}
           >
             Underwater {underwaterCombat ? 'ON' : 'OFF'}
           </button>
@@ -89,6 +130,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
             className={flankingEnabled ? toggleOnClass : btnClass}
             onClick={() => setFlankingEnabled(!flankingEnabled)}
             title="DMG optional rule: allies on opposite sides gain advantage on melee attacks"
+            aria-pressed={flankingEnabled}
           >
             Flanking {flankingEnabled ? 'ON' : 'OFF'}
           </button>
@@ -96,6 +138,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
             className={groupInitiativeEnabled ? toggleOnClass : btnClass}
             onClick={() => setGroupInitiativeEnabled(!groupInitiativeEnabled)}
             title="DMG optional rule: identical monster types share one initiative roll"
+            aria-pressed={groupInitiativeEnabled}
           >
             Group Init {groupInitiativeEnabled ? 'ON' : 'OFF'}
           </button>
@@ -103,19 +146,22 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
             className={diagonalRule === 'alternate' ? toggleOnClass : btnClass}
             onClick={() => setDiagonalRule(diagonalRule === 'alternate' ? 'standard' : 'alternate')}
             title="DMG 2024 p.18 optional rule: alternating 5/10/5/10 diagonal movement costs"
+            aria-pressed={diagonalRule === 'alternate'}
           >
             Diag 5/10 {diagonalRule === 'alternate' ? 'ON' : 'OFF'}
           </button>
         </div>
 
         {/* Lighting */}
-        <div className="flex items-center gap-1.5 mt-1.5">
+        <div className="flex items-center gap-1.5 mt-1.5" role="radiogroup" aria-label="Ambient lighting level">
           <span className="text-[10px] text-gray-500">Lighting:</span>
           {lightingTravelData.lightingLevels.map(({ level, tip }) => (
             <button
               key={level}
               onClick={() => setAmbientLight(level as 'bright' | 'dim' | 'darkness')}
               title={tip}
+              aria-pressed={ambientLight === level}
+              aria-label={`Set lighting to ${level}`}
               className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
                 ambientLight === level
                   ? level === 'bright'
@@ -132,12 +178,14 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
         </div>
 
         {/* Travel pace */}
-        <div className="flex items-center gap-1.5 mt-1.5">
+        <div className="flex items-center gap-1.5 mt-1.5" role="radiogroup" aria-label="Travel pace">
           <span className="text-[10px] text-gray-500">Pace:</span>
           {(lightingTravelData.travelPaces as Array<string | null>).map((pace) => (
             <button
               key={pace ?? 'none'}
               onClick={() => setTravelPace(pace as 'fast' | 'normal' | 'slow' | null)}
+              aria-pressed={travelPace === pace}
+              aria-label={`Set travel pace to ${pace ?? 'none'}`}
               className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
                 travelPace === pace ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
@@ -145,6 +193,28 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
               {pace ? pace.charAt(0).toUpperCase() + pace.slice(1) : 'None'}
             </button>
           ))}
+        </div>
+
+        {/* Fog controls */}
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <span className="text-[10px] text-gray-500">Fog:</span>
+          <button
+            className={btnClass}
+            onClick={() => {
+              if (activeMapId) clearVision(activeMapId)
+            }}
+            disabled={!activeMapId}
+            title="Clear all fog on the current map (reveal everything)"
+          >
+            Clear Fog
+          </button>
+          <button
+            className={btnClass}
+            onClick={() => clearAllVision()}
+            title="Reset explored cells on all maps (re-hide previously explored areas)"
+          >
+            Reset Explored
+          </button>
         </div>
       </div>
 

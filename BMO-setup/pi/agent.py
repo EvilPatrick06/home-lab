@@ -768,6 +768,7 @@ class BmoAgent:
         self.conversation_history: list[dict] = []
         self._pending_confirmations: list[dict] = []  # Destructive ops awaiting user OK
         self._model_override = None  # Session-level model override (Phase 7)
+        self._request_timezone: str | None = None
 
         # Initialize hierarchical settings system
         self.settings = init_settings()
@@ -971,6 +972,8 @@ class BmoAgent:
             compact_msg = self.compact()
             print(f"[agent] Auto-compact: {compact_msg}")
 
+        prev_tz = self._request_timezone
+        self._request_timezone = client_timezone
         try:
             # Route to the best agent via orchestrator
             result = self.orchestrator.handle(
@@ -986,6 +989,8 @@ class BmoAgent:
         except Exception as e:
             reply = f"Oh no! BMO's brain is fuzzy right now... ({e})"
             agent_used = "error"
+        finally:
+            self._request_timezone = prev_tz
 
         self.conversation_history.append({"role": "assistant", "content": f"[{agent_used}] {reply}"})
 
@@ -1050,70 +1055,103 @@ class BmoAgent:
         if threshold > 0 and len(self.conversation_history) >= threshold:
             self.compact()
 
-        # Voice pipeline always uses conversation agent directly — no routing.
-        # Routing adds 15+ seconds of latency for an LLM classification call.
-        # Specialized agents are only reachable via !prefix commands or web chat.
-        _t0 = time.time()
-        agent_name = "conversation"
-        self.orchestrator._emit("agent_selected", {
-            "agent": agent_name,
-            "display_name": self.orchestrator._get_display_name(agent_name),
-            "speaker": speaker,
-        })
-
-        # Stream conversation agent directly via LLM streaming
-        if not self.orchestrator.is_plan_mode:
-            agent = self.orchestrator.agents.get("conversation")
-            if agent:
-                system_prompt = agent._build_system_prompt(None)
-                messages = [{"role": "system", "content": system_prompt}]
-                messages.extend(self.conversation_history[-20:])
-                _total_chars = sum(len(m.get("content", "")) for m in messages)
-                print(f"[timing] prompt: {len(system_prompt)} chars, {len(messages)} msgs, {_total_chars} total chars")
-
-                full_text = ""
-                _t4 = time.time()
-                _first_chunk = True
-                try:
-                    for chunk in llm_chat_stream(messages, agent_name=agent_name):
-                        if _first_chunk:
-                            _t5 = time.time()
-                            print(f"[timing] first LLM chunk took {_t5 - _t4:.2f}s (total from route: {_t5 - _t0:.2f}s)")
-                            _first_chunk = False
-                        full_text += chunk
-                        yield chunk
-                except Exception as e:
-                    print(f"[agent] Stream error: {e}")
-                    if not full_text:
-                        full_text = f"Oh no, BMO's words got jumbled... ({e})"
-                        yield full_text
-
-                self.conversation_history.append({"role": "assistant", "content": full_text})
-                # Parse and execute commands from full response
-                text, commands = self._parse_response(full_text)
-                for cmd in commands:
-                    self._execute_command(cmd)
-                return
-
-        # Non-streamable agent: run through orchestrator, yield full response
+        prev_tz = self._request_timezone
+        self._request_timezone = client_timezone
         try:
-            result = self.orchestrator.handle(
-                message=user_message, speaker=speaker,
-                history=self.conversation_history, services=self.services,
-            )
-            reply = result.get("text", "")
-            agent_name = result.get("agent_used", agent_name)
-        except Exception as e:
-            reply = f"Oh no! BMO's brain is fuzzy right now... ({e})"
+            # Voice pipeline always uses conversation agent directly — no routing.
+            # Routing adds 15+ seconds of latency for an LLM classification call.
+            # Specialized agents are only reachable via !prefix commands or web chat.
+            _t0 = time.time()
+            agent_name = "conversation"
+            self.orchestrator._emit("agent_selected", {
+                "agent": agent_name,
+                "display_name": self.orchestrator._get_display_name(agent_name),
+                "speaker": speaker,
+            })
 
-        self.conversation_history.append({"role": "assistant", "content": reply})
-        text, commands = self._parse_response(reply)
-        for cmd in commands:
-            self._execute_command(cmd)
+            # Stream conversation agent directly via LLM streaming
+            if not self.orchestrator.is_plan_mode:
+                agent = self.orchestrator.agents.get("conversation")
+                if agent:
+                    system_prompt = agent._build_system_prompt(None)
+                    messages = [{"role": "system", "content": system_prompt}]
+                    messages.extend(self.conversation_history[-20:])
+                    _total_chars = sum(len(m.get("content", "")) for m in messages)
+                    print(f"[timing] prompt: {len(system_prompt)} chars, {len(messages)} msgs, {_total_chars} total chars")
 
-        tags = parse_response_tags(text)
-        text = tags.pop("clean_text", text)
-        yield text
+                    full_text = ""
+                    _t4 = time.time()
+                    _first_chunk = True
+                    _relay_fired = False
+                    try:
+                        for chunk in llm_chat_stream(messages, agent_name=agent_name):
+                            if _first_chunk:
+                                _t5 = time.time()
+                                print(f"[timing] first LLM chunk took {_t5 - _t4:.2f}s (total from route: {_t5 - _t0:.2f}s)")
+                                _first_chunk = False
+                            full_text += chunk
+                            yield chunk
+
+                            # Detect [RELAY:...] mid-stream and execute immediately
+                            if not _relay_fired and "[RELAY:" in full_text:
+                                import re as _re
+                                relay_match = _re.search(r"\[RELAY:(\w+)\]\s*(.*)", full_text, _re.DOTALL)
+                                if relay_match:
+                                    _relay_fired = True
+                                    target_agent = relay_match.group(1).strip()
+                                    relay_message = relay_match.group(2).strip() or user_message
+                                    print(f"[stream] Relay detected mid-stream → {target_agent}: {relay_message[:80]}")
+
+                                    def _run_relay(agent_name, msg, hist):
+                                        try:
+                                            result = self.orchestrator.run_agent(agent_name, msg, history=hist)
+                                            if result and result.text:
+                                                _, cmds = self._parse_response(result.text)
+                                                for cmd in cmds:
+                                                    self._execute_command(cmd)
+                                        except Exception as e:
+                                            print(f"[stream] Relay to {agent_name} failed: {e}")
+
+                                    import threading
+                                    threading.Thread(
+                                        target=_run_relay,
+                                        args=(target_agent, relay_message, list(self.conversation_history)),
+                                        daemon=True,
+                                    ).start()
+                    except Exception as e:
+                        print(f"[agent] Stream error: {e}")
+                        if not full_text:
+                            full_text = f"Oh no, BMO's words got jumbled... ({e})"
+                            yield full_text
+
+                    self.conversation_history.append({"role": "assistant", "content": full_text})
+                    # Parse and execute commands from full response
+                    text, commands = self._parse_response(full_text)
+                    for cmd in commands:
+                        self._execute_command(cmd)
+                    return
+
+            # Non-streamable agent: run through orchestrator, yield full response
+            try:
+                result = self.orchestrator.handle(
+                    message=user_message, speaker=speaker,
+                    history=self.conversation_history, services=self.services,
+                )
+                reply = result.get("text", "")
+                agent_name = result.get("agent_used", agent_name)
+            except Exception as e:
+                reply = f"Oh no! BMO's brain is fuzzy right now... ({e})"
+
+            self.conversation_history.append({"role": "assistant", "content": reply})
+            text, commands = self._parse_response(reply)
+            for cmd in commands:
+                self._execute_command(cmd)
+
+            tags = parse_response_tags(text)
+            text = tags.pop("clean_text", text)
+            yield text
+        finally:
+            self._request_timezone = prev_tz
 
     # ── Confirmation Handling (shared across agents) ────────────────
 
@@ -1428,9 +1466,12 @@ class BmoAgent:
         if not music:
             return "Music service not available"
         query = params.get("query", "")
+        queue = params.get("queue", False)
         results = music.search(query, limit=5)
         if results:
-            music.play(results[0])
+            music.play(results[0], add_to_queue=queue)
+            if queue:
+                return f"Queued: {results[0]['title']} by {results[0]['artist']}"
             return f"Playing: {results[0]['title']} by {results[0]['artist']}"
         return f"No results found for '{query}'"
 
@@ -1833,7 +1874,7 @@ class BmoAgent:
         timers = self.services.get("timers")
         if not timers:
             return "Timer service not available"
-        items = timers.get_all()
+        items = timers.get_all(viewer_timezone=self._request_timezone)
         if not items:
             return "No active timers or alarms"
         lines = []
@@ -1861,6 +1902,7 @@ class BmoAgent:
                 repeat=params.get("repeat", "none"),
                 repeat_days=params.get("repeat_days"),
                 tag=params.get("tag", "reminder"),
+                timezone_name=params.get("timezone_name") or self._request_timezone,
             )
             repeat_info = f" ({alarm.get('repeat')})" if alarm.get("repeat", "none") != "none" else ""
             tag_info = f" [{alarm.get('tag')}]" if alarm.get("tag", "reminder") != "reminder" else ""
@@ -1930,6 +1972,8 @@ class BmoAgent:
             updates["repeat_days"] = params["repeat_days"]
         if "tag" in params:
             updates["tag"] = params["tag"]
+        if "timezone_name" in params:
+            updates["timezone_name"] = params["timezone_name"]
         if not updates:
             return f"No changes specified for alarm '{target['label']}'"
         result = timers.update_alarm(target["id"], **updates)

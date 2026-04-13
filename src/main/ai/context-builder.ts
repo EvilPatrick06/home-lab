@@ -1,5 +1,7 @@
+import { app } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
+import { logToFile } from '../log'
 import { formatCampaignForContext, loadCampaignById } from './campaign-context'
 import { formatCharacterAbbreviated, formatCharacterForContext, loadCharacterById } from './character-context'
 import type { FileReadRequest } from './file-reader'
@@ -18,13 +20,22 @@ type _FileReadRequest = FileReadRequest
 type _WebSearchRequest = WebSearchRequest
 type _WebSearchResult = WebSearchResult
 
+// Electron-safe data directory for SRD/monster JSON files
+function getDataDir(): string {
+  if (process.env.NODE_ENV !== 'production') {
+    return path.join(__dirname, '..', '..', 'renderer', 'public', 'data', '5e')
+  }
+  // In packaged builds, public assets are copied to out/renderer/
+  return path.join(app.getAppPath(), 'out', 'renderer', 'data', '5e')
+}
+
 // Cache loaded monster data
 let monsterDataCache: Map<string, Record<string, unknown>> | null = null
 
 function loadMonsterData(): Map<string, Record<string, unknown>> {
   if (monsterDataCache) return monsterDataCache
   monsterDataCache = new Map()
-  const dataDir = path.join(__dirname, '..', '..', 'renderer', 'public', 'data', '5e')
+  const dataDir = getDataDir()
   for (const file of ['creatures/monsters.json', 'creatures/creatures.json', 'creatures/npcs.json']) {
     try {
       const filePath = path.join(dataDir, file)
@@ -34,8 +45,8 @@ function loadMonsterData(): Map<string, Record<string, unknown>> {
           monsterDataCache.set(entry.id, entry)
         }
       }
-    } catch {
-      // Non-fatal — file may not exist in dev
+    } catch (err) {
+      logToFile('WARN', `[context-builder] Failed to load monster data (${file}): ${err}`)
     }
   }
   return monsterDataCache
@@ -189,8 +200,8 @@ export async function buildContext(
       breakdown.srdData = estimateTokens(trimmed)
       parts.push(trimmed)
     }
-  } catch {
-    // Non-fatal
+  } catch (err) {
+    logToFile('WARN', `[context-builder] Failed to load SRD data: ${err}`)
   }
 
   // 3. Character data — full sheet for acting character, abbreviated for others
@@ -255,8 +266,8 @@ export async function buildContext(
         breakdown.campaignData = estimateTokens(trimmed)
         parts.push(trimmed)
       }
-    } catch {
-      // Non-fatal
+    } catch (err) {
+      logToFile('WARN', `[context-builder] Failed to load campaign data: ${err}`)
     }
   }
 
@@ -285,8 +296,8 @@ export async function buildContext(
         breakdown.memory = estimateTokens(trimmed)
         parts.push(trimmed)
       }
-    } catch {
-      // Non-fatal — memory files may not exist yet
+    } catch (err) {
+      logToFile('WARN', `[context-builder] Failed to load memory data: ${err}`)
     }
   }
 

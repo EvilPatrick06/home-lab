@@ -460,7 +460,8 @@ export function startChat(
         request.characterIds,
         request.campaignId,
         request.activeCreatures,
-        request.gameState
+        request.gameState,
+        request.actingCharacterId
       )
       const providerContext = `\n\n[PROVIDER CONTEXT]\n${getProviderContextBlurb(getActiveProviderType())}\n[/PROVIDER CONTEXT]`
       const { systemPrompt, messages } = await conv.getMessagesForApi(context + providerContext)

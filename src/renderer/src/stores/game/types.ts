@@ -5,6 +5,7 @@ import type { CustomEffect } from '../../types/effects'
 import type {
   CombatLogEntry,
   DiceRollRecord,
+  DmTrigger,
   EntityCondition,
   GameState,
   GroupRollRequest,
@@ -13,12 +14,14 @@ import type {
   HiddenDiceResult,
   InGameTimeState,
   InitiativeEntry,
+  PartyInventory,
+  PartyInventoryItem,
   SharedJournalEntry,
   SidebarCategory,
   SidebarEntry,
   TurnState
 } from '../../types/game-state'
-import type { GameMap, MapToken, SceneRegion, WallSegment } from '../../types/map'
+import type { GameMap, MapToken, OcclusionTile, SceneRegion, WallSegment } from '../../types/map'
 
 // --- Session log entry ---
 
@@ -109,6 +112,8 @@ export interface MapTokenSliceState {
   addWallSegment: (mapId: string, wall: WallSegment) => void
   removeWallSegment: (mapId: string, wallId: string) => void
   updateWallSegment: (mapId: string, wallId: string, updates: Partial<WallSegment>) => void
+  toggleEmitterPlaying: (mapId: string, emitterId: string) => void
+  teleportToken: (tokenId: string, sourceMapId: string, targetMapId: string, targetGridX: number, targetGridY: number) => void
   centerOnEntityId: string | null
   requestCenterOnEntity: (entityId: string) => void
   clearCenterRequest: () => void
@@ -217,7 +222,13 @@ export interface TimeSliceState {
   } | null
   setRestTracking: (rt: { lastLongRestSeconds: number | null; lastShortRestSeconds: number | null } | null) => void
   activeLightSources: ActiveLightSource[]
-  lightSource: (entityId: string, entityName: string, sourceName: string, durationSeconds: number) => void
+  lightSource: (
+    entityId: string,
+    entityName: string,
+    sourceName: string,
+    durationSeconds: number,
+    animation?: import('../../types/campaign').LightAnimation
+  ) => void
   extinguishSource: (sourceId: string) => void
   checkExpiredSources: () => ActiveLightSource[]
   weatherOverride: {
@@ -261,6 +272,7 @@ export interface EffectsSliceState {
   customEffects: CustomEffect[]
   addCustomEffect: (effect: CustomEffect) => void
   removeCustomEffect: (id: string) => void
+  getEffectsForToken: (entityId: string) => CustomEffect[]
   checkExpiredEffects: () => CustomEffect[]
   activeDiseases: ActiveDisease[]
   addDisease: (disease: ActiveDisease) => void
@@ -317,6 +329,27 @@ export interface RegionSliceState {
   clearRegions: (mapId: string) => void
 }
 
+export interface TriggerSliceState {
+  triggers: DmTrigger[]
+  addTrigger: (trigger: DmTrigger) => void
+  removeTrigger: (triggerId: string) => void
+  updateTrigger: (triggerId: string, updates: Partial<DmTrigger>) => void
+  toggleTrigger: (triggerId: string) => void
+  fireTrigger: (triggerId: string) => void
+}
+
+export interface OcclusionSliceState {
+  addOcclusionTile: (mapId: string, tile: OcclusionTile) => void
+  removeOcclusionTile: (mapId: string, tileId: string) => void
+  updateOcclusionTile: (mapId: string, tileId: string, updates: Partial<OcclusionTile>) => void
+}
+
+export interface DarknessZoneSliceState {
+  addDarknessZone: (mapId: string, zone: import('../../types/map').DarknessZone) => void
+  removeDarknessZone: (mapId: string, zoneId: string) => void
+  updateDarknessZone: (mapId: string, zoneId: string, updates: Partial<import('../../types/map').DarknessZone>) => void
+}
+
 export interface JournalSliceState {
   sharedJournal: SharedJournalEntry[]
   addJournalEntry: (entry: SharedJournalEntry) => void
@@ -326,6 +359,17 @@ export interface JournalSliceState {
   ) => void
   deleteJournalEntry: (id: string) => void
   setSharedJournal: (entries: SharedJournalEntry[]) => void
+}
+
+export interface PartyInventorySliceState {
+  partyInventory: PartyInventory
+  addPartyItem: (item: PartyInventoryItem) => void
+  removePartyItem: (itemId: string) => void
+  updatePartyItemQuantity: (itemId: string, quantity: number) => void
+  addPartyCurrency: (currency: Partial<PartyInventory['currency']>) => void
+  spendPartyCurrency: (currency: Partial<PartyInventory['currency']>) => boolean
+  transferItemToPlayer: (itemId: string, playerId: string) => void
+  splitGold: (playerCount: number) => number
 }
 
 export interface TradeEphemeralState {
@@ -364,6 +408,7 @@ export interface GameFlowState {
           handouts?: Handout[]
           combatTimer?: CombatTimerConfig | null
           sharedJournal?: SharedJournalEntry[]
+          partyInventory?: PartyInventory
         })
       | Record<string, unknown>
   ) => void
@@ -408,6 +453,9 @@ export type GameStoreState = GameState &
   VisionSliceState &
   DrawingSliceState &
   RegionSliceState &
+  TriggerSliceState &
+  OcclusionSliceState &
+  DarknessZoneSliceState &
   SidebarSliceState &
   TimerSliceState &
   CombatLogSliceState &
@@ -415,5 +463,6 @@ export type GameStoreState = GameState &
   EffectsSliceState &
   ReactionPromptSliceState &
   JournalSliceState &
+  PartyInventorySliceState &
   TradeEphemeralState &
   GameFlowState

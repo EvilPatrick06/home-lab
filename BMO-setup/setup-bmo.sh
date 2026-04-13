@@ -213,49 +213,45 @@ EOF
 # BMO Kiosk (Chromium via cage — no desktop needed)
 sudo tee /etc/systemd/system/bmo-kiosk.service > /dev/null << 'EOF'
 [Unit]
-Description=BMO Kiosk — Chromium fullscreen on touchscreen
+Description=BMO Kiosk — Chromium fullscreen on HDMI
 After=bmo.service
 Wants=bmo.service
 
 [Service]
 Type=simple
 User=patrick
+EnvironmentFile=-/home/patrick/DnD/BMO-setup/pi/.env
 Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=GDK_BACKEND=wayland
+Environment=WLR_DRM_DEVICES=/dev/dri/card0
+Environment=WLR_DRM_CONNECTORS=DSI-2
+Environment=WLR_XCURSOR_THEME=bmo-invisible
+Environment=WLR_XCURSOR_SIZE=1
+Environment=WLR_NO_HARDWARE_CURSORS=1
+Environment=XCURSOR_THEME=bmo-invisible
+Environment=XCURSOR_SIZE=1
+Environment=XCURSOR_PATH=/home/patrick/.icons:/usr/share/icons
 
 # Wait for BMO Flask to be ready
-ExecStartPre=/bin/bash -c 'for i in $(seq 1 30); do curl -sf http://localhost:5000/health > /dev/null && break; sleep 1; done'
-ExecStartPre=/bin/bash -c 'if [ -n "$DISPLAY" ] && [ -S /tmp/.X11-unix/X0 ]; then xset -display :0 s off; xset -display :0 -dpms; xset -display :0 s noblank; else echo "xset skipped (no X display)"; fi'
+ExecStartPre=/bin/bash -c 'for i in {1..30}; do curl -sf http://localhost:5000/health > /dev/null && break; sleep 1; done'
+ExecStart=/bin/bash -lc 'export GOOGLE_API_KEY="${GOOGLE_MAPS_API_KEY:-}"; exec /usr/bin/cage -- chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --disable-restore-session-state --disable-features=TranslateUI --disable-component-update --disable-domain-reliability --disable-sync --dns-prefetch-disable --no-default-browser-check --password-store=basic --check-for-update-interval=31536000 --no-first-run --start-fullscreen --touch-events=enabled --ash-hide-cursor-on-touch --enable-touchview --enable-pinch --use-fake-ui-for-media-stream --autoplay-policy=no-user-gesture-required --force-device-scale-factor=1 --high-dpi-support=1 --window-size=800,480 --user-data-dir=/home/patrick/.config/chromium-bmo --enable-logging=stderr --v=1 --unsafely-treat-insecure-origin-as-secure=http://127.0.0.1:5000,http://localhost:5000 http://127.0.0.1:5000/?kiosk=1'
 
-ExecStart=/usr/bin/cage -- chromium \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-features=TranslateUI \
-    --disable-background-networking \
-    --disable-component-update \
-    --disable-domain-reliability \
-    --disable-sync \
-    --dns-prefetch-disable \
-    --no-default-browser-check \
-    --password-store=basic \
-    --check-for-update-interval=31536000 \
-    --no-first-run \
-    --start-fullscreen \
-    --touch-events=enabled \
-    --enable-touchview \
-    --enable-pinch \
-    --use-fake-ui-for-media-stream \
-    --autoplay-policy=no-user-gesture-required \
-    --unsafely-treat-insecure-origin-as-secure=http://127.0.0.1:5000 \
-    http://127.0.0.1:5000
+ExecStartPost=/bin/bash -c 'sleep 20; /usr/bin/chromium --headless --disable-gpu --no-sandbox --use-fake-ui-for-media-stream --virtual-time-budget=25000 --run-all-compositor-stages-before-draw --dump-dom http://127.0.0.1:5000/?kiosk=1 > /dev/null 2>&1 || true'
 
 Restart=on-failure
 RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
+EOF
+
+# Chromium policy: always allow geolocation for local kiosk origin
+sudo mkdir -p /etc/chromium/policies/managed
+sudo tee /etc/chromium/policies/managed/bmo-geolocation.json > /dev/null << 'EOF'
+{
+  "DefaultGeolocationSetting": 1,
+  "GeolocationAllowedForUrls": ["http://127.0.0.1:5000", "http://localhost:5000"]
+}
 EOF
 
 # BMO Fan Controller
@@ -376,6 +372,11 @@ sudo tee /etc/systemd/system/getty@tty1.service.d/autologin.conf > /dev/null << 
 [Service]
 ExecStart=
 ExecStart=-/sbin/agetty --autologin patrick --noclear %I $TERM
+EOF
+
+sudo tee /etc/systemd/system/getty@tty1.service.d/10-no-cursor.conf > /dev/null << 'EOF'
+[Service]
+ExecStartPre=/bin/sh -c '/usr/bin/setterm -cursor off >/dev/tty1 || true'
 EOF
 
 # ── Done ─────────────────────────────────────────────────────────

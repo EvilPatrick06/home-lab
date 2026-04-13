@@ -1,3 +1,4 @@
+import { SETTINGS_KEYS } from './settings-keys'
 // Network: client-manager
 export const CONNECTION_TIMEOUT_MS = 15000
 export const RECONNECT_DELAY_MS = 2000
@@ -33,10 +34,10 @@ export const PEER_CREATION_TIMEOUT_MS = 15000
 export const INVITE_CODE_LENGTH = 6
 
 // Session persistence (player rejoin)
-export const LAST_SESSION_KEY = 'dnd-vtt-last-session'
-export const JOINED_SESSIONS_KEY = 'dnd-vtt-joined-sessions'
-export const AUTO_REJOIN_KEY = 'dnd-vtt-auto-rejoin'
-export const DISPLAY_NAME_KEY = 'dnd-vtt-display-name'
+export const LAST_SESSION_KEY = SETTINGS_KEYS.LAST_SESSION
+export const JOINED_SESSIONS_KEY = SETTINGS_KEYS.JOINED_SESSIONS
+export const AUTO_REJOIN_KEY = SETTINGS_KEYS.AUTO_REJOIN
+export const DISPLAY_NAME_KEY = SETTINGS_KEYS.DISPLAY_NAME
 
 // Heartbeat
 export const HEARTBEAT_INTERVAL_MS = 15_000

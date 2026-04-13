@@ -13,9 +13,12 @@ const WALL_COLOR_SOLID = 0x4f9cf7 // blue
 const WALL_COLOR_DOOR = 0xf5a623 // amber
 const WALL_COLOR_DOOR_OPEN = 0x22c55e // green
 const WALL_COLOR_WINDOW = 0xc084fc // purple
+const WALL_COLOR_ONE_WAY = 0xf97316 // orange
+const WALL_COLOR_TRANSPARENT = 0x06b6d4 // cyan
 const WALL_COLOR_PREVIEW = 0xffffff
 const WALL_THICKNESS = 3
 const DOOR_HANDLE_SIZE = 6
+const ARROW_SIZE = 8
 
 // ─── Draw all walls on a Graphics object ──────────────────────
 
@@ -32,7 +35,7 @@ export function drawWalls(gfx: Graphics, walls: WallSegment[], grid: GridSetting
     const y2 = wall.y2 * grid.cellSize + grid.offsetY
 
     let color: number
-    const alpha = 0.8
+    let alpha = 0.8
 
     switch (wall.type) {
       case 'door':
@@ -41,15 +44,51 @@ export function drawWalls(gfx: Graphics, walls: WallSegment[], grid: GridSetting
       case 'window':
         color = WALL_COLOR_WINDOW
         break
+      case 'one-way':
+        color = WALL_COLOR_ONE_WAY
+        break
+      case 'transparent':
+        color = WALL_COLOR_TRANSPARENT
+        alpha = 0.4
+        break
       default:
         color = WALL_COLOR_SOLID
     }
 
-    // Draw the wall line
-    gfx.setStrokeStyle({ width: WALL_THICKNESS, color, alpha })
-    gfx.moveTo(x1, y1)
-    gfx.lineTo(x2, y2)
-    gfx.stroke()
+    // Draw the wall line (dashed for transparent walls)
+    if (wall.type === 'transparent') {
+      // Dashed line for transparent walls
+      const dx = x2 - x1
+      const dy = y2 - y1
+      const len = Math.sqrt(dx * dx + dy * dy)
+      const dashLen = 8
+      const gapLen = 5
+      const nx = dx / len
+      const ny = dy / len
+
+      let dist = 0
+      let drawing = true
+      gfx.setStrokeStyle({ width: WALL_THICKNESS, color, alpha })
+
+      while (dist < len) {
+        const segLen = drawing ? dashLen : gapLen
+        const end = Math.min(dist + segLen, len)
+
+        if (drawing) {
+          gfx.moveTo(x1 + nx * dist, y1 + ny * dist)
+          gfx.lineTo(x1 + nx * end, y1 + ny * end)
+          gfx.stroke()
+        }
+
+        dist = end
+        drawing = !drawing
+      }
+    } else {
+      gfx.setStrokeStyle({ width: WALL_THICKNESS, color, alpha })
+      gfx.moveTo(x1, y1)
+      gfx.lineTo(x2, y2)
+      gfx.stroke()
+    }
 
     // Draw door handle (small square at midpoint)
     if (wall.type === 'door') {
@@ -91,6 +130,32 @@ export function drawWalls(gfx: Graphics, walls: WallSegment[], grid: GridSetting
       }
     }
 
+    // Draw arrow indicator for one-way walls (shows blocked direction)
+    if (wall.type === 'one-way') {
+      const midX = (x1 + x2) / 2
+      const midY = (y1 + y2) / 2
+      // Direction angle: use oneWayDirection or compute from wall normal
+      const dirRad =
+        wall.oneWayDirection !== undefined ? (wall.oneWayDirection * Math.PI) / 180 : Math.atan2(-(x2 - x1), y2 - y1) // default: perpendicular to wall
+
+      // Draw arrowhead pointing in the blocked direction
+      const tipX = midX + Math.cos(dirRad) * ARROW_SIZE * 1.5
+      const tipY = midY + Math.sin(dirRad) * ARROW_SIZE * 1.5
+      const baseLeftX = midX + Math.cos(dirRad + 2.5) * ARROW_SIZE
+      const baseLeftY = midY + Math.sin(dirRad + 2.5) * ARROW_SIZE
+      const baseRightX = midX + Math.cos(dirRad - 2.5) * ARROW_SIZE
+      const baseRightY = midY + Math.sin(dirRad - 2.5) * ARROW_SIZE
+
+      gfx.setStrokeStyle({ width: 1, color: WALL_COLOR_ONE_WAY, alpha: 0.9 })
+      gfx.beginPath()
+      gfx.moveTo(tipX, tipY)
+      gfx.lineTo(baseLeftX, baseLeftY)
+      gfx.lineTo(baseRightX, baseRightY)
+      gfx.closePath()
+      gfx.fill({ color: WALL_COLOR_ONE_WAY, alpha: 0.7 })
+      gfx.stroke()
+    }
+
     // Draw endpoint circles
     gfx.circle(x1, y1, 3)
     gfx.fill({ color, alpha: 0.6 })
@@ -117,7 +182,16 @@ export function drawWallPreview(
   const y2 = currentPoint.y * grid.cellSize + grid.offsetY
 
   // Draw preview line
-  const color = wallType === 'door' ? WALL_COLOR_DOOR : wallType === 'window' ? WALL_COLOR_WINDOW : WALL_COLOR_SOLID
+  const color =
+    wallType === 'door'
+      ? WALL_COLOR_DOOR
+      : wallType === 'window'
+        ? WALL_COLOR_WINDOW
+        : wallType === 'one-way'
+          ? WALL_COLOR_ONE_WAY
+          : wallType === 'transparent'
+            ? WALL_COLOR_TRANSPARENT
+            : WALL_COLOR_SOLID
   gfx.setStrokeStyle({ width: WALL_THICKNESS, color: WALL_COLOR_PREVIEW, alpha: 0.5 })
   gfx.moveTo(x1, y1)
   gfx.lineTo(x2, y2)

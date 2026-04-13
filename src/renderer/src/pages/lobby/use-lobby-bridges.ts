@@ -50,7 +50,9 @@ function usePeerSync(localPeerId: string | null): void {
           isReady: peer.isReady,
           isHost: peer.isHost,
           color: peer.color,
-          isCoDM: peer.isCoDM
+          isCoDM: peer.isCoDM,
+          latencyMs: peer.latencyMs,
+          status: 'connected'
         })
       } else {
         lobby.updatePlayer(peer.peerId, {
@@ -58,7 +60,9 @@ function usePeerSync(localPeerId: string | null): void {
           characterId: peer.characterId,
           characterName: peer.characterName,
           color: peer.color,
-          isCoDM: peer.isCoDM
+          isCoDM: peer.isCoDM,
+          latencyMs: peer.latencyMs,
+          status: 'connected'
         })
       }
     }
@@ -66,7 +70,15 @@ function usePeerSync(localPeerId: string | null): void {
     for (const player of currentPlayers) {
       if (player.peerId === localPeerId) continue
       if (!peerIds.has(player.peerId)) {
-        lobby.removePlayer(player.peerId)
+        if (player.status !== 'reconnecting') {
+          lobby.setPlayerStatus(player.peerId, 'reconnecting')
+          setTimeout(() => {
+            const p = useLobbyStore.getState().players.find(x => x.peerId === player.peerId)
+            if (p?.status === 'reconnecting') {
+              useLobbyStore.getState().removePlayer(player.peerId)
+            }
+          }, 15000)
+        }
       }
     }
   }, [peers, localPeerId])

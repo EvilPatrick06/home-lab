@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useCallback, useState } from 'react'
 import {
   computeSpellcastingInfo,
   FULL_CASTERS_5E,
@@ -9,6 +9,7 @@ import {
   isMulticlassSpellcaster,
   isWarlockPactMagic
 } from '../../../services/character/spell-data'
+import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -40,6 +41,91 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   const [pendingCastSlot, setPendingCastSlot] = useState<number | null>(null)
   const [showMulticlassAdvisor, setShowMulticlassAdvisor] = useState(false)
   const [showSpellPrepOptimizer, setShowSpellPrepOptimizer] = useState(false)
+  const [spellDragOver, setSpellDragOver] = useState(false)
+
+  // Library spell drop handler
+  const handleSpellDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault()
+      setSpellDragOver(false)
+      const payload = getDragPayload(e)
+      if (!payload || payload.type !== 'library-spell') return
+
+      const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id) as
+        | Character5e
+        | undefined
+      if (!latest) return
+      if ((latest.knownSpells ?? []).some((s) => s.id === payload.itemId)) return
+
+      const { load5eSpells } = await import('../../../services/data-provider')
+      const allSpells = await load5eSpells()
+      const spellData = allSpells.find((s) => s.id === payload.itemId)
+      if (!spellData) return
+
+      const ct = spellData.castingTime
+      const castingTimeStr =
+        typeof ct === 'object' && ct !== null
+          ? `${(ct as Record<string, unknown>).amount ?? ''} ${(ct as Record<string, unknown>).unit ?? ''}`.trim() ||
+            String((ct as Record<string, unknown>).type ?? '')
+          : String(ct ?? '')
+
+      const rng = spellData.range
+      const rangeStr =
+        typeof rng === 'object' && rng !== null
+          ? (rng as Record<string, unknown>).distance
+            ? `${(rng as Record<string, unknown>).distance} ${(rng as Record<string, unknown>).unit ?? 'feet'}`
+            : String((rng as Record<string, unknown>).type ?? '')
+          : String(rng ?? '')
+
+      const dur = spellData.duration
+      const durationStr =
+        typeof dur === 'object' && dur !== null
+          ? (dur as Record<string, unknown>).amount
+            ? `${(dur as Record<string, unknown>).amount} ${(dur as Record<string, unknown>).unit ?? ''}`.trim()
+            : String((dur as Record<string, unknown>).type ?? '')
+          : String(dur ?? '')
+      const isConc =
+        typeof dur === 'object' && dur !== null ? Boolean((dur as Record<string, unknown>).concentration) : false
+
+      const comp = spellData.components
+      const componentsStr =
+        typeof comp === 'object' && comp !== null
+          ? [
+              (comp as Record<string, unknown>).verbal ? 'V' : '',
+              (comp as Record<string, unknown>).somatic ? 'S' : '',
+              (comp as Record<string, unknown>).material
+                ? `M (${(comp as Record<string, unknown>).materialDescription ?? ''})`
+                : ''
+            ]
+              .filter(Boolean)
+              .join(', ')
+          : String(comp ?? '')
+
+      const newSpell: SpellEntry = {
+        id: spellData.id,
+        name: spellData.name,
+        level: spellData.level ?? 0,
+        description: spellData.description ?? '',
+        castingTime: castingTimeStr,
+        range: rangeStr,
+        duration: durationStr,
+        components: componentsStr,
+        school: spellData.school,
+        concentration: isConc || spellData.concentration,
+        ritual: spellData.ritual,
+        classes: spellData.classes ?? spellData.spellList,
+        higherLevels: spellData.higherLevels
+      }
+
+      const updated = {
+        ...latest,
+        knownSpells: [...(latest.knownSpells ?? []), newSpell],
+        updatedAt: new Date().toISOString()
+      } as Character
+      useCharacterStore.getState().saveCharacter(updated)
+    },
+    [character.id]
+  )
 
   const turnState = useGameStore((s) => s.getTurnState(character.id))
   const isConcentrating = !!turnState?.concentratingSpell
@@ -214,7 +300,19 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   }
 
   return (
-    <SheetSectionWrapper title="Spellcasting">
+    <SheetSectionWrapper
+      title="Spellcasting"
+      onDragOver={(e: React.DragEvent) => {
+        if (hasLibraryDrag(e)) {
+          e.preventDefault()
+          e.dataTransfer.dropEffect = 'copy'
+          setSpellDragOver(true)
+        }
+      }}
+      onDragLeave={() => setSpellDragOver(false)}
+      onDrop={handleSpellDrop}
+      className={spellDragOver ? 'ring-2 ring-amber-500/50 ring-inset' : ''}
+    >
       {/* Ritual casting message */}
       {ritualMessage && (
         <div className="mb-3 text-xs bg-blue-900/30 border border-blue-700/50 rounded px-3 py-2 text-blue-300">

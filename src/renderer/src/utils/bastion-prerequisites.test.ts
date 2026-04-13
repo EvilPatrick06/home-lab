@@ -282,8 +282,39 @@ describe('meetsFacilityPrerequisite', () => {
     }
   })
 
-  it('always returns false for faction-renown', () => {
-    expect(meetsFacilityPrerequisite(fullCaps, { type: 'faction-renown', description: 'Renown' })).toBe(false)
+  it('returns false for faction-renown when factionRenown is undefined', () => {
+    expect(
+      meetsFacilityPrerequisite(emptyCaps, {
+        type: 'faction-renown',
+        description: 'Renown',
+        factionName: 'Harpers',
+        renownThreshold: 1
+      })
+    ).toBe(false)
+  })
+
+  it('returns false for faction-renown when renown is insufficient', () => {
+    const caps = { ...fullCaps, factionRenown: { harpers: 1 } }
+    expect(
+      meetsFacilityPrerequisite(caps, {
+        type: 'faction-renown',
+        description: 'Renown',
+        factionName: 'Harpers',
+        renownThreshold: 3
+      })
+    ).toBe(false)
+  })
+
+  it('returns true for faction-renown when renown is sufficient', () => {
+    const caps = { ...fullCaps, factionRenown: { harpers: 5 } }
+    expect(
+      meetsFacilityPrerequisite(caps, {
+        type: 'faction-renown',
+        description: 'Renown',
+        factionName: 'Harpers',
+        renownThreshold: 3
+      })
+    ).toBe(true)
   })
 
   it('returns false for an unknown prerequisite type', () => {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   cleanTextForDiscord,
+  type DiscordIntegrationConfig,
   getDiscordConfigPreview,
-  validateDiscordConfig,
-  type DiscordIntegrationConfig
+  validateDiscordConfig
 } from './discord-service'
 
 describe('Discord Integration Service', () => {
@@ -127,7 +127,7 @@ describe('Discord Integration Service', () => {
 
   describe('cleanTextForDiscord', () => {
     it('removes DM_ACTIONS blocks', () => {
-      const text = 'Hello world\n[DM_ACTIONS]{"actions":[]}[\/DM_ACTIONS]\nMore text'
+      const text = 'Hello world\n[DM_ACTIONS]{"actions":[]}[/DM_ACTIONS]\nMore text'
       const cleaned = cleanTextForDiscord(text)
       expect(cleaned).not.toContain('[DM_ACTIONS]')
       expect(cleaned).not.toContain('actions')
@@ -136,7 +136,7 @@ describe('Discord Integration Service', () => {
     })
 
     it('removes STAT_CHANGES blocks', () => {
-      const text = 'The dragon attacks!\n[STAT_CHANGES]{"changes":[]}[\/STAT_CHANGES]\nYou take damage.'
+      const text = 'The dragon attacks!\n[STAT_CHANGES]{"changes":[]}[/STAT_CHANGES]\nYou take damage.'
       const cleaned = cleanTextForDiscord(text)
       expect(cleaned).not.toContain('[STAT_CHANGES]')
       expect(cleaned).not.toContain('changes')
@@ -145,7 +145,8 @@ describe('Discord Integration Service', () => {
     })
 
     it('removes RULE_CITATION blocks', () => {
-      const text = 'You cast a spell.\n[RULE_CITATION source="PHB" rule="Spellcasting"]See page 201[\/RULE_CITATION]\nIt works!'
+      const text =
+        'You cast a spell.\n[RULE_CITATION source="PHB" rule="Spellcasting"]See page 201[/RULE_CITATION]\nIt works!'
       const cleaned = cleanTextForDiscord(text)
       expect(cleaned).not.toContain('[RULE_CITATION')
       expect(cleaned).not.toContain('PHB')
@@ -154,7 +155,7 @@ describe('Discord Integration Service', () => {
     })
 
     it('removes FILE_READ tags', () => {
-      const text = 'Reading file:\n[FILE_READ]path/to/file.txt[\/FILE_READ]\nContent loaded.'
+      const text = 'Reading file:\n[FILE_READ]path/to/file.txt[/FILE_READ]\nContent loaded.'
       const cleaned = cleanTextForDiscord(text)
       expect(cleaned).not.toContain('[FILE_READ]')
       expect(cleaned).toContain('Reading file:')
@@ -162,7 +163,7 @@ describe('Discord Integration Service', () => {
     })
 
     it('removes WEB_SEARCH tags', () => {
-      const text = 'Searching:\n[WEB_SEARCH]query here[\/WEB_SEARCH]\nResults found.'
+      const text = 'Searching:\n[WEB_SEARCH]query here[/WEB_SEARCH]\nResults found.'
       const cleaned = cleanTextForDiscord(text)
       expect(cleaned).not.toContain('[WEB_SEARCH]')
       expect(cleaned).toContain('Searching:')
@@ -170,7 +171,7 @@ describe('Discord Integration Service', () => {
     })
 
     it('removes PROVIDER_CONTEXT blocks', () => {
-      const text = 'Hello\n[PROVIDER_CONTEXT]Ollama context[\/PROVIDER_CONTEXT]\nWorld'
+      const text = 'Hello\n[PROVIDER_CONTEXT]Ollama context[/PROVIDER_CONTEXT]\nWorld'
       const cleaned = cleanTextForDiscord(text)
       expect(cleaned).not.toContain('[PROVIDER_CONTEXT]')
       expect(cleaned).not.toContain('Ollama')
@@ -181,10 +182,10 @@ describe('Discord Integration Service', () => {
     it('handles multiple tag types', () => {
       const text = `
 The party enters the dungeon.
-[DM_ACTIONS]{"actions":[{"action":"place_token"}]}[\/DM_ACTIONS]
-[STAT_CHANGES]{"changes":[]}[\/STAT_CHANGES]
+[DM_ACTIONS]{"actions":[{"action":"place_token"}]}[/DM_ACTIONS]
+[STAT_CHANGES]{"changes":[]}[/STAT_CHANGES]
 The room is dark and foreboding.
-[RULE_CITATION source="DMG" rule="Darkness"]See darkness rules[\/RULE_CITATION]
+[RULE_CITATION source="DMG" rule="Darkness"]See darkness rules[/RULE_CITATION]
 What do you do?
       `.trim()
       const cleaned = cleanTextForDiscord(text)

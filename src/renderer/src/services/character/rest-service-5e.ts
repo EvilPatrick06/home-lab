@@ -338,6 +338,20 @@ export function getLongRestPreview(character: Character5e): LongRestPreview {
 }
 
 export function applyLongRest(character: Character5e): LongRestResult {
+  // PHB 2024: Cannot start a long rest with 0 HP
+  if (character.hitPoints.current <= 0) {
+    return {
+      character,
+      hpRestored: 0,
+      hdRestored: 0,
+      spellSlotsRestored: 0,
+      resourcesRestored: [],
+      exhaustionReduced: false,
+      heroicInspirationGranted: false,
+      highElfCantripSwap: false
+    }
+  }
+
   const hpRestored = character.hitPoints.maximum - character.hitPoints.current
 
   // Full HP — PHB 2024: THP expire after a Long Rest

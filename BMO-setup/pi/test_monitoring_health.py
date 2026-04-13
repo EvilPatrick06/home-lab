@@ -181,6 +181,34 @@ class MonitoringHealthTests(unittest.TestCase):
         self.assertIn("Authorize Calendar", svc["recommended_action"])
         self.assertIn("label", svc)
 
+    @patch("monitoring.subprocess.run")
+    def test_pihole_api_seats_exceeded_is_degraded_not_down(self, mock_run):
+        # DNS check succeeds, no exception path
+        mock_run.return_value = MagicMock(returncode=0, stdout="1.1.1.1\n", stderr="")
+        mock_post = MagicMock(return_value=MagicMock(
+            status_code=401,
+            json=MagicMock(return_value={"error": {"message": "API seats exceeded"}}),
+        ))
+        self.checker._session = MagicMock()
+        self.checker._session.post = mock_post
+        self.checker._session.get = MagicMock(return_value=MagicMock(status_code=401, json=MagicMock(return_value={})))
+        self.checker._emit_alert = MagicMock()
+
+        self.checker._check_pihole()
+
+        self.assertEqual(self.checker._service_status["pihole"]["status"], "degraded")
+        self.assertIn("seats exceeded", self.checker._service_status["pihole"]["message"].lower())
+
+    def test_ports_check_uses_reachability_fallback_for_5000(self):
+        with patch("subprocess.run", return_value=MagicMock(returncode=0, stdout="", stderr="")):
+            self.checker._emit_alert = MagicMock()
+            with patch.object(self.checker, "_is_local_port_reachable", return_value=True):
+                self.checker._check_ports()
+
+        ports_status = self.checker._service_status.get("ports", {})
+        self.assertEqual(ports_status.get("status"), "degraded")
+        self.assertNotIn("BMO Flask (:5000)", ports_status.get("message", ""))
+
 
 if __name__ == "__main__":
     unittest.main()

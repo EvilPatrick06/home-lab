@@ -12,6 +12,9 @@ export const createEffectsSlice: StateCreator<GameStoreState, [], [], EffectsSli
   removeCustomEffect: (id: string): void => {
     set((s) => ({ customEffects: s.customEffects.filter((e) => e.id !== id) }))
   },
+  getEffectsForToken: (entityId: string): CustomEffect[] => {
+    return get().customEffects.filter((e) => e.targetEntityId === entityId)
+  },
   checkExpiredEffects: (): CustomEffect[] => {
     const { customEffects, round, inGameTime } = get()
     const expired: CustomEffect[] = []

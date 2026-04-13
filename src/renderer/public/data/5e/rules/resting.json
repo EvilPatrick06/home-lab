@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Short Rest",
+    "description": "A Short Rest is a period of downtime, at least 1 hour long, during which a character does nothing more strenuous than eating, drinking, reading, and tending to wounds.",
+    "effects": [
+      "Lasts at least 1 hour",
+      "A character can spend one or more Hit Dice at the end of a Short Rest to regain Hit Points",
+      "For each Hit Die spent, roll the die and add the character's Constitution modifier; the character regains that many HP (minimum 0)",
+      "The character can decide to spend additional Hit Dice after each roll",
+      "Some class features recharge on a Short Rest (e.g., Warlock spell slots, Fighter's Second Wind, Channel Divinity)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Long Rest",
+    "description": "A Long Rest is an extended period of downtime, at least 8 hours long, during which a character sleeps for at least 6 hours and performs no more than 2 hours of light activity such as reading, talking, eating, or standing watch.",
+    "effects": [
+      "Lasts at least 8 hours, with at least 6 hours of sleep and up to 2 hours of light activity",
+      "At the end of a Long Rest, the character regains all lost Hit Points",
+      "The character regains spent Hit Dice, up to a number equal to half their total Hit Dice (minimum of 1 die)",
+      "All expended spell slots are restored",
+      "One level of Exhaustion is removed (if the character has eaten and drunk water)",
+      "A character can't benefit from more than one Long Rest in a 24-hour period",
+      "If the rest is interrupted by a period of strenuous activity (at least 1 hour of walking, fighting, casting spells, or similar), the characters must begin the rest again"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Exhaustion",
+    "description": "Some special abilities and environmental hazards, such as starvation and the long-term effects of freezing or scorching temperatures, can lead to a special condition called Exhaustion. Exhaustion is measured in levels, and each level imposes increasing penalties.",
+    "effects": [
+      "Each level of Exhaustion applies a cumulative -2 penalty to all d20 rolls (ability checks, attack rolls, and saving throws)",
+      "Level 1: -2 to d20 rolls",
+      "Level 2: -4 to d20 rolls",
+      "Level 3: -6 to d20 rolls",
+      "Level 4: -8 to d20 rolls",
+      "Level 5: -10 to d20 rolls",
+      "Level 6: Speed reduced to 0",
+      "Level 10: Death",
+      "Finishing a Long Rest reduces Exhaustion by 1 level (if the creature has eaten and drunk water)",
+      "Greater Restoration spell reduces Exhaustion by 1 level"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Hit Dice Recovery",
+    "description": "Hit Dice are a resource used to regain Hit Points during Short Rests. You recover spent Hit Dice at the end of a Long Rest.",
+    "effects": [
+      "Each class determines your Hit Die type (e.g., d6 for Sorcerer, d8 for Bard, d10 for Fighter, d12 for Barbarian)",
+      "Your total number of Hit Dice equals your character level",
+      "During a Short Rest, you can spend Hit Dice to regain HP: roll the die + Constitution modifier",
+      "At the end of a Long Rest, you regain spent Hit Dice equal to half your total number of Hit Dice (minimum of 1)",
+      "You choose which Hit Dice to spend (relevant for multiclass characters with different Hit Die sizes)"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Food and Water",
+    "description": "Characters who don't eat or drink suffer the effects of exhaustion. A character needs one pound of food per day and one gallon of water per day (or two gallons in hot weather).",
+    "effects": [
+      "A character needs 1 pound of food per day",
+      "A character needs 1 gallon of water per day (2 gallons in hot weather)",
+      "A character can go without food for a number of days equal to 3 + Constitution modifier (minimum 1) before suffering Exhaustion; each day beyond that adds 1 level of Exhaustion",
+      "A character with access to less water than required must succeed on a Constitution saving throw or gain 1 level of Exhaustion (or 2 levels if already Exhausted)",
+      "Characters who eat or drink half the required amount can survive at half the normal duration before Exhaustion sets in"
+    ],
+    "source": "PHB 2024"
+  },
+  {
+    "name": "Interrupting a Rest",
+    "description": "If a rest is interrupted by strenuous activity, the characters must begin the rest again to gain any benefit from it.",
+    "effects": [
+      "Short Rest: Interrupted by any strenuous activity such as fighting, casting spells, or at least 10 minutes of walking",
+      "Long Rest: Interrupted if the characters engage in at least 1 hour of strenuous activity (walking, fighting, casting spells, or similar)",
+      "A brief interruption (e.g., a single combat encounter lasting a few rounds) during a Long Rest does not necessarily require restarting, provided the activity takes less than 1 hour",
+      "Standing watch during a Long Rest counts as light activity and does not interrupt the rest"
+    ],
+    "source": "PHB 2024"
+  }
+]

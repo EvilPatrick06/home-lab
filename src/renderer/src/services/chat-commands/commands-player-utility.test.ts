@@ -190,6 +190,36 @@ describe('commands-player-utility', () => {
       const result = checkCmd.execute('nonexistent', makeCtx())
       expect(result).toHaveProperty('type', 'error')
     })
+
+    it('rolls with advantage when "adv" suffix provided', () => {
+      const result = checkCmd.execute('athletics adv', makeCtx())
+      expect(result).toHaveProperty('type', 'broadcast')
+      expect((result as { content: string }).content).toContain('Adv')
+      expect((result as { content: string }).content).toContain('Athletics')
+    })
+
+    it('rolls with disadvantage when "dis" suffix provided', () => {
+      const result = checkCmd.execute('athletics dis', makeCtx())
+      expect(result).toHaveProperty('type', 'broadcast')
+      expect((result as { content: string }).content).toContain('Dis')
+    })
+
+    it('rolls normally without adv/dis suffix', () => {
+      const result = checkCmd.execute('athletics', makeCtx())
+      expect(result).toHaveProperty('type', 'broadcast')
+      expect((result as { content: string }).content).not.toContain('Adv')
+      expect((result as { content: string }).content).not.toContain('Dis')
+    })
+
+    it('adds Jack of All Trades half proficiency for non-proficient skills', () => {
+      const charWithJoAT = makeChar({
+        classFeatures: [{ name: 'Jack of All Trades', description: '', source: 'Bard' }]
+      } as Partial<Character5e>)
+      vi.mocked(getLatestCharacter).mockReturnValue(charWithJoAT)
+      const result = checkCmd.execute('stealth', makeCtx({ character: charWithJoAT }))
+      expect(result).toHaveProperty('type', 'broadcast')
+      expect((result as { content: string }).content).toContain('jack')
+    })
   })
 
   describe('/rest command', () => {

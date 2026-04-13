@@ -1,13 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('./dm-system-prompt', () => ({
-  DM_SYSTEM_PROMPT: 'Base system prompt.',
   DM_TOOLBOX_CONTEXT: '\n\nToolbox context.',
   PLANAR_RULES_CONTEXT: '\n\nPlanar context.'
 }))
 
 vi.mock('./prompt-sections/combat-tactics', () => ({
   COMBAT_TACTICS_PROMPT: '\n\nCombat tactics.'
+}))
+vi.mock('./prompt-sections/narrative-rules', () => ({
+  NARRATIVE_RULES_PROMPT: 'Base system prompt.'
 }))
 
 vi.mock('./token-budget', () => ({

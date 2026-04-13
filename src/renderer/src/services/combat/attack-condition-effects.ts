@@ -15,7 +15,7 @@ export interface AttackConditionContext {
   anyEnemyWithin5ftOfAttacker: boolean
   /** Target's turn state (specifically isDodging) */
   targetIsDodging?: boolean
-  /** Entity ID of the target (for Grappled check) */
+  /** Entity ID of the target (for Charmed/Frightened source check) */
   targetEntityId?: string
   /** Entity ID of whoever is grappling the attacker (for Grappled disadvantage check) */
   attackerGrapplerEntityId?: string
@@ -29,6 +29,8 @@ export interface AttackConditionContext {
   flankingAlly?: string | null
   /** Whether heavy weather imposes disadvantage on ranged attacks */
   weatherDisadvantageRanged?: boolean
+  /** Entity IDs of creatures visible to the attacker (for Frightened LoS check) */
+  visibleEntityIds?: string[]
 }
 
 export interface ConditionEffectResult {
@@ -49,6 +51,8 @@ export interface ConditionEffectResult {
 interface SimpleCondition {
   name: string
   value?: number
+  /** Entity ID of whoever applied this condition (for Charmed check) */
+  sourceEntityId?: string
 }
 
 /**
@@ -97,10 +101,29 @@ export function getAttackConditionEffects(
   }
 
   if (hasCondition(attackerConditions, 'Frightened')) {
-    // Disadvantage on attack rolls while source of fear is in line of sight
-    // We can't determine LOS to fear source, so always apply and let DM override
-    disadvantageSources.push('Frightened (source of fear in sight)')
+    // PHB 2024: Disadvantage on attack rolls only while the source of fear is visible
+    const frightenedCond = attackerConditions.find((c) => c.name.toLowerCase() === 'frightened')
+    const fearSourceId = frightenedCond?.sourceEntityId
+    // If no source tracked, assume fear source is visible (conservative/safe default)
+    const fearSourceVisible = !fearSourceId || !context.visibleEntityIds || context.visibleEntityIds.includes(fearSourceId)
+    if (fearSourceVisible) {
+      disadvantageSources.push('Frightened (source of fear visible)')
+    }
   }
+
+  // Charmed: can't attack the charmer (PHB 2024)
+  if (context.targetEntityId) {
+    const charmedByTarget = attackerConditions.some(
+      (c) => c.name.toLowerCase() === 'charmed' && c.sourceEntityId === context.targetEntityId
+    )
+    if (charmedByTarget) {
+      attackerCannotAct = true
+    }
+  }
+
+  // PHB 2024: Deafened auto-fails hearing-based checks. No attack roll modifier.
+  // Modeled here as no-op for attacks; hearing-based ability checks handled in SkillRollButton.
+
 
   if (hasCondition(attackerConditions, 'Poisoned')) {
     disadvantageSources.push('Poisoned (disadvantage on attacks)')

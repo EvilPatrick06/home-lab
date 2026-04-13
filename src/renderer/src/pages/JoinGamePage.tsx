@@ -20,20 +20,27 @@ export default function JoinGamePage(): JSX.Element {
   })
   const [waitingForCampaign, setWaitingForCampaign] = useState(false)
 
-  // Fall back to settings profile if localStorage display name is empty
+  // Keep localStorage in sync with canonical settings.json source of truth
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentional mount-only effect
   useEffect(() => {
-    if (displayName) return
     window.api.loadSettings().then((settings) => {
       if (settings.userProfile?.displayName) {
         setDisplayName(settings.userProfile.displayName)
+        localStorage.setItem(DISPLAY_NAME_KEY, settings.userProfile.displayName)
       }
     })
   }, [])
+
   const navigatedRef = useRef(false)
   const autoRejoinTriggered = useRef(false)
 
-  const canConnect = inviteCode.trim().length > 0 && displayName.trim().length > 0
+  const isValidInviteCode = (code: string): boolean => {
+    const cleaned = code.trim().toUpperCase()
+    return cleaned.length === 8 && /^[A-Z0-9]+$/.test(cleaned)
+  }
+
+  const codeInvalid = inviteCode.trim().length > 0 && !isValidInviteCode(inviteCode)
+  const canConnect = isValidInviteCode(inviteCode) && displayName.trim().length > 0
   const isConnecting = connectionState === 'connecting' || waitingForCampaign
 
   // Auto-rejoin: pre-fill from last session and connect automatically
@@ -121,8 +128,17 @@ export default function JoinGamePage(): JSX.Element {
 
     try {
       localStorage.setItem(DISPLAY_NAME_KEY, displayName.trim())
+
+      const settings = await window.api.loadSettings()
+      const profile = settings.userProfile ?? {
+        id: crypto.randomUUID(),
+        displayName: '',
+        createdAt: new Date().toISOString()
+      }
+      profile.displayName = displayName.trim()
+      await window.api.saveSettings({ ...settings, userProfile: profile })
     } catch (e) {
-      logger.warn('[JoinGame] localStorage write failed:', e)
+      logger.warn('[JoinGame] display name sync failed:', e)
     }
 
     try {
@@ -165,13 +181,16 @@ export default function JoinGamePage(): JSX.Element {
             value={inviteCode}
             onChange={(e) => setInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
             onKeyDown={handleKeyDown}
-            placeholder="e.g. ABC123"
+            placeholder="e.g. ABC123D4"
             maxLength={10}
-            className="w-full p-4 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
-                       placeholder-gray-600 focus:border-amber-500 focus:outline-none
-                       transition-colors text-center text-2xl font-mono font-bold tracking-[0.3em]
-                       uppercase"
+            className={`w-full p-4 rounded-lg bg-gray-800 border text-gray-100
+                       placeholder-gray-600 focus:outline-none transition-colors text-center
+                       text-2xl font-mono font-bold tracking-[0.3em] uppercase
+                       ${codeInvalid ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-amber-500'}`}
           />
+          {codeInvalid && (
+            <p className="mt-1 text-xs text-red-400 text-center">Invite code must be 8 characters.</p>
+          )}
         </div>
 
         {/* Connection status indicator */}

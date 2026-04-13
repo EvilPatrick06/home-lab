@@ -16,6 +16,7 @@ EnvironmentFile=/home/patrick/bmo/.env
 ExecStart=/home/patrick/bmo/venv/bin/python app.py
 Restart=on-failure
 RestartSec=5
+KillMode=process
 LimitNOFILE=65536
 StandardOutput=journal
 StandardError=journal

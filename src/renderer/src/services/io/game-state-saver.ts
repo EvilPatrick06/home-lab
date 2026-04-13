@@ -25,7 +25,10 @@ export function buildSavableCampaign(campaign: Campaign): Campaign {
     restTracking: gs.restTracking,
     activeLightSources: gs.activeLightSources,
     handouts: gs.handouts,
-    combatTimer: gs.combatTimer ?? undefined
+    combatTimer: gs.combatTimer ?? undefined,
+    sessionLog: gs.sessionLog,
+    sharedJournal: gs.sharedJournal,
+    lastSaveTimestamp: Date.now()
   }
 
   return {

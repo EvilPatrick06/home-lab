@@ -1,8 +1,14 @@
 import { create } from 'zustand'
+import { dynamicKeys } from '../constants'
 import { addToast } from '../hooks/use-toast'
 import type { Character } from '../types/character'
 import type { ActiveCondition } from '../types/character-common'
 import { logger } from '../utils/logger'
+
+function cleanupCharacterLocalStorage(characterId: string) {
+  localStorage.removeItem(dynamicKeys.macroStorage(characterId))
+  localStorage.removeItem(dynamicKeys.builderDraft(characterId))
+}
 
 interface CharacterState {
   characters: Character[]
@@ -106,6 +112,8 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       if (character) {
         addToast(`Deleted "${character.name}"`, 'success')
       }
+
+      cleanupCharacterLocalStorage(id)
     } catch (error) {
       logger.error('Failed to delete character:', error, 'id:', id)
       if (error instanceof Error && !error.message.includes('Failed to delete')) {
@@ -120,7 +128,10 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { characters } = get()
     await Promise.allSettled(
       characters.map((c) =>
-        window.api.deleteCharacter(c.id).catch((error) => logger.error('Failed to delete character:', c.id, error))
+        window.api
+          .deleteCharacter(c.id)
+          .then(() => cleanupCharacterLocalStorage(c.id))
+          .catch((error) => logger.error('Failed to delete character:', c.id, error))
       )
     )
     set({ characters: [], selectedCharacterId: null })

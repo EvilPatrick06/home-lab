@@ -4,17 +4,25 @@ interface SheetSectionWrapperProps {
   title: string
   children: React.ReactNode
   defaultOpen?: boolean
+  className?: string
+  onDragOver?: (e: React.DragEvent) => void
+  onDragLeave?: (e: React.DragEvent) => void
+  onDrop?: (e: React.DragEvent) => void
 }
 
 export default function SheetSectionWrapper({
   title,
   children,
-  defaultOpen = true
+  defaultOpen = true,
+  className,
+  onDragOver,
+  onDragLeave,
+  onDrop
 }: SheetSectionWrapperProps): JSX.Element {
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className="mb-4">
+    <div className={`mb-4 ${className ?? ''}`} onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-3 py-1.5 bg-gray-800/80 hover:bg-gray-800 transition-colors rounded-t-lg"

@@ -1,8 +1,8 @@
 import type { StateCreator } from 'zustand'
+import { publishSystemChat } from '../../events/system-chat-bridge'
 import { createAttackTracker } from '../../services/combat/multi-attack-tracker'
 import { pluginEventBus } from '../../services/plugin-system/event-bus'
 import type { EntityCondition, InitiativeEntry } from '../../types/game-state'
-import { useLobbyStore } from '../use-lobby-store'
 import { createTurnState, type GameStoreState, type InitiativeSliceState } from './types'
 
 export const createInitiativeSlice: StateCreator<GameStoreState, [], [], InitiativeSliceState> = (set, get) => ({
@@ -145,6 +145,20 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
     // Check for expired custom effects after round/time update
     get().checkExpiredEffects()
 
+    // Check if the new active entity is a player at 0 HP — emit death save needed event
+    const allMaps = get().maps
+    for (const map of allMaps) {
+      const activeToken = map.tokens.find((t) => t.entityId === nextEntity.entityId)
+      if (activeToken?.entityType === 'player' && activeToken.currentHP === 0) {
+        pluginEventBus.emit('game:death-save-needed', {
+          entityId: nextEntity.entityId,
+          entityName: nextEntity.entityName,
+          round: newRound
+        })
+        break
+      }
+    }
+
     // Emit plugin hooks for turn start and round end
     if (pluginEventBus.hasSubscribers('game:turn-start')) {
       const nextEntry = entries[nextIndex]
@@ -189,8 +203,7 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
         set({ conditions: remaining })
         // Post system messages for expired conditions
         for (const c of expired) {
-          useLobbyStore.getState().addChatMessage({
-            id: crypto.randomUUID(),
+          publishSystemChat({
             senderId: 'system',
             senderName: 'System',
             content: `${c.entityName}'s ${c.condition} condition has expired (after ${c.duration} round${c.duration !== 1 ? 's' : ''}).`,
@@ -345,6 +358,7 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
     if (fromIdx >= 0 && fromIdx !== currentIdx + 1) {
       const [moved] = updatedEntries.splice(fromIdx, 1)
       if (moved) {
+        // After splice, if fromIdx < currentIdx the active entry shifted left by 1
         const insertAt = fromIdx < currentIdx ? currentIdx : currentIdx + 1
         updatedEntries.splice(insertAt, 0, moved)
       }

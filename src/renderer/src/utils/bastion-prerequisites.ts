@@ -12,6 +12,7 @@ export interface CharacterCapabilities {
   hasUnarmoredDefense: boolean
   hasExpertise: boolean
   characterLevel: number
+  factionRenown?: Record<string, number>
 }
 
 const ARCANE_FOCUS_CLASSES = new Set(['wizard', 'sorcerer', 'warlock'])
@@ -29,7 +30,10 @@ function hasClassIn(classes: { name: string }[], classSet: Set<string>): boolean
  * Analyzes a Character5e to determine bastion-related capabilities
  * based on class list, build choices, skills, and spellcasting.
  */
-export function analyzeCapabilities(character: Character5e): CharacterCapabilities {
+export function analyzeCapabilities(
+  character: Character5e,
+  factionRenown?: Record<string, number>
+): CharacterCapabilities {
   const classes = character.classes
 
   const canUseArcaneFocus = hasClassIn(classes, ARCANE_FOCUS_CLASSES)
@@ -55,7 +59,8 @@ export function analyzeCapabilities(character: Character5e): CharacterCapabiliti
     hasFightingStyle,
     hasUnarmoredDefense,
     hasExpertise,
-    characterLevel: character.level
+    characterLevel: character.level,
+    factionRenown
   }
 }
 
@@ -90,8 +95,12 @@ export function meetsFacilityPrerequisite(
       return capabilities.hasUnarmoredDefense
     case 'expertise':
       return capabilities.hasExpertise
-    case 'faction-renown':
-      return false
+    case 'faction-renown': {
+      if (!capabilities.factionRenown) return false
+      const factionId = prereq.factionName?.toLowerCase().replace(/\s+/g, '-') ?? ''
+      const renown = capabilities.factionRenown[factionId] ?? 0
+      return renown >= (prereq.renownThreshold ?? 1)
+    }
     default:
       return false
   }
@@ -104,9 +113,10 @@ export function meetsFacilityPrerequisite(
  */
 export function getEligibleFacilities(
   character: Character5e,
-  allFacilities: SpecialFacilityDef[]
+  allFacilities: SpecialFacilityDef[],
+  factionRenown?: Record<string, number>
 ): SpecialFacilityDef[] {
-  const capabilities = analyzeCapabilities(character)
+  const capabilities = analyzeCapabilities(character, factionRenown)
 
   return allFacilities.filter((facility) => {
     if (capabilities.characterLevel < facility.level) return false
@@ -120,9 +130,10 @@ export function getEligibleFacilities(
  */
 export function getFacilityEligibility(
   character: Character5e,
-  facility: SpecialFacilityDef
+  facility: SpecialFacilityDef,
+  factionRenown?: Record<string, number>
 ): { eligible: boolean; reason?: string } {
-  const capabilities = analyzeCapabilities(character)
+  const capabilities = analyzeCapabilities(character, factionRenown)
 
   if (capabilities.characterLevel < facility.level) {
     return {

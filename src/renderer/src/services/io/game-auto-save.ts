@@ -7,6 +7,8 @@ const AUTO_SAVE_DEBOUNCE_MS = 5000
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 let unsubscribe: (() => void) | null = null
 let activeCampaignId: string | null = null
+let isSaving = false
+let saveQueued = false
 
 function buildSavePayload(): Record<string, unknown> {
   const gs = useGameStore.getState()
@@ -41,21 +43,38 @@ function buildSavePayload(): Record<string, unknown> {
     handouts: gs.handouts,
     combatTimer: gs.combatTimer,
     shopInventory: gs.shopInventory,
-    shopName: gs.shopName,
-    shopMarkup: gs.shopMarkup
+    shopMarkup: gs.shopMarkup,
+    lastSaveTimestamp: Date.now()
+  }
+}
+
+async function performSave() {
+  if (!activeCampaignId) return
+  if (isSaving) {
+    saveQueued = true
+    return
+  }
+  isSaving = true
+  saveQueued = false
+
+  try {
+    const payload = buildSavePayload()
+    await window.api.saveGameState(activeCampaignId, payload)
+  } catch (err) {
+    logger.error('[AutoSave] Failed to save game state:', err)
+  } finally {
+    isSaving = false
+    if (saveQueued) {
+      setTimeout(performSave, 250)
+    }
   }
 }
 
 function scheduleSave(): void {
   if (!activeCampaignId) return
   if (debounceTimer) clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(async () => {
-    if (!activeCampaignId) return
-    try {
-      await window.api.saveGameState(activeCampaignId, buildSavePayload())
-    } catch (err) {
-      logger.error('[AutoSave] Failed to save game state:', err)
-    }
+  debounceTimer = setTimeout(() => {
+    performSave()
   }, AUTO_SAVE_DEBOUNCE_MS)
 }
 
@@ -112,10 +131,25 @@ export async function flushAutoSave(campaignId: string): Promise<void> {
     clearTimeout(debounceTimer)
     debounceTimer = null
   }
+
+  // If already saving, queue a save and spinlock briefly
+  if (isSaving) {
+    saveQueued = true
+    let retries = 20
+    while (isSaving && retries > 0) {
+      await new Promise((r) => setTimeout(r, 100))
+      retries--
+    }
+    return
+  }
+
+  isSaving = true
   try {
     await window.api.saveGameState(campaignId, buildSavePayload())
   } catch (err) {
     logger.error('[AutoSave] Flush failed:', err)
+  } finally {
+    isSaving = false
   }
 }
 

@@ -53,4 +53,8 @@ export type ActiveModal =
   | 'dm-screen'
   | 'roll-table'
   | 'diceRoller'
+  | 'partyInventory'
+  | 'triggerManager'
+  | 'aiMapAnalysis'
+  | 'recaps'
   | null

@@ -1,3 +1,4 @@
+import { SETTINGS_KEYS } from '../constants'
 /**
  * Sound effects manager using HTML5 Audio API.
  * Two-tier architecture:
@@ -204,11 +205,44 @@ function getVariantPath(event: string, index: number): string {
 
 // --- Module-level state ---
 
+const AUDIO_STORAGE_KEY = SETTINGS_KEYS.AUDIO
+
+export interface AudioSettings {
+  volume: number
+  ambientVolume: number
+  muted: boolean
+  enabled: boolean
+}
+
+export function loadAudioSettings(): AudioSettings {
+  try {
+    const raw = localStorage.getItem(AUDIO_STORAGE_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch {
+    // ignore
+  }
+  return { volume: 1, ambientVolume: 0.3, muted: false, enabled: true }
+}
+
+export function saveAudioSettings(settings: AudioSettings): void {
+  try {
+    localStorage.setItem(AUDIO_STORAGE_KEY, JSON.stringify(settings))
+  } catch {
+    // ignore
+  }
+}
+
+const savedAudio = loadAudioSettings()
+
 let initialized = false
-let volume = 1
-let ambientVolume = 0.3
-let muted = false
-let enabled = true
+let volume = savedAudio.volume
+let ambientVolume = savedAudio.ambientVolume
+let muted = savedAudio.muted
+let enabled = savedAudio.enabled
+
+function persistAudioState(): void {
+  saveAudioSettings({ volume, ambientVolume, muted, enabled })
+}
 
 /** Map from event name to a pool of Audio elements */
 const pools: Map<SoundEvent, HTMLAudioElement[]> = new Map()
@@ -424,11 +458,22 @@ export function getAmbientVolume(): number {
   return ambientVolume
 }
 
-/**
- * Get the current master volume level (0-1).
- */
 export function getVolume(): number {
   return volume
+}
+
+/**
+ * Check if audio is currently muted.
+ */
+export function isMuted(): boolean {
+  return muted
+}
+
+/**
+ * Check if the sound system is enabled.
+ */
+export function isEnabled(): boolean {
+  return enabled
 }
 
 /**
@@ -453,6 +498,7 @@ export function fadeAmbient(targetVolume: number, durationMs: number): Promise<v
  */
 export function setVolume(v: number): void {
   volume = Math.max(0, Math.min(1, v))
+  persistAudioState()
 
   if (!muted) {
     applyVolumeToAll(volume)
@@ -465,6 +511,7 @@ export function setVolume(v: number): void {
  */
 export function setAmbientVolume(v: number): void {
   ambientVolume = Math.max(0, Math.min(1, v))
+  persistAudioState()
   playbackUpdateAmbientVolume(muted, ambientVolume)
 }
 
@@ -473,6 +520,7 @@ export function setAmbientVolume(v: number): void {
  */
 export function setMuted(m: boolean): void {
   muted = m
+  persistAudioState()
   applyVolumeToAll(muted ? 0 : volume)
   playbackUpdateAmbientVolume(muted, ambientVolume)
 }
@@ -483,6 +531,7 @@ export function setMuted(m: boolean): void {
  */
 export function setEnabled(e: boolean): void {
   enabled = e
+  persistAudioState()
   if (!e) stopAmbient()
 }
 

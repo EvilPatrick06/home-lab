@@ -15,6 +15,7 @@ import {
 } from './map-editor-handlers'
 
 const CreateMapModal = lazy(() => import('./CreateMapModal'))
+const ResizeMapModal = lazy(() => import('./ResizeMapModal'))
 
 interface DMMapEditorProps {
   campaign: Campaign
@@ -30,7 +31,9 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null)
   const [rightPanel, setRightPanel] = useState<RightPanel>('tokens')
   const [terrainPaintType, setTerrainPaintType] = useState<TerrainCell['type']>('difficult')
+  const [portalTarget, setPortalTarget] = useState<{ mapId: string; gridX: number; gridY: number } | undefined>(undefined)
   const [showCreateMap, setShowCreateMap] = useState(false)
+  const [showResizeMap, setShowResizeMap] = useState(false)
   const [_undoCount, setUndoCount] = useState(0)
 
   const triggerRerender = useCallback(() => setUndoCount((c) => c + 1), [])
@@ -62,7 +65,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
       if (!activeMap) return
 
       if (activeTool === 'terrain') {
-        handleTerrainCellClick(activeMap.id, gridX, gridY, activeMap.terrain ?? [], terrainPaintType, triggerRerender)
+        handleTerrainCellClick(activeMap.id, gridX, gridY, activeMap.terrain ?? [], terrainPaintType, triggerRerender, portalTarget)
         return
       }
 
@@ -76,7 +79,8 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
           gridY,
           activeMap.terrain ?? [],
           terrainPaintType,
-          triggerRerender
+          triggerRerender,
+          portalTarget
         )
         return
       }
@@ -137,6 +141,18 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
     [campaign.id, gameStore]
   )
 
+  const handleResizeMap = useCallback(
+    (newWidthCells: number, newHeightCells: number) => {
+      if (!activeMap) return
+      const newWidth = newWidthCells * activeMap.grid.cellSize
+      const newHeight = newHeightCells * activeMap.grid.cellSize
+      gameStore.updateMap(activeMap.id, { width: newWidth, height: newHeight })
+      setShowResizeMap(false)
+      triggerRerender() // Force re-render of canvas layout
+    },
+    [activeMap, gameStore, triggerRerender]
+  )
+
   const onWallPlace = useCallback(
     (x1: number, y1: number, x2: number, y2: number) => {
       if (!activeMap) return
@@ -170,6 +186,13 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
           <span className="text-xs text-amber-400 font-semibold">Round {gameStore.initiative.round}</span>
         )}
         <div className="flex-1" />
+        <button
+          onClick={() => setShowResizeMap(true)}
+          disabled={!activeMap}
+          className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Resize
+        </button>
         <button
           onClick={onClose}
           className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors cursor-pointer"
@@ -219,6 +242,8 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
           setFogBrushSize={setFogBrushSize}
           terrainPaintType={terrainPaintType}
           setTerrainPaintType={setTerrainPaintType}
+          portalTarget={portalTarget}
+          setPortalTarget={setPortalTarget}
           selectedTokenId={selectedTokenId}
           setSelectedTokenId={setSelectedTokenId}
           campaign={campaign}
@@ -228,6 +253,18 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
       {showCreateMap && (
         <Suspense fallback={null}>
           <CreateMapModal onCreateMap={handleCreateMap} onClose={() => setShowCreateMap(false)} />
+        </Suspense>
+      )}
+
+      {showResizeMap && activeMap && (
+        <Suspense fallback={null}>
+          <ResizeMapModal
+            currentWidthPixels={activeMap.width}
+            currentHeightPixels={activeMap.height}
+            cellSize={activeMap.grid.cellSize}
+            onResize={handleResizeMap}
+            onClose={() => setShowResizeMap(false)}
+          />
         </Suspense>
       )}
     </div>

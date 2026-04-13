@@ -1,9 +1,21 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { setDragPayload } from '../../services/library/drag-data'
 import type { LibraryCategory, LibraryItem } from '../../types/library'
 import { getCategoryDef } from '../../types/library'
 import AudioPlayerItem from './AudioPlayerItem'
 import ImagePreviewItem from './ImagePreviewItem'
+
+const DRAGGABLE_CATEGORIES = new Set<LibraryCategory>([
+  'monsters',
+  'creatures',
+  'npcs',
+  'spells',
+  'weapons',
+  'armor',
+  'gear',
+  'magic-items'
+])
 
 interface LibraryItemListProps {
   items: LibraryItem[]
@@ -27,6 +39,7 @@ export default function LibraryItemList({
   onToggleFavorite
 }: LibraryItemListProps): JSX.Element {
   const parentRef = useRef<HTMLDivElement>(null)
+  const [draggingId, setDraggingId] = useState<string | null>(null)
 
   const virtualizer = useVirtualizer({
     count: items.length,
@@ -114,8 +127,23 @@ export default function LibraryItemList({
               ) : (
                 <div
                   onClick={() => onSelectItem(item)}
-                  className="w-full text-left flex items-center gap-3 px-4 py-3 border-b border-gray-800/50
-                    hover:bg-gray-800/40 transition-colors cursor-pointer group"
+                  draggable={DRAGGABLE_CATEGORIES.has(item.category)}
+                  onDragStart={(e) => {
+                    const dragType = (['monsters', 'creatures', 'npcs'] as LibraryCategory[]).includes(item.category)
+                      ? ('library-monster' as const)
+                      : item.category === 'spells'
+                        ? ('library-spell' as const)
+                        : ('library-item' as const)
+                    const payload =
+                      dragType === 'library-item'
+                        ? { type: dragType, itemId: item.id, itemName: item.name, category: item.category }
+                        : { type: dragType, itemId: item.id, itemName: item.name }
+                    setDragPayload(e, payload)
+                    setDraggingId(item.id)
+                  }}
+                  onDragEnd={() => setDraggingId(null)}
+                  className={`w-full text-left flex items-center gap-3 px-4 py-3 border-b border-gray-800/50
+                    hover:bg-gray-800/40 transition-colors cursor-pointer group ${draggingId === item.id ? 'opacity-50' : ''}`}
                 >
                   {catDef && <span className="text-lg leading-none flex-shrink-0">{catDef.icon}</span>}
                   <div className="flex-1 min-w-0">
