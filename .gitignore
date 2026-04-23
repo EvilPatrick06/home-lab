@@ -62,47 +62,50 @@ tsc-*.txt
 **/auth_token*
 **/oauth_token*
 
-# BMO-specific secrets (explicit)
-BMO-setup/pi-iam-credentials.txt
-BMO-setup/.env
-BMO-setup/pi/.env
-BMO-setup/config/.env
-BMO-setup/pi/*.pem
-BMO-setup/pi/config/credentials.json
-BMO-setup/pi/config/token.json
-BMO-setup/pi/config/*.json
+# BMO-specific secrets (most caught by the broad globs above — explicit for clarity)
+bmo/pi-iam-credentials.txt
+bmo/.env
+bmo/pi/.env
+bmo/config/.env
+bmo/pi/*.pem
+bmo/pi/config/*.json
 
 # DnD app secrets
 /.env
 src/**/.env
 
 # BMO runtime (generated, not secret but noisy)
-BMO-setup/pi/__pycache__/
-BMO-setup/pi/agents/__pycache__/
 bmo/pi/venv/
-BMO-setup/pi/logs/
-BMO-setup/pi/.bmo/
-BMO-setup/pi/.audiocache/
-BMO-setup/pi/wake_clips/
-BMO-setup/pi/*.ppn
-BMO-setup/pi/.pytest_cache/
+bmo/pi/logs/
+bmo/pi/.bmo/
+bmo/pi/.audiocache/
+bmo/pi/wake_clips/
+bmo/pi/*.ppn
+bmo/pi/.pytest_cache/
 
-# BMO runtime state (generated at runtime, not content)
-BMO-setup/pi/data/logs/
-BMO-setup/pi/data/memory/
-BMO-setup/pi/data/*.db
-BMO-setup/pi/data/alarms.json
-BMO-setup/pi/data/alert_history.json
-BMO-setup/pi/data/ide_jobs.json
-BMO-setup/pi/data/location_cache.json
-BMO-setup/pi/data/monitor_state.json
-BMO-setup/pi/data/monitor_alert_state.json
-BMO-setup/pi/data/music_history.json
-BMO-setup/pi/data/notes.json
-BMO-setup/pi/data/play_counts.json
-BMO-setup/pi/data/playback_state.json
-BMO-setup/pi/data/recent_chat.json
-BMO-setup/pi/data/settings.json
+# BMO runtime state — generated at runtime, NOT source content.
+# bmo/pi/data/ also contains content subdirs (5e/, personality/, rag_data/, games/, etc.)
+# so we enumerate specific runtime files rather than glob *.json.
+bmo/pi/data/logs/
+bmo/pi/data/memory/
+bmo/pi/data/*.db
+bmo/pi/data/alarms.json
+bmo/pi/data/alert_history.json
+bmo/pi/data/ide_jobs.json
+bmo/pi/data/ide_state.json
+bmo/pi/data/location_cache.json
+bmo/pi/data/monitor_state.json
+bmo/pi/data/monitor_alert_state.json
+bmo/pi/data/music_history.json
+bmo/pi/data/notes.json
+bmo/pi/data/play_counts.json
+bmo/pi/data/playback_state.json
+bmo/pi/data/recent_chat.json
+bmo/pi/data/settings.json
+
+# Monitoring agents write here — entire dir is runtime state
+bmo/pi/services/data/*.json
+bmo/pi/services/data/*.db
 
 # Python bytecode anywhere
 **/__pycache__/
