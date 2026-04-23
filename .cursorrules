@@ -119,10 +119,12 @@
 
 ## Logging Bugs / Issues / Future Work
 
-- **Read `docs/LOG-INSTRUCTIONS.md`** for the template + severity/category guide
-- **ALWAYS append to `docs/ISSUES-LOG.md`** when you find bugs, config drift, future improvements, tech debt, design gotchas, or ideas
-- **Log minor/optional items too** — patterns across small observations reveal larger problems
-- Don't silently fix preexisting issues outside current task scope — log them, let user prioritize
+The log (`docs/ISSUES-LOG.md`) is for **unfixed or deferred** work that crosses session boundaries.
+
+- **Fixing in this session?** → Just fix it. The commit is the record. Do NOT log — it clutters the log with already-resolved entries.
+- **Out of scope / deferred?** → APPEND. Don't silently fix preexisting issues outside current task — log them, let user prioritize.
+- **Log minor/optional items too** *(when out of scope)* — patterns across small observations reveal larger problems.
+- **Read `docs/LOG-INSTRUCTIONS.md`** for the template + severity/category guide + the "log vs fix inline" decision rule with examples.
 
 ## Secrets / Safety
 

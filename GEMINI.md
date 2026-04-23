@@ -68,7 +68,13 @@ Types: `feat, fix, refactor, chore, docs, test, perf, build, ci`
 
 ### If you find bugs / ideas / debt
 
-Read `docs/LOG-INSTRUCTIONS.md` for the template + conventions, then append to `docs/ISSUES-LOG.md`. Log even minor items. Don't silently fix outside scope.
+The log is for **unfixed or deferred** work:
+
+- **Fixing it in this session?** → Just fix it. The commit is the record. Do NOT log.
+- **Out of scope / can't fix now?** → APPEND to `docs/ISSUES-LOG.md`. Log even minor out-of-scope items.
+- **Unsure?** → See "The decision rule" at the top of `docs/LOG-INSTRUCTIONS.md`.
+
+Read `docs/LOG-INSTRUCTIONS.md` before your first log append for the template + "log vs fix inline" examples. Don't silently fix outside scope — but also don't log what you're fixing right now.
 
 ### Key files to reference often
 

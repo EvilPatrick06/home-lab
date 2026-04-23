@@ -70,7 +70,7 @@ Issues should reference `docs/ISSUES-LOG.md` if logging a bug. PRs should:
 - Small focused PRs (`<500` line diff when possible)
 - Explicit return types on exported functions
 - Zod runtime validation at trust boundaries (IPC, HTTP, file reads)
-- Read `docs/LOG-INSTRUCTIONS.md` for logging conventions, then append bugs/TODOs/ideas to `docs/ISSUES-LOG.md` as you discover them (minor items too)
+- Log **unfixed or deferred** work to `docs/ISSUES-LOG.md` (read `docs/LOG-INSTRUCTIONS.md` for the template + "log vs fix inline" decision rule). Rule of thumb: if you're fixing it in this PR, don't log it — the commit is the record. If it's out of scope, log it even if minor.
 - Add a pytest/vitest case for each bug fix (regression prevention)
 - Use conventional commit prefixes: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, `test:`
 

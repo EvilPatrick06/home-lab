@@ -76,12 +76,19 @@ Body optional for trivial changes. For multi-file refactors, describe:
 
 ### Logging discoveries
 
-When you find ANYTHING worth remembering (bug, config drift, TODO, design decision, pattern, minor annoyance):
+The log is for **unfixed or deferred** work — things that cross session boundaries.
 
-1. Read `docs/LOG-INSTRUCTIONS.md` first (template, severity/category guide, housekeeping)
+Before appending, decide:
+
+- **Fixing in this session?** → Just fix it. Commit body is the record. Do NOT log.
+- **Out of scope / deferred?** → Log it (even if minor).
+
+Then:
+
+1. Read `docs/LOG-INSTRUCTIONS.md` first — template, severity/category guide, "log vs fix inline" examples
 2. Append to `docs/ISSUES-LOG.md`
 
-**Log even minor/optional items.** Patterns across "small" entries often reveal larger problems. Future Claude sessions grep the log for context; don't rely on commit messages alone.
+**Log even minor/optional out-of-scope items.** Patterns across "small" entries often reveal larger problems. Future Claude sessions grep the log for context; don't rely on commit messages alone. But minor items you're fixing right now don't belong in the log — just fix them.
 
 ### Working with the running BMO
 
@@ -98,7 +105,14 @@ Don't leave BMO in failed state. If a restart fails, check logs + revert OR disa
 
 ### Multi-step tasks
 
-Use the TODO tracker extensively. The user wants visibility into progress on long reorgs/refactors. Update status as you go.
+Use the TODO tracker extensively — user wants visibility into progress on long reorgs/refactors. Follow the **Task List Discipline** rules in `AGENTS.md`:
+
+- Flip status the moment a task finishes (don't batch to the end)
+- Only ONE `in_progress` at a time
+- Before writing your final summary, reconcile every non-completed ID (evidence for `completed`, reason for `cancelled`, explicit callout for user-action `pending`)
+- When splitting a parent task into sub-phases, mark the parent `cancelled` with "split into Xa-Xf" — don't leave it dangling
+
+Tasks left as `pending`/`in_progress` at session end are reported as incomplete by the UI, wasting user attention debugging phantom gaps.
 
 ### When stuck
 

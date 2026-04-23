@@ -31,6 +31,18 @@ How to log discoveries into [`ISSUES-LOG.md`](./ISSUES-LOG.md). Read this file B
 
 ---
 
+## The decision rule (read this first)
+
+Before appending an entry, ask: **Am I fixing this in the current session / PR?**
+
+| Answer | Action |
+|---|---|
+| **Yes, fixing now** | DO NOT append. Just fix it. Mention in commit message if non-trivial. Logging something you're fixing in the same commit clutters the log with entries that are stale on arrival. |
+| **No, out of scope / deferred / can't fix now** | APPEND. Even if minor. Even if "meh, probably not worth it" — log anyway. |
+| **Unsure** | If you'd have to stop current work to fix it → APPEND. If it's a two-line fix you can do in this session → just fix. |
+
+The log is for work that crosses session boundaries. Things finished inside one session don't need an entry.
+
 ## When to append
 
 ### ALWAYS append when you find:
@@ -46,13 +58,27 @@ How to log discoveries into [`ISSUES-LOG.md`](./ISSUES-LOG.md). Read this file B
 
 ### DON'T append for:
 
-- Things you're fixing in this PR/session (just fix them)
+- **Things you're fixing in this PR/session** — just fix them. The commit + diff is the record.
+- **Things you just fixed in a prior commit of this same session** — same rule. The log is for unfixed or deferred work.
 - Trivial personal observations unrelated to the codebase
 - Duplicates (grep first — if already logged, add a comment to existing entry instead of creating new)
 
+### Examples — when to log vs fix inline
+
+| Scenario | Log? | Reason |
+|---|---|---|
+| User asks "move X", you notice Y is also broken, but Y is a 10-minute fix in the same area | No — fix Y too, mention in commit body | In scope + trivial |
+| User asks "move X", you notice Y is broken and would need 2 hours + design decisions | Yes — log Y, finish X | Out of scope |
+| You're writing a docs change and spot a typo two paragraphs up | No — fix the typo inline | Trivial, in scope |
+| You're refactoring service A, notice service B has an unrelated bug | Yes — log, stay on A | Out of scope |
+| You're adding feature F, discover F's new code triggers a latent bug in module M | Depends — if fixable in same PR, fix and document in commit body; if large, log + file follow-up | Judgment call |
+| You write a buggy version of your own code, catch it, fix it before committing | No | This is normal development, not a "found bug" |
+
 ### When minor/optional = still append
 
-User directive: **log even minor / optional things.** Threshold is low. If you notice something and think "meh, probably not worth logging" — log it anyway with `severity: low` or `info`. Patterns across 20 "minor" entries often reveal larger problems.
+User directive: **log even minor / optional things** *(provided they fall in the "APPEND" column above)*. Threshold for OUT-OF-SCOPE items is low — if you notice something you're not fixing and think "meh, probably not worth logging", log it anyway with `severity: low` or `info`. Patterns across 20 "minor" entries often reveal larger problems.
+
+The low threshold applies to things you're NOT fixing. It does not override the "don't log what you're fixing now" rule above.
 
 ---
 
