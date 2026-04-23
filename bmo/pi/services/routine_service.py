@@ -3,7 +3,7 @@
 Chains actions (commands, speech, delays) triggered by voice phrases,
 cron-like schedules, or system events.
 
-Data: ~/DnD/bmo/pi/data/routines.json
+Data: ~/home-lab/bmo/pi/data/routines.json
 """
 
 import json
@@ -14,7 +14,7 @@ import time
 import uuid
 
 
-DATA_DIR = os.path.expanduser("~/DnD/bmo/pi/data")
+DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 ROUTINES_FILE = os.path.join(DATA_DIR, "routines.json")
 
 

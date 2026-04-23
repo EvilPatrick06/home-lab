@@ -40,8 +40,8 @@ For destructive operations (delete, overwrite, push), the tool will return a con
 RESTART POLICY — You MUST run restarts yourself. When you edit server-side code (app.py, agents/*, cloud_providers.py, voice_pipeline.py, etc.), run the appropriate restart via execute_command. Do NOT tell the user "you need to restart" — run it yourself. Mapping:
 - Main app (app.py, agents/, cloud_providers.py, voice, templates, static): sudo systemctl restart bmo
 - Discord bots (discord_dm_bot.py, discord_social_bot.py): sudo systemctl restart bmo-dm-bot bmo-social-bot
-- Docker (docker-compose.yml, container config): cd ~/DnD/bmo/pi && docker compose restart
-- All of the above: cd ~/DnD/bmo/pi && docker compose restart && sudo systemctl restart bmo bmo-dm-bot bmo-social-bot
+- Docker (docker-compose.yml, container config): cd ~/home-lab/bmo/pi && docker compose restart
+- All of the above: cd ~/home-lab/bmo/pi && docker compose restart && sudo systemctl restart bmo bmo-dm-bot bmo-social-bot
 Restarts require confirmation; the user will approve when prompted.
 
 CRITICAL — Final message to the user: When you finish (after your last tool calls or when you have enough info), you MUST write a brief, chat-friendly summary (2–4 sentences). Address the user directly. Never send a response with only tool_call blocks—always include your summary. Do NOT include:
@@ -59,7 +59,7 @@ BMO_CHEAT_SHEET = """
 [BMO Pi Cheat Sheet — Services & File Locations]
 
 ## System
-- App root: ~/DnD/bmo/pi/ (WorkingDirectory for all services)
+- App root: ~/home-lab/bmo/pi/ (WorkingDirectory for all services)
 - User: patrick
 - Hostname-first access: bmo.local (LAN), optional Tailscale hostname for remote SSH
 
@@ -67,14 +67,14 @@ BMO_CHEAT_SHEET = """
 | Service | ExecStart | Logs |
 |---------|-----------|------|
 | bmo | python app.py | journalctl -u bmo -f |
-| bmo-dm-bot | python discord_dm_bot.py | ~/DnD/bmo/pi/data/logs/dm-bot.log |
-| bmo-social-bot | python discord_social_bot.py | ~/DnD/bmo/pi/data/logs/social-bot.log |
+| bmo-dm-bot | python discord_dm_bot.py | ~/home-lab/bmo/pi/data/logs/dm-bot.log |
+| bmo-social-bot | python discord_social_bot.py | ~/home-lab/bmo/pi/data/logs/social-bot.log |
 | bmo-kiosk | (display/kiosk) | — |
 | bmo-backup.timer | Runs backup.sh at 3 AM | — |
 
 Cron: */5 * * * * health_check.sh → health.log
 
-## Docker Containers (cd ~/DnD/bmo/pi && docker compose <cmd>)
+## Docker Containers (cd ~/home-lab/bmo/pi && docker compose <cmd>)
 | Container | Image | Port | Purpose |
 |-----------|-------|------|---------|
 | bmo-ollama | ollama/ollama | 11434 | Local LLM fallback (gemma3:4b) |
@@ -124,8 +124,8 @@ Commands: docker compose logs -f | docker compose restart | docker ps
 ## Restart Commands — YOU run these via execute_command when your edits require a restart
 - sudo systemctl restart bmo          (app.py, agents/, cloud_providers, voice, templates, static)
 - sudo systemctl restart bmo-dm-bot bmo-social-bot  (discord bot scripts)
-- cd ~/DnD/bmo/pi && docker compose restart  (docker config)
-- Full: cd ~/DnD/bmo/pi && docker compose restart && sudo systemctl restart bmo bmo-dm-bot bmo-social-bot
+- cd ~/home-lab/bmo/pi && docker compose restart  (docker config)
+- Full: cd ~/home-lab/bmo/pi && docker compose restart && sudo systemctl restart bmo bmo-dm-bot bmo-social-bot
 
 ## Health Check
 - curl http://localhost:5000/api/health/full

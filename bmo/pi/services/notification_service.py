@@ -21,7 +21,7 @@ import threading
 import time
 
 SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "data", "settings.json")
-UNKNOWN_NOTIF_LOG = os.path.expanduser("~/DnD/bmo/pi/data/logs/unknown_notifications.jsonl")
+UNKNOWN_NOTIF_LOG = os.path.expanduser("~/home-lab/bmo/pi/data/logs/unknown_notifications.jsonl")
 MAX_HISTORY = 100
 DEDUP_WINDOW = 10  # seconds — suppress duplicate notifications within this window
 

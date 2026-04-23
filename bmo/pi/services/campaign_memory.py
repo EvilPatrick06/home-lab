@@ -13,7 +13,7 @@ import datetime
 from typing import Optional
 
 
-DB_PATH = os.path.expanduser("~/DnD/bmo/pi/data/campaign_memory.db")
+DB_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/campaign_memory.db")
 
 
 class CampaignMemory:

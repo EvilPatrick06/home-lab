@@ -4,7 +4,7 @@ How to update BMO running on the Pi from your laptop.
 
 ## Current model: SSH + git
 
-User is on the Pi directly (`/home/patrick/DnD/`) AND keeps a laptop clone for editing. Laptop edits → commit/push → pull on Pi → restart services.
+User is on the Pi directly (`/home/patrick/home-lab/`) AND keeps a laptop clone for editing. Laptop edits → commit/push → pull on Pi → restart services.
 
 ```
 laptop ──(git push)──► GitHub ──(git pull)──► Pi ──► systemctl restart
@@ -15,13 +15,13 @@ laptop ──(git push)──► GitHub ──(git pull)──► Pi ──► s
 After pushing to GitHub from laptop:
 
 ```bash
-ssh patrick@bmo.local "cd ~/DnD && git pull && sudo systemctl restart bmo"
+ssh patrick@bmo.local "cd ~/home-lab && git pull && sudo systemctl restart bmo"
 ```
 
 Or use the helper script:
 
 ```bash
-cd ~/DnD/bmo/docker
+cd ~/home-lab/bmo/docker
 bash deploy.sh
 ```
 
@@ -31,7 +31,7 @@ bash deploy.sh
 3. Restart `bmo bmo-dm-bot bmo-social-bot`
 4. Restart relevant Docker containers (Ollama, Pi-hole)
 
-Configure Pi target in `~/DnD/bmo/pi/.env` on laptop:
+Configure Pi target in `~/home-lab/bmo/pi/.env` on laptop:
 
 ```bash
 PI_HOST=bmo.local                        # LAN mDNS
@@ -48,7 +48,7 @@ PI_SSH_ALIAS=bmo                         # maps to ~/.ssh/config entry
 (i.e., editing in Cursor over SSH, or with a monitor connected)
 
 ```bash
-cd ~/DnD/bmo/pi
+cd ~/home-lab/bmo/pi
 # make changes
 sudo systemctl restart bmo                        # reload Python changes
 journalctl -u bmo -f                              # verify
@@ -72,7 +72,7 @@ Don't restart everything if you didn't touch everything:
 For fast iteration without systemctl restart:
 
 ```bash
-cd ~/DnD/bmo/pi
+cd ~/home-lab/bmo/pi
 sudo systemctl stop bmo
 ./venv/bin/python app.py           # foreground, Ctrl-C to stop
 ```
@@ -86,7 +86,7 @@ sudo systemctl start bmo           # re-enable systemd when done
 ## Updating Python dependencies
 
 ```bash
-cd ~/DnD/bmo/pi
+cd ~/home-lab/bmo/pi
 ./venv/bin/pip install -r requirements.txt        # runtime
 ./venv/bin/pip install -r requirements-test.txt   # test-only
 ./venv/bin/pip list --outdated                    # what's upgradable
@@ -108,7 +108,7 @@ No formal migration framework. If schema changes:
 ## Rolling back a bad deploy
 
 ```bash
-cd ~/DnD
+cd ~/home-lab
 git log --oneline -10                    # find last-known-good SHA
 git reset --hard <SHA>                   # CAREFUL: discards anything newer
 sudo systemctl restart bmo bmo-dm-bot bmo-social-bot
@@ -129,7 +129,7 @@ curl -sf http://localhost:5000/health
 journalctl -u bmo --since "2 min ago" | grep -iE "error|traceback|fatal" | head
 
 # Tests pass?
-cd ~/DnD/bmo/pi
+cd ~/home-lab/bmo/pi
 ./venv/bin/python -m pytest tests/ --tb=no -q
 ```
 
@@ -169,6 +169,6 @@ For near-zero-downtime deploys, use `systemctl reload` where supported (not curr
 
 ## Future improvements
 
-- CI/CD: GitHub Actions → SSH to Pi on merge to master (see [`KNOWN-ISSUES.md`](../../docs/KNOWN-ISSUES.md) future-idea entries)
+- CI/CD: GitHub Actions → SSH to Pi on merge to master (see [`ISSUES-LOG.md`](../../docs/ISSUES-LOG.md) future-idea entries)
 - Blue/green: run two BMO instances on :5000 and :5002, swap via a tiny routing proxy — overkill for solo use
 - Container deploy: wrap BMO in Docker, rollback = `docker-compose up -d --force-recreate` of specific image tag

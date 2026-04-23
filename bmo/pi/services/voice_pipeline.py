@@ -26,8 +26,8 @@ import sounddevice as sd
 
 from services.cloud_providers import groq_stt, fish_audio_tts
 
-MODELS_DIR = os.path.expanduser("~/DnD/bmo/pi/models")
-DATA_DIR = os.path.expanduser("~/DnD/bmo/pi/data")
+MODELS_DIR = os.path.expanduser("~/home-lab/bmo/pi/models")
+DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 VOICE_PROFILES_PATH = os.path.join(DATA_DIR, "voice_profiles.pkl")
 
 EDGE_TTS_VOICE = "en-US-AnaNeural"  # Young/playful voice for BMO
@@ -1891,7 +1891,7 @@ class VoicePipeline:
         try:
             _t0 = time.time()
             # Try venv edge-tts first, then system
-            edge_tts_bin = os.path.expanduser("~/DnD/bmo/pi/venv/bin/edge-tts")
+            edge_tts_bin = os.path.expanduser("~/home-lab/bmo/pi/venv/bin/edge-tts")
             if not os.path.isfile(edge_tts_bin):
                 edge_tts_bin = "edge-tts"
             result = subprocess.run(

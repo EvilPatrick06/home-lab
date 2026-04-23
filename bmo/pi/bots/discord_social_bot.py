@@ -54,7 +54,7 @@ from services.cloud_providers import cloud_chat, fish_audio_tts, groq_stt
 
 # ── Data Directory + SQLite ──────────────────────────────────────────
 
-DATA_DIR = pathlib.Path(os.path.expanduser("~/DnD/bmo/pi/data"))
+DATA_DIR = pathlib.Path(os.path.expanduser("~/home-lab/bmo/pi/data"))
 PLAYLISTS_DIR = DATA_DIR / "playlists"
 SFX_DIR = DATA_DIR / "sfx"
 DB_PATH = DATA_DIR / "bmo_social.db"
@@ -1046,7 +1046,7 @@ class SocialBot(commands.Bot):
             import glob as _glob
             _search_engine = SearchEngine()
             loaded = []
-            rag_dir = os.path.expanduser("~/DnD/bmo/pi/data/rag_data")
+            rag_dir = os.path.expanduser("~/home-lab/bmo/pi/data/rag_data")
             for idx_path in sorted(_glob.glob(os.path.join(rag_dir, "chunk-index-*.json"))):
                 fname = os.path.basename(idx_path)
                 domain = fname.replace("chunk-index-", "").replace(".json", "")
@@ -2233,7 +2233,7 @@ async def _sfx_cmd(interaction: discord.Interaction, name: str) -> None:
                 f"SFX `{name}` not found! Available: {', '.join(available)}", ephemeral=True)
         else:
             await interaction.response.send_message(
-                "No sound effects! Add .mp3 files to `~/DnD/bmo/pi/data/sfx/`", ephemeral=True)
+                "No sound effects! Add .mp3 files to `~/home-lab/bmo/pi/data/sfx/`", ephemeral=True)
         return
 
     sfx_path = str(matches[0])

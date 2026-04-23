@@ -21,7 +21,7 @@ Full protocol: `docs/ARCHITECTURE.md`
 Read in order:
 1. `.cursorrules` — structure map with every directory explained
 2. `AGENTS.md` — standard AI rules (framework, conventions, tests)
-3. `docs/KNOWN-ISSUES.md` — preexisting bugs so you don't "re-discover" them
+3. `docs/ISSUES-LOG.md` — preexisting bugs so you don't "re-discover" them
 4. Domain doc: `dnd-app/README.md` or `bmo/README.md`
 
 ### Tool preferences (Claude Code)
@@ -76,13 +76,12 @@ Body optional for trivial changes. For multi-file refactors, describe:
 
 ### Logging discoveries
 
-When you find ANYTHING worth remembering (bug, config drift, TODO, design decision, pattern):
+When you find ANYTHING worth remembering (bug, config drift, TODO, design decision, pattern, minor annoyance):
 
-```
-Append to docs/KNOWN-ISSUES.md using template at top of file.
-```
+1. Read `docs/LOG-INSTRUCTIONS.md` first (template, severity/category guide, housekeeping)
+2. Append to `docs/ISSUES-LOG.md`
 
-Future Claude sessions can grep for context. Don't rely on commit messages alone.
+**Log even minor/optional items.** Patterns across "small" entries often reveal larger problems. Future Claude sessions grep the log for context; don't rely on commit messages alone.
 
 ### Working with the running BMO
 
@@ -104,7 +103,7 @@ Use the TODO tracker extensively. The user wants visibility into progress on lon
 ### When stuck
 
 Try in order:
-1. `docs/KNOWN-ISSUES.md` — has this been seen before?
+1. `docs/ISSUES-LOG.md` — has this been seen before?
 2. `bmo/docs/TROUBLESHOOTING.md` — BMO-specific patterns
 3. `git log --oneline -20` — recent changes may give context
 4. Ask the user a focused question (don't flail)

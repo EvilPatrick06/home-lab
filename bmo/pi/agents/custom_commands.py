@@ -2,7 +2,7 @@
 
 Discovers commands from:
   1. .bmo/commands/  — project-specific (higher priority)
-  2. ~/DnD/bmo/pi/data/commands/ — user-global
+  2. ~/home-lab/bmo/pi/data/commands/ — user-global
 
 Command files are markdown where filename = command name.
 The special placeholder $ARGUMENTS is replaced with user-provided args.
@@ -17,7 +17,7 @@ from __future__ import annotations
 import os
 
 
-USER_COMMANDS_DIR = os.path.expanduser("~/DnD/bmo/pi/data/commands")
+USER_COMMANDS_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/commands")
 
 
 def discover_commands(working_dir: str | None = None) -> dict[str, str]:

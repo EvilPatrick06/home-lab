@@ -13,15 +13,15 @@ First-clone → running guide.
 ## Clone
 
 ```bash
-git clone https://github.com/EvilPatrick06/DnD.git
-cd DnD
+git clone https://github.com/EvilPatrick06/home-lab.git
+cd home-lab
 
 # LFS — large files (D&D rulebook PDFs)
 git lfs install
 git lfs pull    # downloads PDFs (~1.7 GB). Skip if you don't need local rulebooks.
 ```
 
-## DnD app (VTT)
+## dnd-app (VTT)
 
 Works on Linux, Mac, Windows.
 
@@ -94,7 +94,7 @@ curl http://localhost:5000/health             # should return {"status":"ok"}
 journalctl -u bmo -f                          # tail main app logs
 ```
 
-## Connect DnD app ↔ BMO
+## Connect dnd-app ↔ BMO
 
 On DM's laptop (running dnd-app):
 
@@ -107,7 +107,7 @@ On Pi:
 
 ```bash
 # Set VTT sync URL so BMO knows where to send callbacks
-echo 'VTT_SYNC_URL=http://<DM-laptop-ip>:5001' >> /home/patrick/DnD/bmo/pi/.env
+echo 'VTT_SYNC_URL=http://<DM-laptop-ip>:5001' >> /home/patrick/home-lab/bmo/pi/.env
 sudo systemctl restart bmo
 ```
 
@@ -120,7 +120,7 @@ sudo systemctl restart bmo
 
 If broken, check:
 - `bmo/docs/TROUBLESHOOTING.md`
-- `docs/KNOWN-ISSUES.md`
+- `docs/ISSUES-LOG.md`
 - `journalctl -u bmo -f` + dnd-app logs (Help → Open Logs)
 
 ## Next steps

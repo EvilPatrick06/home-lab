@@ -377,7 +377,7 @@ def _reset_settings(agent):
 
 
 def _init_settings_file():
-    """Create default ~/DnD/bmo/pi/data/settings.json if it doesn't exist."""
+    """Create default ~/home-lab/bmo/pi/data/settings.json if it doesn't exist."""
     from agents.settings import USER_SETTINGS_PATH
     import json
 
@@ -524,7 +524,7 @@ def _show_custom_commands():
 
     if not commands:
         _print_dim("No custom commands found.")
-        _print_dim("Create .bmo/commands/<name>.md or ~/DnD/bmo/pi/data/commands/<name>.md")
+        _print_dim("Create .bmo/commands/<name>.md or ~/home-lab/bmo/pi/data/commands/<name>.md")
         return
 
     if HAS_RICH:
@@ -779,7 +779,7 @@ def _show_help():
         table.add_row("/settings get <key>", "Show a specific setting value")
         table.add_row("/settings set <key> <val>", "Persist a setting to user level")
         table.add_row("/settings reset", "Reload settings from disk")
-        table.add_row("/settings init", "Create default ~/DnD/bmo/pi/data/settings.json")
+        table.add_row("/settings init", "Create default ~/home-lab/bmo/pi/data/settings.json")
         table.add_row("/init [dir]", "Create BMO.md in a directory")
         table.add_row("/clear", "Clear conversation history")
         table.add_row("/mcp", "Show MCP server status")

@@ -2,11 +2,11 @@
 """Bootstrap voice enrollment for Gavin.
 
 Records 3x 5-second clips from the mic and enrolls "Gavin" as a speaker profile.
-Run once on the Pi to create ~/DnD/bmo/pi/data/voice_profiles.pkl, then future
+Run once on the Pi to create ~/home-lab/bmo/pi/data/voice_profiles.pkl, then future
 enrollment can happen via voice commands or the API.
 
 Usage:
-    source ~/DnD/bmo/pi/venv/bin/activate
+    source ~/home-lab/bmo/pi/venv/bin/activate
     python enroll_gavin.py
 """
 
@@ -22,7 +22,7 @@ SAMPLE_RATE = 16000
 CHANNELS = 1
 CLIP_DURATION = 5  # seconds per clip
 NUM_CLIPS = 3
-DATA_DIR = os.path.expanduser("~/DnD/bmo/pi/data")
+DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 
 PROMPTS = [
     "Say something natural, like: 'Hey BMO, what's the weather today?'",
@@ -80,7 +80,7 @@ def main():
         if os.path.exists(path):
             os.unlink(path)
 
-    print(f"\nDone! Profile saved to {os.path.expanduser('~/DnD/bmo/pi/data/voice_profiles.pkl')}")
+    print(f"\nDone! Profile saved to {os.path.expanduser('~/home-lab/bmo/pi/data/voice_profiles.pkl')}")
     print("Restart BMO and say 'Hey BMO' — it should recognize you as Gavin.")
 
 

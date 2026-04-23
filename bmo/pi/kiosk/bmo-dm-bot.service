@@ -6,9 +6,9 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=patrick
-WorkingDirectory=/home/patrick/DnD/bmo/pi
-EnvironmentFile=/home/patrick/DnD/bmo/pi/.env
-ExecStart=/home/patrick/DnD/bmo/pi/venv/bin/python -m bots.discord_dm_bot
+WorkingDirectory=/home/patrick/home-lab/bmo/pi
+EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
+ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m bots.discord_dm_bot
 Restart=on-failure
 RestartSec=10
 

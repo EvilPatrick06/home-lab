@@ -88,7 +88,7 @@ fi
 
 # ── 5. Python Virtual Environment ────────────────────────────────
 log "Setting up Python venv..."
-cd ~/DnD/bmo/pi
+cd ~/home-lab/bmo/pi
 python3 -m venv venv
 venv/bin/pip install --upgrade pip
 venv/bin/pip install -r requirements.txt
@@ -97,13 +97,13 @@ venv/bin/pip install -r requirements.txt
 log "Installing Tailwind CLI and compiling CSS..."
 sudo curl -sL https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-linux-arm64 -o /usr/local/bin/tailwindcss
 sudo chmod +x /usr/local/bin/tailwindcss
-cd ~/DnD/bmo/pi
+cd ~/home-lab/bmo/pi
 tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind.css --minify
 
 # ── 7. Environment File ─────────────────────────────────────────
 log "Creating .env template..."
-if [ ! -f ~/DnD/bmo/pi/.env ]; then
-    cat > ~/DnD/bmo/pi/.env << 'ENVEOF'
+if [ ! -f ~/home-lab/bmo/pi/.env ]; then
+    cat > ~/home-lab/bmo/pi/.env << 'ENVEOF'
 # BMO Environment Variables — fill in your keys
 FISH_AUDIO_API_KEY=
 FISH_AUDIO_VOICE_ID=
@@ -131,7 +131,7 @@ fi
 
 # ── 8. Runtime Directories ───────────────────────────────────────
 log "Creating runtime directories..."
-mkdir -p ~/DnD/bmo/pi/{data,data/logs,config,logs,.bmo,.audiocache,wake_clips}
+mkdir -p ~/home-lab/bmo/pi/{data,data/logs,config,logs,.bmo,.audiocache,wake_clips}
 
 # ── 9. Docker Containers ────────────────────────────────────────
 log "Setting up Docker containers..."
@@ -193,12 +193,12 @@ Wants=docker.service
 Type=simple
 User=patrick
 Group=patrick
-WorkingDirectory=/home/patrick/DnD/bmo/pi
-Environment=PATH=/home/patrick/DnD/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=/home/patrick/home-lab/bmo/pi
+Environment=PATH=/home/patrick/home-lab/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONUNBUFFERED=1
 Environment=XDG_RUNTIME_DIR=/run/user/1000
-EnvironmentFile=/home/patrick/DnD/bmo/pi/.env
-ExecStart=/home/patrick/DnD/bmo/pi/venv/bin/python app.py
+EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
+ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python app.py
 Restart=on-failure
 RestartSec=5
 LimitNOFILE=65536
@@ -220,7 +220,7 @@ Wants=bmo.service
 [Service]
 Type=simple
 User=patrick
-EnvironmentFile=-/home/patrick/DnD/bmo/pi/.env
+EnvironmentFile=-/home/patrick/home-lab/bmo/pi/.env
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=GDK_BACKEND=wayland
 Environment=WLR_DRM_DEVICES=/dev/dri/card0
@@ -263,7 +263,7 @@ After=multi-user.target
 [Service]
 Type=simple
 User=patrick
-ExecStart=/usr/bin/python3 /home/patrick/DnD/bmo/pi/hardware/fan_control.py
+ExecStart=/usr/bin/python3 /home/patrick/home-lab/bmo/pi/hardware/fan_control.py
 Restart=always
 RestartSec=5
 
@@ -281,15 +281,15 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=patrick
-WorkingDirectory=/home/patrick/DnD/bmo/pi
-EnvironmentFile=/home/patrick/DnD/bmo/pi/.env
-ExecStart=/home/patrick/DnD/bmo/pi/venv/bin/python -m bots.discord_dm_bot
+WorkingDirectory=/home/patrick/home-lab/bmo/pi
+EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
+ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m bots.discord_dm_bot
 Restart=on-failure
 RestartSec=10
 MemoryMax=512M
 CPUQuota=50%
-StandardOutput=append:/home/patrick/DnD/bmo/pi/data/logs/dm-bot.log
-StandardError=append:/home/patrick/DnD/bmo/pi/data/logs/dm-bot.log
+StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
+StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
 
 [Install]
 WantedBy=multi-user.target
@@ -305,15 +305,15 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=patrick
-WorkingDirectory=/home/patrick/DnD/bmo/pi
-EnvironmentFile=/home/patrick/DnD/bmo/pi/.env
-ExecStart=/home/patrick/DnD/bmo/pi/venv/bin/python -m bots.discord_social_bot
+WorkingDirectory=/home/patrick/home-lab/bmo/pi
+EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
+ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m bots.discord_social_bot
 Restart=on-failure
 RestartSec=10
 MemoryMax=512M
 CPUQuota=50%
-StandardOutput=append:/home/patrick/DnD/bmo/pi/data/logs/social-bot.log
-StandardError=append:/home/patrick/DnD/bmo/pi/data/logs/social-bot.log
+StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/social-bot.log
+StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/social-bot.log
 
 [Install]
 WantedBy=multi-user.target
@@ -347,7 +347,7 @@ sudo systemctl restart avahi-daemon
 
 # ── 12. Git Post-Merge Hook ─────────────────────────────────────
 log "Setting up git deploy hook..."
-cat > ~/DnD/.git/hooks/post-merge << 'EOF'
+cat > ~/home-lab/.git/hooks/post-merge << 'EOF'
 #!/bin/bash
 echo '[deploy] Restarting all BMO services...'
 sudo systemctl restart bmo
@@ -363,7 +363,7 @@ echo '[deploy] Docker containers restarted'
 
 echo '[deploy] All done!'
 EOF
-chmod +x ~/DnD/.git/hooks/post-merge
+chmod +x ~/home-lab/.git/hooks/post-merge
 
 # ── 13. Auto-login for Kiosk (no desktop needed) ────────────────
 log "Configuring auto-login..."
@@ -385,11 +385,11 @@ log "  BMO setup complete!"
 log "══════════════════════════════════════════════════"
 log ""
 log "  Next steps:"
-log "  1. Copy your .env file with API keys to ~/DnD/bmo/pi/.env"
+log "  1. Copy your .env file with API keys to ~/home-lab/bmo/pi/.env"
 log "  2. Copy config/token.json and config/credentials.json"
 log "  3. Copy your rclone config for VTT cloud saves"
-log "  4. Optional remote SSH (recommended): ~/DnD/bmo/pi/scripts/setup-tailscale.sh"
-log "  5. Optional Cloudflare web tunnel: ~/DnD/bmo/pi/scripts/setup-cloudflare-tunnel.sh"
+log "  4. Optional remote SSH (recommended): ~/home-lab/bmo/pi/scripts/setup-tailscale.sh"
+log "  5. Optional Cloudflare web tunnel: ~/home-lab/bmo/pi/scripts/setup-cloudflare-tunnel.sh"
 log "  6. Reboot: sudo reboot now"
 log ""
 log "  After reboot, verify local hostname:"

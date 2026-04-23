@@ -1,7 +1,7 @@
 """
 BMO Pi Sync Patch — VTT State Sync endpoints for discord_dm_bot.
 
-Deploy: Copy this file to ~/DnD/bmo/pi/agents/ on the Pi and import from dnd_dm.py
+Deploy: Copy this file to ~/home-lab/bmo/pi/agents/ on the Pi and import from dnd_dm.py
 
 This module adds:
   1. HTTP endpoints on BMO's Flask server to receive sync data from the VTT

@@ -9,9 +9,9 @@ import vlc
 from ytmusicapi import YTMusic
 
 STREAM_URL_TTL = 18000  # 5 hours — re-extract before expiry
-HISTORY_FILE = os.path.expanduser("~/DnD/bmo/pi/data/music_history.json")
-PLAY_COUNTS_FILE = os.path.expanduser("~/DnD/bmo/pi/data/play_counts.json")
-PLAYBACK_STATE_FILE = os.path.expanduser("~/DnD/bmo/pi/data/playback_state.json")
+HISTORY_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/music_history.json")
+PLAY_COUNTS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/play_counts.json")
+PLAYBACK_STATE_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/playback_state.json")
 MAX_HISTORY = 100
 
 # Valid output device names

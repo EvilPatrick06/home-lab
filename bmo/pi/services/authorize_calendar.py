@@ -2,7 +2,7 @@
 
 This script opens a browser for Google OAuth consent, then saves the
 refresh token to token.json. Copy both credentials.json and token.json
-to the Pi at ~/DnD/bmo/pi/config/.
+to the Pi at ~/home-lab/bmo/pi/config/.
 
 Usage:
     pip install google-api-python-client google-auth-oauthlib
@@ -51,8 +51,8 @@ def authorize():
 
     print("\nAuthorization successful!")
     print(f"\nNext steps:")
-    print(f"  1. Copy to Pi: scp {TOKEN_PATH} pi@<pi-ip>:~/DnD/bmo/pi/config/token.json")
-    print(f"  2. Also copy:  scp {CREDENTIALS_PATH} pi@<pi-ip>:~/DnD/bmo/pi/config/credentials.json")
+    print(f"  1. Copy to Pi: scp {TOKEN_PATH} pi@<pi-ip>:~/home-lab/bmo/pi/config/token.json")
+    print(f"  2. Also copy:  scp {CREDENTIALS_PATH} pi@<pi-ip>:~/home-lab/bmo/pi/config/credentials.json")
 
 
 if __name__ == "__main__":

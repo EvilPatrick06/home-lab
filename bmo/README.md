@@ -11,7 +11,7 @@ Named after the Adventure Time character. Lives in a 3D-printed BMO case on a Pi
 One-time setup on a fresh Pi:
 
 ```bash
-# Clone repo somewhere (currently at /home/patrick/DnD/)
+# Clone repo somewhere (currently at /home/patrick/home-lab/)
 cd bmo
 bash setup-bmo.sh              # idempotent: installs apt deps, creates venv, writes systemd services
 bash finalize-ssd.sh           # optional: moves BMO to SSD for speed/durability
@@ -103,9 +103,9 @@ Plus optional sub-app:
 
 Check status: `systemctl status bmo bmo-fan bmo-kiosk bmo-dm-bot bmo-social-bot`
 
-## Talking to DnD app (VTT)
+## Talking to dnd-app (VTT)
 
-BMO listens on `:5000` for HTTP calls from the DnD VTT.
+BMO listens on `:5000` for HTTP calls from the dnd-app (VTT).
 BMO pushes callbacks to VTT on VTT's sync receiver (`VTT_SYNC_URL` env, default `http://10.10.20.100:5001`).
 
 See [`docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md).
@@ -123,7 +123,7 @@ Highlights:
 
 ## Known limitations
 
-Preexisting bugs tracked in [`docs/KNOWN-ISSUES.md`](../docs/KNOWN-ISSUES.md). Check there before debugging "something's broken".
+Preexisting bugs tracked in [`docs/ISSUES-LOG.md`](../docs/ISSUES-LOG.md). Check there before debugging "something's broken".
 
 ## Testing
 

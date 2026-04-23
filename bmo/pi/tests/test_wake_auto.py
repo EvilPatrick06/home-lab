@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 import wave
 
-sys.path.insert(0, os.path.expanduser("~/DnD/bmo/pi"))
+sys.path.insert(0, os.path.expanduser("~/home-lab/bmo/pi"))
 from openwakeword.model import Model
 
 SR = 16000
@@ -29,7 +29,7 @@ print(f"[audio] Resampled: rms={np.sqrt(np.mean(res.astype(np.float32)**2)):.0f}
 
 print()
 print("[model] Loading hey_bmo.onnx...")
-bmo_model = Model(wakeword_models=[os.path.expanduser("~/DnD/bmo/pi/wake/hey_bmo.onnx")], inference_framework="onnx")
+bmo_model = Model(wakeword_models=[os.path.expanduser("~/home-lab/bmo/pi/wake/hey_bmo.onnx")], inference_framework="onnx")
 print(f"[model] Labels: {list(bmo_model.prediction_buffer.keys())}")
 
 silence = np.zeros(CHUNK, dtype=np.float32)
@@ -40,7 +40,7 @@ print("[model] Warmed up with 20 silence frames")
 print()
 print("[synth] Generating 'hey beemo' via Piper...")
 tmp = tempfile.mktemp(suffix=".wav")
-piper_model = os.path.expanduser("~/DnD/bmo/pi/models/piper/en_US-hfc_female-medium.onnx")
+piper_model = os.path.expanduser("~/home-lab/bmo/pi/models/piper/en_US-hfc_female-medium.onnx")
 if not os.path.isfile(piper_model):
     print(f"[synth] SKIP: Piper model not found at {piper_model}")
 else:

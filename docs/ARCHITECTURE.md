@@ -1,4 +1,4 @@
-# Architecture — DnD + BMO
+# Architecture — dnd-app + bmo
 
 How the two domains communicate.
 
@@ -6,7 +6,7 @@ How the two domains communicate.
 
 ```
   ┌─────────────────────────┐                   ┌────────────────────────┐
-  │    DnD VTT              │                   │      BMO Pi            │
+  │    dnd-app (VTT)              │                   │      BMO Pi            │
   │    dnd-app/             │                   │      bmo/pi/           │
   │    Electron + React     │                   │      Python Flask      │
   │    (Player/DM laptop)   │                   │      (Raspberry Pi 5)  │
@@ -141,9 +141,9 @@ Current (single Pi + laptops):
 
 ## Why monorepo?
 
-BMO and DnD-app are tightly coupled:
-- BMO narrates D&D sessions → DnD sends game state to BMO
-- Discord players interact with the game → BMO relays their events to DnD
+BMO and dnd-app are tightly coupled:
+- BMO narrates D&D sessions → dnd-app sends game state to BMO
+- Discord players interact with the game → BMO relays their events to dnd-app
 - Changes to IPC schema (in `dnd-app/src/shared/`) affect BMO's HTTP clients
 
 Keeping both in one repo means atomic changes across the protocol boundary. Split would be premature given the current scale.

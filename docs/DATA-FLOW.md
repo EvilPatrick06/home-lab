@@ -42,7 +42,7 @@ Gitignored locally after initial pull. Fetch on demand via `git lfs pull`. Total
 
 ### User-generated game data (per-install)
 
-**DnD app writes to:**
+**dnd-app writes to:**
 
 | Kind | Windows path | Linux path |
 |---|---|---|
@@ -58,7 +58,7 @@ Not in git. Each user has their own. Back up via OS-level tools (OneDrive, Time 
 
 ### BMO runtime state
 
-**Location:** `/home/patrick/DnD/bmo/pi/data/` (canonical since 2026-04-23)
+**Location:** `/home/patrick/home-lab/bmo/pi/data/` (canonical since 2026-04-23)
 
 | File / dir | Purpose | Gitignored |
 |---|---|---|
@@ -160,13 +160,13 @@ Player in Discord: /roll d20
 ```
 code_agent (in bmo/pi/agents/code_agent.py) finishes task
   └─► agents/memory.py: update_memory_section(project_hash, section, content)
-       └─► writes to /home/patrick/DnD/bmo/pi/data/memory/<hash>/MEMORY.md
+       └─► writes to /home/patrick/home-lab/bmo/pi/data/memory/<hash>/MEMORY.md
             └─► future agents read this file for context
 ```
 
 ## Anti-patterns
 
-- ❌ DnD app reading `bmo/pi/data/*.json` directly — use HTTP
+- ❌ dnd-app reading `bmo/pi/data/*.json` directly — use HTTP
 - ❌ BMO reading `%APPDATA%/dnd-vtt/characters/*.json` directly — use HTTP
 - ❌ Storing user secrets in `dnd-app/src/` or `bmo/pi/` (anything but `.env`/`config/`)
 - ❌ Writing new runtime state files to paths not under each domain's canonical data dir

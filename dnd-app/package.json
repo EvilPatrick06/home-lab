@@ -73,7 +73,7 @@
     "publish": {
       "provider": "github",
       "owner": "EvilPatrick06",
-      "repo": "DnD",
+      "repo": "home-lab",
       "releaseType": "release"
     },
     "fileAssociations": [

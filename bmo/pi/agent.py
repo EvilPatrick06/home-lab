@@ -20,7 +20,7 @@ from services.cloud_providers import cloud_chat, gemini_chat_stream, groq_llm_ch
 from dev.dev_tools import dispatch_tool, get_tool_descriptions, MAX_TOOL_CALLS_PER_TURN
 from services.voice_personality import parse_response_tags
 
-CODE_AGENT_RESUME_FILE = os.path.expanduser("~/DnD/bmo/pi/data/code_agent_resume.json")
+CODE_AGENT_RESUME_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/code_agent_resume.json")
 from agents.settings import init_settings, get_settings
 
 # ── Cloud API Configuration ──────────────────────────────────────────
@@ -253,7 +253,7 @@ def _get_rag_engine():
     if _rag_engine is None:
         from services.rag_search import SearchEngine
         _rag_engine = SearchEngine()
-        rag_dir = os.path.expanduser("~/DnD/bmo/pi/data/rag_data")
+        rag_dir = os.path.expanduser("~/home-lab/bmo/pi/data/rag_data")
         for domain_name in ["dnd", "personal", "projects"]:
             index_path = os.path.join(rag_dir, f"chunk-index-{domain_name}.json")
             if os.path.exists(index_path):
@@ -272,7 +272,7 @@ def rag_search(query: str, domain: str = "dnd", top_k: int = 5) -> list[dict]:
         return []
 
 # Game state persistence
-GAMESTATE_DIR = os.path.expanduser("~/DnD/bmo/pi/data")
+GAMESTATE_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 GAMESTATE_FILE = os.path.join(GAMESTATE_DIR, "dnd_gamestate.json")
 
 # System prompt addition for structured command output

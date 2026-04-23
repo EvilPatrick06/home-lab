@@ -36,7 +36,7 @@ labels: bug
 
 ## Known issues checked?
 
-- [ ] Searched [`docs/KNOWN-ISSUES.md`](../../docs/KNOWN-ISSUES.md) — this isn't a tracked entry
+- [ ] Searched [`docs/ISSUES-LOG.md`](../../docs/ISSUES-LOG.md) — this isn't a tracked entry
 - [ ] Searched [`bmo/docs/TROUBLESHOOTING.md`](../../bmo/docs/TROUBLESHOOTING.md)
 - [ ] Searched existing issues
 

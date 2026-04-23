@@ -6,7 +6,7 @@ Wants=bmo.service
 [Service]
 Type=simple
 User=patrick
-EnvironmentFile=-/home/patrick/DnD/bmo/pi/.env
+EnvironmentFile=-/home/patrick/home-lab/bmo/pi/.env
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=GDK_BACKEND=wayland
 Environment=WLR_DRM_DEVICES=/dev/dri/card0

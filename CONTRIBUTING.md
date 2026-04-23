@@ -7,7 +7,7 @@ Solo-project conventions — open to PRs if they fit the direction.
 1. Read [`README.md`](./README.md) — project overview
 2. Read [`.cursorrules`](./.cursorrules) — structure map
 3. Read [`AGENTS.md`](./AGENTS.md) — AI + coding conventions
-4. Read [`docs/KNOWN-ISSUES.md`](./docs/KNOWN-ISSUES.md) — don't re-discover tracked bugs
+4. Read [`docs/ISSUES-LOG.md`](./docs/ISSUES-LOG.md) — don't re-discover tracked bugs
 
 ## Dev setup
 
@@ -136,7 +136,7 @@ class TestFunctionName:
 
 - **User-facing?** Add or update `docs/*.md`
 - **Internal architecture?** Add or update `dnd-app/docs/*.md` or `bmo/docs/*.md`
-- **Bug found?** Log in `docs/KNOWN-ISSUES.md` (template at top of file)
+- **Bug / idea / debt found?** Read `docs/LOG-INSTRUCTIONS.md` for the template, then append to `docs/ISSUES-LOG.md`. Log minor items too.
 - **AI agent rules?** Update `AGENTS.md` (applies to all) or tool-specific file (`CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.github/copilot-instructions.md`)
 
 ## Commit checklist
@@ -152,14 +152,14 @@ Before pushing:
 - [ ] If touched systemd service file → test restart on Pi
 - [ ] If touched `requirements.txt` or `package.json` → `pip install -r` / `npm install` done locally
 - [ ] Related docs updated (`IPC-SURFACE.md`, `SERVICES.md`, `AGENTS.md`, etc.)
-- [ ] If resolved a `KNOWN-ISSUES.md` entry → moved to "Resolved" section with commit SHA
+- [ ] If resolved a `ISSUES-LOG.md` entry → moved to "Resolved" section with commit SHA
 
 ## Working with AI assistants
 
 This repo is heavily AI-assisted. Whether you're human or AI:
 
 - Read `AGENTS.md` + `.cursorrules` first
-- Append findings to `docs/KNOWN-ISSUES.md` as you discover them
+- Append findings to `docs/ISSUES-LOG.md` as you discover them
 - Use the TODO tracker for multi-step tasks
 - Small focused PRs > mega-commits
 

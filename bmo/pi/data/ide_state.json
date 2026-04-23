@@ -1,5 +1,5 @@
 {
-  "currentPath": "~/DnD",
+  "currentPath": "~/home-lab",
   "openFilePaths": [],
   "activeFile": null,
   "activePanel": "git",
@@ -21,6 +21,6 @@
     "autoApproveChanges": false
   },
   "workspaces": [
-    "~/DnD"
+    "~/home-lab"
   ]
 }

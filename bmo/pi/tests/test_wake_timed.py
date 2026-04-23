@@ -7,7 +7,7 @@ import scipy.signal
 import sounddevice as sd
 import subprocess
 
-sys.path.insert(0, os.path.expanduser("~/DnD/bmo/pi"))
+sys.path.insert(0, os.path.expanduser("~/home-lab/bmo/pi"))
 from openwakeword.model import Model
 
 SR = 16000
@@ -21,7 +21,7 @@ rms = np.sqrt(np.mean(quick.astype(np.float32) ** 2))
 print(f"Ambient RMS: {rms:.0f} (good=200-800, clipping=10000+)")
 
 print("\nLoading models...")
-bmo = Model(wakeword_models=[os.path.expanduser("~/DnD/bmo/pi/wake/hey_bmo.onnx")], inference_framework="onnx")
+bmo = Model(wakeword_models=[os.path.expanduser("~/home-lab/bmo/pi/wake/hey_bmo.onnx")], inference_framework="onnx")
 jarvis = Model(inference_framework="onnx")
 
 silence = np.zeros(CHUNK, dtype=np.float32)

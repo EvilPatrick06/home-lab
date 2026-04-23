@@ -6,10 +6,10 @@ After=network.target bmo.service
 Type=simple
 User=patrick
 Group=patrick
-WorkingDirectory=/home/patrick/DnD/bmo/pi/ide_app
-Environment=PATH=/home/patrick/DnD/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=/home/patrick/home-lab/bmo/pi/ide_app
+Environment=PATH=/home/patrick/home-lab/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/home/patrick/DnD/bmo/pi/venv/bin/python /home/patrick/DnD/bmo/pi/ide_app/ide_app.py
+ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python /home/patrick/home-lab/bmo/pi/ide_app/ide_app.py
 Restart=always
 RestartSec=3
 

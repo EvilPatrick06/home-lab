@@ -2,7 +2,7 @@
 
 Uses system beep via aplay for reliable audio cue.
 Records N clips with clear countdown. Each clip is 2 seconds.
-Saves to ~/DnD/bmo/pi/wake/clips/ as WAV files at 16kHz mono.
+Saves to ~/home-lab/bmo/pi/wake/clips/ as WAV files at 16kHz mono.
 """
 import os
 import subprocess
@@ -15,7 +15,7 @@ import sounddevice as sd
 SAMPLE_RATE = 16000
 CLIP_DURATION = 2.0
 NUM_CLIPS = 20
-OUTPUT_DIR = os.path.expanduser("~/DnD/bmo/pi/wake/clips")
+OUTPUT_DIR = os.path.expanduser("~/home-lab/bmo/pi/wake/clips")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 native = int(sd.query_devices(kind='input')['default_samplerate'])

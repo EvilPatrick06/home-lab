@@ -19,7 +19,7 @@ Both run on the same Pi 5 currently, communicate via HTTP (`bmo:5000`, `vtt:5001
 Gemini has a large context window. Use it:
 - Read `.cursorrules` + `AGENTS.md` + relevant domain READMEs in one batch at start
 - Pull in up to 10 related files when investigating a change
-- Keep `docs/KNOWN-ISSUES.md` in context for multi-step work
+- Keep `docs/ISSUES-LOG.md` in context for multi-step work
 
 ### When generating code
 
@@ -59,16 +59,16 @@ Before suggesting file creation, verify:
 Imperative mood, 72-char summary:
 ```
 refactor: consolidate BMO data to canonical path
-fix: rotate Google OAuth after secret purge
+fix: re-authorize Google OAuth after token expiration
 feat: add AI mutation approval panel to dnd-app
-chore: update .gitignore for post-purge patterns
+chore: harden .gitignore patterns
 ```
 
 Types: `feat, fix, refactor, chore, docs, test, perf, build, ci`
 
-### If you find bugs
+### If you find bugs / ideas / debt
 
-Append to `docs/KNOWN-ISSUES.md` (template at top of file). Don't silently fix outside scope.
+Read `docs/LOG-INSTRUCTIONS.md` for the template + conventions, then append to `docs/ISSUES-LOG.md`. Log even minor items. Don't silently fix outside scope.
 
 ### Key files to reference often
 
@@ -79,7 +79,7 @@ Append to `docs/KNOWN-ISSUES.md` (template at top of file). Don't silently fix o
 | IPC channels | `dnd-app/docs/IPC-SURFACE.md` |
 | BMO services | `bmo/docs/SERVICES.md` |
 | BMO agents | `bmo/docs/AGENTS.md` |
-| Bugs / debt | `docs/KNOWN-ISSUES.md` |
+| Bugs / debt | `docs/ISSUES-LOG.md` |
 | BMO troubleshooting | `bmo/docs/TROUBLESHOOTING.md` |
 | Running the app | `docs/COMMANDS.md` |
 | Terms (beginner) | `docs/GLOSSARY.md` |

@@ -601,7 +601,7 @@ class DMBot(commands.Bot):
         try:
             from services.rag_search import SearchEngine
             self._search_engine = SearchEngine()
-            rag_dir = os.path.expanduser("~/DnD/bmo/pi/data/rag_data")
+            rag_dir = os.path.expanduser("~/home-lab/bmo/pi/data/rag_data")
             index_path = os.path.join(rag_dir, "chunk-index-dnd.json")
             if os.path.exists(index_path):
                 count = self._search_engine.load_index_file("dnd", index_path)

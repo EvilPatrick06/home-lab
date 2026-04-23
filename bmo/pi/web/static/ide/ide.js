@@ -15,7 +15,7 @@
   const AUTOSAVE_DELAY = 2000; // ms after last edit
 
   const state = {
-    currentPath: '~/DnD',
+    currentPath: '~/home-lab',
     fileTree: [],
     openFiles: [],      // { path, content, language, dirty, model }
     activeFile: null,

@@ -87,7 +87,7 @@ class CalendarService:
 
         if not os.path.exists(credentials_path):
             raise RuntimeError(
-                "credentials.json missing. Add credentials to ~/DnD/bmo/pi/config/credentials.json "
+                "credentials.json missing. Add credentials to ~/home-lab/bmo/pi/config/credentials.json "
                 "or bmo/pi/config/credentials.json"
             )
 
@@ -107,7 +107,7 @@ class CalendarService:
                     )
                 raise RuntimeError(
                     "No valid token.json found. Use Calendar tab authorization or run authorize_calendar.py, "
-                    "then ensure token exists in ~/DnD/bmo/pi/config/ or bmo/pi/config/"
+                    "then ensure token exists in ~/home-lab/bmo/pi/config/ or bmo/pi/config/"
                 )
 
         self._service = build("calendar", "v3", credentials=creds)

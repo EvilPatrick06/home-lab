@@ -16,7 +16,7 @@ import requests
 
 from services.cloud_providers import google_vision_detect, google_vision_describe
 
-DATA_DIR = os.path.expanduser("~/DnD/bmo/pi/data")
+DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 KNOWN_FACES_PATH = os.path.join(DATA_DIR, "known_faces.pkl")
 SNAPSHOTS_DIR = os.path.join(DATA_DIR, "snapshots")
 

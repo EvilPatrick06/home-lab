@@ -58,7 +58,7 @@ def test_2_synthetic_audio(model):
             tmp_path = f.name
 
         result = subprocess.run(
-            ["piper", "--model", os.path.expanduser("~/DnD/bmo/pi/models/piper/en_US-hfc_female-medium.onnx"),
+            ["piper", "--model", os.path.expanduser("~/home-lab/bmo/pi/models/piper/en_US-hfc_female-medium.onnx"),
              "--output_file", tmp_path],
             input=b"hey beemo\n",
             capture_output=True, timeout=10,

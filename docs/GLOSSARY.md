@@ -23,7 +23,7 @@ Plain-English definitions for terms you'll see in this repo. Grouped by topic. B
 - **BMO Kiosk** — the BMO Pi's HDMI touchscreen UI (Chromium fullscreen).
 - **Discord DM Bot** — a Discord bot that relays between D&D players on Discord and the VTT
 - **VTT Sync Receiver** — HTTP server running inside the VTT that accepts callbacks from BMO
-- **DnD app** — the Electron VTT (in `dnd-app/` dir). Confusingly also the repo name.
+- **dnd-app** — the Electron VTT (in `dnd-app/` dir). Confusingly also the repo name.
 
 ## AI / LLM
 
@@ -43,9 +43,9 @@ Plain-English definitions for terms you'll see in this repo. Grouped by topic. B
 
 ## Tech stack
 
-- **Electron** — framework for building desktop apps with web tech (Chromium + Node.js). DnD app uses it.
-- **Vite** — bundler/dev-server (faster than Webpack). DnD app uses electron-vite wrapper.
-- **React** — UI library. DnD app uses React 19.
+- **Electron** — framework for building desktop apps with web tech (Chromium + Node.js). dnd-app uses it.
+- **Vite** — bundler/dev-server (faster than Webpack). dnd-app uses electron-vite wrapper.
+- **React** — UI library. dnd-app uses React 19.
 - **zustand** — small React state management library.
 - **Flask** — Python web framework. BMO uses it for HTTP API.
 - **SocketIO** — real-time WebSocket library. BMO uses Flask-SocketIO for voice UI.
@@ -53,11 +53,11 @@ Plain-English definitions for terms you'll see in this repo. Grouped by topic. B
 - **pytest** — Python test framework.
 - **vitest** — JavaScript test framework (Vite-native).
 - **biome** — fast Rust-based linter + formatter (replaces ESLint + Prettier).
-- **tiptap** — rich text editor (notes, descriptions). DnD app uses it.
-- **pixi.js** — 2D WebGL rendering. DnD app uses it for token map.
-- **three.js** — 3D rendering. DnD app uses it for 3D dice.
-- **cannon-es** — physics engine. DnD app uses it for dice physics.
-- **peerjs** — WebRTC peer-to-peer library. DnD app uses it for multiplayer.
+- **tiptap** — rich text editor (notes, descriptions). dnd-app uses it.
+- **pixi.js** — 2D WebGL rendering. dnd-app uses it for token map.
+- **three.js** — 3D rendering. dnd-app uses it for 3D dice.
+- **cannon-es** — physics engine. dnd-app uses it for dice physics.
+- **peerjs** — WebRTC peer-to-peer library. dnd-app uses it for multiplayer.
 - **zod** — TypeScript runtime type validation.
 
 ## Pi hardware / OS
@@ -80,9 +80,9 @@ Plain-English definitions for terms you'll see in this repo. Grouped by topic. B
 - **Branch** — a line of development. `master` is main. Feature branches for work-in-progress.
 - **Merge** — combine branches' changes.
 - **Rebase** — replay commits on top of another branch.
-- **Remote** — a git server (GitHub, in our case `origin` → `github.com/EvilPatrick06/DnD`).
-- **Force push** — overwrite remote history. Dangerous. We did it during secret purge.
-- **git-filter-repo** — rewrites entire history. We used it to purge leaked secrets.
+- **Remote** — a git server (GitHub, in our case `origin` → `github.com/EvilPatrick06/home-lab`).
+- **Force push** — overwrite remote history. Dangerous — only use with `--force-with-lease` or after explicit confirmation.
+- **git-filter-repo** — tool for rewriting entire git history. Useful if you ever need to remove a file from all commits (not just going forward).
 - **Pre-commit hook** — runs before `git commit`. Useful for blocking secret commits.
 - **PR / Pull Request** — GitHub's UI for proposing changes from a branch.
 

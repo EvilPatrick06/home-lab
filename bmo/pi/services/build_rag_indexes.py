@@ -3,14 +3,14 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.expanduser("~/DnD/bmo/pi"))
+sys.path.insert(0, os.path.expanduser("~/home-lab/bmo/pi"))
 
 from services.rag_search import (
     build_index_from_markdown, build_index_from_text, save_index
 )
 
-RAG_DIR = os.path.expanduser("~/DnD/bmo/pi/data/rag_data")
-REF_DIR = os.path.expanduser("~/DnD/bmo/pi/data/5e-references")
+RAG_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/rag_data")
+REF_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/5e-references")
 
 
 def progress(pct, msg):

@@ -1,6 +1,6 @@
 # BMO Troubleshooting
 
-Common failures + fixes. Also check `[../../docs/KNOWN-ISSUES.md](../../docs/KNOWN-ISSUES.md)` for logged bugs.
+Common failures + fixes. Also check `[../../docs/ISSUES-LOG.md](../../docs/ISSUES-LOG.md)` for logged bugs.
 
 ## BMO won't start
 
@@ -18,7 +18,7 @@ Common causes:
 
 ### Python venv broken
 
-- **Symptom:** `/home/patrick/DnD/bmo/pi/venv/bin/python: not found`
+- **Symptom:** `/home/patrick/home-lab/bmo/pi/venv/bin/python: not found`
 - **Fix:** Rebuild venv: `cd bmo/pi && rm -rf venv && python3.11 -m venv venv && ./venv/bin/pip install -r requirements.txt`
 
 ### Port 5000 occupied
@@ -38,7 +38,7 @@ Common causes:
 - **Check audio input:** `pactl list short sources` — is your mic detected?
 - **Check wake-word model exists:** `ls -la bmo/pi/wake/hey_bmo.onnx`
 - **Check openwakeword logs:** `journalctl -u bmo | grep -i "wake"`
-- **Fallback active?** If logs say "openwakeword not available, using energy+STT fallback" — that still works, just less accurate. See [KNOWN-ISSUES.md](../../docs/KNOWN-ISSUES.md) for the model file issue.
+- **Fallback active?** If logs say "openwakeword not available, using energy+STT fallback" — that still works, just less accurate. See [ISSUES-LOG.md](../../docs/ISSUES-LOG.md) for the model file issue.
 
 ### STT fails
 
@@ -100,7 +100,7 @@ journalctl -u bmo-kiosk -n 50 --no-pager
 ## HTTP endpoints hang
 
 - **Symptom:** `curl http://localhost:5000/health` times out but service is "active"
-- **Cause:** gevent workers blocked by slow operation (see KNOWN-ISSUES.md).
+- **Cause:** gevent workers blocked by slow operation (see ISSUES-LOG.md).
 - **Quick fix:** `sudo systemctl restart bmo`
 - **Diagnose:** `ss -tnp | grep 5000` — many CLOSE-WAIT = worker exhaustion
 
@@ -108,7 +108,7 @@ journalctl -u bmo-kiosk -n 50 --no-pager
 
 ### `invalid_grant: Bad Request`
 
-- **Cause:** OAuth token expired or revoked (often after secret leak + rotation).
+- **Cause:** OAuth token expired or revoked. Refresh tokens can become invalid after prolonged inactivity, password changes, or manual revocation.
 - **Fix:** Run re-auth:
   ```bash
   cd bmo/pi
@@ -133,8 +133,8 @@ journalctl -u bmo-kiosk -n 50 --no-pager
 
 ```bash
 df -h /                           # root fs
-du -sh ~/DnD/bmo/pi/venv          # venv size (~500 MB normal)
-du -sh ~/DnD/bmo/pi/data/logs     # logs grow
+du -sh ~/home-lab/bmo/pi/venv          # venv size (~500 MB normal)
+du -sh ~/home-lab/bmo/pi/data/logs     # logs grow
 du -sh ~/.cache/chromium-bmo      # kiosk cache grows
 ```
 
@@ -142,14 +142,14 @@ du -sh ~/.cache/chromium-bmo      # kiosk cache grows
 
 ```bash
 sudo journalctl --vacuum-time=7d      # systemd logs
-find ~/DnD/bmo/pi/data/logs -name "*.log" -mtime +7 -delete
+find ~/home-lab/bmo/pi/data/logs -name "*.log" -mtime +7 -delete
 rm -rf ~/.cache/chromium-bmo/Default/Cache/*
 ```
 
 ## MCP servers fail to initialize
 
 - **Symptom:** `[mcp] Initialized: 0/3 servers, 0 tools`
-- **Fix:** Tracked in [KNOWN-ISSUES.md](../../docs/KNOWN-ISSUES.md). Probably path issue in `mcp_servers/mcp_settings.json` or server script crashing.
+- **Fix:** Tracked in [ISSUES-LOG.md](../../docs/ISSUES-LOG.md). Probably path issue in `mcp_servers/mcp_settings.json` or server script crashing.
 
 ## Service keeps restarting
 
@@ -188,7 +188,7 @@ free -h                                 # RAM
   ```
 3. Reset to known good state:
   ```bash
-   cd /home/patrick/DnD
+   cd /home/patrick/home-lab
    git fetch origin
    git reset --hard origin/master    # careful: loses local changes
   ```
@@ -208,8 +208,8 @@ free -h                                 # RAM
 
 ## Still stuck?
 
-1. Search `[KNOWN-ISSUES.md](../../docs/KNOWN-ISSUES.md)`
-2. Check recent commits: `cd ~/DnD && git log --oneline -20`
+1. Search `[ISSUES-LOG.md](../../docs/ISSUES-LOG.md)`
+2. Check recent commits: `cd ~/home-lab && git log --oneline -20`
 3. Ask an AI agent (Cursor/Claude/Gemini) — they have all the context via `AGENTS.md`
 4. File an issue on GitHub with:
   - What you were doing

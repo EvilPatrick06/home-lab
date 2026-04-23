@@ -33,7 +33,7 @@ Two domains. **They never import each other.** They communicate via HTTP (BMO on
 - **Subpackage imports**: `from services.calendar_service import X` (never bare `from calendar_service import X`)
 - **Never rename `bots/` to `discord/`** — shadows `discord.py` library
 - **Pytest** — fixtures in `tests/conftest.py` mock Pi hardware so tests run anywhere
-- **Canonical paths** — `/home/patrick/DnD/bmo/pi/...` always. NEVER `~/bmo/...`
+- **Canonical paths** — `/home/patrick/home-lab/bmo/pi/...` always. NEVER `~/bmo/...`
 
 ## PR Review Focus
 
@@ -41,7 +41,7 @@ When reviewing PRs, check:
 
 1. **Domain purity** — no `import bmo.*` in dnd-app code, no cross-domain file dependencies
 2. **Secrets** — no `.env`, `*.pem`, `credentials.json`, `token.json`, or API key literals
-3. **Path hygiene** — all paths are canonical (`/home/patrick/DnD/bmo/pi/...` or relative to domain root)
+3. **Path hygiene** — all paths are canonical (`/home/patrick/home-lab/bmo/pi/...` or relative to domain root)
 4. **Tests added** — new logic has a colocated test (`.test.ts` or `tests/test_*.py`)
 5. **Structure respected** — new files placed in correct subpackage/feature folder
 6. **Import style** — Python uses subpackage prefix, TS uses path aliases or correct relative
@@ -50,15 +50,15 @@ When reviewing PRs, check:
 
 ## Issue / PR Templates
 
-Issues should reference `docs/KNOWN-ISSUES.md` if logging a bug. PRs should:
+Issues should reference `docs/ISSUES-LOG.md` if logging a bug. PRs should:
 - Link related issue
 - Describe what/why (not just what)
-- Note any `KNOWN-ISSUES.md` entries resolved
+- Note any `ISSUES-LOG.md` entries resolved
 
 ## Forbidden Patterns
 
 - `from X import Y` where `X` is a BMO submodule (use `from services.X import Y`)
-- `os.path.expanduser("~/bmo/...")` — paths go through `~/DnD/bmo/pi/...`
+- `os.path.expanduser("~/bmo/...")` — paths go through `~/home-lab/bmo/pi/...`
 - Committing files matching `**/.env`, `**/credentials.json`, `**/token.json`, `**/*.pem`
 - `import * as X` in TypeScript (prefer named imports)
 - `let` where `const` works (biome rule)
@@ -70,7 +70,7 @@ Issues should reference `docs/KNOWN-ISSUES.md` if logging a bug. PRs should:
 - Small focused PRs (`<500` line diff when possible)
 - Explicit return types on exported functions
 - Zod runtime validation at trust boundaries (IPC, HTTP, file reads)
-- Append bugs/TODOs to `docs/KNOWN-ISSUES.md` as you discover them
+- Read `docs/LOG-INSTRUCTIONS.md` for logging conventions, then append bugs/TODOs/ideas to `docs/ISSUES-LOG.md` as you discover them (minor items too)
 - Add a pytest/vitest case for each bug fix (regression prevention)
 - Use conventional commit prefixes: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, `test:`
 

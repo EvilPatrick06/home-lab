@@ -1,4 +1,4 @@
-# Cursor Rules — DnD + BMO Monorepo
+# Cursor Rules — home-lab Monorepo (dnd-app + bmo)
 
 > Primary context file for Cursor AI. Reads on every invocation.
 > For language/tool-specific rules, see also: AGENTS.md, CLAUDE.md
@@ -6,7 +6,7 @@
 ## Repository Structure (AI-first, flat, feature-based)
 
 ```
-/home/patrick/DnD/                    (monorepo root, live on Raspberry Pi 5)
+/home/patrick/home-lab/                    (monorepo root, live on Raspberry Pi 5)
 ├── dnd-app/                          Electron desktop VTT (TypeScript + React)
 │   ├── src/                          NEVER restructure — electron-vite enforces main/preload/renderer/shared
 │   │   ├── main/                     Electron main process (Node)
@@ -51,7 +51,7 @@
 │   │   ├── dev/                      dev tools (claude_tools, dev_tools, patch_*, benchmarks)
 │   │   ├── wake/                     wake-word detection + clips/ training samples
 │   │   ├── web/                      Flask templates/ + static/ (consolidated)
-│   │   ├── mcp_servers/              MCP server for DnD data
+│   │   ├── mcp_servers/              MCP server for dnd-app data
 │   │   ├── ide_app/                  embedded web IDE (self-contained sub-app)
 │   │   ├── kiosk/                    systemd service files
 │   │   ├── scripts/                  deploy scripts (cloudflare, tailscale)
@@ -64,14 +64,14 @@
 │   └── {setup-bmo.sh, finalize-ssd.sh, .env.template}
 │
 ├── docs/                             monorepo-wide docs
-│   ├── ARCHITECTURE.md               how DnD + BMO communicate
+│   ├── ARCHITECTURE.md               how dnd-app + bmo communicate
 │   ├── DATA-FLOW.md                  data location/flow
 │   ├── SETUP.md                      clone + first-run
 │   ├── COMMANDS.md                   command cheat sheet
 │   ├── GLOSSARY.md                   beginner term index
 │   ├── BACKUP.md                     backup strategy
-│   ├── SECRETS-ROTATION.md           post-purge rotation guide
-│   └── KNOWN-ISSUES.md               living bug log (AI agents APPEND here)
+│   ├── SECURITY.md           post-purge rotation guide
+│   └── ISSUES-LOG.md               living bug log (AI agents APPEND here)
 │
 ├── _archive/                         quarantined dead code (not deletion)
 ├── .github/                          workflows + issue templates + copilot-instructions.md
@@ -83,7 +83,7 @@
 
 1. **Flat > Nested** — one subdir level is fine, two+ needs justification
 2. **Feature > Type** — group by what it does, not what kind of file it is
-3. **Canonical paths** — `/home/patrick/DnD/bmo/pi/...` is the ONLY BMO location (no more `~/bmo/`)
+3. **Canonical paths** — `/home/patrick/home-lab/bmo/pi/...` is the ONLY BMO location (no more `~/bmo/`)
 4. **Preserve running state** — BMO systemd services run 24/7, restart required after path changes
 5. **Secrets never tracked** — `.env`, `*.pem`, `*token*.json`, `credentials.json` in .gitignore
 6. **_archive/ over deletion** — prefer quarantine when unsure
@@ -105,29 +105,30 @@
 - **Python 3.11** with venv at `bmo/pi/venv/` (gitignored)
 - **Imports**: always use subpackage prefix — `from services.calendar_service import X` (NOT `from calendar_service import X`)
 - **discord.py library**: import as `import discord` — our bots live in `bots/` package, NEVER rename to `discord/` (shadows library)
-- **Data paths**: `~/DnD/bmo/pi/data/...` (canonical). NEVER `~/bmo/...`
+- **Data paths**: `~/home-lab/bmo/pi/data/...` (canonical). NEVER `~/bmo/...`
 - **Tests**: pytest in `bmo/pi/tests/` (incl. test_*.py that were at pi/ root)
 - **Running services**: `bmo, bmo-fan, bmo-kiosk, bmo-dm-bot, bmo-social-bot`
 - **Restart after Python changes**: `sudo systemctl restart bmo` (+ bots if changed)
 
 ## Cross-domain (dnd-app ↔ bmo)
 
-- DnD app talks to BMO via HTTP on `http://bmo.local:5000` (configurable via `BMO_PI_URL` env)
-- BMO Discord bots push events back to DnD via HTTP on port 5001 (DnD listens)
+- dnd-app talks to BMO via HTTP on `http://bmo.local:5000` (configurable via `BMO_PI_URL` env)
+- BMO Discord bots push events back to dnd-app via HTTP on port 5001 (dnd-app listens)
 - Protocol docs: `docs/ARCHITECTURE.md`
 - IPC channel reference: `dnd-app/docs/IPC-SURFACE.md`
 
 ## Logging Bugs / Issues / Future Work
 
-- **ALWAYS append to `docs/KNOWN-ISSUES.md`** when you find bugs, config drift, or future improvements
-- Don't silently fix preexisting bugs outside current task scope — log them, let user prioritize
-- Use template at top of that file
+- **Read `docs/LOG-INSTRUCTIONS.md`** for the template + severity/category guide
+- **ALWAYS append to `docs/ISSUES-LOG.md`** when you find bugs, config drift, future improvements, tech debt, design gotchas, or ideas
+- **Log minor/optional items too** — patterns across small observations reveal larger problems
+- Don't silently fix preexisting issues outside current task scope — log them, let user prioritize
 
 ## Secrets / Safety
 
 - Never commit `.env`, `credentials.json`, `token.json`, `*.pem`
-- History was purged (filter-repo) on 2026-04-23 — if re-introducing secrets, rotate first
-- Pre-push hooks would be nice (TODO — log in KNOWN-ISSUES)
+- `.gitignore` has broad glob patterns catching these across the tree
+- Pre-push secret-scanning hooks are a future improvement (see ISSUES-LOG)
 
 ## Git Conventions
 
@@ -139,7 +140,7 @@
 ## For AI Sessions
 
 - Start by reading this file + AGENTS.md (or your tool-specific file)
-- Check `docs/KNOWN-ISSUES.md` before starting new work
+- Check `docs/ISSUES-LOG.md` before starting new work
 - When in doubt about structure, check this file first
 - When in doubt about protocol, check `docs/ARCHITECTURE.md`
-- When debugging, check `bmo/docs/TROUBLESHOOTING.md` + `docs/KNOWN-ISSUES.md`
+- When debugging, check `bmo/docs/TROUBLESHOOTING.md` + `docs/ISSUES-LOG.md`

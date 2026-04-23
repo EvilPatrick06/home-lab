@@ -21,7 +21,7 @@ pi/
 │   ├── settings.py              user/project settings resolution
 │   ├── hooks.py, custom_commands.py, project_context.py
 │   ├── mcp_client.py, mcp_manager.py
-│   ├── vtt_sync.py              BMO↔DnD VTT bridge
+│   ├── vtt_sync.py              BMO↔dnd-app (VTT) bridge
 │   ├── alert_agent.py, calendar_agent.py, cleanup_agent.py, code_agent.py,
 │   ├── deploy_agent.py, design_agent.py, dnd_dm.py, docs_agent.py,
 │   ├── encounter_agent.py, learning_agent.py, list_agent.py, lore_agent.py,
@@ -155,7 +155,7 @@ Our bots are under `bots/` precisely to avoid shadowing.
 ## Running
 
 ```bash
-cd /home/patrick/DnD/bmo/pi
+cd /home/patrick/home-lab/bmo/pi
 ./venv/bin/python app.py                    # dev run (port 5000)
 ./venv/bin/python cli.py                    # interactive REPL
 ./venv/bin/python -m bots.discord_dm_bot    # manual DM bot run
@@ -200,8 +200,8 @@ Production = systemd. See [`../docs/SYSTEMD.md`](../docs/SYSTEMD.md).
 ## Paths
 
 All BMO code uses canonical paths:
-- Data: `/home/patrick/DnD/bmo/pi/data/`
-- Wake: `/home/patrick/DnD/bmo/pi/wake/`
-- Web: `/home/patrick/DnD/bmo/pi/web/`
+- Data: `/home/patrick/home-lab/bmo/pi/data/`
+- Wake: `/home/patrick/home-lab/bmo/pi/wake/`
+- Web: `/home/patrick/home-lab/bmo/pi/web/`
 
-Legacy `~/bmo/` paths have been rewritten. If you find one, it's a bug — log in [`../../docs/KNOWN-ISSUES.md`](../../docs/KNOWN-ISSUES.md).
+Legacy `~/bmo/` paths have been rewritten. If you find one, it's a bug — log in [`../../docs/ISSUES-LOG.md`](../../docs/ISSUES-LOG.md).

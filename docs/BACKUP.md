@@ -23,11 +23,11 @@ What's NOT backed up via git (gitignored):
 
 ## Restoring from scratch
 
-### DnD app on laptop (Windows/Mac/Linux)
+### dnd-app on laptop (Windows/Mac/Linux)
 
 ```bash
-git clone https://github.com/EvilPatrick06/DnD.git
-cd DnD/dnd-app
+git clone https://github.com/EvilPatrick06/home-lab.git
+cd home-lab/dnd-app
 npm install
 cp ../.env.example .env      # if present; or create manually
 nano .env                    # fill secrets
@@ -46,8 +46,8 @@ These live outside the repo. Back them up separately if valuable. Consider synci
 See [`SETUP.md`](./SETUP.md) full procedure. Summary:
 
 ```bash
-git clone https://github.com/EvilPatrick06/DnD.git /home/patrick/DnD
-cd /home/patrick/DnD/bmo
+git clone https://github.com/EvilPatrick06/home-lab.git /home/patrick/home-lab
+cd /home/patrick/home-lab/bmo
 bash setup-bmo.sh                   # installs deps + systemd
 cp .env.template pi/.env && nano pi/.env   # add API keys
 # Manually re-authorize Google OAuth:

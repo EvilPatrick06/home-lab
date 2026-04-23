@@ -4,7 +4,7 @@ Main Flask application with WebSocket support. Serves the touchscreen UI
 and provides API endpoints for all services.
 
 Usage:
-    source ~/DnD/bmo/pi/venv/bin/activate
+    source ~/home-lab/bmo/pi/venv/bin/activate
     python app.py
 """
 
@@ -2799,11 +2799,11 @@ def api_devices_refresh():
 # ── Chat Persistence ─────────────────────────────────────────────────
 
 # Recent chat buffer — kept in memory, served to frontend on refresh
-RECENT_CHAT_FILE = os.path.expanduser("~/DnD/bmo/pi/data/recent_chat.json")
+RECENT_CHAT_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/recent_chat.json")
 _MAX_RECENT = 200  # Rolling buffer of recent messages
 
 # DnD session log — permanently saved to its own file
-DND_LOG_DIR = os.path.expanduser("~/DnD/bmo/pi/data/dnd_sessions")
+DND_LOG_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/dnd_sessions")
 
 
 def _load_recent_chat() -> list[dict]:
@@ -2977,7 +2977,7 @@ def api_chat_clear():
 
 # ── Notes API ────────────────────────────────────────────────────────
 
-NOTES_FILE = os.path.expanduser("~/DnD/bmo/pi/data/notes.json")
+NOTES_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/notes.json")
 _notes_list: list[dict] = []
 
 
@@ -4395,7 +4395,7 @@ _win_proxy_pending: dict[str, _AsyncResult] = {}
 _ide_jobs: dict[str, dict] = {}
 _ide_job_counter = 0
 _current_running_job_id = None
-_IDE_JOBS_FILE = os.path.expanduser("~/DnD/bmo/pi/data/ide_jobs.json")
+_IDE_JOBS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/ide_jobs.json")
 
 
 _ide_jobs_lock = threading.Lock()
@@ -5338,7 +5338,7 @@ def api_ide_jobs_unarchive(job_id):
 
 # ── IDE State Persistence ────────────────────────────────────────────
 
-_IDE_STATE_FILE = os.path.expanduser("~/DnD/bmo/pi/data/ide_state.json")
+_IDE_STATE_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/ide_state.json")
 
 
 @app.route("/api/ide/state", methods=["GET"])
@@ -5351,7 +5351,7 @@ def api_ide_state_get():
         except Exception:
             pass
     return jsonify({
-        "workspaces": ["~/DnD"],
+        "workspaces": ["~/home-lab"],
         "openTabs": [],
         "activeTab": None,
         "cursorPositions": {},

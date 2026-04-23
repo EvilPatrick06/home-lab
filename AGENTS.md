@@ -5,7 +5,7 @@
 
 ## Project Identity
 
-**DnD** is a monorepo with two domains that communicate via HTTP:
+**home-lab** is a monorepo with two domains that communicate via HTTP:
 
 1. **`dnd-app/`** — Electron desktop Virtual Tabletop (VTT) for running D&D 5e games. TypeScript + React 19 + Vite. Runs on player/DM laptops.
 2. **`bmo/`** — Raspberry Pi voice assistant named BMO. Python Flask. Runs 24/7 on a Pi 5. Hosts Discord DM bot, music, calendar, weather, smart home, and the AI Dungeon Master brain for D&D sessions.
@@ -18,7 +18,7 @@ Both live in the same git repo because they're tightly coupled: BMO narrates D&D
 # 1. Always orient yourself first
 cat .cursorrules                           # structure map
 cat docs/ARCHITECTURE.md                   # cross-domain protocol
-cat docs/KNOWN-ISSUES.md                   # preexisting bugs to avoid re-fixing
+cat docs/ISSUES-LOG.md                   # preexisting bugs to avoid re-fixing
 
 # 2. Work in the right directory
 cd dnd-app   # for VTT work
@@ -34,7 +34,7 @@ cd bmo/pi && ./venv/bin/python -m pytest
 1. **Feature over type**: group by what it does (inventory, combat, calendar) not what kind (components, services, utils)
 2. **Flat hierarchy**: max 2 subdir levels below domain root. If adding a 3rd, justify in commit message.
 3. **No cross-domain imports**: dnd-app/ cannot `import` from bmo/, vice versa. They only talk HTTP.
-4. **Canonical paths**: always use `/home/patrick/DnD/bmo/pi/...` in docs/code. NEVER `~/bmo/...` (aliases of the past).
+4. **Canonical paths**: always use `/home/patrick/home-lab/bmo/pi/...` in docs/code. NEVER `~/bmo/...` (aliases of the past).
 5. **Tests next to source**: `.test.ts` beside `.ts`, pytest tests in `bmo/pi/tests/`.
 6. **Secrets stay out**: verify `.gitignore` catches anything resembling credentials before committing.
 
@@ -95,27 +95,27 @@ cd bmo/pi && ./venv/bin/python -m pytest
 
 Protocol details: `docs/ARCHITECTURE.md`
 
-## When You Find Bugs
+## When You Find Bugs / Tech Debt / Ideas
 
-**Do not silently fix preexisting bugs outside your task scope.** Instead:
+**Do not silently fix preexisting issues outside your task scope.** Instead:
 
 1. Reproduce + verify it's preexisting (not caused by your change)
-2. Append to `docs/KNOWN-ISSUES.md` with: date, category, reproduction, hypothesis, proposed fix
-3. Mention it in your summary/PR but don't fix unless user asks
+2. Read `docs/LOG-INSTRUCTIONS.md` for the template + severity/category guidance
+3. Append an entry to `docs/ISSUES-LOG.md` (minor/optional things count — log them too)
+4. Mention it in your summary/PR but don't fix unless user asks
 
 This keeps bug log useful + avoids "while I was here" scope creep.
 
 ## Security Reminders
 
-- Secrets purged from git history on 2026-04-23 via `git filter-repo`
 - `.gitignore` has broad patterns for `*.env`, `*.pem`, `credentials.json`, `token.json`
-- If re-introducing a secret accidentally: rotate it externally first, then fix tree+history, force-push
-- See `docs/SECRETS-ROTATION.md`
+- Verify `git status` before every commit — no secrets in diff
+- Repo is private; treat env files + keys as local-only regardless
 
 ## Build/Test Cheat Sheet
 
 ```bash
-# DnD app
+# dnd-app
 cd dnd-app
 npm install
 npm run dev              # electron-vite dev server

@@ -3,8 +3,8 @@
 Sends alerts via voice, kiosk UI, and Discord DM based on priority levels.
 Respects quiet hours (critical alerts override). Keeps rolling history.
 
-Config: ~/DnD/bmo/pi/data/alert_config.json
-History: ~/DnD/bmo/pi/data/alert_history.json
+Config: ~/home-lab/bmo/pi/data/alert_config.json
+History: ~/home-lab/bmo/pi/data/alert_history.json
 """
 
 import json
@@ -15,7 +15,7 @@ import time
 import requests
 
 
-DATA_DIR = os.path.expanduser("~/DnD/bmo/pi/data")
+DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 CONFIG_FILE = os.path.join(DATA_DIR, "alert_config.json")
 HISTORY_FILE = os.path.join(DATA_DIR, "alert_history.json")
 MAX_HISTORY = 200

@@ -131,8 +131,8 @@ ss -tnp | grep 5000                            # connections to port 5000
 
 # Disk / memory
 df -h /home                                    # root fs
-du -sh ~/DnD                                   # repo size
-du -sh ~/DnD/bmo/pi/venv                       # venv size
+du -sh ~/home-lab                                   # repo size
+du -sh ~/home-lab/bmo/pi/venv                       # venv size
 free -h                                        # RAM
 
 # Audio (PipeWire / PulseAudio)
@@ -150,7 +150,7 @@ i2cdetect -y 1                                 # I2C devices (fan, OLED should a
 
 ```bash
 # From bmo/docker/
-cd ~/DnD/bmo/docker
+cd ~/home-lab/bmo/docker
 docker compose up -d                           # start Ollama, Pi-hole, Coturn, PeerJS
 docker compose down                            # stop
 docker compose ps                              # status
@@ -167,7 +167,7 @@ ssh patrick@bmo.tailnet-name.ts.net            # Tailscale
 ssh -p 2222 user@tunnel.example.com            # Cloudflare tunnel
 
 # Deploy from laptop (reads bmo/docker/deploy.sh)
-cd ~/Code/DnD/bmo/docker
+cd ~/Code/home-lab/bmo/docker
 bash deploy.sh                                 # syncs + restarts BMO services
 ```
 
@@ -183,7 +183,7 @@ curl --max-time 3 http://localhost:5000/health
 ss -tnp | grep 5000                            # check connections
 
 # 3. Python import error?
-cd ~/DnD/bmo/pi
+cd ~/home-lab/bmo/pi
 ./venv/bin/python -c "import app"              # smoke test
 
 # 4. Test suite broken?
@@ -197,6 +197,6 @@ cd ~/DnD/bmo/pi
 
 - Architecture: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 - Glossary: [`GLOSSARY.md`](./GLOSSARY.md)
-- Known issues: [`KNOWN-ISSUES.md`](./KNOWN-ISSUES.md)
+- Known issues: [`ISSUES-LOG.md`](./ISSUES-LOG.md)
 - BMO troubleshoot: [`../bmo/docs/TROUBLESHOOTING.md`](../bmo/docs/TROUBLESHOOTING.md)
 - BMO deploy: [`../bmo/docs/DEPLOY.md`](../bmo/docs/DEPLOY.md)

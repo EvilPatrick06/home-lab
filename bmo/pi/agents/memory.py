@@ -1,6 +1,6 @@
 """BMO Auto-Memory — Persistent per-project memory across sessions.
 
-Stores memory files at ~/DnD/bmo/pi/data/memory/<project_hash>/MEMORY.md
+Stores memory files at ~/home-lab/bmo/pi/data/memory/<project_hash>/MEMORY.md
 where project_hash is MD5 of the absolute working directory path.
 
 BMO can write observations, patterns, and decisions to memory via LLM tools,
@@ -12,7 +12,7 @@ from __future__ import annotations
 import hashlib
 import os
 
-MEMORY_BASE_DIR = os.path.expanduser("~/DnD/bmo/pi/data/memory")
+MEMORY_BASE_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/memory")
 MEMORY_FILENAME = "MEMORY.md"
 
 

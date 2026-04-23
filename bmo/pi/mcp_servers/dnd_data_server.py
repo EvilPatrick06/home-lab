@@ -19,17 +19,17 @@ from pathlib import Path
 
 MARKDOWN_ROOT = Path(os.environ.get(
     "DND_MARKDOWN_ROOT",
-    os.path.expanduser("~/DnD/bmo/pi/data/5e-references"),
+    os.path.expanduser("~/home-lab/bmo/pi/data/5e-references"),
 ))
 
 JSON_DATA_ROOT = Path(os.environ.get(
     "DND_JSON_ROOT",
-    os.path.expanduser("~/DnD/bmo/pi/data/5e"),
+    os.path.expanduser("~/home-lab/bmo/pi/data/5e"),
 ))
 
 RAG_DATA_DIR = Path(os.environ.get(
     "RAG_DATA_DIR",
-    os.path.expanduser("~/DnD/bmo/pi/data/rag_data"),
+    os.path.expanduser("~/home-lab/bmo/pi/data/rag_data"),
 ))
 
 # ── Lazy RAG engine ──────────────────────────────────────────────────

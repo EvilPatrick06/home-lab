@@ -31,7 +31,7 @@
 - [ ] `docs/...` if user-facing
 - [ ] `dnd-app/docs/...` or `bmo/docs/...` if internal
 - [ ] `AGENTS.md` / `.cursorrules` if AI-rule change
-- [ ] `docs/KNOWN-ISSUES.md` — resolved entries moved to "Resolved"?
+- [ ] `docs/ISSUES-LOG.md` — resolved entries moved to "Resolved"?
 - [ ] `CHANGELOG.md` updated
 
 ## Checklist
@@ -45,4 +45,4 @@
 
 ## Related
 
-<!-- Links to related issues, PRs, KNOWN-ISSUES.md entries, or external docs. -->
+<!-- Links to related issues, PRs, ISSUES-LOG.md entries, or external docs. -->

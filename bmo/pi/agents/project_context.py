@@ -3,7 +3,7 @@
 Like Claude Code's CLAUDE.md, BMO looks for BMO.md files in working directories
 and loads them into agent context. Supports:
 - Project root BMO.md (auto-discovered)
-- User-level config at ~/DnD/bmo/pi/data/BMO.md
+- User-level config at ~/home-lab/bmo/pi/data/BMO.md
 - /init slash command to create a new BMO.md
 
 Context files are loaded hierarchically: user-level → project-level → subdirectory-level.
@@ -15,8 +15,8 @@ import os
 from pathlib import Path
 
 # Default locations to search for BMO.md files
-USER_BMO_MD = os.path.expanduser("~/DnD/bmo/pi/data/BMO.md")
-PROJECT_CONFIGS_DIR = os.path.expanduser("~/DnD/bmo/pi/data/projects")
+USER_BMO_MD = os.path.expanduser("~/home-lab/bmo/pi/data/BMO.md")
+PROJECT_CONFIGS_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/projects")
 
 
 def find_bmo_md(working_dir: str | None = None) -> list[str]:

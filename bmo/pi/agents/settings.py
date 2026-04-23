@@ -1,7 +1,7 @@
 """BMO Settings — Hierarchical settings system modeled after Claude Code's settings.local.json.
 
 Loads settings from:
-  1. ~/DnD/bmo/pi/data/settings.json              (user-level, always loaded)
+  1. ~/home-lab/bmo/pi/data/settings.json              (user-level, always loaded)
   2. Walk up from cwd → root (max 10 levels):
        .bmo/settings.local.json            (project-level, gitignored)
 
@@ -19,7 +19,7 @@ from typing import Any, Callable
 
 # ── Defaults ─────────────────────────────────────────────────────────
 
-USER_SETTINGS_PATH = os.path.expanduser("~/DnD/bmo/pi/data/settings.json")
+USER_SETTINGS_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/settings.json")
 PROJECT_SETTINGS_NAME = "settings.local.json"
 
 
@@ -89,19 +89,19 @@ def _get_default_settings() -> dict:
                 "dnd_data": {
                     "transport": "stdio",
                     "command": "python3",
-                    "args": [os.path.expanduser("~/DnD/bmo/pi/mcp_servers/dnd_data_server.py")],
+                    "args": [os.path.expanduser("~/home-lab/bmo/pi/mcp_servers/dnd_data_server.py")],
                     "env": {
-                        "DND_MARKDOWN_ROOT": os.path.expanduser("~/DnD/bmo/pi/data/5e-references"),
-                        "DND_JSON_ROOT": os.path.expanduser("~/DnD/bmo/pi/data/5e"),
-                        "RAG_DATA_DIR": os.path.expanduser("~/DnD/bmo/pi/data/rag_data"),
+                        "DND_MARKDOWN_ROOT": os.path.expanduser("~/home-lab/bmo/pi/data/5e-references"),
+                        "DND_JSON_ROOT": os.path.expanduser("~/home-lab/bmo/pi/data/5e"),
+                        "RAG_DATA_DIR": os.path.expanduser("~/home-lab/bmo/pi/data/rag_data"),
                     },
                 },
                 "filesystem": {
                     "transport": "stdio",
                     "command": "npx",
                     "args": ["-y", "@modelcontextprotocol/server-filesystem",
-                             os.path.expanduser("~/DnD/bmo/pi"),
-                             os.path.expanduser("~/DnD/bmo/pi/data")],
+                             os.path.expanduser("~/home-lab/bmo/pi"),
+                             os.path.expanduser("~/home-lab/bmo/pi/data")],
                     "lazy": True,
                 },
                 "web_search": {

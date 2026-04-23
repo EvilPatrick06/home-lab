@@ -1,7 +1,7 @@
 """BMO List Service — Persistent named lists via voice and touch.
 
 Manages named lists (shopping, todo, etc.) with CRUD operations.
-Data persisted to ~/DnD/bmo/pi/data/lists.json.
+Data persisted to ~/home-lab/bmo/pi/data/lists.json.
 """
 
 import json
@@ -11,7 +11,7 @@ import time
 import uuid
 
 
-DATA_DIR = os.path.expanduser("~/DnD/bmo/pi/data")
+DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 LISTS_FILE = os.path.join(DATA_DIR, "lists.json")
 
 

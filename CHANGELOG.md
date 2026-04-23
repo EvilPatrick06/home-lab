@@ -8,8 +8,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates i
 
 ### Added
 - Comprehensive AI agent instruction files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.github/copilot-instructions.md`)
-- Full monorepo documentation: `docs/ARCHITECTURE.md`, `docs/DATA-FLOW.md`, `docs/SETUP.md`, `docs/COMMANDS.md`, `docs/GLOSSARY.md`, `docs/BACKUP.md`, `docs/SECRETS-ROTATION.md`, `docs/KNOWN-ISSUES.md`
-- DnD-app specific docs: `dnd-app/docs/IPC-SURFACE.md`, `dnd-app/docs/PLUGIN-SYSTEM.md`
+- Full monorepo documentation: `docs/ARCHITECTURE.md`, `docs/DATA-FLOW.md`, `docs/SETUP.md`, `docs/COMMANDS.md`, `docs/GLOSSARY.md`, `docs/BACKUP.md`, `docs/LOG-INSTRUCTIONS.md`, `docs/ISSUES-LOG.md`
+- dnd-app specific docs: `dnd-app/docs/IPC-SURFACE.md`, `dnd-app/docs/PLUGIN-SYSTEM.md`
 - BMO-specific docs: `bmo/docs/AGENTS.md`, `bmo/docs/SERVICES.md`, `bmo/docs/TROUBLESHOOTING.md`, `bmo/docs/DEPLOY.md`, `bmo/docs/SYSTEMD.md`
 - Process docs: `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`, issue + PR templates
 - README files at each domain level
@@ -28,8 +28,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates i
 - systemd services use module-style exec for bots: `python -m bots.discord_dm_bot`
 
 ### Fixed
-- Canonicalized BMO data paths: merged `/home/patrick/bmo/data/` (stale standalone) into `/home/patrick/DnD/bmo/pi/data/` with mtime-aware rsync
-- Rewrote 50+ `~/bmo/...` path references in Python to `~/DnD/bmo/pi/...`
+- Canonicalized BMO data paths: merged `/home/patrick/bmo/data/` (stale standalone) into `/home/patrick/home-lab/bmo/pi/data/` with mtime-aware rsync
+- Rewrote 50+ `~/bmo/...` path references in Python to `~/home-lab/bmo/pi/...`
 - Rewrote 124 Python imports across 36 files for new subpackage structure
 - systemd service paths updated in `/etc/systemd/system/` for renamed locations
 - AWS references scrubbed from tracked files (deleted `buildspec.yml`, `AWS_SETUP_GUIDE.md`, `Tests/TestAudit.md`, `Tests/knip-report.json`; stripped vendor-aws chunk from `electron.vite.config.ts`; removed incidental mentions in `Phase22_ClaudeOpus.md` + `BMO-setup/ARCHITECTURE.md`)
@@ -49,16 +49,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates i
 - Untracked `__pycache__/*.pyc` (46 files), `.pytest_cache/` (5 files), runtime state JSONs from git
 
 ### Security
-- **Purged leaked secrets from entire git history** via `git filter-repo` (2026-04-23):
-  - `.env` root (ANTHROPIC_API_KEY)
-  - `BMO-setup/config/.env` (Google OAuth client_secret + access/refresh tokens)
-  - `BMO-setup/pi/config/credentials.json` (Google OAuth)
-  - `BMO-setup/pi/config/token.json` (Google OAuth)
-  - `BMO-setup/pi/tv_cert.pem`, `BMO-setup/pi/tv_key.pem` (TV device keys)
-- Force-pushed clean master to GitHub
-- Deleted copilot branches (`copilot/determine-phase-from-plan-files`, `copilot/organize-files-and-address-issues`) and closed PR #6
-- Hardened `.gitignore` with broad glob patterns for `*.pem`, `*.key`, `credentials.json`, `token.json`, OAuth files, env files
-- Users MUST rotate secrets per `docs/SECRETS-ROTATION.md` — exposed keys are compromised
+- Hardened `.gitignore` with broad glob patterns for `*.pem`, `*.key`, `credentials.json`, `token.json`, OAuth files, env files — applied across entire tree
+- Deleted stale copilot branches (`copilot/determine-phase-from-plan-files`, `copilot/organize-files-and-address-issues`) and closed PR #6
 
 ---
 

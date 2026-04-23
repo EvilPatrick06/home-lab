@@ -1,7 +1,7 @@
 """Patch BMO's app.py to register VTT sync routes and dnd_dm.py to push Discord messages."""
 import os
 
-BMO_DIR = os.path.expanduser("~/DnD/bmo/pi")
+BMO_DIR = os.path.expanduser("~/home-lab/bmo/pi")
 
 # ── Patch app.py ──
 app_path = os.path.join(BMO_DIR, "app.py")
