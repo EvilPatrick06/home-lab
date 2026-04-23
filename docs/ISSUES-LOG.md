@@ -352,6 +352,28 @@ Root cause: `tests/conftest.py` mocks 3rd-party modules (`openwakeword`, `gevent
 
 ## Design gotchas (warnings for future agents)
 
+### [2026-04-23] DO NOT leave task-list items as `pending` / `in_progress` at session end
+
+- **Category:** design-gotcha, docs
+- **Severity:** medium
+- **Domain:** tooling
+
+**Why it's tempting:** Once you're deep in execution, updating `TodoWrite` state feels like bookkeeping overhead — "I'll flip them all in the wrap-up message." Or you use `merge: true` and forget that drifted IDs from earlier calls are still accumulating in Cursor's aggregate view.
+
+**Why it's wrong:** Cursor's UI counts status literally. A session that actually finished 43 of 43 tasks but only flipped 24 IDs to `completed` displays as "25/43 completed" — the user can't tell whether 18 tasks were genuinely skipped or just unrecorded. Observed in transcript `39e39f59-584b-4ec9-bbfe-1e1747217aa9` (the DnD→home-lab reorg): 17 items ended `pending`, 2 ended `in_progress`, despite the final summary + commit log showing the work was done (commits `030be55`, `c8909c5`, `6b2fc53`, `a234242` prove it).
+
+**What to do instead:** Follow the Task List Discipline section in `AGENTS.md`. Key points:
+- Flip status immediately when a task finishes (don't batch).
+- Only ONE `in_progress` at a time.
+- Before the final summary, walk every non-`completed` ID and reconcile it: mark `completed` (with evidence), `cancelled` (with reason), or flag as genuine user follow-up.
+- When splitting a parent task into sub-phases, mark the parent `cancelled` with "split into Xa-Xf" — don't leave it `pending` alongside its children.
+
+**Related entries:** Noted in session `[Cursor project dir cleanup](11f4ff15-afbc-46ab-aa3e-56a4645775ad)` while cleaning up the old `home-patrick-DnD/` Cursor project dir and investigating the 25/43 count.
+
+**Related files:** `AGENTS.md` (§ Task List Discipline)
+
+---
+
 ### [2026-04-23] DO NOT rename `bmo/pi/bots/` to `discord/`
 
 - **Category:** design-gotcha

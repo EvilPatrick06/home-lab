@@ -106,6 +106,24 @@ Protocol details: `docs/ARCHITECTURE.md`
 
 This keeps bug log useful + avoids "while I was here" scope creep.
 
+## Task List Discipline (avoid "25/43 completed" drift)
+
+If you use a task list (Cursor `TodoWrite`, Claude todo tool, etc.), Cursor's UI counts status literally — items left as `pending` or `in_progress` at session end are reported as incomplete even when the actual work is done. This wastes user attention debugging phantom gaps.
+
+**Rules for every session that uses a task list:**
+
+1. **Update status the moment a task finishes** — don't batch "I'll flip them all at the end". You will forget.
+2. **Only ONE `in_progress` at a time.** If you're about to start another, the current one is either done (→ `completed`) or abandoned (→ `cancelled`) — decide before proceeding.
+3. **Before writing your final summary, reconcile the list.** Walk every `pending` / `in_progress` ID and either:
+   - Mark `completed` (with evidence in the summary — commit SHA, service status, file path)
+   - Mark `cancelled` (with one-line reason)
+   - Flag as genuine follow-up the user must do (e.g., `manual` IDs — keep as `pending` but call them out explicitly)
+4. **Prefer `merge: true` for incremental updates, but re-read the accumulated state before the final write.** Drifted IDs silently persist across merge calls — the Cursor UI aggregates them all.
+5. **Don't spawn speculative sub-tasks.** A todo exists because you committed to doing it. If you're unsure, don't add it yet.
+6. **When you reorganize a plan mid-session** (e.g., replacing one big task with sub-phases), mark the parent `cancelled` with a note like "split into 4a-4f" — don't leave it `pending` alongside its children.
+
+A session that ends with "23 pending, 0 completed" but a perfect summary looks broken from the outside. Treat the task list as a first-class artifact, not a scratchpad.
+
 ## Security Reminders
 
 - `.gitignore` has broad patterns for `*.env`, `*.pem`, `credentials.json`, `token.json`
