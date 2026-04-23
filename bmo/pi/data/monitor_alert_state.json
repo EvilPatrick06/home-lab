@@ -1,0 +1,1 @@
+{"fingerprints": {"pi_cpu_temp": "warning|pi_cpu_temp|unknown|\ud83c\udf21\ufe0f cpu temperature elevated: <n>\u00b0c", "google_calendar": "warning|google_calendar|degraded|\ud83d\udcc5 calendar token expired \u2014 waiting for refresh"}}

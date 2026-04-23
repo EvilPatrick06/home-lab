@@ -1,0 +1,26 @@
+{
+  "currentPath": "~/DnD",
+  "openFilePaths": [],
+  "activeFile": null,
+  "activePanel": "git",
+  "sidebarWidth": 260,
+  "sidebarVisible": true,
+  "terminalHeight": 250,
+  "terminalVisible": true,
+  "expandedDirs": {},
+  "settings": {
+    "fontSize": 14,
+    "tabSize": 2,
+    "wordWrap": "off",
+    "minimap": true,
+    "termFontSize": 13,
+    "autosave": true,
+    "defaultAgentMode": "normal",
+    "defaultModel": "auto",
+    "defaultAgent": "auto",
+    "autoApproveChanges": false
+  },
+  "workspaces": [
+    "~/DnD"
+  ]
+}

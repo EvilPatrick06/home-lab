@@ -1,0 +1,50 @@
+{
+  "volume": {
+    "music": 59,
+    "effects": 39,
+    "notifications": 79,
+    "voice": 96,
+    "alarms": 81,
+    "system": 66
+  },
+  "led": {
+    "state": "ready",
+    "custom_color": null,
+    "custom_mode": 2,
+    "brightness": 100,
+    "user_disabled": true
+  },
+  "scene": {
+    "active": null,
+    "saved_state": {},
+    "activated_at": null
+  },
+  "test_key": "test_val",
+  "llm": {
+    "local_model": "gemma3:1b"
+  },
+  "audio_routing": {
+    "music": 71,
+    "voice": 71,
+    "effects": 71,
+    "notifications": 71
+  },
+  "notifications": {
+    "enabled": false,
+    "blocklist": []
+  },
+  "audio_routing_desc": {
+    "music": "A10",
+    "voice": "A10",
+    "effects": "A10",
+    "notifications": "A10"
+  },
+  "voice": {
+    "silence_threshold": 100,
+    "vad_sensitivity": 3.0,
+    "tts_provider": "local",
+    "stt_provider": "auto",
+    "wake_enabled": false,
+    "bmo_tts_enabled": false
+  }
+}

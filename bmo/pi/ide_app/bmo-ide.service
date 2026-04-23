@@ -1,0 +1,17 @@
+[Unit]
+Description=BMO IDE Test App (port 5001)
+After=network.target bmo.service
+
+[Service]
+Type=simple
+User=patrick
+Group=patrick
+WorkingDirectory=/home/patrick/DnD/bmo/pi/ide_app
+Environment=PATH=/home/patrick/DnD/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/patrick/DnD/bmo/pi/venv/bin/python /home/patrick/DnD/bmo/pi/ide_app/ide_app.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

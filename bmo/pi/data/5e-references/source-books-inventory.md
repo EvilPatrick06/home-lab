@@ -1,0 +1,5388 @@
+# Full Source Book Inventory
+
+# PHB
+
+## [PHB] 00-introduction.md
+- Introduction: Welcome to Adventure
+  - What You Need
+  - Using This Book
+  - Worlds of Adventure
+
+## [PHB] 01-playing-the-game.md
+- Chapter 1: Playing the Game
+  - Rhythm of Play
+  - An Ongoing Game
+    - Adventures
+    - Campaigns
+  - Dice
+    - Dice Notation
+    - Percentile Dice
+    - D3
+    - What Are Dice For?
+      - D20 Test
+      - Damage
+      - Random Tables
+      - Percentage Chances
+  - The Six Abilities
+    - Ability Descriptions
+    - Ability Scores
+    - Ability Modifiers
+  - D20 Tests
+    - Ability Checks
+      - Ability Modifier
+      - Ability Check Examples
+      - Proficiency Bonus
+      - Difficulty Class
+      - Typical Difficulty Classes
+    - Saving Throws
+      - Ability Modifier
+      - Saving Throw Examples
+      - Proficiency Bonus
+      - Difficulty Class
+    - Attack Rolls
+      - Ability Modifier
+      - Attack Roll Abilities
+      - Proficiency Bonus
+      - Armor Class
+    - Rolling 20 or 1
+    - Advantage/Disadvantage
+      - Roll Two D20s
+      - They Don't Stack
+      - Interactions with Rerolls
+  - Proficiency
+    - Proficiency Bonus
+    - The Bonus Doesn't Stack
+    - Skill Proficiencies
+      - Skill List
+      - Skills
+      - Determining Skills
+    - Equipment Proficiencies
+  - Actions
+    - Actions
+    - One Thing at a Time
+    - Bonus Actions
+    - Reactions
+  - Social Interaction
+    - Roleplaying
+    - Ability Checks
+    - Social Interaction Example
+  - Exploration
+    - Adventuring Equipment
+    - Vision and Light
+      - Obscured Areas
+      - Light
+      - Special Senses
+    - Hiding
+    - Interacting with Objects
+      - What Is an Object?
+      - Time-Limited Object Interactions
+      - Finding Hidden Objects
+      - Carrying Objects
+      - Breaking Objects
+    - Hazards
+    - Travel
+      - Travel Pace
+      - Travel Pace
+      - Vehicles
+    - Exploration Example
+  - Combat
+    - The Order of Combat
+      - Combat Step by Step
+      - Initiative
+      - Your Turn
+      - Ending Combat
+    - Movement and Position
+      - Difficult Terrain
+      - Breaking Up Your Move
+      - Dropping Prone
+      - Creature Size
+      - Creature Size and Space
+      - Moving Around Other Creatures
+    - Making an Attack
+    - Cover
+      - Cover
+    - Ranged Attacks
+      - Range
+      - Ranged Attacks in Close Combat
+    - Melee Attacks
+      - Reach
+    - Opportunity Attacks
+    - Mounted Combat
+      - Mounting and Dismounting
+      - Controlling a Mount
+      - Falling Off
+    - Underwater Combat
+      - Impeded Weapons
+      - Fire Resistance
+  - Damage and Healing
+    - Hit Points
+    - Damage Rolls
+    - Critical Hits
+    - Saving Throws and Damage
+      - Damage against Multiple Targets
+      - Half Damage
+    - Damage Types
+    - Resistance and Vulnerability
+      - No Stacking
+      - Order of Application
+    - Immunity
+    - Healing
+    - Dropping to 0 Hit Points
+      - Instant Death
+      - Character Demise
+      - Falling Unconscious
+      - Death Saving Throws
+      - Stabilizing a Character
+    - Temporary Hit Points
+      - Lose Temporary Hit Points First
+      - Duration
+      - They Don't Stack
+      - They're Not Hit Points or Healing
+  - Conditions
+    - Duration
+    - No Stacking
+  - Combat and Damage Example
+
+## [PHB] 02-creating-a-character.md
+- Chapter 2: Creating a Character
+  - Get Ready
+    - Talk with Your DM
+    - Choose a Character Sheet
+  - Create Your Character
+  - Step 1: Choose a Class
+    - Class Overview
+    - Write Your Level
+    - Note Armor Training
+    - Hold That Thought
+  - Step 2: Determine Origin
+    - Choose a Background
+    - Ability Scores and Backgrounds
+    - Choose Starting Equipment
+    - Choose a Species
+    - Imagine Your Past and Present
+    - Choose Languages
+    - Standard Languages
+    - Rare Languages
+  - Step 3: Determine Ability Scores
+    - Generate Your Scores
+    - Ability Score Point Costs
+    - Assign Ability Scores
+    - Standard Array by Class
+    - Adjust Ability Scores
+    - Determine Ability Modifiers
+    - Ability Scores and Modifiers
+    - Describe Appearance and Personality
+      - Strength
+      - Dexterity
+      - Constitution
+      - Intelligence
+      - Wisdom
+      - Charisma
+  - Step 4: Choose an Alignment
+    - The Nine Alignments
+    - Alignment and Personality
+    - Personality Traits by Alignment
+  - Step 5: Fill In Details
+    - Record Class Features
+    - Fill In Numbers
+    - Level 1 Hit Points by Class
+    - Name Your Character
+    - Create Final Details
+  - Level Advancement
+    - Character Advancement
+    - Tiers of Play
+      - Tier 1 (Levels 1-4)
+      - Tier 2 (Levels 5-10)
+      - Tier 3 (Levels 11-16)
+      - Tier 4 (Levels 17-20)
+    - Gaining a Level
+    - Fixed Hit Points by Class
+  - Starting at Higher Levels
+    - Creating Your Character
+    - Starting Equipment
+    - Starting Equipment at Higher Levels
+  - Multiclassing
+    - Prerequisites
+    - Experience Points
+    - Hit Points and Hit Point Dice
+    - Proficiency Bonus
+    - Proficiencies
+    - Class Features
+      - Armor Class
+      - Extra Attack
+      - Spellcasting
+    - Multiclass Spellcaster: Spell Slots per Spell Level
+  - Trinkets
+    - Trinkets
+
+## [PHB] 03-character-classes.md
+- Chapter 3: Character Classes
+  - Barbarian
+    - Becoming a Barbarian ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Barbarian Traits
+    - Barbarian Features
+    - Barbarian Class Features
+      - Level 1: Rage
+      - Level 1: Unarmored Defense
+      - Level 1: Weapon Mastery
+      - Level 2: Danger Sense
+      - Level 2: Reckless Attack
+      - Level 3: Barbarian Subclass
+      - Level 3: Primal Knowledge
+      - Level 4: Ability Score Improvement
+      - Level 5: Extra Attack
+      - Level 5: Fast Movement
+      - Level 7: Feral Instinct
+      - Level 7: Instinctive Pounce
+      - Level 9: Brutal Strike
+      - Level 11: Relentless Rage
+      - Level 13: Improved Brutal Strike
+      - Level 15: Persistent Rage
+      - Level 17: Improved Brutal Strike
+      - Level 18: Indomitable Might
+      - Level 19: Epic Boon
+      - Level 20: Primal Champion
+    - Barbarian Subclasses
+      - Path of the Berserker
+      - Path of the Wild Heart
+      - Path of the World Tree
+      - Path of the Zealot
+  - Bard
+    - Becoming a Bard ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Bard Traits
+    - Bard Features
+    - Bard Class Features
+      - Level 1: Bardic Inspiration
+      - Level 1: Spellcasting
+      - Level 2: Expertise
+      - Level 2: Jack of All Trades
+      - Level 3: Bard Subclass
+      - Level 4: Ability Score Improvement
+      - Level 5: Font of Inspiration
+      - Level 7: Countercharm
+      - Level 10: Magical Secrets
+      - Level 18: Superior Inspiration
+      - Level 19: Epic Boon
+      - Level 20: Words of Creation
+    - Bard Spell List
+      - Cantrips (Level 0 Bard Spells)
+      - Level 1 Bard Spells
+      - Level 2 Bard Spells
+      - Level 3 Bard Spells
+      - Level 4 Bard Spells
+      - Level 5 Bard Spells
+      - Level 6 Bard Spells
+      - Level 7 Bard Spells
+      - Level 8 Bard Spells
+      - Level 9 Bard Spells
+    - Bard Subclasses
+      - College of Dance
+      - College of Glamour
+      - College of Lore
+      - College of Valor
+  - Cleric
+    - Becoming a Cleric ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Cleric Traits
+    - Cleric Features
+    - Cleric Class Features
+      - Level 1: Spellcasting
+      - Level 1: Divine Order
+      - Level 2: Channel Divinity
+      - Level 3: Cleric Subclass
+      - Level 4: Ability Score Improvement
+      - Level 5: Sear Undead
+      - Level 7: Blessed Strikes
+      - Level 10: Divine Intervention
+      - Level 14: Improved Blessed Strikes
+      - Level 19: Epic Boon
+      - Level 20: Greater Divine Intervention
+    - Cleric Spell List
+      - Cantrips (Level 0 Cleric Spells)
+      - Level 1 Cleric Spells
+      - Level 2 Cleric Spells
+      - Level 3 Cleric Spells
+      - Level 4 Cleric Spells
+      - Level 5 Cleric Spells
+      - Level 6 Cleric Spells
+      - Level 7 Cleric Spells
+      - Level 8 Cleric Spells
+      - Level 9 Cleric Spells
+    - Cleric Subclasses
+      - Life Domain
+      - Light Domain
+      - Trickery Domain
+      - War Domain
+  - Druid
+    - Becoming a Druid ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Druid Traits
+    - Druid Features
+    - Druid Class Features
+      - Level 1: Spellcasting
+      - Level 1: Druidic
+      - Level 1: Primal Order
+      - Level 2: Wild Shape
+      - Level 2: Wild Companion
+      - Level 3: Druid Subclass
+      - Level 4: Ability Score Improvement
+      - Level 5: Wild Resurgence
+      - Level 7: Elemental Fury
+      - Level 15: Improved Elemental Fury
+      - Level 18: Beast Spells
+      - Level 19: Epic Boon
+      - Level 20: Archdruid
+    - Druid Spell List
+      - Cantrips (Level 0 Druid Spells)
+      - Level 1 Druid Spells
+      - Level 2 Druid Spells
+      - Level 3 Druid Spells
+      - Level 4 Druid Spells
+      - Level 5 Druid Spells
+      - Level 6 Druid Spells
+      - Level 7 Druid Spells
+      - Level 8 Druid Spells
+      - Level 9 Druid Spells
+    - Druid Subclasses
+      - Circle of the Land
+      - Circle of the Moon
+      - Circle of the Sea
+      - Circle of the Stars
+  - Fighter
+    - Becoming a Fighter ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Fighter Traits
+    - Fighter Features
+    - Fighter Class Features
+      - Level 1: Fighting Style
+      - Level 1: Second Wind
+      - Level 1: Weapon Mastery
+      - Level 2: Action Surge
+      - Level 2: Tactical Mind
+      - Level 3: Fighter Subclass
+      - Level 4: Ability Score Improvement
+      - Level 5: Extra Attack
+      - Level 5: Tactical Shift
+      - Level 9: Indomitable
+      - Level 9: Tactical Master
+      - Level 11: Two Extra Attacks
+      - Level 13: Studied Attacks
+      - Level 19: Epic Boon
+      - Level 20: Three Extra Attacks
+    - Fighter Subclasses
+      - Battle Master
+      - Champion
+      - Eldritch Knight
+      - Psi Warrior
+  - Monk
+    - Becoming a Monk ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Monk Traits
+    - Monk Features
+    - Monk Class Features
+      - Level 1: Martial Arts
+      - Level 1: Unarmored Defense
+      - Level 2: Monk's Focus
+      - Level 2: Unarmored Movement
+      - Level 2: Uncanny Metabolism
+      - Level 3: Deflect Attacks
+      - Level 3: Monk Subclass
+      - Level 4: Ability Score Improvement
+      - Level 4: Slow Fall
+      - Level 5: Extra Attack
+      - Level 5: Stunning Strike
+      - Level 6: Empowered Strikes
+      - Level 7: Evasion
+      - Level 9: Acrobatic Movement
+      - Level 10: Heightened Focus
+      - Level 10: Self-Restoration
+      - Level 13: Deflect Energy
+      - Level 14: Disciplined Survivor
+      - Level 15: Perfect Focus
+      - Level 18: Superior Defense
+      - Level 19: Epic Boon
+      - Level 20: Body and Mind
+    - Monk Subclasses
+      - Warrior of Mercy
+      - Warrior of Shadow
+      - Warrior of the Elements
+      - Warrior of the Open Hand
+  - Paladin
+    - Becoming a Paladin ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Paladin Traits
+    - Paladin Features
+    - Paladin Class Features
+      - Level 1: Lay On Hands
+      - Level 1: Spellcasting
+      - Level 1: Weapon Mastery
+      - Level 2: Fighting Style
+      - Level 2: Paladin's Smite
+      - Level 3: Channel Divinity
+      - Level 3: Paladin Subclass
+      - Level 4: Ability Score Improvement
+      - Level 5: Extra Attack
+      - Level 5: Faithful Steed
+      - Level 6: Aura of Protection
+      - Level 9: Abjure Foes
+      - Level 10: Aura of Courage
+      - Level 11: Radiant Strikes
+      - Level 14: Restoring Touch
+      - Level 18: Aura Expansion
+      - Level 19: Epic Boon
+    - Paladin Spell List
+      - Level 1 Paladin Spells
+      - Level 2 Paladin Spells
+      - Level 3 Paladin Spells
+      - Level 4 Paladin Spells
+      - Level 5 Paladin Spells
+    - Paladin Subclasses
+      - Oath of Devotion
+      - Oath of Glory
+      - Oath of the Ancients
+      - Oath of Vengeance
+  - Ranger
+    - Becoming a Ranger ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Ranger Traits
+    - Ranger Features
+    - Ranger Class Features
+      - Level 1: Spellcasting
+      - Level 1: Favored Enemy
+      - Level 1: Weapon Mastery
+      - Level 2: Deft Explorer
+      - Level 2: Fighting Style
+      - Level 3: Ranger Subclass
+      - Level 4: Ability Score Improvement
+      - Level 5: Extra Attack
+      - Level 6: Roving
+      - Level 9: Expertise
+      - Level 10: Tireless
+      - Level 13: Relentless Hunter
+      - Level 14: Nature's Veil
+      - Level 17: Precise Hunter
+      - Level 18: Feral Senses
+      - Level 19: Epic Boon
+      - Level 20: Foe Slayer
+    - Ranger Spell List
+      - Level 1 Ranger Spells
+      - Level 2 Ranger Spells
+      - Level 3 Ranger Spells
+      - Level 4 Ranger Spells
+      - Level 5 Ranger Spells
+    - Ranger Subclasses
+      - Beast Master
+      - Fey Wanderer
+      - Gloom Stalker
+      - Hunter
+  - Rogue
+    - Becoming a Rogue ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Rogue Traits
+    - Rogue Features
+    - Rogue Class Features
+      - Level 1: Expertise
+      - Level 1: Sneak Attack
+      - Level 1: Thieves' Cant
+      - Level 1: Weapon Mastery
+      - Level 2: Cunning Action
+      - Level 3: Rogue Subclass
+      - Level 3: Steady Aim
+      - Level 4: Ability Score Improvement
+      - Level 5: Cunning Strike
+      - Level 5: Uncanny Dodge
+      - Level 7: Evasion
+      - Level 7: Reliable Talent
+      - Level 11: Improved Cunning Strike
+      - Level 14: Devious Strikes
+      - Level 15: Slippery Mind
+      - Level 18: Elusive
+      - Level 19: Epic Boon
+      - Level 20: Stroke of Luck
+    - Rogue Subclasses
+      - Arcane Trickster
+      - Assassin
+      - Soulknife
+      - Thief
+  - Sorcerer
+    - Becoming a Sorcerer ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Sorcerer Traits
+    - Sorcerer Features
+    - Sorcerer Class Features
+      - Level 1: Spellcasting
+      - Level 1: Innate Sorcery
+      - Level 2: Font of Magic
+      - Level 2: Metamagic
+      - Level 3: Sorcerer Subclass
+      - Level 4: Ability Score Improvement
+      - Level 5: Sorcerous Restoration
+      - Level 7: Sorcery Incarnate
+      - Level 19: Epic Boon
+      - Level 20: Arcane Apotheosis
+    - Metamagic Options
+      - Careful Spell
+      - Distant Spell
+      - Empowered Spell
+      - Extended Spell
+      - Heightened Spell
+      - Quickened Spell
+      - Seeking Spell
+      - Subtle Spell
+      - Transmuted Spell
+      - Twinned Spell
+    - Sorcerer Spell List
+      - Cantrips (Level 0 Sorcerer Spells)
+      - Level 1 Sorcerer Spells
+      - Level 2 Sorcerer Spells
+      - Level 3 Sorcerer Spells
+      - Level 4 Sorcerer Spells
+      - Level 5 Sorcerer Spells
+      - Level 6 Sorcerer Spells
+      - Level 7 Sorcerer Spells
+      - Level 8 Sorcerer Spells
+      - Level 9 Sorcerer Spells
+    - Sorcerer Subclasses
+      - Aberrant Sorcery
+      - Clockwork Sorcery
+      - Draconic Sorcery
+      - Wild Magic Sorcery
+      - Wild Magic Surge
+  - Warlock
+    - Becoming a Warlock ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Warlock Traits
+    - Warlock Features
+    - Warlock Class Features
+      - Level 1: Eldritch Invocations
+      - Level 1: Pact Magic
+      - Level 2: Magical Cunning
+      - Level 3: Warlock Subclass
+      - Level 4: Ability Score Improvement
+      - Level 9: Contact Patron
+      - Level 11: Mystic Arcanum
+      - Level 19: Epic Boon
+      - Level 20: Eldritch Master
+    - Eldritch Invocation Options
+      - Agonizing Blast
+      - Armor of Shadows
+      - Ascendant Step
+      - Devil's Sight
+      - Devouring Blade
+      - Eldritch Mind
+      - Eldritch Smite
+      - Eldritch Spear
+      - Fiendish Vigor
+      - Gaze of Two Minds
+      - Gift of the Depths
+      - Gift of the Protectors
+      - Investment of the Chain Master
+      - Lessons of the First Ones
+      - Lifedrinker
+      - Mask of Many Faces
+      - Master of Myriad Forms
+      - Misty Visions
+      - One with Shadows
+      - Otherworldly Leap
+      - Pact of the Blade
+      - Pact of the Chain
+      - Pact of the Tome
+      - Repelling Blast
+      - Thirsting Blade
+      - Visions of Distant Realms
+      - Whispers of the Grave
+      - Witch Sight
+    - Warlock Spell List
+      - Cantrips (Level 0 Warlock Spells)
+      - Level 1 Warlock Spells
+      - Level 2 Warlock Spells
+      - Level 3 Warlock Spells
+      - Level 4 Warlock Spells
+      - Level 5 Warlock Spells
+      - Level 6 Warlock Spells
+      - Level 7 Warlock Spells
+      - Level 8 Warlock Spells
+      - Level 9 Warlock Spells
+    - Warlock Subclasses
+      - Archfey Patron
+      - Celestial Patron
+      - Fiend Patron
+      - Great Old One Patron
+  - Wizard
+    - Becoming a Wizard ...
+      - As a Level 1 Character
+      - As a Multiclass Character
+    - Core Wizard Traits
+    - Wizard Features
+    - Wizard Class Features
+      - Level 1: Spellcasting
+      - Level 1: Ritual Adept
+      - Level 1: Arcane Recovery
+      - Level 2: Scholar
+      - Level 3: Wizard Subclass
+      - Level 4: Ability Score Improvement
+      - Level 5: Memorize Spell
+      - Level 18: Spell Mastery
+      - Level 19: Epic Boon
+      - Level 20: Signature Spells
+    - Wizard Spell List
+      - Cantrips (Level 0 Wizard Spells)
+      - Level 1 Wizard Spells
+      - Level 2 Wizard Spells
+      - Level 3 Wizard Spells
+      - Level 4 Wizard Spells
+      - Level 5 Wizard Spells
+      - Level 6 Wizard Spells
+      - Level 7 Wizard Spells
+      - Level 8 Wizard Spells
+      - Level 9 Wizard Spells
+    - Wizard Subclasses
+      - Abjurer
+      - Diviner
+      - Evoker
+      - Illusionist
+
+## [PHB] 04-character-origins.md
+- Chapter 4: Character Origins
+  - Origin Components
+  - Character Backgrounds
+    - Parts of a Background
+  - Character Species
+    - Parts of a Species
+  - Background Descriptions
+    - Acolyte
+    - Artisan
+    - Charlatan
+    - Criminal
+    - Entertainer
+    - Farmer
+    - Guard
+    - Guide
+    - Hermit
+    - Merchant
+    - Noble
+    - Sage
+    - Sailor
+    - Scribe
+    - Soldier
+    - Wayfarer
+  - Species Descriptions
+    - Aasimar
+      - Aasimar Traits
+    - Dragonborn
+      - Dragonborn Traits
+      - Draconic Ancestors
+    - Dwarf
+      - Dwarf Traits
+    - Elf
+      - Elf Traits
+      - Elven Lineages
+    - Gnome
+      - Gnome Traits
+    - Goliath
+      - Goliath Traits
+    - Halfling
+      - Halfling Traits
+    - Human
+      - Human Traits
+    - Orc
+      - Orc Traits
+    - Tiefling
+      - Tiefling Traits
+      - Fiendish Legacies
+
+## [PHB] 05-feats.md
+- Chapter 5: Feats
+  - Feat Descriptions
+    - Parts of a Feat
+  - Feat List
+  - Origin Feats
+    - Alert
+    - Crafter
+      - Fast Crafting
+    - Healer
+    - Lucky
+    - Magic Initiate
+    - Musician
+    - Savage Attacker
+    - Skilled
+    - Tavern Brawler
+    - Tough
+  - General Feats
+    - Ability Score Improvement
+    - Actor
+    - Athlete
+    - Charger
+    - Chef
+    - Crossbow Expert
+    - Crusher
+    - Defensive Duelist
+    - Dual Wielder
+    - Durable
+    - Elemental Adept
+    - Fey-Touched
+    - Grappler
+    - Great Weapon Master
+    - Heavily Armored
+    - Heavy Armor Master
+    - Inspiring Leader
+    - Keen Mind
+    - Lightly Armored
+    - Mage Slayer
+    - Martial Weapon Training
+    - Medium Armor Master
+    - Moderately Armored
+    - Mounted Combatant
+    - Observant
+    - Piercer
+    - Poisoner
+    - Polearm Master
+    - Resilient
+    - Ritual Caster
+    - Sentinel
+    - Shadow-Touched
+    - Sharpshooter
+    - Shield Master
+    - Skill Expert
+    - Skulker
+    - Slasher
+    - Speedy
+    - Spell Sniper
+    - Telekinetic
+    - Telepathic
+    - War Caster
+    - Weapon Master
+  - Fighting Style Feats
+    - Archery
+    - Blind Fighting
+    - Defense
+    - Dueling
+    - Great Weapon Fighting
+    - Interception
+    - Protection
+    - Thrown Weapon Fighting
+    - Two-Weapon Fighting
+    - Unarmed Fighting
+  - Epic Boon Feats
+    - Boon of Combat Prowess
+    - Boon of Dimensional Travel
+    - Boon of Energy Resistance
+    - Boon of Fate
+    - Boon of Fortitude
+    - Boon of Irresistible Offense
+    - Boon of Recovery
+    - Boon of Skill
+    - Boon of Speed
+    - Boon of Spell Recall
+    - Boon of the Night Spirit
+    - Boon of Truesight
+
+## [PHB] 06-equipment.md
+- Chapter 6: Equipment
+  - Coins
+    - Coin Values
+  - Weapons
+    - Weapon Proficiency
+    - Properties
+      - Ammunition
+      - Finesse
+      - Heavy
+      - Light
+      - Loading
+      - Range
+      - Reach
+      - Thrown
+      - Two-Handed
+      - Versatile
+    - Mastery Properties
+      - Cleave
+      - Graze
+      - Nick
+      - Push
+      - Sap
+      - Slow
+      - Topple
+      - Vex
+    - Weapons Table
+      - Simple Melee Weapons
+      - Simple Ranged Weapons
+      - Martial Melee Weapons
+      - Martial Ranged Weapons
+  - Armor
+    - Armor Training
+      - Light, Medium, or Heavy Armor
+      - Shield
+    - One at a Time
+    - Armor Table
+      - Light Armor (1 Minute to Don or Doff)
+      - Medium Armor (5 Minutes to Don and 1 Minute to Doff)
+      - Heavy Armor (10 Minutes to Don and 5 Minutes to Doff)
+      - Shield
+  - Tools
+    - Tool Proficiency
+    - Artisan's Tools
+      - Alchemist's Supplies (50 GP)
+      - Brewer's Supplies (20 GP)
+      - Calligrapher's Supplies (10 GP)
+      - Carpenter's Tools (8 GP)
+      - Cartographer's Tools (15 GP)
+      - Cobbler's Tools (5 GP)
+      - Cook's Utensils (1 GP)
+      - Glassblower's Tools (30 GP)
+      - Jeweler's Tools (25 GP)
+      - Leatherworker's Tools (5 GP)
+      - Mason's Tools (10 GP)
+      - Painter's Supplies (10 GP)
+      - Potter's Tools (10 GP)
+      - Smith's Tools (20 GP)
+      - Tinker's Tools (50 GP)
+      - Weaver's Tools (1 GP)
+      - Woodcarver's Tools (1 GP)
+    - Other Tools
+      - Disguise Kit (25 GP)
+      - Forgery Kit (15 GP)
+      - Gaming Set (Varies)
+      - Herbalism Kit (5 GP)
+      - Musical Instrument (Varies)
+      - Navigator's Tools (25 GP)
+      - Poisoner's Kit (50 GP)
+      - Thieves' Tools (25 GP)
+  - Adventuring Gear
+    - Adventuring Gear Table
+    - Gear Descriptions
+      - Acid (25 GP)
+      - Alchemist's Fire (50 GP)
+      - Ammunition (Varies)
+      - Antitoxin (50 GP)
+      - Arcane Focus (Varies)
+      - Backpack (2 GP)
+      - Ball Bearings (1 GP)
+      - Barrel (2 GP)
+      - Basket (4 SP)
+      - Bedroll (1 GP)
+      - Bell (1 GP)
+      - Blanket (5 SP)
+      - Block and Tackle (1 GP)
+      - Book (25 GP)
+      - Bottle, Glass (2 GP)
+      - Bucket (5 CP)
+      - Burglar's Pack (16 GP)
+      - Caltrops (1 GP)
+      - Candle (1 CP)
+      - Case, Crossbow Bolt (1 GP)
+      - Case, Map or Scroll (1 GP)
+      - Chain (5 GP)
+      - Chest (5 GP)
+      - Climber's Kit (25 GP)
+      - Clothes, Fine (15 GP)
+      - Clothes, Traveler's (2 GP)
+      - Component Pouch (25 GP)
+      - Costume (5 GP)
+      - Crowbar (2 GP)
+      - Diplomat's Pack (39 GP)
+      - Druidic Focus (Varies)
+      - Dungeoneer's Pack (12 GP)
+      - Entertainer's Pack (40 GP)
+      - Explorer's Pack (10 GP)
+      - Flask (2 CP)
+      - Grappling Hook (2 GP)
+      - Healer's Kit (5 GP)
+      - Holy Symbol (Varies)
+      - Holy Water (25 GP)
+      - Hunting Trap (5 GP)
+      - Ink (10 GP)
+      - Ink Pen (2 CP)
+      - Jug (2 CP)
+      - Ladder (1 SP)
+      - Lamp (5 SP)
+      - Lantern, Bullseye (10 GP)
+      - Lantern, Hooded (5 GP)
+      - Lock (10 GP)
+      - Magnifying Glass (100 GP)
+      - Manacles (2 GP)
+      - Map (1 GP)
+      - Mirror (5 GP)
+      - Net (1 GP)
+      - Oil (1 SP)
+      - Paper (2 SP)
+      - Parchment (1 SP)
+      - Perfume (5 GP)
+      - Poison, Basic (100 GP)
+      - Pole (5 CP)
+      - Pot, Iron (2 GP)
+      - Potion of Healing (50 GP)
+      - Pouch (5 SP)
+      - Priest's Pack (33 GP)
+      - Quiver (1 GP)
+      - Ram, Portable (4 GP)
+      - Rations (5 SP)
+      - Robe (1 GP)
+      - Rope (1 GP)
+      - Sack (1 CP)
+      - Scholar's Pack (40 GP)
+      - Shovel (2 GP)
+      - Signal Whistle (5 CP)
+      - Spell Scroll (Cantrip, 30 GP; Level 1, 50 GP)
+      - Spikes, Iron (1 GP)
+      - Spyglass (1,000 GP)
+      - String (1 SP)
+      - Tent (2 GP)
+      - Tinderbox (5 SP)
+      - Torch (1 CP)
+      - Vial (1 GP)
+      - Waterskin (2 SP)
+  - Mounts and Vehicles
+    - Mounts and Cargo
+    - Barding
+    - Saddles
+    - Mounts and Other Animals
+    - Tack, Harness, and Drawn Vehicles
+    - Large Vehicles
+      - Speed
+      - Crew
+      - Passengers
+      - Damage Threshold
+      - Ship Repair
+    - Airborne and Waterborne Vehicles
+  - Services
+    - Lifestyle Expenses
+      - Wretched (Free)
+      - Squalid (1 SP per Day)
+      - Poor (2 SP per Day)
+      - Modest (1 GP per Day)
+      - Comfortable (2 GP per Day)
+      - Wealthy (4 GP per Day)
+      - Aristocratic (10 GP per Day)
+    - Food, Drink, and Lodging
+    - Travel
+    - Hirelings
+    - Spellcasting
+  - Magic Items
+    - Identifying a Magic Item
+    - Attunement
+      - Attune during a Short Rest
+      - No More Than Three Items
+      - Ending Attunement
+    - Wearing and Wielding Items
+    - Multiple Items of the Same Kind
+    - Paired Items
+  - Crafting Equipment
+    - Crafting Nonmagical Items
+      - Tools
+      - Raw Materials
+      - Time
+    - Brewing Potions of Healing
+    - Scribing Spell Scrolls
+      - Time and Cost
+      - Prerequisites for the Scribe
+      - Cantrips
+    - Spell Scroll Costs
+
+## [PHB] 07-spells.md
+- Chapter 7: Spells
+  - Gaining Spells
+    - Preparing Spells
+      - Spell Preparation by Class
+    - Always-Prepared Spells
+  - Casting Spells
+    - Spell Level
+    - Spell Slots
+    - Casting without Slots
+    - Using a Higher-Level Spell Slot
+    - School of Magic
+      - Schools of Magic
+    - Class Spell Lists
+    - Casting Time
+    - Range
+    - Components
+    - Duration
+    - Effects
+    - Targets
+    - Saving Throws
+    - Attack Rolls
+    - Combining Spell Effects
+  - Spell Descriptions
+      - Acid Splash
+      - Aid
+      - Alarm
+      - Alter Self
+      - Animal Friendship
+      - Animal Messenger
+      - Animal Shapes
+      - Animate Dead
+      - Animate Objects
+      - Antilife Shell
+      - Antimagic Field
+      - Antipathy/Sympathy
+      - Arcane Eye
+      - Arcane Gate
+      - Arcane Lock
+      - Arcane Vigor
+      - Armor of Agathys
+      - Arms of Hadar
+      - Astral Projection
+      - Augury
+      - Aura of Life
+      - Aura of Purity
+      - Aura of Vitality
+      - Awaken
+      - Bane
+      - Banishing Smite
+      - Banishment
+      - Barkskin
+      - Beacon of Hope
+      - Beast Sense
+      - Befuddlement
+      - Bestow Curse
+      - Bigby's Hand
+      - Blade Barrier
+      - Blade Ward
+      - Bless
+      - Blight
+      - Blinding Smite
+      - Blindness/Deafness
+      - Blink
+      - Blur
+      - Burning Hands
+      - Call Lightning
+      - Calm Emotions
+      - Chain Lightning
+      - Charm Monster
+      - Charm Person
+      - Chill Touch
+      - Chromatic Orb
+      - Circle of Death
+      - Circle of Power
+      - Clairvoyance
+      - Clone
+      - Cloud of Daggers
+      - Cloudkill
+      - Color Spray
+      - Command
+      - Commune
+      - Commune with Nature
+      - Compelled Duel
+      - Comprehend Languages
+      - Compulsion
+      - Cone of Cold
+      - Confusion
+      - Conjure Animals
+      - Conjure Barrage
+      - Conjure Celestial
+      - Conjure Elemental
+      - Conjure Fey
+      - Conjure Minor Elementals
+      - Conjure Volley
+      - Conjure Woodland Beings
+      - Contagion
+      - Contingency
+      - Continual Flame
+      - Control Water
+      - Control Weather
+      - Cordon of Arrows
+      - Counterspell
+      - Create Food and Water
+      - Create or Destroy Water
+      - Create Undead
+      - Creation
+      - Crown of Madness
+      - Crusader's Mantle
+      - Cure Wounds
+      - Dancing Lights
+      - Darkness
+      - Darkvision
+      - Daylight
+      - Death Ward
+      - Delayed Blast Fireball
+      - Demiplane
+      - Destructive Wave
+      - Detect Evil and Good
+      - Detect Magic
+      - Detect Poison and Disease
+      - Detect Thoughts
+      - Dimension Door
+      - Disguise Self
+      - Disintegrate
+      - Dispel Evil and Good
+      - Dispel Magic
+      - Dissonant Whispers
+      - Divination
+      - Divine Favor
+      - Divine Smite
+      - Divine Word
+      - Dominate Beast
+      - Dominate Monster
+      - Dominate Person
+      - Dragon's Breath
+      - Drawmij's Instant Summons
+      - Dream
+      - Druidcraft
+      - Earthquake
+      - Eldritch Blast
+      - Elementalism
+      - Elemental Weapon
+      - Enhance Ability
+      - Enlarge/Reduce
+      - Ensnaring Strike
+      - Entangle
+      - Enthrall
+      - Etherealness
+      - Evard's Black Tentacles
+      - Expeditious Retreat
+      - Eyebite
+      - Fabricate
+      - Faerie Fire
+      - False Life
+      - Fear
+      - Feather Fall
+      - Feign Death
+      - Find Familiar
+      - Find Steed
+      - Find the Path
+      - Find Traps
+      - Finger of Death
+      - Fireball
+      - Fire Bolt
+      - Fire Shield
+      - Fire Storm
+      - Flame Blade
+      - Flame Strike
+      - Flaming Sphere
+      - Flesh to Stone
+      - Fly
+      - Fog Cloud
+      - Forbiddance
+      - Forcecage
+      - Foresight
+      - Fount of Moonlight
+      - Freedom of Movement
+      - Friends
+      - Gaseous Form
+      - Gate
+      - Geas
+      - Gentle Repose
+      - Giant Insect
+      - Glibness
+      - Globe of Invulnerability
+      - Glyph of Warding
+      - Goodberry
+      - Grasping Vine
+      - Grease
+      - Greater Invisibility
+      - Greater Restoration
+      - Guardian of Faith
+      - Guards and Wards
+      - Guidance
+      - Guiding Bolt
+      - Gust of Wind
+      - Hail of Thorns
+      - Hallow
+      - Hallucinatory Terrain
+      - Harm
+      - Haste
+      - Heal
+      - Healing Word
+      - Heat Metal
+      - Hellish Rebuke
+      - Heroes' Feast
+      - Heroism
+      - Hex
+      - Hold Monster
+      - Hold Person
+      - Holy Aura
+      - Hunger of Hadar
+      - Hunter's Mark
+      - Hypnotic Pattern
+      - Ice Knife
+      - Ice Storm
+      - Identify
+      - Illusory Script
+      - Imprisonment
+      - Incendiary Cloud
+      - Inflict Wounds
+      - Insect Plague
+      - Invisibility
+      - Jallarzi's Storm of Radiance
+      - Jump
+      - Knock
+      - Legend Lore
+      - Leomund's Secret Chest
+      - Leomund's Tiny Hut
+      - Lesser Restoration
+      - Levitate
+      - Light
+      - Lightning Arrow
+      - Lightning Bolt
+      - Locate Animals or Plants
+      - Locate Creature
+      - Locate Object
+      - Longstrider
+      - Mage Armor
+      - Mage Hand
+      - Magic Circle
+      - Magic Jar
+      - Magic Missile
+      - Magic Mouth
+      - Magic Weapon
+      - Major Image
+      - Mass Cure Wounds
+      - Mass Heal
+      - Mass Healing Word
+      - Mass Suggestion
+      - Maze
+      - Meld into Stone
+      - Melf's Acid Arrow
+      - Mending
+      - Message
+      - Meteor Swarm
+      - Mind Blank
+      - Mind Sliver
+      - Mind Spike
+      - Minor Illusion
+      - Mirage Arcane
+      - Mirror Image
+      - Mislead
+      - Misty Step
+      - Modify Memory
+      - Moonbeam
+      - Mordenkainen's Faithful Hound
+      - Mordenkainen's Magnificent Mansion
+      - Mordenkainen's Private Sanctum
+      - Mordenkainen's Sword
+      - Move Earth
+      - Nondetection
+      - Nystul's Magic Aura
+      - Otiluke's Freezing Sphere
+      - Otiluke's Resilient Sphere
+      - Otto's Irresistible Dance
+      - Pass without Trace
+      - Passwall
+      - Phantasmal Force
+      - Phantasmal Killer
+      - Phantom Steed
+      - Planar Ally
+      - Planar Binding
+      - Plane Shift
+      - Plant Growth
+      - Poison Spray
+      - Polymorph
+      - Power Word Fortify
+      - Power Word Heal
+      - Power Word Kill
+      - Power Word Stun
+      - Prayer of Healing
+      - Prestidigitation
+      - Prismatic Spray
+      - Prismatic Wall
+      - Produce Flame
+      - Programmed Illusion
+      - Project Image
+      - Protection from Energy
+      - Protection from Evil and Good
+      - Protection from Poison
+      - Purify Food and Drink
+      - Raise Dead
+      - Rary's Telepathic Bond
+      - Ray of Enfeeblement
+      - Ray of Frost
+      - Ray of Sickness
+      - Regenerate
+      - Reincarnate
+      - Remove Curse
+      - Resistance
+      - Resurrection
+      - Reverse Gravity
+      - Revivify
+      - Rope Trick
+      - Sacred Flame
+      - Sanctuary
+      - Scorching Ray
+      - Scrying
+      - Searing Smite
+      - See Invisibility
+      - Seeming
+      - Sending
+      - Sequester
+      - Shapechange
+      - Shatter
+      - Shield
+      - Shield of Faith
+      - Shillelagh
+      - Shining Smite
+      - Shocking Grasp
+      - Silence
+      - Silent Image
+      - Simulacrum
+      - Sleep
+      - Sleet Storm
+      - Slow
+      - Sorcerous Burst
+      - Spare the Dying
+      - Speak with Animals
+      - Speak with Dead
+      - Speak with Plants
+      - Spider Climb
+      - Spike Growth
+      - Spirit Guardians
+      - Spiritual Weapon
+      - Staggering Smite
+      - Starry Wisp
+      - Steel Wind Strike
+      - Stinking Cloud
+      - Stone Shape
+      - Stoneskin
+      - Storm of Vengeance
+      - Suggestion
+      - Summon Aberration
+      - Summon Beast
+      - Summon Celestial
+      - Summon Construct
+      - Summon Dragon
+      - Summon Elemental
+      - Summon Fey
+      - Summon Fiend
+      - Summon Undead
+      - Sunbeam
+      - Sunburst
+      - Swift Quiver
+      - Symbol
+      - Synaptic Static
+      - Tasha's Bubbling Cauldron
+      - Tasha's Hideous Laughter
+      - Telekinesis
+      - Telepathy
+      - Teleport
+      - Teleportation Circle
+      - Tenser's Floating Disk
+      - Thaumaturgy
+      - Thorn Whip
+      - Thunderclap
+      - Thunderous Smite
+      - Thunderwave
+      - Time Stop
+      - Toll the Dead
+      - Tongues
+      - Transport via Plants
+      - Tree Stride
+      - True Polymorph
+      - True Resurrection
+      - True Seeing
+      - True Strike
+      - Tsunami
+      - Unseen Servant
+      - Vampiric Touch
+      - Vicious Mockery
+      - Vitriolic Sphere
+      - Wall of Fire
+      - Wall of Force
+      - Wall of Ice
+      - Wall of Stone
+      - Wall of Thorns
+      - Warding Bond
+      - Water Breathing
+      - Water Walk
+      - Web
+      - Weird
+      - Wind Walk
+      - Wind Wall
+      - Wish
+      - Witch Bolt
+      - Word of Radiance
+      - Word of Recall
+      - Wrathful Smite
+      - Yolande's Regal Presence
+      - Zone of Truth
+
+## [PHB] appendix-a-the-multiverse.md
+- Appendix A: The Multiverse
+  - The Material Realms
+  - Transitive Planes
+  - The Inner Planes
+  - The Outer Planes
+    - Outer Planes
+
+## [PHB] appendix-b-creature-stat-blocks.md
+- Appendix B: Creature Stat Blocks
+      - Ape
+      - Badger
+      - Bat
+      - Black Bear
+      - Boar
+      - Brown Bear
+      - Camel
+      - Cat
+      - Constrictor Snake
+      - Crab
+      - Crocodile
+      - Dire Wolf
+      - Draft Horse
+      - Elephant
+      - Elk
+      - Frog
+      - Giant Badger
+      - Giant Crab
+      - Giant Goat
+      - Giant Seahorse
+      - Giant Spider
+      - Giant Weasel
+      - Goat
+      - Hawk
+      - Imp
+      - Lion
+      - Lizard
+      - Mastiff
+      - Mule
+      - Octopus
+      - Owl
+      - Panther
+      - Pony
+      - Pseudodragon
+      - Quasit
+      - Rat
+      - Raven
+      - Reef Shark
+      - Riding Horse
+      - Scorpion
+      - Skeleton
+      - Slaad Tadpole
+      - Sphinx of Wonder
+      - Spider
+      - Sprite
+      - Tiger
+      - Venomous Snake
+      - Warhorse
+      - Weasel
+      - Wolf
+      - Zombie
+
+## [PHB] appendix-c-rules-glossary.md
+- Appendix C: Rules Glossary
+    - Ability Scores and Modifiers
+    - Ability Score Point Cost
+    - Actions
+    - Object Armor Class
+    - Object Hit Points
+  - Conditions
+    - Damage Types
+    - Water/Food Needs per Day
+    - Proficiency Bonus by Level
+    - Areas of Knowledge (Study Action)
+
+
+# DMG
+
+## [DMG] appendix-a-lore-glossary.md
+- Appendix A: Lore Glossary
+  - A
+    - Acererak
+    - Adamantine
+    - Alustriel Silverhand
+    - Ashardalon
+  - B
+    - Baba Yaga
+    - Bahamut
+    - Baldur's Gate
+    - Barovia
+    - Bigby
+    - Boo
+  - C
+    - Castle Ravenloft
+    - Companions of the Hall, The
+    - Company of Seven, The
+    - Corellon
+  - D
+    - Delina
+    - Diancastra
+    - Drizzt Do'Urden
+  - E
+    - Elder Evils
+    - Elminster
+    - Euryale
+  - F
+    - Fallbacks, The
+    - First World, The
+    - Fizban
+  - G
+    - Great Modron March, The
+    - Gruumsh
+  - H
+    - Hadar
+    - Harpers, The
+    - Heroes of the Lance, The
+    - Heroes of the Realm, The
+  - I
+    - Icewind Dale
+    - Iggwilv
+    - Iuz
+  - J
+    - Jallarzi Sallavarian
+  - K
+    - Kas the Betrayer
+    - Keraptis
+    - Kyuss
+  - L
+    - Laeral Silverhand
+    - League of Malevolence, The
+    - Lord Soth
+  - M
+    - Menzoberranzan
+    - Minsc
+    - Mithral
+    - Moradin
+    - Mordenkainen
+  - N
+    - Neverwinter
+  - O
+    - Otiluke
+    - Otto
+  - P
+    - Phandalin
+    - Prince of Frost, The
+  - Q
+    - Queen of Air and Darkness, The
+  - R
+    - Raven Queen, The
+    - Rock of Bral, The
+    - Rudolph van Richten
+  - S
+    - Strahd von Zarovich
+    - Summer Queen, The
+    - Sword Coast, The
+    - Szass Tam
+  - T
+    - Tasha
+    - Tharizdun
+    - Tiamat
+  - U
+    - Underdark, The
+    - Undermountain
+  - V
+    - Vajra Safahr
+    - Valor's Call
+    - Vecna
+    - Venger
+    - Vi
+    - Vlaakith
+  - W
+    - Waterdeep
+  - X
+    - Xanathar
+  - Y
+    - Yawning Portal, The
+    - Yolande
+  - Z
+    - Zagyg
+    - Zargon
+
+## [DMG] appendix-b-maps.md
+- Appendix B: Maps
+  - Barrow Crypt
+    - Level 1
+    - Level 2
+  - Caravan Encampment
+    - Features
+  - Crossroads Village
+    - Features
+  - Dragon's Lair
+    - Level 1
+    - Level 2
+    - Level 3
+  - Dungeon Hideout
+    - Surface Level
+    - Level 1
+    - Level 2
+  - Farmstead
+    - Features
+  - Keep
+    - Upper Level
+    - Lower Level
+  - Manor
+    - Upper Floors
+    - Ground Floor
+  - Mine
+    - Level 1
+    - Level 2
+    - Level 3
+  - Roadside Inn
+    - Ground Floor
+    - Upstairs
+  - Ship
+    - Side Profile
+    - Main Deck
+    - Below Decks
+  - Spooky House
+    - Upstairs
+    - Ground Floor
+    - Cellars
+  - Underdark Warren
+    - Features
+  - Volcanic Caves
+    - Features
+  - Wizard's Tower
+    - Dungeons
+    - Level 1
+    - Level 2
+    - Level 3
+    - Level 4
+    - Level 5
+
+## [DMG] ch1-the-basics.md
+- Chapter 1: The Basics
+  - What Does a DM Do?
+  - DM Tips
+  - Things You Need
+    - Rulebooks
+    - A Dungeon Master
+    - Players
+    - Finding Players
+    - A Place to Play
+    - Dice
+    - Note-Taking Materials
+    - Character Sheets
+    - Campaign Journal
+    - Useful Additions
+      - DM Screen
+      - Adventures and Sourcebooks
+      - Battle Grid and Miniatures
+      - Card Accessories
+  - Preparing a Session
+    - The One-Hour Guideline
+    - Preparation Time
+      - One-Hour Preparation
+      - Two-Hour Preparation
+      - Three-Hour Preparation
+  - How to Run a Session
+    - Recap
+    - Encounters
+      - Step 1: Describe the Situation
+      - Step 2: Let the Players Talk
+      - Step 3: Describe What Happens
+    - Passing Time
+    - Ending a Session
+  - Example of Play
+  - Every DM Is Unique
+    - Play Style
+    - House Rules
+    - Recording Rules Interpretations
+    - Atmosphere
+    - Delegation
+    - Learning by Observing
+  - Ensuring Fun for All
+    - Mutual Respect
+    - Setting Expectations
+    - Hard and Soft Limits
+    - Intra-party Conflict
+    - Respect for the Players
+      - Sharing the Spotlight
+      - Tragic Limits
+      - DM Die Rolling
+      - Overly Cautious Players
+    - Respect for the DM
+      - Player Die Rolling
+      - The Social Contract of Adventures
+      - Rules Discussions
+      - Character Knowledge
+    - Antisocial Behavior
+    - Players Exploiting the Rules
+    - Rules for the Virtual Table
+
+## [DMG] ch2-running-the-game.md
+- Chapter 2: Running the Game
+  - Know Your Players
+    - Acting
+    - Exploring
+    - Fighting
+    - Instigating
+    - Optimizing
+    - Problem-Solving
+    - Socializing
+    - Storytelling
+  - Group Size
+    - Small Groups
+      - DM-Controlled Adventurer
+      - NPC Party Members
+      - Players with Multiple Characters
+    - Large Groups
+      - Party Leader
+      - Speeding Combat
+      - Structured Turns
+    - Absent Players
+    - Incorporating New Players
+    - Special Guest Stars
+  - Multiple DMs
+    - Occasional Breaks
+    - Variety Series
+    - Concurrent Campaigns
+    - Shared World
+    - Joint DMs
+  - Narration
+    - Lead by Example
+    - Brevity
+    - Atmosphere
+    - Draw Players' Attention
+    - Secrets and Discovery
+    - Giving Information to One Player
+  - Resolving Outcomes
+    - Ability Checks
+      - Abilities, Ability Checks, and Saving Throws
+      - Proficiency
+      - Trying Again
+      - Group Checks
+      - Passive Checks
+    - Attack Rolls
+    - Saving Throws
+    - Difficulty Class
+      - Typical DCs
+      - Calculated DCs
+    - Advantage and Disadvantage
+      - Advantage
+      - Disadvantage
+    - Consequences
+      - Success at a Cost
+      - Degrees of Failure
+      - Degrees of Success
+      - Critical Success or Failure
+    - Improvising Damage
+      - Improvising Damage
+      - Damage Severity and Level
+    - Improvising Answers
+      - Aids to Improvisation
+  - Running Social Interaction
+    - Roleplaying
+      - NPC Portrayals
+      - Engaging the Players
+    - Attitude
+    - Ability Checks in Social Interaction
+    - Using the Help Action
+  - Running Exploration
+    - Using a Map
+    - Tracking Time
+    - Actions in Exploration
+      - Taking Turns
+      - Ability Checks in Exploration
+    - Perception
+      - When to Call for a Check
+      - Hidden Things in Adventures
+      - Perception and Encounters
+      - Audible Distance
+      - Underwater Encounter Distance
+    - Travel
+      - Journey Stages
+      - Weather
+      - Travel Terrain
+      - Travel Pace
+      - Narration during Travel
+      - Journey Stage Challenges
+  - Running Combat
+    - Rolling Initiative
+    - Using Initiative Scores
+    - Tracking Initiative
+      - Hidden List
+      - Open List
+    - Tracking Monsters' Hit Points
+    - Using and Tracking Conditions
+    - Miniatures
+      - Tactical Maps
+      - Creature Size on Squares and Hexes
+      - Areas of Effect
+      - Line of Sight
+      - Cover
+      - Diagonal Movement
+    - Tracking Position at Long Range
+    - Narration in Combat
+      - Loss of Hit Points
+      - Abilities, Strengths, and Weaknesses
+      - Actions in Combat
+      - Monsters Casting Spells
+    - Keeping Combat Moving
+      - Don't Repeat Game States
+      - Hasten a Monster's Demise
+      - End Hostilities
+      - Add a Combatant
+      - Change the Terrain
+      - Change the Monster
+    - Adjusting Difficulty
+    - Fight or Flight
+      - Avoiding or Ending a Fight
+  - Character Advancement
+    - Awarding XP
+      - Noncombat Challenges
+      - Milestones
+    - Leveling Up
+    - Variant: Training to Gain Levels
+      - Training to Gain Levels
+    - Level Advancement without XP
+      - Session-Based Advancement
+      - Story-Based Advancement
+
+## [DMG] ch3-dms-toolbox.md
+  - Alignment
+    - Character Alignment
+      - Actions Indicate Alignment
+      - Good and Evil Can Cooperate
+    - Planes and Alignment
+    - Monster Alignment
+      - Starting Attitude
+      - Personality
+    - Organization Ethos
+  - Chases
+    - Beginning a Chase
+    - Running the Chase
+      - Dashing
+      - Spells and Attacks
+    - Ending a Chase
+      - Escape Factors
+    - Splitting Up
+    - Role Reversal
+    - Mapping the Chase
+    - Chase Complications
+      - Designing Your Own Chase Tables
+      - Urban Chase Complications
+      - Wilderness Chase Complications
+  - Creating a Background
+    - 1: Choose Abilities
+    - 2: Choose a Feat
+    - 3: Choose Skill Proficiencies
+    - 4: Choose a Tool Proficiency
+    - 5: Choose Equipment
+  - Creating a Creature
+    - Minor Alterations
+      - Size and Creature Type
+      - Ability Scores
+      - Languages
+      - Proficiencies
+      - Senses
+      - Spells
+      - Attacks
+    - Resistances and Immunities
+    - Traits
+    - Creature Traits
+  - Creating a Magic Item
+    - Modifying a Magic Item
+      - Altered Capabilities
+      - Altered Form
+      - Altered Damage Types
+      - Combining Items
+      - Special Features and Sentience
+    - Creating a New Item
+    - Power Level
+      - Magic Item Power by Rarity
+    - Attunement
+  - Creating a Spell
+    - Spell Damage
+      - Spell Damage
+    - Healing Spells
+  - Curses and Magical Contagions
+    - Curses
+      - Bestow Curse
+      - Cursed Creatures
+      - Cursed Magic Items
+      - Narrative Curses
+      - Environmental Curses
+    - Magical Contagions
+      - Rest and Recuperation
+      - Example Contagions
+      - Cackle Fever
+      - Sewer Plague
+      - Sight Rot
+  - Death
+    - Death Must Be Fair
+    - Scaling Lethality
+    - Defeated, Not Dead
+    - Death Scenes
+    - Dealing with Death
+    - What If Everyone Dies?
+      - A Fresh Start
+      - Divine Council
+      - Escape from the Underworld
+      - Imprisoned
+      - Raised by Another
+      - Rescue Mission
+  - Doors
+    - Common Doors
+      - Doors
+    - Barred Door
+    - Locked Door
+      - Lock Complexity
+      - Lock Quality
+    - Secret Doors
+      - Secret Doors
+    - Secret Door Etiquette
+    - Portcullises
+      - Portcullises
+  - Dungeons
+    - Dungeon Quirks
+    - Mapping a Dungeon
+    - Mapping Principles
+    - Designing Dungeon Rooms
+      - Crypts
+      - Guard Posts
+      - Living Quarters
+      - Natural Subterranean Areas
+      - Shrines
+      - Vaults
+      - Work Areas
+    - Dungeon Decay
+      - States of Ruin
+  - Environmental Effects
+    - Dead Magic Zone
+    - Deep Water
+    - Extreme Cold
+    - Extreme Heat
+    - Frigid Water
+    - Heavy Precipitation
+    - High Altitude
+    - Planar Effects
+      - Acheronian Bloodlust
+      - Arcadian Vitality
+      - Blessed Beneficence
+      - Gehennan Cruelty
+      - Winds of Pandemonium
+    - Slippery Ice
+    - Strong Wind
+    - Thin Ice
+    - Wild Magic Zone
+  - Fear and Mental Stress
+    - Fear Effects
+      - Sample Fear DCs
+    - Mental Stress Effects
+      - Sample Mental Stress Effects
+    - Prolonged Effects
+  - Firearms and Explosives
+    - Firearms
+      - Properties
+      - Ammunition
+      - Firearms
+    - Explosives
+      - Bomb
+      - Dynamite Stick
+      - Grenades and Grenade Launchers
+      - Gunpowder
+      - Explosives
+    - Alien Technology
+  - Gods and Other Powers
+    - Divine Rank
+    - Home Plane and Alignment
+    - Gods and Divine Magic
+    - Divine Knowledge
+    - Divine Intervention
+    - Creating Religions
+      - Myths
+      - Religious Practice
+  - Hazards
+    - Severity and Level
+    - Example Hazards
+      - Brown Mold
+      - Fireball Fungus
+      - Green Slime
+      - Inferno
+      - Poisonous Gas
+      - Quicksand Pit
+      - Razorvine
+      - River Styx
+      - Rockslide
+      - Vicious Vine
+      - Webs
+      - Yellow Mold
+  - Marks of Prestige
+    - Fortifications
+      - Maintenance Costs
+    - Letters of Recommendation
+    - Medals
+    - Parcels of Land
+    - Special Favors
+    - Special Rights
+    - Titles
+    - Training
+  - Mobs
+    - Tips
+    - Average Results
+    - Adjudicating Areas of Effect
+      - Mob Results
+      - Targets in Area of Effect
+    - Examples
+  - Nonplayer Characters
+    - Detailed NPCs
+      - Name
+      - Stat Block
+      - Alignment
+      - Personality
+      - Appearance
+      - NPC Appearance
+      - Secret
+      - NPC Secrets
+      - NPC Name Tables
+    - Recurring NPCs
+    - NPCs as Party Members
+    - Loyalty
+  - Poison
+    - Purchasing Poison
+    - Harvesting Poison
+    - Sample Poisons
+      - Assassin's Blood (150 GP)
+      - Burnt Othur Fumes (500 GP)
+      - Carrion Crawler Mucus (200 GP)
+      - Essence of Ether (300 GP)
+      - Lolth's Sting (200 GP)
+      - Malice (250 GP)
+      - Midnight Tears (1,500 GP)
+      - Oil of Taggit (400 GP)
+      - Pale Tincture (250 GP)
+      - Purple Worm Poison (2,000 GP)
+      - Serpent Venom (200 GP)
+      - Torpor (600 GP)
+      - Truth Serum (150 GP)
+      - Wyvern Poison (1,200 GP)
+  - Renown
+    - Gaining Renown
+    - Benefits of Renown
+      - Recognition
+      - Rank
+      - Perks
+    - Losing Renown
+    - Level-Based Renown
+      - Level-Based Renown
+  - Settlements
+      - Settlements by Size
+    - Settlement Tables and Tracker
+      - Defining Traits
+      - Claims to Fame
+      - Current Calamities
+      - Local Leaders
+      - Tavern Names
+      - Random Shops
+  - Siege Equipment
+      - Ballista
+      - Cannon
+      - Flamethrower Coach
+      - Keg Launcher
+      - Lightning Cannon
+      - Mangonel
+      - Ram
+      - Siege Tower
+      - Suspended Cauldron
+      - Trebuchet
+  - Supernatural Gifts
+    - Blessings
+      - Blessing of Health
+      - Blessing of Magic Resistance
+      - Blessing of Protection
+      - Blessing of Understanding
+      - Blessing of Valhalla
+      - Blessing of Weapon Enhancement
+      - Blessing of Wound Closure
+    - Charms
+      - Charm of Animal Conjuring
+      - Charm of Darkvision
+      - Charm of Feather Falling
+      - Charm of Heroism
+      - Charm of Restoration
+      - Charm of the Slayer
+      - Charm of Vitality
+  - Traps
+    - Parts of a Trap
+    - Example Traps
+      - Collapsing Roof
+      - Falling Net
+      - Fire-Casting Statue
+      - Hidden Pit
+      - Poisoned Darts
+      - Poisoned Needle
+      - Rolling Stone
+      - Spiked Pit
+    - Building Your Own Traps
+      - Building a Trap
+
+## [DMG] ch4-creating-adventures.md
+- Chapter 4: Creating Adventures
+  - Step-by-Step Adventures
+  - Lay Out the Premise
+    - Adventure Premise
+    - Adventure Conflict
+    - Adventure Situations by Level
+      - Levels 1-4: Local Heroes
+      - Levels 5-10: Heroes of the Realm
+      - Levels 11-16: Masters of the Realm
+      - Levels 17-20: Masters of the World
+    - Levels 1-4 Adventure Situations
+    - Levels 5-10 Adventure Situations
+    - Levels 11-16 Adventure Situations
+    - Levels 17-20 Adventure Situations
+    - Adventure Setting
+    - Adventure Maps
+    - Bringing a Location to Life
+    - Adventure Inhabitants
+  - Draw In the Players
+    - Adventure Patrons
+    - Patron Hooks
+    - Supernatural Hooks
+    - Supernatural Hooks
+    - Happenstance Hooks
+    - Happenstance Hooks
+  - Plan Encounters
+    - Character Objectives
+    - Keeping the Adventure Moving
+    - Something for Everyone
+    - Multiple Ways to Progress
+    - Social Interaction Encounters
+    - Exploration Encounters
+    - Combat Encounters
+    - Combat Encounter Difficulty
+    - XP Budget per Character
+    - Troubleshooting
+    - Monster Behavior
+    - Initial Attitudes
+    - Initial Attitude
+    - Monster Personality
+    - Monster Personality
+    - Monster Relationships
+    - Monster Relationships
+    - Reactive Tactics
+    - Prepared Defenders
+    - Encounter Pace and Tension
+    - Urgency and Rests
+    - Random Encounters
+  - Bring It to an End
+    - Adventure Climax
+    - Denouement
+  - Adventure Rewards
+    - Individual Treasure
+    - Random Individual Treasure
+    - Treasure Hoards
+    - Random Treasure Hoard
+    - Quest Rewards
+    - Monster Treasure Preferences
+  - Adventure Examples
+    - The Fouled Stream
+      - Encounters
+    - Miner Difficulties
+      - Encounters
+    - The Winged God
+      - Encounters
+    - Horns of the Beast
+      - Encounters
+    - Boreal Ball
+      - Encounters
+
+## [DMG] ch5-creating-campaigns.md
+- Chapter 5: Creating Campaigns
+  - Step-by-Step Campaigns
+  - Your Campaign Journal
+    - Keeping a Journal
+    - Using Your Journal
+    - Foreshadowing
+    - Adventure Stockpile
+  - Campaign Premise
+  - Campaign Characters
+    - Player Input
+    - Character Arcs
+  - Campaign Conflicts
+    - Conflict Arcs
+  - Flavors of Fantasy
+    - Heroic Fantasy
+    - Sword and Sorcery
+    - Epic Fantasy
+    - Mythic Fantasy
+    - Supernatural Horror
+    - Intrigue
+    - Mystery
+    - Swashbuckling
+    - War
+    - Crossing the Streams
+  - Campaign Setting
+    - Using a Published Setting
+    - D&D Settings
+    - Creating Your Own Setting
+  - Campaign Start
+    - Session Zero
+    - Character Creation
+    - Bringing the Party Together
+    - Setting the Stage
+  - Starting Location
+  - First Adventure
+  - Plan Adventures
+  - Episodes and Serials
+    - Episodes
+    - Serials
+    - Adventure Connections
+  - Getting Players Invested
+    - Recurring Elements
+    - Player Favorites
+    - Acknowledge the Incredible
+    - Break Episodes
+  - Time in the Campaign
+    - Timed Events
+  - Ending a Campaign
+    - Ending Sooner Than Expected
+  - Greyhawk
+    - Important Names
+    - Greyhawk's Premise
+    - Greyhawk Conflicts
+      - Chromatic Dragons
+      - Elemental Evil
+      - Iuz the Evil
+    - The Greyhawk Setting
+      - Days of the Week
+      - Months and Festivals
+    - Factions and Organizations
+    - Magic in Greyhawk
+    - Mysteries of Greyhawk
+    - Gods of Greyhawk
+      - Gods of Greyhawk
+  - Free City of Greyhawk
+    - Start Here
+      - Adventure Hooks
+      - Bastion Friendly
+      - Key Conflicts
+      - Local Hurly-Burly
+      - Nearby Attractions
+      - Port in the Storm
+      - Trade Hub
+    - How to Use the City
+      - Background Connections
+      - City Activities
+      - Home Base
+      - Urban Adventures
+    - City Overview
+      - City Government
+      - City Watch
+      - City Walls
+      - City Gates
+      - Crime
+      - Religion
+    - City Neighborhoods
+    - City Locations
+      - Black Dragon Inn
+      - Grand Citadel
+      - Great Library
+      - High Tower Inn
+      - Silver Dragon Inn
+      - Temple of the Far Horizon
+      - Temple of the Radiant Sun
+      - Unearthed Arcana
+    - Beyond the City Walls
+  - Greyhawk Gazetteer
+    - The Big Picture
+    - Central Flanaess
+      - Battle of Emridy Meadows
+      - The Rise of Iuz
+      - Central Flanaess Locations
+      - Central Flanaess Culture
+      - Central Flanaess Adventures
+    - Eastern Flanaess
+      - Eastern Flanaess Culture
+      - Eastern Flanaess and Its Neighbors
+      - Eastern Flanaess Locations
+      - Eastern Flanaess Adventures
+    - Northern Flanaess
+      - Baklunish Nomads
+      - The North Kingdoms
+      - Northern Flanaess Locations
+      - The Hunting Lands
+      - Northern Flanaess and Its Neighbors
+      - Northern Flanaess Adventures
+    - Old Keoland
+      - Old Keoland Culture
+      - Old Keoland and Its Neighbors
+      - Old Keoland Locations
+      - Old Keoland Adventures
+    - Western Flanaess
+      - Western Flanaess Culture
+      - Western Flanaess and Its Neighbors
+      - Western Flanaess Locations
+      - Western Flanaess Adventures
+
+## [DMG] ch6-cosmology.md
+  - The Planes
+    - The Great Wheel
+    - Material Realms
+    - Inner Planes
+    - Outer Planes
+      - Outer Planes
+      - Layers of the Outer Planes
+      - Alignment and the Outer Planes
+  - Planar Travel
+    - Planar Portals
+    - Spells
+    - Traveling the Outer Planes
+      - Infinite Staircase
+      - River Oceanus
+      - River Styx
+      - Yggdrasil, the World Tree
+  - Planar Adventuring
+    - The Blood War
+    - Planar Adventure Situations
+      - Planar Adventure Situations
+  - Tour of the Multiverse
+    - Abyss
+      - Layers of the Abyss
+      - Abyss Adventures
+    - Acheron
+      - Layers of Acheron
+      - Acheron Adventures
+    - Arborea
+      - Layers of Arborea
+      - Arborea Adventures
+    - Arcadia
+      - Layers of Arcadia
+      - Arcadia Adventures
+    - Astral Plane
+      - Navigating the Astral Plane
+      - Dead Gods
+      - Color Pools
+      - Wildspace
+      - Psychic Wind
+      - Astral Plane Adventures
+    - Beastlands
+      - Layers of the Beastlands
+      - Beastlands Adventures
+    - Bytopia
+      - Layers of Bytopia
+      - Bytopia Adventures
+    - Carceri
+      - Layers of Carceri
+      - Prison Plane
+      - Carceri Adventures
+    - Demiplanes
+      - Demiplane Adventures
+    - Elemental Plane of Air
+      - Plane of Air Adventures
+    - Elemental Plane of Earth
+      - Plane of Earth Adventures
+    - Elemental Plane of Fire
+      - Elemental Fire Adventures
+    - Elemental Plane of Water
+      - Elemental Water Adventures
+    - Elysium
+      - Layers of Elysium
+      - Elysium Adventures
+    - Ethereal Plane
+      - Border Ethereal
+      - Deep Ethereal
+      - Ethereal Curtains
+      - Ether Cyclones
+      - Radiant Citadel
+      - Ethereal Plane Adventures
+    - Far Realm
+      - Far Realm Adventures
+    - Feywild
+      - Domains of Delight
+      - Fey Crossings
+      - Feywild Magic
+      - Feywild Time Warp
+      - Feywild Adventures
+    - Gehenna
+      - Layers of Gehenna
+      - Gehenna Adventures
+    - Hades
+      - Layers of Hades
+      - Plane of Gloom
+      - Hades Adventures
+    - Limbo
+      - Power of the Mind
+      - Limbo Adventures
+    - Material Plane
+      - Traveling Between Worlds
+    - Mechanus
+      - Mechanus Adventures
+    - Mount Celestia
+      - Layers of Mount Celestia
+      - Mount Celestia Adventures
+    - Negative Plane
+      - Negative Plane Adventures
+    - Nine Hells
+      - The Nine Layers
+      - Layers of the Nine Hells
+      - Infernal Hierarchy
+      - Nine Hells Adventures
+    - Outlands
+      - Gate-Towns of the Outlands
+      - Outlands Adventures
+    - Pandemonium
+      - Layers of Pandemonium
+      - Pandemonium Adventures
+    - Para-elemental Planes
+      - Plane of Ash
+      - Plane of Ice
+      - Plane of Magma
+      - Plane of Ooze
+      - Para-elemental Plane Adventures
+    - Positive Plane
+      - Positive Plane Adventures
+    - Shadowfell
+      - Shadow Crossings
+      - Domains of Dread
+      - Shadowfell Despair
+      - Shadowfell Adventures
+    - Sigil, City of Doors
+    - Ysgard
+      - Layers of Ysgard
+      - Ysgard Adventures
+
+## [DMG] ch7-magic-item-rules.md
+- Chapter 7: Treasure -- Magic Item Rules
+  - Magic Items
+  - Magic Item Categories
+    - Magic Item Categories
+    - Armor
+    - Potions
+    - Potion Miscibility
+    - Rings
+    - Rods
+    - Scrolls
+    - Staffs
+    - Wands
+    - Weapons
+    - Wondrous Items
+  - Magic Item Rarity
+    - Magic Item Rarities and Values
+  - Magic Item Values by Rarity
+  - Magic Items Awarded by Level
+  - Awarding Magic Items
+    - Magic Items Awarded by Level
+    - Magic Item Tracker
+    - Random Magic Item Rarity
+    - Magic Item Rarities
+  - Activating a Magic Item
+    - Command Word
+    - Consumable Items
+    - Spells Cast from Items
+  - Charges
+  - "The Next Dawn"
+  - Cursed Items
+  - Magic Item Resilience
+  - Crafting Magic Items
+    - Arcana Proficiency
+    - Tools
+    - Magic Item Tools
+    - Spells
+    - Time and Cost
+    - Magic Item Crafting Time and Cost
+  - Magic Item Special Features
+    - Magic Item's Creator or Intended User
+    - Magic Item's History
+    - Magic Item's Minor Property
+    - Magic Item's Quirk
+  - Artifacts
+    - Artifact Properties
+    - Minor Beneficial Properties
+    - Major Beneficial Properties
+    - Minor Detrimental Properties
+    - Major Detrimental Properties
+  - Sentient Magic Items
+    - Sentient Magic Item Traits
+    - Sentient Item's Alignment
+    - Sentient Item's Communication
+    - Sentient Item's Senses
+    - Sentient Item's Special Purpose
+    - Conflict
+  - Random Magic Items
+  - Arcana Tables
+    - Arcana -- Common
+    - Arcana -- Uncommon
+    - Arcana -- Rare
+    - Arcana -- Very Rare
+    - Arcana -- Legendary
+  - Armaments Tables
+    - Armaments -- Common
+    - Armaments -- Uncommon
+    - Armaments -- Rare
+    - Armaments -- Very Rare
+    - Armaments -- Legendary
+  - Implements Tables
+    - Implements -- Common
+    - Implements -- Uncommon
+    - Implements -- Rare
+    - Implements -- Very Rare
+    - Implements -- Legendary
+  - Relics Tables
+    - Relics -- Common
+    - Relics -- Uncommon
+    - Relics -- Rare
+    - Relics -- Very Rare
+    - Relics -- Legendary
+
+## [DMG] ch7-magic-items-a-b.md
+- Chapter 7: Treasure -- Magic Items (A-B)
+  - Adamantine Armor
+  - Adamantine Weapon
+  - Alchemy Jug
+    - Alchemy Jug Liquids
+  - Ammunition, +1, +2, or +3
+  - Ammunition of Slaying
+  - Amulet of Health
+  - Amulet of Proof against Detection and Location
+  - Amulet of the Planes
+  - Animated Shield
+  - Apparatus of Kwalish
+    - Apparatus of Kwalish Levers
+  - Armor, +1, +2, or +3
+  - Armor of Gleaming
+  - Armor of Invulnerability
+  - Armor of Resistance
+  - Armor of Vulnerability
+  - Arrow-Catching Shield
+  - Axe of the Dwarvish Lords
+  - Baba Yaga's Dancing Broom
+  - Bag of Beans
+  - Bag of Devouring
+  - Bag of Holding
+  - Bag of Tricks
+    - Gray Bag of Tricks
+    - Rust Bag of Tricks
+    - Tan Bag of Tricks
+  - Bead of Force
+  - Bead of Nourishment
+  - Bead of Refreshment
+  - Belt of Dwarvenkind
+  - Belt of Giant Strength
+  - Berserker Axe
+  - Blackrazor
+  - Book of Exalted Deeds
+
+## [DMG] ch7-magic-items-c-d.md
+- Chapter 7: Treasure -- Magic Items (C-D)
+  - Book of Exalted Deeds (Continued)
+  - Book of Vile Darkness
+  - Boots of Elvenkind
+  - Boots of False Tracks
+  - Boots of Levitation
+  - Boots of Speed
+  - Boots of Striding and Springing
+  - Boots of the Winterlands
+  - Bowl of Commanding Water Elementals
+  - Bracers of Archery
+  - Bracers of Defense
+  - Brazier of Commanding Fire Elementals
+  - Brooch of Shielding
+  - Broom of Flying
+  - Candle of Invocation
+  - Candle of the Deep
+  - Cape of the Mountebank
+  - Cap of Water Breathing
+  - Carpet of Flying
+  - Cast-Off Armor
+  - Cauldron of Rebirth
+  - Censer of Controlling Air Elementals
+  - Charlatan's Die
+  - Chime of Opening
+  - Circlet of Blasting
+  - Cloak of Arachnida
+  - Cloak of Billowing
+  - Cloak of Displacement
+  - Cloak of Elvenkind
+  - Cloak of Invisibility
+  - Cloak of Many Fashions
+  - Cloak of Protection
+  - Cloak of the Bat
+  - Cloak of the Manta Ray
+  - Clockwork Amulet
+  - Clothes of Mending
+  - Crystal Ball
+  - Crystal Ball of Mind Reading
+  - Crystal Ball of Telepathy
+  - Crystal Ball of True Seeing
+  - Cube of Force
+    - Cube of Force Faces
+  - Cube of Summoning
+    - Cube of Summoning
+  - Cubic Gate
+  - Daern's Instant Fortress
+  - Dagger of Venom
+  - Dancing Sword
+  - Dark Shard Amulet
+  - Decanter of Endless Water
+  - Deck of Illusions
+    - Deck of Illusions
+  - Deck of Many Things
+    - Deck of Many Things
+  - Defender
+  - Demon Armor
+  - Demonomicon of Iggwilv
+  - Dimensional Shackles
+  - Dragon Scale Mail
+  - Dragon Slayer
+  - Dread Helm
+  - Driftglobe
+  - Dust of Disappearance
+  - Dust of Dryness
+  - Dust of Sneezing and Choking
+  - Dwarven Plate
+
+## [DMG] ch7-magic-items-e-h.md
+- Chapter 7: Treasure -- Magic Items (E-H)
+  - Dwarven Thrower
+  - Ear Horn of Hearing
+  - Efreeti Bottle
+  - Efreeti Chain
+  - Elemental Gem
+  - Elixir of Health
+  - Elven Chain
+  - Enduring Spellbook
+  - Energy Bow
+  - Enspelled Armor
+  - Enspelled Staff
+  - Enspelled Weapon
+  - Ersatz Eye
+  - Eversmoking Bottle
+  - Executioner's Axe
+  - Eye and Hand of Vecna
+    - Eye of Vecna Spells
+    - Hand of Vecna Spells
+  - Eyes of Charming
+  - Eyes of Minute Seeing
+  - Eyes of the Eagle
+  - Figurine of Wondrous Power
+  - Flame Tongue
+  - Folding Boat
+  - Frost Brand
+  - Gauntlets of Ogre Power
+  - Gem of Brightness
+  - Gem of Seeing
+  - Giant Slayer
+  - Glamoured Studded Leather
+  - Gloves of Missile Snaring
+  - Gloves of Swimming and Climbing
+  - Gloves of Thievery
+  - Goggles of Night
+  - Hag Eye
+  - Hammer of Thunderbolts
+  - Hat of Disguise
+  - Hat of Many Spells
+  - Hat of Vermin
+  - Hat of Wizardry
+  - Headband of Intellect
+  - Helm of Brilliance
+  - Helm of Comprehending Languages
+  - Helm of Telepathy
+  - Helm of Teleportation
+  - Heward's Handy Haversack
+  - Heward's Handy Spice Pouch
+  - Holy Avenger
+
+## [DMG] ch7-magic-items-i-o.md
+- Chapter 7: Treasure -- Magic Items (I-O)
+  - Horn of Blasting
+  - Horn of Silent Alarm
+  - Horn of Valhalla
+  - Horseshoes of a Zephyr
+  - Horseshoes of Speed
+  - Immovable Rod
+  - Instrument of Illusions
+  - Instrument of Scribing
+  - Instrument of the Bards
+    - Instruments of the Bards
+  - Ioun Stone
+  - Iron Bands of Bilarro
+  - Iron Flask
+  - Javelin of Lightning
+  - Keoghtom's Ointment
+  - Lantern of Revealing
+  - Lock of Trickery
+  - Luck Blade
+  - Lute of Thunderous Thumping
+  - Mace of Disruption
+  - Mace of Smiting
+  - Mace of Terror
+  - Mantle of Spell Resistance
+  - Manual of Bodily Health
+  - Manual of Gainful Exercise
+  - Manual of Golems
+  - Manual of Quickness of Action
+  - Mariner's Armor
+  - Medallion of Thoughts
+  - Mirror of Life Trapping
+  - Mithral Armor
+  - Moonblade
+    - Moonblade Properties
+  - Moon-Touched Sword
+  - Mystery Key
+  - Nature's Mantle
+  - Necklace of Adaptation
+  - Necklace of Fireballs
+  - Necklace of Prayer Beads
+  - Nine Lives Stealer
+  - Nolzur's Marvelous Pigments
+  - Oathbow
+  - Oil of Etherealness
+  - Oil of Sharpness
+  - Oil of Slipperiness
+  - Orb of Direction
+  - Orb of Dragonkind
+
+## [DMG] ch7-magic-items-p-r.md
+- Chapter 7: Treasure -- Magic Items (P-R)
+  - Orb of Dragonkind
+  - Orb of Time
+  - Pearl of Power
+  - Perfume of Bewitching
+  - Periapt of Health
+  - Periapt of Proof against Poison
+  - Periapt of Wound Closure
+  - Philter of Love
+  - Pipe of Smoke Monsters
+  - Pipes of Haunting
+  - Pipes of the Sewers
+  - Plate Armor of Etherealness
+  - Pole of Angling
+  - Pole of Collapsing
+  - Portable Hole
+  - Potion of Animal Friendship
+  - Potion of Clairvoyance
+  - Potion of Climbing
+  - Potion of Comprehension
+  - Potion of Diminution
+  - Potion of Fire Breath
+  - Potion of Flying
+  - Potion of Gaseous Form
+  - Potion of Giant Strength
+  - Potion of Greater Invisibility
+  - Potion of Growth
+  - Potions of Healing
+  - Potion of Heroism
+  - Potion of Invisibility
+  - Potion of Invulnerability
+  - Potion of Longevity
+  - Potion of Mind Reading
+  - Potion of Poison
+  - Potion of Pugilism
+  - Potion of Resistance
+  - Potion of Speed
+  - Potion of Vitality
+  - Potion of Water Breathing
+  - Pot of Awakening
+  - Prosthetic Limb
+  - Quaal's Feather Token
+    - Quaal's Feather Tokens
+  - Quarterstaff of the Acrobat
+  - Quiver of Ehlonna
+  - Ring of Animal Influence
+  - Ring of Djinni Summoning
+  - Ring of Elemental Command
+  - Ring of Evasion
+  - Ring of Feather Falling
+  - Ring of Free Action
+  - Ring of Invisibility
+  - Ring of Jumping
+  - Ring of Mind Shielding
+  - Ring of Protection
+  - Ring of Regeneration
+  - Ring of Resistance
+  - Ring of Shooting Stars
+  - Ring of Spell Storing
+  - Ring of Spell Turning
+  - Ring of Swimming
+  - Ring of Telekinesis
+  - Ring of the Ram
+  - Ring of Three Wishes
+  - Ring of Warmth
+  - Ring of Water Walking
+  - Ring of X-ray Vision
+  - Rival Coin
+  - Robe of Eyes
+  - Robe of Scintillating Colors
+  - Robe of Stars
+  - Robe of the Archmagi
+  - Robe of Useful Items
+  - Rod of Absorption
+  - Rod of Alertness
+  - Rod of Lordly Might
+  - Rod of Resurrection
+  - Rod of Rulership
+  - Rod of Security
+  - Rod of the Pact Keeper
+  - Rope of Climbing
+  - Rope of Entanglement
+
+## [DMG] ch7-magic-items-s-z.md
+- Chapter 7: Treasure -- Magic Items (S-Z)
+  - Rope of Entanglement (Continued)
+  - Rope of Mending
+  - Ruby of the War Mage
+  - Saddle of the Cavalier
+  - Scarab of Protection
+  - Scimitar of Speed
+  - Scroll of Protection
+  - Scroll of Titan Summoning
+  - Sending Stones
+  - Sentinel Shield
+  - Shield, +1, +2, or +3
+  - Shield of Expression
+  - Shield of Missile Attraction
+  - Shield of the Cavalier
+  - Silvered Weapon
+  - Slippers of Spider Climbing
+  - Smoldering Armor
+  - Sovereign Glue
+  - Spellguard Shield
+  - Spell Scroll
+  - Sphere of Annihilation
+  - Spirit Board
+  - Staff of Adornment
+  - Staff of Birdcalls
+  - Staff of Charming
+  - Staff of Fire
+  - Staff of Flowers
+  - Staff of Frost
+  - Staff of Healing
+  - Staff of Power
+  - Staff of Striking
+  - Staff of Swarming Insects
+  - Staff of the Adder
+  - Staff of the Magi
+  - Staff of the Python
+  - Staff of the Woodlands
+  - Staff of Thunder and Lightning
+  - Staff of Withering
+  - Stone of Controlling Earth Elementals
+  - Stone of Good Luck (Luckstone)
+  - Sun Blade
+  - Sword of Answering
+  - Sword of Kas
+  - Sword of Life Stealing
+  - Sword of Sharpness
+  - Sword of Vengeance
+  - Sword of Wounding
+  - Sylvan Talon
+  - Talisman of Pure Good
+  - Talisman of the Sphere
+  - Talisman of Ultimate Evil
+  - Talking Doll
+  - Tankard of Sobriety
+  - Tentacle Rod
+  - Thunderous Greatclub
+  - Tome of Clear Thought
+  - Tome of Leadership and Influence
+  - Tome of the Stilled Tongue
+  - Tome of Understanding
+  - Trident of Fish Command
+  - Universal Solvent
+  - Veteran's Cane
+  - Vicious Weapon
+  - Vorpal Sword
+  - Walloping Ammunition
+  - Wand of Binding
+  - Wand of Conducting
+  - Wand of Enemy Detection
+  - Wand of Fear
+  - Wand of Fireballs
+  - Wand of Lightning Bolts
+  - Wand of Magic Detection
+  - Wand of Magic Missiles
+  - Wand of Orcus
+  - Wand of Paralysis
+  - Wand of Polymorph
+  - Wand of Pyrotechnics
+  - Wand of Secrets
+  - Wand of the War Mage, +1, +2, or +3
+  - Wand of Web
+  - Wand of Wonder
+    - Wand of Wonder Effects
+  - Wave
+  - Weapon, +1, +2, or +3
+  - Weapon of Warning
+  - Well of Many Worlds
+  - Whelm
+  - Wind Fan
+  - Winged Boots
+  - Wings of Flying
+  - Wraps of Unarmed Power
+
+## [DMG] ch7-treasure-tables.md
+- Chapter 7: Treasure -- Treasure Tables
+  - Treasure Themes
+    - Treasure Themes
+  - Coins
+  - Trade Bars
+    - Trade Bars
+  - Trade Goods
+    - Trade Goods
+  - Gemstones
+    - 10 GP Gemstones
+    - 50 GP Gemstones
+    - 100 GP Gemstones
+    - 500 GP Gemstones
+    - 1,000 GP Gemstones
+    - 5,000 GP Gemstones
+  - Art Objects
+    - 25 GP Art Objects
+    - 250 GP Art Objects
+    - 750 GP Art Objects
+    - 2,500 GP Art Objects
+    - 7,500 GP Art Objects
+
+## [DMG] ch8-bastions.md
+- Chapter 8: Bastions
+  - Gaining a Bastion
+  - Bastion Turns
+    - Frequency of Bastion Turns
+  - Bastion Map
+    - Combining Bastions
+    - Facility Space
+      - Facility Space
+  - Basic Facilities
+      - Basic Facilities
+    - Adding Basic Facilities
+    - Enlarging Basic Facilities
+  - Special Facilities
+      - Special Facility Acquisition
+    - Requirements
+    - Space
+    - Hirelings
+    - Orders
+  - Special Facility Descriptions
+      - Special Facilities
+      - Arcane Study
+      - Archive
+      - Armory
+      - Barrack
+      - Demiplane
+      - Gaming Hall
+      - Garden
+      - Garden Types
+      - Greenhouse
+      - Guildhall
+      - Sample Guilds
+      - Laboratory
+      - Library
+      - Meditation Chamber
+      - Menagerie
+      - Menagerie Creatures
+      - Creature Costs by Challenge Rating
+      - Observatory
+      - Pub
+      - Reliquary
+      - Sacristy
+      - Sanctuary
+      - Sanctum
+      - Scriptorium
+      - Smithy
+      - Stable
+      - Storehouse
+      - Teleportation Circle
+      - Theater
+      - Training Area
+      - Expert Trainers
+      - Trophy Room
+      - War Room
+      - Workshop
+  - Bastion Events
+      - Bastion Events
+    - Event Descriptions
+      - All Is Well
+      - Attack
+      - Criminal Hireling
+      - Extraordinary Opportunity
+      - Friendly Visitors
+      - Guest
+      - Lost Hirelings
+      - Magical Discovery
+      - Refugees
+      - Request for Aid
+      - Treasure
+  - Fall of a Bastion
+
+## [DMG] index.md
+- Index
+  - A
+  - B
+  - C
+  - D
+  - E
+  - F
+  - G
+  - H
+  - I
+  - J
+  - K
+  - L
+  - M
+  - N
+  - O
+  - P
+  - Q
+  - R
+  - S
+  - T
+  - U
+  - V
+  - W
+  - X
+  - Y
+  - Z
+
+
+# MM
+
+## [MM] Appendices\Creatures.md
+- Appendix A: Animals
+    - Allosaurus
+      - Actions
+    - Ankylosaurus
+      - Actions
+    - Ape
+      - Actions
+    - Archelon
+      - Traits
+      - Actions
+    - Baboon
+      - Traits
+      - Actions
+    - Badger
+      - Actions
+    - Bat
+      - Actions
+    - Black Bear
+      - Actions
+    - Blood Hawk
+      - Traits
+      - Actions
+    - Boar
+      - Traits
+      - Actions
+    - Brown Bear
+      - Actions
+    - Camel
+      - Actions
+    - Cat
+      - Traits
+      - Actions
+    - Constrictor Snake
+      - Actions
+    - Crab
+      - Traits
+      - Actions
+    - Crocodile
+      - Traits
+      - Actions
+    - Deer
+      - Traits
+      - Actions
+    - Dire Wolf
+      - Traits
+      - Actions
+    - Draft Horse
+      - Actions
+    - Eagle
+      - Actions
+    - Elephant
+      - Actions
+      - Bonus Actions
+    - Elk
+      - Actions
+    - Flying Snake
+      - Traits
+      - Actions
+    - Frog
+      - Traits
+      - Actions
+    - Giant Ape
+      - Actions
+      - Bonus Actions
+    - Giant Badger
+      - Actions
+    - Giant Bat
+      - Actions
+    - Giant Boar
+      - Traits
+      - Actions
+    - Giant Centipede
+      - Actions
+    - Giant Constrictor Snake
+      - Actions
+    - Giant Crab
+      - Traits
+      - Actions
+    - Giant Crocodile
+      - Traits
+      - Actions
+    - Giant Eagle
+      - Actions
+    - Giant Elk
+      - Actions
+    - Giant Fire Beetle
+      - Traits
+      - Actions
+    - Giant Frog
+      - Traits
+      - Actions
+    - Giant Goat
+      - Actions
+    - Giant Hyena
+      - Actions
+      - Bonus Actions
+    - Giant Lizard
+      - Traits
+      - Actions
+    - Giant Octopus
+      - Traits
+      - Actions
+      - Reactions
+    - Giant Owl
+      - Traits
+      - Actions
+    - Giant Rat
+      - Traits
+      - Actions
+    - Giant Scorpion
+      - Actions
+    - Giant Seahorse
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Giant Shark
+      - Traits
+      - Actions
+    - Giant Spider
+      - Traits
+      - Actions
+    - Giant Squid
+      - Traits
+      - Actions
+      - Reactions
+    - Giant Toad
+      - Traits
+      - Actions
+    - Giant Venomous Snake
+      - Actions
+    - Giant Vulture
+      - Traits
+      - Actions
+    - Giant Wasp
+      - Traits
+      - Actions
+    - Giant Weasel
+      - Actions
+    - Giant Wolf Spider
+      - Traits
+      - Actions
+    - Goat
+      - Actions
+    - Hawk
+      - Actions
+    - Hippopotamus
+      - Traits
+      - Actions
+    - Hunter Shark
+      - Traits
+      - Actions
+    - Hyena
+      - Traits
+      - Actions
+    - Jackal
+      - Actions
+    - Killer Whale
+      - Traits
+      - Actions
+    - Lion
+      - Traits
+      - Actions
+    - Lizard
+      - Traits
+      - Actions
+    - Mammoth
+      - Actions
+      - Bonus Actions
+    - Mastiff
+      - Actions
+    - Mule
+      - Traits
+      - Actions
+    - Octopus
+      - Traits
+      - Actions
+      - Reactions
+    - Owl
+      - Traits
+      - Actions
+    - Panther
+      - Actions
+      - Bonus Actions
+    - Piranha
+      - Traits
+      - Actions
+    - Plesiosaurus
+      - Traits
+      - Actions
+    - Polar Bear
+      - Actions
+    - Pony
+      - Actions
+    - Pteranodon
+      - Traits
+      - Actions
+    - Rat
+      - Traits
+      - Actions
+    - Raven
+      - Traits
+      - Actions
+    - Reef Shark
+      - Traits
+      - Actions
+    - Rhinoceros
+      - Actions
+    - Riding Horse
+      - Actions
+    - Saber-Toothed Tiger
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Scorpion
+      - Actions
+    - Seahorse
+      - Traits
+      - Actions
+    - Spider
+      - Traits
+      - Actions
+    - Swarm of Bats
+      - Traits
+      - Actions
+    - Swarm of Insects
+      - Traits
+      - Actions
+    - Swarm of Piranhas
+      - Traits
+      - Actions
+    - Swarm of Rats
+      - Traits
+      - Actions
+    - Swarm of Ravens
+      - Traits
+      - Actions
+    - Swarm of Venomous Snakes
+      - Traits
+      - Actions
+    - Tiger
+      - Actions
+      - Bonus Actions
+    - Triceratops
+      - Actions
+    - Tyrannosaurus Rex
+      - Actions
+    - Venomous Snake
+      - Actions
+    - Vulture
+      - Traits
+      - Actions
+    - Warhorse
+      - Actions
+    - Weasel
+      - Actions
+    - Wolf
+      - Traits
+      - Actions
+
+## [MM] Appendices\Monsters-by-CR.md
+- Appendix B: Monsters by Challenge Rating
+  - CR 0
+  - CR 1/8
+  - CR 1/4
+  - CR 1/2
+  - CR 1
+  - CR 2
+  - CR 3
+  - CR 4
+  - CR 5
+  - CR 6
+  - CR 7
+  - CR 8
+  - CR 9
+  - CR 10
+  - CR 11
+  - CR 12
+  - CR 13
+  - CR 14
+  - CR 15
+  - CR 16
+  - CR 17
+  - CR 18
+  - CR 19
+  - CR 20
+  - CR 21
+  - CR 22
+  - CR 23
+  - CR 24
+  - CR 25
+  - CR 30
+
+## [MM] Bestiary\Aberrations.md
+- Aberrations
+  - Aboleth
+    - Aboleth Schemes
+    - Aboleth Lairs
+    - Aboleth
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Chuul
+    - Chuul
+      - Traits
+      - Actions
+  - Cloaker
+    - Cloaker
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Flumph
+    - Flumph Assistance
+    - Flumph Colors
+    - Flumph Colors and Emotions
+    - Flumph
+      - Traits
+      - Actions
+  - Gibbering Mouther
+    - Gibbering Mouther Nascencies
+    - Gibbering Mouther
+      - Traits
+      - Actions
+  - Grell
+    - Grell Explorations
+    - Grell
+      - Traits
+      - Actions
+  - Nothic
+    - Nothic
+      - Actions
+      - Bonus Actions
+  - Otyugh
+    - Otyugh Lures
+    - Otyugh
+      - Actions
+
+## [MM] Bestiary\Beholders.md
+- Beholder
+    - Beholder Lairs
+  - Death Tyrant
+    - Death Tyrant Lairs
+  - Spectator
+    - Beholder
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+    - Death Tyrant
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+    - Spectator
+      - Actions
+      - Reactions
+
+## [MM] Bestiary\Celestials.md
+- Celestials
+  - Animal Lord
+      - Forager Animal Lord Appearances
+      - Hunter Animal Lord Appearances
+      - Sage Animal Lord Appearances
+    - Animal Lord
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+  - Couatl
+    - Couatl
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Deva
+      - Deva Messages
+    - Deva
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Empyreans
+      - Empyrean Influences
+    - Empyrean Iota
+    - Empyrean
+    - Empyrean Iota
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Empyrean
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Pegasus
+      - Pegasus Offerings
+    - Pegasus
+      - Actions
+  - Planetar
+      - Planetar Quests
+    - Planetar
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Solar
+    - Solar
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+  - Unicorn
+    - Unicorn Lairs
+    - Unicorn
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+
+## [MM] Bestiary\Constructs.md
+- Constructs
+  - Animated Objects
+      - Animated Object Catalysts
+      - Animated Armor
+      - Animated Broom
+      - Animated Flying Sword
+      - Animated Rug of Smothering
+    - Animated Armor
+      - Actions
+    - Animated Broom
+      - Traits
+      - Actions
+    - Animated Flying Sword
+      - Actions
+    - Animated Rug of Smothering
+      - Actions
+  - Colossus
+    - Colossus
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Helmed Horror
+      - Helmed Horror Directives
+    - Helmed Horror
+      - Traits
+      - Actions
+  - Homunculus
+      - Homunculus Features
+    - Homunculus
+      - Traits
+      - Actions
+  - Modrons
+      - Modron Marches
+      - Modron Operations
+      - Modron Monodrone
+      - Modron Duodrone
+      - Modron Tridrone
+      - Modron Quadrone
+      - Modron Pentadrone
+    - Modron Monodrone
+      - Traits
+      - Actions
+    - Modron Duodrone
+      - Traits
+      - Actions
+    - Modron Tridrone
+      - Traits
+      - Actions
+    - Modron Quadrone
+      - Traits
+      - Actions
+    - Modron Pentadrone
+      - Traits
+      - Actions
+  - Scarecrow
+      - Scarecrow Frames
+    - Scarecrow
+      - Actions
+  - Shield Guardian
+    - Shield Guardian
+      - Traits
+      - Actions
+      - Reactions
+
+## [MM] Bestiary\Demons.md
+- Demons
+  - Balor
+    - Balor
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Barlgura
+    - Barlgura
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Chasme
+    - Chasme
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Dretches
+    - Dretch
+    - Swarm of Dretches
+    - Dretch
+      - Actions
+    - Swarm of Dretches
+      - Traits
+      - Actions
+  - Glabrezu
+    - Glabrezu
+      - Traits
+      - Actions
+  - Goristro
+    - Goristro
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Hezrou
+      - Demonic Undertakings
+    - Hezrou
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Manes
+    - Manes
+    - Manes Vaporspawn
+    - Manes
+      - Actions
+    - Manes Vaporspawn
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Marilith
+    - Marilith
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Reactions
+  - Nalfeshnee
+    - Nalfeshnee
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Reactions
+  - Quasit
+    - Quasit
+      - Traits
+      - Actions
+  - Shadow Demon
+    - Shadow Demon
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Vrock
+    - Vrock
+      - Traits
+      - Actions
+  - Yochlol
+    - Yochlol
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Reactions
+
+## [MM] Bestiary\Devils.md
+- Devils
+  - Barbed Devil
+    - Barbed Devil
+      - Traits
+      - Actions
+  - Bearded Devil
+    - Bearded Devil
+      - Traits
+      - Actions
+  - Bone Devil
+      - Bone Devil Objectives
+    - Bone Devil
+      - Traits
+      - Actions
+  - Chain Devil
+      - Chain Devil Masks
+    - Chain Devil
+      - Traits
+      - Actions
+      - Reactions
+  - Erinyes
+    - Erinyes
+      - Traits
+      - Actions
+      - Reactions
+  - Horned Devil
+    - Horned Devil
+      - Traits
+      - Actions
+  - Ice Devil
+    - Ice Devil
+      - Traits
+      - Actions
+  - Imp
+    - Imp
+      - Traits
+      - Actions
+  - Lemures
+    - Lemure
+    - Swarm of Lemures
+    - Lemure
+      - Traits
+      - Actions
+    - Swarm of Lemures
+      - Traits
+      - Actions
+  - Pit Fiend
+    - Pit Fiend
+      - Traits
+      - Actions
+  - Spined Devil
+      - Spined Devil Intelligence
+    - Spined Devil
+      - Traits
+      - Actions
+
+## [MM] Bestiary\Dragons-Chromatic.md
+- Chromatic Dragons
+  - Black Dragon
+    - Black Dragon Wyrmling
+    - Young Black Dragon
+    - Adult Black Dragon
+    - Ancient Black Dragon
+    - Black Dragon Lairs
+    - Black Dragon Wyrmling
+      - Traits
+      - Actions
+    - Young Black Dragon
+      - Traits
+      - Actions
+    - Adult Black Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Black Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Blue Dragon
+    - Blue Dragon Wyrmling
+    - Young Blue Dragon
+    - Adult Blue Dragon
+    - Ancient Blue Dragon
+    - Blue Dragon Lairs
+    - Blue Dragon Wyrmling
+      - Actions
+    - Young Blue Dragon
+      - Actions
+    - Adult Blue Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Blue Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Green Dragon
+    - Green Dragon Wyrmling
+    - Young Green Dragon
+    - Adult Green Dragon
+    - Ancient Green Dragon
+    - Green Dragon Lairs
+    - Green Dragon Wyrmling
+      - Traits
+      - Actions
+    - Young Green Dragon
+      - Traits
+      - Actions
+    - Adult Green Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Green Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Red Dragon
+    - Red Dragon Wyrmling
+    - Young Red Dragon
+    - Adult Red Dragon
+    - Ancient Red Dragon
+    - Red Dragon Lairs
+    - Red Dragon Wyrmling
+      - Actions
+    - Young Red Dragon
+      - Actions
+    - Adult Red Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Red Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+  - White Dragon
+    - White Dragon Wyrmling
+    - Young White Dragon
+    - Adult White Dragon
+    - Ancient White Dragon
+    - White Dragon Lairs
+    - White Dragon Wyrmling
+      - Traits
+      - Actions
+    - Young White Dragon
+      - Traits
+      - Actions
+    - Adult White Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient White Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+
+## [MM] Bestiary\Dragons-Metallic.md
+- Metallic Dragons
+  - Brass Dragon
+    - Brass Dragon Wyrmling
+    - Young Brass Dragon
+    - Adult Brass Dragon
+    - Ancient Brass Dragon
+    - Brass Dragon Wyrmling
+      - Actions
+    - Young Brass Dragon
+      - Actions
+    - Adult Brass Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Brass Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Bronze Dragon
+    - Bronze Dragon Wyrmling
+    - Young Bronze Dragon
+    - Adult Bronze Dragon
+    - Ancient Bronze Dragon
+    - Bronze Dragon Wyrmling
+      - Traits
+      - Actions
+    - Young Bronze Dragon
+      - Traits
+      - Actions
+    - Adult Bronze Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Bronze Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Copper Dragon
+    - Copper Dragon Wyrmling
+    - Young Copper Dragon
+    - Adult Copper Dragon
+    - Ancient Copper Dragon
+    - Copper Dragon Wyrmling
+      - Actions
+    - Young Copper Dragon
+      - Actions
+    - Adult Copper Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Copper Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Gold Dragon
+    - Gold Dragon Wyrmling
+    - Young Gold Dragon
+    - Adult Gold Dragon
+    - Ancient Gold Dragon
+    - Gold Dragon Wyrmling
+      - Traits
+      - Actions
+    - Young Gold Dragon
+      - Traits
+      - Actions
+    - Adult Gold Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Gold Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Silver Dragon
+    - Silver Dragon Wyrmling
+    - Young Silver Dragon
+    - Adult Silver Dragon
+    - Ancient Silver Dragon
+    - Silver Dragon Wyrmling
+      - Actions
+    - Young Silver Dragon
+      - Actions
+    - Adult Silver Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Ancient Silver Dragon
+      - Traits
+      - Actions
+      - Legendary Actions
+
+## [MM] Bestiary\Dragons-Other.md
+- Other Dragons
+  - Dracolich
+      - Dracolich Soul Gem Vessels
+      - Dracolich Lairs
+    - Dracolich
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Dragon Turtle
+    - Dragon Turtle
+      - Traits
+      - Actions
+  - Faerie Dragons
+      - Faerie Dragon Adult
+      - Faerie Dragon Youth
+    - Faerie Dragon Adult
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Faerie Dragon Youth
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Half-Dragon
+    - Half-Dragon
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Pseudodragon
+      - Pseudodragon Treats
+    - Pseudodragon
+      - Traits
+      - Actions
+  - Shadow Dragons
+      - Shadow Dragon Lairs
+    - Juvenile Shadow Dragon
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Shadow Dragon
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+
+## [MM] Bestiary\Elementals.md
+- Elementals
+  - Aarakocra
+    - Aarakocra Aeromancer
+    - Aarakocra Skirmisher
+    - Aarakocra Aeromancer
+      - Actions
+      - Reactions
+    - Aarakocra Skirmisher
+      - Actions
+  - Air Elemental
+      - Air Elemental Compositions
+    - Air Elemental
+      - Traits
+      - Actions
+  - Azers
+    - Azer Pyromancer
+    - Azer Sentinel
+    - Azer Pyromancer
+      - Traits
+      - Actions
+      - Reactions
+    - Azer Sentinel
+      - Traits
+      - Actions
+  - Earth Elemental
+      - Earth Elemental Compositions
+    - Earth Elemental
+      - Traits
+      - Actions
+  - Elemental Cataclysm
+      - Elemental Alterations
+    - Elemental Cataclysm
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Fire Elemental
+      - Fire Elemental Compositions
+    - Fire Elemental
+      - Traits
+      - Actions
+  - Galeb Duhr
+    - Galeb Duhr
+      - Actions
+  - Gargoyle
+      - Gargoyle Sculptures
+    - Gargoyle Ambushes
+      - Gargoyle Camouflage
+    - Gargoyle
+      - Traits
+      - Actions
+  - Invisible Stalker
+      - Uncontrolled Invisible Stalkers
+    - Invisible Stalker
+      - Traits
+      - Actions
+  - Magmin
+    - Magmin
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Salamanders
+    - Salamander Fire Snake
+    - Salamander
+    - Salamander Inferno Master
+    - Salamander Fire Snake
+      - Traits
+      - Actions
+    - Salamander
+      - Traits
+      - Actions
+    - Salamander Inferno Master
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Water Elemental
+      - Water Elemental Compositions
+    - Water Elemental
+      - Traits
+      - Actions
+  - Water Weird
+    - Water Weird
+      - Traits
+      - Actions
+  - Xorn
+      - Xorn Delicacies
+    - Xorn
+      - Traits
+      - Actions
+      - Bonus Actions
+
+## [MM] Bestiary\Fey.md
+- Fey
+  - Blink Dog
+    - Blink Dog
+      - Actions
+      - Bonus Actions
+  - Centaurs
+    - Centaur Warden
+    - Centaur Trooper
+    - Centaur Warden
+      - Actions
+      - Bonus Actions
+    - Centaur Trooper
+      - Actions
+      - Bonus Actions
+  - Dryad
+    - Dryad Sanctuaries
+    - Dryad
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Pixies
+    - Pixie
+    - Pixie Wonderbringer
+    - Pixie
+      - Traits
+      - Actions
+    - Pixie Wonderbringer
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Satyrs
+    - Satyr
+    - Satyr Revelmaster
+    - Satyr
+      - Traits
+      - Actions
+    - Satyr Revelmaster
+      - Traits
+      - Actions
+  - Sprite
+    - Sprite
+      - Actions
+
+## [MM] Bestiary\Fiends.md
+- Fiends
+  - Cambion
+      - Cambion Origins
+    - Cambion
+      - Actions
+  - Hell Hound
+    - Hell Hound
+      - Traits
+      - Actions
+  - Incubus
+      - Incubus Nightmares
+    - Incubus
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Jackalwere
+      - Jackalwere Tricks
+    - Jackalwere
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Larvae
+    - Larva
+    - Larva
+      - Actions
+    - Swarm of Larvae
+    - Swarm of Larvae
+      - Traits
+      - Actions
+  - Nightmare
+      - Nightmare Riders
+    - Nightmare
+      - Traits
+      - Actions
+  - Rakshasa
+    - Rakshasa
+      - Traits
+      - Actions
+  - Succubus
+      - Succubus Temptations
+    - Succubus
+      - Traits
+      - Actions
+      - Bonus Actions
+
+## [MM] Bestiary\Genies.md
+- Genies
+  - Dao
+    - Dao
+      - Traits
+      - Actions
+  - Djinni
+    - Djinni
+      - Traits
+      - Actions
+  - Efreeti
+    - Efreeti
+      - Traits
+      - Actions
+  - Marid
+    - Marid
+      - Traits
+      - Actions
+      - Bonus Actions
+
+## [MM] Bestiary\Giants.md
+- Giants
+  - Cloud Giant
+    - Cloud Giant
+      - Actions
+      - Bonus Actions
+  - Cyclopes
+    - Cyclops Oracle
+    - Cyclops Sentry
+    - Cyclops Oracle
+      - Actions
+      - Reactions
+    - Cyclops Sentry
+      - Actions
+      - Reactions
+  - Ettin
+      - Ettin Interactions
+    - Ettin
+      - Actions
+  - Fire Giant
+    - Fire Giant
+      - Actions
+  - Fomorian
+      - Fomorian Warping
+    - Fomorian
+      - Actions
+  - Frost Giant
+    - Frost Giant
+      - Actions
+      - Bonus Actions
+  - Hill Giant
+    - Hill Giant
+      - Actions
+  - Ogres
+    - Ogre
+    - Ogrillon Ogre
+    - Ogre
+      - Actions
+    - Ogrillon Ogre
+      - Actions
+  - Oni
+      - Oni Troubles
+    - Oni
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Stone Giant
+    - Stone Giant
+      - Actions
+      - Reactions
+  - Storm Giant
+    - Storm Giant
+      - Traits
+      - Actions
+  - Troll
+    - Troll
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Troll Limb
+      - Traits
+      - Actions
+
+## [MM] Bestiary\Gith.md
+- Githyanki
+  - History of the Gith
+  - Githyanki Warrior
+  - Githyanki Knight
+  - Githyanki Dracomancer
+    - Githyanki Warrior
+      - Actions
+      - Bonus Actions
+    - Githyanki Knight
+      - Actions
+      - Bonus Actions
+    - Githyanki Dracomancer
+      - Actions
+      - Bonus Actions
+- Githzerai
+  - Githzerai Monk
+  - Githzerai Zerth
+  - Githzerai Psion
+  - Adventures with Gith
+    - Gith Conflicts
+    - Githzerai Monk
+      - Actions
+      - Bonus Actions
+      - Reactions
+    - Githzerai Zerth
+      - Actions
+      - Bonus Actions
+      - Reactions
+    - Githzerai Psion
+      - Actions
+      - Reactions
+
+## [MM] Bestiary\Golems.md
+- Golems
+  - Clay Golem
+    - Clay Golem Orders
+    - Clay Golem
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Flesh Golem
+    - Flesh Golem Characteristics
+    - Flesh Golem
+      - Traits
+      - Actions
+  - Iron Golem
+    - Iron Golem Orders
+    - Iron Golem
+      - Traits
+      - Actions
+  - Stone Golem
+    - Stone Golem Orders
+    - Stone Golem
+      - Traits
+      - Actions
+      - Bonus Actions
+
+## [MM] Bestiary\Hags.md
+- Hags
+  - Arch-Hag
+    - Arch-Hag Anathemas
+    - Arch-Hag Lairs
+    - Arch-Hag
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Reactions
+      - Legendary Actions
+  - Green Hag
+    - Green Hag Bargains
+    - Green Hag
+      - Traits
+      - Actions
+  - Night Hag
+    - Night Hag
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Sea Hag
+    - Sea Hag Disguises
+    - Sea Hag
+      - Traits
+      - Actions
+
+## [MM] Bestiary\Humanoids.md
+- Humanoids
+  - Bugbears
+    - Bugbear Stalker
+    - Bugbear Warrior
+    - Bugbear Stalker
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Bugbear Warrior
+      - Traits
+      - Actions
+  - Bullywugs
+    - Bullywug Bog Sage
+    - Bullywug Warrior
+    - Bullywug Bog Sage
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Bullywug Warrior
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Gnolls
+    - Gnoll Warrior
+    - Gnoll Pack Lord
+    - Gnoll Fang of Yeenoghu
+    - Gnoll Demoniac
+    - Gnoll Warrior
+      - Actions
+      - Bonus Actions
+    - Gnoll Pack Lord
+      - Actions
+      - Bonus Actions
+    - Gnoll Fang of Yeenoghu
+      - Actions
+      - Bonus Actions
+    - Gnoll Demoniac
+      - Actions
+      - Bonus Actions
+  - Goblins
+    - Goblin Minion
+    - Goblin Warrior
+    - Goblin Boss
+    - Goblin Hexer
+    - Goblin Minion
+      - Actions
+      - Bonus Actions
+    - Goblin Warrior
+      - Actions
+      - Bonus Actions
+    - Goblin Boss
+      - Actions
+      - Bonus Actions
+      - Reactions
+    - Goblin Hexer
+      - Actions
+      - Reactions
+  - Grimlock
+      - Grimlock Tasks
+    - Grimlock
+      - Actions
+  - Hobgoblins
+    - Hobgoblin Warrior
+    - Hobgoblin Captain
+    - Hobgoblin Warlord
+    - Hobgoblin Warfare
+      - Hobgoblin Strategies
+    - Hobgoblin Warrior
+      - Traits
+      - Actions
+    - Hobgoblin Captain
+      - Traits
+      - Actions
+    - Hobgoblin Warlord
+      - Traits
+      - Actions
+      - Reactions
+  - Kenku
+    - Kenku
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Kobolds
+    - Kobold Warrior
+    - Winged Kobold
+    - Kobold Warrior
+      - Traits
+      - Actions
+    - Winged Kobold
+      - Traits
+      - Actions
+  - Kuo-toa
+    - Kuo-toa
+    - Kuo-toa Whip
+    - Kuo-toa Monitor
+    - Kuo-toa Archpriest
+    - Kuo-toa Deities
+      - Kuo-toa Deity Features
+    - Kuo-toa Sanctuaries
+      - Kuo-toa Ritual Sites
+    - Kuo-toa
+      - Traits
+      - Actions
+      - Reactions
+    - Kuo-toa Whip
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Kuo-toa Monitor
+      - Traits
+      - Actions
+    - Kuo-toa Archpriest
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Lizardfolk
+    - Lizardfolk Geomancer
+    - Lizardfolk Sovereign
+    - Lizardfolk Geomancer
+      - Actions
+    - Lizardfolk Sovereign
+      - Actions
+      - Bonus Actions
+  - Merfolk
+    - Merfolk Skirmisher
+    - Merfolk Wavebender
+    - Merfolk Skirmisher
+      - Traits
+      - Actions
+    - Merfolk Wavebender
+      - Traits
+      - Actions
+      - Reactions
+  - Quaggoths
+    - Quaggoth
+    - Quaggoth Thonot
+    - Quaggoth
+      - Traits
+      - Actions
+    - Quaggoth Thonot
+      - Traits
+      - Actions
+      - Reactions
+  - Sahuagin
+    - Sahuagin Warrior
+    - Sahuagin Priest
+    - Sahuagin Baron
+    - Sahuagin Warrior
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Sahuagin Priest
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Sahuagin Baron
+      - Traits
+      - Actions
+      - Reactions
+  - Thri-kreen
+    - Thri-kreen Marauder
+    - Thri-kreen Psion
+    - Thri-kreen Marauder
+      - Actions
+      - Bonus Actions
+    - Thri-kreen Psion
+      - Actions
+  - Troglodyte
+    - Troglodyte
+      - Traits
+      - Actions
+  - Yuan-ti
+      - Yuan-ti Transformations
+    - Yuan-ti Infiltrator
+    - Yuan-ti Malisons
+    - Yuan-ti Abomination
+    - Yuan-ti Infiltrator
+      - Traits
+      - Actions
+    - Yuan-ti Malison (Type 1)
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Yuan-ti Malison (Type 2)
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Yuan-ti Malison (Type 3)
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Yuan-ti Abomination
+      - Traits
+      - Actions
+      - Bonus Actions
+
+## [MM] Bestiary\Lycanthropes.md
+- Lycanthropes
+  - Werebear
+    - Werebear
+      - Actions
+      - Bonus Actions
+  - Wereboar
+    - Wereboar
+      - Actions
+      - Bonus Actions
+  - Wererat
+    - Wererat
+      - Actions
+      - Bonus Actions
+  - Weretiger
+    - Weretiger Wards
+    - Weretiger
+      - Actions
+      - Bonus Actions
+  - Werewolf
+    - Werewolf
+      - Traits
+      - Actions
+      - Bonus Actions
+
+## [MM] Bestiary\Mephits.md
+- Mephits
+  - Dust Mephit
+  - Ice Mephit
+  - Magma Mephit
+  - Mud Mephit
+  - Smoke Mephit
+  - Steam Mephit
+    - Dust Mephit
+      - Traits
+      - Actions
+    - Ice Mephit
+      - Traits
+      - Actions
+    - Magma Mephit
+      - Traits
+      - Actions
+    - Mud Mephit
+      - Traits
+      - Actions
+    - Smoke Mephit
+      - Traits
+      - Actions
+    - Steam Mephit
+      - Traits
+      - Actions
+
+## [MM] Bestiary\Mind-Flayers.md
+- Mind Flayers
+  - Mind Flayer Colonies
+    - Mind Flayer Machinations
+  - Intellect Devourer
+  - Mind Flayer
+  - Mind Flayer Arcanist
+    - Intellect Devourer
+      - Traits
+      - Actions
+    - Mind Flayer
+      - Traits
+      - Actions
+    - Mind Flayer Arcanist
+      - Traits
+      - Actions
+      - Reactions
+
+## [MM] Bestiary\Monstrosities.md
+- Monstrosities
+  - Ankheg
+    - Ankheg Tunnel Discoveries
+    - Ankheg
+      - Traits
+      - Actions
+  - Axe Beaks
+    - Axe Beak
+    - Giant Axe Beak
+    - Axe Beak
+      - Actions
+    - Giant Axe Beak
+      - Actions
+  - Basilisk
+    - Petrified Basilisk Victims
+    - Basilisk
+      - Actions
+      - Bonus Actions
+  - Behir
+    - Behir
+      - Actions
+      - Bonus Actions
+  - Bulettes
+    - Bulette
+    - Bulette Pup
+    - Bulette
+      - Actions
+      - Bonus Actions
+    - Bulette Pup
+      - Actions
+      - Bonus Actions
+  - Carrion Crawler
+    - Carrion Crawler
+      - Traits
+      - Actions
+  - Chimera
+    - Chimera
+      - Actions
+  - Cockatrices
+    - Cockatrice
+    - Cockatrice Regent
+    - Cockatrice
+      - Actions
+    - Cockatrice Regent
+      - Traits
+      - Actions
+      - Reactions
+  - Darkmantle
+    - Darkmantle
+      - Actions
+  - Death Dog
+    - Death Dog Malady Symptoms
+    - Death Dog
+      - Actions
+  - Displacer Beast
+    - Displacer Beast
+      - Traits
+      - Actions
+  - Doppelganger
+    - Doppelganger Deceptions
+    - Doppelganger
+      - Actions
+      - Bonus Actions
+  - Drider
+    - Drider Metamorphoses
+    - Drider
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Ettercap
+    - Ettercap
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Gorgons
+    - Gorgon Command Keys
+    - Gorgon
+    - Brazen Gorgon
+    - Gorgon
+      - Actions
+      - Bonus Actions
+    - Brazen Gorgon
+      - Traits
+      - Actions
+  - Gricks
+    - Grick
+    - Grick Ancient
+    - Grick
+      - Actions
+    - Grick Ancient
+      - Actions
+  - Griffon
+    - Griffon Tales
+    - Griffon
+      - Actions
+  - Guardian Naga
+    - Guardian Naga Lore
+    - Guardian Naga
+      - Traits
+      - Actions
+  - Harpy
+    - Harpy
+      - Actions
+  - Hippogriff
+    - Hippogriff Destination
+    - Hippogriff
+      - Traits
+      - Actions
+  - Hook Horror
+    - Hook Horror
+      - Actions
+  - Hydra
+    - Hydra Lairs
+    - Hydra
+      - Traits
+      - Actions
+  - Kraken
+    - Kraken Attacks
+    - Kraken Lairs
+    - Kraken
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Lamia
+    - Lamia Pacts
+    - Lamia
+      - Actions
+      - Bonus Actions
+  - Manticore
+    - Manticore Negotiations
+    - Manticore
+      - Actions
+  - Medusa
+    - Medusa Fates
+    - Medusa
+      - Actions
+      - Bonus Actions
+  - Merrow
+    - Merrow
+      - Traits
+      - Actions
+  - Mimic
+    - Mimic
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Minotaur of Baphomet
+    - Minotaur Mazes
+    - Minotaur of Baphomet
+      - Actions
+  - Owlbears
+    - Owlbear Den Features
+    - Owlbear
+    - Owlbear
+      - Actions
+    - Primeval Owlbear
+    - Primeval Owlbear
+      - Traits
+      - Actions
+  - Peryton
+    - Peryton Superstitions
+    - Peryton
+      - Traits
+      - Actions
+  - Phase Spider
+    - Phase Spider
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Piercer
+    - Piercer
+      - Traits
+      - Actions
+  - Purple Worm
+    - Purple Worm
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Remorhazes
+    - Young Remorhaz
+    - Young Remorhaz
+      - Traits
+      - Actions
+    - Remorhaz
+    - Remorhaz
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Roc
+    - Roc Nest Remnants
+    - Roc
+      - Actions
+      - Bonus Actions
+  - Roper
+    - Roper Hazards
+    - Roper
+      - Traits
+      - Actions
+  - Rust Monster
+    - Rust Monster
+      - Traits
+      - Actions
+      - Reactions
+  - Spirit Naga
+    - Spirit Naga Grievances
+    - Spirit Naga
+      - Traits
+      - Actions
+  - Stirges
+    - Stirge Roosts
+    - Stirge
+    - Stirge
+      - Actions
+    - Swarm of Stirges
+    - Swarm of Stirges
+      - Traits
+      - Actions
+  - Tarrasque
+    - Tarrasque Evidence
+    - Tarrasque
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+  - Umber Hulk
+    - Umber Hulk
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Winter Wolf
+    - Winter Wolf
+      - Traits
+      - Actions
+  - Worgs
+    - Worg
+    - Worg
+      - Actions
+    - Dire Worg
+    - Dire Worg
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Wyvern
+    - Wyvern
+      - Actions
+  - Yetis
+    - Yeti
+    - Yeti
+      - Traits
+      - Actions
+    - Abominable Yeti
+    - Abominable Yeti
+      - Traits
+      - Actions
+
+## [MM] Bestiary\Oozes.md
+- Oozes
+  - Black Pudding
+    - Black Pudding Sources
+    - Black Pudding
+      - Traits
+      - Actions
+      - Reactions
+  - Blob of Annihilation
+    - Blob of Annihilation Contents
+    - Blob of Annihilation
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Gelatinous Cube
+    - Gelatinous Cube Debris
+    - Gelatinous Cube
+      - Traits
+      - Actions
+  - Gray Oozes
+    - Gray Ooze
+    - Psychic Gray Ooze
+    - Gray Ooze
+      - Traits
+      - Actions
+    - Psychic Gray Ooze
+      - Traits
+      - Actions
+      - Reactions
+  - Ochre Jelly
+    - Ochre Jelly Leftovers
+    - Ochre Jelly
+      - Traits
+      - Actions
+      - Reactions
+
+## [MM] Bestiary\Plants.md
+- Plants
+  - Awakened Plants
+    - Awakened Shrub
+    - Awakened Tree
+    - Awakened Shrub
+      - Actions
+    - Awakened Tree
+      - Actions
+  - Blights
+    - Twig Blight
+    - Needle Blight
+    - Vine Blight
+    - Tree Blight
+    - Gulthias Blight
+    - Twig Blight
+      - Traits
+      - Actions
+    - Needle Blight
+      - Actions
+    - Vine Blight
+      - Actions
+    - Tree Blight
+      - Actions
+      - Bonus Actions
+    - Gulthias Blight
+      - Traits
+      - Actions
+  - Fungi
+    - Gas Spore Fungus
+    - Shrieker Fungus
+    - Violet Fungus
+    - Violet Fungus Necrohulk
+    - Gas Spore Fungus
+      - Traits
+      - Actions
+    - Shrieker Fungus
+      - Reactions
+    - Violet Fungus
+      - Actions
+    - Violet Fungus Necrohulk
+      - Actions
+      - Bonus Actions
+  - Myconids
+    - Myconid Sprout
+    - Myconid Adult
+    - Myconid Spore Servant
+    - Myconid Sovereign
+    - Myconid Sprout
+      - Traits
+      - Actions
+    - Myconid Adult
+      - Traits
+      - Actions
+    - Myconid Spore Servant
+      - Actions
+    - Myconid Sovereign
+      - Traits
+      - Actions
+  - Shambling Mound
+    - Shambling Mound Cultivation
+    - Shambling Mound
+      - Traits
+      - Actions
+  - Treant
+    - Treant Secrets
+    - Treant
+      - Traits
+      - Actions
+
+## [MM] Bestiary\Slaadi.md
+- Slaadi
+  - Slaad Tadpole
+  - Red Slaad
+  - Blue Slaad
+  - Green Slaad
+  - Gray Slaad
+  - Death Slaad
+    - Slaad Tadpole
+      - Traits
+      - Actions
+    - Red Slaad
+      - Traits
+      - Actions
+    - Blue Slaad
+      - Traits
+      - Actions
+    - Green Slaad
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Gray Slaad
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Death Slaad
+      - Traits
+      - Actions
+      - Bonus Actions
+
+## [MM] Bestiary\Sphinxes.md
+- Sphinxes
+  - Sphinx of Wonder
+  - Sphinx of Secrets
+  - Sphinx of Lore
+  - Sphinx of Valor
+    - Sphinx of Wonder
+      - Traits
+      - Actions
+      - Reactions
+    - Sphinx of Secrets
+      - Traits
+      - Actions
+    - Sphinx of Lore
+      - Traits
+      - Actions
+      - Legendary Actions
+    - Sphinx Lairs
+    - Sphinx of Valor
+      - Traits
+      - Actions
+      - Legendary Actions
+
+## [MM] Bestiary\Undead.md
+- Undead
+  - Banshee
+    - Banshee Sorrows
+    - Banshee
+      - Traits
+      - Actions
+  - Bone Naga
+    - Bone Naga
+      - Actions
+  - Crawling Claws
+    - Crawling Claw
+    - Swarm of Crawling Claws
+    - Crawling Claw
+      - Actions
+    - Swarm of Crawling Claws
+      - Traits
+      - Actions
+  - Death Knights
+    - Death Knight
+    - Death Knight Aspirant
+    - Death Knight
+      - Traits
+      - Actions
+      - Reactions
+      - Legendary Actions
+    - Death Knight Aspirant
+      - Traits
+      - Actions
+      - Reactions
+  - Demilich
+    - Demilich Lairs
+    - Demilich
+      - Traits
+      - Actions
+      - Legendary Actions
+  - Flameskull
+    - Flameskull Details
+    - Flameskull
+      - Traits
+      - Actions
+  - Ghasts
+    - Ghast
+    - Ghast Gravecaller
+    - Ghast
+      - Traits
+      - Actions
+    - Ghast Gravecaller
+      - Traits
+      - Actions
+  - Ghost
+    - Ghost
+      - Traits
+      - Actions
+  - Ghouls
+    - Ghoul
+    - Lacedon Ghoul
+    - Ghoul
+      - Actions
+    - Lacedon Ghoul
+      - Actions
+      - Bonus Actions
+  - Lich
+    - Lich Spirit Jars
+    - Lich Lairs
+    - Lich
+      - Traits
+      - Actions
+      - Reactions
+      - Legendary Actions
+  - Mummies
+    - Mummy
+      - Mummy Resurrections
+    - Mummy
+      - Actions
+    - Mummy Lord
+      - Mummy Lord Plots
+      - Mummy Lord Lairs
+    - Mummy Lord
+      - Traits
+      - Actions
+      - Reactions
+      - Legendary Actions
+  - Poltergeist
+    - Poltergeist Activities
+    - Poltergeist
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Revenants
+    - Revenant
+    - Graveyard Revenant
+    - Haunting Revenant
+    - Revenant
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Graveyard Revenant
+      - Traits
+      - Actions
+    - Haunting Revenant
+      - Traits
+      - Actions
+  - Shadow
+    - Shadow Shapes
+    - Shadow
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Skeletons
+    - Skeleton Pantomimes
+    - Skeleton
+    - Warhorse Skeleton
+    - Minotaur Skeleton
+    - Flaming Skeleton
+    - Skeleton
+      - Actions
+    - Warhorse Skeleton
+      - Actions
+    - Minotaur Skeleton
+      - Actions
+    - Flaming Skeleton
+      - Traits
+      - Actions
+  - Specter
+    - Specter Haunts
+    - Specter
+      - Traits
+      - Actions
+  - Vampires
+    - Vampire Resting Places
+    - Vampire Familiar
+    - Vampire Spawn
+    - Vampire Nightbringer
+    - Vampire
+    - Vampire Umbral Lord
+    - Vampire Lairs
+    - Vampire Familiar
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Vampire Spawn
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Vampire Nightbringer
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Vampire
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+    - Vampire Umbral Lord
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Legendary Actions
+  - Wight
+    - Wight Motives
+    - Wight
+      - Traits
+      - Actions
+  - Will-o'-Wisp
+    - Will-o'-Wisp Ambushes
+    - Will-o'-Wisp
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Wraith
+    - Wraith Manifestations
+    - Wraith
+      - Traits
+      - Actions
+  - Zombies
+    - Zombie
+    - Ogre Zombie
+    - Beholder Zombie
+    - Zombie
+      - Traits
+      - Actions
+    - Ogre Zombie
+      - Traits
+      - Actions
+    - Beholder Zombie
+      - Traits
+      - Actions
+
+## [MM] Bestiary\Yugoloths.md
+- Yugoloths
+  - Arcanaloth
+    - Arcanaloth
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Reactions
+  - Mezzoloth
+    - Mezzoloth Payments
+    - Mezzoloth
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Nycaloth
+    - Yugoloth Incursions
+    - Nycaloth
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Ultroloth
+    - Ultroloth Conspiracies
+    - Ultroloth
+      - Traits
+      - Actions
+      - Bonus Actions
+
+## [MM] Introduction.md
+- Introduction: How to Use a Monster
+  - Stat Block Overview
+    - Vampire Familiar
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Monster Entries
+    - Habitat
+    - Treasure
+    - Narrative Description
+    - Special Lairs
+    - Stat Blocks
+  - Parts of a Stat Block
+    - Size
+    - Creature Type
+    - Descriptive Tags
+    - Alignment
+    - Armor Class
+    - Initiative
+    - Hit Points
+      - Hit Dice by Size
+    - Speed
+    - Ability Scores
+    - Skills
+    - Resistances and Vulnerabilities
+    - Immunities
+    - Gear
+      - Ammunition and Ranged Attacks
+      - Equipping a Monster with Other Items
+    - Senses
+    - Languages
+    - Telepathy
+    - Challenge Rating
+    - Experience Points
+      - Experience Points by Challenge Rating
+    - Proficiency Bonus
+      - Proficiency Bonus by Challenge Rating
+    - Traits
+    - Actions
+      - Attack Notation
+      - Saving Throw Effect Notation
+      - Damage Notation
+    - Multiattack
+    - Spellcasting
+    - Bonus Action
+    - Reactions
+    - Legendary Actions
+    - Limited Usage
+
+## [MM] NPC's\NPCs.md
+- NPCs
+  - Assassin
+    - Assassin Modus Operandi
+    - Assassin
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Bandits
+    - Bandit Motivations
+      - Bandit
+      - Bandit Captain
+      - Bandit Deceiver
+      - Bandit Crime Lord
+    - Bandit
+      - Actions
+    - Bandit Captain
+      - Actions
+      - Reactions
+    - Bandit Deceiver
+      - Actions
+    - Bandit Crime Lord
+      - Traits
+      - Actions
+      - Bonus Actions
+  - Berserkers
+      - Berserker Commander
+      - Berserker
+    - Berserker Commander
+      - Traits
+      - Actions
+      - Bonus Actions
+    - Berserker
+      - Traits
+      - Actions
+  - Commoner
+    - Commoner
+      - Traits
+      - Actions
+  - Cultists
+    - Cultist Agendas
+    - Occult Symbols
+    - Cult Symbols
+    - Cult Members
+      - Cultist
+      - Cultist Fanatic
+      - Cultist Hierophant
+    - Types of Cultists
+      - Aberrant Cultist
+      - Death Cultist
+      - Elemental Cultist
+      - Fiend Cultist
+    - Cultist
+      - Actions
+    - Cultist Fanatic
+      - Actions
+      - Bonus Actions
+    - Cultist Hierophant
+      - Actions
+    - Aberrant Cultist
+      - Actions
+      - Reactions
+    - Death Cultist
+      - Actions
+      - Bonus Actions
+    - Elemental Cultist
+      - Actions
+      - Reactions
+    - Fiend Cultist
+      - Actions
+      - Reactions
+  - Druid
+    - Druidic Traditions
+    - Druid
+      - Actions
+  - Gladiator
+    - Gladiator Theatrics
+    - Gladiator
+      - Actions
+      - Reactions
+  - Guards
+      - Guard
+      - Guard Captain
+    - Guard
+      - Actions
+    - Guard Captain
+      - Actions
+  - Knights
+      - Knight
+      - Questing Knight
+    - Knight
+      - Actions
+      - Reactions
+    - Questing Knight
+      - Traits
+      - Actions
+  - Mages
+    - Mage Roles
+      - Mage Apprentice
+      - Mage
+      - Archmage
+    - Mage Apprentice
+      - Actions
+    - Mage
+      - Actions
+      - Bonus Actions
+      - Reactions
+    - Archmage
+      - Traits
+      - Actions
+      - Bonus Actions
+      - Reactions
+  - Nobles
+      - Noble
+      - Noble Prodigy
+    - Noble
+      - Actions
+      - Reactions
+    - Noble Prodigy
+      - Actions
+      - Reactions
+  - Performers
+      - Performer
+      - Performer Maestro
+      - Performer Legend
+    - Performer
+      - Actions
+      - Reactions
+    - Performer Maestro
+      - Actions
+    - Performer Legend
+      - Actions
+      - Reactions
+  - Pirates
+      - Pirate
+      - Pirate Captain
+      - Pirate Admiral
+    - Pirate Flags
+    - Pirate
+      - Actions
+    - Pirate Captain
+      - Actions
+      - Bonus Actions
+      - Reactions
+    - Pirate Admiral
+      - Actions
+      - Bonus Actions
+      - Reactions
+  - Priests
+    - Priest Roles
+      - Priest Acolyte
+      - Priest
+      - Archpriest
+    - Priest Acolyte
+      - Actions
+      - Bonus Actions
+    - Priest
+      - Actions
+      - Bonus Actions
+    - Archpriest
+      - Actions
+      - Bonus Actions
+  - Scouts
+      - Scout
+      - Scout Captain
+    - Scout
+      - Actions
+    - Scout Captain
+      - Actions
+      - Bonus Actions
+      - Reactions
+  - Spies
+    - Spy Personas
+      - Spy
+      - Spy Master
+    - Spy
+      - Actions
+      - Bonus Actions
+    - Spy Master
+      - Actions
+      - Bonus Actions
+  - Toughs
+      - Tough
+      - Tough Boss
+    - Tough
+      - Traits
+      - Actions
+    - Tough Boss
+      - Traits
+      - Actions
+  - Warriors
+    - Warrior Roles
+      - Warrior Infantry
+      - Warrior Veteran
+      - Warrior Commander
+    - Warrior Infantry
+      - Traits
+      - Actions
+    - Warrior Veteran
+      - Actions
+      - Reactions
+    - Warrior Commander
+      - Actions
+      - Bonus Actions
+      - Reactions
+
+

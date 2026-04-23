@@ -1,0 +1,24 @@
+[Unit]
+Description=BMO DM Discord Bot — D&D Dungeon Master
+After=network-online.target bmo.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=patrick
+WorkingDirectory=/home/patrick/DnD/bmo/pi
+EnvironmentFile=/home/patrick/DnD/bmo/pi/.env
+ExecStart=/home/patrick/DnD/bmo/pi/venv/bin/python -m bots.discord_dm_bot
+Restart=on-failure
+RestartSec=10
+
+# Resource limits
+MemoryMax=512M
+CPUQuota=50%
+
+# Logging
+StandardOutput=append:/home/patrick/bmo/data/logs/dm-bot.log
+StandardError=append:/home/patrick/bmo/data/logs/dm-bot.log
+
+[Install]
+WantedBy=multi-user.target

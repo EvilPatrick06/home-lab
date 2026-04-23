@@ -1,0 +1,699 @@
+{
+  "npcTraits": {
+    "personality": [
+      "Argumentative",
+      "Arrogant",
+      "Blustering",
+      "Curious",
+      "Friendly",
+      "Honest",
+      "Hot-tempered",
+      "Irritable",
+      "Ponderous",
+      "Quiet",
+      "Rude",
+      "Suspicious",
+      "Talkative",
+      "Generous",
+      "Nervous",
+      "Cheerful",
+      "Secretive",
+      "Paranoid",
+      "Melancholy",
+      "Eccentric"
+    ],
+    "ideals": [
+      "Beauty",
+      "Charity",
+      "Greater Good",
+      "Life",
+      "Respect",
+      "Self-Sacrifice",
+      "Domination",
+      "Greed",
+      "Might",
+      "Pain",
+      "Retribution",
+      "Slaughter",
+      "Community",
+      "Fairness",
+      "Honor",
+      "Logic",
+      "Responsibility",
+      "Tradition",
+      "Change",
+      "Freedom"
+    ],
+    "bonds": [
+      "A family member is in trouble",
+      "A mentor taught me everything I know",
+      "I owe everything to my patron",
+      "Someone stole something precious from me",
+      "I am haunted by a past failure",
+      "I would die for my homeland",
+      "I seek to recover a lost artifact",
+      "A loved one waits for my return",
+      "I was framed for a crime I didn't commit",
+      "I am searching for a sibling"
+    ],
+    "flaws": [
+      "A powerful enemy seeks my destruction",
+      "I can't resist a pretty face",
+      "I am too greedy for my own good",
+      "I trust no one",
+      "I'd rather run than fight",
+      "I am inflexible in my thinking",
+      "I am easily distracted by shiny objects",
+      "I have a terrible secret",
+      "I drink too much",
+      "I am arrogant and condescending",
+      "I will do anything for power",
+      "I hold grudges and never forgive"
+    ],
+    "appearance": [
+      "Distinctive jewelry",
+      "Flamboyant, outlandish, formal, or ragged clothes",
+      "Elegant mobility device (wheelchair, brace, cane)",
+      "Pronounced scar",
+      "Unusual eye color (or two different colors)",
+      "Tattoos or piercings",
+      "Birthmark",
+      "Unusual hair color",
+      "Bald, or braided beard or hair",
+      "Distinctive nose (large, bulbous, angular, small)",
+      "Distinctive posture (stooped or rigid)",
+      "Exceptionally beautiful or ugly"
+    ],
+    "mannerism": [
+      "Prone to singing",
+      "Speaks in rhymes",
+      "Exceptionally low voice",
+      "Exceptionally high voice",
+      "Slurs words",
+      "Lisps",
+      "Stutters",
+      "Enunciates overly clearly",
+      "Speaks loudly",
+      "Whispers",
+      "Uses flowery speech",
+      "Uses long words incorrectly",
+      "Frequently uses the wrong word",
+      "Uses colorful oaths",
+      "Makes constant jokes",
+      "Prone to predictions of doom",
+      "Fidgets",
+      "Squints",
+      "Stares into the distance",
+      "Chews something"
+    ],
+    "talents": [
+      "Plays a musical instrument",
+      "Speaks several languages fluently",
+      "Unbelievably lucky",
+      "Perfect memory",
+      "Great with animals",
+      "Great with children",
+      "Great at solving puzzles",
+      "Great at one game",
+      "Great at impersonations",
+      "Draws beautifully",
+      "Paints beautifully",
+      "Sings beautifully",
+      "Drinks everyone under the table",
+      "Expert carpenter",
+      "Expert cook",
+      "Expert dart thrower and rock skipper",
+      "Expert juggler",
+      "Skilled actor and master of disguise",
+      "Skilled dancer",
+      "Knows thieves' cant"
+    ],
+    "interactionTraits": [
+      "Argumentative",
+      "Arrogant",
+      "Blustering",
+      "Rude",
+      "Curious",
+      "Friendly",
+      "Honest",
+      "Hot-tempered",
+      "Irritable",
+      "Ponderous",
+      "Quiet",
+      "Suspicious"
+    ],
+    "highAbility": [
+      "Strength — powerful, brawny, hard as nails",
+      "Dexterity — lithe, agile, graceful",
+      "Constitution — hardy, hale, healthy",
+      "Intelligence — studious, learned, inquisitive",
+      "Wisdom — perceptive, spiritual, insightful",
+      "Charisma — persuasive, forceful, born leader"
+    ],
+    "lowAbility": [
+      "Strength — feeble, scrawny",
+      "Dexterity — clumsy, fumbling",
+      "Constitution — sickly, pale",
+      "Intelligence — dim-witted, slow",
+      "Wisdom — oblivious, absent-minded",
+      "Charisma — dull, boring"
+    ],
+    "secrets": [
+      "In disguise, concealing identity or appearance",
+      "Planning, executing, or covering up a crime",
+      "Threatened with harm unless they do something",
+      "Under magical compulsion (e.g. Geas or curse)",
+      "Seriously ill or in terrible pain",
+      "Feels responsible for someone's death or ill fortune",
+      "On the brink of financial ruin",
+      "Desperately lonely or harboring unrequited passion",
+      "Nurses a powerful ambition",
+      "Deeply dissatisfied or unhappy"
+    ]
+  },
+  "npcNames": {
+    "common": {
+      "given": [
+        "Adrik",
+        "Alvyn",
+        "Aurora",
+        "Eldeth",
+        "Eldon",
+        "Farris",
+        "Kathra",
+        "Kellen",
+        "Lily",
+        "Nissa",
+        "Xinli",
+        "Zorra"
+      ],
+      "surname": [
+        "Brightsun",
+        "Dundragon",
+        "Frostbeard",
+        "Garrick",
+        "Goodbarrel",
+        "Greycastle",
+        "Ironfist",
+        "Jaerin",
+        "Merryweather",
+        "Redthorn",
+        "Stormriver",
+        "Wren"
+      ]
+    },
+    "guttural": {
+      "given": [
+        "Abzug",
+        "Bajok",
+        "Bharash",
+        "Grovis",
+        "Gruuna",
+        "Hokrun",
+        "Mardred",
+        "Rhogar",
+        "Skuldark",
+        "Thokk",
+        "Urzul",
+        "Varka"
+      ],
+      "surname": [
+        "Burska",
+        "Gruuthok",
+        "Hrondl",
+        "Jarzzok",
+        "Kraltus",
+        "Shamog",
+        "Skrangval",
+        "Ungart",
+        "Uuthrakt",
+        "Vrakir",
+        "Yuldra",
+        "Zulrax"
+      ]
+    },
+    "lyrical": {
+      "given": [
+        "Arannis",
+        "Damaia",
+        "Darsis",
+        "Dweomer",
+        "Evabeth",
+        "Jhessail",
+        "Keyleth",
+        "Netheria",
+        "Orianna",
+        "Sorcyl",
+        "Umarion",
+        "Velissa"
+      ],
+      "surname": [
+        "Arvannis",
+        "Brawnanvil",
+        "Daardendrian",
+        "Drachedandion",
+        "Endryss",
+        "Meliamne",
+        "Mishann",
+        "Silverfrond",
+        "Snowmantle",
+        "Summerbreeze",
+        "Thunderfoot",
+        "Zashir"
+      ]
+    },
+    "monosyllabic": {
+      "given": ["Chen", "Creel", "Dain", "Dorn", "Flint", "Glim", "Henk", "Krusk", "Nox", "Nyx", "Rukh", "Shan"],
+      "surname": ["Dench", "Drog", "Dusk", "Holg", "Horn", "Imsh", "Jask", "Keth", "Ku", "Kung", "Mott", "Quaal"]
+    },
+    "sinister": {
+      "given": [
+        "Arachne",
+        "Axyss",
+        "Carrion",
+        "Grinnus",
+        "Melkhis",
+        "Morthos",
+        "Nadir",
+        "Scandal",
+        "Skellendyre",
+        "Thaltus",
+        "Valkora",
+        "Vexander"
+      ],
+      "surname": [
+        "Doomwhisper",
+        "Dreadfield",
+        "Gallows",
+        "Hellstryke",
+        "Killraven",
+        "Nightblade",
+        "Norixius",
+        "Shadowfang",
+        "Valtar",
+        "Winterspell",
+        "Xandros",
+        "Zarkynzorn"
+      ]
+    },
+    "whimsical": {
+      "given": [
+        "Cricket",
+        "Daisy",
+        "Dimble",
+        "Ellywick",
+        "Erky",
+        "Fiddlestyx",
+        "Fonkin",
+        "Golly",
+        "Mimsy",
+        "Pumpkin",
+        "Quarrel",
+        "Sybilwick"
+      ],
+      "surname": [
+        "Borogove",
+        "Goldjoy",
+        "Hoddypeak",
+        "Huddle",
+        "Jollywind",
+        "Oneshoe",
+        "Scramblewise",
+        "Sunnyhill",
+        "Tallgrass",
+        "Timbers",
+        "Underbough",
+        "Wimbly"
+      ]
+    }
+  },
+  "weather": [
+    {
+      "d20Min": 1,
+      "d20Max": 14,
+      "condition": "Normal for the season"
+    },
+    {
+      "d20Min": 15,
+      "d20Max": 17,
+      "condition": "1d4 degrees colder than normal; 1d4 degrees hotter in a hot climate"
+    },
+    {
+      "d20Min": 18,
+      "d20Max": 18,
+      "condition": "1d4 × 5 degrees colder than normal; 1d4 × 5 degrees hotter in a hot climate"
+    },
+    {
+      "d20Min": 19,
+      "d20Max": 20,
+      "condition": "Precipitation (rain, snow, or sandstorm in desert)"
+    },
+    {
+      "d20Min": 20,
+      "d20Max": 20,
+      "condition": "Heavy precipitation with strong wind"
+    }
+  ],
+  "tavernNames": [
+    "The Rusty Dragon",
+    "The Golden Goose",
+    "The Prancing Pony",
+    "The Yawning Portal",
+    "The Drunken Mermaid",
+    "The Iron Flask",
+    "The Sleeping Giant",
+    "The Silver Stag",
+    "The Broken Barrel",
+    "The Leaky Cauldron",
+    "The Wandering Wyvern",
+    "The Blind Basilisk",
+    "The Dancing Bear",
+    "The Howling Wolf",
+    "The Crimson Crown",
+    "The Gilded Gryphon",
+    "The Tipsy Troll",
+    "The Mithral Shield",
+    "The Roaring Manticore",
+    "The Frosted Mug"
+  ],
+  "shopNames": [
+    "Ironhand's Armory",
+    "The Wizard's Emporium",
+    "Tinkerton's Curiosities",
+    "The Silver Needle",
+    "Shadowleaf Apothecary",
+    "The Gilded Gauntlet",
+    "Stoneheart's Smithy",
+    "The Enchanted Quill",
+    "Goblinbane Weapons",
+    "The Crystal Vial",
+    "Dusty Tome Books",
+    "The Mending Hammer",
+    "Brightforge Arms",
+    "The Alchemist's Flask",
+    "The Market Stall",
+    "Dragon's Hoard Trading",
+    "The Copper Kettle",
+    "Moonrise Herbals",
+    "The Wandering Merchant",
+    "The Supply Depot"
+  ],
+  "plotHooks": [
+    "A local merchant's shipment has gone missing on the road",
+    "Strange lights appear in the abandoned keep at night",
+    "Children are going missing from the village",
+    "A dragon has been spotted flying over the mountains",
+    "An ancient tomb has been uncovered by recent storms",
+    "The harvest is failing and the druids blame dark magic",
+    "A traveling bard tells tales of a lost city of gold",
+    "The local lord's heir has been kidnapped",
+    "Undead are rising from the old cemetery",
+    "A mysterious plague is spreading through the district",
+    "A portal to another plane has opened in the forest",
+    "The thieves' guild wants to hire the party for a heist",
+    "An oracle predicts doom unless heroes intervene",
+    "Pirates are blockading the harbor",
+    "A cult is gaining influence in the city",
+    "An earthquake has revealed a passage to the Underdark",
+    "A bounty has been posted for a notorious outlaw",
+    "The local temple has been desecrated",
+    "A powerful artifact has been stolen from the museum",
+    "Refugees are flooding in from a war-torn neighboring land"
+  ],
+  "dungeonQuirks": {
+    "die": "d100",
+    "entries": [
+      {
+        "roll": "01-02",
+        "quirk": "Abandoned after internal strife devastated its population"
+      },
+      {
+        "roll": "03-04",
+        "quirk": "Abandoned because the site was cursed by a god or other powerful entity"
+      },
+      {
+        "roll": "05-06",
+        "quirk": "Abandoned by its original creators when a plague spread through the dungeon"
+      },
+      {
+        "roll": "07-09",
+        "quirk": "Amazingly well preserved ancient city inside a dome encased in volcanic ash, submerged underwater, or entombed in desert sands"
+      },
+      {
+        "roll": "10-12",
+        "quirk": "Built as a fortress guarding a mountain pass"
+      },
+      {
+        "roll": "13-15",
+        "quirk": "Built as a maze, either to protect treasure from intruders or as a gauntlet where prisoners were hunted by monsters"
+      },
+      {
+        "roll": "16-18",
+        "quirk": "Built as a stronghold but abandoned after it fell to invaders"
+      },
+      {
+        "roll": "19-21",
+        "quirk": "Built as a treasure vault to protect powerful magic items and great wealth"
+      },
+      {
+        "roll": "22-23",
+        "quirk": "Built atop a cloud"
+      },
+      {
+        "roll": "24-26",
+        "quirk": "Built beneath a city in catacombs or sewers"
+      },
+      {
+        "roll": "27-29",
+        "quirk": "Built beneath or on top of a mesa or several connected mesas"
+      },
+      {
+        "roll": "30-32",
+        "quirk": "Built by a religious group to serve as a temple and linked to the energy of other planes of existence"
+      },
+      {
+        "roll": "33-35",
+        "quirk": "Built by dwarves and decorated with enormous dwarven faces that have been defaced by its current inhabitants"
+      },
+      {
+        "roll": "36-38",
+        "quirk": "Built in a volcano"
+      },
+      {
+        "roll": "39-40",
+        "quirk": "Built in or among the branches of a tree"
+      },
+      {
+        "roll": "41-43",
+        "quirk": "Built to house a planar portal but abandoned when creatures or energy from the other side of the portal seeped into the dungeon"
+      },
+      {
+        "roll": "44-46",
+        "quirk": "Carved into a meteorite (before or after it fell to earth)"
+      },
+      {
+        "roll": "47-49",
+        "quirk": "Carved into a sheer cliff face"
+      },
+      {
+        "roll": "50-52",
+        "quirk": "Caverns carved by a beholder's disintegration eye ray, with unnaturally smooth walls and vertical shafts connecting different levels"
+      },
+      {
+        "roll": "53-55",
+        "quirk": "Contains something that led to the downfall of its creators or inhabitants"
+      },
+      {
+        "roll": "56-58",
+        "quirk": "Dug as a burrow by a monster that might still live inside"
+      },
+      {
+        "roll": "59-61",
+        "quirk": "Entrance concealed behind a waterfall"
+      },
+      {
+        "roll": "62-64",
+        "quirk": "Floating on the sea"
+      },
+      {
+        "roll": "65-66",
+        "quirk": "Intended as a death trap to eliminate any creature that enters, perhaps to guard treasure or to harvest souls for a necromantic rite"
+      },
+      {
+        "roll": "67-69",
+        "quirk": "Intended as a tomb"
+      },
+      {
+        "roll": "70-72",
+        "quirk": "Long known as the site of a great miracle or another auspicious event"
+      },
+      {
+        "roll": "73-75",
+        "quirk": "Made by amphibious creatures (such as kuo-toa or aboleths), using water to protect the innermost reaches from air-breathing intruders"
+      },
+      {
+        "roll": "76-78",
+        "quirk": "Made by a powerful spellcaster (perhaps a lich) as a site for magical research and experimentation"
+      },
+      {
+        "roll": "79-81",
+        "quirk": "Made by giants at a vast scale"
+      },
+      {
+        "roll": "82-84",
+        "quirk": "Natural caverns featuring a range of strikingly beautiful rock and crystal formations"
+      },
+      {
+        "roll": "85-87",
+        "quirk": "On an island in an underground sea"
+      },
+      {
+        "roll": "88-90",
+        "quirk": "On the back of a Gargantuan creature"
+      },
+      {
+        "roll": "91-93",
+        "quirk": "Originally constructed as a mine but abandoned when tunnels connected to dangerous Underdark tunnels"
+      },
+      {
+        "roll": "94-96",
+        "quirk": "Secreted away in a demiplane or in a pocket dimension"
+      },
+      {
+        "roll": "97-98",
+        "quirk": "Slowly abandoned as its creators died out or migrated away"
+      },
+      {
+        "roll": "99-00",
+        "quirk": "Transformed by multiple events or disasters over the course of centuries"
+      }
+    ]
+  },
+  "statesOfRuin": {
+    "die": "d6",
+    "entries": [
+      {
+        "roll": 1,
+        "name": "Perilous",
+        "description": "The area is dangerously worn and prone to collapse. Any impacts or damage to the structure, including from spells and other areas of effect, have a 50 percent chance of causing a collapse."
+      },
+      {
+        "roll": 2,
+        "name": "Crumbling",
+        "description": "Areas within the dungeon section are choked with rubble and have a 50 percent chance of being Difficult Terrain. Half Cover and hiding places are plentiful."
+      },
+      {
+        "roll": 3,
+        "name": "Neglected",
+        "description": "One dungeon hazard — such as brown mold, green slime, or yellow mold — is abundant."
+      },
+      {
+        "roll": 4,
+        "name": "Abandoned",
+        "description": "Most of the dungeon is deserted. Dexterity (Stealth) checks have Disadvantage because any sounds stand out as unusual."
+      },
+      {
+        "roll": 5,
+        "name": "Secure",
+        "description": "Ability checks made to break down doors, open locks, or carry out similar activities have Disadvantage."
+      },
+      {
+        "roll": 6,
+        "name": "Thriving",
+        "description": "The dungeon is heavily populated. Any loud noises draw the attention of nearby creatures."
+      }
+    ]
+  },
+  "travelTerrain": [
+    {
+      "terrain": "Arctic",
+      "maxPace": "Fast",
+      "maxPaceNote": "Appropriate equipment (such as skis) is necessary to keep up a Fast pace in Arctic terrain.",
+      "encounterDistance": "6d6 × 10 feet",
+      "foragingDC": 20,
+      "navigationDC": 10,
+      "searchDC": 10
+    },
+    {
+      "terrain": "Coastal",
+      "maxPace": "Normal",
+      "encounterDistance": "2d10 × 10 feet",
+      "foragingDC": 10,
+      "navigationDC": 5,
+      "searchDC": 15
+    },
+    {
+      "terrain": "Desert",
+      "maxPace": "Normal",
+      "encounterDistance": "6d6 × 10 feet",
+      "foragingDC": 20,
+      "navigationDC": 10,
+      "searchDC": 10
+    },
+    {
+      "terrain": "Forest",
+      "maxPace": "Normal",
+      "encounterDistance": "2d8 × 10 feet",
+      "foragingDC": 10,
+      "navigationDC": 15,
+      "searchDC": 15
+    },
+    {
+      "terrain": "Grassland",
+      "maxPace": "Fast",
+      "encounterDistance": "6d6 × 10 feet",
+      "foragingDC": 15,
+      "navigationDC": 5,
+      "searchDC": 15
+    },
+    {
+      "terrain": "Hill",
+      "maxPace": "Normal",
+      "encounterDistance": "2d10 × 10 feet",
+      "foragingDC": 15,
+      "navigationDC": 10,
+      "searchDC": 15
+    },
+    {
+      "terrain": "Mountain",
+      "maxPace": "Slow",
+      "encounterDistance": "4d10 × 10 feet",
+      "foragingDC": 20,
+      "navigationDC": 15,
+      "searchDC": 20
+    },
+    {
+      "terrain": "Swamp",
+      "maxPace": "Slow",
+      "encounterDistance": "2d8 × 10 feet",
+      "foragingDC": 10,
+      "navigationDC": 15,
+      "searchDC": 20
+    },
+    {
+      "terrain": "Underdark",
+      "maxPace": "Normal",
+      "encounterDistance": "2d6 × 10 feet",
+      "foragingDC": 20,
+      "navigationDC": 10,
+      "searchDC": 20
+    },
+    {
+      "terrain": "Urban",
+      "maxPace": "Normal",
+      "encounterDistance": "2d6 × 10 feet",
+      "foragingDC": 20,
+      "navigationDC": 15,
+      "searchDC": 15
+    },
+    {
+      "terrain": "Waterborne",
+      "maxPace": "Special",
+      "maxPaceNote": "Characters' rate of travel while waterborne depends on the vehicle carrying them.",
+      "encounterDistance": "6d6 × 10 feet",
+      "foragingDC": 15,
+      "navigationDC": 10,
+      "searchDC": 15
+    }
+  ]
+}

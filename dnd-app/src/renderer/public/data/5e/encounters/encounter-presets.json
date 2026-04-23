@@ -1,0 +1,448 @@
+[
+  {
+    "id": "goblin-ambush",
+    "name": "Goblin Ambush",
+    "description": "A band of goblins ambushes the party on a forest road",
+    "environment": "forest",
+    "difficulty": "low",
+    "partyLevelRange": "1-4",
+    "monsters": [{ "id": "goblin-warrior", "count": 4 }, { "id": "goblin-boss", "count": 1 }],
+    "tactics": "Goblins hide and attack with surprise. Boss stays back with shortbow.",
+    "treasureHint": "Individual treasure CR 0-4"
+  },
+  {
+    "id": "bandit-highway",
+    "name": "Highwayman Holdup",
+    "description": "Bandits demand a toll on the road",
+    "environment": "road",
+    "difficulty": "low",
+    "partyLevelRange": "1-4",
+    "monsters": [{ "id": "bandit", "count": 6 }, { "id": "bandit-captain", "count": 1 }],
+    "tactics": "Captain negotiates, bandits surround. May flee if half are downed.",
+    "treasureHint": "Individual treasure CR 0-4 per bandit"
+  },
+  {
+    "id": "wolf-pack",
+    "name": "Wolf Pack Hunt",
+    "description": "A pack of wolves stalks the party at dusk",
+    "environment": "forest",
+    "difficulty": "low",
+    "partyLevelRange": "1-3",
+    "monsters": [{ "id": "wolf", "count": 6 }],
+    "tactics": "Wolves use Pack Tactics. Target isolated party members.",
+    "treasureHint": "None"
+  },
+  {
+    "id": "skeleton-crypt",
+    "name": "Crypt Defenders",
+    "description": "Skeletons rise from stone sarcophagi as intruders enter",
+    "environment": "dungeon",
+    "difficulty": "moderate",
+    "partyLevelRange": "1-4",
+    "monsters": [{ "id": "skeleton", "count": 8 }],
+    "tactics": "Skeletons form a line and attack nearest living creature.",
+    "treasureHint": "Hoard CR 0-4 in the central sarcophagus"
+  },
+  {
+    "id": "ogre-bridge",
+    "name": "Bridge Troll... er, Ogre",
+    "description": "An ogre blocks a narrow bridge and demands payment",
+    "environment": "road",
+    "difficulty": "moderate",
+    "partyLevelRange": "1-4",
+    "monsters": [{ "id": "ogre", "count": 1 }],
+    "tactics": "Ogre tries to grapple and throw enemies off the bridge.",
+    "treasureHint": "Individual treasure CR 0-4"
+  },
+  {
+    "id": "owlbear-den",
+    "name": "Owlbear Den",
+    "description": "The party stumbles upon an owlbear's nesting ground",
+    "environment": "forest",
+    "difficulty": "moderate",
+    "partyLevelRange": "2-5",
+    "monsters": [{ "id": "owlbear", "count": 1 }],
+    "tactics": "Owlbear is aggressive and territorial. Fights to the death defending nest.",
+    "treasureHint": "Previous victims' belongings near nest"
+  },
+  {
+    "id": "bugbear-scouts",
+    "name": "Bugbear Scouts",
+    "description": "Bugbear scouts in a cave entrance",
+    "environment": "dungeon",
+    "difficulty": "moderate",
+    "partyLevelRange": "2-5",
+    "monsters": [{ "id": "bugbear-warrior", "count": 3 }],
+    "tactics": "Bugbears use Surprise Attack from shadows. One flees to warn others.",
+    "treasureHint": "Individual treasure CR 0-4"
+  },
+  {
+    "id": "zombie-horde",
+    "name": "Zombie Horde",
+    "description": "A shambling horde of zombies emerges from the mist",
+    "environment": "any",
+    "difficulty": "moderate",
+    "partyLevelRange": "1-5",
+    "monsters": [{ "id": "zombie", "count": 10 }],
+    "tactics": "Zombies move toward nearest living creature. Use mob rules for large groups.",
+    "treasureHint": "None"
+  },
+  {
+    "id": "manticore-hunt",
+    "name": "Manticore Attack",
+    "description": "A manticore swoops down on the party from a clifftop perch",
+    "environment": "mountain",
+    "difficulty": "moderate",
+    "partyLevelRange": "3-6",
+    "monsters": [{ "id": "manticore", "count": 1 }],
+    "tactics": "Stays airborne, uses tail spikes. Lands for melee when spikes depleted.",
+    "treasureHint": "Hoard CR 5-10 in its cliff nest"
+  },
+  {
+    "id": "troll-cave",
+    "name": "Troll's Cave",
+    "description": "A troll lurks in a damp cave littered with bones",
+    "environment": "dungeon",
+    "difficulty": "high",
+    "partyLevelRange": "3-6",
+    "monsters": [{ "id": "troll", "count": 1 }],
+    "tactics": "Troll regenerates. Players must use fire or acid. Fights until killed.",
+    "treasureHint": "Hoard CR 5-10 among the bones"
+  },
+  {
+    "id": "cult-ritual",
+    "name": "Cult Ritual",
+    "description": "Cultists performing a dark ritual in a hidden chamber",
+    "environment": "dungeon",
+    "difficulty": "moderate",
+    "partyLevelRange": "3-6",
+    "monsters": [{ "id": "cultist", "count": 6 }, { "id": "cultist-fanatic", "count": 2 }],
+    "tactics": "Fanatics cast spells while cultists shield them. Ritual may summon something if not stopped.",
+    "treasureHint": "Ritual components worth 100gp"
+  },
+  {
+    "id": "hag-cottage",
+    "name": "The Hag's Cottage",
+    "description": "A green hag in her swamp cottage lures victims with illusions",
+    "environment": "swamp",
+    "difficulty": "high",
+    "partyLevelRange": "3-6",
+    "monsters": [{ "id": "green-hag", "count": 1 }],
+    "tactics": "Uses Illusory Appearance and Invisible Passage. Fights dirty.",
+    "treasureHint": "Hoard CR 5-10 plus potion ingredients"
+  },
+  {
+    "id": "hill-giant-raid",
+    "name": "Hill Giant Raid",
+    "description": "A hill giant and its orc lackeys raid a farmstead",
+    "environment": "plains",
+    "difficulty": "high",
+    "partyLevelRange": "5-8",
+    "monsters": [{ "id": "hill-giant", "count": 1 }, { "id": "orc", "count": 4 }],
+    "tactics": "Giant throws rocks from distance, orcs charge. Giant flees at half HP.",
+    "treasureHint": "Individual treasure CR 5-10"
+  },
+  {
+    "id": "young-dragon-green",
+    "name": "Young Green Dragon's Ambush",
+    "description": "A young green dragon lurks in a dense, misty forest",
+    "environment": "forest",
+    "difficulty": "high",
+    "partyLevelRange": "5-8",
+    "monsters": [{ "id": "young-green-dragon", "count": 1 }],
+    "tactics": "Uses breath weapon first, then guerrilla hit-and-run with flight and forest cover.",
+    "treasureHint": "Hoard CR 5-10 in its forest lair"
+  },
+  {
+    "id": "vampire-spawn-ambush",
+    "name": "Vampire Spawn Attack",
+    "description": "Vampire spawn attack the party at night",
+    "environment": "urban",
+    "difficulty": "high",
+    "partyLevelRange": "5-8",
+    "monsters": [{ "id": "vampire-spawn", "count": 2 }],
+    "tactics": "Spawn use Spider Climb to attack from above. Flee from radiant damage/sunlight.",
+    "treasureHint": "Individual treasure CR 5-10"
+  },
+  {
+    "id": "mind-flayer-ambush",
+    "name": "Mind Flayer Ambush",
+    "description": "A mind flayer and its thralls emerge from the Underdark",
+    "environment": "underdark",
+    "difficulty": "high",
+    "partyLevelRange": "7-10",
+    "monsters": [{ "id": "mind-flayer", "count": 1 }, { "id": "grimlock", "count": 4 }],
+    "tactics": "Mind Blast first, then Extract Brain on stunned targets. Grimlocks swarm.",
+    "treasureHint": "Hoard CR 5-10 plus psionic crystal"
+  },
+  {
+    "id": "beholder-lair",
+    "name": "Beholder's Sanctum",
+    "description": "A beholder lurks in its vertical lair, eye rays at the ready",
+    "environment": "dungeon",
+    "difficulty": "high",
+    "partyLevelRange": "10-13",
+    "monsters": [{ "id": "beholder", "count": 1 }],
+    "tactics": "Antimagic Cone on casters, eye rays on fighters. Uses lair actions. Paranoid and strategic.",
+    "treasureHint": "Hoard CR 11-16 in the central chamber"
+  },
+  {
+    "id": "lich-tower",
+    "name": "The Lich's Tower",
+    "description": "A lich awaits challengers in its tower sanctum",
+    "environment": "dungeon",
+    "difficulty": "high",
+    "partyLevelRange": "15-20",
+    "monsters": [{ "id": "lich", "count": 1 }],
+    "tactics": "Legendary actions, lair actions. Opens with Power Word Kill or Finger of Death. Phylactery hidden elsewhere.",
+    "treasureHint": "Hoard CR 17+ in the tower vault"
+  },
+  {
+    "id": "adult-red-dragon",
+    "name": "Dragon's Lair: Adult Red Dragon",
+    "description": "An adult red dragon defends its volcanic mountain lair",
+    "environment": "mountain",
+    "difficulty": "high",
+    "partyLevelRange": "10-14",
+    "monsters": [{ "id": "adult-red-dragon", "count": 1 }],
+    "tactics": "Uses lair actions. Opens with breath weapon from flight. Legendary actions between turns.",
+    "treasureHint": "Hoard CR 11-16"
+  },
+  {
+    "id": "sewer-rats",
+    "name": "Sewer Infestation",
+    "description": "Giant rats infest the city sewers",
+    "environment": "urban",
+    "difficulty": "low",
+    "partyLevelRange": "1-2",
+    "monsters": [{ "id": "giant-rat", "count": 8 }, { "id": "swarm-of-rats", "count": 2 }],
+    "tactics": "Rats attack in waves. Swarms engulf weakest-looking characters.",
+    "treasureHint": "Trinkets and coins in the muck"
+  },
+  {
+    "id": "harpy-nest",
+    "name": "Harpy Nest",
+    "description": "Harpies nest on a rocky outcropping and lure travelers with song",
+    "environment": "mountain",
+    "difficulty": "moderate",
+    "partyLevelRange": "2-5",
+    "monsters": [{ "id": "harpy", "count": 3 }],
+    "tactics": "Use Luring Song to pull victims to cliffsides, then attack.",
+    "treasureHint": "Previous victims' gear"
+  },
+  {
+    "id": "mimic-treasure",
+    "name": "Mimic Chest",
+    "description": "What appears to be a treasure chest is actually a mimic",
+    "environment": "dungeon",
+    "difficulty": "moderate",
+    "partyLevelRange": "2-5",
+    "monsters": [{ "id": "mimic", "count": 1 }],
+    "tactics": "Waits for a character to touch it, then uses Adhesive and Bite.",
+    "treasureHint": "Real treasure nearby"
+  },
+  {
+    "id": "basilisk-cave",
+    "name": "Basilisk Cave",
+    "description": "A basilisk lurks in a cave full of eerily lifelike statues",
+    "environment": "dungeon",
+    "difficulty": "moderate",
+    "partyLevelRange": "3-6",
+    "monsters": [{ "id": "basilisk", "count": 1 }],
+    "tactics": "Uses Petrifying Gaze. Statues are former victims that could be restored.",
+    "treasureHint": "Petrified victims may have treasure"
+  },
+  {
+    "id": "wyvern-attack",
+    "name": "Wyvern Assault",
+    "description": "A wyvern dives from the sky onto the party",
+    "environment": "mountain",
+    "difficulty": "moderate",
+    "partyLevelRange": "4-7",
+    "monsters": [{ "id": "wyvern", "count": 1 }],
+    "tactics": "Dive attacks with Stinger. Grabs smaller targets and drops them.",
+    "treasureHint": "Nest has previous victims' gear"
+  },
+  {
+    "id": "drow-patrol",
+    "name": "Drow Patrol",
+    "description": "A drow patrol intercepts trespassers in the Underdark",
+    "environment": "underdark",
+    "difficulty": "moderate",
+    "partyLevelRange": "4-7",
+    "monsters": [{ "id": "drow", "count": 4 }, { "id": "drow-elite-warrior", "count": 1 }],
+    "tactics": "Use Darkness and hand crossbow poison. Elite warrior engages strongest foe.",
+    "treasureHint": "Individual treasure CR 0-4"
+  },
+  {
+    "id": "fire-elemental-forge",
+    "name": "Elemental Forge",
+    "description": "A fire elemental guards an ancient dwarven forge",
+    "environment": "dungeon",
+    "difficulty": "moderate",
+    "partyLevelRange": "5-8",
+    "monsters": [{ "id": "fire-elemental", "count": 1 }, { "id": "magma-mephit", "count": 3 }],
+    "tactics": "Elemental moves through enemies to ignite. Mephits harass from range.",
+    "treasureHint": "Magical weapons in the forge"
+  },
+  {
+    "id": "frost-giant-pass",
+    "name": "Frost Giant Mountain Pass",
+    "description": "A frost giant blocks a frozen mountain pass",
+    "environment": "mountain",
+    "difficulty": "high",
+    "partyLevelRange": "6-9",
+    "monsters": [{ "id": "frost-giant", "count": 1 }, { "id": "winter-wolf", "count": 2 }],
+    "tactics": "Giant hurls rocks while wolves flank. Avalanche risk (environmental hazard).",
+    "treasureHint": "Individual treasure CR 5-10"
+  },
+  {
+    "id": "aboleth-pool",
+    "name": "Aboleth's Pool",
+    "description": "An aboleth lurks in a subterranean pool, enslaving minds",
+    "environment": "underdark",
+    "difficulty": "high",
+    "partyLevelRange": "8-11",
+    "monsters": [{ "id": "aboleth", "count": 1 }],
+    "tactics": "Uses Enslave on melee attackers. Lair actions each round. Retreats into water if losing.",
+    "treasureHint": "Hoard CR 5-10 in the pool depths"
+  },
+  {
+    "id": "kraken-ship",
+    "name": "Kraken Attack at Sea",
+    "description": "A kraken surfaces beneath the party's ship",
+    "environment": "ocean",
+    "difficulty": "high",
+    "partyLevelRange": "15-20",
+    "monsters": [{ "id": "kraken", "count": 1 }],
+    "tactics": "Tentacle attacks to grapple and drag overboard. Lightning Storm lair action.",
+    "treasureHint": "Shipwrecks nearby hold treasure"
+  },
+  {
+    "id": "slaad-incursion",
+    "name": "Slaad Incursion",
+    "description": "A rift to Limbo spills chaos into the world as slaadi emerge",
+    "environment": "any",
+    "difficulty": "high",
+    "partyLevelRange": "8-12",
+    "monsters": [
+      { "id": "green-slaad", "count": 1 },
+      { "id": "red-slaad", "count": 2 },
+      { "id": "slaad-tadpole", "count": 4 }
+    ],
+    "tactics": "Green Slaad shapeshifts to ambush. Red Slaadi implant eggs via claw attacks. Tadpoles swarm the weakest.",
+    "treasureHint": "Limbo crystals worth 500gp scattered near the rift"
+  },
+  {
+    "id": "sphinx-riddle",
+    "name": "Sphinx's Riddle Gate",
+    "description": "A sphinx guards a temple entrance and poses a deadly riddle",
+    "environment": "dungeon",
+    "difficulty": "high",
+    "partyLevelRange": "8-11",
+    "monsters": [{ "id": "sphinx-of-secrets", "count": 1 }],
+    "tactics": "Poses riddles first. Attacks only if threatened or riddle failed. Uses Lair Actions and legendary actions.",
+    "treasureHint": "Temple treasury beyond the gate"
+  },
+  {
+    "id": "myconid-grove",
+    "name": "Myconid Grove",
+    "description": "A myconid colony defends its fungal grove from intruders",
+    "environment": "underdark",
+    "difficulty": "low",
+    "partyLevelRange": "1-4",
+    "monsters": [
+      { "id": "myconid-sovereign", "count": 1 },
+      { "id": "myconid-adult", "count": 4 },
+      { "id": "myconid-sprout", "count": 6 }
+    ],
+    "tactics": "Sovereign uses rapport spores to communicate. Colony attacks only if provoked. Gas spores nearby may detonate.",
+    "treasureHint": "Rare fungi and potion components"
+  },
+  {
+    "id": "sahuagin-raid",
+    "name": "Sahuagin Coastal Raid",
+    "description": "Sahuagin raiders emerge from the surf to attack a coastal village",
+    "environment": "coastal",
+    "difficulty": "moderate",
+    "partyLevelRange": "3-6",
+    "monsters": [{ "id": "sahuagin-warrior", "count": 6 }, { "id": "sahuagin-priest", "count": 1 }],
+    "tactics": "Warriors attack in waves while priest casts from the shallows. All retreat to water if losing.",
+    "treasureHint": "Coral jewelry and pearls"
+  },
+  {
+    "id": "githyanki-raiders",
+    "name": "Githyanki Raiding Party",
+    "description": "Githyanki warriors descend from the Astral Plane on a raiding mission",
+    "environment": "any",
+    "difficulty": "high",
+    "partyLevelRange": "5-8",
+    "monsters": [{ "id": "githyanki-warrior", "count": 3 }, { "id": "githyanki-knight", "count": 1 }],
+    "tactics": "Knight commands warriors. All use silver greatswords. May retreat to Astral Plane if outmatched.",
+    "treasureHint": "Silver greatswords and astral navigation charts"
+  },
+  {
+    "id": "treant-awakening",
+    "name": "Treant's Awakening",
+    "description": "A treant awakens trees to defend an ancient grove from despoilers",
+    "environment": "forest",
+    "difficulty": "high",
+    "partyLevelRange": "7-10",
+    "monsters": [{ "id": "treant", "count": 1 }, { "id": "awakened-tree", "count": 2 }, { "id": "dryad", "count": 2 }],
+    "tactics": "Treant animates trees. Dryads charm attackers. Fight only to protect the grove.",
+    "treasureHint": "Ancient druidic artifacts hidden in tree hollows"
+  },
+  {
+    "id": "cyclops-lair",
+    "name": "Cyclops Den",
+    "description": "A pair of cyclopes block a mountain pass, hurling boulders",
+    "environment": "mountain",
+    "difficulty": "high",
+    "partyLevelRange": "5-8",
+    "monsters": [{ "id": "cyclops-sentry", "count": 2 }],
+    "tactics": "Hurl rocks from elevated positions. Engage in melee if enemies close distance.",
+    "treasureHint": "Hoard CR 5-10 in their cave"
+  },
+  {
+    "id": "yuan-ti-temple",
+    "name": "Yuan-ti Temple",
+    "description": "Yuan-ti conduct a sinister ritual in a hidden jungle temple",
+    "environment": "jungle",
+    "difficulty": "high",
+    "partyLevelRange": "5-8",
+    "monsters": [{ "id": "yuan-ti-malison", "count": 2 }, { "id": "yuan-ti-infiltrator", "count": 4 }],
+    "tactics": "Infiltrators disguise as humans. Malisons use Suggestion and snake form. Protect the ritual at all costs.",
+    "treasureHint": "Serpentine idol worth 750gp plus ritual components"
+  },
+  {
+    "id": "hobgoblin-warband",
+    "name": "Hobgoblin Warband",
+    "description": "A disciplined hobgoblin warband marches through contested territory",
+    "environment": "plains",
+    "difficulty": "moderate",
+    "partyLevelRange": "3-6",
+    "monsters": [
+      { "id": "hobgoblin-warrior", "count": 6 },
+      { "id": "hobgoblin-captain", "count": 1 },
+      { "id": "worg", "count": 2 }
+    ],
+    "tactics": "Martial Advantage on flanked targets. Captain directs formation. Worgs scout and flank.",
+    "treasureHint": "Military supplies and a battle standard"
+  },
+  {
+    "id": "elemental-nexus",
+    "name": "Elemental Nexus",
+    "description": "A convergence of elemental planes creates a chaotic battlefield",
+    "environment": "any",
+    "difficulty": "high",
+    "partyLevelRange": "6-9",
+    "monsters": [
+      { "id": "fire-elemental", "count": 1 },
+      { "id": "air-elemental", "count": 1 },
+      { "id": "earth-elemental", "count": 1 },
+      { "id": "water-elemental", "count": 1 }
+    ],
+    "tactics": "Each elemental uses its terrain advantage. Fire ignites, Air throws, Earth grapples, Water engulfs.",
+    "treasureHint": "Elemental gems form at the nexus center"
+  }
+]
