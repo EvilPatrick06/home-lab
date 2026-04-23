@@ -279,18 +279,11 @@ Moving these to `devDependencies` would reduce the production install footprint.
 
 Each override indicates a transitive dependency conflict that npm cannot resolve automatically. This is a maintenance burden — when upgrading packages, these overrides may silently break or mask genuine incompatibilities. The `scheduler: "0.27.0"` override is particularly notable as it pins React's internal scheduler, which could break with future React updates.
 
-### 4.4 Transitive Vulnerability: fast-xml-parser
-
-`npm audit` reports **GHSA-fj3w-jwp8-x2g3** (stack overflow in XMLBuilder) in `fast-xml-parser` 5.0.0–5.3.7, pulled in via:
-- `@aws-sdk/xml-builder` → `@aws-sdk/core` → `@aws-sdk/client-s3` (likely from `electron-updater`)
-
-The AWS SDK chain is chunked separately (`vendor-aws` in `electron.vite.config.ts` line 67), limiting blast radius, but the vulnerability should be tracked.
-
-### 4.5 Electron EOL Timeline
+### 4.4 Electron EOL Timeline
 
 Electron 40.x reaches end-of-life on **June 30, 2026** (< 4 months from now). Planning the upgrade to Electron 41+ should begin soon to avoid running on an unsupported runtime.
 
-### 4.6 No LICENSE File
+### 4.5 No LICENSE File
 
 `package.json` declares `"license": "ISC"` but there is no `LICENSE` or `LICENSE.md` file in the repository root. This creates legal ambiguity for contributors and users.
 
@@ -505,7 +498,7 @@ The project follows Electron security best practices:
 - **Network message validation**: Zod schemas for every message type, runtime validation on both host and client, chat moderation, blocked-extension checks with magic-byte verification.
 - **Lazy route loading**: All 15 pages use `React.lazy()` with `Suspense` boundaries.
 - **Virtualized lists**: `@tanstack/react-virtual` used for chat messages, library items, and equipment shops.
-- **Manual chunk splitting**: `electron.vite.config.ts` defines 12 manual chunks (react, router, state, three, physics, pixi, tiptap, langchain, aws, anthropic, peerjs, pdfjs) for optimal code splitting.
+- **Manual chunk splitting**: `electron.vite.config.ts` defines 11 manual chunks (react, router, state, three, physics, pixi, tiptap, langchain, anthropic, peerjs, pdfjs) for optimal code splitting.
 
 ### 7.10 `.env` Contains Live API Key
 

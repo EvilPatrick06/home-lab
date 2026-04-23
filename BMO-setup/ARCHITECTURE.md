@@ -1,7 +1,7 @@
-# BMO Architecture — Post-Migration (March 2026)
+# BMO Architecture
 
 > BMO is a Raspberry Pi 5–based AI assistant and smart home hub.
-> Migrated from AWS to self-hosted Pi + cloud APIs.
+> Self-hosted on Pi with cloud APIs for LLM/TTS/STT.
 
 ---
 
