@@ -5,25 +5,31 @@ dist
 .DS_Store
 Thumbs.db
 nul
+
+# Env files (secrets)
 .env
 .env.*
 .env.local
+!**/.env.template
+!**/.env.example
+!**/*.env.example
 
-# Local Google Drive OAuth secrets (never commit)
-scripts/fedora-migration/gdrive-oauth.local.env
+# IDE/editor
 .vscode/
 .claude/
 .idea/
 *.swp
 *.swo
 *~
+
+# Build output
 *.asar
 *.blockmap
 *.tsbuildinfo
 dev-app-update.yml
 resources/chunk-index.json
 
-# Reference PDFs (too large for GitHub)
+# Reference PDFs (too large for GitHub even with LFS)
 5.5e References/
 
 # Temporary/working files
@@ -35,22 +41,72 @@ _spells_full.txt
 _spells_list.txt
 tsc-*.txt
 
-# BMO secrets
+# =============================================================
+# SECRETS — NEVER COMMIT (broad glob patterns across whole repo)
+# =============================================================
+
+# Any private key / cert / token / credential anywhere
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/id_rsa*
+**/id_ed25519*
+**/credentials.json
+**/service-account*.json
+**/gcp-*.json
+**/*-iam-*.txt
+**/*-iam-credentials*
+**/token.json
+**/tokens.json
+**/auth_token*
+**/oauth_token*
+
+# BMO-specific secrets (explicit)
 BMO-setup/pi-iam-credentials.txt
 BMO-setup/.env
-BMO-setup/pi/*.pem
+BMO-setup/pi/.env
 BMO-setup/config/.env
+BMO-setup/pi/*.pem
 BMO-setup/pi/config/credentials.json
 BMO-setup/pi/config/token.json
 BMO-setup/pi/config/*.json
 
-# BMO runtime
+# DnD app secrets
+/.env
+src/**/.env
+
+# BMO runtime (generated, not secret but noisy)
 BMO-setup/pi/__pycache__/
 BMO-setup/pi/agents/__pycache__/
 BMO-setup/pi/venv/
-BMO-setup/pi/data/
 BMO-setup/pi/logs/
 BMO-setup/pi/.bmo/
 BMO-setup/pi/.audiocache/
 BMO-setup/pi/wake_clips/
 BMO-setup/pi/*.ppn
+BMO-setup/pi/.pytest_cache/
+
+# BMO runtime state (generated at runtime, not content)
+BMO-setup/pi/data/logs/
+BMO-setup/pi/data/memory/
+BMO-setup/pi/data/*.db
+BMO-setup/pi/data/alarms.json
+BMO-setup/pi/data/alert_history.json
+BMO-setup/pi/data/ide_jobs.json
+BMO-setup/pi/data/location_cache.json
+BMO-setup/pi/data/monitor_state.json
+BMO-setup/pi/data/monitor_alert_state.json
+BMO-setup/pi/data/music_history.json
+BMO-setup/pi/data/notes.json
+BMO-setup/pi/data/play_counts.json
+BMO-setup/pi/data/playback_state.json
+BMO-setup/pi/data/recent_chat.json
+BMO-setup/pi/data/settings.json
+
+# Python bytecode anywhere
+**/__pycache__/
+**/*.pyc
+
+# Test artifacts at root
+test-results*.txt
