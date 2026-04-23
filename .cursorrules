@@ -1,0 +1,145 @@
+# Cursor Rules — DnD + BMO Monorepo
+
+> Primary context file for Cursor AI. Reads on every invocation.
+> For language/tool-specific rules, see also: AGENTS.md, CLAUDE.md
+
+## Repository Structure (AI-first, flat, feature-based)
+
+```
+/home/patrick/DnD/                    (monorepo root, live on Raspberry Pi 5)
+├── dnd-app/                          Electron desktop VTT (TypeScript + React)
+│   ├── src/                          NEVER restructure — electron-vite enforces main/preload/renderer/shared
+│   │   ├── main/                     Electron main process (Node)
+│   │   │   ├── ai/                   AI service layer
+│   │   │   ├── ipc/                  IPC handlers (electron ↔ renderer)
+│   │   │   ├── storage/              Persistent file storage
+│   │   │   ├── plugins/              Game system plugin loader
+│   │   │   ├── discord-integration/  Discord bot relay (for players)
+│   │   │   └── bmo-bridge.ts         HTTP client to BMO Pi (port 5000)
+│   │   ├── preload/                  Electron preload bridge
+│   │   ├── renderer/                 React app (Vite) — keep feature-grouped
+│   │   │   ├── src/components/       by feature: builder/, campaign/, game/, sheet/, lobby/, library/, levelup/, ui/
+│   │   │   ├── src/services/         by feature: character/, chat-commands/, combat/, dice/, game-actions/, io/, library/, map/, plugin-system/
+│   │   │   ├── src/stores/           zustand state stores
+│   │   │   ├── src/pages/            route-level page components
+│   │   │   ├── src/network/          peerjs multiplayer
+│   │   │   └── public/data/5e/       D&D content as JSON (3000+ files)
+│   │   └── shared/                   cross-process types/schemas
+│   ├── scripts/                      CLI tooling, grouped by purpose
+│   │   ├── build/                    runs via package.json (chunk-index, prerelease-clean)
+│   │   ├── extract/                  PDF→JSON extraction pipeline
+│   │   ├── generate/                 schema + batch generation
+│   │   ├── submit/                   Anthropic Batch API submission
+│   │   ├── audit/                    data validation (ultimate-audit.ts is canonical)
+│   │   ├── batch-utils/              batch job monitors
+│   │   ├── fix/                      one-off data migrations
+│   │   └── schemas/                  zod schemas (shared by extract/)
+│   ├── tools/                        dev utilities (run-audit.js, rename-to-kebab.js, etc.)
+│   ├── docs/phases/                  30 planning docs (phase-NN-model.md)
+│   ├── resources/                    app icons, installer
+│   └── {package,tsconfig*,biome,vitest.config.ts,electron.vite.config.ts}  configs
+│
+├── bmo/                              Raspberry Pi voice assistant (Python + Flask)
+│   ├── pi/                           Pi runtime code
+│   │   ├── app.py                    main Flask entry (port 5000)
+│   │   ├── agent.py                  main agent router entry
+│   │   ├── cli.py                    CLI entry
+│   │   ├── agents/                   41 specialized AI agents (base_agent, orchestrator, router, {alert,calendar,code,docs,...}_agent)
+│   │   ├── services/                 service modules (calendar, weather, music, voice_pipeline, monitoring, etc.)
+│   │   ├── hardware/                 Pi hardware drivers (fan_control, led_controller, oled_face, camera)
+│   │   ├── bots/                     Discord bots — NAMED bots/ NOT discord/ (avoids discord.py shadow)
+│   │   ├── dev/                      dev tools (claude_tools, dev_tools, patch_*, benchmarks)
+│   │   ├── wake/                     wake-word detection + clips/ training samples
+│   │   ├── web/                      Flask templates/ + static/ (consolidated)
+│   │   ├── mcp_servers/              MCP server for DnD data
+│   │   ├── ide_app/                  embedded web IDE (self-contained sub-app)
+│   │   ├── kiosk/                    systemd service files
+│   │   ├── scripts/                  deploy scripts (cloudflare, tailscale)
+│   │   ├── tests/                    pytest suite (all test_*.py files live here)
+│   │   ├── data/                     canonical data dir (content + runtime state)
+│   │   ├── config/                   gitignored secrets
+│   │   ├── requirements.txt, requirements-test.txt, pytest.ini
+│   ├── docker/                       systemd services + docker-compose
+│   ├── docs/                         BMO-specific docs (ARCHITECTURE, NETWORK_ACCESS, CLOUDFLARE_TUNNEL_SETUP)
+│   └── {setup-bmo.sh, finalize-ssd.sh, .env.template}
+│
+├── docs/                             monorepo-wide docs
+│   ├── ARCHITECTURE.md               how DnD + BMO communicate
+│   ├── DATA-FLOW.md                  data location/flow
+│   ├── SETUP.md                      clone + first-run
+│   ├── COMMANDS.md                   command cheat sheet
+│   ├── GLOSSARY.md                   beginner term index
+│   ├── BACKUP.md                     backup strategy
+│   ├── SECRETS-ROTATION.md           post-purge rotation guide
+│   └── KNOWN-ISSUES.md               living bug log (AI agents APPEND here)
+│
+├── _archive/                         quarantined dead code (not deletion)
+├── .github/                          workflows + issue templates + copilot-instructions.md
+├── AGENTS.md, CLAUDE.md, GEMINI.md   AI agent instructions (tool-specific)
+└── {README.md, .gitignore, .gitattributes, LICENSE, CONTRIBUTING.md, SECURITY.md, CHANGELOG.md}
+```
+
+## Core Principles
+
+1. **Flat > Nested** — one subdir level is fine, two+ needs justification
+2. **Feature > Type** — group by what it does, not what kind of file it is
+3. **Canonical paths** — `/home/patrick/DnD/bmo/pi/...` is the ONLY BMO location (no more `~/bmo/`)
+4. **Preserve running state** — BMO systemd services run 24/7, restart required after path changes
+5. **Secrets never tracked** — `.env`, `*.pem`, `*token*.json`, `credentials.json` in .gitignore
+6. **_archive/ over deletion** — prefer quarantine when unsure
+
+## Working in dnd-app/
+
+- **Commands always from `dnd-app/`**: `cd dnd-app && npm run dev|build|test|lint`
+- **Framework**: electron-vite (DO NOT change src/ layout — framework enforces)
+- **Aliases**: `@renderer` → `src/renderer/src`, `@data` → `src/renderer/public/data`
+- **Tests**: `.test.ts` colocated with source. Run with `vitest`.
+- **Types**: TS strict. Zod for runtime validation.
+- **State**: zustand stores in `src/renderer/src/stores/`
+- **Linter**: biome (config at dnd-app/biome.json). Run `npm run lint`.
+- **Plugin system**: game systems registered via `src/renderer/src/systems/registry.ts`
+
+## Working in bmo/
+
+- **Commands from `bmo/pi/`**: `cd bmo/pi && ./venv/bin/python app.py` (for dev)
+- **Python 3.11** with venv at `bmo/pi/venv/` (gitignored)
+- **Imports**: always use subpackage prefix — `from services.calendar_service import X` (NOT `from calendar_service import X`)
+- **discord.py library**: import as `import discord` — our bots live in `bots/` package, NEVER rename to `discord/` (shadows library)
+- **Data paths**: `~/DnD/bmo/pi/data/...` (canonical). NEVER `~/bmo/...`
+- **Tests**: pytest in `bmo/pi/tests/` (incl. test_*.py that were at pi/ root)
+- **Running services**: `bmo, bmo-fan, bmo-kiosk, bmo-dm-bot, bmo-social-bot`
+- **Restart after Python changes**: `sudo systemctl restart bmo` (+ bots if changed)
+
+## Cross-domain (dnd-app ↔ bmo)
+
+- DnD app talks to BMO via HTTP on `http://bmo.local:5000` (configurable via `BMO_PI_URL` env)
+- BMO Discord bots push events back to DnD via HTTP on port 5001 (DnD listens)
+- Protocol docs: `docs/ARCHITECTURE.md`
+- IPC channel reference: `dnd-app/docs/IPC-SURFACE.md`
+
+## Logging Bugs / Issues / Future Work
+
+- **ALWAYS append to `docs/KNOWN-ISSUES.md`** when you find bugs, config drift, or future improvements
+- Don't silently fix preexisting bugs outside current task scope — log them, let user prioritize
+- Use template at top of that file
+
+## Secrets / Safety
+
+- Never commit `.env`, `credentials.json`, `token.json`, `*.pem`
+- History was purged (filter-repo) on 2026-04-23 — if re-introducing secrets, rotate first
+- Pre-push hooks would be nice (TODO — log in KNOWN-ISSUES)
+
+## Git Conventions
+
+- **Branches**: `feature/...`, `fix/...`, `docs/...`, `chore/...`
+- **Commits**: imperative mood, summary ≤ 72 chars
+- **Prefer small focused PRs** over mega-commits
+- **Always `git status` before committing** — check no secrets leak
+
+## For AI Sessions
+
+- Start by reading this file + AGENTS.md (or your tool-specific file)
+- Check `docs/KNOWN-ISSUES.md` before starting new work
+- When in doubt about structure, check this file first
+- When in doubt about protocol, check `docs/ARCHITECTURE.md`
+- When debugging, check `bmo/docs/TROUBLESHOOTING.md` + `docs/KNOWN-ISSUES.md`
