@@ -38,6 +38,8 @@ BMO-setup/.env
 BMO-setup/pi/*.pem
 BMO-setup/config/.env
 BMO-setup/pi/config/credentials.json
+BMO-setup/pi/config/token.json
+BMO-setup/pi/config/*.json
 
 # BMO runtime
 BMO-setup/pi/__pycache__/

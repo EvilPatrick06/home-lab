@@ -1,4 +1,4 @@
-# Cloudflare Tunnel for BMO (bmo.mybmoai.work)
+# Cloudflare Tunnel for BMO (`bmo.mybmoai.work`)
 
 Cloudflared is installed. You need to complete **one manual step** (browser auth), then run the script.
 
@@ -23,14 +23,15 @@ The `cloudflared tunnel login` command will exit once you're done. The cert is s
 
 ```bash
 cd ~/bmo
-./setup-cloudflare-tunnel.sh
+./scripts/setup-cloudflare-tunnel.sh
 ```
 
 This will:
 - Create the `bmo` tunnel
-- Configure it for `http://localhost:5000`
+- Configure ingress to `http://localhost:5000`
 - Create DNS: `bmo.mybmoai.work` → your Pi
-- Install and start the systemd service
+- Install/restart the `cloudflared` systemd service
+- Validate ingress config before restart
 
 ## Step 3: Access BMO
 
@@ -42,6 +43,8 @@ Open **https://bmo.mybmoai.work** from anywhere.
 - `sudo systemctl status cloudflared` — check status
 - `sudo systemctl restart cloudflared` — restart tunnel
 - `journalctl -u cloudflared -f` — view logs
+- `cloudflared tunnel ingress validate` — validate config syntax
+- `grep 'service: http://localhost:5000' /etc/cloudflared/config.yml` — verify Flask target
 
 ## CLI/SSH troubleshooting
 
@@ -51,6 +54,18 @@ cd ~/bmo
 ./scripts/diagnose-cloudflare.sh
 ```
 Collects config, tunnel info, status, logs, DNS. Share output when debugging Error 1043.
+
+### Quick reliability checks after reboot/network change
+```bash
+sudo systemctl is-active cloudflared
+curl -s -o /dev/null -w "local Flask: HTTP %{http_code}\n" http://localhost:5000/
+cloudflared tunnel ingress validate
+```
+
+Expected:
+- `cloudflared` is `active`
+- local Flask returns `HTTP 200`
+- ingress validation passes
 
 ### Add Access JWT validation (run on Pi, after Access works)
 Adds defense-in-depth so cloudflared rejects requests without a valid Access JWT:

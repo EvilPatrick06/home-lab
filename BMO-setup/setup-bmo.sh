@@ -33,6 +33,7 @@ log "Installing system packages..."
 sudo apt install -y \
     python3 python3-venv python3-pip python3-dev \
     git curl wget \
+    avahi-daemon avahi-utils \
     chromium-browser unclutter cage \
     docker.io docker-compose \
     nodejs npm \
@@ -223,6 +224,7 @@ Environment=XDG_RUNTIME_DIR=/run/user/1000
 
 # Wait for BMO Flask to be ready
 ExecStartPre=/bin/bash -c 'for i in $(seq 1 30); do curl -sf http://localhost:5000/health > /dev/null && break; sleep 1; done'
+ExecStartPre=/bin/bash -c 'if [ -n "$DISPLAY" ] && [ -S /tmp/.X11-unix/X0 ]; then xset -display :0 s off; xset -display :0 -dpms; xset -display :0 s noblank; else echo "xset skipped (no X display)"; fi'
 
 ExecStart=/usr/bin/cage -- chromium \
     --kiosk \
@@ -233,7 +235,10 @@ ExecStart=/usr/bin/cage -- chromium \
     --disable-features=TranslateUI \
     --disable-background-networking \
     --disable-component-update \
+    --disable-domain-reliability \
     --disable-sync \
+    --dns-prefetch-disable \
+    --no-default-browser-check \
     --password-store=basic \
     --check-for-update-interval=31536000 \
     --no-first-run \
@@ -243,8 +248,8 @@ ExecStart=/usr/bin/cage -- chromium \
     --enable-pinch \
     --use-fake-ui-for-media-stream \
     --autoplay-policy=no-user-gesture-required \
-    --unsafely-treat-insecure-origin-as-secure=http://localhost:5000 \
-    http://localhost:5000
+    --unsafely-treat-insecure-origin-as-secure=http://127.0.0.1:5000 \
+    http://127.0.0.1:5000
 
 Restart=on-failure
 RestartSec=5
@@ -321,6 +326,28 @@ EOF
 # ── 11. Enable Services ─────────────────────────────────────────
 sudo systemctl daemon-reload
 sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot
+sudo systemctl enable avahi-daemon
+sudo systemctl restart avahi-daemon
+
+# Publish HTTP + SSH via mDNS service discovery
+sudo mkdir -p /etc/avahi/services
+sudo tee /etc/avahi/services/bmo.service > /dev/null << 'EOF'
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">BMO on %h</name>
+  <service>
+    <type>_http._tcp</type>
+    <port>5000</port>
+    <txt-record>path=/</txt-record>
+  </service>
+  <service>
+    <type>_ssh._tcp</type>
+    <port>22</port>
+  </service>
+</service-group>
+EOF
+sudo systemctl restart avahi-daemon
 
 # ── 12. Git Post-Merge Hook ─────────────────────────────────────
 log "Setting up git deploy hook..."
@@ -360,7 +387,12 @@ log "  Next steps:"
 log "  1. Copy your .env file with API keys to ~/DnD/BMO-setup/pi/.env"
 log "  2. Copy config/token.json and config/credentials.json"
 log "  3. Copy your rclone config for VTT cloud saves"
-log "  4. Reboot: sudo reboot now"
+log "  4. Optional remote SSH (recommended): ~/DnD/BMO-setup/pi/scripts/setup-tailscale.sh"
+log "  5. Optional Cloudflare web tunnel: ~/DnD/BMO-setup/pi/scripts/setup-cloudflare-tunnel.sh"
+log "  6. Reboot: sudo reboot now"
 log ""
+log "  After reboot, verify local hostname:"
+log "    avahi-resolve-host-name bmo.local"
+log "    ssh patrick@bmo.local"
 warn "  Note: No keyring, no GNOME — just cage + Chromium kiosk."
 log "══════════════════════════════════════════════════"

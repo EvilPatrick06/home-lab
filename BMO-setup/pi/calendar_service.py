@@ -1,13 +1,18 @@
 """BMO Calendar Service — Google Calendar API with full read/write access."""
 
 import datetime
+import json
 import os
+import shutil
 import threading
 import time
 
 CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
+LEGACY_CONFIG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config")
 CREDENTIALS_PATH = os.path.join(CONFIG_DIR, "credentials.json")
 TOKEN_PATH = os.path.join(CONFIG_DIR, "token.json")
+LEGACY_CREDENTIALS_PATH = os.path.join(LEGACY_CONFIG_DIR, "credentials.json")
+LEGACY_TOKEN_PATH = os.path.join(LEGACY_CONFIG_DIR, "token.json")
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 POLL_INTERVAL = 300  # 5 minutes
@@ -28,6 +33,46 @@ class CalendarService:
 
     # ── Auth ─────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _resolve_config_paths() -> tuple[str, str]:
+        credentials_path = CREDENTIALS_PATH if os.path.exists(CREDENTIALS_PATH) else LEGACY_CREDENTIALS_PATH
+        token_path = TOKEN_PATH if os.path.exists(TOKEN_PATH) else LEGACY_TOKEN_PATH
+        return credentials_path, token_path
+
+    @staticmethod
+    def _canonicalize_path(path: str, target_path: str, label: str) -> str:
+        if os.path.abspath(path) == os.path.abspath(target_path):
+            return target_path
+        if not os.path.exists(path):
+            return target_path
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+        try:
+            shutil.copy2(path, target_path)
+            print(f"[calendar] migrated {label} from legacy path: {path}")
+            return target_path
+        except OSError as e:
+            print(f"[calendar] failed to migrate {label}: {e}")
+            return path
+
+    @staticmethod
+    def _write_token_json(payload: str):
+        os.makedirs(os.path.dirname(TOKEN_PATH), exist_ok=True)
+        tmp_path = f"{TOKEN_PATH}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(payload)
+        os.replace(tmp_path, TOKEN_PATH)
+
+    @staticmethod
+    def _load_token_data(path: str) -> dict | None:
+        if not os.path.exists(path):
+            return None
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return data if isinstance(data, dict) else None
+        except (OSError, json.JSONDecodeError):
+            return None
+
     def _get_service(self):
         if self._service is not None:
             return self._service
@@ -36,20 +81,33 @@ class CalendarService:
         from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
 
+        credentials_path, token_path = self._resolve_config_paths()
+        credentials_path = self._canonicalize_path(credentials_path, CREDENTIALS_PATH, "credentials.json")
+        token_path = self._canonicalize_path(token_path, TOKEN_PATH, "token.json")
+
+        if not os.path.exists(credentials_path):
+            raise RuntimeError(
+                "credentials.json missing. Add credentials to ~/bmo/config/credentials.json "
+                "or BMO-setup/pi/config/credentials.json"
+            )
+
         creds = None
-        if os.path.exists(TOKEN_PATH):
-            creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+        token_data = self._load_token_data(token_path)
+        if token_data:
+            creds = Credentials.from_authorized_user_file(token_path, SCOPES)
 
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
-                # Save refreshed token
-                with open(TOKEN_PATH, "w") as f:
-                    f.write(creds.to_json())
+                self._write_token_json(creds.to_json())
             else:
+                if token_data and not token_data.get("refresh_token"):
+                    raise RuntimeError(
+                        "token.json is missing refresh_token. Re-authorize in Calendar tab to restore automatic refresh."
+                    )
                 raise RuntimeError(
-                    "No valid token.json found. Run authorize_calendar.py on Windows first, "
-                    "then copy token.json to ~/bmo/config/"
+                    "No valid token.json found. Use Calendar tab authorization or run authorize_calendar.py, "
+                    "then ensure token exists in ~/bmo/config/ or BMO-setup/pi/config/"
                 )
 
         self._service = build("calendar", "v3", credentials=creds)

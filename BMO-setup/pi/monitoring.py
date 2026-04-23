@@ -12,6 +12,7 @@ Usage:
 
 import json
 import os
+import re
 import threading
 import time
 from enum import Enum
@@ -32,6 +33,7 @@ except ImportError:
 # ── Configuration ────────────────────────────────────────────────────
 
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
+PI_HOSTNAME = os.environ.get("PI_HOSTNAME", "bmo").strip() or "bmo"
 
 # API keys for cloud health checks
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
@@ -42,7 +44,11 @@ PIHOLE_API_PASSWORD = os.environ.get("PIHOLE_API_PASSWORD", "bmo-ads-begone")
 
 # Calendar token path
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_LEGACY_CONFIG_DIR = os.path.join(os.path.dirname(_SCRIPT_DIR), "config")
 CALENDAR_TOKEN_PATH = os.path.join(_SCRIPT_DIR, "config", "token.json")
+CALENDAR_CREDENTIALS_PATH = os.path.join(_SCRIPT_DIR, "config", "credentials.json")
+LEGACY_CALENDAR_TOKEN_PATH = os.path.join(_LEGACY_CONFIG_DIR, "token.json")
+LEGACY_CALENDAR_CREDENTIALS_PATH = os.path.join(_LEGACY_CONFIG_DIR, "credentials.json")
 
 # Health check targets: service name → config
 HEALTH_CHECKS = {
@@ -81,7 +87,7 @@ CLOUD_HEALTH_CHECKS = {
 # Default check interval (seconds)
 DEFAULT_CHECK_INTERVAL = 60
 
-# Discord webhook cooldown per service (seconds)
+# Legacy cooldown setting (kept for compatibility/documentation).
 DISCORD_COOLDOWN = 300  # 5 minutes
 
 
@@ -290,9 +296,14 @@ class HealthChecker:
             os.path.dirname(os.path.abspath(__file__)), "data", "monitor_state.json"
         )
         self._prev_status: dict[str, str] = self._load_prev_status()
+        self._service_meta: dict[str, dict] = {}
 
-        # Discord cooldown tracker: service_name → last_webhook_timestamp
-        self._discord_cooldowns: dict[str, float] = {}
+        # Discord dedupe tracker persisted across restarts:
+        # service_name -> last alert fingerprint
+        self._alert_state_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "data", "monitor_alert_state.json"
+        )
+        self._discord_last_fingerprint: dict[str, str] = self._load_discord_alert_state()
 
     def _load_prev_status(self) -> dict[str, str]:
         """Load previous service status from disk (survives restarts)."""
@@ -312,6 +323,29 @@ class HealthChecker:
                 json.dump(self._prev_status, f)
         except Exception as e:
             print(f"[monitor] Could not save state: {e}")
+
+    def _load_discord_alert_state(self) -> dict[str, str]:
+        """Load persisted Discord dedupe state across restarts."""
+        try:
+            if os.path.exists(self._alert_state_file):
+                with open(self._alert_state_file, "r", encoding="utf-8") as f:
+                    payload = json.load(f)
+                if isinstance(payload, dict):
+                    fingerprints = payload.get("fingerprints")
+                    if isinstance(fingerprints, dict):
+                        return {str(k): str(v) for k, v in fingerprints.items()}
+        except Exception as e:
+            print(f"[monitor] Could not load alert state: {e}")
+        return {}
+
+    def _save_discord_alert_state(self):
+        try:
+            os.makedirs(os.path.dirname(self._alert_state_file), exist_ok=True)
+            payload = {"fingerprints": self._discord_last_fingerprint}
+            with open(self._alert_state_file, "w", encoding="utf-8") as f:
+                json.dump(payload, f)
+        except Exception as e:
+            print(f"[monitor] Could not save alert state: {e}")
 
     # ── Lifecycle ────────────────────────────────────────────────────
 
@@ -391,8 +425,14 @@ class HealthChecker:
         # Check Cloudflare Tunnel
         self._check_cloudflared()
 
+        # Check mDNS and optional Tailscale
+        self._check_remote_access()
+
         # Check rclone remotes
         self._check_rclone()
+
+        # Enrich service entries with metadata for diagnostics UI / copy output
+        self._enrich_service_metadata()
 
         # Detect state transitions and emit recovery events
         self._process_state_transitions()
@@ -401,6 +441,112 @@ class HealthChecker:
         for name, info in self._service_status.items():
             self._prev_status[name] = info.get("status", "unknown")
         self._save_prev_status()
+
+    def _source_check_for_service(self, name: str) -> str:
+        if name.startswith("svc_"):
+            return "systemd"
+        if name.startswith("docker_"):
+            return "docker"
+        if name.startswith("net_"):
+            return "network"
+        if name.startswith("pi_"):
+            return "pi_resource"
+        if name.endswith("_api") or name in {"ollama_local", "peerjs"}:
+            return "http"
+        if name in {"google_calendar"}:
+            return "calendar_auth"
+        if name in {"cloudflared", "mdns", "tailscale", "rclone", "internet", "ports"}:
+            return "system_probe"
+        return "monitor"
+
+    def _recommended_action_for_service(self, name: str, status: str, message: str) -> str:
+        if status in {"up", "info"}:
+            return ""
+        msg = (message or "").lower()
+        if name == "google_calendar":
+            if "credentials.json" in msg:
+                return "Add credentials.json to BMO-setup/pi/config and re-check."
+            if "token.json missing" in msg:
+                return "Open Calendar tab and run Authorize Calendar."
+            if "refresh token" in msg:
+                return "Re-authorize calendar with consent to restore refresh_token."
+            if "invalid" in msg or "expired" in msg:
+                return "Re-authorize calendar and verify token.json is valid JSON."
+            return "Check calendar auth settings and re-run authorization."
+        if name.startswith("svc_"):
+            svc = name[4:].replace("_", "-")
+            return f"sudo systemctl restart {svc}.service"
+        if name.startswith("docker_"):
+            container = name[7:]
+            return f"docker restart {container}"
+        if name == "internet":
+            return "Check Wi-Fi/hotspot uplink and DHCP/default route."
+        if name == "net_wlan0":
+            return "Reconnect Wi-Fi and verify wlan0 has IPv4 address."
+        if name == "ports":
+            return "Restart missing service(s) and confirm expected ports are listening."
+        if name == "cloudflared":
+            return "sudo systemctl restart cloudflared && verify /etc/cloudflared/config.yml target."
+        if name == "pihole":
+            return "Check pihole-FTL and API auth password, then restart Pi-hole container."
+        if name == "pihole_dns":
+            return "Verify Pi-hole DNS service and upstream resolver reachability."
+        return "Inspect service logs for root cause."
+
+    def _enrich_service_metadata(self):
+        now = time.time()
+        stale = set(self._service_meta.keys()) - set(self._service_status.keys())
+        for key in stale:
+            self._service_meta.pop(key, None)
+
+        for name, info in self._service_status.items():
+            status = info.get("status", "unknown")
+            message = str(info.get("message", ""))
+            prev = self._service_meta.get(name, {})
+            prev_status = prev.get("status")
+            prev_message = prev.get("message")
+
+            if status in {"down", "degraded"}:
+                if prev_status == status and prev_message == message:
+                    failure_count = int(prev.get("failure_count", 0)) + 1
+                else:
+                    failure_count = 1
+                last_error = message
+            else:
+                failure_count = 0
+                last_error = ""
+
+            if prev_status != status or prev_message != message:
+                last_change = now
+            else:
+                last_change = prev.get("last_change", now)
+
+            info["source_check"] = info.get("source_check") or self._source_check_for_service(name)
+            info["recommended_action"] = info.get("recommended_action") or self._recommended_action_for_service(
+                name, status, message
+            )
+            info["failure_count"] = failure_count
+            info["last_error"] = last_error
+            info["last_change"] = last_change
+
+            self._service_meta[name] = {
+                "status": status,
+                "message": message,
+                "failure_count": failure_count,
+                "last_change": last_change,
+            }
+
+    @staticmethod
+    def _normalize_alert_message(message: str) -> str:
+        normalized = (message or "").lower().strip()
+        normalized = re.sub(r"\s+", " ", normalized)
+        # Suppress noisy numeric/token jitter while preserving core meaning.
+        normalized = re.sub(r"\b\d+(\.\d+)?\b", "<n>", normalized)
+        return normalized
+
+    def _alert_fingerprint(self, level: Severity, service: str, status: str, message: str) -> str:
+        normalized = self._normalize_alert_message(message)
+        return f"{level.value}|{service}|{status}|{normalized}"
 
     # ── HTTP Service Checks ──────────────────────────────────────────
 
@@ -417,8 +563,8 @@ class HealthChecker:
         "fish_audio_api": "🔊 Fish Audio API (text-to-speech)",
         "svc_bmo": "🏠 BMO systemd service",
         "svc_docker": "🐳 Docker engine",
-        "svc_bmo-dm-bot": "🐉 DM Discord Bot",
-        "svc_bmo-social-bot": "🎵 Social Discord Bot",
+        "svc_bmo_dm_bot": "🐉 DM Discord Bot",
+        "svc_bmo_social_bot": "🎵 Social Discord Bot",
         "svc_bmo_kiosk": "🖥️ BMO Kiosk (touchscreen UI)",
         "svc_bmo_fan": "🌀 BMO Fan Controller",
         "net_wlan0": "📶 Wi-Fi (wlan0)",
@@ -435,8 +581,23 @@ class HealthChecker:
         "google_maps_api": "🗺️ Google Maps API",
         "google_calendar": "📅 Google Calendar",
         "cloudflared": "🌐 Cloudflare Tunnel",
+        "mdns": "📡 mDNS hostname",
+        "tailscale": "🔐 Tailscale",
         "rclone": "☁️ Rclone (Google Drive)",
     }
+
+    # Services that should drive overall=critical when they are down.
+    _REQUIRED_FOR_OVERALL = {
+        "svc_bmo",
+        "svc_docker",
+        "internet",
+        "net_wlan0",
+        "google_calendar",
+        "pihole",
+        "pihole_dns",
+        "cloudflared",
+    }
+    _OPTIONAL_DISABLED_SERVICES = {"bmo-fan"}
 
     def _service_label(self, name: str) -> str:
         if name in self._SERVICE_LABELS:
@@ -777,17 +938,31 @@ class HealthChecker:
                         err_msg = r.json().get("error", {}).get("message", err_msg)
                     except Exception:
                         pass
-                    self._service_status["pihole"] = {
-                        "status": "down", "last_check": now,
-                        "message": err_msg, "response_time": None,
-                    }
-                    self._emit_alert(
-                        Severity.CRITICAL, "pihole",
-                        f"🛡️ Pi-hole API auth failed: {err_msg}",
-                    )
-                    return
-                sid = r.json().get("session", {}).get("sid", "")
-                self._pihole_sid = sid
+                    err_lower = str(err_msg).lower()
+                    # Pi-hole v6 can hit an API session-seat ceiling while DNS still works.
+                    if "seats exceeded" in err_lower:
+                        self._service_status["pihole"] = {
+                            "status": "degraded", "last_check": now,
+                            "message": "API seats exceeded", "response_time": None,
+                        }
+                        self._emit_alert(
+                            Severity.WARNING, "pihole",
+                            "🛡️ Pi-hole API seats exceeded; DNS may still be active",
+                        )
+                        sid = ""
+                    else:
+                        self._service_status["pihole"] = {
+                            "status": "down", "last_check": now,
+                            "message": err_msg, "response_time": None,
+                        }
+                        self._emit_alert(
+                            Severity.CRITICAL, "pihole",
+                            f"🛡️ Pi-hole API auth failed: {err_msg}",
+                        )
+                        return
+                else:
+                    sid = r.json().get("session", {}).get("sid", "")
+                    self._pihole_sid = sid
             except Exception as e:
                 self._service_status["pihole"] = {
                     "status": "down", "last_check": now,
@@ -930,6 +1105,15 @@ class HealthChecker:
                     capture_output=True, text=True, timeout=5,
                 )
                 state = result.stdout.strip()
+                enabled_state = "unknown"
+                try:
+                    enabled_result = subprocess.run(
+                        ["systemctl", "is-enabled", f"{svc}.service"],
+                        capture_output=True, text=True, timeout=3,
+                    )
+                    enabled_state = enabled_result.stdout.strip() or "unknown"
+                except Exception:
+                    pass
                 # Get service start time
                 started_at = None
                 try:
@@ -949,6 +1133,12 @@ class HealthChecker:
                         "status": "up", "last_check": now,
                         "message": "Running", "response_time": None,
                         "started_at": started_at,
+                    }
+                elif svc in self._OPTIONAL_DISABLED_SERVICES and enabled_state in {"disabled", "masked"}:
+                    self._service_status[key] = {
+                        "status": "info", "last_check": now,
+                        "message": f"State: {state} (disabled by configuration)",
+                        "response_time": None,
                     }
                 else:
                     self._service_status[key] = {
@@ -1017,12 +1207,15 @@ class HealthChecker:
                             f"📶 {iface} is UP but has no IP address — DHCP may have failed",
                         )
                 else:
-                    # eth0 DOWN is normal (Pi on Wi-Fi), only alert on wlan0
-                    status = "down" if iface == "wlan0" else "info"
+                    # eth0 DOWN is normal on Wi-Fi-only setups; do not treat as outage.
                     self._service_status[key] = {
-                        "status": "down" if iface == "wlan0" else "up",
+                        "status": "down" if iface == "wlan0" else "info",
                         "last_check": now,
-                        "message": f"{operstate} (no cable)" if iface == "eth0" else operstate,
+                        "message": (
+                            f"{operstate} (no cable; expected if Wi-Fi is primary)"
+                            if iface == "eth0"
+                            else operstate
+                        ),
                         "response_time": None,
                     }
                     if iface == "wlan0" and operstate != "UP":
@@ -1074,6 +1267,8 @@ class HealthChecker:
             missing = []
             for port, service in self._EXPECTED_PORTS.items():
                 if port not in listening_ports:
+                    if port == 5000 and self._is_local_port_reachable(5000):
+                        continue
                     missing.append(f"{service} (:{port})")
 
             if missing:
@@ -1228,39 +1423,112 @@ class HealthChecker:
         """Check if Google Calendar OAuth token is present and valid."""
         now = time.time()
         try:
-            if not os.path.exists(CALENDAR_TOKEN_PATH):
+            credentials_path = (
+                CALENDAR_CREDENTIALS_PATH
+                if os.path.exists(CALENDAR_CREDENTIALS_PATH)
+                else LEGACY_CALENDAR_CREDENTIALS_PATH
+            )
+            if not os.path.exists(credentials_path):
                 self._service_status["google_calendar"] = {
                     "status": "down", "last_check": now,
-                    "message": "token.json missing — run authorize_calendar.py",
+                    "message": "credentials.json missing — add Google OAuth client credentials",
                     "response_time": None,
                 }
                 self._emit_alert(
-                    Severity.WARNING, "google_calendar",
-                    "📅 Google Calendar token missing — calendar features won't work",
+                    Severity.CRITICAL, "google_calendar",
+                    "📅 Google Calendar credentials.json missing — cannot authorize calendar",
+                )
+                return
+
+            token_path = CALENDAR_TOKEN_PATH if os.path.exists(CALENDAR_TOKEN_PATH) else LEGACY_CALENDAR_TOKEN_PATH
+            if not os.path.exists(token_path):
+                self._service_status["google_calendar"] = {
+                    "status": "down", "last_check": now,
+                    "message": (
+                        "token.json missing — use Calendar tab 'Authorize Calendar' "
+                        "or run authorize_calendar.py"
+                    ),
+                    "response_time": None,
+                }
+                self._emit_alert(
+                    Severity.CRITICAL, "google_calendar",
+                    "📅 Google Calendar token missing — calendar features are down",
                 )
                 return
 
             # Check token age and validity
-            stat = os.stat(CALENDAR_TOKEN_PATH)
+            stat = os.stat(token_path)
             age_days = (now - stat.st_mtime) / 86400
 
             # Try to parse token to check expiry
             try:
-                with open(CALENDAR_TOKEN_PATH) as f:
+                with open(token_path, "r", encoding="utf-8") as f:
                     token_data = json.load(f)
+                if not isinstance(token_data, dict):
+                    raise ValueError("token.json root must be an object")
+
+                refresh_token = token_data.get("refresh_token")
+                access_token = token_data.get("token")
+                if not access_token:
+                    self._service_status["google_calendar"] = {
+                        "status": "down", "last_check": now,
+                        "message": "token.json missing access token — re-authorize calendar",
+                        "response_time": None,
+                    }
+                    self._emit_alert(
+                        Severity.CRITICAL, "google_calendar",
+                        "📅 Calendar token missing access token — re-authorize required",
+                    )
+                    return
                 expiry = token_data.get("expiry", "")
                 if expiry:
                     from datetime import datetime
                     exp_dt = datetime.fromisoformat(expiry.replace("Z", "+00:00"))
                     if exp_dt.timestamp() < now:
+                        if not refresh_token:
+                            self._service_status["google_calendar"] = {
+                                "status": "down", "last_check": now,
+                                "message": "Token expired and refresh token is missing",
+                                "response_time": None,
+                            }
+                            self._emit_alert(
+                                Severity.CRITICAL, "google_calendar",
+                                "📅 Calendar token expired and cannot auto-refresh",
+                            )
+                            return
                         self._service_status["google_calendar"] = {
                             "status": "degraded", "last_check": now,
-                            "message": f"Token expired — auto-refresh should handle this",
+                            "message": "Token expired — waiting for auto-refresh",
                             "response_time": None,
                         }
+                        self._emit_alert(
+                            Severity.WARNING, "google_calendar",
+                            "📅 Calendar token expired — waiting for refresh",
+                        )
                         return
+
+                if not refresh_token:
+                    self._service_status["google_calendar"] = {
+                        "status": "down", "last_check": now,
+                        "message": "Token present but refresh token missing — re-authorize required",
+                        "response_time": None,
+                    }
+                    self._emit_alert(
+                        Severity.CRITICAL, "google_calendar",
+                        "📅 Calendar token missing refresh token — re-authorization required",
+                    )
+                    return
             except Exception:
-                pass
+                self._service_status["google_calendar"] = {
+                    "status": "down", "last_check": now,
+                    "message": "token.json invalid — re-authorize calendar",
+                    "response_time": None,
+                }
+                self._emit_alert(
+                    Severity.CRITICAL, "google_calendar",
+                    "📅 Calendar token is invalid — re-authorize required",
+                )
+                return
 
             self._service_status["google_calendar"] = {
                 "status": "up", "last_check": now,
@@ -1286,10 +1554,33 @@ class HealthChecker:
             )
             state = result.stdout.strip()
             if state == "active":
+                config_ok = True
+                config_msg = "Tunnel active"
+                try:
+                    with open("/etc/cloudflared/config.yml", "r", encoding="utf-8") as cfg:
+                        cfg_text = cfg.read()
+                    if "service: http://localhost:5000" not in cfg_text:
+                        config_ok = False
+                        config_msg = "Tunnel active, but ingress target is not localhost:5000"
+                except FileNotFoundError:
+                    config_ok = False
+                    config_msg = "Tunnel active, but /etc/cloudflared/config.yml is missing"
+                except Exception as cfg_err:
+                    config_ok = False
+                    config_msg = f"Tunnel active, config check failed: {cfg_err}"
+
                 self._service_status["cloudflared"] = {
-                    "status": "up", "last_check": now,
-                    "message": "Tunnel active", "response_time": None,
+                    "status": "up" if config_ok else "degraded",
+                    "last_check": now,
+                    "message": config_msg,
+                    "response_time": None,
                 }
+                if not config_ok:
+                    self._emit_alert(
+                        Severity.WARNING,
+                        "cloudflared",
+                        f"🌐 {config_msg}",
+                    )
             else:
                 self._service_status["cloudflared"] = {
                     "status": "down", "last_check": now,
@@ -1299,6 +1590,92 @@ class HealthChecker:
             self._service_status["cloudflared"] = {
                 "status": "unknown", "last_check": now,
                 "message": str(e), "response_time": None,
+            }
+
+    def _check_remote_access(self):
+        """Check mDNS reachability and optional Tailscale status."""
+        import subprocess
+
+        now = time.time()
+        mdns_host = f"{PI_HOSTNAME}.local"
+
+        try:
+            result = subprocess.run(
+                ["avahi-resolve-host-name", mdns_host],
+                capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                self._service_status["mdns"] = {
+                    "status": "up",
+                    "last_check": now,
+                    "message": result.stdout.strip(),
+                    "response_time": None,
+                }
+            else:
+                self._service_status["mdns"] = {
+                    "status": "degraded",
+                    "last_check": now,
+                    "message": f"{mdns_host} not resolving",
+                    "response_time": None,
+                }
+                self._emit_alert(
+                    Severity.WARNING,
+                    "mdns",
+                    f"📡 {mdns_host} is not resolving via mDNS",
+                )
+        except FileNotFoundError:
+            self._service_status["mdns"] = {
+                "status": "unknown",
+                "last_check": now,
+                "message": "avahi-resolve-host-name not installed",
+                "response_time": None,
+            }
+        except Exception as e:
+            self._service_status["mdns"] = {
+                "status": "unknown",
+                "last_check": now,
+                "message": str(e),
+                "response_time": None,
+            }
+
+        try:
+            status = subprocess.run(
+                ["tailscale", "status", "--json"],
+                capture_output=True, text=True, timeout=8,
+            )
+            if status.returncode == 0:
+                self._service_status["tailscale"] = {
+                    "status": "up",
+                    "last_check": now,
+                    "message": "Connected",
+                    "response_time": None,
+                }
+            else:
+                self._service_status["tailscale"] = {
+                    "status": "degraded",
+                    "last_check": now,
+                    "message": status.stderr.strip() or "Installed but not connected",
+                    "response_time": None,
+                }
+                self._emit_alert(
+                    Severity.WARNING,
+                    "tailscale",
+                    "🔐 Tailscale is installed but not connected",
+                )
+        except FileNotFoundError:
+            # Optional component: unknown is informational, not an error.
+            self._service_status["tailscale"] = {
+                "status": "unknown",
+                "last_check": now,
+                "message": "tailscale not installed",
+                "response_time": None,
+            }
+        except Exception as e:
+            self._service_status["tailscale"] = {
+                "status": "unknown",
+                "last_check": now,
+                "message": str(e),
+                "response_time": None,
             }
 
     # ── Rclone Check ─────────────────────────────────────────────────
@@ -1351,8 +1728,9 @@ class HealthChecker:
                 recovery_msg = f"✅ {label} has recovered and is back online"
                 print(f"[monitor] RECOVERY: {name} is back up")
 
-                # Discord recovery notification (bypass cooldown)
-                _send_discord_webhook(Severity.INFO, name, recovery_msg)
+                if _send_discord_webhook(Severity.INFO, name, recovery_msg):
+                    self._discord_last_fingerprint.pop(name, None)
+                    self._save_discord_alert_state()
 
                 if self.socketio:
                     self.socketio.emit("alert", {
@@ -1370,9 +1748,9 @@ class HealthChecker:
 
         Routing rules:
         - All alerts: print log with [monitor] prefix
-        - Critical + Warning: SocketIO 'alert' event + Discord webhook
+        - Critical + Warning: SocketIO 'alert' event
         - Critical: OLED face expression change (bmo_status: error)
-        - Discord webhook uses 5-min cooldown per service
+        - Discord webhook: state-change-only dedupe (no repeated spam)
         - When service recovers: handled by _process_state_transitions
         """
         # Always log
@@ -1391,20 +1769,19 @@ class HealthChecker:
         if level == Severity.CRITICAL and self.socketio:
             self.socketio.emit("bmo_status", {"expression": "error"})
 
-        # Discord webhook for critical AND warning (with cooldown)
+        # Discord webhook for critical and warning (state-change dedupe)
         if level in (Severity.CRITICAL, Severity.WARNING):
             self._send_discord_if_allowed(level, service, message)
 
     def _send_discord_if_allowed(self, level: Severity, service: str, message: str):
-        """Send Discord webhook if cooldown has elapsed for this service."""
-        now = time.time()
-        last_sent = self._discord_cooldowns.get(service, 0)
-
-        if now - last_sent < DISCORD_COOLDOWN:
-            return  # Still in cooldown
-
+        """Send Discord webhook only on state-change/new fingerprint."""
+        status = self._service_status.get(service, {}).get("status", "unknown")
+        fingerprint = self._alert_fingerprint(level, service, status, message)
+        if self._discord_last_fingerprint.get(service) == fingerprint:
+            return
         if _send_discord_webhook(level, service, message):
-            self._discord_cooldowns[service] = now
+            self._discord_last_fingerprint[service] = fingerprint
+            self._save_discord_alert_state()
 
     # ── Status Summary ───────────────────────────────────────────────
 
@@ -1433,6 +1810,17 @@ class HealthChecker:
                 entry["throttle_flags"] = info["throttle_flags"]
             if "started_at" in info:
                 entry["started_at"] = info["started_at"]
+            if "source_check" in info:
+                entry["source_check"] = info["source_check"]
+            if "recommended_action" in info:
+                entry["recommended_action"] = info["recommended_action"]
+            if "failure_count" in info:
+                entry["failure_count"] = info["failure_count"]
+            if "last_error" in info:
+                entry["last_error"] = info["last_error"]
+            if "last_change" in info:
+                entry["last_change"] = info["last_change"]
+            entry["label"] = self._service_label(name)
             services[name] = entry
 
         # Collect recent errors for services and containers
@@ -1471,20 +1859,32 @@ class HealthChecker:
 
         pi_stats = get_pi_stats()
 
-        # Overall health: critical if any service is down, warning if degraded
+        # Overall health:
+        # - critical: required services are down
+        # - warning: any non-required service is down OR any service is degraded
+        # - healthy: no down/degraded services
         overall = "healthy"
         down_services = []
+        down_required_services = []
+        down_noncritical_services = []
         degraded_services = []
+        info_services = []
         for name, info in self._service_status.items():
             status = info.get("status", "unknown")
             if status == "down":
                 down_services.append(name)
+                if name in self._REQUIRED_FOR_OVERALL:
+                    down_required_services.append(name)
+                else:
+                    down_noncritical_services.append(name)
             elif status == "degraded":
                 degraded_services.append(name)
+            elif status == "info":
+                info_services.append(name)
 
-        if down_services:
+        if down_required_services:
             overall = "critical"
-        elif degraded_services:
+        elif down_noncritical_services or degraded_services:
             overall = "warning"
 
         # Get Pi uptime
@@ -1498,7 +1898,10 @@ class HealthChecker:
         return {
             "overall": overall,
             "down_services": down_services,
+            "down_required_services": down_required_services,
+            "down_noncritical_services": down_noncritical_services,
             "degraded_services": degraded_services,
+            "info_services": info_services,
             "services": services,
             "pi_stats": pi_stats,
             "check_interval": self.check_interval,

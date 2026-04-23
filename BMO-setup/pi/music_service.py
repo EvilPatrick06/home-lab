@@ -43,6 +43,9 @@ class MusicService:
         self.repeat: str = "off"  # "off", "all", "one"
         self.autoplay: bool = True  # When queue ends, play related songs
         self._volume: int = 50  # Cached volume level
+        self._playback_state_save_interval_sec: float = 5.0
+        self._last_playback_state_save_ts: float = 0.0
+        self._playback_intent: str | None = None  # "playing" | "paused" | None
 
         # Auto-advance thread
         self._monitor_thread = None
@@ -78,16 +81,74 @@ class MusicService:
             self.queue = queue
             self.queue_index = index
             was_paused = state.get("was_paused", False)
+            was_playing = state.get("was_playing")
+            if was_playing is None:
+                # Backward-compat: legacy state only had was_paused.
+                was_playing = not was_paused
+            position_sec = float(state.get("position_sec", 0.0) or 0.0)
             song = queue[index]
             status = "paused" if was_paused else "playing"
             print(f"[music] Restoring ({status}): {song.get('title', '?')} + {len(queue) - index - 1} queued")
             self.play(song, add_to_queue=False)
-            if was_paused:
-                # Give VLC a moment to start, then pause it
-                time.sleep(0.5)
-                self.pause()
+            if position_sec > 0:
+                # Ensure we don't seek past the known duration.
+                duration_sec = float(song.get("duration_sec", 0.0) or 0.0)
+                if duration_sec > 2:
+                    position_sec = min(position_sec, max(0.0, duration_sec - 1.0))
+                self._restore_seek_position(position_sec)
+            if was_paused or not was_playing:
+                self._force_pause_after_restore()
+                self._playback_intent = "paused"
+            else:
+                self._playback_intent = "playing"
+            self._save_playback_state()
         except Exception as e:
             print(f"[music] Restore playback failed: {e}")
+
+    def _restore_seek_position(self, position_sec: float):
+        """Seek during restore after allowing media a brief moment to initialize."""
+        if position_sec <= 0:
+            return
+        if self._output_device == OUTPUT_PI:
+            # VLC may ignore early seeks while media is opening; retry until media is seekable.
+            target_ms = int(position_sec * 1000)
+            deadline = time.time() + 15.0
+            while time.time() < deadline:
+                state = self._player.get_state()
+                if state in (vlc.State.Ended, vlc.State.Error, vlc.State.Stopped):
+                    break
+                media_len_ms = max(0, self._player.get_length())
+                if media_len_ms <= 0:
+                    time.sleep(0.25)
+                    continue
+                self._player.set_time(target_ms)
+                time.sleep(0.25)
+                cur_ms = max(0, self._player.get_time())
+                if cur_ms >= max(0, target_ms - 2500):
+                    break
+        elif self._output_device == OUTPUT_TV:
+            self._cast_seek(position_sec)
+        self._emit_state()
+
+    def _force_pause_after_restore(self):
+        """Pause without toggle ambiguity so paused sessions remain paused after restore."""
+        if self._output_device == OUTPUT_PI:
+            # VLC can ignore an early pause while media is still opening.
+            deadline = time.time() + 15.0
+            while time.time() < deadline:
+                self._player.set_pause(1)
+                time.sleep(0.15)
+                state = self._player.get_state()
+                if state == vlc.State.Paused:
+                    break
+                if state in (vlc.State.Ended, vlc.State.Error, vlc.State.Stopped):
+                    break
+        elif self._output_device == OUTPUT_TV:
+            # Give cast a couple retries because transport can race startup.
+            for _ in range(3):
+                self._cast_pause()
+                time.sleep(0.2)
+        self._emit_state()
 
     # ── Output Device Property ───────────────────────────────────────
 
@@ -154,6 +215,8 @@ class MusicService:
                 self._player.play()
             elif self._output_device == OUTPUT_TV:
                 self._cast_play()
+            self._playback_intent = "playing"
+            self._save_playback_state()
             self._emit_state()
             return
 
@@ -166,12 +229,13 @@ class MusicService:
                 self.queue.append(song)
                 self.queue_index = len(self.queue) - 1
 
-        self.current_song = song
-
-        # Get stream URL
+        # Get stream URL BEFORE setting current_song so GUI stays accurate
         url, duration = self.get_audio_stream_url(song["videoId"])
         song["stream_url"] = url
         song["duration_sec"] = duration
+
+        # NOW set current_song — VLC is about to start
+        self.current_song = song
 
         if self._output_device == OUTPUT_PI:
             media = self._vlc_instance.media_new(url)
@@ -180,6 +244,7 @@ class MusicService:
         elif self._output_device == OUTPUT_TV:
             self._cast_play_media(song)
 
+        self._playback_intent = "playing"
         self._record_play(song)
         self._start_monitor()
         self._prefetch_next()
@@ -196,9 +261,33 @@ class MusicService:
     def pause(self):
         """Toggle pause/resume."""
         if self._output_device == OUTPUT_PI:
-            self._player.pause()
+            state_before = self._player.get_state()
+            is_paused = state_before == vlc.State.Paused or self._playback_intent == "paused"
+            if is_paused:
+                # Resume explicitly; plain play() is more reliable across VLC states.
+                self._player.play()
+                self._playback_intent = "playing"
+            else:
+                # Pause explicitly so intent is deterministic even if VLC state lags.
+                self._player.set_pause(1)
+                self._playback_intent = "paused"
+        elif self._output_device == OUTPUT_TV:
+            if self._playback_intent == "paused":
+                self._cast_play()
+                self._playback_intent = "playing"
+            else:
+                self._cast_pause()
+                self._playback_intent = "paused"
+        self._save_playback_state()
+        self._emit_state()
+
+    def pause_only(self):
+        """Force paused state (no toggle)."""
+        if self._output_device == OUTPUT_PI:
+            self._player.set_pause(1)
         elif self._output_device == OUTPUT_TV:
             self._cast_pause()
+        self._playback_intent = "paused"
         self._save_playback_state()
         self._emit_state()
 
@@ -206,6 +295,7 @@ class MusicService:
         """Stop playback on the current output device."""
         self._stop_current_device()
         self.current_song = None
+        self._playback_intent = None
         self._clear_playback_state()
         self._emit_state()
 
@@ -309,6 +399,7 @@ class MusicService:
             self._player.set_time(int(position_sec * 1000))
         elif self._output_device == OUTPUT_TV:
             self._cast_seek(position_sec)
+        self._save_playback_state()
         self._emit_state()
 
     def set_volume(self, volume: int):
@@ -381,10 +472,25 @@ class MusicService:
             duration = max(0, self._player.get_length()) / 1000
             if duration == 0 and self.current_song:
                 duration = self.current_song.get("duration_sec", 0)
+            if self._playback_intent == "paused":
+                is_playing = False
+            elif self._playback_intent == "playing" and self.current_song:
+                is_playing = True
         elif self._output_device == OUTPUT_TV:
-            is_playing = self.current_song is not None
-            if self.current_song:
-                duration = self.current_song.get("duration_sec", 0)
+            cast = self._get_tv_cast()
+            if cast and cast.media_controller and cast.media_controller.status:
+                status = cast.media_controller.status
+                player_state = (status.player_state or "").upper()
+                is_playing = player_state == "PLAYING"
+                if player_state == "PAUSED":
+                    is_playing = False
+                position = float(status.current_time or 0.0)
+                if self.current_song:
+                    duration = self.current_song.get("duration_sec", 0)
+            else:
+                is_playing = self.current_song is not None and self._playback_intent != "paused"
+                if self.current_song:
+                    duration = self.current_song.get("duration_sec", 0)
 
         state_dict = {
             "song": self.current_song,
@@ -466,6 +572,9 @@ class MusicService:
         while self._running:
             if self._output_device == OUTPUT_PI:
                 state = self._player.get_state()
+                if self._playback_intent == "paused" and state == vlc.State.Playing:
+                    self._player.set_pause(1)
+                    state = self._player.get_state()
                 if state != last_state:
                     print(f"[music][monitor] VLC state: {last_state} → {state} (has_played={has_played})")
                     last_state = state
@@ -483,6 +592,22 @@ class MusicService:
                         self.play(self.current_song, add_to_queue=False)
                     else:
                         self.next_track()
+                now = time.time()
+                if (
+                    self.current_song
+                    and state in (vlc.State.Playing, vlc.State.Paused)
+                    and now - self._last_playback_state_save_ts >= self._playback_state_save_interval_sec
+                ):
+                    self._save_playback_state()
+                    self._last_playback_state_save_ts = now
+            elif self._output_device == OUTPUT_TV:
+                now = time.time()
+                if (
+                    self.current_song
+                    and now - self._last_playback_state_save_ts >= self._playback_state_save_interval_sec
+                ):
+                    self._save_playback_state()
+                    self._last_playback_state_save_ts = now
             # TV auto-advance is handled by Chromecast media controller
             time.sleep(1)
 
@@ -592,17 +717,42 @@ class MusicService:
             for s in self.queue:
                 clean = {k: v for k, v in s.items() if k != "stream_url"}
                 clean_queue.append(clean)
-            # Check if currently paused
+            position_sec = 0.0
+            is_playing = False
             is_paused = False
             if self._output_device == OUTPUT_PI:
-                is_paused = self._player.get_state() == vlc.State.Paused
+                state = self._player.get_state()
+                is_playing = state == vlc.State.Playing
+                is_paused = state == vlc.State.Paused
+                position_sec = max(0, self._player.get_time()) / 1000
+            elif self._output_device == OUTPUT_TV:
+                # Best-effort state/position for cast playback.
+                cast = self._get_tv_cast()
+                if cast and cast.media_controller and cast.media_controller.status:
+                    status = cast.media_controller.status
+                    player_state = (status.player_state or "").upper()
+                    is_playing = player_state == "PLAYING"
+                    is_paused = player_state == "PAUSED"
+                    position_sec = float(status.current_time or 0.0)
+                elif self.current_song:
+                    # Fallback when cast status isn't available yet.
+                    is_playing = True
+            if self._playback_intent == "paused":
+                is_paused = True
+                is_playing = False
+            elif self._playback_intent == "playing" and self.current_song:
+                is_playing = True
+                is_paused = False
             state = {
                 "queue": clean_queue,
                 "queue_index": self.queue_index,
                 "shuffle": self.shuffle,
                 "repeat": self.repeat,
                 "autoplay": self.autoplay,
+                "was_playing": is_playing,
                 "was_paused": is_paused,
+                "position_sec": round(max(0.0, position_sec), 1),
+                "saved_at": time.time(),
             }
             os.makedirs(os.path.dirname(PLAYBACK_STATE_FILE), exist_ok=True)
             with open(PLAYBACK_STATE_FILE, "w") as f:

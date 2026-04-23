@@ -7,6 +7,7 @@ Wake word detection always runs locally (must be instant).
 
 import asyncio
 import io
+import difflib
 import os
 import pickle
 import queue
@@ -166,6 +167,10 @@ class VoicePipeline:
         # Streaming chat callback: if set, returns a generator of text chunks
         self._chat_stream_callback = None
 
+        # Echo suppression: track recent BMO speech to ignore self-heard STT loops
+        self._last_spoken_text = ""
+        self._last_spoken_ts = 0.0
+
         # TTS sentence queue for streaming: LLM pushes sentences, worker speaks them
         self._tts_queue = queue.Queue()
         self._tts_worker_active = threading.Event()
@@ -182,6 +187,7 @@ class VoicePipeline:
         self._tts_provider = voice_settings.get("tts_provider", "auto")
         self._stt_provider = voice_settings.get("stt_provider", "auto")
         self._wake_enabled = voice_settings.get("wake_enabled", True)
+        self._bmo_tts_enabled = voice_settings.get("bmo_tts_enabled", True)
 
     # ── Model Loading (local fallback models) ─────────────────────────
 
@@ -272,6 +278,7 @@ class VoicePipeline:
             "tts_provider": getattr(self, '_tts_provider', 'auto'),
             "stt_provider": getattr(self, '_stt_provider', 'auto'),
             "wake_enabled": getattr(self, '_wake_enabled', True),
+            "bmo_tts_enabled": getattr(self, '_bmo_tts_enabled', True),
             "wake_variants": list(WAKE_VARIANTS),
         }
 
@@ -287,6 +294,8 @@ class VoicePipeline:
             self._stt_provider = str(value)
         elif key == "wake_enabled":
             self._wake_enabled = bool(value)
+        elif key == "bmo_tts_enabled":
+            self._bmo_tts_enabled = bool(value)
         # Persist
         self._save_voice_settings()
 
@@ -305,6 +314,7 @@ class VoicePipeline:
                 "tts_provider": getattr(self, '_tts_provider', 'auto'),
                 "stt_provider": getattr(self, '_stt_provider', 'auto'),
                 "wake_enabled": getattr(self, '_wake_enabled', True),
+                "bmo_tts_enabled": getattr(self, '_bmo_tts_enabled', True),
             }
             os.makedirs(os.path.dirname(settings_path), exist_ok=True)
             with open(settings_path, "w") as f:
@@ -488,6 +498,12 @@ class VoicePipeline:
                             continue
                         cooldown_until = now + 1.5
 
+                        # Bedtime mode: ignore wake word (mic muted)
+                        scene_svc = getattr(self, '_scene_service', None)
+                        if scene_svc and scene_svc.get_active() == "bedtime":
+                            print("[wake] Suppressed (bedtime mode) — mic muted")
+                            continue
+
                         print(f"[wake] Porcupine detected 'hey BMO'!")
                         self._emit("status", {"state": "listening"})
                         # Drain audio queue
@@ -505,7 +521,7 @@ class VoicePipeline:
         Fallback hey_jarvis model: two-stage — OWW trigger + local STT confirmation.
         Auto-detects mic native sample rate and resamples to 16kHz if needed.
         """
-        cooldown_until = 0.0
+        cooldown_until = time.time() + 3.0  # Skip initial mic noise
         use_single_stage = WAKE_USE_CUSTOM
 
         native_rate = _get_native_input_rate()
@@ -530,6 +546,7 @@ class VoicePipeline:
             )
         except Exception as e:
             print(f"[wake] FATAL: Failed to open mic stream: {e}")
+            time.sleep(2)
             return
 
         with mic_stream:
@@ -863,6 +880,16 @@ class VoicePipeline:
                 text = " ".join(batch)
 
             self._tts_worker_active.set()
+            if not getattr(self, '_bmo_tts_enabled', True):
+                print(f"[tts-worker] Suppressed (BMO TTS off): {text[:60]}...")
+                self._tts_worker_active.clear()
+                continue
+            # Bedtime mode check — suppress TTS unless it's a priority item
+            scene_svc = getattr(self, '_scene_service', None)
+            if scene_svc and scene_svc.get_active() == "bedtime":
+                print(f"[tts-worker] Suppressed (bedtime mode): {text[:60]}...")
+                self._tts_worker_active.clear()
+                continue
             try:
                 provider = getattr(self, '_tts_provider', 'auto')
                 if provider == "piper_bmo" or (provider == "auto" and PIPER_BMO_AVAILABLE):
@@ -910,6 +937,7 @@ class VoicePipeline:
         """
         self._emit("status", {"state": "speaking"})
         self._is_speaking = True
+        self._remember_spoken(text)
         # Don't reset _speak_volume — it's set by the volume slider and should persist
         self._tts_interrupted.clear()
         # NOTE: mic muting removed — gevent blocks Popen for 5s, causing
@@ -951,6 +979,8 @@ class VoicePipeline:
                     sentence = buffer[:end].strip()
                     buffer = buffer[end:]
                     if sentence:
+                        # Strip [RELAY:...] tags — they're agent routing, not speech
+                        sentence = re.sub(r'\[RELAY:\w+\].*', '', sentence, flags=re.DOTALL).strip()
                         tts_text = self._strip_markdown(sentence)
                         if tts_text:
                             sentences_queued += 1
@@ -959,6 +989,8 @@ class VoicePipeline:
 
             remaining = buffer.strip()
             if remaining and not self._tts_interrupted.is_set():
+                # Strip [RELAY:...] tags from final chunk too
+                remaining = re.sub(r'\[RELAY:\w+\].*', '', remaining, flags=re.DOTALL).strip()
                 tts_text = self._strip_markdown(remaining)
                 if tts_text:
                     sentences_queued += 1
@@ -967,6 +999,8 @@ class VoicePipeline:
 
             # Signal worker to exit after all sentences are spoken
             self._tts_queue.put(None)
+            if full_text.strip():
+                self._remember_spoken(full_text)
             self._wait_for_tts()
             worker.join(timeout=5.0)
 
@@ -1027,6 +1061,10 @@ class VoicePipeline:
                 return None
 
             print(f"[stt] {speaker}: {text}")
+            if self._is_probable_self_echo(text):
+                print("[echo] Ignoring probable self-heard transcription")
+                self._emit("status", {"state": "idle"})
+                return None
             self._emit("transcription", {"speaker": speaker, "text": text})
 
             # Voice enrollment intercept — always allow, even from unknown speakers
@@ -1074,7 +1112,7 @@ class VoicePipeline:
                     if response:
                         tts_text = self._strip_markdown(response)
                         print(f"[tts] Speaking: {tts_text[:80]}...")
-                        self._emit("response", {"text": response, "speaker": speaker})
+                        self._emit("response", {"text": tts_text, "speaker": speaker})
                         self.speak(tts_text)
                 self._emit("status", {"state": "idle"})
                 return ""  # empty string = responded but end conversation
@@ -1085,7 +1123,7 @@ class VoicePipeline:
                 if response:
                     tts_text = self._strip_markdown(response)
                     print(f"[tts] Speaking: {tts_text[:80]}...")
-                    self._emit("response", {"text": response, "speaker": speaker})
+                    self._emit("response", {"text": tts_text, "speaker": speaker})
                     self.speak(tts_text)
                     # Skip follow-up loop if user said a closing phrase on the first turn
                     if is_closing:
@@ -1353,6 +1391,36 @@ class VoicePipeline:
         text = re.sub(r'\n{3,}', '\n\n', text)
         return text.strip()
 
+    def _normalize_for_echo(self, text: str) -> str:
+        text = text.lower()
+        text = re.sub(r'[^a-z0-9\s]', ' ', text)
+        text = re.sub(r'\s+', ' ', text)
+        return text.strip()
+
+    def _remember_spoken(self, text: str) -> None:
+        cleaned = self._normalize_for_echo(self._strip_markdown(text))
+        if cleaned:
+            self._last_spoken_text = cleaned
+            self._last_spoken_ts = time.time()
+
+    def _is_probable_self_echo(self, transcript: str) -> bool:
+        if not self._last_spoken_text:
+            return False
+        age = time.time() - self._last_spoken_ts
+        if age > 12:
+            return False
+
+        heard = self._normalize_for_echo(transcript)
+        if not heard or len(heard) < 15:
+            return False
+
+        last = self._last_spoken_text
+        if heard in last or last in heard:
+            return True
+
+        ratio = difflib.SequenceMatcher(a=heard, b=last).ratio()
+        return ratio >= 0.72
+
     # ── Recording ────────────────────────────────────────────────────
 
     def record_until_silence(self) -> np.ndarray | None:
@@ -1538,7 +1606,7 @@ class VoicePipeline:
                 return ""
             # Also check avg_logprob — hallucinated text has very low confidence
             avg_logprob = sum(s.get("avg_logprob", 0) for s in segments) / len(segments)
-            if avg_logprob < -0.7:
+            if avg_logprob < -1.2:
                 print(f"[stt] Rejected (avg_logprob={avg_logprob:.2f}): '{text}'")
                 return ""
 
@@ -1570,6 +1638,10 @@ class VoicePipeline:
         Args:
             priority: If "alarm", "timer", or "emergency", bypasses bedtime suppression.
         """
+        TTS_BYPASS = {"alarm", "timer", "emergency", "critical"}
+        if not getattr(self, '_bmo_tts_enabled', True) and priority not in TTS_BYPASS:
+            print(f"[tts] Suppressed (BMO TTS off): {text[:60]}...")
+            return
         # Suppress speech during bedtime mode (but allow alarms, timers, emergencies)
         BEDTIME_BYPASS = {"alarm", "timer", "emergency", "critical"}
         scene_svc = getattr(self, '_scene_service', None)

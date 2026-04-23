@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cloudflare Tunnel + Access diagnostics for BMO
-# Run on the Pi via: ssh patrick@bmo 'bash -s' < scripts/diagnose-cloudflare.sh
+# Run on the Pi via: ssh patrick@bmo.local 'bash -s' < scripts/diagnose-cloudflare.sh
 # Or: ssh patrick@bmo 'cd ~/bmo && ./scripts/diagnose-cloudflare.sh'
 
 set -e
@@ -47,7 +47,19 @@ echo "--- 9. Local app check (curl localhost:5000) ---"
 curl -s -o /dev/null -w "HTTP %{http_code}\n" http://localhost:5000/ 2>/dev/null || echo "Failed to connect"
 echo ""
 
-echo "--- 10. Credentials files ---"
+echo "--- 10. Ingress target sanity check ---"
+if [ -f /etc/cloudflared/config.yml ]; then
+  if grep -q "service: http://localhost:5000" /etc/cloudflared/config.yml; then
+    echo "OK: ingress targets http://localhost:5000"
+  else
+    echo "WARNING: ingress target is not http://localhost:5000"
+  fi
+else
+  echo "Cannot validate ingress target: missing /etc/cloudflared/config.yml"
+fi
+echo ""
+
+echo "--- 11. Credentials files ---"
 ls -la ~/.cloudflared/*.json 2>/dev/null || echo "No credential files"
 echo ""
 

@@ -14,15 +14,18 @@ REG_FAN_DUTY = 0x06
 
 PWM_FREQ = 100000  # 100kHz — inaudible, eliminates fan whine
 
-# Fan curve: (cpu_temp_celsius, duty 0-255)
+# Fan curve: (cpu_temp_celsius, duty 0-255), ordered hot -> cool.
+# Tuned for quieter idle while ramping earlier at sustained load.
 FAN_CURVE = [
-    (70, 230),  # high
-    (63, 160),  # medium
-    (55, 100),  # low
-    (45, 50),   # gentle
+    (78, 255),  # emergency max
+    (73, 220),  # very high
+    (68, 180),  # high
+    (62, 140),  # medium
+    (56, 100),  # low
+    (50, 60),   # gentle
 ]
-HYSTERESIS = 5  # degrees below threshold before stepping down
-POLL_INTERVAL = 5  # seconds
+HYSTERESIS = 3  # degrees below threshold before stepping down
+POLL_INTERVAL = 4  # seconds
 
 
 def read_cpu_temp():

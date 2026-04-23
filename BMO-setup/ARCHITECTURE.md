@@ -13,7 +13,7 @@
 | Storage | 32 GB USB SSD (ext4) |
 | OS | Raspberry Pi OS (Debian Bookworm, 64-bit) |
 | Peripherals | USB mic, 3.5 mm speakers, Pi Camera v2, 128×64 OLED (I²C), NeoPixel LED ring (SPI/GPIO) |
-| Network | Ethernet, static IP `10.10.20.242` |
+| Network | Travel-friendly DHCP (Wi-Fi/Ethernet), mDNS `bmo.local`, optional Tailscale + Cloudflare |
 
 ---
 
@@ -194,8 +194,11 @@ bash BMO-setup/docker/deploy.sh --services
 
 ### Manual operations:
 ```bash
-# SSH to Pi
-ssh patrick@10.10.20.242
+# SSH to Pi (preferred local mDNS)
+ssh patrick@bmo.local
+
+# SSH to Pi (stable alias, recommended on Windows)
+ssh patrick@bmo
 
 # View BMO logs
 sudo journalctl -u bmo -f

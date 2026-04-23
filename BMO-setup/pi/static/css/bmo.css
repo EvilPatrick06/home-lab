@@ -3,12 +3,34 @@
 [x-cloak] { display: none !important; }
 
 * {
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body.kiosk-mode,
+body.kiosk-mode * {
+  cursor: none !important;
+}
+
 /* Hide cursor only on the 800x480 kiosk touchscreen */
 @media (max-width: 800px) and (max-height: 480px) {
+  html {
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
+  }
+  body {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    border-radius: 0;
+  }
   * { cursor: none !important; }
 }
 

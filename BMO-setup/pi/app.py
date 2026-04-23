@@ -16,9 +16,11 @@ import json
 import os
 import re
 import secrets
+import shutil
 import subprocess
 import threading
 import time
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from flask import Flask, Response, jsonify, render_template, request, send_from_directory
 from flask_socketio import SocketIO
@@ -83,13 +85,53 @@ list_service = None
 alert_service = None
 routine_service = None
 personality_engine = None
+location_service = None
+
+
+def _normalize_timezone(name: str | None) -> str | None:
+    tz_name = str(name or "").strip()
+    if not tz_name:
+        return None
+    try:
+        ZoneInfo(tz_name)
+        return tz_name
+    except ZoneInfoNotFoundError:
+        return None
+
+
+def _pi_timezone() -> str:
+    try:
+        proc = subprocess.run(
+            ["timedatectl", "show", "--property=Timezone", "--value"],
+            capture_output=True, text=True, timeout=5, check=False,
+        )
+        tz = _normalize_timezone(proc.stdout.strip())
+        if tz:
+            return tz
+    except (OSError, subprocess.SubprocessError):
+        pass
+    loc_tz = _normalize_timezone((location_service or {}).get("timezone") if isinstance(location_service, dict) else None)
+    if loc_tz:
+        return loc_tz
+    return "America/New_York"
+
+
+def _request_client_timezone(default_to_pi: bool = True) -> str | None:
+    explicit = _normalize_timezone(
+        request.args.get("client_timezone")
+        or request.headers.get("X-Client-Timezone")
+        or (request.get_json(silent=True) or {}).get("client_timezone")
+    )
+    if explicit:
+        return explicit
+    return _pi_timezone() if default_to_pi else None
 
 
 def init_services():
     """Initialize all services. Called once on startup.
     Gracefully skips hardware-dependent services when running on non-Pi platforms.
     """
-    global voice, camera, calendar, music, smart_home, weather, timers, agent, led_controller, health_checker, notifier, audio_service, scene_service, oled_face, list_service, alert_service, routine_service, personality_engine
+    global voice, camera, calendar, music, smart_home, weather, timers, agent, led_controller, health_checker, notifier, audio_service, scene_service, oled_face, list_service, alert_service, routine_service, personality_engine, location_service
 
     from agent import BmoAgent
 
@@ -162,10 +204,23 @@ def init_services():
     except Exception as e:
         print(f"[bmo]   Calendar: SKIPPED ({e})")
 
+    # Dynamic location/timezone
+    try:
+        from location_service import LocationService
+        location_service = LocationService()
+        location_service.start_polling()
+        current_loc = location_service.get_location()
+        print(
+            f"[bmo]   Location: OK ({current_loc.get('location_label') or current_loc.get('timezone', 'unknown')})"
+        )
+    except Exception as e:
+        location_service = None
+        print(f"[bmo]   Location: SKIPPED ({e})")
+
     # Weather
     try:
         from weather_service import WeatherService
-        weather = WeatherService(socketio=socketio)
+        weather = WeatherService(socketio=socketio, location_service=location_service)
         service_map["weather"] = weather
         print("[bmo]   Weather: OK")
     except Exception as e:
@@ -246,7 +301,7 @@ def init_services():
                     easter_egg = personality_engine.check_easter_egg(text)
                     if easter_egg:
                         return easter_egg
-                result = agent.chat(text, speaker=speaker)
+                result = agent.chat(text, speaker=speaker, client_timezone=_pi_timezone())
                 return result.get("text", "")
             except Exception as e:
                 print(f"[voice] Chat error: {e}")
@@ -256,7 +311,7 @@ def init_services():
         def _voice_chat_stream(text, speaker="unknown"):
             """Streaming voice chat — yields text chunks for faster TTS start."""
             try:
-                return agent.chat_stream(text, speaker=speaker)
+                return agent.chat_stream(text, speaker=speaker, client_timezone=_pi_timezone())
             except Exception as e:
                 print(f"[voice] Stream chat error: {e}")
                 return iter([])
@@ -520,7 +575,9 @@ def favicon():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    kiosk_mode = request.args.get("kiosk", "").strip().lower() in {"1", "true", "yes", "on"}
+    asset_v = int(time.time())
+    return render_template("index.html", kiosk_mode=kiosk_mode, asset_v=asset_v)
 
 
 @app.route("/ide")
@@ -540,6 +597,304 @@ def api_health_full():
     if health_checker:
         return jsonify(health_checker.get_status())
     return jsonify({"overall": "unknown", "services": {}, "pi_stats": {}})
+
+
+def _wifi_interface() -> str:
+    """Return primary wireless interface name."""
+    try:
+        for iface in os.listdir("/sys/class/net"):
+            if iface.startswith("wl"):
+                return iface
+    except OSError:
+        pass
+    return "wlan0"
+
+
+def _wifi_status() -> dict:
+    """Collect current Wi-Fi status for settings UI."""
+    iface = _wifi_interface()
+    ssid = ""
+    wpa_state = ""
+    ip_address = ""
+    internet = False
+    tailscale_ip = ""
+
+    try:
+        result = subprocess.run(
+            ["wpa_cli", "-i", iface, "status"],
+            capture_output=True,
+            text=True,
+            timeout=4,
+        )
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                if line.startswith("ssid="):
+                    ssid = line.split("=", 1)[1].strip()
+                elif line.startswith("wpa_state="):
+                    wpa_state = line.split("=", 1)[1].strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+
+    if not ssid and shutil.which("iwgetid"):
+        try:
+            result = subprocess.run(
+                ["iwgetid", "-r"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            if result.returncode == 0:
+                ssid = result.stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            pass
+
+    try:
+        result = subprocess.run(
+            ["ip", "-4", "-o", "addr", "show", iface],
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            m = re.search(r"inet\s+([0-9.]+)/", result.stdout)
+            if m:
+                ip_address = m.group(1)
+    except (OSError, subprocess.SubprocessError):
+        pass
+
+    try:
+        ping = subprocess.run(
+            ["ping", "-c", "1", "-W", "1", "1.1.1.1"],
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+        internet = ping.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        internet = False
+
+    if shutil.which("tailscale"):
+        try:
+            result = subprocess.run(
+                ["tailscale", "ip", "-4"],
+                capture_output=True,
+                text=True,
+                timeout=4,
+            )
+            if result.returncode == 0:
+                tailscale_ip = (result.stdout.strip().splitlines() or [""])[0]
+        except (OSError, subprocess.SubprocessError):
+            pass
+
+    return {
+        "interface": iface,
+        "current_ssid": ssid,
+        "wpa_state": wpa_state,
+        "ip_address": ip_address,
+        "internet": internet,
+        "tailscale_ip": tailscale_ip,
+        "saved_networks": _wifi_saved_networks(),
+    }
+
+
+def _wifi_saved_networks() -> list[dict]:
+    """Return saved Wi-Fi connections from NetworkManager."""
+    if not shutil.which("nmcli"):
+        return []
+
+    try:
+        result = subprocess.run(
+            ["nmcli", "-t", "-f", "NAME,TYPE,AUTOCONNECT", "connection", "show"],
+            capture_output=True,
+            text=True,
+            timeout=8,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return []
+
+    if result.returncode != 0:
+        return []
+
+    saved = []
+    for row in result.stdout.splitlines():
+        if not row.strip():
+            continue
+        try:
+            name, conn_type, auto = row.rsplit(":", 2)
+        except ValueError:
+            continue
+        if conn_type != "802-11-wireless":
+            continue
+        saved.append({"name": name.strip(), "autoconnect": auto.strip().lower() == "yes"})
+
+    saved.sort(key=lambda s: s["name"].lower())
+    return saved
+
+
+def _wifi_scan_networks(iface: str) -> list[dict]:
+    """Scan available Wi-Fi networks via nmcli and return deduplicated list."""
+    if not shutil.which("nmcli"):
+        return []
+
+    cmd = ["nmcli", "-t", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "dev", "wifi", "list", "ifname", iface]
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+    if result.returncode != 0:
+        result = subprocess.run(["sudo", "-n", *cmd], capture_output=True, text=True, timeout=15)
+        if result.returncode != 0:
+            raise RuntimeError((result.stderr or result.stdout or "Wi-Fi scan failed").strip())
+
+    best_by_ssid: dict[str, dict] = {}
+    for row in result.stdout.splitlines():
+        if not row.strip() or ":" not in row:
+            continue
+        in_use, rest = row.split(":", 1)
+        try:
+            ssid_raw, signal_raw, security_raw = rest.rsplit(":", 2)
+        except ValueError:
+            continue
+        ssid = ssid_raw.replace(r"\:", ":").strip()
+        if not ssid:
+            continue
+        try:
+            signal = int(signal_raw)
+        except ValueError:
+            signal = 0
+        security = security_raw.strip()
+        item = {
+            "ssid": ssid,
+            "signal": signal,
+            "security": security,
+            "secure": bool(security and security != "--"),
+            "in_use": in_use.strip() == "*",
+        }
+        prev = best_by_ssid.get(ssid)
+        if not prev or item["signal"] > prev["signal"] or item["in_use"]:
+            best_by_ssid[ssid] = item
+
+    networks = list(best_by_ssid.values())
+    networks.sort(key=lambda n: (not n["in_use"], -n["signal"], n["ssid"].lower()))
+    return networks
+
+
+def _wifi_connect(ssid: str, password: str, iface: str) -> tuple[bool, str]:
+    """Create/update NetworkManager profile and connect."""
+    if not shutil.which("nmcli"):
+        return False, "NetworkManager (nmcli) is not available on this system."
+
+    safe_name = re.sub(r"[^A-Za-z0-9._-]+", "-", ssid).strip("-") or "network"
+    conn_name = f"bmo-ui-{safe_name}"[:64]
+
+    subprocess.run(["sudo", "-n", "nmcli", "connection", "delete", conn_name], capture_output=True, text=True, timeout=8)
+
+    create = subprocess.run(
+        ["sudo", "-n", "nmcli", "connection", "add", "type", "wifi", "ifname", iface, "con-name", conn_name, "ssid", ssid],
+        capture_output=True,
+        text=True,
+        timeout=12,
+    )
+    if create.returncode != 0:
+        return False, (create.stderr or create.stdout or "Failed to create Wi-Fi profile").strip()
+
+    if password.strip():
+        secure_args = ["wifi-sec.key-mgmt", "wpa-psk", "wifi-sec.psk", password.strip()]
+    else:
+        secure_args = ["wifi-sec.key-mgmt", "none"]
+
+    modify = subprocess.run(
+        [
+            "sudo",
+            "-n",
+            "nmcli",
+            "connection",
+            "modify",
+            conn_name,
+            *secure_args,
+            "connection.autoconnect",
+            "yes",
+            "connection.autoconnect-priority",
+            "200",
+            "ipv4.method",
+            "auto",
+            "ipv6.method",
+            "auto",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=12,
+    )
+    if modify.returncode != 0:
+        return False, (modify.stderr or modify.stdout or "Failed to update Wi-Fi profile").strip()
+
+    up = subprocess.run(
+        ["sudo", "-n", "nmcli", "connection", "up", conn_name],
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+    if up.returncode != 0:
+        return False, (up.stderr or up.stdout or "Failed to connect to Wi-Fi network").strip()
+
+    return True, f"Connecting to {ssid}"
+
+
+def _wifi_connect_saved(connection_name: str) -> tuple[bool, str]:
+    """Activate a previously saved NetworkManager Wi-Fi profile."""
+    if not shutil.which("nmcli"):
+        return False, "NetworkManager (nmcli) is not available on this system."
+
+    up = subprocess.run(
+        ["sudo", "-n", "nmcli", "connection", "up", connection_name],
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+    if up.returncode != 0:
+        return False, (up.stderr or up.stdout or "Failed to activate saved Wi-Fi profile").strip()
+    return True, f"Connecting using saved network profile: {connection_name}"
+
+
+@app.route("/api/wifi/status")
+def api_wifi_status():
+    return jsonify(_wifi_status())
+
+
+@app.route("/api/wifi/scan")
+def api_wifi_scan():
+    iface = _wifi_interface()
+    try:
+        networks = _wifi_scan_networks(iface)
+        return jsonify({"interface": iface, "networks": networks})
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/wifi/connect", methods=["POST"])
+def api_wifi_connect():
+    data = request.get_json(silent=True) or {}
+    ssid = str(data.get("ssid", "")).strip()
+    password = str(data.get("password", ""))
+    if not ssid:
+        return jsonify({"error": "SSID is required"}), 400
+
+    iface = _wifi_interface()
+    ok, message = _wifi_connect(ssid, password, iface)
+    status = _wifi_status()
+    if ok:
+        return jsonify({"ok": True, "message": message, "status": status})
+    return jsonify({"ok": False, "error": message, "status": status}), 500
+
+
+@app.route("/api/wifi/connect_saved", methods=["POST"])
+def api_wifi_connect_saved():
+    data = request.json or {}
+    name = str(data.get("name", "")).strip()
+    if not name:
+        return jsonify({"error": "Saved network name is required"}), 400
+    ok, message = _wifi_connect_saved(name)
+    status = _wifi_status()
+    if ok:
+        return jsonify({"ok": True, "message": message, "status": status})
+    return jsonify({"ok": False, "error": message, "status": status}), 500
 
 
 @app.route("/api/service/restart", methods=["POST"])
@@ -611,7 +966,10 @@ def api_status_summary():
     overall = status.get("overall", "unknown")
     pi = status.get("pi_stats", {})
     down = status.get("down_services", [])
+    down_required = status.get("down_required_services", down)
+    down_noncritical = status.get("down_noncritical_services", [])
     degraded = status.get("degraded_services", [])
+    info_services = status.get("info_services", [])
     services = status.get("services", {})
 
     from monitoring import HealthChecker as _HC
@@ -626,31 +984,37 @@ def api_status_summary():
         total = len(services)
         parts.append(f"All {total} services are running normally.")
     elif overall == "critical":
-        labels = [_label(s) for s in down]
+        labels = [_label(s) for s in down_required or down]
         parts.append(f"Critical: {', '.join(labels)} {'is' if len(labels)==1 else 'are'} down.")
     elif overall == "warning":
-        labels = [_label(s) for s in degraded]
-        parts.append(f"Warning: {', '.join(labels)} {'is' if len(labels)==1 else 'are'} degraded.")
+        warning_bits = []
+        if down_noncritical:
+            warning_bits.append(f"down: {', '.join(_label(s) for s in down_noncritical)}")
+        if degraded:
+            warning_bits.append(f"degraded: {', '.join(_label(s) for s in degraded)}")
+        if warning_bits:
+            parts.append(f"Warning: {'; '.join(warning_bits)}.")
 
     # Pi stats
     cpu = pi.get("cpu_percent")
-    mem = pi.get("memory", {})
+    ram = pi.get("ram_percent")
     temp = pi.get("cpu_temp")
-    disk = pi.get("disk", {})
-    throttle = pi.get("throttle_flags", [])
+    disk = pi.get("disk_percent")
 
     if cpu is not None:
         parts.append(f"CPU is at {cpu}%.")
-    if mem:
-        parts.append(f"Memory: {mem.get('percent', '?')}% used.")
+    if ram is not None:
+        parts.append(f"Memory: {ram}% used.")
     if temp is not None:
         parts.append(f"Temperature: {temp}°C.")
         if temp > 70:
             parts.append("That's running hot!")
-    if disk:
-        parts.append(f"Disk: {disk.get('percent', '?')}% used.")
-    if throttle:
-        parts.append(f"Power issues: {', '.join(throttle)}.")
+    if disk is not None:
+        parts.append(f"Disk: {disk}% used.")
+
+    power = services.get("pi_power", {})
+    if power and power.get("status") != "up":
+        parts.append(f"Power issue: {power.get('message', 'check pi_power')}.")
 
     # Internet
     inet = services.get("internet", {})
@@ -661,9 +1025,12 @@ def api_status_summary():
             parts.append("Internet is down!")
 
     # Docker
-    docker_info = services.get("docker", {})
-    if docker_info and docker_info.get("status") == "down":
+    docker_down = [name for name, info in services.items() if name.startswith("docker_") and info.get("status") == "down"]
+    if docker_down:
         parts.append("Docker containers have issues.")
+
+    if info_services:
+        parts.append(f"Info: {', '.join(_label(s) for s in info_services)}.")
 
     summary = " ".join(parts)
     return jsonify({"summary": summary, "overall": overall, "raw": status})
@@ -688,7 +1055,8 @@ def api_chat():
     # Save user message immediately
     _save_chat_message({"role": "user", "text": message, "speaker": speaker, "ts": time.time()})
 
-    result = agent.chat(message, speaker=speaker)
+    client_tz = _request_client_timezone(default_to_pi=True)
+    result = agent.chat(message, speaker=speaker, client_timezone=client_tz)
     result["text"] = _strip_markdown(result["text"])
 
     # Save assistant response immediately
@@ -883,7 +1251,7 @@ def api_music_search():
 
 @app.route("/api/music/play", methods=["POST"])
 def api_music_play():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     song = data.get("song")
     if song:
         music.play(song)
@@ -903,6 +1271,12 @@ def api_music_play_queue():
 @app.route("/api/music/pause", methods=["POST"])
 def api_music_pause():
     music.pause()
+    return jsonify({"ok": True})
+
+
+@app.route("/api/music/pause-only", methods=["POST"])
+def api_music_pause_only():
+    music.pause_only()
     return jsonify({"ok": True})
 
 
@@ -1110,60 +1484,359 @@ def api_calendar_delete(event_id):
     return jsonify({"ok": True})
 
 
+def _calendar_config_dir() -> str:
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
+
+
+def _calendar_legacy_config_dir() -> str:
+    # Back-compat: older setup layouts used BMO-setup/config instead of BMO-setup/pi/config.
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config")
+
+
+def _ensure_calendar_credentials_path() -> str:
+    config_dir = _calendar_config_dir()
+    os.makedirs(config_dir, exist_ok=True)
+    local_path = os.path.join(config_dir, "credentials.json")
+    if os.path.exists(local_path):
+        return local_path
+
+    legacy_path = os.path.join(_calendar_legacy_config_dir(), "credentials.json")
+    if os.path.exists(legacy_path):
+        try:
+            shutil.copy2(legacy_path, local_path)
+            print(f"[calendar] migrated credentials.json from legacy path: {legacy_path}")
+            return local_path
+        except OSError as e:
+            print(f"[calendar] failed to migrate credentials.json: {e}")
+            return legacy_path
+
+    return local_path
+
+
+def _ensure_calendar_token_path() -> str:
+    config_dir = _calendar_config_dir()
+    os.makedirs(config_dir, exist_ok=True)
+    local_path = os.path.join(config_dir, "token.json")
+    if os.path.exists(local_path):
+        return local_path
+
+    legacy_path = os.path.join(_calendar_legacy_config_dir(), "token.json")
+    if os.path.exists(legacy_path):
+        try:
+            shutil.copy2(legacy_path, local_path)
+            print(f"[calendar] migrated token.json from legacy path: {legacy_path}")
+            return local_path
+        except OSError as e:
+            print(f"[calendar] failed to migrate token.json: {e}")
+            return legacy_path
+
+    return local_path
+
+
+def _calendar_read_token_file(path: str) -> dict | None:
+    if not path or not os.path.exists(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else None
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _calendar_merge_token_data(new_token_data: dict, existing_token_data: dict | None) -> dict:
+    merged = dict(new_token_data or {})
+    existing = existing_token_data or {}
+    if not merged.get("refresh_token") and existing.get("refresh_token"):
+        merged["refresh_token"] = existing["refresh_token"]
+        print("[calendar] preserving existing refresh_token from prior token.json")
+    return merged
+
+
+def _calendar_write_token_file(path: str, payload_json: str):
+    directory = os.path.dirname(path)
+    os.makedirs(directory, exist_ok=True)
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        f.write(payload_json)
+    os.replace(tmp_path, path)
+
+
+def _calendar_client_config(credentials_path: str) -> dict:
+    with open(credentials_path, "r", encoding="utf-8") as f:
+        raw = json.load(f)
+    client = raw.get("installed") or raw.get("web")
+    if not client:
+        raise RuntimeError("credentials.json must contain an 'installed' or 'web' OAuth client")
+    return client
+
+
 @app.route("/api/calendar/auth/url")
 def api_calendar_auth_url():
-    """Generate OAuth URL for Google Calendar authorization."""
+    """Generate a stateless OAuth URL for Google Calendar authorization."""
     try:
-        from google_auth_oauthlib.flow import Flow
-        creds_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config", "credentials.json")
-        flow = Flow.from_client_secrets_file(
-            creds_path,
-            scopes=["https://www.googleapis.com/auth/calendar"],
-            redirect_uri="http://localhost/",
+        import urllib.parse
+
+        creds_path = _ensure_calendar_credentials_path()
+        if not os.path.exists(creds_path):
+            return jsonify(
+                {
+                    "error": (
+                        "credentials.json not found. Add it to BMO-setup/pi/config "
+                        "(or legacy BMO-setup/config), then try again."
+                    )
+                }
+            ), 400
+
+        client = _calendar_client_config(creds_path)
+        client_id = client.get("client_id", "").strip()
+        if not client_id:
+            return jsonify({"error": "credentials.json missing client_id"}), 400
+
+        mode = (request.args.get("mode") or "auto").strip().lower()
+        if mode == "manual":
+            redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+        else:
+            redirect_uri = (
+                request.args.get("redirect_uri", "").strip()
+                or f"{request.host_url.rstrip('/')}/api/calendar/auth/callback"
+            )
+        scope = urllib.parse.quote("https://www.googleapis.com/auth/calendar", safe="")
+        auth_url = (
+            "https://accounts.google.com/o/oauth2/auth"
+            f"?client_id={urllib.parse.quote(client_id, safe='')}"
+            f"&redirect_uri={urllib.parse.quote(redirect_uri, safe='')}"
+            "&response_type=code"
+            f"&scope={scope}"
+            "&access_type=offline"
+            + ("&prompt=consent" if mode == "manual" else "")
+            + "&include_granted_scopes=true"
         )
-        auth_url, state = flow.authorization_url(
-            access_type="offline", prompt="consent",
+        manual_redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+        manual_auth_url = (
+            "https://accounts.google.com/o/oauth2/auth"
+            f"?client_id={urllib.parse.quote(client_id, safe='')}"
+            f"&redirect_uri={urllib.parse.quote(manual_redirect_uri, safe='')}"
+            "&response_type=code"
+            f"&scope={scope}"
+            "&access_type=offline"
+            "&prompt=consent"
+            "&include_granted_scopes=true"
         )
-        app.config["_cal_auth_flow"] = flow
-        return jsonify({"url": auth_url})
+        return jsonify(
+            {
+                "url": auth_url,
+                "redirect_uri": redirect_uri,
+                "manual_url": manual_auth_url,
+                "mode": mode,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/calendar/auth/callback", methods=["POST"])
+def _calendar_auth_html(success: bool, message: str) -> str:
+    title = "Calendar Authorized" if success else "Calendar Authorization Failed"
+    status_color = "#22c55e" if success else "#ef4444"
+    event_payload = "true" if success else "false"
+    safe_message = (message or "").replace("<", "&lt;").replace(">", "&gt;")
+    return f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <style>
+      body {{
+        background: #0f172a;
+        color: #e2e8f0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }}
+      .card {{
+        width: min(92vw, 560px);
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 12px;
+        padding: 18px 16px;
+      }}
+      .dot {{
+        width: 10px;
+        height: 10px;
+        border-radius: 9999px;
+        display: inline-block;
+        background: {status_color};
+        margin-right: 8px;
+      }}
+      code {{
+        background: #0b1220;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2><span class="dot"></span>{title}</h2>
+      <p>{safe_message}</p>
+      <p>You can close this tab and return to BMO.</p>
+    </div>
+    <script>
+      try {{
+        if (window.opener && !window.opener.closed) {{
+          window.opener.postMessage({{ type: "bmo-calendar-auth", ok: {event_payload}, message: {json.dumps(message)} }}, "*");
+        }}
+      }} catch (e) {{}}
+      setTimeout(() => window.close(), 1200);
+    </script>
+  </body>
+</html>"""
+
+
+@app.route("/api/calendar/auth/status")
+def api_calendar_auth_status():
+    """Quick auth status probe used by UI while waiting for OAuth callback."""
+    now = time.time()
+    try:
+        resolved_token_path = _ensure_calendar_token_path()
+        if not os.path.exists(resolved_token_path):
+            return jsonify({"authorized": False, "message": "token.json missing", "checked_at": now})
+
+        if calendar:
+            calendar._service = None
+            calendar.get_next_event()
+        return jsonify({"authorized": True, "message": "Calendar token is valid", "checked_at": now})
+    except Exception as e:
+        return jsonify({"authorized": False, "message": str(e), "checked_at": now}), 200
+
+
+@app.route("/api/calendar/auth/callback", methods=["GET", "POST"])
 def api_calendar_auth_callback():
-    """Exchange auth code for token and save it. User pastes the full redirect URL or just the code."""
-    raw = (request.json or {}).get("code", "").strip()
+    """Exchange auth code for token and save it. Accepts full URL or raw code."""
+    browser_callback = request.method == "GET"
+    if browser_callback:
+        raw = (request.args.get("code") or "").strip()
+    else:
+        raw = (request.json or {}).get("code", "").strip()
+
+    oauth_error = (request.args.get("error") or "").strip() if browser_callback else ""
+    if browser_callback and oauth_error:
+        html = _calendar_auth_html(False, f"Google OAuth error: {oauth_error}")
+        return Response(html, mimetype="text/html")
+
     if not raw:
+        if browser_callback:
+            html = _calendar_auth_html(False, "No auth code was provided by Google.")
+            return Response(html, mimetype="text/html")
         return jsonify({"error": "No code provided"}), 400
     try:
         import urllib.parse
-        token_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config", "token.json")
+        import requests as http_requests
+        from google.oauth2.credentials import Credentials
 
-        # Reuse the flow from auth URL generation (has PKCE code_verifier)
-        flow = app.config.get("_cal_auth_flow")
-        if not flow:
-            return jsonify({"error": "No auth session — click Authorize Calendar first"}), 400
+        creds_path = _ensure_calendar_credentials_path()
+        if not os.path.exists(creds_path):
+            return jsonify({"error": "credentials.json not found. Add it, then retry auth."}), 400
+
+        client = _calendar_client_config(creds_path)
+        client_id = client.get("client_id", "").strip()
+        client_secret = client.get("client_secret", "").strip()
+        if not client_id or not client_secret:
+            return jsonify({"error": "credentials.json missing client_id/client_secret"}), 400
+
+        token_path = _ensure_calendar_token_path()
+        existing_token_data = _calendar_read_token_file(token_path)
 
         # User may paste full redirect URL or just the code
         if "code=" in raw:
             parsed = urllib.parse.urlparse(raw)
             params = urllib.parse.parse_qs(parsed.query)
-            code = params.get("code", [raw])[0]
+            code = params.get("code", [""])[0].strip()
         else:
             code = raw
+        if not code:
+            return jsonify({"error": "Could not extract auth code"}), 400
+
+        redirect_uri = (
+            f"{request.host_url.rstrip('/')}/api/calendar/auth/callback"
+            if browser_callback
+            else "urn:ietf:wg:oauth:2.0:oob"
+        )
+        token_resp = http_requests.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code": code,
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": redirect_uri,
+                "grant_type": "authorization_code",
+            },
+            timeout=15,
+        )
+        if token_resp.status_code != 200:
+            detail = token_resp.text[:600]
+            message = f"Token exchange failed ({token_resp.status_code}): {detail}"
+            if browser_callback:
+                html = _calendar_auth_html(False, message)
+                return Response(html, mimetype="text/html"), 400
+            return jsonify({"error": message}), 400
+
+        token_data = token_resp.json()
+        merged_token_data = _calendar_merge_token_data(token_data, existing_token_data)
+        if not merged_token_data.get("refresh_token"):
+            message = (
+                "Google did not return a refresh token. Re-authorize with consent "
+                "so BMO can stay connected permanently."
+            )
+            if browser_callback:
+                html = _calendar_auth_html(False, message)
+                return Response(html, mimetype="text/html"), 400
+            return jsonify({"error": message}), 400
+        creds = Credentials(
+            token=merged_token_data.get("access_token"),
+            refresh_token=merged_token_data.get("refresh_token"),
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=client_id,
+            client_secret=client_secret,
+            scopes=["https://www.googleapis.com/auth/calendar"],
+        )
+        if not creds.token:
+            return jsonify({"error": "Token exchange returned no access token"}), 400
+
         print(f"[calendar] Exchanging auth code: {code[:20]}...")
-        flow.fetch_token(code=code)
-        creds = flow.credentials
-        with open(token_path, "w") as f:
-            f.write(creds.to_json())
+        _calendar_write_token_file(token_path, creds.to_json())
+
         # Reset calendar service to pick up new token
-        calendar._service = None
-        calendar._cache = []
-        app.config.pop("_cal_auth_flow", None)
-        return jsonify({"ok": True, "message": "Calendar authorized!"})
+        if calendar:
+            calendar._service = None
+            calendar._cache = []
+
+            # Verify token immediately so status flips from DOWN as soon as possible.
+            try:
+                calendar.get_next_event()
+            except Exception as calendar_err:
+                message = (
+                    "Token saved but calendar validation failed: "
+                    f"{calendar_err}"
+                )
+                if browser_callback:
+                    html = _calendar_auth_html(False, message)
+                    return Response(html, mimetype="text/html"), 400
+                return jsonify({"error": message}), 400
+
+        success_message = "Calendar authorized!"
+        if browser_callback:
+            html = _calendar_auth_html(True, success_message)
+            return Response(html, mimetype="text/html")
+        return jsonify({"ok": True, "message": success_message})
     except Exception as e:
         print(f"[calendar] Auth failed: {e}")
+        if browser_callback:
+            html = _calendar_auth_html(False, str(e))
+            return Response(html, mimetype="text/html"), 500
         return jsonify({"error": str(e)}), 500
 
 
@@ -1296,7 +1969,8 @@ def api_voice_profile_delete(name):
 
 @app.route("/api/timers")
 def api_timers():
-    return jsonify(timers.get_all())
+    viewer_tz = _request_client_timezone(default_to_pi=True)
+    return jsonify(timers.get_all(viewer_timezone=viewer_tz))
 
 
 @app.route("/api/timers/create", methods=["POST"])
@@ -1321,6 +1995,7 @@ def api_timer_pause(timer_id):
 @app.route("/api/alarms/create", methods=["POST"])
 def api_alarm_create():
     data = request.json or {}
+    tz_name = _request_client_timezone(default_to_pi=True)
     alarm = timers.create_alarm(
         data.get("hour", 7),
         data.get("minute", 0),
@@ -1329,6 +2004,7 @@ def api_alarm_create():
         repeat=data.get("repeat", "none"),
         repeat_days=data.get("repeat_days"),
         tag=data.get("tag", "reminder"),
+        timezone_name=tz_name,
     )
     return jsonify(alarm)
 
@@ -1344,6 +2020,32 @@ def api_alarm_snooze(alarm_id):
     data = request.json or {}
     timers.snooze_alarm(alarm_id, data.get("minutes", 5))
     return jsonify({"ok": True})
+
+
+@app.route("/api/alarms/<alarm_id>/enabled", methods=["POST"])
+def api_alarm_enabled(alarm_id):
+    data = request.json or {}
+    if "enabled" not in data:
+        return jsonify({"error": "Missing 'enabled' boolean"}), 400
+    enabled_raw = data.get("enabled")
+    if isinstance(enabled_raw, bool):
+        enabled = enabled_raw
+    elif isinstance(enabled_raw, str):
+        lowered = enabled_raw.strip().lower()
+        if lowered in {"true", "1", "yes", "on"}:
+            enabled = True
+        elif lowered in {"false", "0", "no", "off"}:
+            enabled = False
+        else:
+            return jsonify({"error": "Invalid 'enabled' value"}), 400
+    else:
+        return jsonify({"error": "Invalid 'enabled' value"}), 400
+    updated = timers.set_alarm_enabled(alarm_id, enabled)
+    if not updated:
+        return jsonify({"error": "Alarm not found"}), 404
+    viewer_tz = _request_client_timezone(default_to_pi=True)
+    alarm = timers.get_alarm(alarm_id, viewer_timezone=viewer_tz)
+    return jsonify(alarm or updated)
 
 
 @app.route("/api/alarms/volume", methods=["GET", "POST"])
@@ -1950,7 +2652,50 @@ def _save_setting(key: str, value):
 
 @app.route("/api/weather")
 def api_weather():
-    return jsonify(weather.get_current())
+    force = str(request.args.get("force", "")).strip().lower() in {"1", "true", "yes", "on"}
+    return jsonify(weather.get_current(force_refresh=force))
+
+
+@app.route("/api/location")
+def api_location():
+    if location_service:
+        force = str(request.args.get("force", "")).strip().lower() in {"1", "true", "yes", "on"}
+        return jsonify(location_service.get_location(force_refresh=force))
+    return jsonify({"error": "Location service unavailable"}), 503
+
+
+@app.route("/api/location/device", methods=["POST"])
+def api_location_device():
+    if not location_service:
+        return jsonify({"error": "Location service unavailable"}), 503
+    data = request.get_json(silent=True) or {}
+    user_agent = (request.headers.get("User-Agent") or "").strip()
+    forwarded_for = (request.headers.get("X-Forwarded-For") or "").strip()
+    remote_addr = forwarded_for.split(",")[0].strip() if forwarded_for else (request.remote_addr or "")
+    try:
+        updated = location_service.update_from_device(data)
+        if weather:
+            weather.invalidate_cache()
+        if socketio:
+            socketio.emit("location_update", updated)
+        print(
+            "[location] Device update accepted:",
+            updated.get("location_label", ""),
+            f"(accuracy_m={updated.get('accuracy_m', 'n/a')})",
+            f"from={remote_addr or '?'}",
+            f"ua={user_agent[:120]}",
+        )
+        return jsonify(updated)
+    except (TypeError, ValueError, KeyError) as exc:
+        keys = ",".join(sorted(data.keys())) if isinstance(data, dict) else "n/a"
+        print(
+            "[location] Device update rejected:",
+            str(exc),
+            f"keys={keys}",
+            f"from={remote_addr or '?'}",
+            f"ua={user_agent[:120]}",
+        )
+        return jsonify({"error": "Invalid location payload", "detail": str(exc)}), 400
 
 
 # ── Smart Home API ───────────────────────────────────────────────────
@@ -3134,7 +3879,10 @@ def api_config():
         maps_key = settings.get("services.maps_api_key", "")
     else:
         maps_key = os.environ.get("GOOGLE_MAPS_API_KEY", "")
-    return jsonify({"maps_api_key": maps_key})
+    location = {}
+    if location_service:
+        location = location_service.get_location()
+    return jsonify({"maps_api_key": maps_key, "location": location})
 
 
 # ── MCP API ─────────────────────────────────────────────────────────
@@ -3320,7 +4068,7 @@ def api_voice_settings():
         return jsonify({
             "wake_enabled": False, "silence_threshold": 600,
             "vad_sensitivity": 1.8, "tts_provider": "auto",
-            "stt_provider": "auto", "wake_variants": [],
+            "stt_provider": "auto", "bmo_tts_enabled": True, "wake_variants": [],
             "available": False
         })
     return jsonify({**voice.get_voice_settings(), "available": True})
@@ -3385,6 +4133,9 @@ def api_model_set():
 @socketio.on("connect")
 def on_connect(auth=None):
     print("[ws] Client connected")
+    client_tz = _normalize_timezone((auth or {}).get("client_timezone") if isinstance(auth, dict) else None) or _request_client_timezone(default_to_pi=True)
+    if timers:
+        timers.set_client_timezone(request.sid, client_tz)
     # Send initial state for available services — wrapped in try/except
     # so a failing service doesn't kill the WebSocket connection
     try:
@@ -3399,7 +4150,7 @@ def on_connect(auth=None):
         print(f"[ws] Music init failed: {e}")
     try:
         if timers:
-            socketio.emit("timers_tick", timers.get_all())
+            socketio.emit("timers_tick", timers.get_all(viewer_timezone=client_tz), room=request.sid)
     except Exception as e:
         print(f"[ws] Timers init failed: {e}")
     try:
@@ -3482,6 +4233,9 @@ def on_chat_message(data):
     speaker = data.get("speaker", "unknown")
     agent_override = data.get("agent")
     model_override = data.get("model")
+    client_tz = _normalize_timezone(data.get("client_timezone")) or _pi_timezone()
+    if timers:
+        timers.set_client_timezone(request.sid, client_tz)
 
     try:
         user_msg = {"role": "user", "text": message, "speaker": speaker, "ts": time.time()}
@@ -3512,7 +4266,7 @@ def on_chat_message(data):
 
             def _code_agent_task():
                 try:
-                    result = agent.chat(message, speaker=speaker, agent_override=agent_override)
+                    result = agent.chat(message, speaker=speaker, agent_override=agent_override, client_timezone=client_tz)
                     if model_override and model_override != "auto":
                         agent.model_override = prev_model_override
                     _finish_chat_response(sid, result, model_override, voice, speaker)
@@ -3535,7 +4289,7 @@ def on_chat_message(data):
             return  # Handler exits; response will be emitted when the task completes
 
         # Non-Code-Agent: run synchronously
-        result = agent.chat(message, speaker=speaker, agent_override=agent_override)
+        result = agent.chat(message, speaker=speaker, agent_override=agent_override, client_timezone=client_tz)
 
         if model_override and model_override != "auto":
             agent.model_override = prev_model_override
@@ -3548,6 +4302,16 @@ def on_chat_message(data):
         emit("chat_response", {"text": f"Oops! BMO's brain got fuzzy: {e}", "speaker": speaker, "commands_executed": []})
         if agent_override != "code":
             _sync_expression("error")
+
+
+@socketio.on("client_timezone")
+def on_client_timezone(data):
+    if not timers:
+        return
+    client_tz = _normalize_timezone((data or {}).get("client_timezone")) if isinstance(data, dict) else None
+    client_tz = client_tz or _pi_timezone()
+    timers.set_client_timezone(request.sid, client_tz)
+    socketio.emit("timers_tick", timers.get_all(viewer_timezone=client_tz), room=request.sid)
 
 
 @socketio.on("scratchpad_read")
@@ -3584,6 +4348,8 @@ def on_scratchpad_clear(data):
 @socketio.on("disconnect")
 def on_disconnect():
     print("[ws] Client disconnected")
+    if timers:
+        timers.clear_client(request.sid)
     # Clean up terminal sessions for this client
     if _terminal_mgr:
         _terminal_mgr.close_all(request.sid)

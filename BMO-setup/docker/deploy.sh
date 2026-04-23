@@ -8,14 +8,45 @@
 
 set -euo pipefail
 
-PI_USER="${PI_USER:-patrick}"
-PI_IP="${PI_IP:-10.10.20.242}"
-PI_DEST="${PI_USER}@${PI_IP}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BMO_DIR="$SCRIPT_DIR/.."
+ENV_FILE="$BMO_DIR/.env"
 
 log()    { echo "[$(date +'%H:%M:%S')]   $*"; }
 log_ok() { echo "[$(date +'%H:%M:%S')]   + $*"; }
+log_warn() { echo "[$(date +'%H:%M:%S')]   ! $*"; }
+
+# Preserve CLI/environment overrides even if BMO-setup/.env sets blanks.
+CLI_PI_USER="${PI_USER:-}"
+CLI_PI_HOST="${PI_HOST:-}"
+CLI_PI_HOSTNAME="${PI_HOSTNAME:-}"
+CLI_PI_TAILSCALE_HOST="${PI_TAILSCALE_HOST:-}"
+CLI_PI_IP="${PI_IP:-}"
+CLI_PI_WEB_HOST="${PI_WEB_HOST:-}"
+CLI_CLOUDFLARE_DOMAIN="${CLOUDFLARE_DOMAIN:-}"
+
+# Load optional environment overrides from BMO-setup/.env
+if [ -f "$ENV_FILE" ]; then
+    # shellcheck source=/dev/null
+    set -a && . "$ENV_FILE" && set +a
+fi
+
+PI_USER="${PI_USER:-patrick}"
+PI_HOSTNAME="${PI_HOSTNAME:-bmo}"
+PI_TAILSCALE_HOST="${PI_TAILSCALE_HOST:-}"
+PI_IP="${PI_IP:-}"
+PI_HOST="${PI_HOST:-}"
+PI_WEB_HOST="${PI_WEB_HOST:-}"
+CLOUDFLARE_DOMAIN="${CLOUDFLARE_DOMAIN:-bmo.mybmoai.work}"
+
+# Re-apply explicit CLI/env overrides if they were provided.
+[ -n "$CLI_PI_USER" ] && PI_USER="$CLI_PI_USER"
+[ -n "$CLI_PI_HOST" ] && PI_HOST="$CLI_PI_HOST"
+[ -n "$CLI_PI_HOSTNAME" ] && PI_HOSTNAME="$CLI_PI_HOSTNAME"
+[ -n "$CLI_PI_TAILSCALE_HOST" ] && PI_TAILSCALE_HOST="$CLI_PI_TAILSCALE_HOST"
+[ -n "$CLI_PI_IP" ] && PI_IP="$CLI_PI_IP"
+[ -n "$CLI_PI_WEB_HOST" ] && PI_WEB_HOST="$CLI_PI_WEB_HOST"
+[ -n "$CLI_CLOUDFLARE_DOMAIN" ] && CLOUDFLARE_DOMAIN="$CLI_CLOUDFLARE_DOMAIN"
 
 QUICK=false
 SERVICES_ONLY=false
@@ -26,9 +57,75 @@ for arg in "$@"; do
     esac
 done
 
+declare -a HOST_CANDIDATES=()
+declare -A HOST_SEEN=()
+
+add_candidate() {
+    local candidate="$1"
+    [ -z "$candidate" ] && return 0
+    if [ -z "${HOST_SEEN[$candidate]+x}" ]; then
+        HOST_CANDIDATES+=("$candidate")
+        HOST_SEEN[$candidate]=1
+    fi
+}
+
+# Explicit override first
+add_candidate "$PI_HOST"
+
+# Preferred local path
+if [ -n "$PI_HOSTNAME" ]; then
+    add_candidate "${PI_HOSTNAME}.local"
+    add_candidate "$PI_HOSTNAME"
+fi
+
+# Preferred remote path
+add_candidate "$PI_TAILSCALE_HOST"
+
+# Explicit IP fallback
+add_candidate "$PI_IP"
+
+if [ "${#HOST_CANDIDATES[@]}" -eq 0 ]; then
+    add_candidate "bmo.local"
+fi
+
+PI_HOST_VERIFIED=false
+SELECTED_PI_HOST=""
+select_pi_host() {
+    local host
+    for host in "${HOST_CANDIDATES[@]}"; do
+        log "Checking SSH reachability: ${PI_USER}@${host}" >&2
+        if ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new "${PI_USER}@${host}" "exit 0" >/dev/null 2>&1; then
+            PI_HOST_VERIFIED=true
+            SELECTED_PI_HOST="$host"
+            return 0
+        fi
+    done
+
+    # Could be password-only auth or unreachable from current network.
+    SELECTED_PI_HOST="${HOST_CANDIDATES[0]}"
+    return 0
+}
+
+select_pi_host
+PI_HOST="$SELECTED_PI_HOST"
+PI_DEST="${PI_USER}@${PI_HOST}"
+
+if [ "$PI_HOST_VERIFIED" = false ]; then
+    log_warn "Could not verify SSH with key auth; using first candidate: ${PI_DEST}"
+    log_warn "If this is wrong, set PI_HOST / PI_TAILSCALE_HOST / PI_IP in BMO-setup/.env."
+fi
+
+if [ -z "$PI_WEB_HOST" ]; then
+    if [ -n "$PI_HOSTNAME" ]; then
+        PI_WEB_HOST="${PI_HOSTNAME}.local"
+    else
+        PI_WEB_HOST="$PI_HOST"
+    fi
+fi
+
 # ── Services-only mode ───────────────────────────────────────────────
 if [ "$SERVICES_ONLY" = true ]; then
-    log "Restarting all BMO services..."
+    log "Restarting all BMO services on ${PI_DEST}..."
     ssh "$PI_DEST" "cd ~/bmo && docker compose up -d && sudo systemctl restart bmo bmo-dm-bot bmo-social-bot"
     log_ok "Services restarted"
     exit 0
@@ -56,9 +153,10 @@ scp -r "$BMO_DIR/pi/agents/" "$PI_DEST:~/bmo/agents/"
 log_ok "Agents copied"
 
 # 4. Copy MCP servers
-log "[4/9] Copying MCP servers..."
+log "[4/9] Copying MCP servers + scripts..."
 scp -r "$BMO_DIR/pi/mcp_servers/" "$PI_DEST:~/bmo/mcp_servers/"
-log_ok "MCP servers copied"
+scp -r "$BMO_DIR/pi/scripts/" "$PI_DEST:~/bmo/scripts/"
+log_ok "MCP servers and scripts copied"
 
 # 5. Copy templates + static + Docker config
 log "[5/9] Copying templates, static, Docker config..."
@@ -135,17 +233,21 @@ ssh "$PI_DEST" "sudo systemctl is-active bmo-dm-bot 2>/dev/null && echo ' DM Bot
 ssh "$PI_DEST" "sudo systemctl is-active bmo-social-bot 2>/dev/null && echo ' Social Bot: OK' || echo ' Social Bot: NOT RUNNING (check token)'"
 ssh "$PI_DEST" "sudo systemctl is-active bmo-kiosk 2>/dev/null && echo ' Kiosk: OK' || echo ' Kiosk: NOT RUNNING (needs display)'"
 ssh "$PI_DEST" "i2cdetect -y 1 2>/dev/null | grep -q '3c' && echo ' OLED (0x3C): OK' || echo ' OLED: NOT DETECTED'"
+ssh "$PI_DEST" "if systemctl list-unit-files --type=service 2>/dev/null | grep -q '^cloudflared\\.service'; then sudo systemctl is-active cloudflared >/dev/null 2>&1 && echo ' Cloudflare Tunnel: OK' || echo ' Cloudflare Tunnel: NOT RUNNING'; else echo ' Cloudflare Tunnel: NOT INSTALLED'; fi"
+ssh "$PI_DEST" "if command -v tailscale >/dev/null 2>&1; then tailscale status >/dev/null 2>&1 && echo ' Tailscale: OK' || echo ' Tailscale: INSTALLED BUT NOT CONNECTED'; else echo ' Tailscale: NOT INSTALLED'; fi"
 
 echo ""
 echo "==================================================="
 echo "  Deploy complete!"
 echo ""
-echo "  Web UI:  http://${PI_IP}:5000"
+echo "  Web UI (LAN):        http://${PI_WEB_HOST}:5000"
+echo "  Web UI (Cloudflare): https://${CLOUDFLARE_DOMAIN}"
 echo "  SSH:     ssh ${PI_DEST}"
 echo "  Logs:    ssh ${PI_DEST} 'sudo journalctl -u bmo -f'"
 echo "  DM Bot:  ssh ${PI_DEST} 'sudo journalctl -u bmo-dm-bot -f'"
 echo "  Social:  ssh ${PI_DEST} 'sudo journalctl -u bmo-social-bot -f'"
 echo "  Docker:  ssh ${PI_DEST} 'cd ~/bmo && docker compose logs -f'"
+echo "  Hint:    Use ssh config alias so 'ssh patrick@bmo' stays stable"
 echo ""
 echo "  SETUP NEEDED:"
 echo "    1. Create Discord bots at https://discord.com/developers/applications"

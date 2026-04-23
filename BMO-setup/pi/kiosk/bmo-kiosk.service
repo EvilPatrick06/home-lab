@@ -1,48 +1,60 @@
 [Unit]
 Description=BMO Kiosk — Chromium fullscreen on HDMI
-After=graphical.target bmo.service
+After=bmo.service
 Wants=bmo.service
-PartOf=graphical.target
 
 [Service]
 Type=simple
 User=patrick
-Environment=DISPLAY=:0
-Environment=XAUTHORITY=/home/patrick/.Xauthority
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=GDK_BACKEND=wayland
+Environment=WLR_DRM_DEVICES=/dev/dri/card0
+Environment=WLR_DRM_CONNECTORS=DSI-2
+Environment=WLR_XCURSOR_THEME=bmo-invisible
+Environment=WLR_XCURSOR_SIZE=1
+Environment=WLR_NO_HARDWARE_CURSORS=1
+Environment=XCURSOR_THEME=bmo-invisible
+Environment=XCURSOR_SIZE=1
+Environment=XCURSOR_PATH=/home/patrick/.icons:/usr/share/icons
 
 # Wait for BMO Flask to be ready
-ExecStartPre=/bin/bash -c 'for i in $(seq 1 30); do curl -sf http://localhost:5000/health > /dev/null && break; sleep 1; done'
+ExecStartPre=/bin/bash -c 'for i in {1..30}; do curl -sf http://localhost:5000/health > /dev/null && break; sleep 1; done'
 
-# Disable screen blanking
-ExecStartPre=/usr/bin/xset -display :0 s off
-ExecStartPre=/usr/bin/xset -display :0 -dpms
-ExecStartPre=/usr/bin/xset -display :0 s noblank
+ExecStart=/usr/bin/cage -- chromium \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-features=TranslateUI \
+    --disable-background-networking \
+    --disable-component-update \
+    --disable-domain-reliability \
+    --disable-sync \
+    --dns-prefetch-disable \
+    --no-default-browser-check \
+    --password-store=basic \
+    --check-for-update-interval=31536000 \
+    --no-first-run \
+    --start-fullscreen \
+    --touch-events=enabled \
+    --ash-hide-cursor-on-touch \
+    --enable-touchview \
+    --enable-pinch \
+    --use-fake-ui-for-media-stream \
+    --autoplay-policy=no-user-gesture-required \
+    --force-device-scale-factor=1 \
+    --high-dpi-support=1 \
+    --window-size=800,480 \
+    --enable-logging=stderr \
+    --v=1 \
+    --unsafely-treat-insecure-origin-as-secure=http://127.0.0.1:5000 \
+    http://127.0.0.1:5000/?kiosk=1
 
-# Hide cursor after 3 seconds idle
-ExecStartPre=-/usr/bin/killall unclutter
-ExecStart=/bin/bash -c '\
-    unclutter -idle 3 -root &\
-    exec chromium \
-        --kiosk \
-        --noerrdialogs \
-        --disable-infobars \
-        --disable-session-crashed-bubble \
-        --disable-restore-session-state \
-        --disable-features=TranslateUI \
-        --check-for-update-interval=31536000 \
-        --no-first-run \
-        --start-fullscreen \
-        --window-position=0,0 \
-        --touch-events=enabled \
-        --enable-touchview \
-        --enable-pinch \
-        --use-fake-ui-for-media-stream \
-        --autoplay-policy=no-user-gesture-required \
-        --unsafely-treat-insecure-origin-as-secure=http://localhost:5000 \
-        http://localhost:5000'
+ExecStartPost=/bin/bash -c 'sleep 20; /usr/bin/chromium --headless --disable-gpu --no-sandbox --use-fake-ui-for-media-stream --virtual-time-budget=25000 --run-all-compositor-stages-before-draw --dump-dom http://127.0.0.1:5000/?kiosk=1 > /dev/null 2>&1 || true'
 
 Restart=on-failure
 RestartSec=5
 
 [Install]
-WantedBy=graphical.target
+WantedBy=multi-user.target

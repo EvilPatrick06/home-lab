@@ -61,7 +61,7 @@ BMO_CHEAT_SHEET = """
 ## System
 - App root: ~/bmo/ (WorkingDirectory for all services)
 - User: patrick
-- Static IP: 10.10.20.242 (from ARCHITECTURE)
+- Hostname-first access: bmo.local (LAN), optional Tailscale hostname for remote SSH
 
 ## systemd Services (sudo systemctl restart <name>)
 | Service | ExecStart | Logs |

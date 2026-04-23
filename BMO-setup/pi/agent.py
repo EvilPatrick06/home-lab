@@ -928,7 +928,7 @@ class BmoAgent:
 
     # ── Chat ─────────────────────────────────────────────────────────
 
-    def chat(self, user_message: str, speaker: str = "unknown", agent_override: str | None = None) -> dict:
+    def chat(self, user_message: str, speaker: str = "unknown", agent_override: str | None = None, client_timezone: str | None = None) -> dict:
         """Send a message to BMO and get a response.
 
         Delegates to the multi-agent orchestrator for routing, then handles
@@ -1019,7 +1019,7 @@ class BmoAgent:
 
     # ── Streaming Chat (for voice pipeline speed) ──────────────────
 
-    def chat_stream(self, user_message: str, speaker: str = "unknown"):
+    def chat_stream(self, user_message: str, speaker: str = "unknown", client_timezone: str | None = None):
         """Generator yielding text chunks for voice pipeline streaming.
 
         For conversation agent, streams from the LLM token by token.
@@ -1325,6 +1325,9 @@ class BmoAgent:
                 continue
             cleaned_lines.append(line)
         text = '\n'.join(cleaned_lines)
+
+        # Remove relay directives from user-facing output
+        text = re.sub(r"(?is)\[RELAY:\w+\]\s*.*?(?=(?:\s*\[RELAY:\w+\])|$)", "", text)
 
         # Remove leading dashes/bullets that are orphaned from stripped content
         text = re.sub(r'^\s*[—\-\*]\s*$', '', text, flags=re.MULTILINE)

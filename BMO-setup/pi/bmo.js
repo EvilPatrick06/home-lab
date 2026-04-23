@@ -148,9 +148,7 @@ function bmo() {
     calEvents: [],
     calOffline: false,
     calAuthUrl: '',
-    calAuthManualUrl: '',
     calAuthCode: '',
-    _calAuthPolling: false,
     calDays: 7,
     showEventForm: false,
     newEvent: {
@@ -249,11 +247,6 @@ function bmo() {
     showStatusDetail: false,
     detailedStatus: null,
     copiedStatus: false,
-    statusCopiedService: '',
-    statusFilter: 'all',
-    statusSearch: '',
-    statusBulkRestartBusy: false,
-    statusSelectedTargets: {},
     conversationActive: false,
     kdeNotifications: [],
     notifSettings: { enabled: true, blocklist: [], devices: {} },
@@ -367,15 +360,6 @@ function bmo() {
 
       this.socket = io({ auth: { client_timezone: this.clientTimezone } });
       this.setupSocket();
-      window.addEventListener('message', async (event) => {
-        const payload = event?.data || {};
-        if (payload.type !== 'bmo-calendar-auth') return;
-        if (payload.ok) {
-          await this.finishCalendarAuthSuccess(payload.message || 'Calendar authorized!');
-        } else {
-          this.showNotification(payload.message || 'Calendar auth failed', 'error');
-        }
-      });
 
       // Fetch current music state on page load (preserve playback across reloads)
       this.fetchMusicState();
@@ -1242,12 +1226,7 @@ function bmo() {
     },
 
     async musicCmd(cmd) {
-      if (cmd === 'pause') {
-        const endpoint = this.musicState?.is_playing ? '/api/music/pause' : '/api/music/play';
-        await fetch(endpoint, { method: 'POST' });
-      } else {
-        await fetch(`/api/music/${cmd}`, { method: 'POST' });
-      }
+      await fetch(`/api/music/${cmd}`, { method: 'POST' });
       this.fetchMusicState();
     },
 
@@ -1447,52 +1426,17 @@ function bmo() {
 
     async startCalendarAuth() {
       try {
-        const res = await fetch('/api/calendar/auth/url?mode=auto');
+        const res = await fetch('/api/calendar/auth/url');
         const data = await res.json();
         if (data.url) {
           this.calAuthUrl = data.url;
-          this.calAuthManualUrl = data.manual_url || '';
           this.calAuthCode = '';
-          const popup = window.open(data.url, 'bmo-calendar-auth', 'popup,width=560,height=760');
-          if (popup) {
-            this.showNotification('Finish Google sign-in in popup', 'info');
-            this.pollCalendarAuthStatus();
-          } else {
-            this.showNotification('Popup blocked — use manual auth link below', 'warning');
-          }
         } else {
           this.showNotification(data.error || 'Failed to get auth URL', 'error');
         }
       } catch (e) {
         this.showNotification('Failed to start calendar auth', 'error');
       }
-    },
-
-    async pollCalendarAuthStatus(maxAttempts = 30) {
-      if (this._calAuthPolling) return;
-      this._calAuthPolling = true;
-      try {
-        for (let i = 0; i < maxAttempts; i += 1) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          const res = await fetch('/api/calendar/auth/status');
-          const data = await res.json();
-          if (data.authorized) {
-            await this.finishCalendarAuthSuccess(data.message || 'Calendar authorized!');
-            return;
-          }
-        }
-      } catch {}
-      this._calAuthPolling = false;
-    },
-
-    async finishCalendarAuthSuccess(message = 'Calendar authorized!') {
-      this.calAuthUrl = '';
-      this.calAuthManualUrl = '';
-      this.calAuthCode = '';
-      this.calOffline = false;
-      this._calAuthPolling = false;
-      this.showNotification(message, 'success');
-      await this.fetchCalendar();
     },
 
     async submitCalendarAuth() {
@@ -1505,7 +1449,11 @@ function bmo() {
         });
         const data = await res.json();
         if (data.ok) {
-          await this.finishCalendarAuthSuccess('Calendar authorized!');
+          this.calAuthUrl = '';
+          this.calAuthCode = '';
+          this.calOffline = false;
+          this.showNotification('Calendar authorized!', 'success');
+          await this.fetchCalendar();
         } else {
           this.showNotification(data.error || 'Auth failed', 'error');
         }
@@ -3077,139 +3025,6 @@ function bmo() {
         const res = await fetch('/api/health/full');
         if (res.ok) this.detailedStatus = await res.json();
       } catch {}
-    },
-
-    statusMatches(name, info) {
-      const status = info?.status || 'unknown';
-      if (this.statusFilter !== 'all' && status !== this.statusFilter) return false;
-      const q = (this.statusSearch || '').trim().toLowerCase();
-      if (!q) return true;
-      const haystack = [
-        name,
-        info?.label || '',
-        info?.message || '',
-        info?.last_error || '',
-        info?.recommended_action || '',
-        info?.source_check || '',
-      ].join(' ').toLowerCase();
-      return haystack.includes(q);
-    },
-
-    statusDisplayName(name, info) {
-      return info?.label || name;
-    },
-
-    serviceRestartTarget(name) {
-      if (!name) return '';
-      if (name.startsWith('svc_')) return name.slice(4).replace(/_/g, '-');
-      if (name.startsWith('docker_')) return name.slice(7);
-      return name;
-    },
-
-    canRestartTarget(name) {
-      const target = this.serviceRestartTarget(name);
-      const allowed = new Set([
-        'bmo', 'bmo-dm-bot', 'bmo-social-bot', 'bmo-kiosk', 'bmo-fan', 'cloudflared',
-        'bmo-pihole', 'bmo-ollama', 'bmo-coturn', 'bmo-peerjs',
-      ]);
-      return allowed.has(target);
-    },
-
-    formatStatusSince(epoch, serverTime) {
-      if (!epoch || !serverTime) return '';
-      const secs = Math.max(0, Math.round(serverTime - epoch));
-      if (secs < 60) return `${secs}s ago`;
-      const mins = Math.floor(secs / 60);
-      if (mins < 60) return `${mins}m ago`;
-      const hrs = Math.floor(mins / 60);
-      if (hrs < 24) return `${hrs}h ago`;
-      const days = Math.floor(hrs / 24);
-      return `${days}d ago`;
-    },
-
-    async copyText(text) {
-      if (!text) return false;
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(text);
-          return true;
-        }
-      } catch {}
-      try {
-        const el = document.createElement('textarea');
-        el.value = text;
-        el.style.position = 'fixed';
-        el.style.left = '-9999px';
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        return true;
-      } catch {}
-      return false;
-    },
-
-    async copyStatusText() {
-      const ok = await this.copyText(this.$refs?.statusText?.innerText || '');
-      if (!ok) return;
-      this.copiedStatus = true;
-      setTimeout(() => { this.copiedStatus = false; }, 2000);
-    },
-
-    async copyServiceStatus(name, info) {
-      const target = this.serviceRestartTarget(name);
-      const lines = [
-        `${this.statusDisplayName(name, info)} (${name})`,
-        `Status: ${info?.status || 'unknown'}`,
-        `Message: ${info?.message || ''}`,
-      ];
-      if (info?.source_check) lines.push(`Source: ${info.source_check}`);
-      if ((info?.failure_count || 0) > 0) lines.push(`Failure count: ${info.failure_count}`);
-      if (info?.last_change && this.detailedStatus?.server_time) {
-        lines.push(`Last change: ${this.formatTimestamp(info.last_change)} (${this.formatStatusSince(info.last_change, this.detailedStatus.server_time)})`);
-      }
-      if (info?.recommended_action) lines.push(`Fix: ${info.recommended_action}`);
-      if (this.canRestartTarget(name)) lines.push(`Restart target: ${target}`);
-      if (info?.recent_errors?.length) lines.push(`Recent errors: ${info.recent_errors.join(' | ')}`);
-      const ok = await this.copyText(lines.join('\n'));
-      if (!ok) return;
-      this.statusCopiedService = name;
-      setTimeout(() => { this.statusCopiedService = ''; }, 1800);
-    },
-
-    async restartSelected() {
-      const targets = Object.entries(this.statusSelectedTargets || {})
-        .filter(([, on]) => Boolean(on))
-        .map(([target]) => target);
-      if (!targets.length) {
-        this.showNotification('Select at least one service/container to restart');
-        return;
-      }
-      if (!confirm(`Restart ${targets.length} selected target(s)?`)) return;
-      this.statusBulkRestartBusy = true;
-      const lines = [];
-      for (const target of targets) {
-        try {
-          const res = await fetch('/api/service/restart', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ target }),
-          });
-          const data = await res.json();
-          if (res.ok && data.ok) lines.push(`✅ ${target}: restarted`);
-          else lines.push(`❌ ${target}: ${data.message || data.error || 'failed'}`);
-        } catch (e) {
-          lines.push(`❌ ${target}: ${e.message || 'request failed'}`);
-        }
-      }
-      this.statusBulkRestartBusy = false;
-      this.statusSelectedTargets = {};
-      alert(lines.join('\n'));
-      setTimeout(() => this.fetchDetailedStatus(), 3000);
-      if (targets.includes('bmo')) {
-        alert('🔄 BMO restart requested. Page will reload in 8 seconds.');
-        setTimeout(() => location.reload(), 8000);
-      }
     },
 
     formatUptime(startedAt, serverTime) {

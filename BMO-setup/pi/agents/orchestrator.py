@@ -159,26 +159,30 @@ class AgentOrchestrator:
             self._nesting_depth -= 1
 
     def _check_relay(self, reply: str, original_message: str, history: list[dict], relay_depth: int) -> AgentResult | None:
-        """Detect [RELAY:agent_name] in an agent's response and re-route."""
-        match = re.search(r"\[RELAY:(\w+)\]\s*(.*)", reply, re.DOTALL)
-        if not match:
+        """Detect relay directives and re-route the first valid one."""
+        matches = list(re.finditer(
+            r"\[RELAY:(\w+)\]\s*(.*?)(?=(?:\s*\[RELAY:\w+\])|$)",
+            reply,
+            re.DOTALL,
+        ))
+        if not matches:
             return None
 
-        target_agent = match.group(1).strip()
-        relay_message = match.group(2).strip() or original_message
+        for match in matches:
+            target_agent = match.group(1).strip()
+            relay_message = match.group(2).strip() or original_message
+            if target_agent not in self.agents:
+                continue
 
-        if target_agent not in self.agents:
-            return None
+            print(f"[orchestrator] Relaying to {target_agent}: {relay_message[:80]}")
+            self._emit("agent_relay", {
+                "from": "previous_agent",
+                "to": target_agent,
+                "display_name": self._get_display_name(target_agent),
+            })
+            return self.run_agent(target_agent, relay_message, history=history, _relay_depth=relay_depth + 1)
 
-        print(f"[orchestrator] Relaying to {target_agent}: {relay_message[:80]}")
-
-        self._emit("agent_relay", {
-            "from": "previous_agent",
-            "to": target_agent,
-            "display_name": self._get_display_name(target_agent),
-        })
-
-        return self.run_agent(target_agent, relay_message, history=history, _relay_depth=relay_depth + 1)
+        return None
 
     # ── Plan Mode ────────────────────────────────────────────────────
 

@@ -1,14 +1,14 @@
 """BMO Weather Service — Open-Meteo API (free, no API key required)."""
 
+import os
 import threading
 import time
 
 import requests
 
-# Briargate, Colorado Springs coordinates
-LATITUDE = 38.9364
-LONGITUDE = -104.7595
-TIMEZONE = "America/Denver"
+DEFAULT_LATITUDE = float(os.environ.get("BMO_WEATHER_LATITUDE", "38.9364"))
+DEFAULT_LONGITUDE = float(os.environ.get("BMO_WEATHER_LONGITUDE", "-104.7595"))
+DEFAULT_TIMEZONE = os.environ.get("PI_TIMEZONE", "America/Denver")
 
 # WMO Weather codes → descriptions and icons
 WMO_CODES = {
@@ -48,34 +48,39 @@ POLL_INTERVAL = 1800  # 30 minutes
 class WeatherService:
     """Fetches weather data from Open-Meteo API with background caching."""
 
-    def __init__(self, socketio=None, alert_service=None):
+    def __init__(self, socketio=None, alert_service=None, location_service=None):
         self.socketio = socketio
         self.alert_service = alert_service
+        self.location_service = location_service
         self._cache: dict | None = None
+        self._cache_location_signature: tuple[float, float, str] | None = None
         self._running = False
         self._poll_thread = None
         self._last_weather_code = None
 
     # ── Fetch Weather ────────────────────────────────────────────────
 
-    def get_current(self) -> dict:
+    def get_current(self, force_refresh: bool = False) -> dict:
         """Get current weather conditions."""
-        if self._cache:
+        location = self._get_location()
+        signature = self._location_signature(location)
+        if not force_refresh and self._cache and self._cache_location_signature == signature:
             return self._cache
 
-        return self._fetch()
+        return self._fetch(location)
 
-    def _fetch(self) -> dict:
+    def _fetch(self, location: dict | None = None) -> dict:
         """Fetch weather from Open-Meteo API."""
+        location = location or self._get_location()
         url = "https://api.open-meteo.com/v1/forecast"
         params = {
-            "latitude": LATITUDE,
-            "longitude": LONGITUDE,
+            "latitude": location["latitude"],
+            "longitude": location["longitude"],
             "current": "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m",
             "daily": "temperature_2m_max,temperature_2m_min,weather_code,sunrise,sunset",
             "temperature_unit": "fahrenheit",
             "wind_speed_unit": "mph",
-            "timezone": TIMEZONE,
+            "timezone": location["timezone"],
             "forecast_days": 3,
         }
 
@@ -101,6 +106,11 @@ class WeatherService:
             "icon": icon,
             "weather_code": weather_code,
             "forecast": [],
+            "location_label": location.get("location_label", ""),
+            "timezone": location.get("timezone", DEFAULT_TIMEZONE),
+            "latitude": location.get("latitude", DEFAULT_LATITUDE),
+            "longitude": location.get("longitude", DEFAULT_LONGITUDE),
+            "location_source": location.get("source", "default"),
         }
 
         # Daily forecast
@@ -117,6 +127,7 @@ class WeatherService:
                 })
 
         self._cache = result
+        self._cache_location_signature = self._location_signature(location)
         return result
 
     # ── Background Polling ───────────────────────────────────────────
@@ -138,6 +149,10 @@ class WeatherService:
             self._emit("weather_update", weather)
             self._check_severe_weather(weather)
             time.sleep(POLL_INTERVAL)
+
+    def invalidate_cache(self):
+        self._cache = None
+        self._cache_location_signature = None
 
     def _check_severe_weather(self, weather: dict):
         """Check for severe weather conditions and send alerts."""
@@ -181,3 +196,27 @@ class WeatherService:
     def _emit(self, event: str, data: dict):
         if self.socketio:
             self.socketio.emit(event, data)
+
+    def _get_location(self) -> dict:
+        if self.location_service:
+            try:
+                resolved = self.location_service.get_location()
+                if resolved:
+                    return resolved
+            except Exception as e:
+                print(f"[weather] Location lookup failed: {e}")
+        return {
+            "latitude": DEFAULT_LATITUDE,
+            "longitude": DEFAULT_LONGITUDE,
+            "timezone": DEFAULT_TIMEZONE,
+            "location_label": os.environ.get("BMO_WEATHER_LOCATION_LABEL", "Default location"),
+            "source": "default",
+        }
+
+    @staticmethod
+    def _location_signature(location: dict) -> tuple[float, float, str]:
+        return (
+            round(float(location.get("latitude", DEFAULT_LATITUDE)), 4),
+            round(float(location.get("longitude", DEFAULT_LONGITUDE)), 4),
+            str(location.get("timezone", DEFAULT_TIMEZONE)),
+        )

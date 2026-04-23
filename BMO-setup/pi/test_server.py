@@ -1906,6 +1906,9 @@ def api_timers():
                 t["fired"] = True
                 socketio.emit("timer_fired", {"id": t["id"], "label": t["label"], "message": f"Beep boop! {t['label']} is done!"})
         elif t["type"] == "alarm" and "_target" in t:
+            if not t.get("enabled", True):
+                t["remaining"] = max(0, int(t["_target"] - now))
+                continue
             t["remaining"] = max(0, int(t["_target"] - now))
             if t["remaining"] == 0:
                 last_fired = t.get("_last_fired", 0)
@@ -1995,6 +1998,7 @@ def api_alarm_create():
         "target_time": target.strftime("%I:%M %p"),
         "target_date": target_date_str,
         "remaining": int((target - now).total_seconds()),
+        "enabled": bool(data.get("enabled", True)),
         "fired": False, "snoozed": False, "type": "alarm",
         "repeat": repeat,
         "repeat_days": repeat_days,
@@ -2018,6 +2022,35 @@ def api_alarm_cancel(aid):
 @app.route("/api/alarms/<aid>/snooze", methods=["POST"])
 def api_alarm_snooze(aid):
     return jsonify({"ok": True})
+
+
+@app.route("/api/alarms/<aid>/enabled", methods=["POST"])
+def api_alarm_enabled(aid):
+    data = request.json or {}
+    if "enabled" not in data:
+        return jsonify({"error": "Missing 'enabled' boolean"}), 400
+    for t in timers_list:
+        if t["id"] != aid or t.get("type") != "alarm":
+            continue
+        enabled = bool(data.get("enabled"))
+        t["enabled"] = enabled
+        if not enabled:
+            t["fired"] = False
+            t["snoozed"] = False
+        elif t.get("_repeat", "none") != "none":
+            now = datetime.datetime.now()
+            target = datetime.datetime.fromtimestamp(t["_target"])
+            for _ in range(10):
+                if target > now:
+                    break
+                _advance_repeating_alarm(t)
+                target = datetime.datetime.fromtimestamp(t["_target"])
+            t["remaining"] = max(0, int(t["_target"] - time.time()))
+            t["fired"] = False
+            t["snoozed"] = False
+        _save_timers()
+        return jsonify({k: v for k, v in t.items() if not k.startswith("_")})
+    return jsonify({"error": "Alarm not found"}), 404
 
 
 # ── Weather API (REAL Open-Meteo) ────────────────────────────────────

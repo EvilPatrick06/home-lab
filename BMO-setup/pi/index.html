@@ -888,13 +888,12 @@
 
       <!-- Calendar Auth Modal -->
       <div x-show="calAuthUrl" x-transition class="bg-surface-light rounded-lg p-3 mb-1 space-y-2 text-sm">
-        <p class="text-text-muted">1. A Google auth popup should open automatically. If it doesn't, click the link below:</p>
+        <p class="text-text-muted">1. Click the link below to authorize BMO with Google Calendar:</p>
         <a :href="calAuthUrl" target="_blank" class="block text-accent underline break-all text-xs" x-text="calAuthUrl"></a>
-        <p class="text-amber-400">2. After Allow, the popup should auto-close and BMO will detect authorization.</p>
-        <p class="text-text-muted">3. If popup flow fails, use manual mode: open the link below, then paste full redirect URL or auth code.</p>
-        <a :href="calAuthManualUrl" target="_blank" class="block text-accent/90 underline break-all text-xs" x-show="calAuthManualUrl" x-text="calAuthManualUrl"></a>
+        <p class="text-amber-400">2. After clicking "Allow", the page will say "refused to connect" — that's normal!</p>
+        <p class="text-text-muted">3. Copy the <b>entire URL</b> from the address bar (starts with http://localhost?code=...) and paste it below:</p>
         <div class="flex gap-1">
-          <input x-model="calAuthCode" type="text" placeholder="Paste full redirect URL or auth code"
+          <input x-model="calAuthCode" type="text" placeholder="Paste full URL from address bar"
                  class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
           <button @click="submitCalendarAuth()" class="px-3 py-1.5 bg-accent hover:bg-accent/80 text-black rounded text-sm font-semibold">Submit</button>
         </div>
@@ -2025,7 +2024,7 @@
       </button>
       <h2 class="text-3xl font-bold">📊 System Status</h2>
       <div class="flex items-center gap-3">
-        <button @click="copyStatusText()"
+        <button @click="navigator.clipboard.writeText($refs.statusText.innerText).then(() => { copiedStatus = true; setTimeout(() => copiedStatus = false, 2000) })"
                 class="px-4 py-2 rounded-lg bg-surface text-lg text-text-muted hover:bg-accent/20">
           <span x-show="!copiedStatus">📋 Copy All</span>
           <span x-show="copiedStatus" class="text-green-400">✓ Copied</span>
@@ -2048,28 +2047,12 @@
               <span class="text-2xl font-bold uppercase" x-text="'OVERALL: ' + detailedStatus.overall"></span>
             </div>
             <p class="text-text-muted text-base" x-show="detailedStatus.pi_uptime">🖥️ Pi Uptime: <span class="text-green-400 font-bold" x-text="formatPiUptime(detailedStatus.pi_uptime)"></span></p>
-            <template x-if="(detailedStatus.down_required_services || detailedStatus.down_services || []).length > 0">
-              <p class="text-red-400 mt-1 text-base">DOWN: <span x-text="(detailedStatus.down_required_services || detailedStatus.down_services).join(', ')"></span></p>
-            </template>
-            <template x-if="(detailedStatus.down_noncritical_services || []).length > 0">
-              <p class="text-amber-400 mt-1 text-base">NON-CRITICAL DOWN: <span x-text="detailedStatus.down_noncritical_services.join(', ')"></span></p>
+            <template x-if="detailedStatus.down_services.length > 0">
+              <p class="text-red-400 mt-1 text-base">DOWN: <span x-text="detailedStatus.down_services.join(', ')"></span></p>
             </template>
             <template x-if="detailedStatus.degraded_services.length > 0">
               <p class="text-amber-400 mt-1 text-base">DEGRADED: <span x-text="detailedStatus.degraded_services.join(', ')"></span></p>
             </template>
-            <template x-if="(detailedStatus.info_services || []).length > 0">
-              <p class="text-blue-300 mt-1 text-base">INFO: <span x-text="detailedStatus.info_services.join(', ')"></span></p>
-            </template>
-            <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
-              <span class="text-text-dim">Filter:</span>
-              <button @click="statusFilter='all'" class="px-2 py-1 rounded" :class="statusFilter==='all' ? 'bg-accent text-surface-dark' : 'bg-surface text-text-muted'">All</button>
-              <button @click="statusFilter='down'" class="px-2 py-1 rounded" :class="statusFilter==='down' ? 'bg-red-500 text-black' : 'bg-surface text-text-muted'">Down</button>
-              <button @click="statusFilter='degraded'" class="px-2 py-1 rounded" :class="statusFilter==='degraded' ? 'bg-amber-500 text-black' : 'bg-surface text-text-muted'">Degraded</button>
-              <button @click="statusFilter='info'" class="px-2 py-1 rounded" :class="statusFilter==='info' ? 'bg-blue-400 text-black' : 'bg-surface text-text-muted'">Info</button>
-              <button @click="statusFilter='up'" class="px-2 py-1 rounded" :class="statusFilter==='up' ? 'bg-green-500 text-black' : 'bg-surface text-text-muted'">Up</button>
-              <input x-model="statusSearch" type="text" placeholder="Search service, error, fix..."
-                     class="ml-auto min-w-[220px] bg-surface rounded px-2 py-1 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
-            </div>
           </div>
 
           <!-- Pi Hardware -->
@@ -2083,49 +2066,31 @@
                 <div>💾 Disk: <span :class="(detailedStatus.pi_stats.disk_percent || 0) > 85 ? 'text-amber-400' : 'text-green-400'" x-text="(detailedStatus.pi_stats.disk_percent || '?') + '%'"></span></div>
               </div>
             </template>
-            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter((entry) => statusMatches(entry[0], entry[1]) && (entry[0].startsWith('pi_') || entry[0] === 'internet'))" :key="name">
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.startsWith('pi_') || k === 'internet')" :key="name">
               <div class="flex items-center gap-2 py-1 text-base">
-                <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : info.status === 'info' ? 'bg-blue-400' : 'bg-gray-500'"></span>
-                <span class="text-text-muted w-36 shrink-0" x-text="statusDisplayName(name, info)"></span>
-                <span class="flex-1" :class="info.status === 'up' ? 'text-green-400' : info.status === 'degraded' ? 'text-amber-400' : info.status === 'down' ? 'text-red-400' : info.status === 'info' ? 'text-blue-300' : 'text-gray-300'" x-text="info.message || info.status"></span>
-                <button @click="copyServiceStatus(name, info)" class="px-2 py-1 rounded bg-surface text-xs text-text-muted hover:bg-accent/20">📋</button>
+                <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
+                <span class="text-text-muted w-36 shrink-0" x-text="name"></span>
+                <span :class="info.status === 'up' ? 'text-green-400' : info.status === 'degraded' ? 'text-amber-400' : 'text-red-400'" x-text="info.message || info.status"></span>
               </div>
-              <div class="ml-6 text-xs text-text-dim" x-show="info.source_check || info.failure_count || info.recommended_action">
-                <span x-show="info.source_check">source: <span x-text="info.source_check"></span></span>
-                <span x-show="info.failure_count > 0"> · failures: <span x-text="info.failure_count"></span></span>
-                <span x-show="info.last_change && detailedStatus.server_time"> · changed: <span x-text="formatStatusSince(info.last_change, detailedStatus.server_time)"></span></span>
-              </div>
-              <div class="ml-6 text-xs text-amber-300" x-show="info.recommended_action">fix: <span x-text="info.recommended_action"></span></div>
             </template>
           </div>
 
           <!-- Systemd Services -->
           <div class="bg-surface-light rounded-lg p-5">
             <h3 class="text-lg font-bold mb-3 text-accent">⚙️ Services</h3>
-            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter((entry) => statusMatches(entry[0], entry[1]) && entry[0].startsWith('svc_'))" :key="name">
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.startsWith('svc_'))" :key="name">
               <div class="mb-3">
                 <div class="flex items-center gap-2 text-base">
                   <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
-                  <span class="text-text-muted w-44 shrink-0" x-text="statusDisplayName(name, info)"></span>
+                  <span class="text-text-muted w-44 shrink-0" x-text="name.replace('svc_', '')"></span>
                   <span class="uppercase w-16 shrink-0 font-bold" :class="info.status === 'up' ? 'text-green-400' : info.status === 'down' ? 'text-red-400' : 'text-amber-400'" x-text="info.status"></span>
                   <span class="text-text-dim flex-1" x-text="info.message"></span>
-                  <button @click="restartService(serviceRestartTarget(name))" class="px-3 py-1.5 rounded bg-surface text-base text-accent hover:bg-accent/20 shrink-0">🔄</button>
-                  <label class="text-xs text-text-muted flex items-center gap-1" x-show="canRestartTarget(name)">
-                    <input type="checkbox" :value="serviceRestartTarget(name)" @change="statusSelectedTargets[serviceRestartTarget(name)] = $event.target.checked">
-                    Batch
-                  </label>
-                  <button @click="copyServiceStatus(name, info)" class="px-2 py-1 rounded bg-surface text-xs text-text-muted hover:bg-accent/20 shrink-0">📋</button>
+                  <button @click="restartService(name.replace('svc_', '').replace('_', '-'))" class="px-3 py-1.5 rounded bg-surface text-base text-accent hover:bg-accent/20 shrink-0">🔄</button>
                 </div>
                 <div x-show="info.started_at" class="ml-8 text-base text-text-dim mt-0.5">
                   ⏱️ Started: <span x-text="formatTimestamp(info.started_at)"></span>
                   · Up: <span class="text-green-400" x-text="formatUptime(info.started_at, detailedStatus.server_time)"></span>
                 </div>
-                <div class="ml-8 text-xs text-text-dim" x-show="info.source_check || info.failure_count || info.last_change">
-                  <span x-show="info.source_check">source: <span x-text="info.source_check"></span></span>
-                  <span x-show="info.failure_count > 0"> · failures: <span x-text="info.failure_count"></span></span>
-                  <span x-show="info.last_change && detailedStatus.server_time"> · changed: <span x-text="formatStatusSince(info.last_change, detailedStatus.server_time)"></span></span>
-                </div>
-                <div class="ml-8 text-xs text-amber-300" x-show="info.recommended_action">fix: <span x-text="info.recommended_action"></span></div>
                 <template x-if="info.recent_errors && info.recent_errors.length > 0">
                   <div class="ml-8 mt-1">
                     <template x-for="(err, i) in info.recent_errors" :key="i">
@@ -2140,30 +2105,19 @@
           <!-- Docker Containers -->
           <div class="bg-surface-light rounded-lg p-5">
             <h3 class="text-lg font-bold mb-3 text-accent">🐳 Docker Containers</h3>
-            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter((entry) => statusMatches(entry[0], entry[1]) && entry[0].startsWith('docker_'))" :key="name">
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.startsWith('docker_'))" :key="name">
               <div class="mb-3">
                 <div class="flex items-center gap-2 text-base">
                   <span class="w-3 h-3 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
-                  <span class="text-text-muted w-44 shrink-0" x-text="statusDisplayName(name, info)"></span>
+                  <span class="text-text-muted w-44 shrink-0" x-text="name.replace('docker_', '')"></span>
                   <span class="uppercase w-16 shrink-0 font-bold" :class="info.status === 'up' ? 'text-green-400' : info.status === 'down' ? 'text-red-400' : 'text-amber-400'" x-text="info.status"></span>
                   <span class="text-text-dim flex-1" x-text="info.message"></span>
                   <button @click="restartService(name.replace('docker_', ''))" class="px-3 py-1.5 rounded bg-surface text-base text-accent hover:bg-accent/20 shrink-0">🔄</button>
-                  <label class="text-xs text-text-muted flex items-center gap-1" x-show="canRestartTarget(name)">
-                    <input type="checkbox" :value="serviceRestartTarget(name)" @change="statusSelectedTargets[serviceRestartTarget(name)] = $event.target.checked">
-                    Batch
-                  </label>
-                  <button @click="copyServiceStatus(name, info)" class="px-2 py-1 rounded bg-surface text-xs text-text-muted hover:bg-accent/20 shrink-0">📋</button>
                 </div>
                 <div x-show="info.started_at" class="ml-8 text-base text-text-dim mt-0.5">
                   ⏱️ Started: <span x-text="formatTimestamp(info.started_at)"></span>
                   · Up: <span class="text-green-400" x-text="formatUptime(info.started_at, detailedStatus.server_time)"></span>
                 </div>
-                <div class="ml-8 text-xs text-text-dim" x-show="info.source_check || info.failure_count || info.last_change">
-                  <span x-show="info.source_check">source: <span x-text="info.source_check"></span></span>
-                  <span x-show="info.failure_count > 0"> · failures: <span x-text="info.failure_count"></span></span>
-                  <span x-show="info.last_change && detailedStatus.server_time"> · changed: <span x-text="formatStatusSince(info.last_change, detailedStatus.server_time)"></span></span>
-                </div>
-                <div class="ml-8 text-xs text-amber-300" x-show="info.recommended_action">fix: <span x-text="info.recommended_action"></span></div>
                 <template x-if="info.recent_errors && info.recent_errors.length > 0">
                   <div class="ml-8 mt-1">
                     <template x-for="(err, i) in info.recent_errors" :key="i">
@@ -2178,24 +2132,14 @@
           <!-- Cloud APIs & Local Services -->
           <div class="bg-surface-light rounded-lg p-5">
             <h3 class="text-lg font-bold mb-3 text-accent">☁️ APIs & Local Services</h3>
-            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter((entry) => statusMatches(entry[0], entry[1]) && (entry[0].endsWith('_api') || entry[0] === 'ollama_local' || entry[0] === 'peerjs' || entry[0] === 'pihole' || entry[0].startsWith('pihole_') || entry[0] === 'google_calendar' || entry[0] === 'cloudflared' || entry[0] === 'rclone'))" :key="name">
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.endsWith('_api') || k === 'ollama_local' || k === 'peerjs' || k === 'pihole' || k.startsWith('pihole_') || k === 'google_calendar' || k === 'cloudflared' || k === 'rclone')" :key="name">
               <div class="mb-3">
                 <div class="flex items-center gap-2 text-base">
-                  <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : info.status === 'info' ? 'bg-blue-400' : 'bg-gray-500'"></span>
-                  <span class="text-text-muted w-44 shrink-0" x-text="statusDisplayName(name, info)"></span>
-                  <span class="uppercase w-16 shrink-0 font-bold" :class="info.status === 'up' ? 'text-green-400' : info.status === 'degraded' ? 'text-amber-400' : info.status === 'down' ? 'text-red-400' : info.status === 'info' ? 'text-blue-300' : 'text-gray-300'" x-text="info.status"></span>
-                  <span class="text-text-dim flex-1" x-text="info.response_time ? info.message + ' (' + info.response_time + 's)' : info.message"></span>
-                  <button x-show="name === 'google_calendar' && info.status === 'down'"
-                          @click="showStatusDetail = false; tab = 'calendar'; startCalendarAuth()"
-                          class="px-3 py-1.5 rounded bg-surface text-base text-accent hover:bg-accent/20 shrink-0">🔑</button>
-                  <button @click="copyServiceStatus(name, info)" class="px-2 py-1 rounded bg-surface text-xs text-text-muted hover:bg-accent/20 shrink-0">📋</button>
+                  <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
+                  <span class="text-text-muted w-44 shrink-0" x-text="name"></span>
+                  <span class="uppercase w-16 shrink-0 font-bold" :class="info.status === 'up' ? 'text-green-400' : info.status === 'down' ? 'text-red-400' : 'text-amber-400'" x-text="info.status"></span>
+                  <span class="text-text-dim" x-text="info.response_time ? info.message + ' (' + info.response_time + 's)' : info.message"></span>
                 </div>
-                <div class="ml-8 text-xs text-text-dim" x-show="info.source_check || info.failure_count || info.last_change">
-                  <span x-show="info.source_check">source: <span x-text="info.source_check"></span></span>
-                  <span x-show="info.failure_count > 0"> · failures: <span x-text="info.failure_count"></span></span>
-                  <span x-show="info.last_change && detailedStatus.server_time"> · changed: <span x-text="formatStatusSince(info.last_change, detailedStatus.server_time)"></span></span>
-                </div>
-                <div class="ml-8 text-xs text-amber-300" x-show="info.recommended_action">fix: <span x-text="info.recommended_action"></span></div>
                 <template x-if="info.recent_errors && info.recent_errors.length > 0">
                   <div class="ml-8 mt-1">
                     <template x-for="(err, i) in info.recent_errors" :key="i">
@@ -2210,30 +2154,13 @@
           <!-- Network -->
           <div class="bg-surface-light rounded-lg p-5">
             <h3 class="text-lg font-bold mb-3 text-accent">📡 Network</h3>
-            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter((entry) => statusMatches(entry[0], entry[1]) && (entry[0].startsWith('net_') || entry[0].startsWith('port_') || entry[0] === 'ports'))" :key="name">
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.startsWith('net_') || k.startsWith('port_'))" :key="name">
               <div class="flex items-center gap-2 py-1 text-base">
-                <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : info.status === 'info' ? 'bg-blue-400' : 'bg-gray-500'"></span>
-                <span class="text-text-muted w-44 shrink-0" x-text="statusDisplayName(name, info)"></span>
-                <span class="flex-1" :class="info.status === 'up' ? 'text-green-400' : info.status === 'degraded' ? 'text-amber-400' : info.status === 'down' ? 'text-red-400' : info.status === 'info' ? 'text-blue-300' : 'text-gray-300'" x-text="info.message || info.status"></span>
-                <button @click="copyServiceStatus(name, info)" class="px-2 py-1 rounded bg-surface text-xs text-text-muted hover:bg-accent/20">📋</button>
+                <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
+                <span class="text-text-muted w-44 shrink-0" x-text="name"></span>
+                <span :class="info.status === 'up' ? 'text-green-400' : info.status === 'down' ? 'text-red-400' : 'text-amber-400'" x-text="info.message || info.status"></span>
               </div>
-              <div class="ml-8 text-xs text-text-dim" x-show="info.source_check || info.failure_count || info.last_change">
-                <span x-show="info.source_check">source: <span x-text="info.source_check"></span></span>
-                <span x-show="info.failure_count > 0"> · failures: <span x-text="info.failure_count"></span></span>
-                <span x-show="info.last_change && detailedStatus.server_time"> · changed: <span x-text="formatStatusSince(info.last_change, detailedStatus.server_time)"></span></span>
-              </div>
-              <div class="ml-8 text-xs text-amber-300" x-show="info.recommended_action">fix: <span x-text="info.recommended_action"></span></div>
             </template>
-          </div>
-
-          <!-- Timestamp -->
-          <div class="bg-surface-light rounded-lg p-4">
-            <div class="flex items-center gap-3">
-              <button @click="restartSelected()" :disabled="statusBulkRestartBusy"
-                      class="px-3 py-1.5 rounded bg-red-900/30 text-red-300 disabled:opacity-50">🔁 Restart Selected</button>
-              <span class="text-xs text-text-dim">Use Batch checkboxes beside restartable services/containers.</span>
-              <span x-show="statusCopiedService" class="text-xs text-green-400 ml-auto">Copied: <span x-text="statusDisplayName(statusCopiedService, detailedStatus.services[statusCopiedService])"></span></span>
-            </div>
           </div>
 
           <!-- Timestamp -->
