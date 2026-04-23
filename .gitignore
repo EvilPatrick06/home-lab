@@ -79,7 +79,7 @@ src/**/.env
 # BMO runtime (generated, not secret but noisy)
 BMO-setup/pi/__pycache__/
 BMO-setup/pi/agents/__pycache__/
-BMO-setup/pi/venv/
+bmo/pi/venv/
 BMO-setup/pi/logs/
 BMO-setup/pi/.bmo/
 BMO-setup/pi/.audiocache/
@@ -110,3 +110,4 @@ BMO-setup/pi/data/settings.json
 
 # Test artifacts at root
 test-results*.txt
+**/venv/
