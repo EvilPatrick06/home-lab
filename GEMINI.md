@@ -71,7 +71,7 @@ Types: `feat, fix, refactor, chore, docs, test, perf, build, ci`
 The log is for **unfixed or deferred** work:
 
 - **Fixing it in this session?** → Just fix it. The commit is the record. Do NOT log.
-- **Out of scope / can't fix now?** → APPEND to `docs/ISSUES-LOG.md`. Log even minor out-of-scope items.
+- **Out of scope / can't fix now?** → APPEND to the right log: `docs/ISSUES-LOG.md` (bug/debt), `docs/SUGGESTIONS-LOG.md` (idea/gotcha), or `docs/SECURITY-LOG.md` (security — gitignored). Log even minor out-of-scope items.
 - **Unsure?** → See "The decision rule" at the top of `docs/LOG-INSTRUCTIONS.md`.
 
 Read `docs/LOG-INSTRUCTIONS.md` before your first log append for the template + "log vs fix inline" examples. Don't silently fix outside scope — but also don't log what you're fixing right now.
@@ -86,6 +86,10 @@ Read `docs/LOG-INSTRUCTIONS.md` before your first log append for the template + 
 | BMO services | `bmo/docs/SERVICES.md` |
 | BMO agents | `bmo/docs/AGENTS.md` |
 | Bugs / debt | `docs/ISSUES-LOG.md` |
+| Future ideas / design gotchas | `docs/SUGGESTIONS-LOG.md` |
+| Security concerns / incidents | `docs/SECURITY-LOG.md` *(gitignored)* |
+| Resolved entries | `docs/RESOLVED-ISSUES.md` |
+| Where-to-log triage | `docs/LOG-INSTRUCTIONS.md` |
 | BMO troubleshooting | `bmo/docs/TROUBLESHOOTING.md` |
 | Running the app | `docs/COMMANDS.md` |
 | Terms (beginner) | `docs/GLOSSARY.md` |

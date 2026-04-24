@@ -1,22 +1,36 @@
 # Logging Instructions
 
-How to log discoveries into [`ISSUES-LOG.md`](./ISSUES-LOG.md). Read this file BEFORE logging.
+How to log discoveries. Read this file BEFORE logging.
 
-> **Instructions file — no actual log entries here.**
-> Entries go in [`ISSUES-LOG.md`](./ISSUES-LOG.md).
+> **Instructions file — no actual log entries here.** Entries are split across four logs by topic.
+
+---
+
+## Which log goes where
+
+| Log | Tracked? | What goes in it |
+|---|---|---|
+| [`ISSUES-LOG.md`](./ISSUES-LOG.md) | git | **Bugs, tech debt, broken config, perf problems, test failures** — things that are wrong and need fixing. |
+| [`SUGGESTIONS-LOG.md`](./SUGGESTIONS-LOG.md) | git | **Future ideas, design gotchas (`DO NOT X` warnings), info observations** — things that aren't broken but worth remembering. |
+| [`SECURITY-LOG.md`](./SECURITY-LOG.md) | **gitignored** | **Security concerns, hardening backlog, incident notes.** Sensitive — kept local. Never put raw secret values here. |
+| [`RESOLVED-ISSUES.md`](./RESOLVED-ISSUES.md) | git | Archive of completed entries moved out of `ISSUES-LOG.md` / `SUGGESTIONS-LOG.md`. |
+| [`RESOLVED-SECURITY-ISSUES.md`](./RESOLVED-SECURITY-ISSUES.md) | **gitignored** | Archive of completed entries moved out of `SECURITY-LOG.md`. |
+
+**Triage rule:** Anything tagged `security` (even if also `future-idea`) → `SECURITY-LOG.md`. Anything tagged `design-gotcha`, `future-idea` (non-security), or `info` → `SUGGESTIONS-LOG.md`. Everything else → `ISSUES-LOG.md`.
 
 ---
 
 ## Purpose
 
-`ISSUES-LOG.md` is a living record that survives across AI sessions + human work. It holds:
+These logs are a living record that survives across AI sessions + human work. They hold:
 
-- Bugs (confirmed + suspected)
-- Tech debt
-- Future improvements / ideas
-- Design gotchas (warnings for future contributors)
-- Security items (incidents, observations, improvement ideas)
-- Config drift
+- Bugs (confirmed + suspected) → `ISSUES-LOG.md`
+- Tech debt → `ISSUES-LOG.md`
+- Future improvements / ideas → `SUGGESTIONS-LOG.md` (or `SECURITY-LOG.md` if security-related)
+- Design gotchas (warnings for future contributors) → `SUGGESTIONS-LOG.md`
+- Security items (incidents, observations, improvement ideas) → `SECURITY-LOG.md`
+- Config drift → `ISSUES-LOG.md`
+- Info / observations → `SUGGESTIONS-LOG.md`
 - Minor / optional stuff (log it anyway — patterns emerge)
 
 **Log EVERYTHING you find worth remembering.** Better to over-log than miss something. Future grep-ability > concise "nice-to-look-at" log.
@@ -155,37 +169,49 @@ Multiple categories allowed: `Category: bug, security` is fine.
 
 ## How to append (practical)
 
-1. **Grep first** — is this already logged?
+1. **Grep first** — is this already logged in any of the three logs?
    ```bash
-   grep -i "<keyword>" docs/ISSUES-LOG.md
+   grep -i "<keyword>" docs/ISSUES-LOG.md docs/SUGGESTIONS-LOG.md docs/SECURITY-LOG.md
    ```
    If found, don't duplicate. Add a dated comment under the existing entry OR just read and move on.
 
-2. **Pick severity + section** in `ISSUES-LOG.md` (entries are grouped by severity under `# Active Issues`).
+2. **Pick the right log** per the triage rule above:
+   - Bug / debt / broken config / perf → `ISSUES-LOG.md`
+   - Security (any kind) → `SECURITY-LOG.md` (gitignored)
+   - Design gotcha / future idea / info → `SUGGESTIONS-LOG.md`
 
-3. **Insert** the filled template at the top of that severity section (newest first within section).
+3. **Pick severity + section** within that log (entries are grouped by severity).
 
-4. **Also mention** in your PR / commit message: "Logged in ISSUES-LOG.md: <title>". This makes the log entry discoverable from git history too.
+4. **Insert** the filled template at the top of that severity section (newest first within section).
+
+5. **Also mention** in your PR / commit message: "Logged in <LOG_NAME>: <title>". This makes the entry discoverable from git history too. (Skip this step for `SECURITY-LOG.md` entries — that file isn't tracked, so don't reference it in commit bodies that get pushed.)
 
 ---
 
 ## After fixing a logged issue
 
-1. Move the entry from "Active Issues" → "Resolved" at the bottom of `ISSUES-LOG.md`
-2. Add fix details:
+1. **Cut** the entry from its active log (don't leave it behind — keeping resolved entries in the active log clutters grep results and obscures what's still open).
+2. **Paste** it at the TOP of the matching resolved file (newest first):
+   - From `ISSUES-LOG.md` or `SUGGESTIONS-LOG.md` → [`RESOLVED-ISSUES.md`](./RESOLVED-ISSUES.md) *(tracked)*
+   - From `SECURITY-LOG.md` → [`RESOLVED-SECURITY-ISSUES.md`](./RESOLVED-SECURITY-ISSUES.md) *(gitignored — same privacy reason as the active security log)*
+3. Append fix details to the entry:
    ```markdown
    - **Resolved by:** <name / agent>
    - **Commit:** `<SHA>`
    - **Resolution:** <what the fix actually did>
    - **Date resolved:** YYYY-MM-DD
    ```
-3. Do NOT delete the entry — the history is the value.
+4. Rename the original `**Severity:**` line to `**Original severity:**` so the resolved entry doesn't compete with active severity grep.
+
+The active log stays lean; the resolved file preserves history for postmortems and pattern-spotting.
 
 ---
 
 ## Special categories — deeper guidance
 
 ### Security entries
+
+**All security entries go in [`SECURITY-LOG.md`](./SECURITY-LOG.md), not `ISSUES-LOG.md`.** That file is gitignored so concerns and incident details stay local.
 
 Log items like:
 - Missing input validation
@@ -197,16 +223,16 @@ Log items like:
 - Secrets-handling improvements
 
 **For accidental secret commits (future incidents):**
-Follow the rotation + purge procedure in [`../SECURITY.md`](../SECURITY.md). Then log the INCIDENT here with:
+Follow the rotation + purge procedure in [`./SECURITY.md`](./SECURITY.md). Then log the INCIDENT in `SECURITY-LOG.md` (under `# Incidents`) with:
 - What class of secret (not the secret itself)
 - How it got in
 - What preventive measure was added
 
-**Do not write secret values (API keys, tokens, passwords) into the log.** Reference by kind only (e.g., "API key for provider X") not by value.
+**Do not write secret values (API keys, tokens, passwords) into the log.** Reference by kind only (e.g., "API key for provider X") not by value. Even though `SECURITY-LOG.md` is gitignored, treat it as if it could leak — local backups, accidental copy-paste, etc.
 
 ### Design-gotcha entries
 
-For things that LOOK like they should be changed but shouldn't. Save future agents from tempting but broken refactors. Examples:
+**These go in [`SUGGESTIONS-LOG.md`](./SUGGESTIONS-LOG.md).** For things that LOOK like they should be changed but shouldn't. Save future agents from tempting but broken refactors. Examples:
 - "Don't rename `bmo/pi/bots/` to `discord/` — shadows `discord.py` library"
 - "Don't use `any` to silence the TS error in X — it hides a real validation bug"
 
@@ -228,7 +254,7 @@ Format as a warning, high visibility:
 
 ### Future-idea entries
 
-For nice-to-haves. Tag with rough effort if known:
+**Non-security future ideas go in [`SUGGESTIONS-LOG.md`](./SUGGESTIONS-LOG.md). Security-flavored ones (`Category: future-idea, security`) go in [`SECURITY-LOG.md`](./SECURITY-LOG.md).** For nice-to-haves. Tag with rough effort if known:
 
 ```markdown
 ### [YYYY-MM-DD] Add pre-commit secret scanner
@@ -250,28 +276,31 @@ Roughly every month or major session, someone (human or AI) should:
 3. Collapse duplicates
 4. Promote frequently-referenced issues to be fixed
 
-Tracked as a recurring improvement in `ISSUES-LOG.md` itself.
+Tracked as a recurring improvement in the relevant log itself.
 
 ---
 
-## Why this file + log file are separate
+## Why instructions and logs are separate files
 
-Keeping instructions here (stable, low-churn) and the log separate (frequently-appended) means:
-- You can safely grep the log for "bug" without hitting template examples
-- Edits to instructions don't create meaningless diffs in the log
-- AI agents can read instructions once and then only touch the log
-- The log stays chronological / organized; the instructions stay didactic
+Keeping instructions here (stable, low-churn) and the logs separate (frequently-appended) means:
+- You can safely grep a log for "bug" without hitting template examples
+- Edits to instructions don't create meaningless diffs in the logs
+- AI agents can read instructions once and then only touch the logs
+- Each log stays chronological / organized within its topic; the instructions stay didactic
 
 ---
 
 ## Quick reference
 
-**Log entry:** append to `docs/ISSUES-LOG.md`
+**Log entry:** append to the right log per the triage table at top:
+- bug / debt / config / perf → `docs/ISSUES-LOG.md`
+- security (any flavor) → `docs/SECURITY-LOG.md` *(gitignored)*
+- design-gotcha / future-idea (non-security) / info → `docs/SUGGESTIONS-LOG.md`
 
-**Before fix:** grep + log
+**Before fix:** grep all three logs + log if not already present
 
-**After fix:** move to Resolved + add commit SHA
+**After fix:** move entry from `ISSUES-LOG.md` → `RESOLVED-ISSUES.md` + add commit SHA & resolution
 
 **Minor stuff:** still log
 
-**Secrets:** log incident, never log the secret value itself
+**Secrets:** log incident in `SECURITY-LOG.md`, never log the secret value itself

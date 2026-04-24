@@ -17,7 +17,7 @@ Optional:
 | Service | Owner file | What it runs |
 |---|---|---|
 | `bmo-ide.service` | `bmo/pi/ide_app/bmo-ide.service` | Embedded web IDE on port 5001 |
-| `bmo-backup.service` + `.timer` | *archived at `_archive_system_cleanup/bmo/docker/bmo-backup.*`* | Daily backup of `data/` — legacy, not installed |
+| `bmo-backup.service` + `.timer` | *recoverable from git history (`git log --all --full-history -- bmo/docker/bmo-backup.service`)* | Daily backup of `data/` — legacy, not installed |
 
 ## Service dependencies
 

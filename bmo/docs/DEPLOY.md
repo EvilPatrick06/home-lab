@@ -18,7 +18,7 @@ After pushing to GitHub from laptop:
 ssh patrick@bmo.local "cd ~/home-lab && git pull && sudo systemctl restart bmo"
 ```
 
-The legacy `bmo/docker/deploy.sh` helper (SSH + scp to a flat `~/bmo/` layout) is archived at `_archive_system_cleanup/bmo/docker/deploy.sh`. The one-liner above is the current workflow.
+The legacy `bmo/docker/deploy.sh` helper (SSH + scp to a flat `~/bmo/` layout) is recoverable from git history (`git log --all --full-history -- bmo/docker/deploy.sh`). The one-liner above is the current workflow.
 
 ## When dev directly on Pi
 

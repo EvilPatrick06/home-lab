@@ -172,7 +172,7 @@ The Flask app runs directly on the host because it needs low-latency access to h
 
 This Pi is the source of truth. Code lives in `/home/patrick/home-lab/bmo/pi/` (monorepo) and is installed via `bmo/setup-bmo.sh`. Systemd unit definitions live in `bmo/pi/kiosk/` and `bmo/pi/ide_app/`. Docker containers (ollama, peerjs, coturn, pihole) are launched by `setup-bmo.sh` directly via `docker run`.
 
-The legacy `bmo/docker/` SSH-deploy path (from a dev laptop → flat `~/bmo/` on the Pi) has been archived to `_archive_system_cleanup/bmo/docker/` on 2026-04-23.
+The legacy `bmo/docker/` SSH-deploy path (from a dev laptop → flat `~/bmo/` on the Pi) was retired on 2026-04-23 and the on-disk archive deleted. Recoverable from git history: `git log --all --full-history -- bmo/docker/`.
 4. Installs Python dependencies (unless `--quick`)
 5. Starts Docker containers (`docker compose up -d`)
 6. Installs and restarts `bmo.service` via systemd
@@ -386,7 +386,8 @@ python3 authorize_calendar.py
 ```bash
 aplay -l                       # List audio devices
 pactl list sinks short         # Check PulseAudio sinks
-bash _archive_system_cleanup/bmo/docker/activate-hdmi-audio.sh  # Switch to HDMI audio (manual run; archived)
+# To switch to HDMI audio: recover activate-hdmi-audio.sh from git history
+#   git show <pre-cleanup-sha>:bmo/docker/activate-hdmi-audio.sh > /tmp/activate-hdmi-audio.sh && bash /tmp/activate-hdmi-audio.sh
 ```
 
 ### Disk full

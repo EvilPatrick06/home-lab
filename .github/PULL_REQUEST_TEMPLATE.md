@@ -31,8 +31,8 @@
 - [ ] `docs/...` if user-facing
 - [ ] `dnd-app/docs/...` or `bmo/docs/...` if internal
 - [ ] `AGENTS.md` / `.cursorrules` if AI-rule change
-- [ ] `docs/ISSUES-LOG.md` — resolved entries moved to "Resolved"?
-- [ ] `CHANGELOG.md` updated
+- [ ] `docs/ISSUES-LOG.md` — resolved entries moved to `docs/RESOLVED-ISSUES.md` with commit SHA?
+- [ ] `docs/CHANGELOG.md` updated
 
 ## Checklist
 

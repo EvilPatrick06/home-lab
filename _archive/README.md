@@ -2,7 +2,7 @@
 
 This directory holds files that were removed from active use but preserved for audit / recovery. **Not** the same as git history — these still exist on disk in the current tree.
 
-**Non-source bloat** (old venvs, caches): `_archive_system_cleanup/` at repo root — gitignored except its README; not mixed with code archives here.
+**Non-source bloat** (old venvs, caches, broken installs): just delete it. There's no separate bloat bucket — those things are regenerable, and the commit/cleanup summary is the audit trail.
 
 ## Why not just delete?
 

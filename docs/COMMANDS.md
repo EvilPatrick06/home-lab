@@ -148,7 +148,7 @@ i2cdetect -y 1                                 # I2C devices (fan, OLED should a
 
 ## Docker containers (Ollama, PeerJS, Coturn, Pi-hole)
 
-Containers are launched directly via `docker run` from `bmo/setup-bmo.sh`, not via compose. The old `bmo/docker/docker-compose.yml` is archived at `_archive_system_cleanup/bmo/docker/`.
+Containers are launched directly via `docker run` from `bmo/setup-bmo.sh`, not via compose. The old `bmo/docker/docker-compose.yml` is recoverable from git history if needed (`git log --all --full-history -- bmo/docker/`).
 
 ```bash
 docker ps                                      # list running

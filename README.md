@@ -55,8 +55,9 @@ Primary context files, read in order:
 
 1. [`.cursorrules`](./.cursorrules) — structure map (every dir explained)
 2. [`AGENTS.md`](./AGENTS.md) — cross-tool AI rules
-3. [`docs/LOG-INSTRUCTIONS.md`](./docs/LOG-INSTRUCTIONS.md) — how to log findings
-4. [`docs/ISSUES-LOG.md`](./docs/ISSUES-LOG.md) — preexisting bugs to avoid re-fixing
+3. [`docs/LOG-INSTRUCTIONS.md`](./docs/LOG-INSTRUCTIONS.md) — how to log findings (routes to the right log)
+4. [`docs/ISSUES-LOG.md`](./docs/ISSUES-LOG.md) — active bugs / debt
+5. [`docs/SUGGESTIONS-LOG.md`](./docs/SUGGESTIONS-LOG.md) — future ideas + design gotchas
 
 Tool-specific: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEMINI.md), [`.github/copilot-instructions.md`](./.github/copilot-instructions.md)
 
@@ -67,8 +68,10 @@ Tool-specific: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEMINI.md), [`.github
 - [`docs/COMMANDS.md`](./docs/COMMANDS.md) — common commands cheat sheet
 - [`docs/GLOSSARY.md`](./docs/GLOSSARY.md) — beginner term index
 - [`docs/BACKUP.md`](./docs/BACKUP.md) — backup strategy
-- [`docs/LOG-INSTRUCTIONS.md`](./docs/LOG-INSTRUCTIONS.md) — how AI agents + humans log discoveries
-- [`docs/ISSUES-LOG.md`](./docs/ISSUES-LOG.md) — living log of bugs, improvements, ideas
+- [`docs/LOG-INSTRUCTIONS.md`](./docs/LOG-INSTRUCTIONS.md) — how AI agents + humans log discoveries (triage to right log)
+- [`docs/ISSUES-LOG.md`](./docs/ISSUES-LOG.md) — active bugs, debt, broken config
+- [`docs/SUGGESTIONS-LOG.md`](./docs/SUGGESTIONS-LOG.md) — future ideas, design gotchas, observations
+- [`docs/RESOLVED-ISSUES.md`](./docs/RESOLVED-ISSUES.md) — archive of fixed entries
 
 **Architecture:**
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — how dnd-app + bmo communicate
@@ -82,11 +85,11 @@ Tool-specific: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEMINI.md), [`.github
 - [`bmo/docs/TROUBLESHOOTING.md`](./bmo/docs/TROUBLESHOOTING.md) — BMO issue fixes
 - [`bmo/docs/DEPLOY.md`](./bmo/docs/DEPLOY.md) — update BMO on Pi
 - [`bmo/docs/SYSTEMD.md`](./bmo/docs/SYSTEMD.md) — service management
-- [`SECURITY.md`](./SECURITY.md) — security posture, reporting, + handling accidental secret commits
+- [`docs/SECURITY.md`](./docs/SECURITY.md) — security posture, reporting, + handling accidental secret commits
 
 **Process:**
-- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — branch/commit conventions
-- [`CHANGELOG.md`](./CHANGELOG.md) — version history
+- [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) — branch/commit conventions
+- [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) — version history
 
 ## Current state
 

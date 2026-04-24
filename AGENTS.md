@@ -97,7 +97,7 @@ Protocol details: `docs/ARCHITECTURE.md`
 
 ## When You Find Bugs / Tech Debt / Ideas
 
-The log (`docs/ISSUES-LOG.md`) is for work that **crosses session boundaries**. Before appending, decide:
+The logs (`docs/ISSUES-LOG.md` for bugs/debt, `docs/SUGGESTIONS-LOG.md` for ideas/gotchas, `docs/SECURITY-LOG.md` for security — gitignored) are for work that **crosses session boundaries**. Before appending, decide:
 
 - **Fixing in this session?** → Just fix it. Mention in commit body if non-trivial. Do NOT log — it clutters the log with already-resolved entries.
 - **Out of scope / deferred?** → Log it (even if minor). Do NOT silently fix.
@@ -106,8 +106,8 @@ The log (`docs/ISSUES-LOG.md`) is for work that **crosses session boundaries**. 
 **For out-of-scope items:**
 
 1. Reproduce + verify it's preexisting (not caused by your change)
-2. Read `docs/LOG-INSTRUCTIONS.md` for the template + severity/category guidance + the "log vs fix inline" examples
-3. Append an entry to `docs/ISSUES-LOG.md` (minor/optional out-of-scope items count — log them too)
+2. Read `docs/LOG-INSTRUCTIONS.md` for the triage table (which log), template, severity/category guidance, and "log vs fix inline" examples
+3. Append an entry to the right log: `ISSUES-LOG.md` (bugs/debt) | `SUGGESTIONS-LOG.md` (ideas/gotchas) | `SECURITY-LOG.md` (security, gitignored). Minor/optional out-of-scope items count — log them too.
 4. Mention it in your summary/PR but don't fix unless user asks
 
 This keeps the log useful + avoids "while I was here" scope creep AND avoids entries that are stale before they land.

@@ -62,8 +62,8 @@ Runtime state lost on fresh restore:
 - Calendar cache → refreshes from Google
 
 **To avoid losing runtime state**, enable a backup service:
-- Template archived at `_archive_system_cleanup/bmo/docker/bmo-backup.service` + `bmo-backup.timer` — daily backup of `bmo/pi/data/` to external location (SSD, cloud). Not currently installed.
-- Configure the target in the template and install via `/etc/systemd/system/` before enabling.
+- Template lived at `bmo/docker/bmo-backup.{service,timer}` pre-cleanup — recoverable from git history if you want it (`git log --all --full-history -- bmo/docker/bmo-backup.service`). Daily backup of `bmo/pi/data/` to external location (SSD, cloud). Not currently installed.
+- Configure the target in the recovered template and install via `/etc/systemd/system/` before enabling.
 
 ## LFS (D&D rulebook PDFs)
 

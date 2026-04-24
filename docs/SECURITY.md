@@ -27,7 +27,7 @@ This is a solo project — patch speed depends on availability. Critical fixes w
 
 - **Private repo** — no general public access
 - **`.gitignore`** has broad patterns for env files, PEM keys, OAuth tokens, credentials JSON, service accounts, private keys
-- **BMO runs as user `patrick`** (not root) — services with minimal systemd hardening (room to improve, see `docs/ISSUES-LOG.md`)
+- **BMO runs as user `patrick`** (not root) — services with minimal systemd hardening (room to improve, see [`./SECURITY-LOG.md`](./SECURITY-LOG.md))
 - **No public internet exposure by default** — BMO runs on LAN only. Remote access via Cloudflare Tunnel or Tailscale (opt-in)
 - **No auth on BMO HTTP API** — anyone on the LAN with port 5000 access can invoke anything. Fine for home use; harden before exposing
 
@@ -78,7 +78,7 @@ If you ever commit a secret accidentally:
    ```bash
    git check-ignore -v <file>
    ```
-5. **Log the incident** in `docs/ISSUES-LOG.md` (category: `security`) with rotation status and what preventive measures were added — for future reference.
+5. **Log the incident** in [`./SECURITY-LOG.md`](./SECURITY-LOG.md) (gitignored) with rotation status and what preventive measures were added — for future reference. Do **not** put secret values in the log itself.
 
 ## Recommendations (self-host)
 
@@ -87,7 +87,7 @@ If you ever commit a secret accidentally:
 3. **Keep dependencies updated** — `npm audit`, `pip-audit`
 4. **Use a firewall** — only allow trusted devices to port 5000
 5. **Discord bot permissions** — grant minimum scopes (no `administrator`)
-6. **Pre-commit secret scanning** — highly recommended. See `docs/ISSUES-LOG.md` for tracking of this improvement.
+6. **Pre-commit secret scanning** — highly recommended. See [`./SECURITY-LOG.md`](./SECURITY-LOG.md) for tracking of this improvement.
 
 ## Secret handling conventions
 

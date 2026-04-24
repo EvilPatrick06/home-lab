@@ -114,9 +114,9 @@ bmo/pi/services/data/*.db
 # Broken / backup venv dirs (not the canonical bmo/pi/venv/)
 bmo/pi/venv.broken.*/
 
-# Local system cleanup bucket (large non-source; README only may be tracked)
-_archive_system_cleanup/**
-!_archive_system_cleanup/README.md
+# Local-only security log + its resolved-archive (kept out of git so concerns/incidents stay local)
+docs/SECURITY-LOG.md
+docs/RESOLVED-SECURITY-ISSUES.md
 
 # Test artifacts at root
 test-results*.txt

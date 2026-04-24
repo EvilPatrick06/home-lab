@@ -70,13 +70,20 @@
 │   ├── COMMANDS.md                   command cheat sheet
 │   ├── GLOSSARY.md                   beginner term index
 │   ├── BACKUP.md                     backup strategy
-│   ├── SECURITY.md           post-purge rotation guide
-│   └── ISSUES-LOG.md               living bug log (AI agents APPEND here)
+│   ├── SECURITY.md                   security posture + post-purge rotation guide
+│   ├── CONTRIBUTING.md               branch/commit conventions
+│   ├── CHANGELOG.md                  version history
+│   ├── LOG-INSTRUCTIONS.md           which-log-where + entry templates
+│   ├── ISSUES-LOG.md                 active bugs / debt / broken config
+│   ├── SUGGESTIONS-LOG.md            future ideas + design gotchas + info
+│   ├── SECURITY-LOG.md               GITIGNORED — security concerns/incidents
+│   ├── RESOLVED-ISSUES.md            archive of fixed ISSUES-LOG / SUGGESTIONS-LOG entries
+│   └── RESOLVED-SECURITY-ISSUES.md   GITIGNORED — archive of fixed SECURITY-LOG entries
 │
-├── _archive/                         quarantined dead code (not deletion)
+├── _archive/                         tracked code quarantine (audit trail)
 ├── .github/                          workflows + issue templates + copilot-instructions.md
 ├── AGENTS.md, CLAUDE.md, GEMINI.md   AI agent instructions (tool-specific)
-└── {README.md, .gitignore, .gitattributes, LICENSE, CONTRIBUTING.md, SECURITY.md, CHANGELOG.md}
+└── {README.md, .gitignore, .gitattributes, LICENSE}
 ```
 
 ## Core Principles
@@ -156,7 +163,7 @@ The log (`docs/ISSUES-LOG.md`) is for **unfixed or deferred** work that crosses 
 
 - **No blind `rm`.** Move suspects to `_archive/` preserving relative paths for easy undo.
 - **Large moves or removing deps:** need explicit user **yes** after short written plan + evidence.
-- **`_archive_system_cleanup/`** — optional second bucket for obvious non-source bloat (logs, caches, tmp); keep code quarantine in `_archive/`; state split in one line when used.
+- **Non-source bloat** (broken venvs, log dumps, caches): just `rm -rf` it — regenerable. Note in commit/summary what was removed and the reclaimed size. No second archive bucket.
 
 ## New file placement (quick)
 

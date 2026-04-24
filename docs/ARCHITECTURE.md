@@ -1,8 +1,26 @@
 # Architecture — dnd-app + bmo
 
-**Quick entrypoint:** [`../ARCHITECTURE.md`](../ARCHITECTURE.md) (boundary + commands) — **this** file is the full protocol reference.
+How the two domains communicate, plus quarantine/run conventions.
 
-How the two domains communicate.
+## Domain boundary (BMO ↔ DND)
+
+| Domain | Path | Runtime |
+|--------|------|---------|
+| VTT (D&D app) | `dnd-app/` | Electron + React (DM/player machines) |
+| Voice assistant | `bmo/pi/` | Python Flask (Pi 24/7) |
+
+**Coupling:** HTTP only — VTT → BMO `:5000`, BMO callbacks → VTT `:5001`. **No** TypeScript `import` of `bmo/`, no Python import of `dnd-app/` sources. Shared contract = HTTP + manually mirrored shapes (see `dnd-app/src/shared/`, BMO clients).
+
+**Configs:** Keep at domain roots (`dnd-app/*`, `bmo/*`). Full tree map: [`../.cursorrules`](../.cursorrules) (Repository Structure).
+
+**Quarantine:** Dead/uncertain code → `_archive/<preserved-relative-path>/` (tracked, audit trail). For non-source bloat (caches, old logs, broken venvs), just delete it — it's regenerable, and the commit/summary should note what was removed and why.
+
+## Run / verify
+
+```bash
+cd dnd-app && npm test && npm run lint && npx tsc --noEmit
+cd bmo/pi && ./venv/bin/python -m pytest
+```
 
 ## Big picture
 
