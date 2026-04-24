@@ -172,7 +172,7 @@ The Flask app runs directly on the host because it needs low-latency access to h
 
 This Pi is the source of truth. Code lives in `/home/patrick/home-lab/bmo/pi/` (monorepo) and is installed via `bmo/setup-bmo.sh`. Systemd unit definitions live in `bmo/pi/kiosk/` and `bmo/pi/ide_app/`. Docker containers (ollama, peerjs, coturn, pihole) are launched by `setup-bmo.sh` directly via `docker run`.
 
-The legacy `bmo/docker/` SSH-deploy path (from a dev laptop → flat `~/bmo/` on the Pi) has been archived to `_archive_system_cleanup/bmo/docker/`. See git history commit `8e8af3f` onward.
+The legacy `bmo/docker/` SSH-deploy path (from a dev laptop → flat `~/bmo/` on the Pi) has been archived to `_archive_system_cleanup/bmo/docker/` on 2026-04-23.
 4. Installs Python dependencies (unless `--quick`)
 5. Starts Docker containers (`docker compose up -d`)
 6. Installs and restarts `bmo.service` via systemd
