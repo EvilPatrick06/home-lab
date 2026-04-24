@@ -1,0 +1,7 @@
+# Biome (biome.json vcs.useIgnoreFile) requires a ignore file in this directory.
+# Monorepo-wide rules: ../.gitignore (do not symlink — breaks Git + Biome on this setup).
+
+node_modules/
+out/
+dist/
+*.log

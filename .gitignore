@@ -111,6 +111,13 @@ bmo/pi/services/data/*.db
 **/__pycache__/
 **/*.pyc
 
+# Broken / backup venv dirs (not the canonical bmo/pi/venv/)
+bmo/pi/venv.broken.*/
+
+# Local system cleanup bucket (large non-source; README only may be tracked)
+_archive_system_cleanup/**
+!_archive_system_cleanup/README.md
+
 # Test artifacts at root
 test-results*.txt
 **/venv/

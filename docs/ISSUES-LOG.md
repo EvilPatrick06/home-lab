@@ -46,6 +46,24 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+### [2026-04-24] dnd-app Vitest: 30 failing tests (633 files / 6137 tests)
+
+- **Category:** test
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** Cursor agent
+- **During:** post-cleanup `npm test` on Raspberry Pi
+
+**Description:** Full suite ends with **9 failed files**, **30 failed tests** (examples: `token-sprite.test.ts` Pixi container mock; `TokenContextMenu.test.tsx` `selectedTokenIds` undefined in test harness).
+
+**Reproduction:** `cd dnd-app && npm test`
+
+**Expected behavior:** 0 failures.
+
+**Note:** Failures appear unrelated to 2026-04-24 archive moves (no imports of archived paths). Likely pre-existing mock / SSR harness gaps.
+
+---
+
 ### [2026-04-23] `openwakeword` default model missing — fallback active
 
 - **Category:** config
@@ -173,6 +191,35 @@ Root cause: `tests/conftest.py` mocks 3rd-party modules (`openwakeword`, `gevent
 ---
 
 ## Low
+
+### [2026-04-23] Workspace health scan: Pi dev env incomplete + cleanup scan blocked
+
+- **Category:** config, debt, tooling
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** Cursor agent
+- **During:** root workspace deep scan + system health check (aggressive cleanup prep; no moves executed)
+
+**Description:**
+Full automated cleanup pass **blocked** on this host because primary tooling is not runnable.
+
+1. **`dnd-app/`: `node_modules` directory absent** — `npm ls` reports unmet dependency `zustand@^5.0.11`; `npm run lint` fails (`biome: not found`); `npx tsc` resolves wrong package (`tsc@2.0.4` stub) because local TypeScript is not installed. `npm run build` / `npm test` not validated.
+2. **System Node = `v18.20.4` (`/usr/bin/node`)** — ad-hoc `npx knip@latest` fails: `node:util` has no `styleText` (needs newer Node for current knip). Project stack (electron-vite, etc.) expected on dev machines is typically **Node 20+**; this Pi is below that for modern nested tooling.
+3. **`bmo/pi/venv/`: `bin/` missing** (only `include/`, `lib/`) — `./venv/bin/python` does not exist. **Cannot** run `pytest` or `pip check`. Venv is corrupt or manually stripped; 312M under `bmo/pi` includes this tree.
+4. **Bytecode cache:** `find` shows **~1345** `__pycache__` dirs under `bmo/pi/venv` (expected for installed packages) and **11** `__pycache__` dirs under `bmo/pi` **excluding** `venv/` (safe to clear — regenerated on import).
+5. **Duplicate-file pass:** `fdupes` / `jdupes` / `rdfind` not in PATH; no full binary duplicate report. Duplicate **code** (jscpd) not run — requires working `dnd-app` install.
+6. **Large space (not auto-archived in this pass):** `.git` ~1.8G (includes **~1.6G** `git lfs`); `5.5e References/` ~1.6G — user reference assets; not classified as deletable bloat without explicit rule.
+7. **Runtime logs:** `bmo/pi/data/logs/dm-bot.log`, `social-bot.log` — active; not cleanup targets.
+
+**Proposed fix:**
+- [ ] On this machine: `cd dnd-app && npm ci` (or `npm install`) after upgrading to **Node 20+** (nvm, nodesource, or official binary).
+- [ ] Recreate BMO venv: `cd bmo/pi && rm -rf venv && python3.11 -m venv venv && ./venv/bin/pip install -r requirements.txt` (adjust Python version to match Pi).
+- [ ] Re-run: `npx tsc --noEmit`, `npm run lint`, `npm test`, `npx knip`, `./venv/bin/python -m pytest`, `./venv/bin/pip check`.
+- [ ] Optional: install `fdupes` or use `rdfind` for duplicate PDF/asset audit under `5.5e References/`.
+
+**Related files:** `dnd-app/package.json`, `bmo/pi/requirements.txt`, `bmo/pi/venv/`
+
+---
 
 ### [2026-04-23] BMO `/health` endpoint can hang when gevent workers saturated
 

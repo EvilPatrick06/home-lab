@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { ClassSchema } from "./schemas/classes.js";
-import { FeatSchema } from "./schemas/feats.js";
-import { BackgroundSchema } from "./schemas/backgrounds.js";
+import { ClassSchema } from '../schemas/classes'
+import { FeatSchema } from '../schemas/feats'
+import { BackgroundSchema } from '../schemas/backgrounds'
 import fs from "fs";
 import path from "path";
 

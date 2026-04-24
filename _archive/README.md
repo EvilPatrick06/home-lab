@@ -2,6 +2,8 @@
 
 This directory holds files that were removed from active use but preserved for audit / recovery. **Not** the same as git history — these still exist on disk in the current tree.
 
+**Non-source bloat** (old venvs, caches): `_archive_system_cleanup/` at repo root — gitignored except its README; not mixed with code archives here.
+
 ## Why not just delete?
 
 - Fast recovery if something was removed by mistake
@@ -14,6 +16,7 @@ Organized by cleanup batch:
 
 ```
 _archive/
+├── 2026-04-24-dead-code/     unused renderer components + duplicate MountModal + unwired plugin-runner (see README inside)
 └── 2026-04-reorg/              cleanup done during monorepo restructure (2026-04-23)
     ├── root-junk/              old files that shouldn't have been at repo root
     │   ├── fan_control.py      duplicate of bmo/pi/hardware/fan_control.py (older version)
