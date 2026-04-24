@@ -59,7 +59,6 @@ pi/
 │   └── wireplumber-logind-fix.lua  session fix for WirePlumber
 │
 ├── bots/                        Discord bots (NAMED bots/ NOT discord/ — shadows discord.py)
-│   ├── discord_bot.py           Common base
 │   ├── discord_dm_bot.py        D&D DM bot (player-facing, invites to session)
 │   └── discord_social_bot.py    Social bot (casual server, music, games)
 │

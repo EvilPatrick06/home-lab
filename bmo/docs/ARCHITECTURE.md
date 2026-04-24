@@ -88,9 +88,9 @@ The Flask app runs directly on the host because it needs low-latency access to h
 | OLED Face | `oled_face.py` | — | 128×64 animated expressions (I²C) |
 | Monitoring | `monitoring.py` | — | Health checks, Pi stats, Discord alerts |
 | MCP Server | `mcp_servers/dnd_data_server.py` | — | D&D 5e data via MCP protocol |
-| Discord Bot | `discord_bot.py` | — | Discord integration (optional) |
+| Discord DM Bot | `bots/discord_dm_bot.py` | — | D&D session management over Discord |
+| Discord Social Bot | `bots/discord_social_bot.py` | — | Casual server: music, games, trivia |
 | RAG Search | `rag_search.py` | — | SRD keyword index for AI context |
-| Sound Effects | `sound_effects.py` | — | Audio playback for D&D/alerts |
 
 ### Docker Containers
 
@@ -170,23 +170,9 @@ The Flask app runs directly on the host because it needs low-latency access to h
 
 ## Deployment
 
-Source of truth: `bmo/` in the D&D repo on the Windows dev machine.
+This Pi is the source of truth. Code lives in `/home/patrick/home-lab/bmo/pi/` (monorepo) and is installed via `bmo/setup-bmo.sh`. Systemd unit definitions live in `bmo/pi/kiosk/` and `bmo/pi/ide_app/`. Docker containers (ollama, peerjs, coturn, pihole) are launched by `setup-bmo.sh` directly via `docker run`.
 
-```bash
-# Full deploy (from Windows Git Bash or WSL)
-bash bmo/docker/deploy.sh
-
-# Quick deploy (skip pip install)
-bash bmo/docker/deploy.sh --quick
-
-# Restart services only
-bash bmo/docker/deploy.sh --services
-```
-
-### What `deploy.sh` does:
-1. Creates directory structure on Pi via SSH
-2. SCPs all Python files, agents, MCP servers, templates, static assets
-3. Copies `docker-compose.yml`, systemd units, backup scripts
+The legacy `bmo/docker/` SSH-deploy path (from a dev laptop → flat `~/bmo/` on the Pi) has been archived to `_archive_system_cleanup/bmo/docker/`. See git history commit `8e8af3f` onward.
 4. Installs Python dependencies (unless `--quick`)
 5. Starts Docker containers (`docker compose up -d`)
 6. Installs and restarts `bmo.service` via systemd
@@ -400,7 +386,7 @@ python3 authorize_calendar.py
 ```bash
 aplay -l                       # List audio devices
 pactl list sinks short         # Check PulseAudio sinks
-bash ~/bmo/activate-hdmi-audio.sh  # Switch to HDMI audio
+bash _archive_system_cleanup/bmo/docker/activate-hdmi-audio.sh  # Switch to HDMI audio (manual run; archived)
 ```
 
 ### Disk full

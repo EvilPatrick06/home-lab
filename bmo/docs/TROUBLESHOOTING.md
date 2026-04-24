@@ -172,7 +172,7 @@ free -h                                 # RAM
 ```
 
 - **CPU throttling (>80°C):** Check fan working. Clean dust. Move to cooler location.
-- **Memory pressure:** Check Ollama isn't loaded if not using it. `docker compose stop ollama` in `bmo/docker/`.
+- **Memory pressure:** Check Ollama isn't loaded if not using it. `docker stop bmo-ollama` (containers are launched directly via `docker run` from `setup-bmo.sh`, not compose).
 - **Disk I/O:** Move to NVMe SSD with `bmo/finalize-ssd.sh`.
 
 ## Recovery from catastrophic failure

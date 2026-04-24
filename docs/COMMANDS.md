@@ -146,16 +146,15 @@ vcgencmd get_throttled                         # throttling state
 i2cdetect -y 1                                 # I2C devices (fan, OLED should appear)
 ```
 
-## Docker (if using BMO's Docker services)
+## Docker containers (Ollama, PeerJS, Coturn, Pi-hole)
+
+Containers are launched directly via `docker run` from `bmo/setup-bmo.sh`, not via compose. The old `bmo/docker/docker-compose.yml` is archived at `_archive_system_cleanup/bmo/docker/`.
 
 ```bash
-# From bmo/docker/
-cd ~/home-lab/bmo/docker
-docker compose up -d                           # start Ollama, Pi-hole, Coturn, PeerJS
-docker compose down                            # stop
-docker compose ps                              # status
-docker compose logs -f ollama                  # tail one container
-docker compose restart ollama                  # restart one
+docker ps                                      # list running
+docker logs -f bmo-ollama                      # tail one
+docker restart bmo-ollama                      # restart one
+docker stop bmo-pihole bmo-coturn              # stop multiple
 ```
 
 ## Remote management (from laptop via SSH)
@@ -166,9 +165,8 @@ ssh patrick@bmo.local                          # LAN
 ssh patrick@bmo.tailnet-name.ts.net            # Tailscale
 ssh -p 2222 user@tunnel.example.com            # Cloudflare tunnel
 
-# Deploy from laptop (reads bmo/docker/deploy.sh)
-cd ~/Code/home-lab/bmo/docker
-bash deploy.sh                                 # syncs + restarts BMO services
+# Deploy from laptop
+ssh patrick@bmo.local "cd ~/home-lab && git pull && sudo systemctl restart bmo"
 ```
 
 ## Debugging BMO fast

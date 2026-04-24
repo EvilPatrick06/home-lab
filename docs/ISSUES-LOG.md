@@ -79,33 +79,6 @@ cd bmo/pi && rm -rf venv.test && python3.11 -m venv venv.test && ./venv.test/bin
 
 ---
 
-### [2026-04-23] `bmo/docker/bmo.service` + `bmo-backup.service` reference nonexistent pre-reorg paths
-
-- **Category:** config
-- **Severity:** high
-- **Domain:** bmo, infra
-- **Discovered by:** Claude Opus
-- **During:** `systemd-analyze verify` on every `*.service` file in the repo
-
-**Description:** Both docker-deploy unit files still point at the pre-reorg layout `/home/patrick/bmo/...`:
-
-```
-bmo/docker/bmo.service:10: WorkingDirectory=/home/patrick/bmo
-bmo/docker/bmo.service:16: ExecStart=/home/patrick/bmo/venv/bin/python app.py
-bmo/docker/bmo-backup.service:10: WorkingDirectory=/home/patrick/bmo
-bmo/docker/bmo-backup.service:11: ExecStart=/bin/bash /home/patrick/bmo/backup.sh
-```
-
-The canonical layout is now `/home/patrick/home-lab/bmo/pi/`. `systemd-analyze verify bmo/docker/bmo.service` → `Command /home/patrick/bmo/venv/bin/python is not executable: No such file or directory`. These are the remote/Docker deploy units (see `bmo/docker/deploy.sh` → `~/bmo/` on the Pi), so the "wrong" path is actually the Docker deploy target — but the path still diverges from the current local canonical install.
-
-**Proposed fix:**
-- [ ] Decide if `bmo/docker/` is still a supported deploy path. If not, archive the whole dir.
-- [ ] If yes, reconcile: either keep remote layout distinct (and add a header comment explaining it), or rewrite to `/home/patrick/home-lab/bmo/pi/` to match the Pi install.
-
-**Related files:** `bmo/docker/bmo.service`, `bmo/docker/bmo-backup.service`, `bmo/docker/deploy.sh`
-
----
-
 ### [2026-04-23] Google Calendar auth fails with `invalid_grant: Bad Request`
 
 - **Category:** config
@@ -166,40 +139,6 @@ find dnd-app/src/renderer/public/data/5e/equipment/magic-items -name '*.json' -e
 - [ ] Add a build-time check (`tools/validate-5e-data.ts`?) that errors on duplicate content hashes and duplicate slugs.
 
 **Related files:** `dnd-app/src/renderer/public/data/5e/equipment/magic-items/**`, `dnd-app/src/renderer/src/services/data-provider.ts`, `dnd-app/src/renderer/src/services/library/content-index.ts`
-
----
-
-### [2026-04-23] Three likely-dead Python modules in `bmo/pi/` (pre-reorg leftovers superseded by newer modules)
-
-- **Category:** debt
-- **Severity:** medium
-- **Domain:** bmo
-- **Discovered by:** Claude Opus
-- **During:** orphan scan — cross-ref of all `.py` modules against import graph + systemd units + setup scripts + MCP/agent config
-
-**Description:** Three modules have **zero** importers inside `bmo/pi/` (excluding venv) and **zero** references in systemd unit files, `setup-bmo.sh`, `bmo/docker/deploy.sh`, or `cli.py`. Each has a currently-active counterpart file that appears to have replaced it:
-
-| File | Lines | Superseded by |
-|---|---|---|
-| `bmo/pi/bots/discord_bot.py` | 708 | `bots/discord_dm_bot.py` (this one is in `bmo-dm-bot.service`) + `bots/discord_social_bot.py` (in `bmo-social-bot.service`). README still calls the old file "common base" but it's a standalone bot, not a base class. |
-| `bmo/pi/services/sound_effects.py` | ~? | No current importer. Only reference is in `bmo/pi/README.md` and a historical entry in `bmo/pi/data/ide_jobs.json` (runtime state, gitignored). |
-| `bmo/pi/services/tv_controller.py` | ~? | `services/tv_worker.py` is the live module (referenced in smart-home service). README still describes `tv_controller.py`. |
-
-**Reproduction:** See the orphan detection run in this session; re-check with:
-```bash
-cd /home/patrick/home-lab
-for f in bots/discord_bot sound_effects tv_controller; do
-  echo "--- $f ---"
-  rg -n "\b$f\b" bmo --glob '*.py' --glob '!venv/*' --glob '!__pycache__/*' --glob '!data/*'
-done
-```
-
-**Proposed fix (deferred — needs user review first):**
-- [ ] Confirm each file really has no runtime role (e.g., launched via Discord slash-command registration or cron somewhere outside the repo)
-- [ ] Move confirmed-dead files to `_archive/<date>-dead-code/` (the established archive pattern) — do NOT delete
-- [ ] Update `bmo/pi/README.md` and `bmo/docs/ARCHITECTURE.md` to remove references to the archived files
-
-**Related files:** `bmo/pi/bots/discord_bot.py`, `bmo/pi/services/sound_effects.py`, `bmo/pi/services/tv_controller.py`, `bmo/pi/README.md`, `bmo/docs/ARCHITECTURE.md`
 
 ---
 
@@ -383,42 +322,6 @@ Root cause: `tests/conftest.py` mocks 3rd-party modules (`openwakeword`, `gevent
 ---
 
 ## Low
-
-### [2026-04-23] Stale legacy files loose at `/home/patrick/` (pre-monorepo-reorg leftovers)
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** bmo, infra
-- **Discovered by:** Claude Opus
-- **During:** home-dir sweep (scope 2 of deep cleanup)
-
-**Description:** Eleven files sit at `$HOME` root, all dated 2026-03-15 to 2026-03-19 (before the 2026-04-23 `030be55 refactor: reorganize monorepo` commit). Hashed against current repo contents:
-
-| File | Size | State |
-|---|---|---|
-| `/home/patrick/app.py` | 193 K | DIFFERS from `bmo/pi/app.py` |
-| `/home/patrick/bmo.js` | 128 K | DIFFERS from `bmo/pi/web/static/js/bmo.js` |
-| `/home/patrick/index.html` | 154 K | DIFFERS from `dnd-app/src/renderer/index.html` |
-| `/home/patrick/bmo-kiosk.service` | 2.0 K | DIFFERS from `bmo/pi/kiosk/bmo-kiosk.service` |
-| `/home/patrick/location_service.py` | 18 K | **IDENTICAL** to `bmo/pi/services/location_service.py` |
-| `/home/patrick/weather_service.py` | 9 K | **IDENTICAL** to `bmo/pi/services/weather_service.py` |
-| `/home/patrick/bmo.css` | 7 K | **IDENTICAL** to `_archive/2026-04-reorg/old-bmo-standalone/static/css/bmo.css` |
-| `/home/patrick/hide-cursor.py` | 586 B | root-owned system hook, no repo match |
-| `/home/patrick/pi-switch-linksys-5g.sh`, `...-v2.sh`, `switch-pi-linksys-5g.sh` | 1.5–1.8 K each | three WiFi-switch variants, no repo match |
-| `/home/patrick/__pycache__/` | 32 K | bytecode for the loose `.py` files above |
-
-**Impact:** Confusion — two copies of `app.py` and `bmo.js` diverge. A debugging session that edits `$HOME/app.py` would have no effect. Also: loose files are not gitignored by name (they live outside the repo root), so they can't even be flagged by git.
-
-**Proposed fix (after user review — some may be intentional):**
-- [ ] Diff the DIFFERS files against repo copies to see if any unique edits are worth cherry-picking (e.g., local tweaks never committed)
-- [ ] Archive DIFFERS files to `_archive_system_cleanup/home-dir-pre-reorg/` preserving names, in case local changes are there
-- [ ] Delete IDENTICAL duplicates + `__pycache__` (safe — repo has them)
-- [ ] Leave `hide-cursor.py` (root-owned, likely system autostart hook — verify with `systemctl list-unit-files` before touching)
-- [ ] Decide if the 3 `switch-pi-linksys-5g*.sh` variants should be committed (one of them) or archived
-
-**Related files:** `/home/patrick/app.py`, `/home/patrick/bmo.js`, `/home/patrick/index.html`, `/home/patrick/bmo-kiosk.service`, `/home/patrick/location_service.py`, `/home/patrick/weather_service.py`, `/home/patrick/bmo.css`, `/home/patrick/*.sh`, `/home/patrick/__pycache__/`
-
----
 
 ### [2026-04-23] `~/.cache/pip/http-v2/` holds ~3.2 GB (pip's own `cache info` misses this)
 
@@ -794,3 +697,39 @@ Full automated cleanup pass **blocked** on this host because primary tooling is 
 - **Commit:** `2c52d5a`
 - **Date resolved:** 2026-04-23
 - **Resolution:** `scripts/pi-deploy/vtt_sync.py` was byte-identical to `bmo/pi/agents/vtt_sync.py`. Archived the pi-deploy copy. `apply_patch.py` moved to `bmo/pi/scripts/apply_patch.py` (canonical location for BMO deploy tooling).
+
+---
+
+### [2026-04-23] Three likely-dead Python modules in `bmo/pi/` (pre-reorg leftovers superseded by newer modules)
+
+- **Original severity:** medium
+- **Category:** debt
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Commits:** `8e8af3f` (sound_effects.py + tv_controller.py) + follow-up (discord_bot.py)
+- **Date resolved:** 2026-04-23
+- **Resolution:** All three confirmed orphan (zero importers in runtime, systemd, setup-bmo.sh, MCP config). Archived to `_archive_system_cleanup/bmo/pi/{bots,services}/`. Updated `bmo/pi/README.md` and `bmo/docs/ARCHITECTURE.md` to drop the `discord_bot.py` "common base" line and replaced with the two live bots (`discord_dm_bot.py`, `discord_social_bot.py`). Post-archive sanity: `py_compile` clean; import resolution for `bots.discord_dm_bot`, `bots.discord_social_bot`, `services.tv_worker`, `services.voice_pipeline` still OK.
+
+---
+
+### [2026-04-23] `bmo/docker/` — obsolete laptop → Pi SSH-deploy path
+
+- **Original severity:** high
+- **Category:** config, debt
+- **Domain:** bmo, infra
+- **Resolved by:** Claude Opus
+- **Commit:** follow-up to `8e8af3f`
+- **Date resolved:** 2026-04-23
+- **Resolution:** The entire `bmo/docker/` directory targeted a pre-monorepo "remote Pi" deploy (laptop `scp`/`ssh` → flat `~/bmo/` layout on Pi) that is no longer the workflow — the Pi (this machine) runs directly from the monorepo via `bmo/setup-bmo.sh`, and the Docker containers (`bmo-ollama`, `bmo-peerjs`, `bmo-coturn`, `bmo-pihole`) are started via plain `docker run` in `setup-bmo.sh`, not via `docker-compose.yml`. The dir's systemd units (`bmo.service`, `bmo-backup.service/timer`) target the old path and are not installed on this Pi. `activate-hdmi-audio.sh` is documented as "runs as a user service" but is not registered under `~/.config/systemd/user/`. Whole dir archived to `_archive_system_cleanup/bmo/docker/`. Live docs updated: `bmo/docs/DEPLOY.md`, `bmo/docs/ARCHITECTURE.md`, `bmo/docs/SYSTEMD.md`, `bmo/docs/TROUBLESHOOTING.md`, `docs/COMMANDS.md`, `docs/BACKUP.md`, `bmo/README.md`. Running containers are unaffected (they outlive the config dir).
+
+---
+
+### [2026-04-23] Stale legacy files loose at `/home/patrick/` (pre-monorepo-reorg leftovers)
+
+- **Original severity:** low
+- **Category:** debt
+- **Domain:** bmo, infra
+- **Resolved by:** Claude Opus
+- **Commits:** `8e8af3f` (3 identical dupes) + follow-up (4 differing + 3 WiFi scripts + __pycache__)
+- **Date resolved:** 2026-04-23
+- **Resolution:** Eleven files sat at `$HOME` from Mar 15–19 (pre-reorg). After comparison: none of the "differs from repo" versions had local hotfixes worth extracting — they were simply older snapshots (e.g., `~/app.py` was 5099 lines vs repo's 5504; `~/bmo-kiosk.service` still referenced the pre-rename `/home/patrick/DnD/BMO-setup/` path). All 10 archived to `_archive_system_cleanup/home-dir-pre-reorg/` (the `index.html` "differs from dnd-app" flag was misleading — it was actually an older copy of `bmo/pi/web/templates/index.html`). `/home/patrick/hide-cursor.py` (root-owned, no repo match) left in place — not verified whether it's a live system hook.

@@ -61,9 +61,9 @@ Runtime state lost on fresh restore:
 - Campaign memory → `campaign_memory.db` lost; re-tell BMO about your campaign
 - Calendar cache → refreshes from Google
 
-**To avoid losing runtime state**, use optional backup service:
-- `bmo/docker/bmo-backup.service` + `bmo-backup.timer` — daily backup of `bmo/pi/data/` to external location (SSD, cloud)
-- Configure the target in `bmo-backup.service` before enabling
+**To avoid losing runtime state**, enable a backup service:
+- Template archived at `_archive_system_cleanup/bmo/docker/bmo-backup.service` + `bmo-backup.timer` — daily backup of `bmo/pi/data/` to external location (SSD, cloud). Not currently installed.
+- Configure the target in the template and install via `/etc/systemd/system/` before enabling.
 
 ## LFS (D&D rulebook PDFs)
 

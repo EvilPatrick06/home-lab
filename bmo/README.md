@@ -60,13 +60,6 @@ bmo/
 │   ├── pytest.ini
 │   └── tailwind.config.js
 │
-├── docker/                          Systemd services + docker-compose (Ollama, Pi-hole, Coturn, PeerJS)
-│   ├── bmo.service                  Main BMO Flask service
-│   ├── bmo-backup.service + .timer  Daily backup
-│   ├── docker-compose.yml           Ollama local LLM + infra containers
-│   ├── deploy.sh                    SSH-deploy helper from laptop
-│   └── activate-hdmi-audio.sh
-│
 ├── docs/                            BMO docs
 │   ├── ARCHITECTURE.md              Overall BMO architecture
 │   ├── AGENTS.md                    41 AI agent roles + routing

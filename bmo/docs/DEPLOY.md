@@ -18,30 +18,7 @@ After pushing to GitHub from laptop:
 ssh patrick@bmo.local "cd ~/home-lab && git pull && sudo systemctl restart bmo"
 ```
 
-Or use the helper script:
-
-```bash
-cd ~/home-lab/bmo/docker
-bash deploy.sh
-```
-
-`deploy.sh` will:
-1. SSH to Pi (via `PI_HOST` or Tailscale/IP fallback)
-2. `git pull --rebase`
-3. Restart `bmo bmo-dm-bot bmo-social-bot`
-4. Restart relevant Docker containers (Ollama, Pi-hole)
-
-Configure Pi target in `~/home-lab/bmo/pi/.env` on laptop:
-
-```bash
-PI_HOST=bmo.local                        # LAN mDNS
-# OR
-PI_TAILSCALE_HOST=bmo.your-tailnet.ts.net  # Tailscale
-# OR
-PI_IP=192.168.1.42                       # manual
-PI_USER=patrick
-PI_SSH_ALIAS=bmo                         # maps to ~/.ssh/config entry
-```
+The legacy `bmo/docker/deploy.sh` helper (SSH + scp to a flat `~/bmo/` layout) is archived at `_archive_system_cleanup/bmo/docker/deploy.sh`. The one-liner above is the current workflow.
 
 ## When dev directly on Pi
 
