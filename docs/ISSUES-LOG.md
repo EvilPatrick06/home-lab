@@ -15,6 +15,97 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
+### [2026-04-23] `bmo/pi/requirements.txt` missing 4 runtime imports
+
+- **Category:** config, bug
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** Claude Opus
+- **During:** deep cleanup scan — dependency cross-check (imports vs `requirements.txt`)
+
+**Description:** Four third-party packages are imported by BMO runtime code but are NOT declared in `bmo/pi/requirements.txt`. They currently work only because they're transitively installed or were `pip install`ed manually:
+
+| Package | Import name | Files using it |
+|---|---|---|
+| `python-dotenv` | `dotenv` | 6 |
+| `discord.py` | `discord` | 4 (the Discord bots) |
+| `edge-tts` | `edge_tts` | 1 |
+| `scipy` | `scipy` | 5 (transitive via `resemblyzer`, but directly imported) |
+
+**Impact:** Fresh venv rebuild (`rm -rf venv && pip install -r requirements.txt`) will NOT install these. Discord bots will fail on first import. Re-auth / re-deploy procedures are silently broken.
+
+**Reproduction:**
+```bash
+cd bmo/pi && rm -rf venv.test && python3.11 -m venv venv.test && ./venv.test/bin/pip install -r requirements.txt
+./venv.test/bin/python -c "import dotenv, discord, edge_tts, scipy"  # ModuleNotFoundError
+```
+
+**Proposed fix:**
+- [ ] Append to `bmo/pi/requirements.txt`: `python-dotenv`, `discord.py[voice]`, `edge-tts`, `scipy`
+- [ ] Verify clean install from the fresh requirements works
+
+**Related files:** `bmo/pi/requirements.txt`, `bmo/pi/bots/discord_dm_bot.py`, `bmo/pi/bots/discord_social_bot.py`, `bmo/pi/services/voice_pipeline.py`
+
+---
+
+### [2026-04-23] BMO venv carries ~4.5 GB of CUDA/torch GPU libraries on a Pi 5 (no GPU)
+
+- **Category:** debt, performance, config
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** Claude Opus
+- **During:** venv size audit (`du -sh bmo/pi/venv` = 5.3 GB)
+
+**Description:** `bmo/pi/venv/` totals 5.3 GB, of which ~4.5 GB is unusable GPU-stack weight the Pi 5 cannot use:
+
+- `nvidia/` wheels — 2.8 GB (cublas, cudnn, cusparse, cufft, cusolver, curand, nccl, nvrtc…)
+- `torch/` — 917 MB (includes `libtorch_cuda.so` = 397 MB, `libtorch_cpu.so` = 248 MB)
+- `triton/` — 601 MB
+- `llvmlite/` — 159 MB
+
+`lspci` shows no GPU; `/dev/nvidia*` absent. The Pi 5 is a CPU-only ARM64 host. These libraries load on ARM64 but CUDA calls will error at runtime — they are pure dead weight.
+
+**Root cause:** `Resemblyzer → torch 2.11.0` installed from the default PyTorch index (which bundles GPU runtime for aarch64 now that NVIDIA Jetson builds exist). Needs `--index-url https://download.pytorch.org/whl/cpu` pinning.
+
+**Reclaimable:** ~4.5 GB on `/` (currently 23% used, plenty of headroom, but venv rebuild time is slow on Pi).
+
+**Proposed fix:**
+- [ ] Add top-of-file comment in `requirements.txt` pinning CPU wheels, OR
+- [ ] Use a constraint: install torch separately first with CPU index, then the rest
+- [ ] Rebuild venv: `rm -rf venv && python3.11 -m venv venv && ./venv/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt`
+- [ ] Verify `Resemblyzer` still imports + speaker verification still works
+
+**Related files:** `bmo/pi/requirements.txt`, `bmo/setup-bmo.sh`
+
+---
+
+### [2026-04-23] `bmo/docker/bmo.service` + `bmo-backup.service` reference nonexistent pre-reorg paths
+
+- **Category:** config
+- **Severity:** high
+- **Domain:** bmo, infra
+- **Discovered by:** Claude Opus
+- **During:** `systemd-analyze verify` on every `*.service` file in the repo
+
+**Description:** Both docker-deploy unit files still point at the pre-reorg layout `/home/patrick/bmo/...`:
+
+```
+bmo/docker/bmo.service:10: WorkingDirectory=/home/patrick/bmo
+bmo/docker/bmo.service:16: ExecStart=/home/patrick/bmo/venv/bin/python app.py
+bmo/docker/bmo-backup.service:10: WorkingDirectory=/home/patrick/bmo
+bmo/docker/bmo-backup.service:11: ExecStart=/bin/bash /home/patrick/bmo/backup.sh
+```
+
+The canonical layout is now `/home/patrick/home-lab/bmo/pi/`. `systemd-analyze verify bmo/docker/bmo.service` → `Command /home/patrick/bmo/venv/bin/python is not executable: No such file or directory`. These are the remote/Docker deploy units (see `bmo/docker/deploy.sh` → `~/bmo/` on the Pi), so the "wrong" path is actually the Docker deploy target — but the path still diverges from the current local canonical install.
+
+**Proposed fix:**
+- [ ] Decide if `bmo/docker/` is still a supported deploy path. If not, archive the whole dir.
+- [ ] If yes, reconcile: either keep remote layout distinct (and add a header comment explaining it), or rewrite to `/home/patrick/home-lab/bmo/pi/` to match the Pi install.
+
+**Related files:** `bmo/docker/bmo.service`, `bmo/docker/bmo-backup.service`, `bmo/docker/deploy.sh`
+
+---
+
 ### [2026-04-23] Google Calendar auth fails with `invalid_grant: Bad Request`
 
 - **Category:** config
@@ -45,6 +136,107 @@ New entries go at the TOP of their severity section (newest first within each se
 ---
 
 ## Medium
+
+### [2026-04-23] `dnd-app/src/renderer/public/data/5e/equipment/magic-items/` — 13 content-duplicate pairs + ~20 same-name-different-content collisions
+
+- **Category:** bug, debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** deep cleanup scan — content hash pass across source files
+
+**Description:** SHA-256 hashing inside `public/data/5e/` reveals two data-integrity issues in the magic-items subtree:
+
+1. **13 groups of byte-identical JSON files that represent *different* items.** Example: `potion-of-heroism.json` has the exact same bytes as `potions-of-healing.json`. Other examples include `mace-of-smiting.json` = `mace-of-disruption.json`, and a 5-file group covering `robe-of-useful-items.json`, `robe-of-eyes.json`, `robe-of-stars.json`, `robe-of-the-archmagi.json`, `nature-s-mantle.json`. These are almost certainly templating / copy-paste errors — the app will display wrong data for whichever item the "winning" file's content doesn't match.
+
+2. **~20+ same-name, different-content files** across the `magic-items/{permanent/wondrous,legendary,rare,uncommon,common,other}/` subfolders. Examples: `cubic-gate.json`, `apparatus-of-kwalish.json`, `hammer-of-thunderbolts.json`, `belt-of-giant-strength.json`, `enspelled-armor.json`, `enspelled-weapon.json`, `staff-of-flowers.json`, `deck-of-illusions.json`, `headband-of-intellect.json` — each exists in 2 (sometimes 3) locations with divergent content. Which copy is canonical is unclear. Also noticed: `mule.json` exists in 3 places (mount / companion / beast) with 3 different contents, and `shadow-demon.json` exists at both `.../fiends/shadow-demon.json` and `.../fiends/demons/shadow-demon.json`.
+
+**Impact:** Library lookups by slug/name are nondeterministic — depends on which loader path wins. Users can't trust item entries in this subtree.
+
+**Reproduction:**
+```bash
+cd /home/patrick/home-lab
+find dnd-app/src/renderer/public/data/5e/equipment/magic-items -name '*.json' -exec sha256sum {} + \
+  | sort | uniq -d -w64 | head
+```
+
+**Proposed fix:**
+- [ ] Treat each dup group as a data bug: open each file, find the canonical source (the old 5e reference PDFs, or a spell-compendium), re-author each identical file with the correct content.
+- [ ] For the name-collision set, pick one canonical path convention (permanent/wondrous/ vs rarity/) and delete or redirect the other. Decide as a design rule.
+- [ ] Add a build-time check (`tools/validate-5e-data.ts`?) that errors on duplicate content hashes and duplicate slugs.
+
+**Related files:** `dnd-app/src/renderer/public/data/5e/equipment/magic-items/**`, `dnd-app/src/renderer/src/services/data-provider.ts`, `dnd-app/src/renderer/src/services/library/content-index.ts`
+
+---
+
+### [2026-04-23] Three likely-dead Python modules in `bmo/pi/` (pre-reorg leftovers superseded by newer modules)
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** Claude Opus
+- **During:** orphan scan — cross-ref of all `.py` modules against import graph + systemd units + setup scripts + MCP/agent config
+
+**Description:** Three modules have **zero** importers inside `bmo/pi/` (excluding venv) and **zero** references in systemd unit files, `setup-bmo.sh`, `bmo/docker/deploy.sh`, or `cli.py`. Each has a currently-active counterpart file that appears to have replaced it:
+
+| File | Lines | Superseded by |
+|---|---|---|
+| `bmo/pi/bots/discord_bot.py` | 708 | `bots/discord_dm_bot.py` (this one is in `bmo-dm-bot.service`) + `bots/discord_social_bot.py` (in `bmo-social-bot.service`). README still calls the old file "common base" but it's a standalone bot, not a base class. |
+| `bmo/pi/services/sound_effects.py` | ~? | No current importer. Only reference is in `bmo/pi/README.md` and a historical entry in `bmo/pi/data/ide_jobs.json` (runtime state, gitignored). |
+| `bmo/pi/services/tv_controller.py` | ~? | `services/tv_worker.py` is the live module (referenced in smart-home service). README still describes `tv_controller.py`. |
+
+**Reproduction:** See the orphan detection run in this session; re-check with:
+```bash
+cd /home/patrick/home-lab
+for f in bots/discord_bot sound_effects tv_controller; do
+  echo "--- $f ---"
+  rg -n "\b$f\b" bmo --glob '*.py' --glob '!venv/*' --glob '!__pycache__/*' --glob '!data/*'
+done
+```
+
+**Proposed fix (deferred — needs user review first):**
+- [ ] Confirm each file really has no runtime role (e.g., launched via Discord slash-command registration or cron somewhere outside the repo)
+- [ ] Move confirmed-dead files to `_archive/<date>-dead-code/` (the established archive pattern) — do NOT delete
+- [ ] Update `bmo/pi/README.md` and `bmo/docs/ARCHITECTURE.md` to remove references to the archived files
+
+**Related files:** `bmo/pi/bots/discord_bot.py`, `bmo/pi/services/sound_effects.py`, `bmo/pi/services/tv_controller.py`, `bmo/pi/README.md`, `bmo/docs/ARCHITECTURE.md`
+
+---
+
+### [2026-04-23] dnd-app Biome lint debt: 60 errors + 192 warnings across ~4500 files
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** `pnpm lint` (health pass)
+
+**Description:** `pnpm lint` exits 1 with 60 errors + 192 warnings + 1 info. Top offending rules:
+
+| Count | Rule |
+|---|---|
+| 89 | `lint/suspicious/noArrayIndexKey` |
+| 31 | `lint/correctness/useHookAtTopLevel` |
+| 23 | `lint/suspicious/noExplicitAny` |
+| 18 | `lint/complexity/noUselessFragments` |
+| 11 | `lint/suspicious/noAssignInExpressions` |
+| 10 | `lint/correctness/useNotnpmUnusedFunctionParameters` |
+| 5 | `lint/correctness/useExhaustiveDependencies` |
+| 4 | `lint/suspicious/noImplicitAnyLet` |
+
+Worst files by count: `PlayerHUDOverlay.tsx` (11), `utils/chat-links.ts` (8), `services/io/import-export.ts` (7), `MonsterStatBlockView.tsx` (6).
+
+**Impact:** CI (if wired) would stay red; dev signal-to-noise degraded; `useHookAtTopLevel` in particular is a correctness smell (may cause render bugs).
+
+**Proposed fix:**
+- [ ] Sweep `useHookAtTopLevel` and `noAssignInExpressions` first (correctness) — a handful of PRs
+- [ ] Convert `useHookAtTopLevel` violations one at a time (many are conditional hook calls that need restructuring)
+- [ ] `noArrayIndexKey` is mostly low-risk; a search-and-replace PR with code review
+- [ ] `noExplicitAny` — audit each; some may need the `// biome-ignore` with justification per CLAUDE.md policy
+
+**Related files:** `dnd-app/biome.json` (rules config), top offenders listed above
+
+---
 
 ### [2026-04-24] dnd-app Vitest: 30 failing tests (633 files / 6137 tests)
 
@@ -191,6 +383,89 @@ Root cause: `tests/conftest.py` mocks 3rd-party modules (`openwakeword`, `gevent
 ---
 
 ## Low
+
+### [2026-04-23] Stale legacy files loose at `/home/patrick/` (pre-monorepo-reorg leftovers)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo, infra
+- **Discovered by:** Claude Opus
+- **During:** home-dir sweep (scope 2 of deep cleanup)
+
+**Description:** Eleven files sit at `$HOME` root, all dated 2026-03-15 to 2026-03-19 (before the 2026-04-23 `030be55 refactor: reorganize monorepo` commit). Hashed against current repo contents:
+
+| File | Size | State |
+|---|---|---|
+| `/home/patrick/app.py` | 193 K | DIFFERS from `bmo/pi/app.py` |
+| `/home/patrick/bmo.js` | 128 K | DIFFERS from `bmo/pi/web/static/js/bmo.js` |
+| `/home/patrick/index.html` | 154 K | DIFFERS from `dnd-app/src/renderer/index.html` |
+| `/home/patrick/bmo-kiosk.service` | 2.0 K | DIFFERS from `bmo/pi/kiosk/bmo-kiosk.service` |
+| `/home/patrick/location_service.py` | 18 K | **IDENTICAL** to `bmo/pi/services/location_service.py` |
+| `/home/patrick/weather_service.py` | 9 K | **IDENTICAL** to `bmo/pi/services/weather_service.py` |
+| `/home/patrick/bmo.css` | 7 K | **IDENTICAL** to `_archive/2026-04-reorg/old-bmo-standalone/static/css/bmo.css` |
+| `/home/patrick/hide-cursor.py` | 586 B | root-owned system hook, no repo match |
+| `/home/patrick/pi-switch-linksys-5g.sh`, `...-v2.sh`, `switch-pi-linksys-5g.sh` | 1.5–1.8 K each | three WiFi-switch variants, no repo match |
+| `/home/patrick/__pycache__/` | 32 K | bytecode for the loose `.py` files above |
+
+**Impact:** Confusion — two copies of `app.py` and `bmo.js` diverge. A debugging session that edits `$HOME/app.py` would have no effect. Also: loose files are not gitignored by name (they live outside the repo root), so they can't even be flagged by git.
+
+**Proposed fix (after user review — some may be intentional):**
+- [ ] Diff the DIFFERS files against repo copies to see if any unique edits are worth cherry-picking (e.g., local tweaks never committed)
+- [ ] Archive DIFFERS files to `_archive_system_cleanup/home-dir-pre-reorg/` preserving names, in case local changes are there
+- [ ] Delete IDENTICAL duplicates + `__pycache__` (safe — repo has them)
+- [ ] Leave `hide-cursor.py` (root-owned, likely system autostart hook — verify with `systemctl list-unit-files` before touching)
+- [ ] Decide if the 3 `switch-pi-linksys-5g*.sh` variants should be committed (one of them) or archived
+
+**Related files:** `/home/patrick/app.py`, `/home/patrick/bmo.js`, `/home/patrick/index.html`, `/home/patrick/bmo-kiosk.service`, `/home/patrick/location_service.py`, `/home/patrick/weather_service.py`, `/home/patrick/bmo.css`, `/home/patrick/*.sh`, `/home/patrick/__pycache__/`
+
+---
+
+### [2026-04-23] `~/.cache/pip/http-v2/` holds ~3.2 GB (pip's own `cache info` misses this)
+
+- **Category:** debt, infra
+- **Severity:** low
+- **Domain:** infra
+- **Discovered by:** Claude Opus
+- **During:** home-dir sweep
+
+**Description:** `du -sh ~/.cache/pip/http-v2` = 3.2 GB. `pip cache info` reports only 2.2 MB (`http/`) + 344 KB (`wheels/`) — the `http-v2/` directory (pip's newer HTTP cache format) is not inventoried by the CLI. Also: `~/.cache/electron/` = 111 MB (old Electron download tarball), `~/.npm/_cacache/` = 316 MB (global npm cache).
+
+**Impact:** ~3.6 GB reclaimable across the three caches. Low priority — disk has 86 GB free — but these grow unbounded over time.
+
+**Proposed fix:**
+- [ ] `rm -rf ~/.cache/pip/http-v2` — pip will rebuild on next install
+- [ ] `npm cache clean --force` (reclaims ~316 MB from `~/.npm`)
+- [ ] `rm -rf ~/.cache/electron` — regenerated on next `pnpm install` if needed
+
+---
+
+### [2026-04-23] dnd-app: 111 unused exports + 113 unused exported types (knip)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** `pnpm knip` run (knip.json already configured)
+
+**Description:** Zero fully-unused files, zero unused dependencies, zero unlisted imports — the manifest is clean. But knip flags 111 unused exports across 77 files and 113 unused exported types. Top offenders (exports per file):
+
+```
+17  src/renderer/src/network/index.ts
+11  src/renderer/src/services/combat/damage-resolver.ts
+ 6  src/renderer/src/services/combat/attack-resolver.ts
+ 6  src/renderer/src/network/peer-manager.ts
+ 5  src/renderer/src/services/combat/combat-resolver.ts
+ 5  src/renderer/src/pages/library/LibraryFilters.tsx
+```
+
+**Impact:** Public API surface drift — `export` declarations that no consumer uses. Adds autocomplete noise; makes refactoring harder (can't tell what's intentional extension API vs. forgotten dead surface).
+
+**Proposed fix:**
+- [ ] Sweep per-file: downgrade `export` → local, or delete with a test run after
+- [ ] For public facade files like `network/index.ts`, audit whether the facade exists for external consumers (plugin API?) or was just a re-export left over from refactor
+- [ ] Run `pnpm knip` in CI after cleanup, fail on new regressions
+
+---
 
 ### [2026-04-23] Workspace health scan: Pi dev env incomplete + cleanup scan blocked
 
@@ -380,6 +655,30 @@ Full automated cleanup pass **blocked** on this host because primary tooling is 
 ---
 
 ## Info / Observations
+
+### [2026-04-23] 5 game-data JSONs byte-identical between `dnd-app/` and `bmo/pi/data/5e/`
+
+- **Category:** design-gotcha, docs
+- **Severity:** info
+- **Domain:** both
+- **Discovered by:** Claude Opus
+- **During:** workspace duplicate-hash pass
+
+**Description:** The following 5 files have identical SHA-256 between the two domains:
+
+| dnd-app path | bmo/pi path |
+|---|---|
+| `public/data/5e/hazards/conditions.json` | `data/5e/conditions.json` |
+| `public/data/5e/encounters/encounter-presets.json` | `data/5e/encounter-presets.json` |
+| `public/data/5e/encounters/random-tables.json` | `data/5e/random-tables.json` |
+| `public/data/5e/equipment/magic-items.json` | `data/5e/magic-items.json` |
+| `public/data/5e/world/treasure-tables.json` | `data/5e/treasure-tables.json` |
+
+**Why useful to future agents:** This is almost certainly intentional per the "each domain owns its own storage" pattern (see sibling Info entry on data ownership) — the VTT ships the data to the renderer, BMO ships the same data to the DM agent. But if one side changes, the other will silently go stale. Two options: (a) keep the duplicate and document that a **sync script is required** when any of these 5 files changes, or (b) promote to a shared asset directory and have both domains read from one source.
+
+**Related files:** listed above, plus `docs/DATA-FLOW.md` (candidate for a note), `dnd-app/tools/build-index.*` (likely generator if one exists)
+
+---
 
 ### [2026-04-23] Data ownership pattern: dnd-app vs bmo
 
