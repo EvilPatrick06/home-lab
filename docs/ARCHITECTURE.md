@@ -1,5 +1,7 @@
 # Architecture — dnd-app + bmo
 
+**Quick entrypoint:** [`../ARCHITECTURE.md`](../ARCHITECTURE.md) (boundary + commands) — **this** file is the full protocol reference.
+
 How the two domains communicate.
 
 ## Big picture

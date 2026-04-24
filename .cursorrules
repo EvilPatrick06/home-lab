@@ -146,3 +146,20 @@ The log (`docs/ISSUES-LOG.md`) is for **unfixed or deferred** work that crosses 
 - When in doubt about structure, check this file first
 - When in doubt about protocol, check `docs/ARCHITECTURE.md`
 - When debugging, check `bmo/docs/TROUBLESHOOTING.md` + `docs/ISSUES-LOG.md`
+
+## Communication mode (user toggle)
+
+- **Caveman mode** — user requests terse assistant style: drop filler articles/pleasantries; fragments + symbols OK; **never** trade away correctness, safety, or exact code/command fidelity.
+- **Exit caveman** — user says `stop caveman` or `normal mode` → full prose again.
+
+## Mass cleanup / dependency removal
+
+- **No blind `rm`.** Move suspects to `_archive/` preserving relative paths for easy undo.
+- **Large moves or removing deps:** need explicit user **yes** after short written plan + evidence.
+- **`_archive_system_cleanup/`** — optional second bucket for obvious non-source bloat (logs, caches, tmp); keep code quarantine in `_archive/`; state split in one line when used.
+
+## New file placement (quick)
+
+- **dnd-app:** obey electron-vite roots (`src/main`, `preload`, `renderer`, `shared`). Feature-group *inside* `renderer/src/` (`components/`, `services/`, `stores/` by feature), not a new top-level that breaks the bundler.
+- **bmo:** Python under `bmo/pi/` in existing packages (`services/`, `agents/`, `bots/`, …) with prefixed imports.
+- **Monorepo docs:** `docs/`; BMO-only deep docs: `bmo/docs/`.
