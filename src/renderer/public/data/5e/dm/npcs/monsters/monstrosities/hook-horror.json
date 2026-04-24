@@ -1,0 +1,133 @@
+{
+  "name": "Hook Horror",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "Hook horrors are subterranean predators whose bodies are covered in tough, chitinous exoskeletons. In place of hands, they have sharp, curved hooks that they use to climb and to rend prey. Blind, they navigate and hunt using echolocation, communicating with other hook horrors through a language of clicks and clacks. Colonies of hook horrors cluster in Underdark caverns, using their climbing ability to cling to walls and ceilings while lying in ambush.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 75,
+    "dice": {
+      "count": 10,
+      "die": "d10",
+      "modifier": 20
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Hook Horror"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Echolocation",
+      "description": "The hook horror has Blindsight only while it can hear."
+    },
+    {
+      "name": "Keen Hearing",
+      "description": "The hook horror has Advantage on Wisdom (Perception) checks that rely on hearing."
+    }
+  ],
+  "multiattack": {
+    "description": "The hook horror makes two Hook attacks.",
+    "attacks": [
+      {
+        "actionName": "Hook",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Hook",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 11 (2d6 + 4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "urban-chase-complications",
+  "name": "Urban Chase Complications",
+  "description": "At the end of each round during a chase through city streets, roll a d20 for each participant to determine if a complication occurs. A result of 1-10 means no complication.",
+  "complications": [
+    { "roll": 1, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 2, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 3, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 4, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 5, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 6, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 7, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 8, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 9, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 10, "complication": "No complication", "effect": "No additional effect this round." },
+    {
+      "roll": 11,
+      "complication": "Large obstacle",
+      "effect": "A large obstacle such as a cart or stall blocks the way. DC 10 Dexterity (Acrobatics) check to get past, or spend 5 feet of movement and succeed automatically. On failure, the obstacle counts as 10 feet of Difficult Terrain."
+    },
+    {
+      "roll": 12,
+      "complication": "Crowd",
+      "effect": "A crowd blocks the way. DC 10 Strength (Athletics) or Dexterity (Acrobatics) check to push through. On failure, the crowd counts as 10 feet of Difficult Terrain."
+    },
+    {
+      "roll": 13,
+      "complication": "Narrow alley",
+      "effect": "A narrow gap between buildings leads to a shortcut. DC 10 Dexterity (Acrobatics) check to squeeze through. On success, gain 5 feet. On failure, the gap counts as 10 feet of Difficult Terrain."
+    },
+    {
+      "roll": 14,
+      "complication": "Hazardous ground",
+      "effect": "Uneven cobblestones, slick sewage, or loose debris. DC 10 Dexterity saving throw or fall Prone."
+    },
+    {
+      "roll": 15,
+      "complication": "Bystanders",
+      "effect": "You nearly run into one or more bystanders. DC 10 Dexterity saving throw to avoid them. On failure, you and any bystanders are knocked Prone."
+    },
+    {
+      "roll": 16,
+      "complication": "Rooftop shortcut",
+      "effect": "An opportunity to climb up and run across rooftops. DC 10 Strength (Athletics) check to climb. On success, gain access to rooftop path and 10 feet of distance. On failure, fall Prone at the base of the building."
+    },
+    {
+      "roll": 17,
+      "complication": "Dog or animal crossing",
+      "effect": "A dog or other animal runs across your path. DC 12 Dexterity saving throw or spend 5 feet of movement avoiding it. On failure, fall Prone."
+    },
+    {
+      "roll": 18,
+      "complication": "Hanging sign or low awning",
+      "effect": "Something hangs at head height. DC 10 Dexterity saving throw to duck. On failure, take 1d4 Bludgeoning damage and spend 5 extra feet of movement."
+    },
+    {
+      "roll": 19,
+      "complication": "Bridge or overpass",
+      "effect": "A bridge or overpass offers a chance to drop down. DC 10 Dexterity (Acrobatics) check. On success, gain 10 feet. On failure, take 1d6 Bludgeoning damage from a rough landing."
+    },
+    {
+      "roll": 20,
+      "complication": "Dead end or locked gate",
+      "effect": "The path ends at a wall or locked gate. DC 15 Strength (Athletics) check to climb over, DC 15 Dexterity check to pick the lock, or lose your turn finding a way around."
+    }
+  ]
+}

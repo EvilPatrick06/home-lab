@@ -1,0 +1,504 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral-Elemental Axis",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Outer Planes",
+        "description": "Realms of spirituality and thought, the spheres where Celestials, Fiends, and deities dwell. These are realms of thought and morality more than merely physical reality. The Upper Planes are home of Celestials, the Lower Planes are home of Fiends.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "beastlands",
+      "name": "Beastlands",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Chaotic Good", "Neutral Good"],
+      "philosophicalEssence": "The Beastlands embodies nature's wildness and beauty, speaking to the animal within all living creatures—not necessarily in a fierce, predatory way but with respect to their physical substance and fundamental needs.",
+      "emotionalInfluence": "Visitors to the plane feel invigorated and more vital—their minds more alert, their reflexes sharpened, and their strides quickened. Hunger pangs are acute, but food and drink taste better than ever before. Sleep is always deep and restful, and sleepers always awaken alert.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "divinely_morphic",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Varies by layer: Krigala is eternal summer noon, Brux is eternal twilight, Karasuthra is eternal night under a pale moon."
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Natural weather appropriate to untamed wilderness across layers of varying light intensity."
+      },
+      "layers": [
+        {
+          "name": "Krigala",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "The River Oceanus is a strong torrent flowing through this wilderness of eternal summer noon.",
+          "notableLocations": [
+            {
+              "name": "River Oceanus (passage through Krigala)",
+              "description": "The River Oceanus flows as a strong torrent through Krigala, providing a planar pathway connecting Elysium, the Beastlands, and Arborea."
+            }
+          ],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "lightLevel": {
+            "baseLevel": "bright_light",
+            "naturalLightSource": "Eternal summer noon sun",
+            "visibilityRange": {
+              "standard": null,
+              "unit": "feet"
+            },
+            "magicalProperties": {},
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none",
+              "description": "Krigala exists in a state of eternal summer noon with perpetual bright light.",
+              "peakIntensity": "summer noon sunlight"
+            }
+          },
+          "environmentalDescription": "A wilderness of eternal summer noon through which the River Oceanus flows as a strong torrent.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Brux",
+          "alternateNames": [],
+          "layerNumber": 2,
+          "description": "A red sun hovers forever on the horizon as mists and streams roil through the trees in eternal twilight.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "lightLevel": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": "A red sun hovering forever on the horizon",
+            "visibilityRange": {
+              "standard": null,
+              "unit": "feet"
+            },
+            "magicalProperties": {},
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none",
+              "description": "Brux exists in a state of eternal twilight with a red sun permanently on the horizon.",
+              "peakIntensity": "red sun on horizon, eternal twilight"
+            }
+          },
+          "environmentalDescription": "A red sun hovers forever on the horizon as mists and streams roil through the trees in eternal twilight.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Karasuthra",
+          "alternateNames": [],
+          "layerNumber": 3,
+          "description": "A pale moon provides the only light in this wilderness of eternal night.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "lightLevel": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": "A pale moon",
+            "visibilityRange": {
+              "standard": null,
+              "unit": "feet"
+            },
+            "magicalProperties": {},
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none",
+              "description": "Karasuthra exists in a state of eternal night illuminated only by a pale moon.",
+              "minimumIntensity": "pale moonlight in eternal night"
+            }
+          },
+          "environmentalDescription": "A pale moon provides the only light in this wilderness of eternal night.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 3,
+      "timeFlow": {
+        "type": "normal",
+        "description": "Time flows normally on the Beastlands, as is typical for Outer Planes unless otherwise specified.",
+        "agingOccurs": true,
+        "hungerThirstApplies": true
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "beastlands-invigoration",
+          "name": "Beastlands Invigoration",
+          "description": "Visitors to the plane feel invigorated and more vital—their minds more alert, their reflexes sharpened, and their strides quickened. Hunger pangs are acute, but food and drink taste better than ever before. Sleep is always deep and restful, and sleepers always awaken alert.",
+          "mechanicalEffect": "Visitors experience heightened senses, sharpened reflexes, quickened strides, acute hunger pangs, enhanced taste of food and drink, and always deep and restful sleep with alert awakenings. This is a narrative environmental effect described in the Beastlands Adventures section.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Feeling of invigoration, heightened vitality, alertness, and connection to one's physical nature.",
+          "removalMethods": ["Leaving the Beastlands"],
+          "sourceReference": "Chapter 6: Cosmology, Beastlands Adventures"
+        }
+      ],
+      "portals": [
+        {
+          "id": "beastlands-faunel-gate",
+          "type": "gate_town",
+          "name": "Faunel Gate",
+          "destination": "Faunel",
+          "destinationPlane": "Outlands",
+          "bidirectional": true
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "river-oceanus-beastlands",
+          "name": "River Oceanus",
+          "type": "river",
+          "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+          "description": "The River Oceanus passes through the top layer of the Beastlands (Krigala). It flows from Elysium, through Krigala, then streams across the top layer of Arborea, and finally drains away somewhere in Arborea's second layer. Trading vessels sail up and down its length, and small towns line its banks.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["trading vessels", "boats", "ships"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Beast", "Celestial"],
+        "notableEntities": [
+          {
+            "name": "Animal Lords",
+            "creatureType": "Celestial",
+            "description": "Primal spirits called animal lords are among the greatest inhabitants of the Beastlands."
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "beastlands-beast-slayer-shapeshift",
+          "name": "Beast Slayer Shapeshift",
+          "description": "Whenever a visitor slays a Beast native to the plane, the slayer must succeed on a DC 10 Charisma saving throw or shape-shift into the type of Beast that was slain. The creature's game statistics are replaced by the Beast's stat block, but the creature retains its alignment, personality, creature type, Intelligence score, and ability to speak. At the end of each Long Rest, the shape-shifted creature repeats the save. On a successful save, the creature returns to its true form. After three failed saves, the transformation can be undone only by a Remove Curse spell or similar magic.",
+          "mechanicalEffect": "On failing a DC 10 Charisma saving throw after slaying a Beast native to the Beastlands, the slayer's game statistics are replaced by the slain Beast's stat block. The creature retains its alignment, personality, creature type, Intelligence score, and ability to speak. At the end of each Long Rest, the creature repeats the DC 10 Charisma saving throw. On success, it returns to its true form. After three cumulative failed saves (including the initial triggering failure counting as the first), the transformation becomes permanent and can only be undone by Remove Curse or similar magic.",
+          "savingThrow": {
+            "ability": "Charisma",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "on_kill",
+            "triggerDescription": "Whenever a visitor slays a Beast native to the Beastlands",
+            "onFailure": {
+              "description": "The slayer shape-shifts into the type of Beast that was slain. The creature's game statistics are replaced by the Beast's stat block, but it retains its alignment, personality, creature type, Intelligence score, and ability to speak.",
+              "customCondition": "Shapeshifted into Beast form",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "duration": "Until successful save at end of Long Rest, or permanent after 3 failed saves",
+              "cumulative": true,
+              "cumulativeMaxStacks": 3,
+              "cumulativeDescription": "Each failed save at the end of a Long Rest counts toward the three-failure threshold. After three failed saves total, the transformation becomes permanent unless removed by Remove Curse or similar magic.",
+              "terminalEffect": "Transformation becomes permanent; can only be undone by Remove Curse spell or similar magic",
+              "preventsDeath": false
+            },
+            "onSuccess": {
+              "description": "The slayer resists the shapeshift effect and retains their true form.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": true,
+            "repeatSaveTiming": "At the end of each Long Rest",
+            "recoveryDC": 10,
+            "recoveryTrigger": "End of each Long Rest while shape-shifted",
+            "recoveryMethods": ["Remove Curse", "Similar magic (after 3 failed saves)"],
+            "maxFailuresBeforePermanent": 3,
+            "failureProbabilityAtDC": {
+              "dc": 10,
+              "noModifierFailChance": 0.45,
+              "commonModifierRange": {
+                "low": -1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.5,
+              "failChanceAtHighMod": 0.2
+            }
+          },
+          "affectsSpellcasting": false
+        }
+      ],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Celestial", "Fiend"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on the Beastlands, Fiends (who are on a plane alien to their nature) must make this save. Celestials are not affected as the Beastlands is an Upper Plane aligned with their nature.",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "customCondition": "Planar Dissonance",
+            "exhaustionLevels": 0,
+            "exhaustionIsRemovable": true,
+            "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature",
+            "cumulative": true,
+            "cumulativeDescription": "The 1d4 penalty is cumulative with each failed save, stacking additional 1d4 subtractions.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            },
+            "preventsDeath": false
+          },
+          "onSuccess": {
+            "description": "The creature avoids gaining an additional instance of the planar dissonance penalty.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": [],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": false,
+          "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"]
+        },
+        "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. The Beastlands is an Upper Plane, so Fiends visiting experience planar dissonance. After finishing a Long Rest on the Beastlands, a Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, it must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [
+        {
+          "id": "faunel-gate-town",
+          "name": "Faunel",
+          "type": "Gate-town",
+          "description": "Faunel is the gate-town in the Outlands that contains a portal leading to the Beastlands.",
+          "hazards": [],
+          "portalDestination": "Beastlands"
+        }
+      ],
+      "adventureThemes": [
+        "Exploring how good philosophies actually devalue the physical nature of life in favor of abstract concepts of law and ethics",
+        "Conflict with those who dismiss animals as inferior and irrelevant forms of life",
+        "Nature unbound and the vibrant power of life thriving in the natural world",
+        "Connection to one's physical substance and fundamental needs"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Emerald green",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "river-oceanus-global",
+      "name": "River Oceanus",
+      "type": "river",
+      "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+      "description": "The water of the Oceanus is sweet and fragrant, as befits its headwaters in the Blessed Fields of Elysium. It flows through each of Elysium's layers, passes through the top layer of the Beastlands, streams across the top layer of Arborea, and finally drains away somewhere in Arborea's second layer. Trading vessels sail up and down its length, and small towns line its banks. Travelers can usually find a boat to hire somewhere along its shores.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["trading vessels", "boats", "hired boats"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "astral-color-pool-beastlands",
+      "name": "Astral Color Pool to the Beastlands",
+      "type": "portal",
+      "description": "Gateways leading from the Astral Plane to the Beastlands appear as two-dimensional pools of rippling emerald green color, 1d6 × 10 feet in diameter. These color pools can be identified by their emerald green color (d20 roll of 5 on the Astral Color Pools table).",
+      "requirements": ["Access to the Astral Plane", "Locating an emerald green color pool"],
+      "associatedSpells": ["Astral Projection", "Gate", "Plane Shift"],
+      "risks": ["Psychic Wind while traveling the Astral Plane"],
+      "destinations": ["Beastlands"]
+    },
+    {
+      "id": "faunel-gate-portal",
+      "name": "Faunel Gate-Town Portal",
+      "type": "portal",
+      "description": "The gate-town of Faunel in the Outlands contains a portal leading to the Beastlands. Gate-towns share many characteristics of the plane where their gate leads.",
+      "requirements": ["Travel to Faunel in the Outlands"],
+      "associatedSpells": [],
+      "risks": [],
+      "destinations": ["Beastlands"]
+    },
+    {
+      "id": "river-oceanus-travel",
+      "name": "River Oceanus",
+      "type": "planar_pathway",
+      "description": "The River Oceanus passes through the top layer of the Beastlands (Krigala), connecting it to Elysium and Arborea. Trading vessels sail up and down its length, and travelers can usually find a boat to hire along its shores.",
+      "requirements": ["Access to the River Oceanus via Elysium, Beastlands, or Arborea"],
+      "associatedSpells": [],
+      "risks": [],
+      "destinations": ["Elysium", "Beastlands", "Arborea"]
+    },
+    {
+      "id": "planar-spells",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "Spells such as Gate and Plane Shift can directly transport adventurers to the Beastlands.",
+      "requirements": [
+        "Ability to cast the relevant spell",
+        "Appropriate material components (e.g., tuning fork attuned to the Beastlands for Plane Shift)"
+      ],
+      "associatedSpells": ["Gate", "Plane Shift"],
+      "risks": [],
+      "destinations": ["Beastlands"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    }
+  ],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "exhaustionLevels": 0,
+        "exhaustionIsRemovable": true,
+        "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 subtraction to all D20 Tests",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "preventsDeath": false
+      },
+      "onSuccess": {
+        "description": "The creature avoids gaining an additional cumulative 1d4 penalty on D20 Tests.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"]
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

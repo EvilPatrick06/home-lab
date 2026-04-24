@@ -1,0 +1,30 @@
+{
+  "id": "torm",
+  "name": "Torm",
+  "title": "God of Courage and Self-Sacrifice",
+  "alignment": "Lawful Good",
+  "domains": ["War"],
+  "symbol": "White right gauntlet",
+  "description": "Torm is the god of courage, self-sacrifice, and duty. He is the loyal right hand of Tyr and a member of the Triad. Once a mortal paladin who ascended to godhood through supreme self-sacrifice during the Time of Troubles, Torm exemplifies the ideal of laying down one's life for others. His followers are paladins, knights, and others who value duty and honor above personal gain.",
+  "piety": {
+    "thresholds": [
+      {
+        "score": 3,
+        "benefit": "You can cast Heroism on yourself once without expending a spell slot. You regain this ability after a long rest."
+      },
+      { "score": 10, "benefit": "You have advantage on saving throws against being frightened." },
+      {
+        "score": 25,
+        "benefit": "When an ally within 5 feet of you is hit by an attack, you can use your reaction to become the target instead."
+      },
+      {
+        "score": 50,
+        "benefit": "When you are reduced to 0 HP, you can choose to remain at 1 HP instead. This ability can be used once per long rest."
+      }
+    ]
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Deities of the Multiverse"
+  }
+}

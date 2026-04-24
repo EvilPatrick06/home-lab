@@ -1,0 +1,13 @@
+{
+  "name": "Sack",
+  "cost": "1 CP",
+  "weight": "1/2 lb.",
+  "description": "Holds up to 30 pounds within 1 cubic foot.",
+  "slug": "sack",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

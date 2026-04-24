@@ -1,0 +1,33 @@
+{
+  "name": "Book of Vile Darkness",
+  "itemType": "Wondrous Item",
+  "rarity": "Artifact",
+  "requiresAttunement": true,
+  "attunementRequirements": "The book's dark powers corrupt the souls of good-aligned or neutral creatures. Only an evil-aligned creature can attune to the book.",
+  "description": "The definitive treatise on all that is evil in the multiverse, the Book of Vile Darkness contains page after page of unspeakable rituals, horrid creature summoning formulas, and other nefarious secrets of the darkest arts. Scholars have debated for centuries whether this book was created by an impossibly malevolent being or whether it is merely a collection of the most wicked thoughts and discoveries of many evil entities over the course of history.",
+  "properties": [
+    {
+      "name": "Corrupting Presence",
+      "description": "Any good-aligned or neutral creature within 30 feet of the book must succeed on a DC 17 Wisdom saving throw or have its alignment shifted one step toward evil. An evil-aligned creature within 30 feet of the book has Advantage on this saving throw."
+    },
+    {
+      "name": "Dark Spells",
+      "description": "While attuned to the book, you can use an action to cast one of the following spells from it, using your spell save DC: Blight, Contagion, Dominate Person, Feeblemind, Harm, or Eyebite. Once a spell is cast from the book, it can't be cast again until the next dawn."
+    },
+    {
+      "name": "Corrupting Knowledge",
+      "description": "You gain proficiency in the Arcana, Deception, and Intimidation skills. In addition, you have Advantage on any ability check you make to deceive or Intimidate others."
+    },
+    {
+      "name": "Demon Summoning",
+      "description": "While attuned to the book, you can use an action to cast the Summon Lesser Demons spell from it. Once the spell is cast, it can't be cast again until the next dawn. The save DC for this spell is 17."
+    },
+    {
+      "name": "Destroy the Book",
+      "description": "The book can be destroyed only by placing it in the mouth of a **Tarrasque** or by casting it into the River Styx in the Outer Plane of Hades. When the book is destroyed, any creature attuned to it immediately loses its attunement."
+    }
+  ],
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

@@ -1,0 +1,328 @@
+{
+  "name": "Shadow Dragon",
+  "sizes": ["Huge"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Shadow Dragon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Shadowfell", "Underdark"],
+  "treasure": ["Any"],
+  "lore": "A shadow dragon of this magnitude is a terrifying force of darkness. Having spent centuries steeped in the Shadowfell's gloom, these dragons command great power over shadow and death. Their lairs are realms of perpetual darkness where light itself seems to wither, and the few mortals who have glimpsed one describe a creature of living night whose mere presence drains warmth and hope.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 199,
+    "dice": {
+      "count": 19,
+      "die": "d12",
+      "modifier": 76
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Climb",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 7,
+    "score": 17
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 7
+    },
+    "CON": {
+      "score": 19,
+      "modifier": 4,
+      "save": 9
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 6
+    },
+    "CHA": {
+      "score": 19,
+      "modifier": 4,
+      "save": 9
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "damageImmunities": ["Necrotic"],
+  "conditionImmunities": ["Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "14",
+  "experiencePoints": 11500,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Legendary Resistance",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Living Shadow",
+      "description": "While in Dim Light or Darkness, the dragon can take the Hide action as a Bonus Action. In addition, while in Dim Light or Darkness, the dragon can move through a space as narrow as 1 inch without squeezing."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the dragon has Disadvantage on attack rolls and on Wisdom (Perception) checks."
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes three Rend attacks. It can replace one attack with a use of Frightful Presence.",
+    "attacks": [
+      {
+        "actionName": "Rend",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Rend",
+        "replaceCount": 1,
+        "with": "Frightful Presence"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "Melee Attack Roll: +11, reach 10 ft. Hit: 13 (2d6 + 6) Slashing damage plus 4 (1d8) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 11,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 6
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the dragon's choice that is within 120 feet of the dragon and aware of it must succeed on a DC 17 Wisdom saving throw or have the Frightened condition for 1 minute. A creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature has Immunity to this dragon's Frightful Presence for the next 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 17,
+        "targets": "each creature of the dragon's choice within 120 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 17,
+                "onSuccess": {
+                  "effects": "The condition ends on that creature."
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shadow Breath",
+      "description": "The dragon exhales shadowy energy in a 60-foot Cone. Each creature in that area must make a DC 17 Dexterity saving throw, taking 54 (12d8) Necrotic damage on a failed save or half as much damage on a successful one. A Humanoid reduced to 0 Hit Points by this damage dies, and a Shadow rises from its corpse 1d4 hours later.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 17,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 54,
+              "dice": {
+                "count": 12,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ],
+          "effects": "A Humanoid reduced to 0 Hit Points by this damage dies, and a Shadow rises from its corpse 1d4 hours later."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 60
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shadow Hide",
+      "description": "The dragon takes the Hide action. It can use this Bonus Action only while in Dim Light or Darkness (see Living Shadow)."
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Detect",
+        "description": "The dragon makes a Wisdom (Perception) check.",
+        "cost": 1
+      },
+      {
+        "name": "Shadow Step",
+        "description": "The dragon teleports up to 60 feet to an unoccupied space it can see that is in Dim Light or Darkness.",
+        "cost": 1,
+        "teleport": {
+          "distance": 60,
+          "notes": "Destination must be in Dim Light or Darkness"
+        }
+      },
+      {
+        "name": "Wing Attack",
+        "description": "The dragon beats its wings. Each creature within 10 feet of the dragon must succeed on a DC 19 Dexterity saving throw or take 13 (2d6 + 6) Bludgeoning damage and have the Prone condition. The dragon can then Fly up to half its Fly Speed.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 19,
+          "targets": "each creature within 10 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 13,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 6
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "lair": {
+    "description": "A shadow dragon's lair is a place of deep darkness—a lightless cave, a ruined keep swallowed by shadow, or a fortress in the Shadowfell. The dragon's presence warps the surrounding region, causing lights to dim and shadows to take on sinister forms.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Grasping Shadows",
+        "description": "Grasping shadows reach out from the walls within the lair. Each creature of the dragon's choice within the lair must succeed on a DC 15 Dexterity saving throw or have the Restrained condition until Initiative count 20 of the next round.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 15,
+          "targets": "each creature of the dragon's choice within the lair",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Restrained",
+                "duration": "until Initiative count 20 of the next round"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Shadow Surge",
+        "description": "A 20-foot-radius Sphere of magical darkness appears at a point the dragon can see within 120 feet of itself. The darkness lasts until the dragon uses this lair action again or until the dragon dies. The darkness can't be dispelled by a spell of level 3 or lower.",
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Small shadows within 1 mile of the lair come alive and seem to crawl, shift, and writhe as if they were sentient.",
+        "radius": 1,
+        "endCondition": "The dragon dies or moves its lair."
+      },
+      {
+        "description": "Bright Light sources within 1 mile of the lair are reduced to Dim Light, and Dim Light sources are extinguished.",
+        "radius": 1,
+        "endCondition": "The dragon dies or moves its lair."
+      },
+      {
+        "description": "Beasts and non-magical plants within 1 mile of the lair wither and take on a gray, colorless appearance.",
+        "radius": 1,
+        "endCondition": "The dragon dies or moves its lair."
+      }
+    ]
+  }
+}

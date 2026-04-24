@@ -1,0 +1,13 @@
+{
+  "name": "Sailor",
+  "description": "You lived as a seafarer, wind at your back and decks swaying beneath your feet. You've perched on barstools in more ports of call than you can remember, faced mighty storms, and swapped stories with folk who live beneath the waves.",
+  "abilityScores": ["Strength", "Dexterity", "Wisdom"],
+  "skillProficiencies": ["Acrobatics", "Perception"],
+  "toolProficiency": "Navigator's Tools",
+  "feat": "Tavern Brawler",
+  "equipment": [
+    { "option": "A", "items": ["Dagger", "Navigator's Tools", "Rope", "Traveler's Clothes", "20 GP"] },
+    { "option": "B", "items": ["50 GP"] }
+  ],
+  "source": "PHB 2024"
+}

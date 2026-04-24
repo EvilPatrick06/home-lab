@@ -1,0 +1,19 @@
+{
+  "name": "Push",
+  "slug": "push",
+  "category": "Weapon Mastery",
+  "description": "If you hit a creature with this weapon, you can push the creature up to 10 feet straight away from you if it is Large or smaller.",
+  "mechanicalEffect": {
+    "trigger": "hit",
+    "type": "forcedMovement",
+    "distance": 10,
+    "direction": "Straight away from attacker",
+    "sizeLimit": "Large or smaller"
+  },
+  "weaponsWithMastery": ["Greatclub", "Heavy Crossbow", "Pike", "Warhammer"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapon Mastery"
+  }
+}

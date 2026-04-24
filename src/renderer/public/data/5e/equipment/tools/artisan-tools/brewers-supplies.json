@@ -1,0 +1,15 @@
+{
+  "name": "Brewer's Supplies",
+  "cost": "20 GP",
+  "weight": "9 lb.",
+  "ability": "Intelligence",
+  "utilize": "Detect poisoned drink (DC 15), or identify alcohol (DC 10)",
+  "craft": "Antitoxin",
+  "slug": "brewers-supplies",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Farmer",
+  "description": "You grew up close to the land. Years tending animals and cultivating the earth rewarded you with patience and good health. You have a keen appreciation for nature's bounty alongside a healthy respect for nature's wrath.",
+  "abilityScores": ["Strength", "Constitution", "Wisdom"],
+  "skillProficiencies": ["Animal Handling", "Nature"],
+  "toolProficiency": "Carpenter's Tools",
+  "feat": "Tough",
+  "equipment": [
+    {
+      "option": "A",
+      "items": ["Sickle", "Carpenter's Tools", "Healer's Kit", "Iron Pot", "Shovel", "Traveler's Clothes", "30 GP"]
+    },
+    {
+      "option": "B",
+      "items": ["50 GP"]
+    }
+  ],
+  "source": "PHB 2024"
+}

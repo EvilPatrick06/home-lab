@@ -1,0 +1,48 @@
+{
+  "id": "zhentarim",
+  "name": "Zhentarim",
+  "symbol": "A winged snake",
+  "beliefs": "The Zhentarim, also known as the Black Network, seeks to amass wealth and power through whatever means necessary. They believe the world is a harsh place where only the strong survive, and that power — economic, political, or military — is the only reliable means of ensuring one's security.",
+  "goals": [
+    "Amass wealth and power",
+    "Extend the Zhentarim's influence and control",
+    "Dominate trade routes and commerce",
+    "Grant members the ability to pursue their own interests while furthering the Network's agenda"
+  ],
+  "ranks": [
+    { "rank": 1, "title": "Fang", "renownRequired": 1, "description": "Low-level associate, given small jobs." },
+    {
+      "rank": 2,
+      "title": "Wolf",
+      "renownRequired": 3,
+      "description": "Trusted operative with access to Network resources."
+    },
+    { "rank": 3, "title": "Viper", "renownRequired": 10, "description": "Mid-level agent who runs local operations." },
+    {
+      "rank": 4,
+      "title": "Ardragon",
+      "renownRequired": 25,
+      "description": "Regional commander who oversees multiple operations."
+    },
+    {
+      "rank": 5,
+      "title": "Dread Lord",
+      "renownRequired": 50,
+      "description": "One of the supreme leaders of the Black Network."
+    }
+  ],
+  "benefits": [
+    { "rank": 1, "benefit": "Access to Zhentarim fences who buy stolen goods at 50% value (no questions asked)." },
+    { "rank": 2, "benefit": "A Zhentarim contact in most major cities who can arrange meetings, loans, or muscle." },
+    { "rank": 3, "benefit": "Can requisition 1d4 + 2 thugs or bandits for a mission." },
+    { "rank": 4, "benefit": "A share of regional profits (50 gp per month) and command over local operatives." },
+    {
+      "rank": 5,
+      "benefit": "Near-unlimited resources: can mobilize mercenary companies, assassins, or political agents."
+    }
+  ],
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Factions"
+  }
+}

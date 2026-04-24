@@ -1,0 +1,64 @@
+{
+  "name": "Sacred Flame",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Flame-like radiance descends on a creature that you can see within range. The target must succeed on a Dexterity saving throw or take 1d8 Radiant damage. The target gains no benefit from Half Cover or Three-Quarters Cover for this save.",
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noEffectOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": "Radiant",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 8,
+        "description": "The damage increases to 2d8."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 8,
+        "description": "The damage increases to 3d8."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 8,
+        "description": "The damage increases to 4d8."
+      }
+    ]
+  },
+  "tags": ["ignoresHalfCover", "ignoresThreeQuartersCover"]
+}

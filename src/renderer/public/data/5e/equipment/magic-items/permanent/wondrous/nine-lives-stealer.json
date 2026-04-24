@@ -1,0 +1,36 @@
+{
+  "name": "Nine Lives Stealer",
+  "itemType": "Weapon",
+  "itemCategory": "Any Simple or Martial",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "description": "You gain a +2 bonus to attack rolls and damage rolls made with this magic weapon.\n\n**Life Stealing.** The weapon has 1d8 + 1 charges. When you attack a creature that has fewer than 100 Hit Points with this weapon and roll a 20 on the d20 for the attack roll, the creature must succeed on a DC 15 Constitution saving throw or be slain instantly as the sword tears its life force from its body. Constructs and Undead succeed on the save automatically. The weapon loses 1 charge if the creature is slain. When the weapon has no charges remaining, it loses this property.",
+  "properties": [
+    {
+      "name": "Attack Bonus",
+      "value": "+2"
+    },
+    {
+      "name": "Damage Bonus",
+      "value": "+2"
+    },
+    {
+      "name": "Life Stealing",
+      "charges": {
+        "max": "1d8 + 1",
+        "rechargeRate": "dawn"
+      },
+      "activationDC": 15,
+      "activationAbility": "Constitution",
+      "effect": "Creature with less than 100 HP slain on failed save, weapon loses 1 charge"
+    }
+  ],
+  "damage": {
+    "count": 1,
+    "die": 0,
+    "type": "Varies"
+  },
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

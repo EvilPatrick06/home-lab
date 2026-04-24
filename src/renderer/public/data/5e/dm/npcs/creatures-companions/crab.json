@@ -1,0 +1,40 @@
+{
+  "name": "Crab",
+  "slug": "crab",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 11,
+  "hp": 2,
+  "hpFormula": "1d4",
+  "speed": "20 ft., Swim 20 ft.",
+  "abilityScores": {
+    "str": 2,
+    "dex": 11,
+    "con": 10,
+    "int": 1,
+    "wis": 8,
+    "cha": 2
+  },
+  "skills": "Stealth +2",
+  "senses": "Blindsight 30 ft., Passive Perception 9",
+  "languages": "—",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "Can breathe air and water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "*Melee:* +0, reach 5 ft. *Hit:* 1 Bludgeoning."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

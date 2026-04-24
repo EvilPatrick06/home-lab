@@ -1,0 +1,254 @@
+{
+  "id": "d8a1b3c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+  "name": "Vehicle Mishaps",
+  "slug": "vehicle-mishaps",
+  "category": "EnvironmentRule",
+  "subcategory": "Vehicles",
+  "tags": ["vehicle", "mishap", "travel", "crash", "damage", "exploration"],
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "chapter": "Vehicles",
+    "section": "Vehicle Mishaps"
+  },
+  "gameEdition": "2024",
+  "description": "When a vehicle is involved in a collision, is reduced to half its Hit Points or fewer, or otherwise suffers a critical malfunction, the DM may call for a roll on the Vehicle Mishaps table to determine what happens. The mishap can affect the vehicle's speed, its ability to steer, or its structural integrity, and may also injure passengers and crew aboard the vehicle.",
+  "shortDescription": "Determines random consequences when a vehicle crashes, takes critical damage, or otherwise malfunctions.",
+  "flavorText": "A sickening crunch of wood, a screech of tortured metal—something has gone terribly wrong.",
+  "rulesAsWritten": "When a vehicle is involved in a collision or is reduced to half its Hit Points or fewer, the DM may call for a Vehicle Mishap. Roll on the appropriate mishap table to determine the result. Mishap effects apply immediately and may require crew actions to resolve.",
+  "isVariantRule": false,
+  "isOptionalRule": true,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Prone",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "Some mishap results can knock passengers Prone inside or off the vehicle."
+    },
+    {
+      "conditionName": "Incapacitated",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "Severe mishaps that deal heavy damage may result in an Incapacitated driver or passenger."
+    },
+    {
+      "conditionName": "Restrained",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "Structural collapse from a mishap may pin and Restrain passengers amid wreckage."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-e5f6-4789-abcd-ef0123456789",
+      "order": 0,
+      "name": "Mishap Trigger — Collision",
+      "description": "When a vehicle is involved in a collision with another vehicle, a creature of Large size or bigger, or a solid structure, the DM may call for a mishap roll.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Vehicle is involved in a collision with another object, vehicle, or Large or bigger creature."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Roll on the Vehicle Mishaps table to determine the collision's effect on the vehicle, its crew, and its passengers.",
+          "mechanicalNote": "The DM determines which mishap table is appropriate (land, water, or air) based on the vehicle type."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "b2c3d4e5-f6a7-4890-bcde-f01234567890",
+      "order": 1,
+      "name": "Mishap Trigger — Half Hit Points",
+      "description": "When a vehicle is reduced to half its Hit Point maximum or fewer, the DM may call for a mishap roll.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Vehicle's current Hit Points are reduced to half its Hit Point maximum or fewer."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Roll on the Vehicle Mishaps table. The vehicle suffers the indicated mishap effect immediately.",
+          "mechanicalNote": "This trigger occurs only once when the threshold is first crossed, not on every subsequent hit."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "c3d4e5f6-a7b8-4901-cdef-012345678901",
+      "order": 2,
+      "name": "Mishap Result — Loss of Speed",
+      "description": "The vehicle's speed is reduced. It may slow to half speed or be reduced to 0 until repaired.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Rolled on Vehicle Mishaps table and result indicates loss of speed."
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "d4e5f6a7-b8c9-4012-defa-123456789012",
+            "target": "Speed",
+            "operation": "Halve",
+            "value": 0,
+            "note": "Vehicle's speed is halved until crew uses an action to repair. On a more severe result, speed is reduced to 0."
+          }
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "d5e6f7a8-b9c0-4123-efab-234567890123",
+      "order": 3,
+      "name": "Mishap Result — Passenger Damage",
+      "description": "All creatures aboard the vehicle must succeed on a Dexterity saving throw or take bludgeoning damage from the jolt or impact.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Rolled on Vehicle Mishaps table and result indicates passenger damage."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Each creature aboard the vehicle must make a DC 15 Dexterity saving throw, taking bludgeoning damage on a failed save, or half as much on a successful one. Damage varies by severity and vehicle type.",
+          "mechanicalNote": "Typical damage ranges from 2d6 to 4d10 Bludgeoning depending on vehicle size and speed at impact."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "e6f7a8b9-c0d1-4234-fabc-345678901234",
+      "order": 4,
+      "name": "Mishap Result — Loss of Control",
+      "description": "The vehicle veers in a random direction and moves its full remaining speed in that direction. The pilot cannot steer the vehicle until the start of their next turn.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Rolled on Vehicle Mishaps table and result indicates loss of control."
+      },
+      "effects": [
+        {
+          "effectType": "ActionRestriction",
+          "restriction": {
+            "id": "f7a8b9c0-d1e2-4345-abcd-456789012345",
+            "restrictedAction": "Movement",
+            "restrictionType": "Prohibited",
+            "condition": "Applies to the vehicle's pilot/helmsman only until the start of their next turn.",
+            "note": "Pilot cannot steer. The vehicle moves its remaining movement in a random direction determined by the DM."
+          }
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "f8a9b0c1-d2e3-4456-bcde-567890123456",
+      "order": 5,
+      "name": "Mishap Result — Structural Failure",
+      "description": "A critical structural component of the vehicle breaks. The vehicle is disabled and cannot move until repaired. Passengers may be pinned in wreckage.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Rolled on Vehicle Mishaps table and result indicates structural failure (typically the most severe result)."
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "a9b0c1d2-e3f4-4567-cdef-678901234567",
+            "target": "Speed",
+            "operation": "ReduceToZero",
+            "value": 0,
+            "note": "Vehicle is disabled and cannot move until it receives significant repairs."
+          }
+        },
+        {
+          "effectType": "CustomEffect",
+          "description": "The vehicle is disabled. Each creature aboard must succeed on a DC 15 Dexterity saving throw or become Restrained by wreckage. A Restrained creature can free itself by using an action and succeeding on a DC 15 Strength (Athletics) check.",
+          "mechanicalNote": "Repairs require appropriate tools, materials, and a number of hours determined by the DM based on vehicle size and damage severity."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "b0c1d2e3-f4a5-4678-defa-789012345678",
+      "method": "SpecialAction",
+      "description": "A creature aboard the vehicle can use an Action to attempt to repair the mishap effect, typically requiring a successful ability check (such as a DC 15 Intelligence or Strength check using appropriate tools).",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "c1d2e3f4-a5b6-4789-efab-890123456789",
+      "method": "Other",
+      "description": "Extended repairs during a Short or Long Rest, requiring appropriate artisan's tools and materials, can restore the vehicle to working order and remove all active mishap effects.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": true,
+    "stacksWithOthers": true,
+    "maxStacks": 3,
+    "stackingNote": "Multiple mishap effects can apply simultaneously to the same vehicle. If three or more mishaps are active on a vehicle at once, the vehicle is typically destroyed or rendered completely inoperable."
+  },
+  "dmNotes": "Vehicle Mishaps are a DM tool to add tension and consequences to vehicular encounters and travel. The DM decides when to call for a mishap roll and should tailor the severity to the situation. For chases and combat involving vehicles, mishaps create dynamic and memorable moments. Not every collision or damage threshold crossing requires a mishap—use this mechanic when it enhances the narrative. The specific mishap table used (land, water, or air) should match the vehicle type.",
+  "commonRulings": [
+    {
+      "question": "Does a vehicle suffer a mishap every time it takes damage?",
+      "ruling": "No. The DM calls for a mishap roll under specific circumstances: a collision, when the vehicle drops to half HP or fewer for the first time, or when the DM determines a critical failure or dramatic event warrants one.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can passengers avoid mishap effects?",
+      "ruling": "Some mishap results allow a saving throw (typically Dexterity) to avoid or reduce the effect. Passengers who are secured or braced may have Advantage on such saves at the DM's discretion.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can a creature repair a vehicle mishap during combat?",
+      "ruling": "Yes. A creature can use its Action to attempt a repair, typically requiring a successful ability check with appropriate tools. The DC is set by the DM based on the severity of the mishap.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-15T12:00:00Z",
+  "updatedAt": "2025-01-15T12:00:00Z",
+  "version": "1.0.0"
+}

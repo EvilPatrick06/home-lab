@@ -1,0 +1,13 @@
+{
+  "name": "Candle of the Deep",
+  "slug": "candle-of-the-deep",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "The flame of this candle isn't extinguished when immersed in water. It gives off light and heat like a normal candle.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Ruby of the War Mage",
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "This 1-inch-diameter ruby attaches to a weapon when pressed against it and can be removed as an action. While attached, the ruby lets the weapon's wielder use the weapon as a Spellcasting Focus. Once removed, the ruby can be attached to another weapon.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

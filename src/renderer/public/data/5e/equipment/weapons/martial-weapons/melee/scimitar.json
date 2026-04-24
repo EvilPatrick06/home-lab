@@ -1,0 +1,17 @@
+{
+  "name": "Scimitar",
+  "slug": "scimitar",
+  "category": "Martial",
+  "type": "Melee",
+  "damage": "1d6",
+  "damageType": "Slashing",
+  "properties": ["Finesse", "Light"],
+  "mastery": "Nick",
+  "weight": "3 lb.",
+  "cost": "25 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

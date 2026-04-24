@@ -1,0 +1,22 @@
+{
+  "name": "Pistol",
+  "slug": "pistol",
+  "category": "Martial",
+  "type": "Ranged",
+  "damage": "1d10",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Loading"],
+  "mastery": "Vex",
+  "weight": "3 lb.",
+  "cost": "250 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 30,
+    "long": 90
+  },
+  "ammunitionType": "Bullet"
+}

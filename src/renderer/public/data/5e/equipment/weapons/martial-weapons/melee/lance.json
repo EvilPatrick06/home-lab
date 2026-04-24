@@ -1,0 +1,17 @@
+{
+  "name": "Lance",
+  "slug": "lance",
+  "category": "Martial",
+  "type": "Melee",
+  "damage": "1d10",
+  "damageType": "Piercing",
+  "properties": ["Heavy", "Reach", "Two-Handed"],
+  "mastery": "Topple",
+  "weight": "6 lb.",
+  "cost": "10 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

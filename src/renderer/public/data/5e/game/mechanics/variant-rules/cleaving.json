@@ -1,0 +1,30 @@
+{
+  "id": "cleaving",
+  "name": "Cleaving Through Creatures",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "When a melee attack reduces a creature to 0 Hit Points, any excess damage from that attack can carry over to another creature nearby. This variant rewards powerful melee combatants fighting groups of weaker enemies.",
+  "mechanics": {
+    "trigger": "A melee attack reduces a creature to 0 Hit Points and there is excess damage remaining",
+    "carryOver": {
+      "requirement": "The new target must be within the attacker's melee reach and adjacent to the original target",
+      "acCheck": "The new target's AC must be equal to or lower than the original target's AC",
+      "damage": "The excess damage is applied to the new target. If this also reduces the new target to 0 HP, the process repeats."
+    },
+    "attackRoll": "No new attack roll is required. The original attack roll is compared against the original target only; excess damage transfers automatically if the new target's AC qualifies.",
+    "applicableTo": ["melee weapon attacks"],
+    "limitations": [
+      "Only applies to melee attacks, not ranged or spell attacks",
+      "The new target must have equal or lower AC than the original target",
+      "The new target must be within the attacker's reach and adjacent to the original",
+      "Damage resistances and immunities of the new target still apply to the carried-over damage"
+    ]
+  },
+  "interactions": [
+    "Great Weapon Master and other high-damage melee builds become significantly more effective against groups of low-HP creatures",
+    "This rule most commonly triggers when fighting swarms of weaker enemies (e.g., a high-level fighter cleaving through goblins)",
+    "Critical hit bonus damage can contribute to the excess that carries over",
+    "Damage types carry over (e.g., if the original attack dealt fire damage via a Flame Tongue, the excess damage is still fire damage)",
+    "Effects that trigger on reducing a creature to 0 HP (such as relentless rage or a vorpal sword) may interact with each creature dropped"
+  ]
+}

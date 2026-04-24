@@ -1,0 +1,201 @@
+{
+  "name": "Water Elemental",
+  "sizes": ["Large"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral",
+  "habitat": ["Coastal", "Planar", "Swamp", "Underwater"],
+  "treasure": ["None"],
+  "lore": "A water elemental is a surging, animate mass of water. When not in combat, it can appear as a standing wave, a## waterspout, or a placid pool. These elementals hail from the Elemental Plane of Water and are sometimes summoned to the Material Plane by spellcasters or drawn through planar rifts. Water elementals are relentless in aquatic environments, pulling foes beneath the surface and crushing them in their depths.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 104,
+    "dice": {
+      "count": 16,
+      "die": "d10",
+      "modifier": 16
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Swim",
+      "distance": 90
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "resistances": ["Acid", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": [
+    "Exhaustion",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Restrained",
+    "Unconscious"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Aquan"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Freeze",
+      "description": "If the elemental takes Cold damage, it partially freezes. Until the end of its next turn, its Speed is reduced by 20 feet, and attack rolls against it have Advantage."
+    },
+    {
+      "name": "Water Form",
+      "description": "The elemental can enter a Hostile creature's space and stop there. It can move through a space as narrow as 1 inch wide without squeezing."
+    }
+  ],
+  "multiattack": {
+    "description": "The elemental makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 13 (2d8 + 4) Bludgeoning damage plus 7 (2d6) Cold damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Whelm",
+      "description": "Each creature in the elemental's space must make a DC 15 Strength saving throw. On a failed save, a target takes 13 (2d8 + 4) Bludgeoning damage plus 7 (2d6) Cold damage and has the Grappled condition (escape DC 15). Until this grapple ends, the target also has the Restrained condition and can't breathe unless it can breathe water. The elemental can grapple up to two Medium or smaller creatures at a time. On a successful save, a target takes half damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 4,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "STR",
+        "dc": 15,
+        "targets": "each creature in the elemental's space",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 15
+            },
+            {
+              "condition": "Restrained",
+              "duration": "until the grapple ends"
+            }
+          ],
+          "effects": "The target can't breathe unless it can breathe water. The elemental can grapple up to two Medium or smaller creatures at a time."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ],
+  "bonusActions": null,
+  "reactions": null,
+  "legendaryActions": null,
+  "lair": null
+}

@@ -1,0 +1,63 @@
+{
+  "name": "Gnoll Demoniac",
+  "slug": "gnoll-demoniac",
+  "size": "Medium",
+  "type": "Fiend",
+  "alignment": "Chaotic Evil",
+  "ac": "16",
+  "initiative": "+4 (14)",
+  "hp": "135",
+  "hpFormula": "18d8 + 54",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 12,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 6,
+    "dex": 1,
+    "con": 6,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +5",
+  "senses": "Darkvision 60 ft.; Passive Perception 15",
+  "languages": "Abyssal, Common, Gnoll",
+  "cr": "8 (XP 3,900; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The gnoll makes two Abyssal Strike attacks."
+    },
+    {
+      "name": "Abyssal Strike",
+      "description": "*Melee or Ranged Attack Roll:* +6, reach 5 ft. or range 60 ft. *Hit:* 20 (5d6 + 3) Poison damage."
+    },
+    {
+      "name": "Hunger of Yeenoghu (Recharge 5--6)",
+      "description": "The gnoll conjures a 30-foot Cube of magical Darkness originating from a point it can see within 60 feet, which lasts for 1 minute or until the gnoll's Concentration ends on it. This area is Difficult Terrain. *Dexterity Saving Throw:* DC 14, any creature that starts its turn in this area or enters it for the first time on a turn. *Failure:* 28 (8d6) Necrotic damage, and the gnoll or a creature of its choice it can see gains 10 Temporary Hit Points. *Success:* Half damage only."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Rampage (2/Day)",
+      "description": "Immediately after dealing damage to a creature that is already Bloodied, the gnoll moves up to half its Speed, and it makes one Abyssal Strike attack."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Fiends in Feral Flesh*\n**Habitat:** Desert, Forest, Grassland, Hill; **Treasure:** Armaments, Individual\nThe first gnolls arose from hyenas that fed on flesh tainted by the Abyss. Their corruption and violence delighted the demon lord Yeenoghu, who encouraged their numbers and spread them across the multiverse. Ever since, gnolls have been the cackling servants of Yeenoghu, existing to cause ruin and to feast on what remains.\n> \"Yeenoghu claims gnolls not as his brood but as maggots purposefully released to infest a despised carcass. They are a pernicious rot the Beast of Butchery spreads across mortal worlds. Whatever they once were, they were remade and are now his.\" -- Iggwilv, *Demonomicon of Iggwilv*\nGnoll warriors crave endless slaughter but quickly grow bored with the prey they kill and the treasures they plunder. Nevertheless, they're enraged by the thought of anyone else having what's theirs, compelling them to despoil what they can't take with them.\nRising above other gnolls with their viciousness and physical prowess, gnoll pack lords terrorize weaker gnolls into their service. These brutes drive other gnolls to acts of great violence, then claim the best of their servants' spoils.\nGnolls possessed by demonic vestiges of the demon lord Yeenoghu, fangs of Yeenoghu direct the chaos of gnoll packs. Along the way, these fanatics seek grisly omens from Yeenoghu and strive to interpret the demon lord's vicious goals.\nGnoll demoniacs are berserkers that arise from gnolls who've ritualistically fed on flesh corrupted by the Abyss. Now embodying the ruinous hunger of Yeenoghu, these gnolls throw themselves into battle, heedless of odds or their own survival. Rampaging demoniacs even devour other gnolls in their wild frenzies.",
+  "habitat": "Desert, Forest, Grassland, Hill",
+  "treasure": "Armaments, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

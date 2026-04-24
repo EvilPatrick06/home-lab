@@ -1,0 +1,59 @@
+{
+  "name": "Hobgoblin Warrior",
+  "slug": "hobgoblin-warrior",
+  "size": "Medium",
+  "type": "Fey",
+  "alignment": "Lawful Evil",
+  "ac": "18",
+  "initiative": "+3 (13)",
+  "hp": "11",
+  "hpFormula": "2d8 + 2",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 13,
+    "dex": 12,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 1,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "gear": "Half Plate Armor, Longbow, Longsword, Shield",
+  "senses": "Darkvision 60 ft.; Passive Perception 10",
+  "languages": "Common, Goblin",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The hobgoblin has Advantage on an attack roll against a creature if at least one of the hobgoblin's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 12 (2d10 + 1) Slashing damage."
+    },
+    {
+      "name": "Longbow",
+      "description": "*Ranged Attack Roll:* +3, range 150/600 ft. *Hit:* 5 (1d8 + 1) Piercing damage plus 7 (3d4) Poison damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Conquerers of Every Horizon*\n**Habitat:** Desert, Forest, Grassland, Hill, Mountain, Planar (Acheron), Underdark; **Treasure:** Armaments, Individual\nHobgoblins embody the primal urge to grow and spread, expressing such drives by bending the world to their whims. Lone hobgoblins claim woodland territories and plunder the wilds. In groups, they form hierarchical, martial societies bent on conquering lands and stripping them of resources to serve their expansionist zeal.\nHobgoblins often subjugate animals, monsters, and destructive Fey -- particularly goblins and bugbears -- to serve their plans. Hobgoblins might ally with dragons, warlords, the servants of warlike gods, or other powerful creatures that promise them control of new territories. Should hobgoblins bring an entire land to heel, they seek new conquests, venturing across seas, into the Underdark, or to stars and planes of existence beyond.\nMany hobgoblins serve the violent god Maglubiyet, whose hunger for conquest matches their own. Hobgoblin followers of Maglubiyet flourish in the Infinite Battlefield of Acheron, where they endlessly indulge their drive for domination. These war-obsessed hobgoblins employ elaborate tactics and strange weapons, which they sometimes unleash on worlds of the Material Plane.\nHobgoblin warriors might hunt and raid alone or with trained mastiffs, worgs, goblin gangs, or other allies. They employ simple tactics and exploit every advantage their allies provide. They willingly sacrifice companions in their pursuit of victory.\nHobgoblin captains are battlefield tacticians. They lead their allies to victory by employing martial skill and rallying others with orders and threats. Hobgoblin captains usually oversee hobgoblin battle groups or gangs of weaker monsters.\nHobgoblin warlords lead armies of hobgoblins and their allies, using their experience and strategic minds to command amid the ebb and flow of battle.\nThe drive to subjugate and pillage is part of hobgoblins' supernatural nature, though a few might repress their warlike tendencies or turn them to more useful ends. Roll on or choose a result from the Hobgoblin Strategies table to inspire how a hobgoblin carries out its conquest.",
+  "habitat": "Desert, Forest, Grassland, Hill, Mountain, Planar (Acheron), Underdark",
+  "treasure": "Armaments, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

@@ -1,0 +1,269 @@
+{
+  "id": "e3a7c1d2-4f8b-4e91-b6a3-9d2f0c8e7a14",
+  "name": "Light Sources",
+  "slug": "light-sources",
+  "category": "EnvironmentRule",
+  "subcategory": "Illumination",
+  "tags": [
+    "light",
+    "darkness",
+    "dim-light",
+    "bright-light",
+    "obscured",
+    "visibility",
+    "exploration",
+    "lightly-obscured",
+    "heavily-obscured"
+  ],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Rules Glossary",
+    "section": "Light"
+  },
+  "gameEdition": "2024",
+  "description": "Light determines how well creatures can see in an area. Three categories of illumination exist: Bright Light, Dim Light, and Darkness. Various objects, spells, and other effects create these illumination levels within specific radii. A light source typically describes two radii: an inner radius of Bright Light and an outer radius of Dim Light. Beyond both radii is Darkness unless another light source overlaps. Bright Light lets most creatures see normally. Even gloomy days provide Bright Light, as do torches, lanterns, fires, and other sources of illumination within a specific radius. Dim Light, also called shadows, creates a Lightly Obscured area. An area of Dim Light is usually a boundary between Bright Light and Darkness. The soft light of twilight and dawn also counts as Dim Light. A particularly brilliant full moon might bathe the land in Dim Light. Darkness creates a Heavily Obscured area. Characters face Darkness outdoors at night (even most moonlit nights), within the confines of an unlit dungeon or subterranean vault, or in an area of magical Darkness.",
+  "shortDescription": "Rules governing illumination levels (Bright Light, Dim Light, Darkness), their obscurement effects, and common light-producing equipment.",
+  "rulesAsWritten": "Bright Light lets most creatures see normally. Dim Light creates a Lightly Obscured area. Darkness creates a Heavily Obscured area. A Lightly Obscured area imposes Disadvantage on Wisdom (Perception) checks that rely on sight. A Heavily Obscured area effectively causes the Blinded condition for creatures trying to see into or through it.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": true,
+  "maxLevel": 2,
+  "levels": [
+    {
+      "level": 0,
+      "name": "Bright Light",
+      "description": "Most creatures see normally in Bright Light. Even gloomy days provide Bright Light, as do torches, lanterns, fires, and other sources of illumination within a specific radius. No obscurement penalties apply.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Normal vision. No obscurement. All sight-based checks function normally.",
+      "isFatal": false
+    },
+    {
+      "level": 1,
+      "name": "Dim Light",
+      "description": "Dim Light, also called shadows, creates a Lightly Obscured area. An area of Dim Light is usually a boundary between a source of Bright Light and surrounding Darkness. The soft light of twilight and dawn also counts as Dim Light. Creatures in a Lightly Obscured area have Disadvantage on Wisdom (Perception) checks that rely on sight.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [
+        {
+          "id": "b7c1f3a8-2d4e-4b9a-8e6f-1a3c5d7e9f01",
+          "rollType": "AbilityCheck",
+          "scope": {
+            "skills": ["Perception"],
+            "senses": ["Sight"],
+            "customScope": "Only Wisdom (Perception) checks that rely on sight"
+          },
+          "imposedOn": "Any",
+          "condition": "Creature is attempting a Wisdom (Perception) check that relies on sight in a Lightly Obscured area",
+          "note": "Dim Light creates a Lightly Obscured area"
+        }
+      ],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Creates a Lightly Obscured area. Creatures with Darkvision treat Darkness within their Darkvision range as Dim Light instead.",
+      "isFatal": false
+    },
+    {
+      "level": 2,
+      "name": "Darkness",
+      "description": "Darkness creates a Heavily Obscured area. Characters face Darkness outdoors at night, within the confines of an unlit dungeon or subterranean vault, or in an area of magical Darkness. A creature effectively suffers from the Blinded condition when trying to see something in Darkness.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [
+        {
+          "id": "d4e2a6c8-9f1b-4d3a-b5e7-2c4f6a8d0e12",
+          "rollType": "AttackRoll",
+          "scope": {
+            "customScope": "Attack rolls made by a creature that cannot see its target due to Darkness"
+          },
+          "imposedOn": "Self",
+          "condition": "Creature is Blinded due to Heavily Obscured area (Darkness)",
+          "note": "Blinded condition: creature's attack rolls have Disadvantage"
+        }
+      ],
+      "automaticOutcomes": [
+        {
+          "id": "f1a3b5c7-8d2e-4f6a-9b1c-3e5d7a9c0f23",
+          "rollType": "AbilityCheck",
+          "outcome": "AutoFail",
+          "scope": {
+            "senses": ["Sight"],
+            "customScope": "Any ability check that requires sight"
+          },
+          "condition": "Creature is in or looking into a Heavily Obscured area (Darkness) without special senses",
+          "note": "Blinded condition: automatically fails ability checks requiring sight"
+        }
+      ],
+      "actionRestrictions": [],
+      "conditionsImposed": [
+        {
+          "id": "a8b2c4d6-1e3f-4a5b-9c7d-6e8f0a2b4c56",
+          "conditionName": "Blinded",
+          "isAutomatic": true,
+          "note": "A creature effectively suffers the Blinded condition when trying to see into a Heavily Obscured area (Darkness). Creatures with Blindsight, Truesight, or Darkvision (within their Darkvision range, which treats Darkness as Dim Light) may negate this."
+        }
+      ],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Creates a Heavily Obscured area. Creatures effectively have the Blinded condition when trying to see something in this area. Attackers who cannot be seen by their target have Advantage on attack rolls against that target.",
+      "isFatal": false
+    }
+  ],
+  "levelStackingBehavior": "HighestOnly",
+  "numericalModifiers": [],
+  "advantageGrants": [
+    {
+      "id": "c3d5e7f9-0a2b-4c6d-8e1f-5a7b9c3d1e45",
+      "rollType": "AttackRoll",
+      "scope": {
+        "customScope": "Attacker is unseen by the target due to obscurement from Darkness"
+      },
+      "grantedTo": "Attacker",
+      "condition": "The attacking creature cannot be seen by its target because the target is Blinded due to Darkness or other heavy obscurement",
+      "note": "Unseen attacker rule: attack rolls have Advantage against targets that cannot see the attacker"
+    }
+  ],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Blinded",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "Darkness (Heavily Obscured) effectively inflicts the Blinded condition on creatures without special senses such as Darkvision, Blindsight, or Truesight."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "e1f3a5b7-2c4d-6e8f-0a1b-3c5d7e9f1a23",
+      "order": 0,
+      "name": "Determine Illumination Level",
+      "description": "For any given area, determine the current illumination level. Check all active light sources (mundane and magical) and their listed radii. The area within the inner radius is Bright Light, the area within the outer radius is Dim Light, and beyond all radii is Darkness. Overlapping light sources use the brightest illumination that applies.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Whenever a creature enters an area or illumination conditions change"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The DM determines the illumination category of each area: Bright Light (level 0), Dim Light (level 1), or Darkness (level 2). Common light sources: Candle (Bright 5 ft / Dim +5 ft, 1 hour), Torch (Bright 20 ft / Dim +20 ft, 1 hour), Lamp (Bright 15 ft / Dim +30 ft), Hooded Lantern (Bright 30 ft / Dim +30 ft, can reduce to Dim 5 ft), Bullseye Lantern (Bright 60 ft cone / Dim +60 ft).",
+          "mechanicalNote": "Multiple overlapping light sources do not stack; the brightest level at any point applies."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f2a4b6c8-3d5e-7f9a-1b2c-4d6e8f0a2b34",
+      "order": 1,
+      "name": "Apply Darkvision Adjustment",
+      "description": "A creature with Darkvision treats Darkness within the range of its Darkvision as if it were Dim Light (and thus only Lightly Obscured instead of Heavily Obscured). Darkvision does not allow a creature to see in Dim Light as if it were Bright Light; the Dim Light penalty still applies. Darkvision is typically monochromatic (shades of gray).",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature has Darkvision and is in Darkness within its Darkvision range"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Darkness within the creature's Darkvision range is treated as Dim Light (Lightly Obscured) instead of Darkness (Heavily Obscured). Dim Light within the creature's Darkvision range remains Dim Light. The creature can discern shapes and shades of gray only, with no color.",
+          "mechanicalNote": "Darkvision downgrades Darkness to Dim Light within range. It does not upgrade Dim Light to Bright Light."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a3b5c7d9-4e6f-8a1b-2c3d-5e7f9a1b3c45",
+      "order": 2,
+      "name": "Apply Obscurement Effects",
+      "description": "Once illumination is determined (and Darkvision adjustments applied), apply the appropriate obscurement penalties. Lightly Obscured (Dim Light) imposes Disadvantage on sight-based Perception checks. Heavily Obscured (Darkness) effectively imposes the Blinded condition.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature attempts an action affected by obscurement"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "In Lightly Obscured areas: Disadvantage on Wisdom (Perception) checks relying on sight. In Heavily Obscured areas: the creature effectively has the Blinded condition—it automatically fails ability checks requiring sight, its attack rolls have Disadvantage, and attack rolls against it have Advantage (due to unseen attacker rules).",
+          "mechanicalNote": "Blindsight and Truesight bypass obscurement entirely within their respective ranges."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "b4c6d8e0-5f7a-9b1c-3d4e-6f8a0b2c4d56",
+      "method": "Other",
+      "description": "Lighting a torch, lantern, or other light source; casting a spell that produces light (e.g., Light, Daylight, Continual Flame); opening shutters or doors to admit natural light; or the passage of time (e.g., dawn arriving). The illumination level changes immediately when a new light source is introduced or an existing one is extinguished.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "maxStacks": 1,
+    "stackingNote": "Multiple light sources do not stack. At any given point, only the brightest illumination level applies. Magical Darkness may override nonmagical light sources; specific spell descriptions govern interactions between magical light and magical darkness."
+  },
+  "dmNotes": "When determining illumination, consider all active light sources and choose the brightest at any given point. Magical Darkness spells (such as the Darkness spell) explicitly state they cannot be dispelled by nonmagical light and may override lower-level magical light. Darkvision is extremely common among player species in the 2024 rules, but Dim Light penalties still apply—Darkvision does not grant normal sight in darkness, only downgrades Darkness to Dim Light. Torches and other mundane light sources have durations; track them in dungeon exploration.",
+  "commonRulings": [
+    {
+      "question": "Does Darkvision let you see normally in Darkness?",
+      "ruling": "No. Darkvision treats Darkness as Dim Light within its range. The creature still suffers Disadvantage on Wisdom (Perception) checks relying on sight, as Dim Light creates a Lightly Obscured area. Only Bright Light allows fully unpenalized sight.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can you use a torch and a lantern together to get brighter light?",
+      "ruling": "No. Multiple nonmagical light sources do not combine to create Bright Light beyond their listed radii. Each source provides its own radii of Bright Light and Dim Light; where they overlap, the brightest category applies.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does the Darkness spell snuff out torches?",
+      "ruling": "The Darkness spell creates magical Darkness that nonmagical light cannot illuminate. A torch continues burning but its light does not penetrate the magical Darkness in the overlapping area. If the torch is outside the Darkness spell area, it illuminates normally beyond the spell's boundaries.",
+      "isOfficial": true
+    },
+    {
+      "question": "If a creature is in Darkness and attacks a creature in Bright Light, does it have Advantage or Disadvantage?",
+      "ruling": "Both. The attacker cannot see the target clearly (Blinded—Disadvantage) but the target also likely cannot see the attacker (unseen attacker—Advantage). Advantage and Disadvantage cancel each other out regardless of the number of sources, so the attack roll is made normally.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-07-15T00:00:00Z",
+  "updatedAt": "2024-07-15T00:00:00Z",
+  "version": "1.0.0"
+}

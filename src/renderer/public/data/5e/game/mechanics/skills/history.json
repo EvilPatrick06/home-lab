@@ -1,0 +1,15 @@
+{
+  "id": "history",
+  "name": "History",
+  "ability": "intelligence",
+  "description": "Your Intelligence (History) check measures your ability to recall lore about historical events, legendary people, ancient kingdoms, past disputes, recent wars, and lost civilizations.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Recall lore about a historical event or period",
+    "Identify a historically significant object or location",
+    "Know information about legendary heroes or villains",
+    "Determine the cultural significance of a tradition or custom",
+    "Recognize a coat of arms, banner, or heraldic symbol"
+  ]
+}

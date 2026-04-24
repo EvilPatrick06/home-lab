@@ -1,0 +1,29 @@
+{
+  "id": "cover",
+  "name": "Cover",
+  "description": "Obstacles can provide cover during combat, making a target more difficult to harm. A target can benefit from cover only when an attack or other effect originates on the opposite side of the cover.",
+  "coverTypes": [
+    {
+      "type": "Half Cover",
+      "acBonus": 2,
+      "dexSaveBonus": 2,
+      "description": "A target with Half Cover has a +2 bonus to AC and Dexterity saving throws. A target has Half Cover if an obstacle blocks at least half of its body. The obstacle might be a low wall, a large piece of furniture, a narrow tree trunk, or a creature, whether that creature is an enemy or a friend.",
+      "examples": ["Low wall", "Large piece of furniture", "Narrow tree trunk", "Another creature (enemy or ally)"]
+    },
+    {
+      "type": "Three-Quarters Cover",
+      "acBonus": 5,
+      "dexSaveBonus": 5,
+      "description": "A target with Three-Quarters Cover has a +5 bonus to AC and Dexterity saving throws. A target has Three-Quarters Cover if about three-quarters of it is covered by an obstacle. The obstacle might be a portcullis, an arrow slit, or a thick tree trunk.",
+      "examples": ["Portcullis", "Arrow slit", "Thick tree trunk"]
+    },
+    {
+      "type": "Total Cover",
+      "acBonus": null,
+      "dexSaveBonus": null,
+      "description": "A target with Total Cover can't be targeted directly by an attack or a spell, although some spells can reach such a target by including it in an area of effect. A target has Total Cover if it is completely concealed by an obstacle.",
+      "examples": ["Solid wall", "Closed door", "Being completely behind a large pillar"]
+    }
+  ],
+  "notes": "Cover applies relative to the origin of the attack or effect. A creature can only benefit from one type of cover at a time (the most protective cover applies). In 2024 rules, creatures no longer provide Half Cover by default -- only specific features or DM rulings may apply this."
+}

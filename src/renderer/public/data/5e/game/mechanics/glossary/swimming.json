@@ -1,0 +1,11 @@
+{
+  "name": "Swimming",
+  "slug": "swimming",
+  "description": "While swimming, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain) unless a creature has a Swim Speed.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

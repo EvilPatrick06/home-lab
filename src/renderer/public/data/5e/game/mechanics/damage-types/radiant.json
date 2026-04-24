@@ -1,0 +1,13 @@
+{
+  "id": "radiant",
+  "name": "Radiant",
+  "description": "Radiant damage, dealt by a Cleric's Flame Strike spell or an angel's smiting weapon, sears the flesh like fire and overloads the spirit with power. Radiant damage represents divine and holy energy.",
+  "commonSources": [
+    "Sacred Flame cantrip",
+    "Guiding Bolt spell",
+    "Divine Smite",
+    "Spirit Guardians spell",
+    "Angel attacks"
+  ],
+  "resistanceNotes": "Fiends and undead are often vulnerable to or specially affected by Radiant damage. Some undead cannot regenerate hit points when damaged by Radiant sources."
+}

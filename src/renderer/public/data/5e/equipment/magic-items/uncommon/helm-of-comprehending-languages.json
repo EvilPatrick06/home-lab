@@ -1,0 +1,13 @@
+{
+  "name": "Helm of Comprehending Languages",
+  "slug": "helm-of-comprehending-languages",
+  "type": "Wondrous Item",
+  "rarity": "Uncommon",
+  "attunement": false,
+  "description": "While wearing this helm, you can cast *Comprehend Languages* from it.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Climber's Kit",
+  "cost": "25 GP",
+  "weight": "12 lb.",
+  "description": "Includes boot tips, gloves, pitons, harness. As Utilize action, anchor yourself; can't fall more than 25 feet from anchor point.",
+  "slug": "climbers-kit",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

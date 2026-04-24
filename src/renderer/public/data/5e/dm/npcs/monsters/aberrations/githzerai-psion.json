@@ -1,0 +1,63 @@
+{
+  "name": "Githzerai Psion",
+  "slug": "githzerai-psion",
+  "size": "Medium",
+  "type": "Aberration",
+  "alignment": "Lawful Neutral",
+  "ac": "18",
+  "initiative": "+8 (18)",
+  "hp": "169",
+  "hpFormula": "26d8 + 52",
+  "speed": "40 ft., Fly 40 ft. (hover)",
+  "abilityScores": {
+    "str": 12,
+    "dex": 18,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 5,
+    "dex": 8,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Arcana +8, Insight +8, Perception +8",
+  "senses": "Passive Perception 18",
+  "languages": "Common, Gith",
+  "cr": "12 (XP 8,400; PB +4)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The githzerai makes three Psychic Warp attacks."
+    },
+    {
+      "name": "Psychic Warp",
+      "description": "*Melee or Ranged Attack Roll:* +8, reach 5 ft. or range 120 ft. *Hit:* 26 (4d10 + 4) Psychic damage, and the target has the githzerai's choice of (A) the Charmed condition until the start of the githzerai's next turn or (B) the Prone condition, provided the target is a Large or smaller creature."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The githzerai casts one of the following spells, requiring no spell components and using Intelligence as the spellcasting ability (spell save DC 16):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Psionic Defense",
+      "description": "The githzerai casts *Feather Fall* or *Shield* in response to the spell's trigger, requiring no spell components and using the same spellcasting ability as Spellcasting."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "*Explorers at Reality's Extremes*\n**Habitat:** Planar (Limbo); **Treasure:** Arcana, Individual\nGithzerai are gaunt, humanlike beings, physically identical to githyanki. They share a history with githyanki as creatures physically and psychically transformed by mind flayers (see the \"Githyanki\" section). Githzerai know that in body and mind, their species was manipulated by their former illithid oppressors. Rather than giving in to this programming, githzerai follow the teachings of their first leader, Zerthimon, and reshape their minds and bodies to find peace.\nGithzerai psychically create serene, hidden sanctuaries in chaotic reaches of the multiverse. Most of these redoubts drift through the chaotic plane of Limbo, but githzerai conclaves can also be found in the Abyss, the Elemental Chaos, and the Feywild. Githzerai create these cloisters to hone their psionic abilities, to gain insights from the multiverse, and to avoid githyanki and mind flayers.\n> \"We githzerai crave a challenge, so that when Zerthimon returns, he shall find us ready. Thus we traveled to howling Limbo to make our new home.\" — Zaerith Menyar-Ag-Gith, githzerai leader\nGithzerai monks pursue control of their minds by honing their physical and psionic talents. They might be found beyond githzerai sanctuaries, testing themselves amid the dangerous extremes of the multiverse.\nGithzerai zerths embody the discipline espoused by their first leader, Zerthimon. Their psionic control aids them in protecting their people and traveling the planes of existence without fear of being followed by githyanki or mind flayer foes.\nThese powerful psions oversee githzerai sanctuaries, study enigmatic planar events, and lead rrakkma—hostile forays into mind flayer colonies to slay illithids and uncover secrets of how the ancient gith were transformed.\nCharacters might be drawn into conflicts involving githzerai and githyanki in various ways. Roll on or choose a result from the Gith Conflicts table to inspire adventures featuring these age-old rivals.",
+  "habitat": "Planar (Limbo)",
+  "treasure": "Arcana, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Gith",
+    "file": "Gith.md"
+  }
+}

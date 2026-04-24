@@ -1,0 +1,12 @@
+{
+  "name": "Charm of Heroism",
+  "type": "Charm",
+  "charges": 3,
+  "description": "This charm has 3 charges. As a Magic action, you can expend 1 charge to cast Heroism (as 2nd-level spell). Once all charges are used, the charm vanishes.",
+  "slug": "charm-of-heroism",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

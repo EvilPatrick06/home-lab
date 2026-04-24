@@ -1,0 +1,69 @@
+{
+  "name": "Acid Splash",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You create an acidic bubble at a point within range, where it explodes in a 5-foot-radius Sphere. Each creature in that Sphere must succeed on a Dexterity saving throw or take 1d6 Acid damage.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 5
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noEffectOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Acid",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 6,
+        "description": "The damage increases to 2d6."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 6,
+        "description": "The damage increases to 3d6."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 6,
+        "description": "The damage increases to 4d6."
+      }
+    ]
+  },
+  "tags": ["damage", "cantrip"]
+}

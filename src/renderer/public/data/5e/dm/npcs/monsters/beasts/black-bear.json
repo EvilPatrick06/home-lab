@@ -1,0 +1,52 @@
+{
+  "name": "Black Bear",
+  "slug": "black-bear",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "11",
+  "initiative": "+1 (11)",
+  "hp": "19",
+  "hpFormula": "3d8 + 6",
+  "speed": "30 ft., Climb 30 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 12,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": 1,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +5",
+  "senses": "Darkvision 60 ft.; Passive Perception 15",
+  "languages": "None",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The bear makes two Rend attacks."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Slashing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

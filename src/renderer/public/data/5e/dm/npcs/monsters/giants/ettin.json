@@ -1,0 +1,168 @@
+{
+  "name": "Ettin",
+  "sizes": ["Large"],
+  "creatureType": "Giant",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Hill", "Underdark"],
+  "treasure": ["Armaments"],
+  "lore": "An ettin is a foul, two-headed giant that is the offspring of orcs and giants or the result of a demonic curse. Each head has its own name, personality, and preferences, though both share the same body. The heads often bicker and argue, but they cooperate in battle, coordinating their attacks against foes. One head remains alert while the other sleeps, making ettins notoriously difficult to surprise.",
+  "armorClass": {
+    "value": 12,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 85,
+    "dice": {
+      "count": 10,
+      "die": "d10",
+      "modifier": 30
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 21,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "gear": [
+    {
+      "name": "Greataxe",
+      "quantity": 1
+    },
+    {
+      "name": "Morningstar",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Giant", "Orc"]
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Two Heads",
+      "description": "The ettin has Advantage on Wisdom (Perception) checks and on saving throws against the Blinded, Charmed, Deafened, Frightened, Stunned, and Unconscious conditions."
+    },
+    {
+      "name": "Wakeful",
+      "description": "When one of the ettin's heads is asleep, its other head is awake."
+    }
+  ],
+  "multiattack": {
+    "description": "The ettin makes two attacks, using Greataxe, Morningstar, or a combination of them.",
+    "attacks": [
+      {
+        "actionName": "Greataxe",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greataxe",
+        "replaceCount": 2,
+        "with": "Morningstar"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greataxe",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 18 (2d12 + 5) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 18,
+              "dice": {
+                "count": 2,
+                "die": "d12",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Morningstar",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 14 (2d8 + 5) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 5
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

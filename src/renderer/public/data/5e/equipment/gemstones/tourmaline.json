@@ -1,0 +1,13 @@
+{
+  "name": "Tourmaline",
+  "slug": "tourmaline",
+  "value": "100 GP",
+  "category": "Gemstone",
+  "description": "pale green, blue, brown, or red",
+  "dieValue": "10",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

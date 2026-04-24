@@ -1,0 +1,193 @@
+{
+  "id": "b7e3c1a2-4f8d-4e6a-9b2c-1d3e5f7a8b9c",
+  "name": "Half Cover",
+  "slug": "half-cover",
+  "category": "Cover",
+  "subcategory": "Degrees of Cover",
+  "tags": ["cover", "AC", "dexterity-saving-throw", "combat", "defense", "obstacles"],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "Cover"
+  },
+  "gameEdition": "2024",
+  "description": "A target has Half Cover when another creature or an object covers at least half of the target. Half Cover grants a +2 bonus to AC and Dexterity saving throws. A target can benefit from cover only when an attack or other effect originates on the opposite side of the cover. If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together. For example, if a target is behind a creature that gives Half Cover and a tree trunk that gives Three-Quarters Cover, the target has Three-Quarters Cover, not both.",
+  "shortDescription": "Half Cover grants +2 to AC and Dexterity saving throws when at least half the target is blocked by another creature or object.",
+  "rulesAsWritten": "Half Cover: +2 bonus to AC and Dexterity saving throws. Offered By: Another creature or an object that covers at least half of the target. A target can benefit from cover only when an attack or other effect originates on the opposite side of the cover. If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "target": "AC",
+      "operation": "Add",
+      "value": 2,
+      "scope": {
+        "customScope": "When the target has Half Cover from an attack or effect originating on the opposite side of the cover"
+      },
+      "perLevelScaling": false,
+      "note": "Applies when at least half the target is covered by another creature or an object"
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "target": "SavingThrow",
+      "operation": "Add",
+      "value": 2,
+      "abilityScore": "DEX",
+      "scope": {
+        "customScope": "When the target has Half Cover from an effect originating on the opposite side of the cover"
+      },
+      "perLevelScaling": false,
+      "note": "Applies to Dexterity saving throws when at least half the target is covered by another creature or an object"
+    }
+  ],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 0,
+      "name": "Determine Half Cover",
+      "description": "A target has Half Cover when another creature or an object covers at least half of the target and the attack or other effect originates on the opposite side of the cover.",
+      "trigger": {
+        "event": "OnTargeted",
+        "condition": "An attack or effect originates on the opposite side of the cover source, and at least half of the target is covered by another creature or an object"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+            "target": "AC",
+            "operation": "Add",
+            "value": 2,
+            "perLevelScaling": false,
+            "note": "+2 bonus to AC from Half Cover"
+          }
+        },
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+            "target": "SavingThrow",
+            "operation": "Add",
+            "value": 2,
+            "abilityScore": "DEX",
+            "perLevelScaling": false,
+            "note": "+2 bonus to Dexterity saving throws from Half Cover"
+          }
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "order": 1,
+      "name": "Most Protective Cover Applies",
+      "description": "If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together. For example, if a target is behind a creature that gives Half Cover and a tree trunk that gives Three-Quarters Cover, the target has Three-Quarters Cover.",
+      "trigger": {
+        "event": "OnTargeted",
+        "condition": "Target is behind multiple sources of cover of varying degrees"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Only the most protective degree of cover applies. Multiple degrees of cover do not stack. Half Cover (+2) is superseded by Three-Quarters Cover (+5) or Total Cover.",
+          "mechanicalNote": "Half Cover is the least protective degree that provides a numerical bonus. If a higher degree of cover is available, it replaces Half Cover rather than adding to it."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "17a8b9c0-d1e2-3456-abcd-567890123456",
+      "order": 2,
+      "name": "Cover Directionality",
+      "description": "A target can benefit from Half Cover only when an attack or other effect originates on the opposite side of the cover. Cover has no benefit if the attack or effect does not originate from the opposite side.",
+      "trigger": {
+        "event": "OnTargeted",
+        "condition": "Attack or effect must originate on the opposite side of the covering creature or object"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Half Cover provides no benefit if the attack or effect does not originate from the opposite side of the cover source.",
+          "mechanicalNote": "The DM determines whether the attack or effect originates on the opposite side of the cover."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "28b9c0d1-e2f3-4567-bcde-678901234567",
+      "method": "Other",
+      "description": "Half Cover ends when the target is no longer behind a creature or object that covers at least half of it, or when the attack or effect no longer originates from the opposite side of the cover.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "stackingNote": "Multiple sources of cover do not stack. Only the most protective degree of cover applies. Half Cover (+2) does not combine with Three-Quarters Cover (+5) or Total Cover; only the highest applicable degree is used."
+  },
+  "dmNotes": "Half Cover can be provided by another creature (including allies and enemies) or by objects such as low walls, furniture, narrow tree trunks, or similar obstacles that block at least half of the target. The DM determines whether a target has Half Cover based on positioning relative to the source of the attack or effect. When playing on a grid, the DM adjudicates cover by considering lines from the attacker to the target.",
+  "commonRulings": [
+    {
+      "question": "Can an ally provide Half Cover?",
+      "ruling": "Yes. Another creature, including an ally, can provide Half Cover if it covers at least half of the target and is between the target and the source of the attack or effect.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Half Cover apply to spell saving throws other than Dexterity?",
+      "ruling": "No. Half Cover grants a +2 bonus only to AC and Dexterity saving throws, not to saving throws using other abilities.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Half Cover stack with Three-Quarters Cover?",
+      "ruling": "No. If a target is behind multiple sources of cover, only the most protective degree of cover applies. The degrees are not added together.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Half Cover protect against effects that originate on the same side as the cover?",
+      "ruling": "No. A target can benefit from cover only when an attack or other effect originates on the opposite side of the cover.",
+      "isOfficial": true
+    },
+    {
+      "question": "What objects or creatures typically provide Half Cover?",
+      "ruling": "Another creature or an object that covers at least half of the target provides Half Cover. Examples include another creature standing between the attacker and target, a low wall, or a piece of large furniture.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

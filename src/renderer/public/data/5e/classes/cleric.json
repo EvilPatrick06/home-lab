@@ -1,0 +1,1849 @@
+{
+  "name": "Cleric",
+  "description": "Clerics draw power from the realms of the gods and harness it to work miracles. Blessed by a deity, a pantheon, or another immortal entity, a Cleric can reach out to the divine magic of the Outer Planes — where gods dwell — and channel it to bolster people and battle foes.",
+  "coreTraits": {
+    "primaryAbility": ["Wisdom"],
+    "hitPointDie": "D8",
+    "savingThrowProficiencies": ["Wisdom", "Charisma"],
+    "skillProficiencies": {
+      "count": 2,
+      "from": ["History", "Insight", "Medicine", "Persuasion", "Religion"]
+    },
+    "weaponProficiencies": [
+      {
+        "category": "Simple"
+      }
+    ],
+    "armorTraining": ["Light", "Medium", "Shields"],
+    "startingEquipment": [
+      {
+        "label": "A",
+        "items": ["Chain Shirt", "Shield", "Mace", "Holy Symbol", "Priest's Pack"],
+        "gp": 7
+      },
+      {
+        "label": "B",
+        "items": [],
+        "gp": 110
+      }
+    ]
+  },
+  "multiclassing": {
+    "hitPointDie": true,
+    "armorTraining": ["Light", "Medium", "Shields"],
+    "spellcastingNote": "See the multiclassing rules in chapter 2 to determine your available spell slots."
+  },
+  "spellcasting": {
+    "type": "full",
+    "ability": "Wisdom",
+    "focus": ["Holy Symbol"],
+    "ritualCasting": "fromPrepared",
+    "cantripsKnown": true,
+    "preparedSpellsMechanic": "anyFromListOnLongRest",
+    "usesSpellbook": false,
+    "pactMagic": false,
+    "initialCantrips": 3,
+    "initialPreparedSpells": 4
+  },
+  "levelProgression": [
+    {
+      "level": 1,
+      "proficiencyBonus": 2,
+      "features": ["Spellcasting", "Divine Order"],
+      "cantrips": 3,
+      "preparedSpells": 4,
+      "channelDivinity": 0,
+      "spellSlots": {
+        "slot1": 2,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 2,
+      "proficiencyBonus": 2,
+      "features": ["Channel Divinity"],
+      "cantrips": 3,
+      "preparedSpells": 5,
+      "channelDivinity": 2,
+      "spellSlots": {
+        "slot1": 3,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 3,
+      "proficiencyBonus": 2,
+      "features": ["Cleric Subclass"],
+      "cantrips": 3,
+      "preparedSpells": 6,
+      "channelDivinity": 2,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 2,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 4,
+      "proficiencyBonus": 2,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 4,
+      "preparedSpells": 7,
+      "channelDivinity": 2,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 5,
+      "proficiencyBonus": 3,
+      "features": ["Sear Undead"],
+      "cantrips": 4,
+      "preparedSpells": 9,
+      "channelDivinity": 2,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 2,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 6,
+      "proficiencyBonus": 3,
+      "features": ["Subclass feature"],
+      "cantrips": 4,
+      "preparedSpells": 10,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 7,
+      "proficiencyBonus": 3,
+      "features": ["Blessed Strikes"],
+      "cantrips": 4,
+      "preparedSpells": 11,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 1,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 8,
+      "proficiencyBonus": 3,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 4,
+      "preparedSpells": 12,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 2,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 9,
+      "proficiencyBonus": 4,
+      "features": [],
+      "cantrips": 4,
+      "preparedSpells": 14,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 1,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 10,
+      "proficiencyBonus": 4,
+      "features": ["Divine Intervention"],
+      "cantrips": 5,
+      "preparedSpells": 15,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 11,
+      "proficiencyBonus": 4,
+      "features": [],
+      "cantrips": 5,
+      "preparedSpells": 16,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 12,
+      "proficiencyBonus": 4,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 5,
+      "preparedSpells": 16,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 13,
+      "proficiencyBonus": 5,
+      "features": [],
+      "cantrips": 5,
+      "preparedSpells": 17,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 14,
+      "proficiencyBonus": 5,
+      "features": ["Improved Blessed Strikes"],
+      "cantrips": 5,
+      "preparedSpells": 17,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 15,
+      "proficiencyBonus": 5,
+      "features": [],
+      "cantrips": 5,
+      "preparedSpells": 18,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 16,
+      "proficiencyBonus": 5,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 5,
+      "preparedSpells": 18,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 17,
+      "proficiencyBonus": 6,
+      "features": ["Subclass feature"],
+      "cantrips": 5,
+      "preparedSpells": 19,
+      "channelDivinity": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 18,
+      "proficiencyBonus": 6,
+      "features": [],
+      "cantrips": 5,
+      "preparedSpells": 20,
+      "channelDivinity": 4,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 19,
+      "proficiencyBonus": 6,
+      "features": ["Epic Boon"],
+      "cantrips": 5,
+      "preparedSpells": 21,
+      "channelDivinity": 4,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 2,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 20,
+      "proficiencyBonus": 6,
+      "features": ["Greater Divine Intervention"],
+      "cantrips": 5,
+      "preparedSpells": 22,
+      "channelDivinity": 4,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 2,
+        "slot7": 2,
+        "slot8": 1,
+        "slot9": 1
+      }
+    }
+  ],
+  "classFeatures": [
+    {
+      "name": "Spellcasting",
+      "level": 1,
+      "description": "You have learned to cast spells through prayer and meditation. You know three cantrips of your choice from the Cleric spell list. When you reach Cleric levels 4 and 10, you learn another cantrip of your choice from the Cleric spell list. You prepare four level 1 spells from the Cleric spell list. Whenever you finish a Long Rest, you can change your list of prepared spells, replacing any of the spells there with other Cleric spells for which you have spell slots. Wisdom is your spellcasting ability. You can use a Holy Symbol as a Spellcasting Focus."
+    },
+    {
+      "name": "Divine Order",
+      "level": 1,
+      "description": "You have dedicated yourself to one of the following sacred roles of your choice: Protector or Thaumaturge.",
+      "options": [
+        {
+          "name": "Protector",
+          "description": "Trained for battle, you gain proficiency with Martial weapons and training with Heavy armor."
+        },
+        {
+          "name": "Thaumaturge",
+          "description": "You know one extra cantrip from the Cleric spell list. In addition, your mystical connection to the divine gives a bonus to your Intelligence (Arcana or Religion) checks. The bonus equals your Wisdom modifier (minimum bonus of +1)."
+        }
+      ]
+    },
+    {
+      "name": "Channel Divinity",
+      "level": 2,
+      "description": "You can channel divine energy directly from the Outer Planes to fuel magical effects. You start with two such effects: Divine Spark and Turn Undead. You can use this class's Channel Divinity twice. You regain one of its expended uses when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest. You gain additional uses when you reach certain Cleric levels, as shown in the Channel Divinity column of the Cleric Features table. If a Channel Divinity effect requires a saving throw, the DC equals the spell save DC from this class's Spellcasting feature.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 2,
+        "restType": "Long",
+        "rechargeAlternative": "Regain one expended use on a Short Rest"
+      },
+      "options": [
+        {
+          "name": "Divine Spark",
+          "description": "As a Magic action, you point your Holy Symbol at another creature you can see within 30 feet of yourself and focus divine energy at it. Roll 1d8 and add your Wisdom modifier. You either restore Hit Points to the creature equal to that total or force the creature to make a Constitution saving throw. On a failed save, the creature takes Necrotic or Radiant damage (your choice) equal to that total. On a successful save, the creature takes half as much damage (round down). You roll an additional d8 when you reach Cleric levels 7 (2d8), 13 (3d8), and 18 (4d8).",
+          "savingThrow": {
+            "ability": "Wisdom",
+            "formula": "spell save DC"
+          },
+          "damageType": ["Necrotic", "Radiant"]
+        },
+        {
+          "name": "Turn Undead",
+          "description": "As a Magic action, you present your Holy Symbol and censure Undead creatures. Each Undead of your choice within 30 feet of you must make a Wisdom saving throw. If the creature fails its save, it has the Frightened and Incapacitated conditions for 1 minute. For that duration, it tries to move as far from you as it can on its turns. This effect ends early on the creature if it takes any damage, if you have the Incapacitated condition, or if you die.",
+          "savingThrow": {
+            "ability": "Wisdom",
+            "formula": "spell save DC"
+          },
+          "conditions": ["Frightened", "Incapacitated"]
+        }
+      ],
+      "scalingValues": {
+        "divineSpark": [
+          {
+            "level": 2,
+            "value": "1d8"
+          },
+          {
+            "level": 7,
+            "value": "2d8"
+          },
+          {
+            "level": 13,
+            "value": "3d8"
+          },
+          {
+            "level": 18,
+            "value": "4d8"
+          }
+        ],
+        "uses": [
+          {
+            "level": 2,
+            "value": 2
+          },
+          {
+            "level": 6,
+            "value": 3
+          },
+          {
+            "level": 18,
+            "value": 4
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cleric Subclass",
+      "level": 3,
+      "description": "You gain a Cleric subclass of your choice. The Life Domain, Light Domain, Trickery Domain, and War Domain subclasses are detailed after this class's description. A subclass is a specialization that grants you features at certain Cleric levels. For the rest of your career, you gain each of your subclass's features that are of your Cleric level or lower."
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 4,
+      "description": "You gain the Ability Score Improvement feat or another feat of your choice for which you qualify. You gain this feature again at Cleric levels 8, 12, and 16."
+    },
+    {
+      "name": "Sear Undead",
+      "level": 5,
+      "description": "Whenever you use Turn Undead, you can roll a number of d8s equal to your Wisdom modifier (minimum of 1d8) and add the rolls together. Each Undead that fails its saving throw against that use of Turn Undead takes Radiant damage equal to the roll's total. This damage doesn't end the turn effect.",
+      "damageResistances": []
+    },
+    {
+      "name": "Blessed Strikes",
+      "level": 7,
+      "description": "Divine power infuses you in battle. You gain one of the following options of your choice (if you get either option from a Cleric subclass in an older book, use only the option you choose for this feature).",
+      "options": [
+        {
+          "name": "Divine Strike",
+          "description": "Once on each of your turns when you hit a creature with an attack roll using a weapon, you can cause the target to take an extra 1d8 Necrotic or Radiant damage (your choice).",
+          "damageType": ["Necrotic", "Radiant"]
+        },
+        {
+          "name": "Potent Spellcasting",
+          "description": "Add your Wisdom modifier to the damage you deal with any Cleric cantrip."
+        }
+      ]
+    },
+    {
+      "name": "Divine Intervention",
+      "level": 10,
+      "description": "You can call on your deity or pantheon to intervene on your behalf. As a Magic action, choose any Cleric spell of level 5 or lower that doesn't require a Reaction to cast. As part of the same action, you cast that spell without expending a spell slot or needing Material components. You can't use this feature again until you finish a Long Rest.",
+      "activation": "MagicAction",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Improved Blessed Strikes",
+      "level": 14,
+      "description": "The option you chose for Blessed Strikes grows more powerful.",
+      "replacesOrImproves": "Blessed Strikes",
+      "options": [
+        {
+          "name": "Divine Strike",
+          "description": "The extra damage of your Divine Strike increases to 2d8.",
+          "damageType": ["Necrotic", "Radiant"]
+        },
+        {
+          "name": "Potent Spellcasting",
+          "description": "When you cast a Cleric cantrip and deal damage to a creature with it, you can give vitality to yourself or another creature within 60 feet of yourself, granting a number of Temporary Hit Points equal to twice your Wisdom modifier."
+        }
+      ]
+    },
+    {
+      "name": "Epic Boon",
+      "level": 19,
+      "description": "You gain an Epic Boon feat or another feat of your choice for which you qualify. Boon of Fate is recommended."
+    },
+    {
+      "name": "Greater Divine Intervention",
+      "level": 20,
+      "description": "You can call on even more powerful divine intervention. When you use your Divine Intervention feature, you can choose Wish when you select a spell. If you do so, you can't use Divine Intervention again until you finish 2d4 Long Rests.",
+      "replacesOrImproves": "Divine Intervention"
+    }
+  ],
+  "subclassLabel": "Cleric Subclass",
+  "subclassFeatureLevels": [3, 6, 17],
+  "subclasses": [
+    {
+      "name": "Life Domain",
+      "description": "The Life Domain focuses on the positive energy that helps sustain all life in the multiverse. Clerics who tap into this domain are masters of healing, using that life force to cure many hurts.",
+      "featureLevels": [3, 6, 17],
+      "features": [
+        {
+          "name": "Disciple of Life",
+          "level": 3,
+          "description": "When a spell you cast with a spell slot restores Hit Points to a creature, that creature regains additional Hit Points on the turn you cast the spell. The additional Hit Points equal 2 plus the spell slot's level."
+        },
+        {
+          "name": "Life Domain Spells",
+          "level": 3,
+          "description": "Your connection to this divine domain ensures you always have certain spells ready. When you reach a Cleric level specified in the Life Domain Spells table, you thereafter always have the listed spells prepared.",
+          "grantsSpells": [
+            {
+              "spell": "Aid",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Bless",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Cure Wounds",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Lesser Restoration",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Mass Healing Word",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Revivify",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Aura of Life",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Death Ward",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Greater Restoration",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Mass Cure Wounds",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Preserve Life",
+          "level": 3,
+          "description": "As a Magic action, you present your Holy Symbol and expend a use of your Channel Divinity to evoke healing energy that can restore a number of Hit Points equal to five times your Cleric level. Choose Bloodied creatures within 30 feet of yourself (which can include you), and divide those Hit Points among them. This feature can restore a creature to no more than half its Hit Point maximum.",
+          "activation": "MagicAction"
+        },
+        {
+          "name": "Blessed Healer",
+          "level": 6,
+          "description": "The healing spells you cast on others heal you as well. Immediately after you cast a spell with a spell slot that restores Hit Points to one or more creatures other than yourself, you regain Hit Points equal to 2 plus the spell slot's level."
+        },
+        {
+          "name": "Supreme Healing",
+          "level": 17,
+          "description": "When you would normally roll one or more dice to restore Hit Points to a creature with a spell or Channel Divinity, don't roll those dice for the healing; instead use the highest number possible for each die. For example, instead of restoring 2d6 Hit Points to a creature with a spell, you restore 12."
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Life Domain Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Aid", "Bless", "Cure Wounds", "Lesser Restoration"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Mass Healing Word", "Revivify"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Aura of Life", "Death Ward"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Greater Restoration", "Mass Cure Wounds"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Light Domain",
+      "description": "The Light Domain emphasizes the divine power to bring about blazing fire and revelation. Clerics who wield this power are enlightened souls infused with radiance and the power of their deities' discerning vision, charged with chasing away lies and burning away darkness.",
+      "featureLevels": [3, 6, 17],
+      "features": [
+        {
+          "name": "Light Domain Spells",
+          "level": 3,
+          "description": "Your connection to this divine domain ensures you always have certain spells ready. When you reach a Cleric level specified in the Light Domain Spells table, you thereafter always have the listed spells prepared.",
+          "grantsSpells": [
+            {
+              "spell": "Burning Hands",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Faerie Fire",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Scorching Ray",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "See Invisibility",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Daylight",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Fireball",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Arcane Eye",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Wall of Fire",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Flame Strike",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Scrying",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Radiance of the Dawn",
+          "level": 3,
+          "description": "As a Magic action, you present your Holy Symbol and expend a use of your Channel Divinity to emit a flash of light in a 30-foot Emanation originating from yourself. Any magical Darkness — such as that created by the Darkness spell — in that area is dispelled. Additionally, each creature of your choice in that area must make a Constitution saving throw, taking Radiant damage equal to 2d10 plus your Cleric level on a failed save or half as much damage on a successful one.",
+          "activation": "MagicAction",
+          "savingThrow": {
+            "ability": "Wisdom",
+            "formula": "spell save DC"
+          },
+          "damageResistances": []
+        },
+        {
+          "name": "Warding Flare",
+          "level": 3,
+          "description": "When a creature that you can see within 30 feet of yourself makes an attack roll, you can take a Reaction to impose Disadvantage on the attack roll, causing light to flare before it hits or misses. You can use this feature a number of times equal to your Wisdom modifier (minimum of once). You regain all expended uses when you finish a Long Rest.",
+          "activation": "Reaction",
+          "usesPerRest": {
+            "uses": "Wisdom modifier (minimum of once)",
+            "restType": "Long"
+          }
+        },
+        {
+          "name": "Improved Warding Flare",
+          "level": 6,
+          "description": "You regain all expended uses of your Warding Flare when you finish a Short or Long Rest. In addition, whenever you use Warding Flare, you can give the target of the triggering attack a number of Temporary Hit Points equal to 2d6 plus your Wisdom modifier.",
+          "replacesOrImproves": "Warding Flare"
+        },
+        {
+          "name": "Corona of Light",
+          "level": 17,
+          "description": "As a Magic action, you cause yourself to emit an aura of sunlight that lasts for 1 minute or until you dismiss it (no action required). You emit Bright Light in a 60-foot radius and Dim Light for an additional 30 feet. Your enemies in the Bright Light have Disadvantage on saving throws against your Radiance of the Dawn and any spell that deals Fire or Radiant damage. You can use this feature a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.",
+          "activation": "MagicAction",
+          "usesPerRest": {
+            "uses": "Wisdom modifier (minimum of once)",
+            "restType": "Long"
+          }
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Light Domain Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Burning Hands", "Faerie Fire", "Scorching Ray", "See Invisibility"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Daylight", "Fireball"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Arcane Eye", "Wall of Fire"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Flame Strike", "Scrying"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Trickery Domain",
+      "description": "The Trickery Domain offers magic of deception, illusion, and stealth. Clerics who wield this magic are a disruptive force in the world, puncturing pride, mocking tyrants, freeing captives, and flouting hollow traditions. They prefer subterfuge and pranks to direct confrontation.",
+      "featureLevels": [3, 6, 17],
+      "features": [
+        {
+          "name": "Blessing of the Trickster",
+          "level": 3,
+          "description": "As a Magic action, you can choose yourself or a willing creature within 30 feet of yourself to have Advantage on Dexterity (Stealth) checks. This blessing lasts until you finish a Long Rest or you use this feature again.",
+          "activation": "MagicAction"
+        },
+        {
+          "name": "Invoke Duplicity",
+          "level": 3,
+          "description": "As a Bonus Action, you can expend one use of your Channel Divinity to create a perfect visual illusion of yourself in an unoccupied space you can see within 30 feet of yourself. The illusion is intangible and doesn't occupy its space. It lasts for 1 minute, but it ends early if you dismiss it (no action required) or have the Incapacitated condition. The illusion is animated and mimics your expressions and gestures. While it persists, you gain the following benefits: Cast Spells (you can cast spells as though you were in the illusion's space, but you must use your own senses), Distract (when both you and your illusion are within 5 feet of a creature that can see the illusion, you have Advantage on attack rolls against that creature), Move (as a Bonus Action, you can move the illusion up to 30 feet to an unoccupied space you can see that is within 120 feet of yourself).",
+          "activation": "BonusAction"
+        },
+        {
+          "name": "Trickery Domain Spells",
+          "level": 3,
+          "description": "Your connection to this divine domain ensures you always have certain spells ready. When you reach a Cleric level specified in the Trickery Domain Spells table, you thereafter always have the listed spells prepared.",
+          "grantsSpells": [
+            {
+              "spell": "Charm Person",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Disguise Self",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Invisibility",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Pass without Trace",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Hypnotic Pattern",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Nondetection",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Confusion",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dimension Door",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dominate Person",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Modify Memory",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Trickster's Transposition",
+          "level": 6,
+          "description": "Whenever you take the Bonus Action to create or move the illusion of your Invoke Duplicity, you can teleport, swapping places with the illusion.",
+          "replacesOrImproves": "Invoke Duplicity"
+        },
+        {
+          "name": "Improved Duplicity",
+          "level": 17,
+          "description": "The illusion of your Invoke Duplicity has grown more powerful in the following ways. Shared Distraction: When you and your allies make attack rolls against a creature within 5 feet of the illusion, the attack rolls have Advantage. Healing Illusion: When the illusion ends, you or a creature of your choice within 5 feet of it regains a number of Hit Points equal to your Cleric level.",
+          "replacesOrImproves": "Invoke Duplicity"
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Trickery Domain Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Charm Person", "Disguise Self", "Invisibility", "Pass without Trace"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Hypnotic Pattern", "Nondetection"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Confusion", "Dimension Door"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Dominate Person", "Modify Memory"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "War Domain",
+      "description": "War has many manifestations. It can make heroes of ordinary people. Clerics who tap into the magic of the War Domain excel in battle, inspiring others to fight the good fight or offering acts of violence as prayers.",
+      "featureLevels": [3, 6, 17],
+      "features": [
+        {
+          "name": "Guided Strike",
+          "level": 3,
+          "description": "When you or a creature within 30 feet of you misses with an attack roll, you can expend one use of your Channel Divinity and give that roll a +10 bonus, potentially causing it to hit. When you use this feature to benefit another creature's attack roll, you must take a Reaction to do so.",
+          "activation": "Special"
+        },
+        {
+          "name": "War Domain Spells",
+          "level": 3,
+          "description": "Your connection to this divine domain ensures you always have certain spells ready. When you reach a Cleric level specified in the War Domain Spells table, you thereafter always have the listed spells prepared.",
+          "grantsSpells": [
+            {
+              "spell": "Guiding Bolt",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Magic Weapon",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Shield of Faith",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Spiritual Weapon",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Crusader's Mantle",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Spirit Guardians",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Fire Shield",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Freedom of Movement",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Hold Monster",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Steel Wind Strike",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "War Priest",
+          "level": 3,
+          "description": "As a Bonus Action, you can make one attack with a weapon or an Unarmed Strike. You can use this Bonus Action a number of times equal to your Wisdom modifier (minimum of once). You regain all expended uses when you finish a Short or Long Rest.",
+          "activation": "BonusAction",
+          "usesPerRest": {
+            "uses": "Wisdom modifier (minimum of once)",
+            "restType": "ShortOrLong"
+          }
+        },
+        {
+          "name": "War God's Blessing",
+          "level": 6,
+          "description": "You can expend a use of your Channel Divinity to cast Shield of Faith or Spiritual Weapon rather than expending a spell slot. When you cast either spell in this way, the spell doesn't require Concentration. Instead the spell lasts for 1 minute, but it ends early if you cast that spell again, have the Incapacitated condition, or die."
+        },
+        {
+          "name": "Avatar of Battle",
+          "level": 17,
+          "description": "You gain Resistance to Bludgeoning, Piercing, and Slashing damage.",
+          "damageResistances": ["Bludgeoning", "Piercing", "Slashing"]
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "War Domain Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Guiding Bolt", "Magic Weapon", "Shield of Faith", "Spiritual Weapon"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Crusader's Mantle", "Spirit Guardians"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Fire Shield", "Freedom of Movement"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Hold Monster", "Steel Wind Strike"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "spellList": {
+    "cantrips": [
+      {
+        "name": "Guidance",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mending",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Resistance",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Sacred Flame",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Spare the Dying",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Thaumaturgy",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Toll the Dead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Word of Radiance",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level1": [
+      {
+        "name": "Bane",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Bless",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Command",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Create or Destroy Water",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Cure Wounds",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Detect Evil and Good",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Detect Magic",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Detect Poison and Disease",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Guiding Bolt",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Healing Word",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Inflict Wounds",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Protection from Evil and Good",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Purify Food and Drink",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Sanctuary",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Shield of Faith",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level2": [
+      {
+        "name": "Aid",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Augury",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Blindness/Deafness",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Calm Emotions",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Continual Flame",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Enhance Ability",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Find Traps",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Gentle Repose",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Hold Person",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Lesser Restoration",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Locate Object",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Prayer of Healing",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Protection from Poison",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Silence",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Spiritual Weapon",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Warding Bond",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Zone of Truth",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level3": [
+      {
+        "name": "Animate Dead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Aura of Vitality",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Beacon of Hope",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Bestow Curse",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Clairvoyance",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Create Food and Water",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Daylight",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dispel Magic",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Feign Death",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Glyph of Warding",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Magic Circle",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Mass Healing Word",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Meld into Stone",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Protection from Energy",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Remove Curse",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Revivify",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Sending",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Speak with Dead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Spirit Guardians",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Tongues",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Water Walk",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      }
+    ],
+    "level4": [
+      {
+        "name": "Aura of Life",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Aura of Purity",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Banishment",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Control Water",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Death Ward",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Divination",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Freedom of Movement",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Guardian of Faith",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Locate Creature",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Stone Shape",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level5": [
+      {
+        "name": "Circle of Power",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Commune",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Contagion",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dispel Evil and Good",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Flame Strike",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Geas",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Greater Restoration",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Hallow",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Insect Plague",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Legend Lore",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Mass Cure Wounds",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Planar Binding",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Raise Dead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Scrying",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Celestial",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ],
+    "level6": [
+      {
+        "name": "Blade Barrier",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Create Undead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Find the Path",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Forbiddance",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Harm",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Heal",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Heroes' Feast",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Planar Ally",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Sunbeam",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "True Seeing",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Word of Recall",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level7": [
+      {
+        "name": "Conjure Celestial",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Divine Word",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Etherealness",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fire Storm",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Plane Shift",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Power Word Fortify",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Regenerate",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Resurrection",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Symbol",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ],
+    "level8": [
+      {
+        "name": "Antimagic Field",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Control Weather",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Earthquake",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Holy Aura",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Sunburst",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level9": [
+      {
+        "name": "Astral Projection",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Gate",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Mass Heal",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Power Word Heal",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "True Resurrection",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ]
+  }
+}

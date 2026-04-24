@@ -1,0 +1,61 @@
+{
+  "name": "Cordon of Arrows",
+  "level": 2,
+  "school": "Transmutation",
+  "classes": ["Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "an ornamental braid",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "You touch up to four nonmagical Arrows or Bolts and plant them in the ground in your space. Until the spell ends, the ammunition can't be physically uprooted, and whenever a creature other than you enters a space within 30 feet of the ammunition for the first time on a turn or ends its turn there, one piece of ammunition flies up to strike it. The creature must succeed on a Dexterity saving throw or take 2d4 Piercing damage. The piece of ammunition is then destroyed. The spell ends when none of the ammunition remains planted in the ground. When you cast the spell, you can designate any creatures you choose, and the spell ignores them.",
+  "targetType": "object",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 30
+    }
+  ],
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noEffectOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 4
+      },
+      "type": "Piercing",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalObjects",
+        "flatPerLevel": 2,
+        "baseSpellLevel": 2,
+        "description": "The amount of ammunition that can be affected increases by two for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["trap", "area-denial", "ammunition"]
+}

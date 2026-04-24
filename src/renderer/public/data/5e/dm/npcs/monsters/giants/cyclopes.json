@@ -1,0 +1,150 @@
+{
+  "name": "Cyclops",
+  "sizes": ["Huge"],
+  "creatureType": "Giant",
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Coastal", "Desert", "Grassland", "Hill"],
+  "treasure": ["Any"],
+  "lore": "Cyclopes are one-eyed giants that dwell in remote regions, living as reclusive herders and foragers. Though not inherently malicious, their lack of sophistication and explosive tempers make them dangerous to smaller folk who encroach on their territory. Cyclopes have poor depth perception due to their single eye, which hampers their accuracy at longer distances.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 138,
+    "dice": {
+      "count": 12,
+      "die": "d12",
+      "modifier": 60
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "senses": {
+    "passivePerception": 8
+  },
+  "languages": {
+    "spoken": ["Giant"]
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Poor Depth Perception",
+      "description": "The cyclops has Disadvantage on any attack roll against a target more than 30 feet away."
+    }
+  ],
+  "multiattack": {
+    "description": "The cyclops makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +9, reach 10 ft. Hit: 19 (3d8 + 6) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rock",
+      "description": "Ranged Attack Roll: +9, range 30/120 ft. Hit: 28 (4d10 + 6) Bludgeoning damage. If the target is a creature, it makes a DC 17 Strength saving throw, falling Prone on a failed save.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 9,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 28,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "savingThrow": {
+            "ability": "STR",
+            "dc": 17,
+            "targets": "the target (if it is a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Prone"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

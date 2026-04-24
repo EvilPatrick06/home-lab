@@ -1,0 +1,98 @@
+[
+  {
+    "id": "acolyte",
+    "name": "Acolyte",
+    "skills": ["Insight", "Religion"],
+    "path": "origins/backgrounds/acolyte.json"
+  },
+  {
+    "id": "artisan",
+    "name": "Artisan",
+    "skills": ["Investigation", "Persuasion"],
+    "path": "origins/backgrounds/artisan.json"
+  },
+  {
+    "id": "charlatan",
+    "name": "Charlatan",
+    "skills": ["Deception", "Sleight of Hand"],
+    "path": "origins/backgrounds/charlatan.json"
+  },
+  {
+    "id": "criminal",
+    "name": "Criminal",
+    "skills": ["Sleight of Hand", "Stealth"],
+    "path": "origins/backgrounds/criminal.json"
+  },
+  {
+    "id": "entertainer",
+    "name": "Entertainer",
+    "skills": ["Acrobatics", "Performance"],
+    "path": "origins/backgrounds/entertainer.json"
+  },
+  {
+    "id": "farmer",
+    "name": "Farmer",
+    "skills": ["Animal Handling", "Nature"],
+    "path": "origins/backgrounds/farmer.json"
+  },
+  {
+    "id": "guard",
+    "name": "Guard",
+    "skills": ["Athletics", "Perception"],
+    "path": "origins/backgrounds/guard.json"
+  },
+  {
+    "id": "guide",
+    "name": "Guide",
+    "skills": ["Stealth", "Survival"],
+    "path": "origins/backgrounds/guide.json"
+  },
+  {
+    "id": "hermit",
+    "name": "Hermit",
+    "skills": ["Medicine", "Religion"],
+    "path": "origins/backgrounds/hermit.json"
+  },
+  {
+    "id": "merchant",
+    "name": "Merchant",
+    "skills": ["Animal Handling", "Persuasion"],
+    "path": "origins/backgrounds/merchant.json"
+  },
+  {
+    "id": "noble",
+    "name": "Noble",
+    "skills": ["History", "Persuasion"],
+    "path": "origins/backgrounds/noble.json"
+  },
+  {
+    "id": "sage",
+    "name": "Sage",
+    "skills": ["Arcana", "History"],
+    "path": "origins/backgrounds/sage.json"
+  },
+  {
+    "id": "sailor",
+    "name": "Sailor",
+    "skills": ["Acrobatics", "Perception"],
+    "path": "origins/backgrounds/sailor.json"
+  },
+  {
+    "id": "scribe",
+    "name": "Scribe",
+    "skills": ["Investigation", "Perception"],
+    "path": "origins/backgrounds/scribe.json"
+  },
+  {
+    "id": "soldier",
+    "name": "Soldier",
+    "skills": ["Athletics", "Intimidation"],
+    "path": "origins/backgrounds/soldier.json"
+  },
+  {
+    "id": "wayfarer",
+    "name": "Wayfarer",
+    "skills": ["Insight", "Stealth"],
+    "path": "origins/backgrounds/wayfarer.json"
+  }
+]

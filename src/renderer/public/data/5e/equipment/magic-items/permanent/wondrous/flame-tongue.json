@@ -1,0 +1,37 @@
+{
+  "name": "Flame Tongue",
+  "itemType": "Weapon",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": "Requires Attunement",
+  "description": "While holding this magic weapon, you can take a Bonus Action and use a command word to cause flames to engulf the damage-dealing part of the weapon. These flames shed Bright Light in a 40-foot radius and Dim Light for an additional 40 feet. While the weapon is ablaze, it deals an extra 2d6 Fire damage on a hit. The flames last until you take a Bonus Action to issue the command again or until you drop, stow, or sheathe the weapon.",
+  "properties": [
+    {
+      "property": "Bonus Action",
+      "description": "You can take a Bonus Action to activate the flames"
+    },
+    {
+      "property": "Command Word",
+      "description": "You must use a command word to activate the flames"
+    },
+    {
+      "property": "Extra Damage",
+      "description": "The weapon deals an extra 2d6 Fire damage on a hit while the flames are active"
+    },
+    {
+      "property": "Light Emission",
+      "description": "The flames shed Bright Light in a 40-ft radius and Dim Light for an additional 40 ft"
+    }
+  ],
+  "damage": {
+    "count": 2,
+    "die": 6,
+    "type": "Fire"
+  },
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

@@ -1,0 +1,64 @@
+{
+  "name": "Shatter",
+  "level": 2,
+  "school": "Evocation",
+  "classes": ["Bard", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a chip of mica",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A loud noise erupts from a point of your choice within range. Each creature in a 10-foot-radius Sphere centered there makes a Constitution saving throw, taking 3d8 Thunder damage on a failed save or half as much damage on a successful one. A Construct has Disadvantage on the save. A nonmagical object that isn't being worn or carried also takes the damage if it's in the spell's area.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 10
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Constitution",
+    "halfDamageOnSuccess": true,
+    "disadvantageCondition": "target is a Construct"
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 8
+      },
+      "type": "Thunder",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 2,
+        "description": "The damage increases by 1d8 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["damage", "aoe", "affects-objects"]
+}

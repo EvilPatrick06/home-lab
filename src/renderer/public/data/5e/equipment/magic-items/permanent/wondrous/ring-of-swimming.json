@@ -1,0 +1,17 @@
+{
+  "name": "Ring of Swimming",
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "A magic ring referenced as an example of identifying magic items. When a character puts on a Ring of Swimming, their movement feels strangely fluid, and they swim unexpectedly well. This item is not fully detailed in the Player's Handbook; hundreds of magic items including this one are detailed in the Dungeon Master's Guide.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

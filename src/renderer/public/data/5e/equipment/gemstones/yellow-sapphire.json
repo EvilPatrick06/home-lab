@@ -1,0 +1,13 @@
+{
+  "name": "Yellow sapphire",
+  "slug": "yellow-sapphire",
+  "value": "1,000 GP",
+  "category": "Gemstone",
+  "description": "fiery yellow or yellow-green",
+  "dieValue": "8",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Round",
+  "slug": "round",
+  "description": "A round represents about 6 seconds in the game world, during which every participant in combat takes a turn.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

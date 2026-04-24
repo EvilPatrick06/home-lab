@@ -1,0 +1,13 @@
+{
+  "name": "Lapis lazuli",
+  "slug": "lapis-lazuli",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "light and dark blue with yellow flecks",
+  "dieValue": "6",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

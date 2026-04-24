@@ -1,0 +1,13 @@
+{
+  "name": "Robe of the Archmagi",
+  "slug": "robe-of-the-archmagi",
+  "type": "Wondrous Item",
+  "rarity": "Legendary (Requires Attunement by a Sorcerer, Warlock, or Wizard)",
+  "attunement": true,
+  "description": "This elegant garment is made from exquisite cloth and adorned with runes.\n\nYou gain these benefits while wearing the robe.\n\n***Armor.*** If you aren't wearing armor, your base Armor Class is 15 plus your Dexterity modifier.\n\n***Magic Resistance.*** You have Advantage on saving throws against spells and other magical effects.\n\n***War Mage.*** Your spell save DC and spell attack bonus each increase by 2.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

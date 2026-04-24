@@ -1,0 +1,17 @@
+{
+  "name": "Shortsword",
+  "slug": "shortsword",
+  "category": "Martial",
+  "type": "Melee",
+  "damage": "1d6",
+  "damageType": "Piercing",
+  "properties": ["Finesse", "Light"],
+  "mastery": "Vex",
+  "weight": "2 lb.",
+  "cost": "10 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

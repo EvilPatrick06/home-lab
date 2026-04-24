@@ -1,0 +1,15 @@
+{
+  "name": "Adding Basic Facilities",
+  "slug": "adding-basic-facilities",
+  "type": "",
+  "level": "",
+  "space": "",
+  "hirelings": "",
+  "order": "",
+  "description": "A character can add a basic facility to their Bastion by spending money and time. The cost of adding a basic facility and the time required depend on the facility's space, as shown on the table below.\n\n| Facility Space | Cost | Time Required |\n|---|---|---|\n| Cramped | 500 GP | 20 days |\n| Roomy | 1,000 GP | 45 days |\n| Vast | 3,000 GP | 125 days |",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

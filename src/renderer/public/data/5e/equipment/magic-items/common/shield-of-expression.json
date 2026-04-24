@@ -1,0 +1,13 @@
+{
+  "name": "Shield of Expression",
+  "slug": "shield-of-expression",
+  "type": "Armor (Shield)",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "The front of this Shield is shaped in the likeness of a face. While bearing the Shield, you can take a Bonus Action to alter the face's expression.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

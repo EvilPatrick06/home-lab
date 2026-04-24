@@ -1,0 +1,63 @@
+{
+  "name": "Banishment",
+  "level": 4,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Paladin", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a pentacle",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "One creature that you can see within range must succeed on a Charisma saving throw or be transported to a harmless demiplane for the duration. While there, the target has the Incapacitated condition. When the spell ends, the target reappears in the space it left or in the nearest unoccupied space if that space is occupied. If the target is an Aberration, a Celestial, an Elemental, a Fey, or a Fiend, the target doesn't return if the spell lasts for 1 minute. The target is instead transported to a random location on a plane (DM's choice) associated with its creature type.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Charisma",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "Target is transported to a harmless demiplane and has the Incapacitated condition for the duration"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Incapacitated",
+      "trigger": "onFailedSave",
+      "duration": "for the duration"
+    }
+  ],
+  "banishment": {
+    "savingThrowAbility": "Charisma",
+    "permanentIfDuration": true,
+    "affectsCreatureTypes": ["Aberration", "Celestial", "Elemental", "Fey", "Fiend"],
+    "description": "Target is transported to a harmless demiplane for the duration. If the target is an Aberration, a Celestial, an Elemental, a Fey, or a Fiend, it doesn't return if the spell lasts for 1 minute. The target is instead transported to a random location on a plane associated with its creature type."
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 4,
+        "description": "You can target one additional creature for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["banishment", "planar", "control"]
+}

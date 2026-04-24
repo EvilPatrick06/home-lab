@@ -1,0 +1,11 @@
+{
+  "name": "Carrying Capacity",
+  "slug": "carrying-capacity",
+  "description": "Your carrying capacity is your Strength score multiplied by 15. That is the weight in pounds you can carry. If you carry weight in excess of your carrying capacity, your Speed drops to 5 feet. You can't carry weight in excess of twice your carrying capacity.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

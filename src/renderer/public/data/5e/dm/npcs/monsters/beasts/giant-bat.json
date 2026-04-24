@@ -1,0 +1,47 @@
+{
+  "name": "Giant Bat",
+  "slug": "giant-bat",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "22",
+  "hpFormula": "4d10",
+  "speed": "10 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 16,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": 3,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Blindsight 120 ft.; Passive Perception 11",
+  "languages": "None",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Piercing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

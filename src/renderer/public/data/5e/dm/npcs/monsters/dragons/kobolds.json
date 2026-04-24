@@ -1,0 +1,119 @@
+{
+  "name": "Kobold",
+  "sizes": ["Small"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Kobold"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Hill", "Mountain", "Underdark"],
+  "treasure": ["Individual"],
+  "lore": "Kobolds are small, cunning reptilian creatures that claim kinship with dragons and often serve them as devoted minions. They are resourceful and tenacious, compensating for their diminutive stature with clever traps, overwhelming numbers, and pack tactics that exploit their enemies' blind spots. Kobold warrens are sprawling underground complexes riddled with snares, deadfalls, and other hazards designed to repel or destroy intruders. Driven by an unshakable reverence for dragonkind, kobolds eagerly serve any dragon that will accept their loyalty, tending hoards and guarding lairs in exchange for protection and a sense of draconic purpose.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 7,
+    "dice": {
+      "count": 3,
+      "die": "d6",
+      "modifier": -3
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "gear": [
+    {
+      "name": "Dagger",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 9
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "1/8",
+  "experiencePoints": 25,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The kobold has Advantage on an attack roll against a creature if at least one of the kobold's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Dagger",
+      "description": "Melee or Ranged Attack Roll: +4, reach 5 ft. or range 20/60 ft. Hit: 4 (1d4 + 2) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 4,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

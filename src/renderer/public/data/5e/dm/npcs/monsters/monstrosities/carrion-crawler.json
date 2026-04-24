@@ -1,0 +1,148 @@
+{
+  "name": "Carrion Crawler",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 51,
+    "dice": {
+      "count": 6,
+      "die": "d10",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {},
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Keen Smell",
+      "description": "The crawler has Advantage on Wisdom (Perception) checks that rely on smell."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The crawler can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    }
+  ],
+  "multiattack": {
+    "description": "The crawler makes two Tentacle attacks.",
+    "attacks": [
+      {
+        "actionName": "Tentacle",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Tentacle",
+      "description": "Melee Attack Roll: +4, reach 10 ft. Hit: 4 (1d4 + 2) Poison damage, and the target must succeed on a DC 13 Constitution saving throw or have the Poisoned condition for 1 minute. Until this condition ends, the target also has the Paralyzed condition. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Poison"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 13,
+            "targets": "the target",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "1 minute",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 13,
+                    "targets": "the target",
+                    "onSuccess": {
+                      "effects": "The effect ends on the target."
+                    }
+                  }
+                },
+                {
+                  "condition": "Paralyzed",
+                  "duration": "until the Poisoned condition from this attack ends"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

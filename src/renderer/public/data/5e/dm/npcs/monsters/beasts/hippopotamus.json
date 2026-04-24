@@ -1,0 +1,57 @@
+{
+  "name": "Hippopotamus",
+  "slug": "hippopotamus",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "14",
+  "initiative": "−2 (8)",
+  "hp": "82",
+  "hpFormula": "11d10 + 22",
+  "speed": "30 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 21,
+    "dex": 7,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 7,
+    "dex": -2,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +3",
+  "senses": "Passive Perception 13",
+  "languages": "None",
+  "cr": "4 (XP 1,100; PB +2)",
+  "traits": [
+    {
+      "name": "Hold Breath",
+      "description": "The hippopotamus can hold its breath for 10 minutes."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The hippopotamus makes two Bite attacks."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 16 (2d10 + 5) Piercing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

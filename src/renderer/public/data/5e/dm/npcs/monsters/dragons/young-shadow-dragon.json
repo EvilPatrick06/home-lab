@@ -1,0 +1,193 @@
+{
+  "name": "Young Shadow Dragon",
+  "sizes": ["Large"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Shadow Dragon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Shadowfell", "Underdark"],
+  "treasure": ["Any"],
+  "lore": "A young shadow dragon has fully embraced its dark transformation and has grown powerful enough to claim a domain in the Shadowfell or within expanses of deep darkness on the Material Plane. Its shadowy breath saps the life from creatures caught within it, and shadows cling to the dragon's form like living extensions of its being.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 144,
+    "dice": {
+      "count": 17,
+      "die": "d10",
+      "modifier": 51
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Climb",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 15
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    },
+    "CON": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 3
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 8
+    }
+  ],
+  "resistances": ["Necrotic"],
+  "conditionImmunities": ["Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "7",
+  "experiencePoints": 2900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Living Shadow",
+      "description": "While in Dim Light or Darkness, the dragon can take the Hide action as a Bonus Action. In addition, while in Dim Light or Darkness, the dragon can move through a space as narrow as 1 inch without squeezing."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the dragon has Disadvantage on attack rolls and on Wisdom (Perception) checks."
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes two Rend attacks.",
+    "attacks": [
+      {
+        "actionName": "Rend",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "Melee Attack Roll: +7, reach 10 ft. Hit: 11 (2d6 + 4) Slashing damage plus 3 (1d6) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shadow Breath",
+      "description": "The dragon exhales shadowy energy in a 30-foot Cone. Each creature in that area must make a DC 14 Dexterity saving throw, taking 44 (8d10) Necrotic damage on a failed save or half as much damage on a successful one. A Humanoid reduced to 0 Hit Points by this damage dies, and a Shadow rises from its corpse 1d4 hours later.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 14,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 44,
+              "dice": {
+                "count": 8,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ],
+          "effects": "A Humanoid reduced to 0 Hit Points by this damage dies, and a Shadow rises from its corpse 1d4 hours later."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 30
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shadow Hide",
+      "description": "The dragon takes the Hide action. It can use this Bonus Action only while in Dim Light or Darkness (see Living Shadow)."
+    }
+  ]
+}

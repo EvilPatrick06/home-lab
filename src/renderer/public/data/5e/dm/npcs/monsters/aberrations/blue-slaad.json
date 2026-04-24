@@ -1,0 +1,145 @@
+{
+  "name": "Blue Slaad",
+  "sizes": ["Large"],
+  "creatureType": "Aberration",
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Limbo"],
+  "treasure": ["None"],
+  "lore": "Blue slaadi are burly, thick-skinned brutes spawned from Humanoids infected with slaad tadpoles. They slash foes with lightning-wreathed claws and implant eggs in Humanoid victims, perpetuating their bizarre reproductive cycle. These creatures revel in chaos and destruction, rampaging through the multiverse wherever rifts from Limbo spill open.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 123,
+    "dice": {
+      "count": 13,
+      "die": "d10",
+      "modifier": 52
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "resistances": ["Acid, Cold, Fire, Lightning, and Thunder"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {
+    "spoken": ["Slaad"],
+    "telepathy": 60
+  },
+  "challengeRating": "7",
+  "experiencePoints": 2900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The slaad has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Regeneration",
+      "description": "The slaad regains 10 Hit Points at the start of each of its turns if it has at least 1 Hit Point."
+    }
+  ],
+  "multiattack": {
+    "description": "The slaad makes three Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 3
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 8 (1d6 + 5) Slashing damage plus 7 (2d6) Lightning damage. If the target is a Humanoid, it must succeed on a DC 15 Constitution saving throw or become a slaad tadpole host (see the \"Slaad Tadpole Host\" sidebar).",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 15,
+            "targets": "Humanoid targets only",
+            "onFailure": {
+              "effects": "The target becomes a slaad tadpole host. A Humanoid host shows no symptoms for 2d12 hours, after which a Slaad Tadpole bursts from the host, killing it. A Lesser Restoration spell or similar magic cast on the host can destroy the implanted egg."
+            }
+          }
+        }
+      }
+    }
+  ],
+  "bonusActions": null,
+  "reactions": null,
+  "legendaryActions": null,
+  "lair": null
+}

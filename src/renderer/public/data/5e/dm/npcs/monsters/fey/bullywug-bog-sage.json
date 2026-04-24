@@ -1,0 +1,73 @@
+{
+  "name": "Bullywug Bog Sage",
+  "slug": "bullywug-bog-sage",
+  "size": "Medium",
+  "type": "Fey",
+  "alignment": "Neutral",
+  "ac": "16",
+  "initiative": "+3 (13)",
+  "hp": "52",
+  "hpFormula": "8d8 + 16",
+  "speed": "30 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 8,
+    "dex": 16,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -1,
+    "dex": 3,
+    "con": 4,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Nature +4, Stealth +5",
+  "gear": "Component Pouch",
+  "senses": "Passive Perception 13",
+  "languages": "Bullywug, Common, Sylvan",
+  "cr": "4 (XP 1,100; PB +2)",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The bullywug can breathe air and water."
+    },
+    {
+      "name": "Speak with Frogs and Toads",
+      "description": "The bullywug can communicate simple concepts to frogs and toads when it speaks in Bullywug."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The bullywug makes two Bog Staff attacks. It can replace any attack with a use of Spellcasting to cast *Ray of Sickness*."
+    },
+    {
+      "name": "Bog Staff",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 7 (1d8 + 3) Bludgeoning damage plus 10 (3d6) Poison damage."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The bullywug casts one of the following spells, using Wisdom as the spellcasting ability (spell save DC 13, +5 to hit with spell attacks):"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Leap",
+      "description": "The bullywug jumps up to 30 feet by spending 10 feet of movement."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Amphibious Appreciators of Marsh and Muck*\n**Habitat:** Swamp; **Treasure:** Implements, Individual\nFey embodiments of swamplands, bullywugs protect the murky wilds and consider themselves cosmically favored for that role. These human-size, toad- or frog-like creatures have close relationships with the creatures of the swamp.\nBullywug bog sages channel the magic of the swamp to sicken foes and speak with plants.\nBullywug warriors are adept at moving through swamps and ambushing trespassers. They often work alongside packs of trained giant frogs.",
+  "habitat": "Swamp",
+  "treasure": "Implements, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

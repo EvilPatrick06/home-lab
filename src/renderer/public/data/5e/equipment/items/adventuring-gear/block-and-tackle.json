@@ -1,0 +1,13 @@
+{
+  "name": "Block and Tackle",
+  "cost": "1 GP",
+  "weight": "5 lb.",
+  "description": "Allows you to hoist up to four times the weight you can normally lift.",
+  "slug": "block-and-tackle",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

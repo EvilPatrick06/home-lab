@@ -1,0 +1,17 @@
+{
+  "name": "Enspelled Staff",
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "weight": 4,
+  "description": "This staff is an Arcane Focus. It also functions as a Quarterstaff. This magic staff holds one cantrip, determined when the staff is created. While holding the staff, you can use it to cast the stored cantrip using your spellcasting ability modifier for any attack rolls or saving throw DCs. The cantrip uses its normal casting time and other rules.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

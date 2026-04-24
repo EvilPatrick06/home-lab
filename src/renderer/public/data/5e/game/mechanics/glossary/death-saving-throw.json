@@ -1,0 +1,11 @@
+{
+  "name": "Death Saving Throw",
+  "slug": "death-saving-throw",
+  "description": "When you start your turn with 0 Hit Points, you make a special saving throw called a Death Saving Throw. Roll a d20. On a 10 or higher, you succeed. Otherwise, you fail. Three successes: you become Stable. Three failures: you die. Rolling a 1 counts as two failures. Rolling a 20 means you regain 1 HP. Damage at 0 HP causes a failed Death Saving Throw (or two if from a Critical Hit).",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Robe",
+  "cost": {
+    "amount": 1,
+    "denomination": "GP"
+  },
+  "weight": 4,
+  "description": "A Robe has vocational or ceremonial significance. Some events and locations admit only people wearing a Robe bearing certain colors or symbols.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

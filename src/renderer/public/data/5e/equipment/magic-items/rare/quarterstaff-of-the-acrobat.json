@@ -1,0 +1,13 @@
+{
+  "name": "Quarterstaff of the Acrobat",
+  "slug": "quarterstaff-of-the-acrobat",
+  "type": "Weapon (Quarterstaff)",
+  "rarity": "Very Rare",
+  "attunement": true,
+  "description": "You have a +2 bonus to attack rolls and damage rolls made with this magic weapon.\n\nWhile holding this weapon, you can cause it to emit green Dim Light out to 10 feet, either as a Bonus Action or after you roll Initiative, or you can extinguish the light as a Bonus Action.\n\nWhile holding this weapon, you can take a Bonus Action to alter its form, turning it into a 6-inch rod (for ease of storage) or a 10-foot pole, or reverting it to a Quarterstaff; the weapon will elongate only as far as the surrounding space allows.\n\nIn certain forms, the weapon has the following additional properties.\n\n***Acrobatic Assist (Quarterstaff or 10-Foot Pole Forms Only).*** While holding this weapon, you have Advantage on Dexterity (Acrobatics) checks.\n\n***Attack Deflection (Quarterstaff Form Only).*** When you are hit by an attack while holding the weapon, you can take a Reaction to twirl the weapon around you, gaining a +5 bonus to your Armor Class against the triggering attack, potentially causing the attack to miss you. You can't use this property again until you finish a Short or Long Rest.\n\n***Ranged Weapon (Quarterstaff Form Only).*** This weapon has the Thrown property with a normal range of 30 feet and a long range of 120 feet. Immediately after you make a ranged attack with the weapon, it flies back to your hand.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

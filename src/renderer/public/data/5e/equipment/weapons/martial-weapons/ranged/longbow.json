@@ -1,0 +1,22 @@
+{
+  "name": "Longbow",
+  "slug": "longbow",
+  "category": "Martial",
+  "type": "Ranged",
+  "damage": "1d8",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Heavy", "Two-Handed"],
+  "mastery": "Slow",
+  "weight": "2 lb.",
+  "cost": "50 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 150,
+    "long": 600
+  },
+  "ammunitionType": "Arrow"
+}

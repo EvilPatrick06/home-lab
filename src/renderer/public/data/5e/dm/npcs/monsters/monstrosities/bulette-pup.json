@@ -1,0 +1,55 @@
+{
+  "name": "Bulette Pup",
+  "slug": "bulette-pup",
+  "size": "Medium",
+  "type": "Monstrosity",
+  "alignment": "Unaligned",
+  "ac": "16",
+  "initiative": "−1 (9)",
+  "hp": "45",
+  "hpFormula": "6d8 + 18",
+  "speed": "30 ft., Burrow 20 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 8,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": -1,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4",
+  "senses": "Darkvision 30 ft., Tremorsense 60 ft.; Passive Perception 14",
+  "languages": "None",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 14 (2d10 + 3) Piercing damage."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Leap",
+      "description": "The bulette jumps up to 30 feet by spending 10 feet of movement."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Ravenous, Subsurface Land Sharks*\n**Habitat:** Grassland, Hill, Mountain; **Treasure:** None\nAlso called \"land sharks,\" bulettes are single-minded predators that burrow under, leap over, and burst through obstacles in pursuit of their quarry. They burrow rapidly just belowground. On sensing movement, they erupt from below, attempting to catch prey in their oversize maws.\nBulettes range under vast territories. They often threaten animal herds, and they can wipe out whole farming communities.\nJuvenile bulettes are known as pups. They travel in small groups, using their numbers to bring down larger foes. Their arrival frequently presages the appearance of an adult bulette.",
+  "habitat": "Grassland, Hill, Mountain",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

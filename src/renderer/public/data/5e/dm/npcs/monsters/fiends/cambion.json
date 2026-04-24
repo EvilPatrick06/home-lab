@@ -1,0 +1,248 @@
+{
+  "name": "Cambion",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar", "Urban"],
+  "treasure": ["Any"],
+  "lore": "Born of a union between a fiend and a humanoid, cambions are cunning manipulators who use charm and martial prowess to dominate mortals. Many serve as agents or lieutenants of their fiendish parent, carrying out schemes in the mortal world.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Scale Mail"]
+  },
+  "hitPoints": {
+    "average": 82,
+    "dice": {
+      "count": 11,
+      "die": "d8",
+      "modifier": 33
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 7
+    },
+    "DEX": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 6
+    },
+    {
+      "skill": "Intimidation",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Cold, Fire, Lightning, and Poison"],
+  "gear": [
+    {
+      "name": "Scale Mail",
+      "quantity": 1
+    },
+    {
+      "name": "Spear",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common", "Infernal"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Fiendish Blessing",
+      "description": "The cambion's AC includes its Charisma modifier (accounted for above)."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 14,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Alter Self",
+              "level": 2
+            },
+            {
+              "name": "Command",
+              "level": 1
+            },
+            {
+              "name": "Detect Magic",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Charm Person",
+              "level": 1,
+              "castAtLevel": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The cambion makes two Fiendish Strike attacks. It can replace one of those attacks with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Fiendish Strike",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Fiendish Strike",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Fiendish Strike",
+      "description": "Melee or Ranged Attack Roll: +7, reach 5 ft. or range 20/60 ft. Hit: 7 (1d6 + 4) Piercing damage plus 10 (3d6) Fire damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 7,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Fiendish Charm",
+      "description": "One Humanoid the cambion can see within 30 feet must succeed on a DC 14 Wisdom saving throw or have the Charmed condition for 1 day. The charmed target regards the cambion as a trusted friend to be heeded and protected. If the cambion or its allies do anything harmful to the target, the target can repeat the saving throw, ending the effect on a success.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 14,
+        "targets": "one Humanoid the cambion can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "1 day"
+            }
+          ],
+          "effects": "The charmed target regards the cambion as a trusted friend to be heeded and protected. If the cambion or its allies do anything harmful to the target, the target can repeat the saving throw, ending the effect on a success."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Charmed",
+          "duration": "1 day"
+        }
+      ]
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The cambion casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 14):\nAt will: Alter Self, Command, Detect Magic\n3/day each: Charm Person (as a 3rd-level spell)\n1/day: Plane Shift (self only)"
+    }
+  ]
+}

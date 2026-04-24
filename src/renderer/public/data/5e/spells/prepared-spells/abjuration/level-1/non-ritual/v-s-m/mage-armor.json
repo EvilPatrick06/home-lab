@@ -1,0 +1,38 @@
+{
+  "name": "Mage Armor",
+  "level": 1,
+  "school": "Abjuration",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a piece of cured leather",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "You touch a willing creature who isn't wearing armor. Until the spell ends, the target's base AC becomes 13 plus its Dexterity modifier. The spell ends early if the target dons armor.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "acModifier": {
+    "type": "setBase",
+    "value": 13,
+    "includesDexMod": true
+  },
+  "tags": ["buff", "defense", "ac"]
+}

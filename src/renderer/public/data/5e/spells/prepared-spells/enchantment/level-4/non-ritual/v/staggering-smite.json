@@ -1,0 +1,59 @@
+{
+  "name": "Staggering Smite",
+  "level": 4,
+  "school": "Enchantment",
+  "classes": ["Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false,
+    "trigger": "immediately after hitting a creature with a Melee weapon or an Unarmed Strike"
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "The target takes an extra 4d6 Psychic damage from the attack, and the target must succeed on a Wisdom saving throw or have the Stunned condition until the end of your next turn. Using a Higher-Level Spell Slot: The extra damage increases by 1d6 for each spell slot level above 4.",
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The target has the Stunned condition until the end of your next turn."
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 6
+      },
+      "type": "Psychic",
+      "applicationType": "onHit"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Stunned",
+      "trigger": "onFailedSave",
+      "duration": "until the end of your next turn"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 4,
+        "description": "The extra damage increases by 1d6 for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["smite", "psychic", "control"]
+}

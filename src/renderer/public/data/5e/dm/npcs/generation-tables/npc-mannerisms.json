@@ -1,0 +1,30 @@
+{
+  "voiceDescriptions": [
+    "Gruff",
+    "Squeaky",
+    "Monotone",
+    "Singsong",
+    "Whispers",
+    "Booming",
+    "Stutters",
+    "Formal",
+    "Slang-heavy",
+    "Raspy",
+    "Melodic",
+    "Nasally"
+  ],
+  "mannerisms": [
+    "Fidgets constantly",
+    "Never makes eye contact",
+    "Always smiling",
+    "Taps fingers",
+    "Paces while talking",
+    "Strokes beard",
+    "Adjusts glasses",
+    "Cracks knuckles",
+    "Hums softly",
+    "Squints when listening",
+    "Crosses arms defensively",
+    "Leans in too close"
+  ]
+}

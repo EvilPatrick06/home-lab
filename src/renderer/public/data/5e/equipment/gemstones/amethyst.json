@@ -1,0 +1,13 @@
+{
+  "name": "Amethyst",
+  "slug": "amethyst",
+  "value": "100 GP",
+  "category": "Gemstone",
+  "description": "deep purple",
+  "dieValue": "2",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

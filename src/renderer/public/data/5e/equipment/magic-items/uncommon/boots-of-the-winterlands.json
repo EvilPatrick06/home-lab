@@ -1,0 +1,13 @@
+{
+  "name": "Boots of the Winterlands",
+  "slug": "boots-of-the-winterlands",
+  "type": "Wondrous Item",
+  "rarity": "Uncommon",
+  "attunement": true,
+  "description": "These furred boots are snug and feel warm. While wearing them, you gain the following benefits.\n\n**Cold Resistance.** You have Resistance to Cold damage and can tolerate temperatures of 0 degrees Fahrenheit or lower without any additional protection.\n\n**Winter Strider.** You ignore Difficult Terrain created by ice or snow.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

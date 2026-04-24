@@ -1,0 +1,59 @@
+{
+  "name": "Bane",
+  "level": 1,
+  "school": "Enchantment",
+  "classes": ["Bard", "Cleric", "Warlock"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a drop of blood",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Up to three creatures of your choice that you can see within range must each make a Charisma saving throw. Whenever a target that fails this save makes an attack roll or a saving throw before the spell ends, the target must subtract 1d4 from the attack roll or save.",
+  "targetCount": 3,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Charisma",
+    "noEffectOnSuccess": true
+  },
+  "d20Modifiers": [
+    {
+      "appliesTo": "attackRollsAndSaves",
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 4
+      },
+      "isBonus": false
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 1,
+        "description": "You can target one additional creature for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["debuff", "save-penalty", "attack-penalty"]
+}

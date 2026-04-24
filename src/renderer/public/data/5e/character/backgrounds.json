@@ -1,0 +1,903 @@
+{
+  "section": "Backgrounds",
+  "description": "Sixteen backgrounds are presented in this section in alphabetical order: Acolyte, Artisan, Charlatan, Criminal, Entertainer, Farmer, Guard, Guide, Hermit, Merchant, Noble, Sage, Sailor, Scribe, Soldier, and Wayfarer.",
+  "total_count": 16,
+  "backgrounds": [
+    {
+      "name": "Acolyte",
+      "ability_scores": ["Intelligence", "Wisdom", "Charisma"],
+      "feat": {
+        "name": "Magic Initiate",
+        "parenthetical": "Cleric",
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Insight", "Religion"],
+      "tool_proficiency": {
+        "fixed": "Calligrapher's Supplies",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Calligrapher's Supplies",
+              "quantity": 1
+            },
+            {
+              "item": "Book",
+              "descriptor": "prayers",
+              "quantity": 1
+            },
+            {
+              "item": "Holy Symbol",
+              "quantity": 1
+            },
+            {
+              "item": "Parchment",
+              "quantity": 10,
+              "unit": "sheets"
+            },
+            {
+              "item": "Robe",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 8
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You devoted yourself to service in a temple, either nestled in a town or secluded in a sacred grove. There you performed rites in honor of a god or pantheon. You served under a priest and studied religion. Thanks to your priest's instruction and your own devotion, you also learned how to channel a modicum of divine power in service to your place of worship and the people who prayed there."
+    },
+    {
+      "name": "Artisan",
+      "ability_scores": ["Strength", "Dexterity", "Intelligence"],
+      "feat": {
+        "name": "Crafter",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Investigation", "Persuasion"],
+      "tool_proficiency": {
+        "fixed": null,
+        "choice": {
+          "instruction": "Choose one kind of Artisan's Tools",
+          "from": "Artisan's Tools",
+          "reference": "see chapter 6"
+        }
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Artisan's Tools",
+              "note": "same as above",
+              "quantity": 1
+            },
+            {
+              "item": "Pouches",
+              "quantity": 2
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 32
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You began mopping floors and scrubbing counters in an artisan's workshop for a few coppers per day as soon as you were strong enough to carry a bucket. When you were old enough to apprentice, you learned to create basic crafts of your own, as well as how to sweet-talk the occasional demanding customer. Your trade has also given you a keen eye for detail."
+    },
+    {
+      "name": "Charlatan",
+      "ability_scores": ["Dexterity", "Constitution", "Charisma"],
+      "feat": {
+        "name": "Skilled",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Deception", "Sleight of Hand"],
+      "tool_proficiency": {
+        "fixed": "Forgery Kit",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Forgery Kit",
+              "quantity": 1
+            },
+            {
+              "item": "Costume",
+              "quantity": 1
+            },
+            {
+              "item": "Fine Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 15
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "Once you were old enough to order an ale, you soon had a favorite stool in every tavern within ten miles of where you were born. As you traveled the circuit from public house to watering hole, you learned to prey on unfortunates who were in the market for a comforting lie or two — perhaps a sham potion or forged ancestry records."
+    },
+    {
+      "name": "Criminal",
+      "ability_scores": ["Dexterity", "Constitution", "Intelligence"],
+      "feat": {
+        "name": "Alert",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Sleight of Hand", "Stealth"],
+      "tool_proficiency": {
+        "fixed": "Thieves' Tools",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Daggers",
+              "quantity": 2
+            },
+            {
+              "item": "Thieves' Tools",
+              "quantity": 1
+            },
+            {
+              "item": "Crowbar",
+              "quantity": 1
+            },
+            {
+              "item": "Pouches",
+              "quantity": 2
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 16
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You eked out a living in dark alleyways, cutting purses or burgling shops. Perhaps you were part of a small gang of like-minded wrongdoers who looked out for each other. Or maybe you were a lone wolf, fending for yourself against the local thieves' guild and more fearsome lawbreakers."
+    },
+    {
+      "name": "Entertainer",
+      "ability_scores": ["Strength", "Dexterity", "Charisma"],
+      "feat": {
+        "name": "Musician",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Acrobatics", "Performance"],
+      "tool_proficiency": {
+        "fixed": null,
+        "choice": {
+          "instruction": "Choose one kind of Musical Instrument",
+          "from": "Musical Instrument",
+          "reference": "see chapter 6"
+        }
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Musical Instrument",
+              "note": "same as above",
+              "quantity": 1
+            },
+            {
+              "item": "Costumes",
+              "quantity": 2
+            },
+            {
+              "item": "Mirror",
+              "quantity": 1
+            },
+            {
+              "item": "Perfume",
+              "quantity": 1
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 11
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You spent much of your youth following roving fairs and carnivals, performing odd jobs for musicians and acrobats in exchange for lessons. You may have learned how to walk a tightrope, how to play a lute in a distinct style, or how to recite poetry with impeccable diction. To this day, you thrive on applause and long for the stage."
+    },
+    {
+      "name": "Farmer",
+      "ability_scores": ["Strength", "Constitution", "Wisdom"],
+      "feat": {
+        "name": "Tough",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Animal Handling", "Nature"],
+      "tool_proficiency": {
+        "fixed": "Carpenter's Tools",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Sickle",
+              "quantity": 1
+            },
+            {
+              "item": "Carpenter's Tools",
+              "quantity": 1
+            },
+            {
+              "item": "Healer's Kit",
+              "quantity": 1
+            },
+            {
+              "item": "Iron Pot",
+              "quantity": 1
+            },
+            {
+              "item": "Shovel",
+              "quantity": 1
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 30
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You grew up close to the land. Years tending animals and cultivating the earth rewarded you with patience and good health. You have a keen appreciation for nature's bounty alongside a healthy respect for nature's wrath."
+    },
+    {
+      "name": "Guard",
+      "ability_scores": ["Strength", "Intelligence", "Wisdom"],
+      "feat": {
+        "name": "Alert",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Athletics", "Perception"],
+      "tool_proficiency": {
+        "fixed": null,
+        "choice": {
+          "instruction": "Choose one kind of Gaming Set",
+          "from": "Gaming Set",
+          "reference": "see chapter 6"
+        }
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Spear",
+              "quantity": 1
+            },
+            {
+              "item": "Light Crossbow",
+              "quantity": 1
+            },
+            {
+              "item": "Bolts",
+              "quantity": 20
+            },
+            {
+              "item": "Gaming Set",
+              "note": "same as above",
+              "quantity": 1
+            },
+            {
+              "item": "Hooded Lantern",
+              "quantity": 1
+            },
+            {
+              "item": "Manacles",
+              "quantity": 1
+            },
+            {
+              "item": "Quiver",
+              "quantity": 1
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 12
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "Your feet ache when you remember the countless hours you spent at your post in the tower. You were trained to keep one eye looking outside the wall, watching for marauders sweeping from the nearby forest, and your other eye looking inside the wall, searching for cutpurses and troublemakers."
+    },
+    {
+      "name": "Guide",
+      "ability_scores": ["Dexterity", "Constitution", "Wisdom"],
+      "feat": {
+        "name": "Magic Initiate",
+        "parenthetical": "Druid",
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Stealth", "Survival"],
+      "tool_proficiency": {
+        "fixed": "Cartographer's Tools",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Shortbow",
+              "quantity": 1
+            },
+            {
+              "item": "Arrows",
+              "quantity": 20
+            },
+            {
+              "item": "Cartographer's Tools",
+              "quantity": 1
+            },
+            {
+              "item": "Bedroll",
+              "quantity": 1
+            },
+            {
+              "item": "Quiver",
+              "quantity": 1
+            },
+            {
+              "item": "Tent",
+              "quantity": 1
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 3
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You came of age outdoors, far from settled lands. Your home was anywhere you chose to spread your bedroll. There are wonders in the wilderness — strange monsters, pristine forests and streams, overgrown ruins of great halls once trod by giants — and you learned to fend for yourself as you explored them. From time to time, you guided friendly nature priests who instructed you in the fundamentals of channeling the magic of the wild."
+    },
+    {
+      "name": "Hermit",
+      "ability_scores": ["Constitution", "Wisdom", "Charisma"],
+      "feat": {
+        "name": "Healer",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Medicine", "Religion"],
+      "tool_proficiency": {
+        "fixed": "Herbalism Kit",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Quarterstaff",
+              "quantity": 1
+            },
+            {
+              "item": "Herbalism Kit",
+              "quantity": 1
+            },
+            {
+              "item": "Bedroll",
+              "quantity": 1
+            },
+            {
+              "item": "Book",
+              "descriptor": "philosophy",
+              "quantity": 1
+            },
+            {
+              "item": "Lamp",
+              "quantity": 1
+            },
+            {
+              "item": "Oil",
+              "quantity": 3,
+              "unit": "flasks"
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 16
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You spent your early years secluded in a hut or monastery located well beyond the outskirts of the nearest settlement. In those days, your only companions were the creatures of the forest and those who would occasionally visit to bring news of the outside world and supplies. The solitude allowed you to spend many hours pondering the mysteries of creation."
+    },
+    {
+      "name": "Merchant",
+      "ability_scores": ["Constitution", "Intelligence", "Charisma"],
+      "feat": {
+        "name": "Lucky",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Animal Handling", "Persuasion"],
+      "tool_proficiency": {
+        "fixed": "Navigator's Tools",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Navigator's Tools",
+              "quantity": 1
+            },
+            {
+              "item": "Pouches",
+              "quantity": 2
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 22
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You were apprenticed to a trader, caravan master, or shopkeeper, learning the fundamentals of commerce. You traveled broadly, and you earned a living by buying and selling the raw materials artisans need to practice their craft or finished works from such crafters. You might have transported goods from one place to another (by ship, wagon, or caravan) or bought them from traveling traders and sold them in your own shop."
+    },
+    {
+      "name": "Noble",
+      "ability_scores": ["Strength", "Intelligence", "Charisma"],
+      "feat": {
+        "name": "Skilled",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["History", "Persuasion"],
+      "tool_proficiency": {
+        "fixed": null,
+        "choice": {
+          "instruction": "Choose one kind of Gaming Set",
+          "from": "Gaming Set",
+          "reference": "see chapter 6"
+        }
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Gaming Set",
+              "note": "same as above",
+              "quantity": 1
+            },
+            {
+              "item": "Fine Clothes",
+              "quantity": 1
+            },
+            {
+              "item": "Perfume",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 29
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You were raised in a castle, surrounded by wealth, power, and privilege. Your family of minor aristocrats ensured that you received a first-class education, some of which you appreciated and some of which you resented. Your time in the castle, especially the many hours you spent observing your family at court, also taught you a great deal about leadership."
+    },
+    {
+      "name": "Sage",
+      "ability_scores": ["Constitution", "Intelligence", "Wisdom"],
+      "feat": {
+        "name": "Magic Initiate",
+        "parenthetical": "Wizard",
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Arcana", "History"],
+      "tool_proficiency": {
+        "fixed": "Calligrapher's Supplies",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Quarterstaff",
+              "quantity": 1
+            },
+            {
+              "item": "Calligrapher's Supplies",
+              "quantity": 1
+            },
+            {
+              "item": "Book",
+              "descriptor": "history",
+              "quantity": 1
+            },
+            {
+              "item": "Parchment",
+              "quantity": 8,
+              "unit": "sheets"
+            },
+            {
+              "item": "Robe",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 8
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You spent your formative years traveling between manors and monasteries, performing various odd jobs and services in exchange for access to their libraries. You whiled away many a long evening studying books and scrolls, learning the lore of the multiverse — even the rudiments of magic — and your mind yearns for more."
+    },
+    {
+      "name": "Sailor",
+      "ability_scores": ["Strength", "Dexterity", "Wisdom"],
+      "feat": {
+        "name": "Tavern Brawler",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Acrobatics", "Perception"],
+      "tool_proficiency": {
+        "fixed": "Navigator's Tools",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Dagger",
+              "quantity": 1
+            },
+            {
+              "item": "Navigator's Tools",
+              "quantity": 1
+            },
+            {
+              "item": "Rope",
+              "quantity": 1
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 20
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You lived as a seafarer, wind at your back and decks swaying beneath your feet. You've perched on barstools in more ports of call than you can remember, faced mighty storms, and swapped stories with folk who live beneath the waves."
+    },
+    {
+      "name": "Scribe",
+      "ability_scores": ["Dexterity", "Intelligence", "Wisdom"],
+      "feat": {
+        "name": "Skilled",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Investigation", "Perception"],
+      "tool_proficiency": {
+        "fixed": "Calligrapher's Supplies",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Calligrapher's Supplies",
+              "quantity": 1
+            },
+            {
+              "item": "Fine Clothes",
+              "quantity": 1
+            },
+            {
+              "item": "Lamp",
+              "quantity": 1
+            },
+            {
+              "item": "Oil",
+              "quantity": 3,
+              "unit": "flasks"
+            },
+            {
+              "item": "Parchment",
+              "quantity": 12,
+              "unit": "sheets"
+            }
+          ],
+          "gold_pieces": 23
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You spent formative years in a scriptorium, a monastery dedicated to the preservation of knowledge, or a government agency, where you learned to write with a clear hand and produce finely written texts. Perhaps you scribed government documents or copied tomes of literature. You might have some skill as a writer of poetry, narrative, or scholarly research. Above all, you have a careful attention to detail, helping you avoid introducing mistakes to the documents you copy and create."
+    },
+    {
+      "name": "Soldier",
+      "ability_scores": ["Strength", "Dexterity", "Constitution"],
+      "feat": {
+        "name": "Savage Attacker",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Athletics", "Intimidation"],
+      "tool_proficiency": {
+        "fixed": null,
+        "choice": {
+          "instruction": "Choose one kind of Gaming Set",
+          "from": "Gaming Set",
+          "reference": "see chapter 6"
+        }
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Spear",
+              "quantity": 1
+            },
+            {
+              "item": "Shortbow",
+              "quantity": 1
+            },
+            {
+              "item": "Arrows",
+              "quantity": 20
+            },
+            {
+              "item": "Gaming Set",
+              "note": "same as above",
+              "quantity": 1
+            },
+            {
+              "item": "Healer's Kit",
+              "quantity": 1
+            },
+            {
+              "item": "Quiver",
+              "quantity": 1
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 14
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You began training for war as soon as you reached adulthood and carry precious few memories of life before you took up arms. Battle is in your blood. Sometimes you catch yourself reflexively performing the basic fighting exercises you learned first. Eventually, you put that training to use on the battlefield, protecting the realm by waging war."
+    },
+    {
+      "name": "Wayfarer",
+      "ability_scores": ["Dexterity", "Wisdom", "Charisma"],
+      "feat": {
+        "name": "Lucky",
+        "parenthetical": null,
+        "reference": "see chapter 5"
+      },
+      "skill_proficiencies": ["Insight", "Stealth"],
+      "tool_proficiency": {
+        "fixed": "Thieves' Tools",
+        "choice": null
+      },
+      "equipment": {
+        "choice_instruction": "Choose A or B",
+        "option_a": {
+          "items": [
+            {
+              "item": "Daggers",
+              "quantity": 2
+            },
+            {
+              "item": "Thieves' Tools",
+              "quantity": 1
+            },
+            {
+              "item": "Gaming Set",
+              "descriptor": "any",
+              "quantity": 1
+            },
+            {
+              "item": "Bedroll",
+              "quantity": 1
+            },
+            {
+              "item": "Pouches",
+              "quantity": 2
+            },
+            {
+              "item": "Traveler's Clothes",
+              "quantity": 1
+            }
+          ],
+          "gold_pieces": 16
+        },
+        "option_b": {
+          "items": [],
+          "gold_pieces": 50
+        }
+      },
+      "flavor_text": "You grew up on the streets surrounded by similarly ill-fated castoffs, a few of them friends and a few of them rivals. You slept where you could and did odd jobs for food. At times, when the hunger became unbearable, you resorted to theft. Still, you never lost your pride and never abandoned hope. Fate is not yet finished with you."
+    }
+  ],
+  "cross_references": {
+    "unique_feats_referenced": [
+      {
+        "name": "Magic Initiate",
+        "variants": ["Cleric", "Druid", "Wizard"],
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Crafter",
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Skilled",
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Alert",
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Musician",
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Tough",
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Healer",
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Lucky",
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Tavern Brawler",
+        "reference": "chapter 5"
+      },
+      {
+        "name": "Savage Attacker",
+        "reference": "chapter 5"
+      }
+    ],
+    "unique_skills_referenced": [
+      "Acrobatics",
+      "Animal Handling",
+      "Arcana",
+      "Athletics",
+      "Deception",
+      "History",
+      "Insight",
+      "Intimidation",
+      "Investigation",
+      "Medicine",
+      "Nature",
+      "Perception",
+      "Performance",
+      "Persuasion",
+      "Religion",
+      "Sleight of Hand",
+      "Stealth",
+      "Survival"
+    ],
+    "unique_tool_proficiencies_referenced": [
+      "Calligrapher's Supplies",
+      "Artisan's Tools",
+      "Forgery Kit",
+      "Thieves' Tools",
+      "Musical Instrument",
+      "Carpenter's Tools",
+      "Gaming Set",
+      "Cartographer's Tools",
+      "Herbalism Kit",
+      "Navigator's Tools"
+    ],
+    "tool_choice_categories": {
+      "Artisan's Tools": {
+        "reference": "see chapter 6",
+        "used_by": ["Artisan"]
+      },
+      "Musical Instrument": {
+        "reference": "see chapter 6",
+        "used_by": ["Entertainer"]
+      },
+      "Gaming Set": {
+        "reference": "see chapter 6",
+        "used_by": ["Guard", "Noble", "Soldier"]
+      }
+    }
+  },
+  "structural_patterns": {
+    "every_background_has": [
+      "Three ability scores",
+      "One feat",
+      "Two skill proficiencies",
+      "One tool proficiency (fixed or chosen from a category)",
+      "Equipment choice between specific gear + gold (Option A) or 50 GP (Option B)",
+      "Flavor text describing the character's past"
+    ],
+    "option_b_gold_pieces_always": 50
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Greatsword",
+  "slug": "greatsword",
+  "category": "Martial",
+  "type": "Melee",
+  "damage": "2d6",
+  "damageType": "Slashing",
+  "properties": ["Heavy", "Two-Handed"],
+  "mastery": "Graze",
+  "weight": "6 lb.",
+  "cost": "50 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Quartz",
+  "slug": "quartz",
+  "value": "50 GP",
+  "category": "Gemstone",
+  "description": "white, smoky gray, or yellow",
+  "dieValue": "9",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

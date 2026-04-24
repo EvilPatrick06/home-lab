@@ -1,0 +1,46 @@
+{
+  "id": "rest-variants",
+  "name": "Rest Variants",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "Two variant rest systems that alter the pacing and resource management of the game. Epic Heroism shortens rests for fast-paced, action-heavy campaigns. Gritty Realism lengthens rests for survival-focused, resource-scarce campaigns.",
+  "mechanics": {
+    "variants": [
+      {
+        "name": "Epic Heroism",
+        "shortRest": {
+          "duration": "1 minute",
+          "description": "A Short Rest takes only 1 minute instead of the standard 1 hour"
+        },
+        "longRest": {
+          "duration": "1 hour",
+          "description": "A Long Rest takes only 1 hour instead of the standard 8 hours"
+        },
+        "bestFor": "High-action campaigns with frequent encounters and little downtime, where the party faces many battles in rapid succession",
+        "effect": "Characters recover resources much faster, allowing more encounters per adventuring day without resource depletion"
+      },
+      {
+        "name": "Gritty Realism",
+        "shortRest": {
+          "duration": "8 hours",
+          "description": "A Short Rest takes 8 hours (equivalent to a standard Long Rest in duration)"
+        },
+        "longRest": {
+          "duration": "7 days",
+          "description": "A Long Rest takes 7 days of downtime in a safe location"
+        },
+        "bestFor": "Survival, exploration, and wilderness campaigns where resources are scarce and each encounter carries lasting consequences",
+        "effect": "Characters must carefully manage spell slots, Hit Dice, and class features across multiple days of adventuring"
+      }
+    ],
+    "generalNotes": "All features that reference Short Rest or Long Rest use the variant durations. Features that recharge 'at dawn' or after a specific time period are unaffected."
+  },
+  "interactions": [
+    "Epic Heroism makes Short Rest classes (Warlock, Fighter, Monk) less distinctive since Long Rest classes also recover quickly",
+    "Gritty Realism makes Short Rest classes relatively stronger since they recover features in 8 hours while Long Rest classes must wait 7 days",
+    "Spellcasters are significantly impacted by Gritty Realism as spell slot recovery takes a full week",
+    "The Catnap spell (which grants a Short Rest in 10 minutes) becomes extremely valuable under Gritty Realism",
+    "Healing spells and potions become much more important in Gritty Realism since natural Hit Dice healing requires 8 hours",
+    "Encounter design must be adjusted: Epic Heroism supports more encounters per session, Gritty Realism supports fewer but more impactful ones"
+  ]
+}

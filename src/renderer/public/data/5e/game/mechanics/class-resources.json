@@ -1,0 +1,122 @@
+{
+  "classes": {
+    "fighter": {
+      "resources": [
+        {
+          "id": "second-wind",
+          "name": "Second Wind",
+          "shortRestRestore": 1,
+          "scaling": [
+            { "minLevel": 1, "maxLevel": 3, "max": 2 },
+            { "minLevel": 4, "maxLevel": 9, "max": 3 },
+            { "minLevel": 10, "max": 4 }
+          ]
+        },
+        {
+          "id": "action-surge",
+          "name": "Action Surge",
+          "shortRestRestore": "all",
+          "scaling": [{ "minLevel": 2, "maxLevel": 16, "max": 1 }, { "minLevel": 17, "max": 2 }]
+        },
+        {
+          "id": "indomitable",
+          "name": "Indomitable",
+          "shortRestRestore": 0,
+          "scaling": [
+            { "minLevel": 9, "maxLevel": 12, "max": 1 },
+            { "minLevel": 13, "maxLevel": 16, "max": 2 },
+            { "minLevel": 17, "max": 3 }
+          ]
+        }
+      ]
+    },
+    "rogue": {
+      "resources": [
+        {
+          "id": "stroke-of-luck",
+          "name": "Stroke of Luck",
+          "shortRestRestore": "all",
+          "scaling": [{ "minLevel": 20, "max": 1 }]
+        }
+      ]
+    },
+    "sorcerer": {
+      "resources": [
+        {
+          "id": "innate-sorcery",
+          "name": "Innate Sorcery",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 1, "max": 2 }]
+        },
+        {
+          "id": "sorcery-points",
+          "name": "Sorcery Points",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 2, "maxFormula": "classLevel" }]
+        }
+      ]
+    },
+    "monk": {
+      "resources": [
+        {
+          "id": "focus-points",
+          "name": "Focus Points",
+          "shortRestRestore": "all",
+          "scaling": [{ "minLevel": 2, "maxFormula": "classLevel" }]
+        }
+      ]
+    },
+    "paladin": {
+      "resources": [
+        {
+          "id": "lay-on-hands",
+          "name": "Lay On Hands",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 1, "maxFormula": "classLevel*5" }]
+        },
+        {
+          "id": "channel-divinity",
+          "name": "Channel Divinity",
+          "shortRestRestore": 1,
+          "scaling": [{ "minLevel": 3, "maxLevel": 10, "max": 2 }, { "minLevel": 11, "max": 3 }]
+        }
+      ]
+    },
+    "ranger": {
+      "resources": [
+        {
+          "id": "favored-enemy",
+          "name": "Favored Enemy (Hunter's Mark)",
+          "shortRestRestore": 0,
+          "scaling": [
+            { "minLevel": 1, "maxLevel": 4, "max": 2 },
+            { "minLevel": 5, "maxLevel": 8, "max": 3 },
+            { "minLevel": 9, "maxLevel": 12, "max": 4 },
+            { "minLevel": 13, "maxLevel": 16, "max": 5 },
+            { "minLevel": 17, "max": 6 }
+          ]
+        },
+        {
+          "id": "tireless",
+          "name": "Tireless",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 10, "maxFormula": "wisdomMod" }]
+        },
+        {
+          "id": "natures-veil",
+          "name": "Nature's Veil",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 14, "maxFormula": "wisdomMod" }]
+        }
+      ]
+    }
+  },
+  "feats": {
+    "lucky": {
+      "id": "lucky",
+      "name": "Lucky (Luck Points)",
+      "shortRestRestore": 0,
+      "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+    }
+  }
+}

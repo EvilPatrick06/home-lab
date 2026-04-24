@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels with the material realms at the center. Dehydration is a universal hazard defined in the rules glossary that applies on any plane where hunger and thirst are relevant.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, where dehydration is a standard survival hazard.",
+        "memberPlanes": ["Material Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes and Para-elemental Planes. The Elemental Plane of Fire explicitly notes water scarcity as a danger.",
+        "memberPlanes": ["Elemental Plane of Fire"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane. Creatures on the Astral Plane do not suffer from hunger or thirst, making dehydration inapplicable there.",
+        "memberPlanes": ["Astral Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "material-plane",
+      "name": "Material Plane",
+      "alternateNames": [],
+      "category": "Material Realm",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Time flows normally on the Material Plane. Creatures require water based on their size each day or face Dehydration."
+      },
+      "hazards": [
+        {
+          "id": "dehydration",
+          "name": "Dehydration",
+          "description": "A creature requires an amount of water per day based on its size: Tiny 1/4 gallon, Small 1 gallon, Medium 1 gallon, Large 4 gallons, Huge 16 gallons, Gargantuan 64 gallons. A creature that drinks less than half the required water must succeed on a DC 15 Constitution saving throw or gain 1 Exhaustion level at the end of the day. A creature with access to even less water automatically gains 1 Exhaustion level at the end of the day with no saving throw.",
+          "category": "environmental",
+          "severity": "major",
+          "savingThrowToTraverse": {
+            "ability": "Constitution",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "per_day",
+            "triggerDescription": "At the end of each day when the creature has consumed less than half its required daily water intake based on its size.",
+            "onFailure": {
+              "description": "The creature gains 1 Exhaustion level.",
+              "conditionApplied": "Exhaustion",
+              "exhaustionLevels": 1,
+              "exhaustionIsRemovable": true,
+              "duration": "Until removed by finishing a Long Rest (1 level per Long Rest)",
+              "cumulative": true,
+              "cumulativeMaxStacks": 6,
+              "cumulativeDescription": "Exhaustion is cumulative. Each failed save or automatic failure adds 1 Exhaustion level. At 6 Exhaustion levels, the creature dies. Each Long Rest removes 1 Exhaustion level. D20 Tests are reduced by 2 times the Exhaustion level, and Speed is reduced by 5 feet times the Exhaustion level.",
+              "terminalEffect": "Death at Exhaustion level 6",
+              "terminalAtExhaustionLevel": 6
+            },
+            "onSuccess": {
+              "description": "The creature avoids gaining an Exhaustion level for that day despite insufficient water intake.",
+              "endsEffect": false,
+              "partialEffect": "The creature still suffers from insufficient water but avoids mechanical penalty for that day."
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [
+              "Creature has access to even less water than half the required amount — in that case, no save is allowed and the creature automatically gains 1 Exhaustion level"
+            ],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": [
+              "Drinking the full required amount of water for the creature's size",
+              "Magic that creates water such as Create or Destroy Water spell",
+              "Finishing a Long Rest removes 1 Exhaustion level"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": 1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.65,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary — Dehydration; Chapter 1: Playing the Game — Hazards"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Humanoid", "Beast"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": ["Survival", "Exploration"],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game lists Dehydration as one of the defined hazards in the rules glossary."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary defines Dehydration mechanics, DC 15 Constitution saving throw, Exhaustion levels, and the Water/Food Needs per Day table by creature size."
+        }
+      ]
+    },
+    {
+      "id": "elemental-plane-of-fire",
+      "name": "Elemental Plane of Fire",
+      "alternateNames": [],
+      "category": "Inner Plane",
+      "subcategory": "Elemental Fire",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "The air is breathable but creatures not native to the plane must cover their mouths and eyes to avoid stinging cinders. The weather is marked by fierce winds and thick ash.",
+        "hasSurface": true,
+        "dominantElement": "Fire",
+        "temperature": {
+          "category": "extreme_heat",
+          "description": "The heat on the Plane of Fire is comparable to a hot desert on the Material Plane and poses a similar threat to travelers. Sources of water are rare, so travelers must carry their own supplies or produce water by magic."
+        },
+        "weatherPatterns": "Fierce winds and thick ash. Cinder storms are common outside the City of Brass."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Time flows normally. Hunger and thirst apply. Sources of water are rare, making dehydration a heightened risk."
+      },
+      "hazards": [
+        {
+          "id": "dehydration-plane-of-fire",
+          "name": "Dehydration (Heightened Risk on Plane of Fire)",
+          "description": "Sources of water are rare on the Elemental Plane of Fire, so travelers must carry their own supplies or produce water by magic. The standard Dehydration rules apply: a creature requires water per day based on its size (Tiny 1/4 gallon, Small 1 gallon, Medium 1 gallon, Large 4 gallons, Huge 16 gallons, Gargantuan 64 gallons). A creature that drinks less than half the required water must succeed on a DC 15 Constitution saving throw or gain 1 Exhaustion level at the end of the day. A creature with access to even less water automatically gains 1 Exhaustion level. The extreme heat of the plane may exacerbate water loss.",
+          "category": "environmental",
+          "severity": "severe",
+          "savingThrowToTraverse": {
+            "ability": "Constitution",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "per_day",
+            "triggerDescription": "At the end of each day when the creature has consumed less than half its required daily water intake. Water scarcity on the Plane of Fire makes this hazard far more likely than on the Material Plane.",
+            "onFailure": {
+              "description": "The creature gains 1 Exhaustion level.",
+              "conditionApplied": "Exhaustion",
+              "exhaustionLevels": 1,
+              "exhaustionIsRemovable": true,
+              "duration": "Until removed by finishing a Long Rest (1 level per Long Rest)",
+              "cumulative": true,
+              "cumulativeMaxStacks": 6,
+              "cumulativeDescription": "Exhaustion is cumulative. Each failed save or automatic failure adds 1 Exhaustion level. At 6 Exhaustion levels, the creature dies.",
+              "terminalEffect": "Death at Exhaustion level 6",
+              "terminalAtExhaustionLevel": 6
+            },
+            "onSuccess": {
+              "description": "The creature avoids gaining an Exhaustion level for that day.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": [
+              "Carrying water supplies from another plane",
+              "Producing water by magic such as Create or Destroy Water",
+              "Finishing a Long Rest removes 1 Exhaustion level"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": 1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.65,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Elemental Plane of Fire; Appendix C: Rules Glossary — Dehydration"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": ["Survival", "Exploration"],
+      "adventureSituations": [],
+      "colorPoolColor": "Ruby (for Nine Hells, not Fire — Fire has no listed Astral color pool)",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 6 states the heat on the Plane of Fire is comparable to a hot desert and sources of water are rare, referencing Environmental Effects in chapter 3."
+        }
+      ]
+    },
+    {
+      "id": "astral-plane",
+      "name": "Astral Plane",
+      "alternateNames": ["Astral Sea"],
+      "category": "Transitive Plane",
+      "subcategory": "Astral",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A great silvery sea with swirling wisps of white and gray streaking among motes of light.",
+        "breathableAtmosphere": true,
+        "hasSurface": false
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "stopped",
+        "ratioToMaterialPlane": "variable",
+        "agingOccurs": false,
+        "hungerThirstApplies": false,
+        "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst. Dehydration does not apply on this plane."
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Humanoid", "Aberration"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "astral-no-hunger-thirst",
+          "name": "No Hunger or Thirst",
+          "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst. For this reason, creatures that live on the Astral Plane (such as githyanki) establish outposts on other planes so their children can grow to maturity.",
+          "mechanicalEffect": "Dehydration and Malnutrition hazards do not apply on the Astral Plane. Creatures do not need to consume water or food while on this plane.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [],
+      "adventureThemes": ["Exploration", "Planar Travel"],
+      "adventureSituations": [],
+      "colorPoolColor": "Silver (leads to Material Plane)",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 6: Astral Plane section states creatures do not age or suffer from hunger or thirst."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 3,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

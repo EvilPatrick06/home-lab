@@ -1,0 +1,61 @@
+{
+  "name": "Giant Frog",
+  "slug": "giant-frog",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "11",
+  "initiative": "+1 (11)",
+  "hp": "18",
+  "hpFormula": "4d8",
+  "speed": "30 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 12,
+    "dex": 13,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 1,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +2, Stealth +4",
+  "senses": "Darkvision 30 ft.; Passive Perception 12",
+  "languages": "None",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The frog can breathe air and water."
+    },
+    {
+      "name": "Standing Leap",
+      "description": "The frog's Long Jump is up to 20 feet and its High Jump is up to 10 feet with or without a running start."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Piercing damage. If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 11)."
+    },
+    {
+      "name": "Swallow",
+      "description": "The frog swallows a Small or smaller target it is grappling. While swallowed, the target isn't Grappled but has the Blinded and Restrained conditions, and it has Total Cover against attacks and other effects outside the frog. While swallowing the target, the frog can't use Bite, and if the frog dies, the swallowed target is no longer Restrained and can escape from the corpse using 5 feet of movement, exiting with the Prone condition. At the end of the frog's next turn, the swallowed target takes 5 (2d4) Acid damage. If that damage doesn't kill it, the frog disgorges it, causing it to exit Prone."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

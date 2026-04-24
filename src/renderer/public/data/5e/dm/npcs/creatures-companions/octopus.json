@@ -1,0 +1,48 @@
+{
+  "name": "Octopus",
+  "slug": "octopus",
+  "size": "Small",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 12,
+  "hp": 3,
+  "hpFormula": "1d6",
+  "speed": "5 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 4,
+    "dex": 15,
+    "con": 11,
+    "int": 3,
+    "wis": 10,
+    "cha": 4
+  },
+  "skills": "Perception +2, Stealth +4",
+  "senses": "Darkvision 30 ft., Passive Perception 12",
+  "languages": "—",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [
+    {
+      "name": "Hold Breath",
+      "description": "Can hold its breath for 30 minutes out of water."
+    },
+    {
+      "name": "Underwater Camouflage",
+      "description": "Advantage on Dexterity (Stealth) checks made while underwater."
+    },
+    {
+      "name": "Ink Cloud (Recharges after a Short or Long Rest)",
+      "description": "A 5-foot-radius cloud of ink extends around the octopus if it is underwater. The area is Heavily Obscured for 1 minute, although a significant current can disperse the ink. After releasing the ink, the octopus can use the Dash action as a Bonus Action."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Tentacles",
+      "description": "*Melee:* +4, reach 5 ft. *Hit:* 1 Bludgeoning, and the target has the Grappled condition (escape DC 10). Until the grapple ends, the octopus can't use Tentacles on another target."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

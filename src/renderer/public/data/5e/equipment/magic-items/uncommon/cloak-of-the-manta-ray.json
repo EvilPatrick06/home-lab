@@ -1,0 +1,13 @@
+{
+  "name": "Cloak of the Manta Ray",
+  "slug": "cloak-of-the-manta-ray",
+  "type": "Wondrous Item",
+  "rarity": "Uncommon",
+  "attunement": true,
+  "description": "While wearing this cloak, you can breathe underwater, and you have a Swim Speed of 60 feet.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

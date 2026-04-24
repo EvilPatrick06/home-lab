@@ -1,0 +1,134 @@
+{
+  "name": "Darkmantle",
+  "sizes": ["Small"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 5,
+      "die": "d6",
+      "modifier": 5
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {},
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Echolocation",
+      "description": "The darkmantle can't use its Blindsight while Deafened."
+    },
+    {
+      "name": "False Appearance",
+      "description": "If the darkmantle is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the darkmantle move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern that the darkmantle is animate."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Crush",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Bludgeoning damage, and if the target is a Large or smaller creature, the darkmantle attaches to it. While attached, the darkmantle has the Grappled condition, and the target has the Blinded condition and can't breathe. The darkmantle can attach to only one creature at a time. While attached to a creature, the darkmantle can make this attack only against that creature and has Advantage on the attack roll. A creature (including the target) can take an action to try to detach the darkmantle, doing so with a successful DC 13 Strength (Athletics) check.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the target is a Large or smaller creature, the darkmantle attaches to it. While attached, the darkmantle has the Grappled condition, and the target can't breathe. The darkmantle can attach to only one creature at a time. While attached to a creature, the darkmantle can make this attack only against that creature and has Advantage on the attack roll. A creature (including the target) can take an action to try to detach the darkmantle, doing so with a successful DC 13 Strength (Athletics) check.",
+          "conditions": [
+            {
+              "condition": "Blinded",
+              "duration": "while the darkmantle is attached",
+              "escapeDC": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Darkness Aura",
+      "description": "Magical Darkness spreads from the darkmantle in a 15-foot Emanation and moves with it. The Darkness lasts for up to 10 minutes (as if the darkmantle were Concentrating on it). A creature with Darkvision can't see through it, and nonmagical light can't illuminate it.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 15,
+        "centered": true
+      }
+    }
+  ]
+}

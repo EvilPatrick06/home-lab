@@ -1,0 +1,69 @@
+{
+  "id": "indefinite-madness",
+  "name": "Indefinite Madness",
+  "description": "Indefinite madness lasts until cured. A Greater Restoration spell or more powerful magic is required to cure indefinite madness.",
+  "duration": "Until cured",
+  "curedBy": ["Greater Restoration", "Heal", "Wish", "Any effect that specifically cures indefinite madness"],
+  "table": [
+    {
+      "rollMin": 1,
+      "rollMax": 15,
+      "effect": "'Being drunk keeps me sane.' The character gains a new flaw: they become dependent on alcohol or another intoxicant."
+    },
+    {
+      "rollMin": 16,
+      "rollMax": 25,
+      "effect": "'I keep whatever I find.' The character gains a new flaw: compulsive hoarding. The character refuses to part with possessions, no matter how worthless."
+    },
+    {
+      "rollMin": 26,
+      "rollMax": 30,
+      "effect": "'I try to become more like someone else I know -- adopting their style of dress, mannerisms, and name.' The character gains a new flaw: identity displacement."
+    },
+    {
+      "rollMin": 31,
+      "rollMax": 35,
+      "effect": "'I must bend the truth, exaggerate, or outright lie to be interesting to other people.' The character gains a new flaw: compulsive lying."
+    },
+    {
+      "rollMin": 36,
+      "rollMax": 45,
+      "effect": "'Achieving my goal is the only thing of interest to me, and I'll ignore everything else to pursue it.' The character gains a new flaw: obsessive fixation on a single goal."
+    },
+    {
+      "rollMin": 46,
+      "rollMax": 50,
+      "effect": "'I find it hard to care about anything that goes on around me.' The character gains a new flaw: apathy and emotional detachment."
+    },
+    {
+      "rollMin": 51,
+      "rollMax": 60,
+      "effect": "'I don't like the way people judge me all the time.' The character gains a new flaw: intense suspicion and paranoia toward others."
+    },
+    {
+      "rollMin": 61,
+      "rollMax": 70,
+      "effect": "'I am the smartest, wisest, strongest, fastest, and most beautiful person I know.' The character gains a new flaw: narcissism and delusions of grandeur."
+    },
+    {
+      "rollMin": 71,
+      "rollMax": 80,
+      "effect": "'I am convinced that powerful enemies are hunting me, and their agents are everywhere I go. I am sure they're watching me all the time.' The character gains a new flaw: persecution complex."
+    },
+    {
+      "rollMin": 81,
+      "rollMax": 85,
+      "effect": "'There's only one person I can trust. And only I can see this special friend.' The character gains a new flaw: an imaginary companion that they believe is real."
+    },
+    {
+      "rollMin": 86,
+      "rollMax": 95,
+      "effect": "'I can't take anything seriously. The more serious the situation, the funnier I find it.' The character gains a new flaw: inappropriate humor as a coping mechanism."
+    },
+    {
+      "rollMin": 96,
+      "rollMax": 100,
+      "effect": "'I've discovered that I really like killing people.' The character gains a new flaw: homicidal urges that must be actively suppressed."
+    }
+  ]
+}

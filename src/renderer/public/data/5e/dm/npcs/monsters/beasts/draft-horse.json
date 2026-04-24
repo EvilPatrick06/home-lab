@@ -1,0 +1,47 @@
+{
+  "name": "Draft Horse",
+  "slug": "draft-horse",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "10",
+  "initiative": "+0 (10)",
+  "hp": "15",
+  "hpFormula": "2d10 + 4",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 10,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 0,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 10",
+  "languages": "None",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Hooves",
+      "description": "*Melee Attack Roll:* +6, reach 5 ft. *Hit:* 6 (1d4 + 4) Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

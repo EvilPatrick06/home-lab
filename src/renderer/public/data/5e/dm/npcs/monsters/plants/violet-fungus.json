@@ -1,0 +1,129 @@
+{
+  "name": "Violet Fungus",
+  "sizes": ["Medium"],
+  "creatureType": "Plant",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "A violet fungus is a subterranean predator that feeds on the rot of creatures it kills with its toxic tendrils. When motionless, it resembles an ordinary fungus, but it lashes out at any creature that comes within reach.",
+  "armorClass": {
+    "value": 5
+  },
+  "hitPoints": {
+    "average": 18,
+    "dice": {
+      "count": 4,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 5
+    }
+  ],
+  "initiative": {
+    "modifier": -5,
+    "score": 5
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "DEX": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "conditionImmunities": [
+    "Blinded",
+    "Charmed",
+    "Deafened",
+    "Exhaustion",
+    "Frightened",
+    "Paralyzed",
+    "Poisoned",
+    "Prone"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 30,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 6
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "If the violet fungus is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the violet fungus move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern that the violet fungus is animate."
+    }
+  ],
+  "multiattack": {
+    "description": "The violet fungus makes 1d4 Rotting Touch attacks.",
+    "attacks": [
+      {
+        "actionName": "Rotting Touch",
+        "count": 1
+      }
+    ],
+    "additionalEffects": "Roll 1d4 to determine the number of Rotting Touch attacks. The result replaces the count for Rotting Touch."
+  },
+  "actions": [
+    {
+      "name": "Rotting Touch",
+      "description": "Melee Attack Roll: +2, reach 10 ft. Hit: 4 (1d8) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 2,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "acolyte",
+  "name": "Acolyte",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Alignment",
+  "ac": 10,
+  "acSource": "no armor",
+  "hp": 9,
+  "hpFormula": "2d8",
+  "speed": "30 ft.",
+  "stats": { "str": 10, "dex": 10, "con": 10, "int": 10, "wis": 14, "cha": 11 },
+  "skills": "Medicine +4, Religion +2",
+  "senses": "Passive Perception 12",
+  "languages": "Any one language (usually Common)",
+  "cr": "1/4",
+  "xp": "50 XP",
+  "spellcasting": {
+    "level": 1,
+    "ability": "Wisdom",
+    "saveDC": 12,
+    "attackBonus": 4,
+    "cantrips": ["Light", "Sacred Flame", "Thaumaturgy"],
+    "slots": {
+      "1st": { "slots": 3, "spells": ["Bless", "Cure Wounds", "Sanctuary"] }
+    }
+  },
+  "traits": [],
+  "actions": [
+    {
+      "name": "Club",
+      "description": "*Melee Weapon Attack:* +2 to hit, reach 5 ft., one target. *Hit:* 2 (1d4) bludgeoning damage."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

@@ -1,0 +1,701 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "carceri",
+      "name": "Carceri",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Chaotic Evil", "Neutral Evil"],
+      "philosophicalEssence": "The grim inspiration for all other prisons in existence, a plane of desolation and despair. Home for the traitors and backstabbers trapped on this prison plane.",
+      "emotionalInfluence": "Despair, treachery, and betrayal. Hatreds run like a deep, slow-moving river. The plane's very nature breeds despair and betrayal, preventing those imprisoned from working together toward escape.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A long series of spherical worlds arranged like beads on a string, with each sphere consisting of six nested spheres—the layers of the plane. This fanciful description is but one attempt to make sense of the distorted geography of a place that is an alternate state of reality.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Atmosphere varies by layer: bogs and quicksand on Orthrys, fetid jungle air on Cathrys, stinging sand storms on Minethys, mountain air in deep chasms on Colothys, cold acidic ocean spray on Porphatys, frigid conditions on Agathys.",
+        "temperature": {
+          "category": "layered",
+          "description": "Temperature varies by layer from temperate bogs to frigid black ice. Porphatys has cold acidic oceans fed by constant black snow. Agathys is a frigid realm of black ice."
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Varies by layer: unending sandstorms on Minethys, constant black snow on Porphatys."
+      },
+      "layers": [
+        {
+          "name": "Orthrys",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "The River Styx meanders through a layer of vast bogs and quicksand.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Vast Bogs and Quicksand",
+              "description": "The layer consists of vast bogs and quicksand through which the River Styx meanders."
+            }
+          ],
+          "environmentalDescription": "Vast bogs and quicksand with the River Styx meandering through.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Cathrys",
+          "alternateNames": [],
+          "layerNumber": 2,
+          "description": "The stench of decay hangs over fetid jungles and scarlet plains.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Fetid Jungles",
+              "description": "The stench of decay hangs over fetid jungles and scarlet plains."
+            }
+          ],
+          "environmentalDescription": "Fetid jungles and scarlet plains with the stench of decay.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Minethys",
+          "alternateNames": [],
+          "layerNumber": 3,
+          "description": "Stinging sand blows in unending storms, hiding the ruins of the ancient city Payratheon.",
+          "notableLocations": [
+            {
+              "name": "Payratheon",
+              "description": "Ruins of an ancient city hidden by the unending sandstorms."
+            }
+          ],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Unending Sandstorms",
+              "description": "Stinging sand blows in unending storms across the layer."
+            }
+          ],
+          "environmentalDescription": "Windswept desert with stinging sand blowing in unending storms.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Colothys",
+          "alternateNames": [],
+          "layerNumber": 4,
+          "description": "Deep chasms cut between cruel mountains make foot travel nearly impossible.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Deep Chasms and Cruel Mountains",
+              "description": "Deep chasms cut between cruel mountains make foot travel nearly impossible."
+            }
+          ],
+          "movementPenalty": {
+            "type": "impossible_terrain",
+            "affectedMovementTypes": ["walk"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 90
+          },
+          "environmentalDescription": "Jagged mountains with deep chasms that make foot travel nearly impossible.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Porphatys",
+          "alternateNames": [],
+          "layerNumber": 5,
+          "description": "Cold, acidic oceans are fed by constant black snow.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Cold Acidic Oceans",
+              "description": "Cold, acidic oceans cover this layer."
+            },
+            {
+              "name": "Constant Black Snow",
+              "description": "Constant black snow feeds the acidic oceans of this layer."
+            }
+          ],
+          "environmentalDescription": "Frigid oceans of acidic water under constant black snow.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Agathys",
+          "alternateNames": [],
+          "layerNumber": 6,
+          "description": "Black ice streaked with red covers this frigid realm.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Black Ice",
+              "description": "Black ice streaked with red covers this frigid realm."
+            }
+          ],
+          "environmentalDescription": "A frigid realm covered in black ice streaked with red.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 6,
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Time flows normally on Carceri, though distance is virtually meaningless on the Outer Planes."
+      },
+      "hazards": [
+        {
+          "id": "carceri-prison-plane",
+          "name": "Prison Plane",
+          "description": "No one can leave Carceri easily. Magical efforts to leave the plane by any spell other than Wish simply fail. Portals and gates that open onto the plane become one-way only. Secret passages out of the plane exist, but they are hidden and well guarded by traps and deadly monsters. The River Styx flows between Carceri and its neighbors, but the passage is extremely dangerous, and ferries leading out of Carceri are both rare and expensive.",
+          "category": "planar_trait",
+          "severity": "severe",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Carceri"
+        },
+        {
+          "id": "carceri-despair-betrayal",
+          "name": "Atmosphere of Despair and Betrayal",
+          "description": "The plane's very nature breeds despair and betrayal. Hatreds run like a deep, slow-moving river. The tendency toward betrayal prevents those imprisoned from working together for long toward the common goal of escape.",
+          "category": "emotional",
+          "severity": "moderate",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Carceri Adventures"
+        },
+        {
+          "id": "carceri-colothys-terrain",
+          "name": "Nearly Impossible Foot Travel (Colothys)",
+          "description": "Deep chasms cut between cruel mountains on the fourth layer, Colothys, make foot travel nearly impossible.",
+          "category": "physical",
+          "severity": "major",
+          "movementSpeedPenalty": {
+            "type": "impossible_terrain",
+            "affectedMovementTypes": ["walk"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 90
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "layer_wide",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Carceri, Layer: Colothys"
+        },
+        {
+          "id": "carceri-porphatys-acidic-oceans",
+          "name": "Cold Acidic Oceans (Porphatys)",
+          "description": "Cold, acidic oceans fed by constant black snow cover the fifth layer, Porphatys.",
+          "category": "elemental",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "layer_wide",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Carceri, Layer: Porphatys"
+        },
+        {
+          "id": "carceri-minethys-sandstorms",
+          "name": "Unending Sandstorms (Minethys)",
+          "description": "Stinging sand blows in unending storms on the third layer, Minethys, hiding the ruins of the ancient city Payratheon.",
+          "category": "weather",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "layer_wide",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Carceri, Layer: Minethys"
+        },
+        {
+          "id": "carceri-agathys-frigid",
+          "name": "Frigid Black Ice (Agathys)",
+          "description": "Black ice streaked with red covers this frigid realm on the sixth and deepest layer.",
+          "category": "environmental",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "layer_wide",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Carceri, Layer: Agathys"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [
+        {
+          "id": "carceri-color-pool",
+          "type": "color_pool",
+          "name": "Astral Color Pool to Carceri",
+          "destination": "Carceri",
+          "destinationPlane": "Carceri",
+          "bidirectional": true,
+          "colorOrAppearance": "Olive",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "carceri-river-styx",
+          "name": "River Styx",
+          "type": "river",
+          "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+          "description": "The River Styx churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries snake through lower layers. The passage through the Styx from Carceri is extremely dangerous, and ferries leading out of Carceri are both rare and expensive.",
+          "hazards": [
+            "The ill effects of the Styx are described under Hazards in chapter 3",
+            "Passage from Carceri via the Styx is extremely dangerous",
+            "Ferries leading out of Carceri are both rare and expensive"
+          ],
+          "isOneWay": false,
+          "navigableBy": ["sinister ferries crewed by pilots skilled in negotiating the currents"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend", "Humanoid"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "carceri-prison-rule",
+          "name": "Prison Plane",
+          "description": "No one can leave Carceri easily. Magical efforts to leave the plane by any spell other than Wish simply fail. Portals and gates that open onto the plane become one-way only. Secret passages out of the plane exist, but they are hidden and well guarded by traps and deadly monsters.",
+          "mechanicalEffect": "All spells that would transport a creature off Carceri fail, with the sole exception of Wish. All portals and gates that open onto Carceri become one-way only (entry but no exit). The River Styx provides passage but is extremely dangerous, and ferries out are rare and expensive.",
+          "affectsSpellcasting": true,
+          "spellcastingRestrictions": {
+            "blockedSpells": ["Plane Shift", "Gate", "Teleport", "Word of Recall", "Etherealness", "Astral Projection"],
+            "exemptSpells": ["Wish"],
+            "modifiedSpells": []
+          }
+        }
+      ],
+      "prisonRules": {
+        "isPrisonPlane": true,
+        "escapeMethods": [
+          "Wish spell",
+          "Hidden secret passages guarded by traps and deadly monsters",
+          "River Styx (extremely dangerous, ferries rare and expensive)"
+        ],
+        "blockedSpells": ["Plane Shift", "Gate", "Teleport", "Word of Recall", "Etherealness", "Astral Projection"],
+        "exemptSpells": ["Wish"],
+        "portalBehavior": "Portals and gates that open onto the plane become one-way only.",
+        "escapeRequirement": "It is said that prisoners can escape Carceri only by becoming stronger than whatever force imprisoned them there."
+      },
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Celestial"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on Carceri, a Celestial makes a DC 10 Constitution saving throw.",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "cumulative": true,
+            "cumulativeDescription": "The d4 penalty is cumulative with each failed save.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            }
+          },
+          "onSuccess": {
+            "description": "No additional penalty is imposed.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": ["Fiend"],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": true,
+          "repeatSaveTiming": "After finishing a Long Rest on Carceri",
+          "recoveryMethods": [
+            "Finishing a Long Rest on a plane that is not opposed to the creature's nature ends the cumulative effect."
+          ]
+        },
+        "description": "Carceri is a Lower Plane. Celestials who visit the Lower Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane alien to its nature, a Celestial makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, it must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [
+        {
+          "id": "curst-gate-town",
+          "name": "Curst",
+          "type": "Gate-town",
+          "description": "The gate-town of Curst in the Outlands contains a portal leading to Carceri. Like all gate-towns, Curst shares many of the characteristics of the plane where its gate leads.",
+          "hazards": [],
+          "portalDestination": "Carceri"
+        }
+      ],
+      "adventureThemes": [
+        "Escape from imprisonment",
+        "Confronting despair and betrayal",
+        "Helping prisoners escape",
+        "Encountering forces that keep characters trapped",
+        "Spiritual and psychological imprisonment",
+        "Overcoming treachery"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Olive",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "River Styx hazards described under Hazards in chapter 3"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Environmental Effects referenced in chapter 3"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Planar Dissonance rules for Celestials on Lower Planes"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "river-styx-global",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries snake through lower layers of these planes. Sinister ferries float on the waters of the Styx, crewed by pilots skilled in negotiating the unpredictable currents and eddies of the river.",
+      "hazards": [
+        "Ill effects of the Styx described in chapter 3",
+        "From Carceri, passage is extremely dangerous",
+        "Ferries leading out of Carceri are both rare and expensive"
+      ],
+      "isOneWay": false,
+      "navigableBy": ["sinister ferries crewed by Fiends or souls of the dead"]
+    }
+  ],
+  "bloodWar": {
+    "description": "Throughout history, the teeming demon hordes of the Abyss and the regimented legions of devils from the Nine Hells have battled for supremacy in the cosmos. The Blood War has raged for millennia, ravaging the Lower Planes.",
+    "primaryBattlefields": ["Nine Hells", "Abyss"],
+    "factions": [
+      {
+        "name": "Demon Hordes",
+        "planeOfOrigin": "Abyss",
+        "creatureType": "Fiend (Demon)",
+        "role": "Chaotic attackers seeking to overwhelm through sheer numbers and ferocity"
+      },
+      {
+        "name": "Devil Legions",
+        "planeOfOrigin": "Nine Hells",
+        "creatureType": "Fiend (Devil)",
+        "role": "Regimented defenders and strategic combatants fighting to maintain order and supremacy"
+      }
+    ],
+    "spilloverPlanes": ["Material Plane", "Acheron", "Gehenna", "Hades", "Carceri", "Pandemonium"],
+    "adventureImplications": "Powerful mortal adventurers are sometimes drawn into tangled schemes. Open conflict between Fiends is a constant threat on most of the Lower Planes."
+  },
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "Stationary interplanar connections linking specific locations. Portals to Carceri become one-way only due to the prison plane property.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting its activation requirements (command, key item, random, situation, or time)"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portals to Carceri become one-way only", "Guardians may block passage"],
+      "destinations": ["Carceri"]
+    },
+    {
+      "id": "wish-escape",
+      "name": "Wish Spell",
+      "type": "spell",
+      "description": "The only spell that can transport creatures off of Carceri. All other magical efforts to leave the plane simply fail.",
+      "requirements": ["Ability to cast the Wish spell or access to a creature that can"],
+      "associatedSpells": ["Wish"],
+      "risks": ["Standard risks of casting Wish"],
+      "destinations": ["Any plane"]
+    },
+    {
+      "id": "river-styx-travel",
+      "name": "River Styx Passage",
+      "type": "planar_pathway",
+      "description": "The River Styx flows between Carceri and its neighboring Lower Planes. Passage via the Styx from Carceri is extremely dangerous, and ferries leading out are both rare and expensive.",
+      "requirements": ["Securing passage on a ferry", "Payment to ferry pilots"],
+      "associatedSpells": [],
+      "risks": [
+        "Extremely dangerous passage",
+        "Ferries out of Carceri are rare and expensive",
+        "Ill effects of the River Styx"
+      ],
+      "destinations": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Abyss", "Pandemonium"]
+    },
+    {
+      "id": "secret-passages",
+      "name": "Secret Passages",
+      "type": "other",
+      "description": "Secret passages out of Carceri exist, but they are hidden and well guarded by traps and deadly monsters.",
+      "requirements": ["Finding the hidden passages", "Overcoming traps and deadly monster guardians"],
+      "associatedSpells": [],
+      "risks": ["Traps", "Deadly monster guardians", "Difficulty of finding the passages"],
+      "destinations": ["Unknown"]
+    },
+    {
+      "id": "astral-color-pool-carceri",
+      "name": "Astral Color Pool (Olive)",
+      "type": "portal",
+      "description": "Olive-colored pools in the Astral Plane lead to Carceri. These are two-dimensional pools of rippling color, 1d6 × 10 feet in diameter. Note: due to the prison plane property, once on Carceri, return via normal magical means is blocked.",
+      "requirements": ["Locating an olive-colored pool in the Astral Plane"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["One-way travel due to Carceri's prison plane property"],
+      "destinations": ["Carceri"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    }
+  ],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane alien to the creature's nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 penalty to all D20 Tests.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        }
+      },
+      "onSuccess": {
+        "description": "No additional penalty is imposed.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": true,
+      "repeatSaveTiming": "After each Long Rest on a plane alien to the creature's nature",
+      "recoveryMethods": [
+        "Finishing a Long Rest on a plane that isn't opposed to the creature's nature ends the cumulative effect"
+      ]
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

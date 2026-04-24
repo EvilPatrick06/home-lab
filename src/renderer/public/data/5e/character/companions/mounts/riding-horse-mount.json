@@ -1,0 +1,11 @@
+{
+  "id": "riding-horse-mount",
+  "name": "Riding Horse",
+  "statBlockRef": "dm/npcs/creatures-companions/riding-horse.json",
+  "type": "mount",
+  "speed": "60 ft.",
+  "carryCapacity": 480,
+  "cost": "75 gp",
+  "description": "A common riding horse suitable for overland travel. It can carry a rider and gear but is not trained for combat. In battle, a riding horse may bolt or throw its rider unless controlled with an Animal Handling check.",
+  "combatTrained": false
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Jug",
+  "cost": {
+    "amount": 2,
+    "denomination": "CP"
+  },
+  "weight": 4,
+  "description": "A Jug holds up to 1 gallon.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": "Holds up to 1 gallon"
+}

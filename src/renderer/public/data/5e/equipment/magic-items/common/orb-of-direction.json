@@ -1,0 +1,13 @@
+{
+  "name": "Orb of Direction",
+  "slug": "orb-of-direction",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "This orb can be used as an Arcane Focus.\n\nWhile holding this orb, you can take a Magic action to determine which way is magnetic north. Nothing happens if the orb is used in a location that has no magnetic north.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

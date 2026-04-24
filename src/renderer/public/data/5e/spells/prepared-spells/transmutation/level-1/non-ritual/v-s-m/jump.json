@@ -1,0 +1,42 @@
+{
+  "name": "Jump",
+  "level": 1,
+  "school": "Transmutation",
+  "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a grasshopper's hind leg",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You touch a willing creature. Once on each of its turns until the spell ends, that creature can jump up to 30 feet by spending 10 feet of movement.",
+  "targetType": "creature",
+  "targetMustBeWilling": true,
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 1,
+        "description": "You can target one additional creature for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["movement", "jump", "buff"]
+}

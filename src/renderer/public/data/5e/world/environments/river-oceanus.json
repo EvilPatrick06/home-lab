@@ -1,0 +1,254 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Planar Pathways",
+        "description": "Features that connect multiple Outer Planes, including the Infinite Staircase, the River Oceanus, the River Styx, and Yggdrasil the World Tree.",
+        "memberPlanes": ["River Oceanus", "River Styx", "Infinite Staircase", "Yggdrasil"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "river-oceanus",
+      "name": "River Oceanus",
+      "alternateNames": ["Oceanus"],
+      "category": "Special",
+      "subcategory": "Upper Plane",
+      "alignments": ["Neutral Good", "Chaotic Good"],
+      "philosophicalEssence": "A sweet and fragrant plane-spanning waterway that provides a path through the Upper Planes, embodying the goodness and tranquility of its headwaters in the Blessed Fields of Elysium.",
+      "emotionalInfluence": "The water of the Oceanus is sweet and fragrant, reflecting the benevolent nature of the Upper Planes it traverses.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": false,
+        "morphic": "static",
+        "shape": "A river that flows through multiple Outer Planes, splitting into myriad smaller flows, recombining, and splitting again along its course.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Normal breathable atmosphere along its banks and surface.",
+        "temperature": {
+          "category": "temperate",
+          "description": "Temperate conditions along its course, ranging from warm summer in Krigala of the Beastlands to variable conditions across Elysium's layers."
+        },
+        "hasSurface": true,
+        "dominantElement": "Water",
+        "weatherPatterns": "Conditions vary by the plane and layer the river traverses, from the lush meadows of Amoria to the mighty storms of Aquallor in Arborea."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "Time flows normally along the River Oceanus, though it traverses planes where time may vary."
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "none",
+      "planarConnections": [
+        {
+          "id": "oceanus-elysium-connection",
+          "name": "River Oceanus through Elysium",
+          "type": "river",
+          "connectedPlanes": ["Elysium (Thalasia)", "Elysium (Belierin)", "Elysium (Eronia)", "Elysium (Amoria)"],
+          "description": "The River Oceanus originates in the lowest layer of Elysium, Thalasia, at the Heroic Isles, and flows through all of Elysium's layers. The experience of passing from one layer to another on the river is no more dramatic than weathering rapids on any ordinary river. Along its course, the great river splits into myriad smaller flows, recombines, and splits again.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["trading vessels", "hired boats", "sailing vessels"]
+        },
+        {
+          "id": "oceanus-beastlands-connection",
+          "name": "River Oceanus through the Beastlands",
+          "type": "river",
+          "connectedPlanes": ["Beastlands (Krigala)"],
+          "description": "The River Oceanus passes through the top layer of the Beastlands, Krigala, where it is a strong torrent flowing through a wilderness of eternal summer noon.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["trading vessels", "hired boats", "sailing vessels"]
+        },
+        {
+          "id": "oceanus-arborea-connection",
+          "name": "River Oceanus through Arborea",
+          "type": "river",
+          "connectedPlanes": ["Arborea (Arvandor)", "Arborea (Aquallor)"],
+          "description": "The River Oceanus streams across the top layer of Arborea (Arvandor) and finally drains away somewhere in Arborea's second layer, Aquallor, an eternal ocean fed by the River Oceanus that is home to teeming sea life and mighty storms.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["trading vessels", "hired boats", "sailing vessels"]
+        },
+        {
+          "id": "oceanus-full-route",
+          "name": "River Oceanus Full Course",
+          "type": "river",
+          "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+          "description": "The water of the Oceanus is sweet and fragrant, as befits its headwaters in the Blessed Fields of Elysium. This plane-spanning waterway provides a path through some of the Upper Planes. It flows through each of Elysium's layers, passes through the top layer of the Beastlands, streams across the top layer of Arborea, and finally drains away somewhere in Arborea's second layer. Though it isn't as far-reaching as the Styx, the Oceanus is still a commonly used path between planes and layers. Trading vessels sail up and down its length, and small towns line its banks. Travelers can usually find a boat to hire somewhere along its shores.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["trading vessels", "hired boats", "sailing vessels"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Humanoid", "Celestial"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Small towns along the River Oceanus",
+            "description": "Small towns line the banks of the River Oceanus. Trading vessels sail up and down its length, and travelers can usually find a boat to hire somewhere along its shores."
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [
+        {
+          "id": "oceanus-elysium-amoria",
+          "name": "River Oceanus Banks in Amoria",
+          "type": "Region",
+          "description": "Small towns on the banks of the River Oceanus in Amoria, surrounded by lush meadows, are among the most hospitable refuges on the Outer Planes."
+        },
+        {
+          "id": "oceanus-elysium-thalasia",
+          "name": "Headwaters in Thalasia",
+          "type": "Region",
+          "description": "The Heroic Isles, rising from the headwaters of the River Oceanus in Thalasia, hold the best departed souls."
+        },
+        {
+          "id": "oceanus-beastlands-krigala",
+          "name": "River Oceanus in Krigala",
+          "type": "Region",
+          "description": "In Krigala, the top layer of the Beastlands, the River Oceanus is a strong torrent flowing through a wilderness of eternal summer noon."
+        },
+        {
+          "id": "oceanus-arborea-aquallor",
+          "name": "River Oceanus Drainage in Aquallor",
+          "type": "Region",
+          "description": "Aquallor, the second layer of Arborea, is an eternal ocean fed by the River Oceanus, home to teeming sea life and mighty storms. The River Oceanus finally drains away somewhere in this layer."
+        }
+      ],
+      "adventureThemes": [
+        "Planar travel along Upper Planes",
+        "Trade and commerce between planes",
+        "Seeking passage between Elysium, Beastlands, and Arborea",
+        "Hiring river vessels for interplanar journeys"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "River Oceanus described under Traveling the Outer Planes section of Chapter 6: Cosmology as one of four planar features connecting multiple Outer Planes."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "River Oceanus referenced in the Elysium section, originating in Thalasia and flowing through all layers of Elysium with small towns on its banks in Amoria."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "River Oceanus referenced in the Beastlands section under Krigala layer as a strong torrent."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "River Oceanus referenced in the Arborea section under Aquallor layer as feeding an eternal ocean."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "river-oceanus-global",
+      "name": "River Oceanus",
+      "type": "river",
+      "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+      "description": "The water of the Oceanus is sweet and fragrant, as befits its headwaters in the Blessed Fields of Elysium. This plane-spanning waterway provides a path through some of the Upper Planes. It flows through each of Elysium's layers, passes through the top layer of the Beastlands, streams across the top layer of Arborea, and finally drains away somewhere in Arborea's second layer. Though it isn't as far-reaching as the Styx, the Oceanus is still a commonly used path between planes and layers. Trading vessels sail up and down its length, and small towns line its banks. Travelers can usually find a boat to hire somewhere along its shores. The experience of passing from one layer to another on the river is no more dramatic than weathering rapids on any ordinary river. Along its course, the great river splits into myriad smaller flows, recombines, and splits again.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["trading vessels", "hired boats", "sailing vessels"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "river-oceanus-travel",
+      "name": "River Oceanus Voyage",
+      "type": "voyage",
+      "description": "Travelers can sail the River Oceanus to move between the Upper Planes it connects. The river flows from its headwaters in Thalasia (lowest layer of Elysium) through each of Elysium's layers, passes through Krigala (top layer of the Beastlands), streams across Arvandor (top layer of Arborea), and drains somewhere in Aquallor (second layer of Arborea). Trading vessels sail up and down its length, and travelers can usually find a boat to hire somewhere along its shores. Passage between layers on the river is no more dramatic than weathering rapids on any ordinary river.",
+      "requirements": ["Access to the river's banks on one of the connected planes", "A vessel or hired boat"],
+      "associatedSpells": [],
+      "risks": [],
+      "destinations": [
+        "Elysium (Thalasia, Belierin, Eronia, Amoria)",
+        "Beastlands (Krigala)",
+        "Arborea (Arvandor, Aquallor)"
+      ]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

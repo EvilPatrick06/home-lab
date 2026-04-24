@@ -1,0 +1,64 @@
+{
+  "name": "Herbalism Kit Recipes",
+  "slug": "herbalist-recipes",
+  "tool": "Herbalism Kit",
+  "recipes": [
+    {
+      "id": "craft-potion-of-healing",
+      "name": "Potion of Healing",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "25 GP",
+      "components": ["Healing herbs", "Purified water", "Vial"],
+      "result": "Potion of Healing (1)",
+      "resultSlug": "potion-of-healing",
+      "description": "Brew a potion that restores 2d4+2 Hit Points when consumed."
+    },
+    {
+      "id": "craft-antitoxin-herbal",
+      "name": "Antitoxin",
+      "dc": 15,
+      "time": "1 day",
+      "cost": "25 GP",
+      "components": ["Charcoal root", "Purified water", "Vial"],
+      "result": "Antitoxin (1 vial)",
+      "resultSlug": "antitoxin",
+      "description": "Brew an herbal remedy that grants Advantage on saving throws against poison for 1 hour."
+    },
+    {
+      "id": "craft-healer-salve",
+      "name": "Healer's Salve",
+      "dc": 12,
+      "time": "1 day",
+      "cost": "5 GP",
+      "components": ["Medicinal herbs", "Animal fat"],
+      "result": "Healer's Salve (1 application)",
+      "description": "Prepare a healing salve that can stabilize a creature at 0 Hit Points."
+    },
+    {
+      "id": "craft-poultice",
+      "name": "Herbal Poultice",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "2 GP",
+      "components": ["Comfrey leaves", "Bandage cloth"],
+      "result": "Herbal Poultice (1 application)",
+      "description": "Prepare a poultice that, when applied during a Short Rest, allows one creature to regain an additional 1d4 Hit Points per Hit Die spent."
+    },
+    {
+      "id": "craft-tea-of-refreshment",
+      "name": "Tea of Refreshment",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "1 GP",
+      "components": ["Dried herbs", "Clean water"],
+      "result": "Tea of Refreshment (1 serving)",
+      "description": "Brew a soothing tea that removes one level of Exhaustion when consumed during a Short or Long Rest."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

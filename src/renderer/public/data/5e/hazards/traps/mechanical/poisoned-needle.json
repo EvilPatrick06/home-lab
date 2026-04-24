@@ -1,0 +1,19 @@
+{
+  "name": "Poisoned Needle",
+  "type": "mechanical",
+  "trigger": "Opening a lock improperly",
+  "duration": "Instantaneous",
+  "severity": "Level 1+",
+  "dc": 15,
+  "detectDC": 15,
+  "disarmDC": 15,
+  "damage": "1 Piercing + 11 (2d10) Poison",
+  "description": "Needle springs from lock. DC 15 Dex save or 1 Piercing and 11 (2d10) Poison damage. Knock spell avoids trigger.",
+  "slug": "poisoned-needle",
+  "category": "Trap",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Traps"
+  }
+}

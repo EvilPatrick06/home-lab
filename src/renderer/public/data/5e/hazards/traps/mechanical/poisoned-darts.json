@@ -1,0 +1,19 @@
+{
+  "name": "Poisoned Darts",
+  "type": "mechanical",
+  "trigger": "A creature moves onto a pressure plate",
+  "duration": "Instantaneous, resets",
+  "severity": "Level 1+",
+  "dc": 15,
+  "detectDC": 15,
+  "disarmDC": 15,
+  "damage": "2 (1d4) Piercing + 11 (2d10) Poison",
+  "description": "1d3 darts fire from the walls. +8 attack roll. Hit: 2 (1d4) Piercing plus 11 (2d10) Poison damage. Up to 4 firings before depleted.",
+  "slug": "poisoned-darts",
+  "category": "Trap",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Traps"
+  }
+}

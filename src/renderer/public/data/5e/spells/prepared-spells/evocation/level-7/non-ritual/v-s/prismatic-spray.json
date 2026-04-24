@@ -1,0 +1,163 @@
+{
+  "name": "Prismatic Spray",
+  "level": 7,
+  "school": "Evocation",
+  "classes": ["Bard", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Eight rays of light flash from you in a 60-foot Cone. Each creature in the Cone makes a Dexterity saving throw. For each target, roll 1d8 to determine which color ray affects it. Rays 1–5 deal 12d6 damage of a specific type (half on a successful save). Ray 6 (Indigo) imposes the Restrained condition with repeated Constitution saves; three successes end it, three failures cause the Petrified condition. Ray 7 (Violet) imposes the Blinded condition with a Wisdom save at the start of your next turn; failure ends the Blinded condition and teleports the creature to another plane. On an 8, the target is struck by two rays (roll twice, rerolling any 8).",
+  "areaOfEffect": [
+    {
+      "shape": "Cone",
+      "lengthFeet": 60,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "spellOptions": [
+    {
+      "name": "Red (d8 = 1)",
+      "description": "Failed Save: 12d6 Fire damage. Successful Save: Half as much damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Fire",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ]
+    },
+    {
+      "name": "Orange (d8 = 2)",
+      "description": "Failed Save: 12d6 Acid damage. Successful Save: Half as much damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Acid",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ]
+    },
+    {
+      "name": "Yellow (d8 = 3)",
+      "description": "Failed Save: 12d6 Lightning damage. Successful Save: Half as much damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Lightning",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ]
+    },
+    {
+      "name": "Green (d8 = 4)",
+      "description": "Failed Save: 12d6 Poison damage. Successful Save: Half as much damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Poison",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ]
+    },
+    {
+      "name": "Blue (d8 = 5)",
+      "description": "Failed Save: 12d6 Cold damage. Successful Save: Half as much damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Cold",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ]
+    },
+    {
+      "name": "Indigo (d8 = 6)",
+      "description": "Failed Save: The target has the Restrained condition and makes a Constitution saving throw at the end of each of its turns. If it successfully saves three times, the condition ends. If it fails three times, it has the Petrified condition until freed by an effect like Greater Restoration. The successes and failures needn't be consecutive.",
+      "conditionsApplied": [
+        {
+          "condition": "Restrained",
+          "trigger": "onFailedSave",
+          "duration": "Until three successful Constitution saves or three failures"
+        },
+        {
+          "condition": "Petrified",
+          "trigger": "custom",
+          "duration": "Until freed by Greater Restoration or similar magic"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Constitution",
+        "repeatSave": {
+          "timing": "endOfTurn",
+          "endsEffectOnSuccess": true,
+          "threeSuccessesRequired": true,
+          "threeFailuresEffect": "Petrified condition until freed by Greater Restoration or similar magic"
+        }
+      }
+    },
+    {
+      "name": "Violet (d8 = 7)",
+      "description": "Failed Save: The target has the Blinded condition and makes a Wisdom saving throw at the start of your next turn. On a successful save, the condition ends. On a failed save, the condition ends, and the creature teleports to another plane of existence (DM's choice).",
+      "conditionsApplied": [
+        {
+          "condition": "Blinded",
+          "trigger": "onFailedSave",
+          "duration": "Until the start of the caster's next turn"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Wisdom",
+        "effectOnSuccess": "Blinded condition ends",
+        "effectOnFailure": "Blinded condition ends and the creature teleports to another plane of existence (DM's choice)",
+        "repeatSave": {
+          "timing": "custom",
+          "customTiming": "Start of the caster's next turn",
+          "endsEffectOnSuccess": true
+        }
+      }
+    },
+    {
+      "name": "Special (d8 = 8)",
+      "description": "The target is struck by two rays. Roll twice on the table, rerolling any 8."
+    }
+  ],
+  "tags": ["random-effect", "prismatic", "multi-ray", "cone"]
+}

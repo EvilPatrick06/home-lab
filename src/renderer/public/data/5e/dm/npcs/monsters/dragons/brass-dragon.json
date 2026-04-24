@@ -1,0 +1,463 @@
+{
+  "name": "Ancient Brass Dragon",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Metallic"],
+  "alignment": "Chaotic Good",
+  "habitat": ["Desert"],
+  "treasure": ["Any"],
+  "lore": "Brass dragons are the most gregarious of metallic dragons, delighting in long conversations with virtually any creature willing to chat. They make their homes in arid deserts, where they bask in the relentless sun and sculpt dunes with their powerful wings. A brass dragon would rather talk than fight, but it ferociously defends those it befriends. Its fiery breath and sleep-inducing exhalation make it a formidable foe when diplomacy fails.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 297,
+    "dice": {
+      "count": 17,
+      "die": "d20",
+      "modifier": 119
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Burrow",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 27,
+      "modifier": 8,
+      "save": 8
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 6
+    },
+    "CON": {
+      "score": 25,
+      "modifier": 7,
+      "save": 13
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 8
+    },
+    "CHA": {
+      "score": 19,
+      "modifier": 4,
+      "save": 10
+    }
+  },
+  "skills": [
+    {
+      "skill": "History",
+      "bonus": 9
+    },
+    {
+      "skill": "Perception",
+      "bonus": 14
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 10
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 6
+    }
+  ],
+  "damageImmunities": ["Fire"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 24
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "20",
+  "experiencePoints": 25000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Legendary Resistance",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting (Psionics)",
+      "ability": "CHA",
+      "spellSaveDC": 18,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            },
+            {
+              "name": "Speak with Animals",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Major Image",
+              "level": 3
+            },
+            {
+              "name": "Suggestion",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Control Weather",
+              "level": 8
+            },
+            {
+              "name": "Hallucinatory Terrain",
+              "level": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes one Bite attack and two Claw attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      },
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +14, reach 15 ft. Hit: 19 (2d10 + 8) Piercing damage plus 9 (2d8) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 8
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +14, reach 10 ft. Hit: 15 (2d6 + 8) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 8
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +14, reach 20 ft. Hit: 17 (2d8 + 8) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 20,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 8
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Breath Weapons",
+      "description": "The dragon uses one of the following breath weapons.\n\nFire Breath. The dragon exhales fire in a 90-foot Line that is 10 feet wide. Each creature in that area makes a DC 21 Dexterity saving throw, taking 56 (16d6) Fire damage on a failed save or half as much damage on a successful one.\n\nSleep Breath. The dragon exhales sleep gas in a 90-foot Cone. Each creature in that area must succeed on a DC 21 Constitution saving throw or have the Unconscious condition for 10 minutes. The condition ends on a creature early if it takes damage or a creature within 5 feet of it takes an action to shake it awake.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 21,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 56,
+              "dice": {
+                "count": 16,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Line",
+        "size": 90,
+        "width": 10
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The dragon uses its Spellcasting (Psionics) feature to cast a spell."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The dragon shape-shifts into a Small or Medium Humanoid or Beast, or back into its true form. Its statistics, other than size and Speed, are the same in each form. Any equipment it's wearing or carrying isn't transformed. It reverts to its true form if it dies."
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Tail",
+        "description": "The dragon makes one Tail attack.",
+        "cost": 1,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 14,
+          "reach": 20,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 17,
+                "dice": {
+                  "count": 2,
+                  "die": "d8",
+                  "modifier": 8
+                },
+                "type": "Bludgeoning"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Wing Attack",
+        "description": "The dragon beats its wings. Each creature within 15 feet of the dragon must succeed on a DC 22 Dexterity saving throw or take 15 (2d6 + 8) Bludgeoning damage and have the Prone condition. The dragon can then Fly up to half its Fly Speed.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 22,
+          "targets": "each creature within 15 feet of the dragon",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 15,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 8
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 15,
+          "centered": true
+        }
+      }
+    ]
+  },
+  "lair": {
+    "description": "A brass dragon's lair is typically a cave or ruin deep within a sun-scorched desert. The interior is filled with swirling sand and suffocating heat, with tunnels smoothed by centuries of the dragon's burrowing. Treasures, trinkets, and mementos from countless conversations line every alcove.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Blinding Sand",
+        "description": "A cloud of sand erupts around a point the dragon can see within 120 feet of itself. Each creature within a 20-foot-radius Sphere centered on that point must succeed on a DC 15 Constitution saving throw or have the Blinded condition until initiative count 20 of the next round.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 15,
+          "targets": "each creature in the area",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Blinded",
+                "duration": "until initiative count 20 of the next round"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      },
+      {
+        "name": "Heat Surge",
+        "description": "Searing heat fills a 20-foot-radius Sphere centered on a point the dragon can see within 120 feet of itself. Each creature in that area must make a DC 15 Dexterity saving throw, taking 14 (4d6) Fire damage on a failed save or half as much damage on a successful one.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 15,
+          "targets": "each creature in the area",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 14,
+                "dice": {
+                  "count": 4,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Fire"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Dust devils and minor sandstorms appear sporadically within the region, especially near the lair entrance.",
+        "radius": 6,
+        "endCondition": "The dragon dies or moves its lair"
+      },
+      {
+        "description": "Water sources within the region become warm and take on a mildly sulfurous smell, though they remain safe to drink.",
+        "radius": 6,
+        "endCondition": "The dragon dies or moves its lair"
+      },
+      {
+        "description": "Desert creatures within the region become unusually docile and nonthreatening toward Humanoids, as the dragon's calming presence suffuses the land.",
+        "radius": 1,
+        "endCondition": "The dragon dies or moves its lair"
+      }
+    ]
+  }
+}

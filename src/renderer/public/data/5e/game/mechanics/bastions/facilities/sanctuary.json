@@ -1,0 +1,15 @@
+{
+  "name": "Sanctuary",
+  "slug": "sanctuary",
+  "type": "",
+  "level": "",
+  "space": "Roomy",
+  "hirelings": "1",
+  "order": "Craft",
+  "description": "*Level 5 Bastion Facility*\n\n**Prerequisite:** Ability to use a Holy Symbol or Druidic Focus as a Spellcasting Focus\n**Space:** Roomy\n**Hirelings:** 1\n**Order:** Craft\n\nIcons of your religion are displayed in this facility, which includes a quiet place for worship.\n\n***Sanctuary Charm.*** After spending a Long Rest in your Bastion, you gain a magical Charm (see \"Supernatural Gifts\" in chapter 3) that lasts for 7 days or until you use it. The Charm allows you to cast *Healing Word* once without expending a spell slot. You can't gain this Charm again while you still have it.\n\n***Craft: Sacred Focus.*** When you issue the Craft order to this facility, you commission the facility's hireling to craft a Druidic Focus (wooden staff) or a Holy Symbol. The work takes 7 days and costs no money. The item remains in your Bastion until you claim it.\n\n---",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

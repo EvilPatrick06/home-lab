@@ -1,0 +1,16 @@
+{
+  "name": "Midnight Tears",
+  "cost": "1,500 GP",
+  "type": "Ingested",
+  "dc": 17,
+  "damage": "9d6 Poison",
+  "effect": "Damage triggers at midnight",
+  "description": "A creature that ingests this poison suffers no effect until midnight. If the poison has not been neutralized before then, the creature must succeed on a DC 17 Constitution saving throw, taking 31 (9d6) Poison damage on a failed save, or half as much damage on a successful one.",
+  "slug": "midnight-tears",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

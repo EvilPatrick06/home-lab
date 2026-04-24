@@ -1,0 +1,71 @@
+{
+  "name": "Spirit Guardians",
+  "level": 3,
+  "school": "Conjuration",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a prayer scroll",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "Protective spirits flit around you in a 15-foot Emanation for the duration. If you are good or neutral, their spectral form appears angelic or fey (your choice). If you are evil, they appear fiendish. When you cast this spell, you can designate creatures to be unaffected by it. Any other creature's Speed is halved in the Emanation, and whenever the Emanation enters a creature's space and whenever a creature enters the Emanation or ends its turn there, the creature must make a Wisdom saving throw. On a failed save, the creature takes 3d8 Radiant damage (if you are good or neutral) or 3d8 Necrotic damage (if you are evil). On a successful save, the creature takes half as much damage. A creature makes this save only once per turn.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 15,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 8
+      },
+      "type": ["Radiant", "Necrotic"],
+      "halfOnSave": true,
+      "applicationType": "onEntry",
+      "condition": "Radiant if caster is good or neutral; Necrotic if caster is evil"
+    }
+  ],
+  "speedModifiers": [
+    {
+      "type": "halve",
+      "speedType": "all"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 3,
+        "description": "The damage increases by 1d8 for each spell slot level above 3."
+      }
+    ]
+  },
+  "tags": ["aura", "damage", "area-control", "speed-reduction"]
+}

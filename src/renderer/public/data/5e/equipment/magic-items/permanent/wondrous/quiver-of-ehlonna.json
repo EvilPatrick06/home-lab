@@ -1,0 +1,17 @@
+{
+  "name": "Quiver",
+  "cost": {
+    "amount": 1,
+    "denomination": "GP"
+  },
+  "weight": 1,
+  "description": "A Quiver holds up to 20 Arrows.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": "Holds up to 20 Arrows"
+}

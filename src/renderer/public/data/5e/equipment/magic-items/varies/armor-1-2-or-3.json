@@ -1,0 +1,13 @@
+{
+  "name": "Armor, +1, +2, or +3",
+  "slug": "armor-1-2-or-3",
+  "type": "Armor (Any Light",
+  "rarity": "Medium, or Heavy), Rare (+1), Very Rare (+2), or Legendary (+3)",
+  "attunement": false,
+  "description": "You have a bonus to Armor Class while wearing this armor. The bonus is determined by its rarity.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

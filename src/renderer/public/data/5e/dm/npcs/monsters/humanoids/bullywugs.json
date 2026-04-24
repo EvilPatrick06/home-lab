@@ -1,0 +1,132 @@
+{
+  "name": "Bullywug",
+  "sizes": ["Small"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Bullywug"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Swamp"],
+  "treasure": ["Any"],
+  "lore": "Bullywugs are ill-tempered, frog-like Humanoids that dwell in swamps and marshes. They form communities in the murkiest reaches of wetlands, claiming vast tracts of swampland and demanding tribute from anyone who passes through their domain. Their booming, croaking vocalizations carry far across the marshlands, heralding their territorial claims to all who draw near.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Hide Armor"]
+  },
+  "hitPoints": {
+    "average": 11,
+    "dice": {
+      "count": 2,
+      "die": "d6",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "gear": [
+    {
+      "name": "Hide Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Spear",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Bullywug"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The bullywug can breathe air and water."
+    },
+    {
+      "name": "Standing Leap",
+      "description": "The bullywug's Long Jump is up to 20 feet and its High Jump is up to 10 feet, with or without a running start."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Spear",
+      "description": "Melee or Ranged Attack Roll: +3, reach 5 ft. or range 20/60 ft. Hit: 4 (1d6 + 1) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 3,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Ritual Caster",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "abilityScores": [
+      {
+        "abilities": ["Intelligence", "Wisdom", "Charisma"],
+        "minimum": 13
+      }
+    ]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Intelligence", "Wisdom", "Charisma"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Ritual Spells",
+      "description": "Choose a number of level 1 spells equal to your Proficiency Bonus that have the Ritual tag. You always have those spells prepared, and you can cast them with any spell slots you have. The spells' spellcasting ability is the ability increased by this feat. Whenever your Proficiency Bonus increases thereafter, you can add an additional level 1 spell with the Ritual tag to the spells always prepared with this feature."
+    },
+    {
+      "name": "Quick Ritual",
+      "description": "With this benefit, you can cast a Ritual spell that you have prepared using its regular casting time rather than the extended time for a Ritual. Doing so doesn't require a spell slot. Once you cast the spell in this way, you can't use this benefit again until you finish a Long Rest."
+    }
+  ],
+  "source": "PHB 2024"
+}

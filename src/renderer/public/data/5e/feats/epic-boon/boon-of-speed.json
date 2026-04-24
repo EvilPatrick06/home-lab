@@ -1,0 +1,28 @@
+{
+  "name": "Boon of Speed",
+  "category": "Epic Boon",
+  "prerequisites": {
+    "level": 19
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": "any",
+        "amount": 1,
+        "maximum": 30,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Escape Artist",
+      "description": "As a Bonus Action, you can take the Disengage action, which also ends the Grappled condition on you."
+    },
+    {
+      "name": "Quickness",
+      "description": "Your Speed increases by 30 feet."
+    }
+  ],
+  "source": "PHB 2024"
+}

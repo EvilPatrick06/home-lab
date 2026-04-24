@@ -1,0 +1,11 @@
+{
+  "name": "Poisoned",
+  "slug": "poisoned",
+  "description": "A Poisoned creature has Disadvantage on attack rolls and ability checks.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

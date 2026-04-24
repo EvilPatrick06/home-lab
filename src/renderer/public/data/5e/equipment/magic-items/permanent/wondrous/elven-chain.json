@@ -1,0 +1,21 @@
+{
+  "name": "Elven Chain",
+  "category": "Medium",
+  "cost": {
+    "amount": 4000,
+    "denomination": "GP"
+  },
+  "ac": {
+    "base": 13,
+    "addDexModifier": true,
+    "maxDexBonus": null,
+    "isShieldBonus": false
+  },
+  "strengthRequirement": null,
+  "stealthDisadvantage": false,
+  "weight": 20,
+  "donDoffTime": {
+    "donMinutes": 5,
+    "doffMinutes": 1
+  }
+}

@@ -1,0 +1,110 @@
+# BMO Docker Compose — Supporting services for Raspberry Pi 5
+#
+# BMO's Flask app runs directly on the host (needs camera, mic, speakers,
+# GPIO, I2C, SPI). These containers provide the backing services.
+#
+# Usage:
+#   cd ~/bmo && docker compose up -d
+#   docker compose logs -f
+
+services:
+  # Local LLM fallback — Ollama with lightweight models
+  ollama:
+    image: ollama/ollama:latest
+    container_name: bmo-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || wget -qO- http://localhost:11434/api/tags > /dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # WebRTC signaling server for D&D VTT multiplayer
+  peerjs:
+    image: node:22-slim
+    container_name: bmo-peerjs
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    working_dir: /app
+    command: >
+      sh -c "[ -d /app/node_modules/peer ] || npm install --loglevel=error peer && npx peerjs --port 9000 --path /myapp"
+    environment:
+      NODE_NO_WARNINGS: "1"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    volumes:
+      - peerjs-modules:/app/node_modules
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:9000/myapp').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # TURN relay server — routes all VTT WebRTC traffic through the Pi
+  coturn:
+    image: coturn/coturn:latest
+    container_name: bmo-coturn
+    restart: unless-stopped
+    network_mode: host
+    command: >
+      -n
+      --listening-port=3478
+      --min-port=49152
+      --max-port=49200
+      --realm=dndvtt
+      --user=dndvtt:dndvtt-relay
+      --lt-cred-mech
+      --fingerprint
+      --no-tls
+      --no-dtls
+      --log-file=stdout
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # Pi-hole — DNS-level ad blocker (laptop, TV, phone only — not network-wide)
+  pihole:
+    image: pihole/pihole:latest
+    container_name: bmo-pihole
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      TZ: "America/Chicago"
+      # Pi-hole v6 uses FTLCONF_ prefix — v5 vars (WEBPASSWORD, DNSMASQ_LISTENING, etc.) are ignored
+      FTLCONF_dns_listeningMode: "ALL"
+      FTLCONF_dns_upstreams: "8.8.8.8;8.8.4.4;1.1.1.1;1.0.0.1"
+      FTLCONF_webserver_api_max_sessions: "64"
+      FTLCONF_webserver_session_timeout: "300"
+    volumes:
+      - pihole-etc:/etc/pihole
+      - pihole-dnsmasq:/etc/dnsmasq.d
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    cap_add:
+      - NET_ADMIN
+      - SYS_NICE
+      - SYS_TIME
+
+volumes:
+  ollama-data:
+    driver: local
+  peerjs-modules:
+    driver: local
+  pihole-etc:
+    driver: local
+  pihole-dnsmasq:
+    driver: local

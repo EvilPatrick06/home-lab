@@ -1,0 +1,68 @@
+{
+  "name": "Dragon's Breath",
+  "level": 2,
+  "school": "Transmutation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a hot pepper",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You touch one willing creature, and choose Acid, Cold, Fire, Lightning, or Poison. Until the spell ends, the target can take a Magic action to exhale a 15-foot Cone. Each creature in that area makes a Dexterity saving throw, taking 3d6 damage of the chosen type on a failed save or half as much damage on a successful one.",
+  "areaOfEffect": [
+    {
+      "shape": "Cone",
+      "sizeFeet": 15
+    }
+  ],
+  "targetType": "creature",
+  "targetMustBeWilling": true,
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 6
+      },
+      "type": ["Acid", "Cold", "Fire", "Lightning", "Poison"],
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "The target can take a Magic action to exhale a 15-foot Cone. Each creature in the area makes a Dexterity saving throw, taking 3d6 damage of the chosen type on a failed save or half as much damage on a successful one."
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 2,
+        "description": "The damage increases by 1d6 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["damage", "breath-weapon", "buff", "elemental-choice"]
+}

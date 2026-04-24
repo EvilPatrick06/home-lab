@@ -1,0 +1,12 @@
+{
+  "name": "Poisonous Gas",
+  "severity": "Level 5+",
+  "description": "Fills a room or corridor. DC 13 Con save at start of each turn or take 10 (3d6) Poison damage. Successful save: half damage.",
+  "slug": "poisonous-gas",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

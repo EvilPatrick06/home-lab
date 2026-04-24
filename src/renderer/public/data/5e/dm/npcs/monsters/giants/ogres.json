@@ -1,0 +1,146 @@
+{
+  "name": "Ogre",
+  "sizes": ["Large"],
+  "creatureType": "Giant",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Hill", "Mountain", "Swamp"],
+  "treasure": ["Individual"],
+  "lore": "Ogres are dim-witted, brutish giants that roam in small bands, plundering and devouring whatever they can. They lair in caves, ruined buildings, or crude shelters and crave easy meals, making them frequent muscle for more cunning villains. Despite their low intelligence, ogres possess devastating physical strength and fly into terrible rages when provoked or hungry.",
+  "armorClass": {
+    "value": 11,
+    "sources": ["Hide Armor"]
+  },
+  "hitPoints": {
+    "average": 59,
+    "dice": {
+      "count": 7,
+      "die": "d10",
+      "modifier": 21
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {
+    "spoken": ["Common", "Giant"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "multiattack": {
+    "description": "The ogre makes two Greatclub or Javelin attacks.",
+    "attacks": [
+      {
+        "actionName": "Greatclub",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greatclub",
+        "replaceCount": 2,
+        "with": "Javelin"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greatclub",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 13 (2d8 + 4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Javelin",
+      "description": "Melee or Ranged Attack Roll: +6, reach 5 ft. or range 30/120 ft. Hit: 11 (2d6 + 4) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 6,
+        "reach": 5,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

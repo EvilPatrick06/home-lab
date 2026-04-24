@@ -1,0 +1,7 @@
+[
+  { "value": "all", "label": "All", "color": "bg-gray-600 hover:bg-gray-500" },
+  { "value": "common", "label": "Common", "color": "bg-gray-600 hover:bg-gray-500" },
+  { "value": "uncommon", "label": "Uncommon", "color": "bg-orange-700 hover:bg-orange-600" },
+  { "value": "rare", "label": "Rare", "color": "bg-blue-700 hover:bg-blue-600" },
+  { "value": "unique", "label": "Unique", "color": "bg-purple-700 hover:bg-purple-600" }
+]

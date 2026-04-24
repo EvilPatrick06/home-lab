@@ -1,0 +1,104 @@
+{
+  "name": "Staff of the Magi",
+  "itemType": "Staff",
+  "rarity": "Legendary",
+  "requiresAttunement": true,
+  "attunementRequirements": "Sorcerer, Warlock, or Wizard",
+  "description": "This staff has 50 charges and can be wielded as a magic Quarterstaff that grants a +2 bonus to attack rolls and damage rolls made with it. While you hold it, you gain a +2 bonus to spell attack rolls.",
+  "properties": [
+    {
+      "name": "Spell Absorption",
+      "description": "While holding the staff, you have Advantage on saving throws against spells. In addition, you can take a Reaction when another creature casts a spell that targets only you. If you do, the staff absorbs the magic of the spell, canceling its effect and gaining a number of charges equal to the absorbed spell's level. However, if doing so brings the staff's total number of charges above 50, the staff explodes as if you activated its Retributive Strike (see below)."
+    },
+    {
+      "name": "Retributive Strike",
+      "description": "You can take a Magic action to break the staff over your knee or against a solid surface. The staff is destroyed and releases its magic in an explosion that fills a 30-foot Emanation originating from itself. You have a 50 percent chance to instantly travel to a random plane of existence, avoiding the explosion. If you fail to avoid the effect, you take Force damage equal to 16 times the number of charges in the staff. Each other creature in the area makes a DC 17 Dexterity saving throw. On a failed save, a creature takes Force damage equal to 6 times the number of charges in the staff. On a successful save, a creature takes half as much damage."
+    }
+  ],
+  "spells": [
+    {
+      "name": "Arcane Lock",
+      "cost": 0
+    },
+    {
+      "name": "Conjure Elemental",
+      "cost": 7
+    },
+    {
+      "name": "Detect Magic",
+      "cost": 0
+    },
+    {
+      "name": "Dispel Magic",
+      "cost": 3
+    },
+    {
+      "name": "Enlarge/Reduce",
+      "cost": 0
+    },
+    {
+      "name": "Fireball",
+      "level": 7,
+      "cost": 7
+    },
+    {
+      "name": "Flaming Sphere",
+      "cost": 2
+    },
+    {
+      "name": "Ice Storm",
+      "cost": 4
+    },
+    {
+      "name": "Invisibility",
+      "cost": 2
+    },
+    {
+      "name": "Knock",
+      "cost": 2
+    },
+    {
+      "name": "Light",
+      "cost": 0
+    },
+    {
+      "name": "Lightning Bolt",
+      "level": 7,
+      "cost": 7
+    },
+    {
+      "name": "Mage Hand",
+      "cost": 0
+    },
+    {
+      "name": "Passwall",
+      "cost": 5
+    },
+    {
+      "name": "Plane Shift",
+      "cost": 7
+    },
+    {
+      "name": "Protection from Evil and Good",
+      "cost": 0
+    },
+    {
+      "name": "Telekinesis",
+      "cost": 5
+    },
+    {
+      "name": "Wall of Fire",
+      "cost": 4
+    },
+    {
+      "name": "Web",
+      "cost": 2
+    }
+  ],
+  "charges": 50,
+  "rechargeRate": "daily",
+  "rechargeAmount": "4d6 + 2",
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

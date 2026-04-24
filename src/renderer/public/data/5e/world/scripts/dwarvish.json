@@ -1,0 +1,6 @@
+{
+  "id": "dwarvish-script",
+  "name": "Dwarvish",
+  "description": "A runic script consisting of angular characters originally carved into stone and metal. Dwarvish runes are sturdy and geometric, reflecting the dwarven love of craftsmanship and permanence.",
+  "usedByLanguages": ["Dwarvish", "Gnomish", "Giant", "Terran"]
+}

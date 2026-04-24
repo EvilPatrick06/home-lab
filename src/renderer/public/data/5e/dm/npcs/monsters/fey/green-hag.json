@@ -1,0 +1,187 @@
+{
+  "name": "Green Hag",
+  "sizes": ["Medium"],
+  "creatureType": "Fey",
+  "descriptiveTags": ["Hag"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Forest", "Swamp"],
+  "treasure": ["Arcana"],
+  "lore": "Green hags are wretched, hateful creatures that dwell in dying forests, lonely swamps, and misty moors, making their homes in caves or the hollow trunks of trees. A green hag's illusory appearance conceals a withered, moss-green frame with long, gnarled claws. These hags delight in manipulating and corrupting others, often preying on the desperate and the vain. They mimic the sounds of the forest to lure victims to their doom. Like other hags, green hags sometimes form covens with other hags to amplify their magical power.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 82,
+    "dice": {
+      "count": 11,
+      "die": "d8",
+      "modifier": 33
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Swim",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 4
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 4
+    },
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic", "Sylvan"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The hag can breathe air and water."
+    },
+    {
+      "name": "Mimicry",
+      "description": "The hag can mimic animal sounds and humanoid voices. A creature that hears the sounds can tell they are imitations with a successful DC 14 Wisdom (Insight) check."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 12,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Dancing Lights",
+              "level": 0
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            },
+            {
+              "name": "Vicious Mockery",
+              "level": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The hag makes two Toxic Nail attacks.",
+    "attacks": [
+      {
+        "actionName": "Toxic Nail",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Toxic Nail",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 8 (1d8 + 4) Slashing damage plus 7 (2d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Illusory Appearance",
+      "description": "The hag covers itself and anything it is wearing or carrying with a magical illusion that makes it look like another creature of its general size and Humanoid shape. The illusion ends if the hag takes a Bonus Action to end it or if the hag dies. The changes wrought by this effect fail to hold up to physical inspection. For example, the hag could appear to have smooth skin, but someone touching it would feel its rough features. Otherwise, a creature must take a Study action to examine the illusion and succeed on a DC 20 Intelligence (Investigation) check to discern that the hag is disguised."
+    },
+    {
+      "name": "Invisible Passage",
+      "description": "The hag casts Invisibility on itself, requiring no spell components and using Charisma as the spellcasting ability."
+    }
+  ]
+}

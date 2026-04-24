@@ -1,0 +1,28 @@
+{
+  "name": "Slasher",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength", "Dexterity"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Hamstring",
+      "description": "Once per turn when you hit a creature with an attack that deals Slashing damage, you can reduce the Speed of that creature by 10 feet until the start of your next turn."
+    },
+    {
+      "name": "Enhanced Critical",
+      "description": "When you score a Critical Hit that deals Slashing damage to a creature, it has Disadvantage on attack rolls until the start of your next turn."
+    }
+  ],
+  "source": "PHB 2024"
+}

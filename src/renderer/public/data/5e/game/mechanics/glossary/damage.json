@@ -1,0 +1,11 @@
+{
+  "name": "Damage",
+  "slug": "damage",
+  "description": "Damage represents harm caused by attacks, spells, and other effects. It reduces Hit Points.\n\n### Damage Types\n\n| Type | Description |\n|---|---|\n| Acid | Corrosive acids |\n| Bludgeoning | Blunt force |\n| Cold | Freezing cold |\n| Fire | Flames and extreme heat |\n| Force | Pure magical energy |\n| Lightning | Electrical energy |\n| Necrotic | Life-draining energy |\n| Piercing | Puncturing and impaling |\n| Poison | Toxins and venom |\n| Psychic | Mental energy |\n| Radiant | Holy and divine energy |\n| Slashing | Cuts and lacerations |\n| Thunder | Concussive sound |",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

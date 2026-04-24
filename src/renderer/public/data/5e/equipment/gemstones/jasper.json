@@ -1,0 +1,13 @@
+{
+  "name": "Jasper",
+  "slug": "jasper",
+  "value": "50 GP",
+  "category": "Gemstone",
+  "description": "blue, black, or brown",
+  "dieValue": "6",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

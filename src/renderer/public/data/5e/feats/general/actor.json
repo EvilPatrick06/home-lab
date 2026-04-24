@@ -1,0 +1,34 @@
+{
+  "name": "Actor",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "abilityScores": [
+      {
+        "abilities": ["Charisma"],
+        "minimum": 13
+      }
+    ]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Charisma"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Impersonation",
+      "description": "While you're disguised as a real or fictional person, you have Advantage on Charisma (Deception or Performance) checks to convince others that you are that person."
+    },
+    {
+      "name": "Mimicry",
+      "description": "You can mimic the sounds of other creatures, including speech. A creature that hears the mimicry must succeed on a Wisdom (Insight) check to determine the effect is faked (DC 8 plus your Charisma modifier and Proficiency Bonus)."
+    }
+  ],
+  "source": "PHB 2024"
+}

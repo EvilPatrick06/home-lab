@@ -1,0 +1,13 @@
+{
+  "name": "Bracers of Defense",
+  "itemType": "Wondrous Item",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "description": "While wearing these bracers, you gain a +2 bonus to your Armor Class.",
+  "weight": null,
+  "cost": {
+    "amount": 4000,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

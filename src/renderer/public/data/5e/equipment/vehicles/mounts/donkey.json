@@ -1,0 +1,15 @@
+{
+  "name": "Donkey (or Mule)",
+  "slug": "donkey",
+  "category": "Mount",
+  "cost": "8 GP",
+  "speed": "40 ft.",
+  "carryCapacity": 420,
+  "size": "Medium",
+  "description": "A sure-footed beast of burden. Donkeys and mules are commonly used to carry supplies rather than riders.",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

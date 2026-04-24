@@ -1,0 +1,258 @@
+{
+  "name": "Behir",
+  "sizes": ["Huge"],
+  "creatureType": "Monstrosity",
+  "alignment": "Neutral Evil",
+  "habitat": ["Hill", "Mountain", "Underdark"],
+  "treasure": ["Any"],
+  "lore": "Behirs are serpentine monstrosities with twelve legs that can discharge bolts of lightning and swallow foes whole. They compete with dragons for territory and lair in mountains, hills, and the Underdark. Bitter enemies of dragons, behirs attack them on sight and claim domains that overlap with those of their draconic rivals.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 168,
+    "dice": {
+      "count": 16,
+      "die": "d12",
+      "modifier": 64
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    },
+    {
+      "type": "Climb",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 23,
+      "modifier": 6,
+      "save": 10
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "damageImmunities": ["Lightning"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 90
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Draconic"]
+  },
+  "challengeRating": "11",
+  "experiencePoints": 7200,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Lightning Absorption",
+      "description": "Whenever the behir is subjected to Lightning damage, it regains a number of Hit Points equal to the Lightning damage dealt."
+    }
+  ],
+  "multiattack": {
+    "description": "The behir makes one Bite attack and one Constrict attack. It can replace one of these attacks with a Swallow.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Constrict",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Swallow"
+      },
+      {
+        "replace": "Constrict",
+        "replaceCount": 1,
+        "with": "Swallow"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +10, reach 10 ft. Hit: 22 (3d10 + 6) Piercing damage plus 11 (2d10) Lightning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 3,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Constrict",
+      "description": "Melee Attack Roll: +10, reach 5 ft. Hit: 17 (2d10 + 6) Bludgeoning damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 16). Until this grapple ends, the behir can't Constrict another target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "duration": "until escaped",
+              "escapeDC": 16
+            }
+          ],
+          "additionalEffects": "If the target is a Large or smaller creature, it has the Grappled condition. Until this grapple ends, the behir can't Constrict another target."
+        }
+      }
+    },
+    {
+      "name": "Swallow",
+      "description": "Melee Attack Roll: +10, reach 5 ft. Hit: 22 (3d10 + 6) Piercing damage. If the target is a Medium or smaller creature the behir is grappling, the target is swallowed, and the grapple ends. A swallowed creature has the Blinded and Restrained conditions, has Total Cover against attacks and other effects outside the behir, and takes 21 (6d6) Acid damage at the start of each of the behir's turns. If the behir takes 30 damage or more on a single turn from a creature inside it, the behir must succeed on a DC 14 Constitution saving throw at the end of that turn or regurgitate all swallowed creatures, each of which lands in a space within 10 feet of the behir and has the Prone condition. If the behir dies, a swallowed creature is no longer Restrained by it and can escape from the corpse by using 15 feet of movement, exiting with the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 3,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Piercing"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Blinded",
+              "duration": "while swallowed"
+            },
+            {
+              "condition": "Restrained",
+              "duration": "while swallowed"
+            }
+          ],
+          "additionalEffects": "If the target is a Medium or smaller creature the behir is grappling, the target is swallowed and the grapple ends. The swallowed creature has Total Cover against attacks and other effects outside the behir, and takes 21 (6d6) Acid damage at the start of each of the behir's turns. If the behir takes 30 damage or more on a single turn from a creature inside it, the behir must succeed on a DC 14 Constitution saving throw at the end of that turn or regurgitate all swallowed creatures, which land Prone within 10 feet. If the behir dies, a swallowed creature can escape using 15 feet of movement, exiting Prone."
+        }
+      }
+    },
+    {
+      "name": "Lightning Breath",
+      "description": "The behir exhales lightning in a 30-foot-long, 5-foot-wide Line. Each creature in that area makes a DC 16 Dexterity saving throw, taking 66 (12d10) Lightning damage on a failed save or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 16,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 66,
+              "dice": {
+                "count": 12,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Line",
+        "size": 30,
+        "width": 5
+      }
+    }
+  ]
+}

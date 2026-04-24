@@ -1,0 +1,19 @@
+{
+  "name": "Hidden Pit",
+  "type": "mechanical",
+  "trigger": "A creature moves onto the pit's lid",
+  "duration": "Instantaneous",
+  "severity": "Level 1+",
+  "dc": 13,
+  "detectDC": 13,
+  "disarmDC": 13,
+  "damage": "11 (2d10) Bludgeoning",
+  "description": "10-foot-deep pit covered by a lid. DC 13 Dex save or fall in taking 11 (2d10) Bludgeoning damage. Creature needs Climb Speed or climbing gear to escape.",
+  "slug": "hidden-pit",
+  "category": "Trap",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Traps"
+  }
+}

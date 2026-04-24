@@ -1,0 +1,11 @@
+{
+  "name": "The Planes",
+  "slug": "the-planes",
+  "category": "other",
+  "description": "The planes of existence are realms of myth and mystery. They're not simply other worlds, but dimensions formed and governed by spiritual and elemental principles. They fall into the following categories:\n\n**Material Realms.** Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.\n\n**Transitive Planes.** The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.\n\n**Inner Planes.** The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.\n\n**Outer Planes.** Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.\n\n**Positive and Negative Planes.** These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 6",
+    "section": "Cosmology"
+  }
+}

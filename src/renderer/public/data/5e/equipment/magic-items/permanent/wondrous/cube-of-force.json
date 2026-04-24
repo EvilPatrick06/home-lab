@@ -1,0 +1,45 @@
+{
+  "name": "Cube of Force",
+  "itemType": "Wondrous Item",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "This cube is about an inch across. Each face has a distinct marking on it. You can press one of those faces, expend the number of charges required for it, and thereby cast the spell associated with it (save DC 17), as shown in the Cube of Force Faces table.\n\nThe cube starts with 10 charges, and it regains 1d6 expended charges daily at dawn.",
+  "properties": null,
+  "weight": null,
+  "cost": {
+    "amount": 4000,
+    "denomination": "GP"
+  },
+  "charges": 10,
+  "rechargeRate": "Daily",
+  "rechargeAmount": "1d6",
+  "spells": [
+    {
+      "name": "Mage Armor",
+      "chargesCost": 1
+    },
+    {
+      "name": "Shield",
+      "chargesCost": 1
+    },
+    {
+      "name": "Leomund's Tiny Hut",
+      "chargesCost": 3
+    },
+    {
+      "name": "Mordenkainen's Private Sanctum",
+      "chargesCost": 4
+    },
+    {
+      "name": "Otiluke's Resilient Sphere",
+      "chargesCost": 4
+    },
+    {
+      "name": "Wall of Force",
+      "chargesCost": 5
+    }
+  ],
+  "damage": null,
+  "source": "DMG 2024"
+}

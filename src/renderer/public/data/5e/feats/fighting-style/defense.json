@@ -1,0 +1,14 @@
+{
+  "name": "Defense",
+  "category": "Fighting Style",
+  "prerequisites": {
+    "features": ["Fighting Style Feature"]
+  },
+  "benefits": [
+    {
+      "name": "Armor Class Bonus",
+      "description": "While you're wearing Light, Medium, or Heavy armor, you gain a +1 bonus to Armor Class."
+    }
+  ],
+  "source": "PHB 2024"
+}

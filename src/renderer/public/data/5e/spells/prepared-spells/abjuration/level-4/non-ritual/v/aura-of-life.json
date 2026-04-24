@@ -1,0 +1,46 @@
+{
+  "name": "Aura of Life",
+  "level": 4,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "An aura radiates from you in a 30-foot Emanation for the duration. While in the aura, you and your allies have Resistance to Necrotic damage, and your Hit Point maximums can't be reduced. If an ally with 0 Hit Points starts its turn in the aura, that ally regains 1 Hit Point.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 30,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "self",
+  "resistancesGranted": {
+    "damageTypes": ["Necrotic"]
+  },
+  "hpMaxModifier": {
+    "type": "cannotReduce"
+  },
+  "healing": [
+    {
+      "flat": 1,
+      "applicationType": "onTurnStart"
+    }
+  ],
+  "tags": ["aura", "healing", "resistance", "buff"]
+}

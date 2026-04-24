@@ -1,0 +1,30 @@
+{
+  "id": "overrun",
+  "name": "Overrun",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "A creature can try to force its way through a hostile creature's space by overrunning it. The creature makes a Strength (Athletics) check contested by the hostile creature's Strength (Athletics) check. The overrunning creature can use its action or bonus action to attempt the overrun.",
+  "mechanics": {
+    "action": "Action or Bonus Action (creature's choice)",
+    "attackerRoll": "Strength (Athletics) check",
+    "defenderRoll": "Strength (Athletics) check",
+    "onSuccess": "The overrunning creature can move through the hostile creature's space once this turn",
+    "onFailure": "The overrunning creature's movement is stopped. It cannot move through the hostile creature's space.",
+    "sizeAdvantage": "The overrunning creature has Advantage on the check if it is larger than the hostile creature. The overrunning creature has Disadvantage if it is smaller.",
+    "movement": "Moving through the hostile creature's space still costs movement as normal. The hostile creature's space is not difficult terrain for this movement.",
+    "limitations": [
+      "The creature can only move through the hostile creature's space once per overrun attempt",
+      "The hostile creature does not move; only the overrunning creature passes through",
+      "This does not provoke opportunity attacks by itself (though leaving the hostile creature's reach afterward might)",
+      "A creature cannot end its turn in another creature's space"
+    ]
+  },
+  "interactions": [
+    "Strength-based characters (Barbarians, Fighters, Paladins) excel at overrunning due to high Athletics modifiers",
+    "The Athlete feat and Expertise in Athletics significantly improve overrun success rates",
+    "This provides an alternative to the Disengage action for moving past enemies, but requires a contested check",
+    "Using a Bonus Action for overrun preserves the creature's Action for attacking, making it efficient for breaking through battle lines",
+    "Enlarge/Reduce can change the size category, affecting the Advantage/Disadvantage on the contested check",
+    "This pairs well with the Charger feat for creatures that want to move through enemy lines and still attack"
+  ]
+}

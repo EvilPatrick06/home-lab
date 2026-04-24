@@ -1,0 +1,36 @@
+{
+  "name": "Siege Ammunition",
+  "slug": "siege-ammunition",
+  "category": "Ammunition",
+  "cost": "—",
+  "weight": "—",
+  "description": "Ammunition for siege weapons. Availability and cost depend on the siege weapon type.",
+  "variants": [
+    {
+      "name": "Ballista Bolt",
+      "cost": "5 GP",
+      "weight": "6 lb.",
+      "compatibleWeapons": ["Ballista"],
+      "description": "Large iron-tipped bolt fired from a Ballista."
+    },
+    {
+      "name": "Trebuchet Stone",
+      "cost": "—",
+      "weight": "200 lb.",
+      "compatibleWeapons": ["Trebuchet", "Mangonel"],
+      "description": "A large stone projectile hurled by a Trebuchet or Mangonel. Stones can usually be sourced from the environment."
+    },
+    {
+      "name": "Cannonball",
+      "cost": "5 GP",
+      "weight": "10 lb.",
+      "compatibleWeapons": ["Cannon"],
+      "description": "An iron sphere fired from a Cannon."
+    }
+  ],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

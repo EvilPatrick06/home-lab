@@ -1,0 +1,11 @@
+{
+  "id": "warhorse-mount",
+  "name": "Warhorse",
+  "statBlockRef": "dm/npcs/creatures-companions/warhorse.json",
+  "type": "mount",
+  "speed": "60 ft.",
+  "carryCapacity": 540,
+  "cost": "400 gp",
+  "description": "A heavy horse trained for battle. A warhorse does not flee from combat and can be directed to attack while ridden. Warhorses are expensive and require significant upkeep, including quality feed and regular exercise.",
+  "combatTrained": true
+}

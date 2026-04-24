@@ -1,0 +1,72 @@
+{
+  "name": "Toll the Dead",
+  "level": 0,
+  "school": "Necromancy",
+  "classes": ["Cleric", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You point at one creature you can see within range, and the single chime of a dolorous bell is audible within 10 feet of the target. The target must succeed on a Wisdom saving throw or take 1d8 Necrotic damage. If the target is missing any of its Hit Points, it instead takes 1d12 Necrotic damage.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": "Necrotic",
+      "applicationType": "onFailedSave",
+      "condition": "Target is at full Hit Points"
+    },
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 12
+      },
+      "type": "Necrotic",
+      "applicationType": "onFailedSave",
+      "condition": "Target is missing any of its Hit Points"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "description": "2d8 Necrotic damage (or 2d12 if target is missing any Hit Points)"
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "description": "3d8 Necrotic damage (or 3d12 if target is missing any Hit Points)"
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "description": "4d8 Necrotic damage (or 4d12 if target is missing any Hit Points)"
+      }
+    ]
+  },
+  "tags": ["damage", "cantrip", "saving-throw"]
+}

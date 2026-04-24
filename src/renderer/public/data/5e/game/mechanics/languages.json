@@ -1,0 +1,209 @@
+[
+  {
+    "id": "common",
+    "name": "Common",
+    "type": "standard",
+    "script": "Common",
+    "typicalSpeakers": "Humans and widely used as a trade language across the realms",
+    "description": "Spoken by humans and widely used as a trade language across the realms.",
+    "source": "phb2024"
+  },
+  {
+    "id": "common-sign-language",
+    "name": "Common Sign Language",
+    "type": "standard",
+    "script": null,
+    "typicalSpeakers": "Used alongside Common by those who cannot speak or hear",
+    "description": "A gestural language used alongside Common, enabling communication without speech.",
+    "source": "phb2024"
+  },
+  {
+    "id": "draconic",
+    "name": "Draconic",
+    "type": "standard",
+    "script": "Draconic",
+    "typicalSpeakers": "Dragons, dragonborn, and kobolds",
+    "description": "One of the oldest languages, spoken by dragons, dragonborn, and kobolds.",
+    "source": "phb2024"
+  },
+  {
+    "id": "dwarvish",
+    "name": "Dwarvish",
+    "type": "standard",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Dwarves",
+    "description": "Spoken by dwarves. Full of hard consonants and guttural sounds.",
+    "source": "phb2024"
+  },
+  {
+    "id": "elvish",
+    "name": "Elvish",
+    "type": "standard",
+    "script": "Elvish",
+    "typicalSpeakers": "Elves",
+    "description": "Spoken by elves. Fluid with subtle intonations and intricate grammar.",
+    "source": "phb2024"
+  },
+  {
+    "id": "giant",
+    "name": "Giant",
+    "type": "standard",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Ogres, giants, and related creatures",
+    "description": "Spoken by ogres, giants, and related creatures.",
+    "source": "phb2024"
+  },
+  {
+    "id": "gnomish",
+    "name": "Gnomish",
+    "type": "standard",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Gnomes",
+    "description": "Spoken by gnomes. Known for technical treatises and catalogs.",
+    "source": "phb2024"
+  },
+  {
+    "id": "goblin",
+    "name": "Goblin",
+    "type": "standard",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Goblinoids including goblins, hobgoblins, and bugbears",
+    "description": "Spoken by goblinoids including goblins, hobgoblins, and bugbears.",
+    "source": "phb2024"
+  },
+  {
+    "id": "halfling",
+    "name": "Halfling",
+    "type": "standard",
+    "script": "Common",
+    "typicalSpeakers": "Halflings",
+    "description": "Spoken by halflings. Rarely written; oral tradition is strong.",
+    "source": "phb2024"
+  },
+  {
+    "id": "orc",
+    "name": "Orc",
+    "type": "standard",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Orcs",
+    "description": "Spoken by orcs. A harsh, grating language with no script of its own historically.",
+    "source": "phb2024"
+  },
+  {
+    "id": "abyssal",
+    "name": "Abyssal",
+    "type": "rare",
+    "script": "Infernal",
+    "typicalSpeakers": "Demons and chaotic evil outsiders of the Abyss",
+    "description": "Spoken by demons and chaotic evil outsiders of the Abyss.",
+    "source": "phb2024"
+  },
+  {
+    "id": "celestial",
+    "name": "Celestial",
+    "type": "rare",
+    "script": "Celestial",
+    "typicalSpeakers": "Celestials — angels, guardinals, and other good-aligned beings",
+    "description": "Spoken by celestials — angels, guardinals, and other good-aligned beings.",
+    "source": "phb2024"
+  },
+  {
+    "id": "deep-speech",
+    "name": "Deep Speech",
+    "type": "rare",
+    "script": null,
+    "typicalSpeakers": "Aberrations — mind flayers, beholders, and similar entities",
+    "description": "Spoken by aberrations — mind flayers, beholders, and similar entities. No standard script.",
+    "source": "phb2024"
+  },
+  {
+    "id": "infernal",
+    "name": "Infernal",
+    "type": "rare",
+    "script": "Infernal",
+    "typicalSpeakers": "Devils and lawful evil outsiders of the Nine Hells",
+    "description": "Spoken by devils and lawful evil outsiders of the Nine Hells.",
+    "source": "phb2024"
+  },
+  {
+    "id": "primordial",
+    "name": "Primordial",
+    "type": "rare",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Elementals",
+    "description": "Spoken by elementals. Includes dialects: Aquan, Auran, Ignan, and Terran. Creatures that know one dialect can communicate with those who know a different one.",
+    "source": "phb2024"
+  },
+  {
+    "id": "sylvan",
+    "name": "Sylvan",
+    "type": "rare",
+    "script": "Elvish",
+    "typicalSpeakers": "Fey creatures — dryads, satyrs, pixies, and treants",
+    "description": "Spoken by fey creatures — dryads, satyrs, pixies, and treants.",
+    "source": "phb2024"
+  },
+  {
+    "id": "undercommon",
+    "name": "Undercommon",
+    "type": "rare",
+    "script": "Elvish",
+    "typicalSpeakers": "Denizens of the Underdark — drow, duergar, and deep gnomes",
+    "description": "Spoken by denizens of the Underdark — drow, duergar, and deep gnomes.",
+    "source": "phb2024"
+  },
+  {
+    "id": "aquan",
+    "name": "Aquan",
+    "type": "dialect",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Water elementals and creatures of the Plane of Water",
+    "description": "A dialect of Primordial spoken by water elementals and creatures of the Plane of Water.",
+    "source": "phb2024"
+  },
+  {
+    "id": "auran",
+    "name": "Auran",
+    "type": "dialect",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Air elementals and creatures of the Plane of Air",
+    "description": "A dialect of Primordial spoken by air elementals and creatures of the Plane of Air.",
+    "source": "phb2024"
+  },
+  {
+    "id": "ignan",
+    "name": "Ignan",
+    "type": "dialect",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Fire elementals and creatures of the Plane of Fire",
+    "description": "A dialect of Primordial spoken by fire elementals and creatures of the Plane of Fire.",
+    "source": "phb2024"
+  },
+  {
+    "id": "terran",
+    "name": "Terran",
+    "type": "dialect",
+    "script": "Dwarvish",
+    "typicalSpeakers": "Earth elementals and creatures of the Plane of Earth",
+    "description": "A dialect of Primordial spoken by earth elementals and creatures of the Plane of Earth.",
+    "source": "phb2024"
+  },
+  {
+    "id": "druidic",
+    "name": "Druidic",
+    "type": "secret",
+    "script": "Druidic",
+    "typicalSpeakers": "Druids",
+    "description": "A rare secret language known only to druids, granted by the class.",
+    "source": "phb2024"
+  },
+  {
+    "id": "thieves-cant",
+    "name": "Thieves' Cant",
+    "type": "secret",
+    "script": null,
+    "typicalSpeakers": "Rogues",
+    "description": "A rare secret mix of jargon and coded messages known to rogues, granted by the class.",
+    "source": "phb2024"
+  }
+]

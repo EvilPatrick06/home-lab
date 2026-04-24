@@ -1,0 +1,28 @@
+{
+  "id": "commoner",
+  "name": "Commoner",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Alignment",
+  "ac": 10,
+  "acSource": "no armor",
+  "hp": 4,
+  "hpFormula": "1d8",
+  "speed": "30 ft.",
+  "stats": { "str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10 },
+  "senses": "Passive Perception 10",
+  "languages": "Any one language (usually Common)",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Club",
+      "description": "*Melee Weapon Attack:* +2 to hit, reach 5 ft., one target. *Hit:* 2 (1d4) bludgeoning damage."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "Sanctuary",
+  "level": 1,
+  "school": "Abjuration",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a shard of glass from a mirror",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You ward a creature within range. Until the spell ends, any creature who targets the warded creature with an attack roll or a damaging spell must succeed on a Wisdom saving throw or either choose a new target or lose the attack or spell. This spell doesn't protect the warded creature from areas of effect. The spell ends if the warded creature makes an attack roll, casts a spell, or deals damage.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The attacker must choose a new target or lose the attack or spell"
+  },
+  "tags": ["warding", "protection", "ends-if-target-attacks", "ends-if-target-casts", "ends-if-target-deals-damage"]
+}

@@ -1,0 +1,239 @@
+{
+  "name": "Deva",
+  "sizes": ["Medium"],
+  "creatureType": "Celestial",
+  "descriptiveTags": ["Angel"],
+  "alignment": "Lawful Good",
+  "habitat": ["Planar (Upper Planes)"],
+  "treasure": ["Relics"],
+  "lore": "Devas are angels that serve as divine messengers and emissaries. They appear in humanoid form to mortal creatures, delivering guidance and working miracles on behalf of the gods. Devas are paragons of virtue, possessed of an innate ability to sense falsehood. In times of dire need, a deva might adopt a different shape to walk among mortals undetected, using its healing power to mend the wounded and its celestial authority to rally the faithful.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 136,
+    "dice": {
+      "count": 16,
+      "die": "d8",
+      "modifier": 64
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 90
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    }
+  },
+  "skills": [
+    {
+      "skill": "Insight",
+      "bonus": 9
+    },
+    {
+      "skill": "Perception",
+      "bonus": 9
+    }
+  ],
+  "resistances": ["Radiant", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 19
+  },
+  "languages": {
+    "spoken": ["All"],
+    "telepathy": 120
+  },
+  "challengeRating": "10",
+  "experiencePoints": 5900,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Angelic Weapons",
+      "description": "The deva's attacks are magical. When the deva hits with any weapon attack, the weapon deals an extra 4d8 Radiant damage (included in the attack)."
+    },
+    {
+      "name": "Divine Awareness",
+      "description": "The deva knows if it hears a lie."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The deva has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 17,
+      "componentOverrides": {
+        "ignoresMaterial": true,
+        "ignoresMaterialWithCost": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Evil and Good",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Commune",
+              "level": 5
+            },
+            {
+              "name": "Raise Dead",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The deva makes two Mace attacks. It can replace one attack with Divine Command.",
+    "attacks": [
+      {
+        "actionName": "Mace",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Mace",
+        "replaceCount": 1,
+        "with": "Divine Command"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Mace",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 7 (1d6 + 4) Bludgeoning damage plus 18 (4d8) Radiant damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 18,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Radiant"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Divine Command",
+      "description": "The deva targets one creature it can see within 30 feet of itself. The target must succeed on a DC 17 Charisma saving throw or have the Charmed or Frightened condition (the deva's choice) until the start of the deva's next turn.",
+      "savingThrow": {
+        "ability": "CHA",
+        "dc": 17,
+        "targets": "one creature the deva can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "until the start of the deva's next turn"
+            },
+            {
+              "condition": "Frightened",
+              "duration": "until the start of the deva's next turn"
+            }
+          ],
+          "effects": "The deva chooses either the Charmed or Frightened condition to impose."
+        }
+      }
+    },
+    {
+      "name": "Healing Touch",
+      "description": "The deva touches another creature. The target regains 20 (4d8 + 2) Hit Points and is freed from any curse, disease, poison, Blinded condition, or Deafened condition.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      },
+      "healing": {
+        "average": 20,
+        "dice": {
+          "count": 4,
+          "die": "d8",
+          "modifier": 2
+        }
+      }
+    },
+    {
+      "name": "Change Shape",
+      "description": "The deva transforms into a Humanoid or Beast that has a Challenge Rating no higher than its own, or back into its true form. In a new form, the deva retains its game statistics and ability to speak, but its AC, movement modes, Strength, and Dexterity are replaced by those of the new form, and it gains any statistics and capabilities that the new form has but that it lacks. If the new form has a bite attack, the deva can use that bite."
+    }
+  ]
+}

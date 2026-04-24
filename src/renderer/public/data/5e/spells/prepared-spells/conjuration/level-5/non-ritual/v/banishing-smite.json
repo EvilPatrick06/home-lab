@@ -1,0 +1,55 @@
+{
+  "name": "Banishing Smite",
+  "level": 5,
+  "school": "Conjuration",
+  "classes": ["Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false,
+    "trigger": "immediately after hitting a target with a Melee weapon or an Unarmed Strike"
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "The target hit by the attack roll takes an extra 5d10 Force damage from the attack. If the attack reduces the target to 50 Hit Points or fewer, the target must succeed on a Charisma saving throw or be transported to a harmless demiplane for the duration. While there, the target has the Incapacitated condition. When the spell ends, the target reappears in the space it left or in the nearest unoccupied space if that space is occupied.",
+  "targetType": "creature",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 10
+      },
+      "type": "Force",
+      "applicationType": "onHit"
+    }
+  ],
+  "savingThrow": {
+    "ability": "Charisma",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "Target is transported to a harmless demiplane for the duration with the Incapacitated condition. When the spell ends, the target reappears in the space it left or in the nearest unoccupied space if that space is occupied."
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Incapacitated",
+      "trigger": "onFailedSave",
+      "duration": "for the spell's duration"
+    }
+  ],
+  "banishment": {
+    "savingThrowAbility": "Charisma",
+    "hpThreshold": 50,
+    "description": "If the attack reduces the target to 50 Hit Points or fewer, the target must succeed on a Charisma saving throw or be transported to a harmless demiplane for the duration."
+  },
+  "tags": ["Smite", "Banishment", "ExtraDamage"]
+}

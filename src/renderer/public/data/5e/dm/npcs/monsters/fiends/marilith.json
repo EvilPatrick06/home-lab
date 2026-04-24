@@ -1,0 +1,184 @@
+{
+  "name": "Marilith",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Abyss)"],
+  "treasure": ["Armaments"],
+  "lore": "A marilith is a six-armed demon of fury and blade mastery, serving as a general in the endless armies of the Abyss. These serpentine fiends coordinate demonic hordes with terrifying tactical brilliance, and their skill with their six longswords is unmatched among demonkind. Mariliths command through strength and cunning, demanding absolute obedience from lesser demons. They coil their powerful tails around foes while striking with a whirlwind of steel, and they can teleport across the battlefield in the blink of an eye.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 189,
+    "dice": {
+      "count": 18,
+      "die": "d10",
+      "modifier": 90
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 15
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 20,
+      "modifier": 5,
+      "save": 10
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 10
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 8
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 10
+    }
+  },
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "gear": [
+    {
+      "name": "Longsword",
+      "quantity": 6
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 120
+  },
+  "challengeRating": "16",
+  "experiencePoints": 15000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The marilith has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Reactive",
+      "description": "The marilith can take up to five Reactions per round but not more than one on each turn."
+    }
+  ],
+  "multiattack": {
+    "description": "The marilith makes six Longsword attacks and one Tail attack.",
+    "attacks": [
+      {
+        "actionName": "Longsword",
+        "count": 6
+      },
+      {
+        "actionName": "Tail",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +9, reach 5 ft. Hit: 13 (2d8 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +9, reach 10 ft. Hit: 15 (2d10 + 4) Bludgeoning damage. If the target is Large or smaller, it has the Grappled condition (escape DC 17).",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the target is Large or smaller, it has the Grappled condition (escape DC 17).",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 17
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Teleport",
+      "description": "The marilith teleports, along with any equipment it is wearing or carrying, up to 60 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 60,
+        "notes": "Along with any equipment it is wearing or carrying, to an unoccupied space it can see"
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Parry",
+      "description": "The marilith adds 5 to its AC against one melee attack roll that would hit it.",
+      "trigger": "The marilith is hit by a melee attack roll."
+    }
+  ]
+}

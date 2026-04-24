@@ -1,0 +1,67 @@
+{
+  "name": "Centaur Warden",
+  "slug": "centaur-warden",
+  "size": "Large",
+  "type": "Fey",
+  "alignment": "Neutral Good",
+  "ac": "16",
+  "initiative": "+2 (12)",
+  "hp": "105",
+  "hpFormula": "14d10 + 28",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 14,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 2,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Athletics +7, Nature +5, Perception +7",
+  "senses": "Passive Perception 17",
+  "languages": "Druidic, Elvish, Sylvan",
+  "cr": "7 (XP 2,900; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The centaur makes two attacks, using Forest Staff or Sun Ray in any combination."
+    },
+    {
+      "name": "Forest Staff",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 13 (2d8 + 4) Bludgeoning damage plus 14 (4d6) Poison damage."
+    },
+    {
+      "name": "Sun Ray",
+      "description": "*Ranged Attack Roll:* +7, range 90 ft. *Hit:* 14 (3d6 + 4) Radiant damage, and the target has the Blinded condition until the start of the centaur's next turn."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The centaur casts one of the following spells, using Wisdom as the spellcasting ability (spell save DC 15):"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Entangling Trail (Recharge 5–6)",
+      "description": "The centaur moves up to its Speed without provoking Opportunity Attacks. Each creature within 5 feet of the centaur as it moves is targeted once by the following effect. *Strength Saving Throw:* DC 15. *Failure:* 11 (2d6 + 4) Bludgeoning damage, and the target has the Restrained condition until the end of its next turn."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Defenders of the Feywild*\n**Habitat:** Forest, Grassland, Planar (Feywild); **Treasure:** Armaments, Individual\nCentaurs are defenders of forests, plains, and sites of primeval power. With upper bodies like humans' and the lower bodies of horses, centaurs charge into battle against those who would harm their allies.\nCentaur wardens often lead groups of centaur troopers and act as intermediaries between Fey creatures and trespassers into their territories.\nCentaur troopers are knight-like guardians. Many are suspicious of non-Fey creatures.",
+  "habitat": "Forest, Grassland, Planar (Feywild)",
+  "treasure": "Armaments, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Fey",
+    "file": "Fey.md"
+  }
+}

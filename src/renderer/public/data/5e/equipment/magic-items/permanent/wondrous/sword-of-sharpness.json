@@ -1,0 +1,19 @@
+{
+  "name": "Sword of Sharpness",
+  "itemType": "Weapon",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "damageType": "Slashing",
+  "damage": {
+    "count": 1,
+    "die": 8,
+    "type": "Slashing"
+  },
+  "additionalDamage": {
+    "count": 14,
+    "die": 1,
+    "type": "Slashing"
+  },
+  "description": "When you attack an object with this magic weapon and hit, maximize your weapon damage dice against the target.\n\nWhen you attack a creature with this magic weapon and roll a 20 on the d20 for the attack roll, that target takes an extra 14 Slashing damage and gains 1 Exhaustion level.",
+  "source": "DMG 2024"
+}

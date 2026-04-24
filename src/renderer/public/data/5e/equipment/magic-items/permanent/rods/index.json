@@ -1,0 +1,30 @@
+[
+  { "id": "immovable-rod", "name": "Immovable Rod", "rarity": "Uncommon", "path": "../../uncommon/immovable-rod.json" },
+  {
+    "id": "rod-of-the-pact-keeper",
+    "name": "Rod of the Pact Keeper",
+    "rarity": "Varies",
+    "variants": ["+1 (Uncommon)", "+2 (Rare)", "+3 (Very Rare)"]
+  },
+  { "id": "rod-of-absorption", "name": "Rod of Absorption", "rarity": "Very Rare" },
+  { "id": "rod-of-alertness", "name": "Rod of Alertness", "rarity": "Very Rare" },
+  {
+    "id": "rod-of-lordly-might",
+    "name": "Rod of Lordly Might",
+    "rarity": "Legendary",
+    "path": "../../legendary/rod-of-lordly-might.json"
+  },
+  {
+    "id": "rod-of-rulership",
+    "name": "Rod of Rulership",
+    "rarity": "Rare",
+    "path": "../../rare/rod-of-rulership.json"
+  },
+  { "id": "rod-of-security", "name": "Rod of Security", "rarity": "Very Rare" },
+  {
+    "id": "rod-of-resurrection",
+    "name": "Rod of Resurrection",
+    "rarity": "Legendary",
+    "path": "../../legendary/rod-of-resurrection.json"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "name": "Rowboat",
+  "cost": "50 GP",
+  "speed": "1½ mph",
+  "crew": 1,
+  "passengers": 3,
+  "cargo": "—",
+  "ac": 11,
+  "hp": 50,
+  "damageThreshold": null,
+  "slug": "rowboat",
+  "category": "Waterborne Vehicle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

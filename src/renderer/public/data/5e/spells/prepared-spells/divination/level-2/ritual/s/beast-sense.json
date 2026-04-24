@@ -1,0 +1,30 @@
+{
+  "name": "Beast Sense",
+  "level": 2,
+  "school": "Divination",
+  "classes": ["Druid", "Ranger"],
+  "ritual": true,
+  "castingTime": {
+    "type": "Action",
+    "ritual": true
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": false,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You touch a willing Beast. For the duration, you can perceive through the Beast's senses as well as your own. When perceiving through the Beast's senses, you benefit from any special senses it has.",
+  "targetType": "creature",
+  "targetCreatureTypes": ["Beast"],
+  "targetMustBeWilling": true,
+  "targetCount": 1,
+  "tags": ["sensory", "perception"]
+}

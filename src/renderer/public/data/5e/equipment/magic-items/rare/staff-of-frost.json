@@ -1,0 +1,13 @@
+{
+  "name": "Staff of Frost",
+  "slug": "staff-of-frost",
+  "type": "Staff",
+  "rarity": "Very Rare (Requires Attunement by a Druid, Sorcerer, Warlock, or Wizard)",
+  "attunement": true,
+  "description": "You have Resistance to Cold damage while you hold this staff.\n\n**Spells.** The staff has 10 charges. While holding the staff, you can cast one of the spells on the following table from it, using your spell save DC. The table indicates how many charges you must expend to cast the spell.\n\n| Spell | Charge Cost | Spell | Charge Cost |\n|-------|-------------|-------|-------------|\n| *Cone of Cold* | 5 | *Ice Storm* | 4 |\n| *Fog Cloud* | 1 | *Wall of Ice* | 4 |\n\n**Regaining Charges.** The staff regains 1d6 + 4 expended charges daily at dawn. If you expend the last charge, roll 1d20. On a 1, the staff turns to water and is destroyed.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

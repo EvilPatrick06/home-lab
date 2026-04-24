@@ -1,0 +1,43 @@
+{
+  "name": "Giant Seahorse",
+  "slug": "giant-seahorse",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 13,
+  "hp": 16,
+  "hpFormula": "3d10",
+  "speed": "0 ft., Swim 40 ft.",
+  "abilityScores": {
+    "str": 12,
+    "dex": 15,
+    "con": 11,
+    "int": 2,
+    "wis": 12,
+    "cha": 5
+  },
+  "senses": "Passive Perception 11",
+  "languages": "—",
+  "cr": "1/2",
+  "xp": "100 XP",
+  "traits": [
+    {
+      "name": "Charge",
+      "description": "If the seahorse moves at least 20 ft. straight toward a target and then hits it with a Ram attack on the same turn, the target takes an extra 7 (2d6) Bludgeoning damage. If the target is a creature, it must succeed on a DC 11 Strength saving throw or have the Prone condition."
+    },
+    {
+      "name": "Water Breathing",
+      "description": "Can breathe only underwater."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Ram",
+      "description": "*Melee:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) Bludgeoning."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

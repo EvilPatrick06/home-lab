@@ -1,0 +1,158 @@
+{
+  "name": "Hobgoblin Warrior",
+  "sizes": ["Medium"],
+  "creatureType": "Fey",
+  "descriptiveTags": ["Goblinoid"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Forest", "Grassland", "Hill", "Underdark"],
+  "treasure": ["Armaments"],
+  "lore": "Hobgoblins are disciplined, militaristic goblinoids that organize into strict hierarchies and wage campaigns of conquest with ruthless efficiency. Originally from the Feywild, hobgoblins bring supernatural precision to warfare and view battle as the highest calling. A hobgoblin warrior is a rank-and-file soldier in a hobgoblin legion, trained to fight in tight formations that exploit every tactical advantage afforded by their allies.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Chain Mail", "Shield"]
+  },
+  "hitPoints": {
+    "average": 16,
+    "dice": {
+      "count": 3,
+      "die": "d8",
+      "modifier": 3
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "gear": [
+    {
+      "name": "Chain Mail",
+      "quantity": 1
+    },
+    {
+      "name": "Longbow",
+      "quantity": 1
+    },
+    {
+      "name": "Longsword",
+      "quantity": 1
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    },
+    {
+      "name": "Arrows",
+      "quantity": 20
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Common", "Goblin"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Martial Advantage",
+      "description": "Once per turn, when the hobgoblin hits a target with an attack roll and the target is within 5 feet of one of the hobgoblin's allies that doesn't have the Incapacitated condition, the attack deals an extra 7 (2d6) damage to the target."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 5 (1d8 + 1) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 1
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Longbow",
+      "description": "Ranged Attack Roll: +3, range 150/600 ft. Hit: 5 (1d8 + 1) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 3,
+        "range": {
+          "normal": 150,
+          "long": 600
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

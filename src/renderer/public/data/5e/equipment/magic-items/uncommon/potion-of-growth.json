@@ -1,0 +1,13 @@
+{
+  "name": "Potion of Growth",
+  "slug": "potion-of-growth",
+  "type": "Potion",
+  "rarity": "Uncommon",
+  "attunement": false,
+  "description": "When you drink this potion, you gain the \"enlarge\" effect of the *Enlarge/Reduce* spell for 10 minutes (no Concentration required).\n\nThe red in the potion's liquid continuously expands from a tiny bead to color the clear liquid around it and then contracts. Shaking the bottle fails to interrupt this process.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

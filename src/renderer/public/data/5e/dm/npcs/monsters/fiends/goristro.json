@@ -1,0 +1,193 @@
+{
+  "name": "Goristro",
+  "sizes": ["Huge"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Abyss)"],
+  "treasure": ["None"],
+  "lore": "Goristros are massive, bull-headed demons that serve as living siege engines in the Abyss. Among the most destructive of demonkind, they combine brute strength with a supernatural ability to navigate any labyrinth. Demon lords use goristros to topple the fortresses of their rivals and to trample opposing armies. Despite their fearsome might, goristros are dim-witted and easily directed by more cunning fiends.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 310,
+    "dice": {
+      "count": 23,
+      "die": "d12",
+      "modifier": 161
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 25,
+      "modifier": 7,
+      "save": 13
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 6
+    },
+    "CON": {
+      "score": 25,
+      "modifier": 7,
+      "save": 13
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 7
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 17
+  },
+  "languages": {
+    "understood": ["Abyssal"],
+    "telepathy": 120,
+    "notes": "understands Abyssal but can't speak"
+  },
+  "challengeRating": "17",
+  "experiencePoints": 18000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Labyrinthine Recall",
+      "description": "The goristro can perfectly recall any path it has traveled."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The goristro has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Siege Monster",
+      "description": "The goristro deals double damage to objects and structures."
+    }
+  ],
+  "multiattack": {
+    "description": "The goristro makes one Gore attack and two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Gore",
+        "count": 1
+      },
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Gore",
+      "description": "Melee Attack Roll: +13, reach 10 ft. Hit: 38 (7d8 + 7) Piercing damage. If the goristro moved at least 10 feet straight toward the target immediately before the hit, the target takes an extra 22 (4d10) Piercing damage, and if the target is a creature, it must succeed on a DC 21 Strength saving throw or have the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 38,
+              "dice": {
+                "count": 7,
+                "die": "d8",
+                "modifier": 7
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Piercing",
+              "notes": "if the goristro moved at least 10 feet straight toward the target immediately before the hit"
+            }
+          ],
+          "savingThrow": {
+            "ability": "STR",
+            "dc": 21,
+            "targets": "the target, if the goristro moved at least 10 feet straight toward it",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Prone"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +13, reach 10 ft. Hit: 25 (4d8 + 7) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 25,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 7
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Charge",
+      "description": "The goristro moves up to its Speed in a straight line without provoking Opportunity Attacks."
+    }
+  ]
+}

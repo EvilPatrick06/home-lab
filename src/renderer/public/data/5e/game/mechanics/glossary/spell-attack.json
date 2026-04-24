@@ -1,0 +1,11 @@
+{
+  "name": "Spell Attack",
+  "slug": "spell-attack",
+  "description": "A spell attack is a special attack: d20 + spellcasting ability modifier + Proficiency Bonus against the target's AC.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Pearl of Power",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "attunementRequirements": "by a Spellcaster",
+  "description": "While this pearl is on your person, you can take a Magic action to regain one expended spell slot of level 3 or lower. Once you use the pearl, it can't be used again until the next dawn.",
+  "properties": [],
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

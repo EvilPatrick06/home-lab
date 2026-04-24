@@ -1,0 +1,51 @@
+{
+  "name": "Prayer of Healing",
+  "level": 2,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 10,
+    "timeUnit": "minutes",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Up to five creatures of your choice who remain within range for the spell's entire casting gain the benefits of a Short Rest and also regain 2d8 Hit Points. A creature can't be affected by this spell again until that creature finishes a Long Rest.",
+  "targetCount": 5,
+  "targetType": "creature",
+  "targetMustBeWilling": true,
+  "healing": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 8
+      },
+      "applicationType": "onCast"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "healingIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 2,
+        "description": "The healing increases by 1d8 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["healing", "short-rest-grant", "once-per-long-rest"]
+}

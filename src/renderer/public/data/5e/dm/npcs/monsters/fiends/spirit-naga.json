@@ -1,0 +1,67 @@
+{
+  "name": "Spirit Naga",
+  "slug": "spirit-naga",
+  "size": "Large",
+  "type": "Fiend",
+  "alignment": "Chaotic Evil",
+  "ac": "17",
+  "initiative": "+3 (13)",
+  "hp": "135",
+  "hpFormula": "18d10 + 36",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 17,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 6,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison; Charmed, Poisoned",
+  "senses": "Darkvision 60 ft.; Passive Perception 12",
+  "languages": "Abyssal, Common",
+  "cr": "8 (XP 3,900; PB +3)",
+  "traits": [
+    {
+      "name": "Fiendish Restoration",
+      "description": "If it dies, the naga returns to life in 1d6 days and regains all its Hit Points. Only a *Wish* spell can prevent this trait from functioning."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The naga makes three attacks, using Bite or Necrotic Ray in any combination."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 7 (1d6 + 4) Piercing damage plus 14 (4d6) Poison damage."
+    },
+    {
+      "name": "Necrotic Ray",
+      "description": "*Ranged Attack Roll:* +6, range 60 ft. *Hit:* 21 (6d6) Necrotic damage."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The naga casts one of the following spells, requiring no Somatic or Material components and using Intelligence as the spellcasting ability (spell save DC 14):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Spiteful Serpentine Grudge Keeper*\n**Habitat:** Planar (Lower Planes), Underdark; **Treasure:** Arcana\nSpirit nagas loathe the world and all creatures. Possessing perfect memories, these venomous, cobra-like creatures recall every slight committed against them during their immortal existences. In their dank, joyless lairs, they create vicious plots to avenge themselves against even petty offenses.\nSpirit nagas seek to claim what they believe they deserve. Their schemes often involve poisons, vile spells, cursed objects, or magical compulsions, eventually making them wellsprings of diabolical knowledge and evil inspiration. Other villains often seek out spirit nagas as advisers and allies. Roll on or choose a result from the Spirit Naga Grievances table to inspire what motivates a spirit naga's schemes.",
+  "habitat": "Planar (Lower Planes), Underdark",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

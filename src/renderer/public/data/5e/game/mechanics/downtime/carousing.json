@@ -1,0 +1,38 @@
+{
+  "id": "carousing",
+  "name": "Carousing",
+  "description": "Carousing is a downtime activity where a character spends time making contacts, partying, and socializing. The character makes connections that could prove useful later.",
+  "costPerDay": "Varies by lifestyle",
+  "costs": {
+    "squalid": { "costPerDayGP": 0.1, "description": "1 SP per day carousing in lower-class establishments" },
+    "poor": { "costPerDayGP": 0.2, "description": "2 SP per day carousing in lower-class establishments" },
+    "modest": { "costPerDayGP": 1, "description": "1 GP per day carousing in middle-class establishments" },
+    "comfortable": { "costPerDayGP": 2, "description": "2 GP per day carousing in upper-class establishments" },
+    "wealthy": { "costPerDayGP": 4, "description": "4 GP per day carousing in upper-class establishments" },
+    "aristocratic": { "costPerDayGP": 10, "description": "10 GP per day carousing in aristocratic circles" }
+  },
+  "resolution": "After carousing for at least one workweek, the character makes a Charisma (Persuasion) check. The result determines the quality of contacts made.",
+  "results": [
+    {
+      "rollMin": 1,
+      "rollMax": 5,
+      "result": "The character makes a hostile contact who works against them -- a rival, a betrayed lover, or a framed innocent. The DM determines the specifics."
+    },
+    { "rollMin": 6, "rollMax": 10, "result": "The character makes no useful contacts." },
+    {
+      "rollMin": 11,
+      "rollMax": 15,
+      "result": "The character makes an allied contact. This contact provides no special benefit but is friendly."
+    },
+    {
+      "rollMin": 16,
+      "rollMax": 20,
+      "result": "The character makes a useful contact who will provide a favor or piece of information when asked."
+    },
+    {
+      "rollMin": 21,
+      "rollMax": 99,
+      "result": "The character makes an influential contact who will go out of their way to help."
+    }
+  ]
+}

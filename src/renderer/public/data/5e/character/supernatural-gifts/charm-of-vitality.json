@@ -1,0 +1,12 @@
+{
+  "name": "Charm of Vitality",
+  "type": "Charm",
+  "charges": 3,
+  "description": "This charm has 3 charges. As a Bonus Action, you can expend 1 charge to regain 2d4 + 2 Hit Points. Once all charges are used, the charm vanishes.",
+  "slug": "charm-of-vitality",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

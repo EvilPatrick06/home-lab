@@ -1,0 +1,13 @@
+{
+  "name": "Tent",
+  "cost": "2 GP",
+  "weight": "20 lb.",
+  "description": "Sleeps up to two Small or Medium creatures.",
+  "slug": "tent",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

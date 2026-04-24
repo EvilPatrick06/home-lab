@@ -1,0 +1,825 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven for good deities and Celestials; and an Underworld for evil deities and Fiends"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them. Arcadia is an Outer Plane with Lawful Good and Lawful Neutral alignment.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "arcadia",
+      "name": "Arcadia",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Lawful Good", "Lawful Neutral"],
+      "philosophicalEssence": "Everything on Arcadia works toward the common good and a flawless existence. Purity is eternal, and nothing intrudes on harmony. Individuality is subsumed to peaceful life in community, and military might can be brought to bear on those who disrupt that peace.",
+      "emotionalInfluence": "Arcadia is suffused with a vigorous life energy that bestows great vitality on visitors.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "divinely_morphic",
+        "shape": "Plane with two layers, featuring orchards of perfectly lined trees, ruler-straight streams, orderly fields, immaculate roads, and cities laid out in geometrically pleasing shapes. Mountains bear no trace of erosion.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Normal breathable atmosphere. Weather is governed by four allied demigods called the Storm Kings: the Cloud King, the Wind Queen, the Lightning King, and the Rain Queen.",
+        "temperature": {
+          "category": "temperate",
+          "description": "Temperate climate governed by the Storm Kings. Weather is perfectly regulated and orderly."
+        },
+        "hasSurface": true,
+        "dominantElement": "None; a plane of spiritual perfection and lawful good order",
+        "weatherPatterns": "Weather is governed by four allied demigods called the Storm Kings: the Cloud King, the Wind Queen, the Lightning King, and the Rain Queen. Each one lives in a castle surrounded by the type of weather that ruler controls."
+      },
+      "layers": [
+        {
+          "name": "Abellio",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "Everything in these fields of plenty is dedicated to the good of all. The first layer of Arcadia features perfectly ordered orchards, streams, fields, roads, and geometrically pleasing cities.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Fields of plenty dedicated to the good of all, with perfectly lined orchards, ruler-straight streams, orderly fields, immaculate roads, and cities laid out in geometrically pleasing shapes.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Buxenus",
+          "alternateNames": [],
+          "layerNumber": 2,
+          "description": "Military forces gather their strength, amid pleasant valleys and orchards, to reclaim the lost layer of Menausus—now part of Mechanus.",
+          "notableLocations": [
+            {
+              "name": "Menausus (Lost Layer)",
+              "description": "A former third layer of Arcadia that has been absorbed into Mechanus. Military forces on Buxenus gather to reclaim it."
+            }
+          ],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Pleasant valleys and orchards where military forces gather their strength to reclaim the lost layer of Menausus.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 2,
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Night and day are determined by an orb that floats in the sky above both of Arcadia's layers. Half of the orb radiates sunlight and brings about the day; the other half sheds moonlight and brings on the starry night. The orb rotates evenly without fail, spreading day and night across the entire plane."
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "arcadia-vigorous-life-energy",
+          "name": "Vigorous Life Energy",
+          "description": "Arcadia is suffused with a vigorous life energy that bestows great vitality on visitors.",
+          "mechanicalEffect": "Bestows great vitality on visitors. Specific mechanical effects are described in Environmental Effects in chapter 3 of the DMG.",
+          "isOptional": true,
+          "affectsEmotions": false,
+          "duration": "While on the plane",
+          "removalMethods": ["Leaving the plane"],
+          "sourceReference": "Environmental Effects, Chapter 3 of the Dungeon Master's Guide 2024"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial", "Humanoid"],
+        "notableEntities": [
+          {
+            "name": "The Cloud King",
+            "title": "Storm King",
+            "creatureType": "Celestial",
+            "alignment": "Lawful Good",
+            "description": "One of four allied demigods called the Storm Kings who govern the weather in Arcadia. Lives in a castle surrounded by clouds."
+          },
+          {
+            "name": "The Wind Queen",
+            "title": "Storm King",
+            "creatureType": "Celestial",
+            "alignment": "Lawful Good",
+            "description": "One of four allied demigods called the Storm Kings who govern the weather in Arcadia. Lives in a castle surrounded by wind."
+          },
+          {
+            "name": "The Lightning King",
+            "title": "Storm King",
+            "creatureType": "Celestial",
+            "alignment": "Lawful Good",
+            "description": "One of four allied demigods called the Storm Kings who govern the weather in Arcadia. Lives in a castle surrounded by lightning."
+          },
+          {
+            "name": "The Rain Queen",
+            "title": "Storm King",
+            "creatureType": "Celestial",
+            "alignment": "Lawful Good",
+            "description": "One of four allied demigods called the Storm Kings who govern the weather in Arcadia. Lives in a castle surrounded by rain."
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Fiend"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on Arcadia, a Fiend makes a DC 10 Constitution saving throw. Arcadia is an Upper Plane, which is alien to a Fiend's nature.",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "customCondition": "Planar Dissonance",
+            "exhaustionLevels": 0,
+            "exhaustionIsRemovable": true,
+            "cumulative": true,
+            "cumulativeDescription": "The 1d4 penalty is cumulative with each failed save. Each failed Long Rest save adds another 1d4 subtracted from all D20 Tests.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            }
+          },
+          "onSuccess": {
+            "description": "No additional penalty accrued from this Long Rest.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": ["Celestial"],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": false,
+          "recoveryMethods": ["Finishing a Long Rest on a plane that is not opposed to the creature's nature"],
+          "failureProbabilityAtDC": {
+            "dc": 10,
+            "noModifierFailChance": 0.45,
+            "commonModifierRange": {
+              "low": 2,
+              "high": 5
+            },
+            "failChanceAtLowMod": 0.35,
+            "failChanceAtHighMod": 0.2
+          }
+        },
+        "description": "Fiends who visit Arcadia (an Upper Plane) experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on Arcadia, a Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [
+        {
+          "id": "arcadia-gate-town-fortitude",
+          "name": "Fortitude",
+          "type": "Gate-town",
+          "description": "The gate-town of Fortitude in the Outlands contains a portal leading to Arcadia. Like all gate-towns, it shares many of the characteristics of the plane where its gate leads.",
+          "hazards": [],
+          "portalDestination": "Arcadia"
+        }
+      ],
+      "adventureThemes": [
+        "Tension between individual freedom and societal responsibility for the common good",
+        "Conformity versus individuality",
+        "Perfect order and communal harmony",
+        "Military purpose in service of law and good",
+        "Reclaiming lost territory (Menausus from Mechanus)"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Saffron",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Environmental Effects in Chapter 3 describes the vigorous life energy effect that Arcadia bestows on visitors."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "infinite-staircase",
+      "name": "Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": ["All planes"],
+      "description": "The Infinite Staircase is an extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down. The staircase changes appearance as it climbs and descends. Doors to the Infinite Staircase are often tucked away in dusty, half-forgotten places.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Any creature that can find a door to it"]
+    },
+    {
+      "id": "river-oceanus",
+      "name": "River Oceanus",
+      "type": "river",
+      "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+      "description": "The water of the Oceanus is sweet and fragrant, originating in the Blessed Fields of Elysium. It flows through each of Elysium's layers, passes through the top layer of the Beastlands, streams across the top layer of Arborea, and finally drains away somewhere in Arborea's second layer.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Trading vessels", "Boats for hire"]
+    },
+    {
+      "id": "river-styx",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium.",
+      "hazards": ["Memory loss from contact with the water"],
+      "isOneWay": false,
+      "navigableBy": ["Sinister ferries crewed by pilots skilled in negotiating the currents"]
+    },
+    {
+      "id": "yggdrasil",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Astral Plane", "Material Plane"],
+      "description": "The World Tree, Yggdrasil, is a cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Most of its massive trunk rises through the plane of Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Planar travelers who climb among the roots and branches", "Expert guides"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some function like doorways, others are locations existing on multiple planes. Portals can require commands, key items, random timing, situational conditions, or specific times to activate.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting portal requirements (command, key item, situation, time, or random)"
+      ],
+      "associatedSpells": [],
+      "risks": [
+        "Guardians charged with ensuring certain creatures don't pass through",
+        "Requirements may be difficult to discover"
+      ],
+      "destinations": ["Any plane"]
+    },
+    {
+      "id": "spells-planar-travel",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Appropriate spell slot", "Spell components"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in destination"],
+      "destinations": ["Any plane depending on spell"]
+    }
+  ],
+  "infernalHierarchy": [
+    {
+      "rank": 1,
+      "title": "Lemure",
+      "category": "Least Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": [],
+      "promotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 2,
+      "title": "Imp",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Spined devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 3,
+      "title": "Spined devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bearded devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 4,
+      "title": "Bearded devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Barbed devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 5,
+      "title": "Barbed devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Chain devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 6,
+      "title": "Chain devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 7,
+      "title": "Bone devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Horned devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 8,
+      "title": "Horned devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Erinyes"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 9,
+      "title": "Erinyes",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Ice devil"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 10,
+      "title": "Ice devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Pit fiend"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 11,
+      "title": "Pit fiend",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Duke/duchess"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 12,
+      "title": "Duke/duchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Archduke/archduchess"],
+      "canDemoteTo": ["Any lesser or greater devil form"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    },
+    {
+      "rank": 13,
+      "title": "Archduke/archduchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": [],
+      "canDemoteTo": ["Any lesser or greater devil form"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    }
+  ],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "exhaustionLevels": 0,
+        "exhaustionIsRemovable": true,
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 subtracted from all D20 Tests.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        }
+      },
+      "onSuccess": {
+        "description": "No additional planar dissonance penalty accrued.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 2,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.35,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

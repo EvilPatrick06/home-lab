@@ -1,0 +1,268 @@
+[
+  {
+    "id": "hidden-pit",
+    "name": "Hidden Pit",
+    "level": "nuisance",
+    "trigger": "A creature steps on a concealed trapdoor covering a pit.",
+    "duration": "Instantaneous",
+    "detection": "DC 15 Intelligence (Investigation) to spot the pit lid",
+    "disarm": "Wedge Iron Spike under lid or use Arcane Lock",
+    "effect": "The lid swings open like a trapdoor, causing the creature to fall 10 feet into the pit, taking 3 (1d6) Bludgeoning damage from the fall.",
+    "damage": "3 (1d6) Bludgeoning",
+    "description": "A 10-foot-deep pit with a hinged lid constructed from material identical to the surrounding floor. When a creature moves onto the lid, it swings open and the creature falls in.",
+    "scaling": {
+      "5-10": {
+        "depth": 30,
+        "damage": "10 (3d6) Bludgeoning"
+      },
+      "11-16": {
+        "depth": 60,
+        "damage": "21 (6d6) Bludgeoning"
+      },
+      "17-20": {
+        "depth": 120,
+        "damage": "42 (12d6) Bludgeoning"
+      }
+    }
+  },
+  {
+    "id": "spiked-pit",
+    "name": "Spiked Pit",
+    "level": "deadly",
+    "trigger": "A creature steps on a concealed trapdoor covering a spiked pit.",
+    "duration": "Instantaneous",
+    "detection": "DC 15 Intelligence (Investigation) to spot the trapdoor",
+    "disarm": "Wedge an Iron Spike or similar object under the lid, or use Arcane Lock to hold it shut",
+    "effect": "The creature falls 10 feet into a pit lined with sharpened wooden or metal spikes, taking 3 (1d6) Bludgeoning damage from the fall plus 9 (2d8) Piercing damage from the spikes.",
+    "damage": "3 (1d6) Bludgeoning + 9 (2d8) Piercing",
+    "description": "A 10-foot-deep pit with a hinged lid and sharpened spikes at the bottom. When a creature moves onto the lid, it swings open and the creature falls in.",
+    "scaling": {
+      "5-10": {
+        "depth": 30,
+        "damage": "10 (3d6) Bludgeoning + 13 (3d8) Piercing"
+      },
+      "11-16": {
+        "depth": 60,
+        "damage": "21 (6d6) Bludgeoning + 36 (8d8) Piercing"
+      },
+      "17-20": {
+        "depth": 120,
+        "damage": "42 (12d6) Bludgeoning + 57 (13d8) Piercing"
+      }
+    }
+  },
+  {
+    "id": "poisoned-darts",
+    "name": "Poisoned Darts",
+    "level": "deadly",
+    "trigger": "Stepping on a pressure plate or pulling a tripwire fires darts from hidden launchers.",
+    "duration": "Instantaneous",
+    "detection": "DC 15 Wisdom (Perception) to spot the dart launcher holes; DC 15 Wisdom (Perception) to detect the pressure plate",
+    "disarm": "Plug all holes with wax, cloth, or detritus to prevent darts from firing; wedge an Iron Spike under the pressure plate to prevent triggering",
+    "effect": "Each creature in the darts' path must succeed on a DC 13 Dexterity saving throw or be struck by 1d3 darts, taking 3 (1d6) Poison damage per dart.",
+    "damage": "1d3 x 3 (1d6) Poison",
+    "saveDC": 13,
+    "saveAbility": "DEX",
+    "description": "Hidden launchers fire poisoned darts when triggered. Creatures must make a DEX save or be struck.",
+    "scaling": {
+      "5-10": {
+        "damagePerDart": "7 (2d6) Poison"
+      },
+      "11-16": {
+        "damagePerDart": "14 (4d6) Poison"
+      },
+      "17-20": {
+        "damagePerDart": "24 (7d6) Poison"
+      }
+    }
+  },
+  {
+    "id": "falling-net",
+    "name": "Falling Net",
+    "level": "nuisance",
+    "trigger": "A tripwire stretched across a hallway releases a heavy net from above.",
+    "duration": "Until the net is destroyed or creatures escape",
+    "detection": "DC 11 Wisdom (Perception) to spot the trip wire and the suspended net",
+    "disarm": "Once detected, the trip wire can be easily cut or avoided (no ability check required)",
+    "effect": "A 10-foot-square Net falls on creatures in the area. The target must succeed on a DC 10 Dexterity saving throw or have the Restrained condition until it escapes (Huge or larger creatures succeed automatically). A creature can use its action to make a DC 10 Strength (Athletics) check, freeing itself or another creature within reach on a success.",
+    "saveDC": 10,
+    "saveAbility": "DEX",
+    "description": "A concealed weighted net drops on creatures below when a tripwire is triggered. Creatures in the area must save or be Restrained until they escape.",
+    "scaling": {
+      "5-10": {
+        "escapeDC": 12
+      },
+      "11-16": {
+        "escapeDC": 14
+      },
+      "17-20": {
+        "escapeDC": 16
+      }
+    }
+  },
+  {
+    "id": "fire-casting-statue",
+    "name": "Fire-Casting Statue",
+    "level": "deadly",
+    "trigger": "A creature steps on a hidden pressure plate in front of the statue.",
+    "duration": "Instantaneous",
+    "detection": "Detect Magic reveals Evocation aura on statue; DC 10 Wisdom (Perception) to find glyph; DC 15 Intelligence (Arcana) to understand it",
+    "disarm": "Deface the glyph or wedge Iron Spike under pressure plate",
+    "effect": "The statue exhales a 15-foot cone of fire. Each creature in the area must make a DC 15 Dexterity saving throw, taking 11 (2d10) Fire damage on a failure or half on a success.",
+    "damage": "11 (2d10) Fire",
+    "saveDC": 15,
+    "saveAbility": "DEX",
+    "description": "A stone statue with a dragon or demonic visage breathes fire when a pressure plate is triggered.",
+    "scaling": {
+      "5-10": {
+        "damage": "22 (4d10) Fire",
+        "cone": "30-foot"
+      },
+      "11-16": {
+        "damage": "55 (10d10) Fire",
+        "cone": "60-foot"
+      },
+      "17-20": {
+        "damage": "99 (18d10) Fire",
+        "cone": "120-foot"
+      }
+    }
+  },
+  {
+    "id": "poisoned-needle",
+    "name": "Poisoned Needle",
+    "level": "nuisance",
+    "trigger": "A creature attempts to pick or open a lock without first disabling the hidden needle.",
+    "duration": "Instantaneous",
+    "detection": "DC 15 Wisdom (Perception) to spot the needle in the lock",
+    "disarm": "DC 15 Dexterity (Sleight of Hand) to disarm the needle once detected; on a failed check, the trap triggers. A Knock spell or similar magic opens the lock without triggering the trap.",
+    "effect": "A spring-loaded needle jabs the creature. The creature must succeed on a DC 11 Constitution saving throw or take 5 (1d10) Poison damage and have the Poisoned condition for 1 hour. On a successful save, the creature takes half as much damage only.",
+    "damage": "5 (1d10) Poison",
+    "saveDC": 11,
+    "saveAbility": "CON",
+    "description": "A poisoned needle hidden inside a lock stabs anyone who tries to pick or open the lock without first disabling it.",
+    "scaling": {
+      "5-10": {
+        "saveDC": 13,
+        "damage": "11 (2d10) Poison"
+      },
+      "11-16": {
+        "saveDC": 15,
+        "damage": "22 (4d10) Poison"
+      },
+      "17-20": {
+        "saveDC": 17,
+        "damage": "55 (10d10) Poison"
+      }
+    }
+  },
+  {
+    "id": "collapsing-roof",
+    "name": "Collapsing Roof",
+    "level": "deadly",
+    "trigger": "A tripwire or pressure plate triggers support beams to buckle, causing the ceiling to cave in.",
+    "duration": "Instantaneous",
+    "detection": "DC 11 Wisdom (Perception) to spot the trip wire",
+    "disarm": "Cut trip wire (no check required) after detection",
+    "effect": "Each creature in a 10-foot-radius area must make a DC 13 Dexterity saving throw, taking 11 (2d10) Bludgeoning damage on a failure or half on a success. The area becomes Difficult Terrain.",
+    "damage": "11 (2d10) Bludgeoning",
+    "saveDC": 13,
+    "saveAbility": "DEX",
+    "description": "The ceiling collapses, showering rubble on creatures below and turning the area into difficult terrain.",
+    "scaling": {
+      "5-10": {
+        "saveDC": 15,
+        "damage": "22 (4d10) Bludgeoning"
+      },
+      "11-16": {
+        "saveDC": 17,
+        "damage": "55 (10d10) Bludgeoning"
+      },
+      "17-20": {
+        "saveDC": 19,
+        "damage": "99 (18d10) Bludgeoning"
+      }
+    }
+  },
+  {
+    "id": "rolling-stone",
+    "name": "Rolling Stone",
+    "level": "deadly (levels 11-16) / nuisance (levels 17-20)",
+    "trigger": "A creature moves onto a hidden pressure plate.",
+    "duration": "Until the stone stops rolling",
+    "detection": "DC 15 Intelligence (Investigation) to deduce the pressure plate's function",
+    "disarm": "Wedge an Iron Spike or similar object under the pressure plate; DC 20 Strength (Athletics) to slow the stone (reduces movement by 15 ft per success)",
+    "effect": "A 5-foot-radius orb of solid stone is released and rolls Initiative with a +8 bonus. On its turn, the stone moves 60 feet in one direction. Whenever the stone enters a creature's space for the first time on a turn or a creature enters the stone's space, that creature must succeed on a DC 15 Dexterity saving throw or take 55 (10d10) Bludgeoning damage and have the Prone condition. The stone has AC 17, HP 100, Damage Threshold 10, and Immunity to Poison and Psychic damage.",
+    "damage": "55 (10d10) Bludgeoning",
+    "saveDC": 15,
+    "saveAbility": "DEX",
+    "description": "A massive stone sphere is released and rolls down a corridor, crushing anything in its path."
+  },
+  {
+    "id": "crossbow-trap",
+    "name": "Crossbow Trap",
+    "level": "nuisance",
+    "trigger": "Stepping on a pressure plate causes a crossbow to fire from a concealed hole in the wall.",
+    "duration": "Instantaneous",
+    "detection": "DC 15 Wisdom (Perception) to spot the pressure plate or the concealed crossbow slit",
+    "disarm": "DC 15 Dexterity (Thieves' Tools) to disable the pressure plate",
+    "effect": "A crossbow bolt fires at the triggering creature. +8 to hit, 1d10 + 1 Piercing damage.",
+    "damage": "1d10 + 1 Piercing",
+    "description": "A mounted crossbow fires through a concealed slit when triggered by a pressure plate. (Homebrew)"
+  },
+  {
+    "id": "sleep-gas-trap",
+    "name": "Sleep Gas Trap",
+    "level": "mid",
+    "trigger": "Opening a chest, door, or container releases pressurized sleep gas.",
+    "duration": "1 minute",
+    "detection": "DC 15 Wisdom (Perception) to spot the gas nozzle; DC 15 Intelligence (Investigation) to identify the mechanism",
+    "disarm": "DC 15 Dexterity (Thieves' Tools) to disable the release valve",
+    "effect": "Gas fills a 20-foot-radius sphere. Each creature in the area must succeed on a DC 15 Constitution saving throw or fall Unconscious for 1 minute. A creature wakes if it takes damage or another creature uses an action to shake it awake.",
+    "saveDC": 15,
+    "saveAbility": "CON",
+    "description": "Pressurized sleep gas fills the area, putting creatures to sleep. (Homebrew)"
+  },
+  {
+    "id": "sphere-of-annihilation-trap",
+    "name": "Sphere of Annihilation Trap",
+    "level": "high",
+    "trigger": "Reaching into a dark opening that conceals a Sphere of Annihilation.",
+    "duration": "Permanent",
+    "detection": "DC 20 Intelligence (Arcana) to identify the sphere; DC 20 Wisdom (Perception) to notice the unnatural darkness",
+    "disarm": "DC 25 Intelligence (Arcana) check to gain control of the sphere and move it; a successful Dispel Magic (DC 19) suppresses it for 1 minute",
+    "effect": "Any matter that touches the sphere is instantly destroyed. A creature that touches it takes 4d10 Force damage. A creature entirely inside the sphere is obliterated.",
+    "damage": "4d10 Force (or obliteration)",
+    "saveDC": 20,
+    "saveAbility": "DEX",
+    "description": "A Sphere of Annihilation hidden in a dark recess appears to be an empty cavity. Anything touching it is destroyed. (Homebrew)"
+  },
+  {
+    "id": "symbol-of-death",
+    "name": "Symbol of Death",
+    "level": "high",
+    "trigger": "A creature reads, touches, or enters the area of a magical symbol inscribed on a surface.",
+    "duration": "Instantaneous",
+    "detection": "DC 15 Intelligence (Investigation) or DC 15 Wisdom (Perception) to spot the glyph; Detect Magic reveals it",
+    "disarm": "Dispel Magic (DC 18) or a successful DC 18 Intelligence (Arcana) check to erase the symbol without triggering it",
+    "effect": "Each creature within 60 feet of the symbol must make a DC 18 Constitution saving throw, taking 10d10 Necrotic damage on a failure or half on a success.",
+    "damage": "10d10 Necrotic",
+    "saveDC": 18,
+    "saveAbility": "CON",
+    "description": "A magical symbol inscribed on a surface detonates with necrotic energy when triggered. (Homebrew)"
+  },
+  {
+    "id": "blade-barrier-hallway",
+    "name": "Blade Barrier Hallway",
+    "level": "high",
+    "trigger": "Stepping past a threshold activates spinning blades that fill a 10-foot section of hallway.",
+    "duration": "10 minutes or until disabled",
+    "detection": "DC 20 Wisdom (Perception) to spot the blade slits; DC 20 Intelligence (Investigation) to find the control mechanism",
+    "disarm": "DC 20 Dexterity (Thieves' Tools) to disable the mechanism; DC 25 Strength (Athletics) to jam the blades",
+    "effect": "A creature that enters the area or starts its turn there must make a DC 17 Dexterity saving throw, taking 6d10 Slashing damage on a failure or half on a success.",
+    "damage": "6d10 Slashing",
+    "saveDC": 17,
+    "saveAbility": "DEX",
+    "description": "Spinning blades emerge from the walls, floor, and ceiling, filling the hallway with a deadly gauntlet. (Homebrew)"
+  }
+]

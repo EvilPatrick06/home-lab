@@ -1,0 +1,74 @@
+{
+  "name": "Juvenile Shadow Dragon",
+  "slug": "juvenile-shadow-dragon",
+  "size": "Medium",
+  "type": "Dragon",
+  "alignment": "Chaotic Evil",
+  "ac": "15",
+  "initiative": "+4 (14)",
+  "hp": "45",
+  "hpFormula": "6d8 + 18",
+  "speed": "30 ft., Climb 30 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 10,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 0,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4, Stealth +6",
+  "immunities": "Necrotic",
+  "resistances": "See Living Shadow",
+  "senses": "Blindsight 10 ft., Darkvision 60 ft.; Passive Perception 14",
+  "languages": "Common, Draconic",
+  "cr": "4 (XP 1,100; PB +2)",
+  "traits": [
+    {
+      "name": "Living Shadow",
+      "description": "While in Dim Light or Darkness, the dragon has Resistance to damage that isn't Force, Psychic, or Radiant."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the dragon has Disadvantage on ability checks and attack rolls."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The dragon makes two Rend attacks."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +5, reach 10 ft. *Hit:* 7 (1d8 + 3) Slashing damage plus 3 (1d6) Necrotic damage."
+    },
+    {
+      "name": "Shadow Breath (Recharge 5--6)",
+      "description": "*Dexterity Saving Throw:* DC 13, each creature in a 30-foot Cone. *Failure:* 17 (5d6) Necrotic damage. *Success:* Half damage. *Failure or Success:* A Humanoid reduced to 0 Hit Points by this damage dies, and a Shadow rises from its corpse. The shadow is under the dragon's control and shares the dragon's Initiative count but acts immediately after the dragon."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shadow Stealth",
+      "description": "While in Dim Light or Darkness, the dragon takes the Hide action."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Dragon Corrupted by Darkness*\n**Habitat:** Planar (Shadowfell), Underdark; **Treasure:** Any\nShadow dragons haunt forgotten, lightless places. While they might have once been other types of dragons, the influence of planar forces, negative energy, or sinister magic has stripped them of their former color or luster. In place of any former breath weapon, shadow dragons exhale caliginous gouts that saps life from everything it touches. Those slain by a shadow dragon's breath rise as shades obedient to the shadow dragon's will.\nShadow dragons typically dwell in the Underdark, particularly in areas with connections to the Shadowfell or other tenebrous realms. In some cases, they might lurk in dark, corrupted reaches of the regions they preferred before transforming into shadow dragons. Overgrown swamps, sepulchral desert ruins, and ash-choked volcanoes make natural lairs for shadow dragons.\nLike many other dragons, shadow dragons collect hoards. Their tastes tend to be morbid -- collecting coins from ruined empires and their victims' skulls.\nShadow dragons lair in places of darkness and despair, such as accursed ruins, the depths of the Underdark, or the Shadowfell.\nThe region around a shadow dragon's lair is twisted by its presence, creating the following effects:\n***Negative Energy Suffusion.*** Whenever a creature within 1 mile of the lair regains Hit Points from a spell, it subtracts 1d10 from the number of Hit Points regained.\n***Stifling Shadows.*** Within 1 mile of the lair, effects that normally create Bright Light instead create Dim Light, and creatures there have Advantage on Dexterity (Stealth) checks.\nIf the dragon dies or moves its lair elsewhere, these effects end immediately.\n> *If ye truly be adventurers of lore, seek the great shadowy wyrm who lairs beneath the Peaks of Thunder and return in triumph bearing aloft her fabled Eye of Shadow.*\n>\n> -- Challenge tempting victims to the lair of the shadow dragon Aurgloroasa",
+  "habitat": "Planar (Shadowfell), Underdark",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Dragons-Other",
+    "file": "Dragons-Other.md"
+  }
+}

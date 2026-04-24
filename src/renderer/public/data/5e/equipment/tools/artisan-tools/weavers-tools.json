@@ -1,0 +1,15 @@
+{
+  "name": "Weaver's Tools",
+  "cost": "1 GP",
+  "weight": "5 lb.",
+  "ability": "Dexterity",
+  "utilize": "Mend a tear in clothing (DC 10), or sew a Tiny design (DC 10)",
+  "craft": "Padded Armor, Basket, Bedroll, Blanket, Fine Clothes, Net, Robe, Rope, Sack, String, Tent, Traveler's Clothes",
+  "slug": "weavers-tools",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

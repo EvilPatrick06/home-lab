@@ -1,0 +1,57 @@
+{
+  "name": "Giant Shark",
+  "slug": "giant-shark",
+  "size": "Huge",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "92",
+  "hpFormula": "8d12 + 40",
+  "speed": "5 ft., Swim 60 ft.",
+  "abilityScores": {
+    "str": 23,
+    "dex": 11,
+    "con": 21,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 6,
+    "dex": 0,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +3",
+  "senses": "Blindsight 60 ft.; Passive Perception 13",
+  "languages": "None",
+  "cr": "5 (XP 1,800; PB +3)",
+  "traits": [
+    {
+      "name": "Water Breathing",
+      "description": "The shark can breathe only underwater."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The shark makes two Bite attacks."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +9 (with Advantage if the target doesn't have all its Hit Points), reach 5 ft. *Hit:* 22 (3d10 + 6) Piercing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

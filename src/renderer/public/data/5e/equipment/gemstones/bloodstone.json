@@ -1,0 +1,13 @@
+{
+  "name": "Bloodstone",
+  "slug": "bloodstone",
+  "value": "50 GP",
+  "category": "Gemstone",
+  "description": "dark gray with red flecks",
+  "dieValue": "1",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

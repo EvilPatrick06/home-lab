@@ -1,0 +1,384 @@
+[
+  {
+    "name": "Burglar's Pack",
+    "cost": {
+      "amount": 16,
+      "denomination": "GP"
+    },
+    "weight": 42,
+    "description": "A Burglar's Pack contains the following items: Backpack, Ball Bearings, Bell, 10 Candles, Crowbar, Hooded Lantern, 7 flasks of Oil, 5 days of Rations, Rope, Tinderbox, and Waterskin.",
+    "isPack": true,
+    "packContents": [
+      {
+        "item": "Backpack",
+        "quantity": 1
+      },
+      {
+        "item": "Ball Bearings",
+        "quantity": 1
+      },
+      {
+        "item": "Bell",
+        "quantity": 1
+      },
+      {
+        "item": "Candle",
+        "quantity": 10
+      },
+      {
+        "item": "Crowbar",
+        "quantity": 1
+      },
+      {
+        "item": "Lantern, Hooded",
+        "quantity": 1
+      },
+      {
+        "item": "Oil",
+        "quantity": 7
+      },
+      {
+        "item": "Rations",
+        "quantity": 5
+      },
+      {
+        "item": "Rope",
+        "quantity": 1
+      },
+      {
+        "item": "Tinderbox",
+        "quantity": 1
+      },
+      {
+        "item": "Waterskin",
+        "quantity": 1
+      }
+    ],
+    "isMagicItem": false,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  },
+  {
+    "name": "Diplomat's Pack",
+    "cost": {
+      "amount": 39,
+      "denomination": "GP"
+    },
+    "weight": 39,
+    "description": "A Diplomat's Pack contains the following items: Chest, Fine Clothes, Ink, 5 Ink Pens, Lamp, 2 Map or Scroll Cases, 4 flasks of Oil, 5 sheets of Paper, 5 sheets of Parchment, Perfume, and Tinderbox.",
+    "isPack": true,
+    "packContents": [
+      {
+        "item": "Chest",
+        "quantity": 1
+      },
+      {
+        "item": "Clothes, Fine",
+        "quantity": 1
+      },
+      {
+        "item": "Ink",
+        "quantity": 1
+      },
+      {
+        "item": "Ink Pen",
+        "quantity": 5
+      },
+      {
+        "item": "Lamp",
+        "quantity": 1
+      },
+      {
+        "item": "Case, Map or Scroll",
+        "quantity": 2
+      },
+      {
+        "item": "Oil",
+        "quantity": 4
+      },
+      {
+        "item": "Paper",
+        "quantity": 5
+      },
+      {
+        "item": "Parchment",
+        "quantity": 5
+      },
+      {
+        "item": "Perfume",
+        "quantity": 1
+      },
+      {
+        "item": "Tinderbox",
+        "quantity": 1
+      }
+    ],
+    "isMagicItem": false,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  },
+  {
+    "name": "Dungeoneer's Pack",
+    "cost": {
+      "amount": 12,
+      "denomination": "GP"
+    },
+    "weight": 55,
+    "description": "A Dungeoneer's Pack contains the following items: Backpack, Caltrops, Crowbar, 2 flasks of Oil, 10 days of Rations, Rope, Tinderbox, 10 Torches, and Waterskin.",
+    "isPack": true,
+    "packContents": [
+      {
+        "item": "Backpack",
+        "quantity": 1
+      },
+      {
+        "item": "Caltrops",
+        "quantity": 1
+      },
+      {
+        "item": "Crowbar",
+        "quantity": 1
+      },
+      {
+        "item": "Oil",
+        "quantity": 2
+      },
+      {
+        "item": "Rations",
+        "quantity": 10
+      },
+      {
+        "item": "Rope",
+        "quantity": 1
+      },
+      {
+        "item": "Tinderbox",
+        "quantity": 1
+      },
+      {
+        "item": "Torch",
+        "quantity": 10
+      },
+      {
+        "item": "Waterskin",
+        "quantity": 1
+      }
+    ],
+    "isMagicItem": false,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  },
+  {
+    "name": "Entertainer's Pack",
+    "cost": {
+      "amount": 40,
+      "denomination": "GP"
+    },
+    "weight": 58.5,
+    "description": "An Entertainer's Pack contains the following items: Backpack, Bedroll, Bell, Bullseye Lantern, 3 Costumes, Mirror, 8 flasks of Oil, 9 days of Rations, Tinderbox, and Waterskin.",
+    "isPack": true,
+    "packContents": [
+      {
+        "item": "Backpack",
+        "quantity": 1
+      },
+      {
+        "item": "Bedroll",
+        "quantity": 1
+      },
+      {
+        "item": "Bell",
+        "quantity": 1
+      },
+      {
+        "item": "Lantern, Bullseye",
+        "quantity": 1
+      },
+      {
+        "item": "Costume",
+        "quantity": 3
+      },
+      {
+        "item": "Mirror",
+        "quantity": 1
+      },
+      {
+        "item": "Oil",
+        "quantity": 8
+      },
+      {
+        "item": "Rations",
+        "quantity": 9
+      },
+      {
+        "item": "Tinderbox",
+        "quantity": 1
+      },
+      {
+        "item": "Waterskin",
+        "quantity": 1
+      }
+    ],
+    "isMagicItem": false,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  },
+  {
+    "name": "Explorer's Pack",
+    "cost": {
+      "amount": 10,
+      "denomination": "GP"
+    },
+    "weight": 55,
+    "description": "An Explorer's Pack contains the following items: Backpack, Bedroll, 2 flasks of Oil, 10 days of Rations, Rope, Tinderbox, 10 Torches, and Waterskin.",
+    "isPack": true,
+    "packContents": [
+      {
+        "item": "Backpack",
+        "quantity": 1
+      },
+      {
+        "item": "Bedroll",
+        "quantity": 1
+      },
+      {
+        "item": "Oil",
+        "quantity": 2
+      },
+      {
+        "item": "Rations",
+        "quantity": 10
+      },
+      {
+        "item": "Rope",
+        "quantity": 1
+      },
+      {
+        "item": "Tinderbox",
+        "quantity": 1
+      },
+      {
+        "item": "Torch",
+        "quantity": 10
+      },
+      {
+        "item": "Waterskin",
+        "quantity": 1
+      }
+    ],
+    "isMagicItem": false,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  },
+  {
+    "name": "Priest's Pack",
+    "cost": {
+      "amount": 33,
+      "denomination": "GP"
+    },
+    "weight": 29,
+    "description": "A Priest's Pack contains the following items: Backpack, Blanket, Holy Water, Lamp, 7 days of Rations, Robe, and Tinderbox.",
+    "isPack": true,
+    "packContents": [
+      {
+        "item": "Backpack",
+        "quantity": 1
+      },
+      {
+        "item": "Blanket",
+        "quantity": 1
+      },
+      {
+        "item": "Holy Water",
+        "quantity": 1
+      },
+      {
+        "item": "Lamp",
+        "quantity": 1
+      },
+      {
+        "item": "Rations",
+        "quantity": 7
+      },
+      {
+        "item": "Robe",
+        "quantity": 1
+      },
+      {
+        "item": "Tinderbox",
+        "quantity": 1
+      }
+    ],
+    "isMagicItem": false,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  },
+  {
+    "name": "Scholar's Pack",
+    "cost": {
+      "amount": 40,
+      "denomination": "GP"
+    },
+    "weight": 22,
+    "description": "A Scholar's Pack contains the following items: Backpack, Book, Ink, Ink Pen, Lamp, 10 flasks of Oil, 10 sheets of Parchment, and Tinderbox.",
+    "isPack": true,
+    "packContents": [
+      {
+        "item": "Backpack",
+        "quantity": 1
+      },
+      {
+        "item": "Book",
+        "quantity": 1
+      },
+      {
+        "item": "Ink",
+        "quantity": 1
+      },
+      {
+        "item": "Ink Pen",
+        "quantity": 1
+      },
+      {
+        "item": "Lamp",
+        "quantity": 1
+      },
+      {
+        "item": "Oil",
+        "quantity": 10
+      },
+      {
+        "item": "Parchment",
+        "quantity": 10
+      },
+      {
+        "item": "Tinderbox",
+        "quantity": 1
+      }
+    ],
+    "isMagicItem": false,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  }
+]

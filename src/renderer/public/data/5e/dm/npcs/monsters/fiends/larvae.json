@@ -1,0 +1,97 @@
+{
+  "name": "Larva",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "alignment": "Neutral Evil",
+  "habitat": ["Lower Planes"],
+  "treasure": ["None"],
+  "lore": "When a mortal of exceptional evil dies and its soul is consigned to the Lower Planes, it might be transformed into a larva—a pitiful, maggot-like creature with a vaguely humanoid face. Larvae are the currency and sustenance of the Lower Planes, traded and devoured by fiends. Night hags are among the most avid collectors of larvae, which they use in foul bargains and dark rituals. Some larvae eventually transform into lesser fiends, though most are consumed long before that can happen.",
+  "armorClass": {
+    "value": 9
+  },
+  "hitPoints": {
+    "average": 9,
+    "dice": {
+      "count": 2,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "senses": {
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["the languages it knew in life"],
+    "notes": "Can't speak"
+  },
+  "challengeRating": "0",
+  "experiencePoints": 10,
+  "proficiencyBonus": 2,
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +2, reach 5 ft. Hit: 2 (1d4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 2,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

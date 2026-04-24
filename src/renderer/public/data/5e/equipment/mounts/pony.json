@@ -1,0 +1,12 @@
+{
+  "name": "Pony",
+  "cost": "30 GP",
+  "carryingCapacity": "225 lb.",
+  "slug": "pony",
+  "category": "Mount",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

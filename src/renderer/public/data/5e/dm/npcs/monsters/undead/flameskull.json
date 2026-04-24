@@ -1,0 +1,205 @@
+{
+  "name": "Flameskull",
+  "sizes": ["Tiny"],
+  "creatureType": "Undead",
+  "alignment": "Neutral Evil",
+  "habitat": ["Underdark", "Urban"],
+  "treasure": ["None"],
+  "lore": "A flameskull is a disembodied skull wreathed in eerie flame, fashioned by a powerful spellcaster to guard treasures and locations long after its creator's death. Nearly impossible to permanently destroy, a flameskull reforms even after being reduced to dust unless its remains are sanctified with holy water or targeted by a Dispel Magic or Remove Curse spell.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 40,
+    "dice": {
+      "count": 9,
+      "die": "d4",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 40,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 5
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 2
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 5
+    },
+    {
+      "skill": "Perception",
+      "bonus": 2
+    }
+  ],
+  "resistances": ["Lightning, Necrotic, and Piercing"],
+  "damageImmunities": ["Cold, Fire, and Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Poisoned", "Prone"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Illumination",
+      "description": "The flameskull sheds Bright Light in a 15-foot radius and Dim Light for an additional 15 feet."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The flameskull has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Rejuvenation",
+      "description": "If the flameskull is destroyed, it regains all its Hit Points in 1 hour unless Holy Water is sprinkled on its remains or a Dispel Magic or Remove Curse spell is cast on them."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "INT",
+      "spellSaveDC": 13,
+      "spellAttackBonus": 5,
+      "componentOverrides": {
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Mage Hand",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Blur",
+              "level": 2
+            },
+            {
+              "name": "Magic Missile",
+              "level": 1,
+              "castAtLevel": 3
+            },
+            {
+              "name": "Shield",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Fireball",
+              "level": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The flameskull makes two Fire Ray attacks.",
+    "attacks": [
+      {
+        "actionName": "Fire Ray",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Fire Ray",
+      "description": "Ranged Attack Roll: +5, range 30 ft. Hit: 10 (2d6 + 3) Fire damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 5,
+        "range": {
+          "normal": 30,
+          "long": 30
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The flameskull casts one of the following spells, requiring no Somatic or Material components, using Intelligence as the spellcasting ability (spell save DC 13, +5 to hit with spell attacks):\n\nAt will: Mage Hand\n2/day each: Blur, Magic Missile (level 3 version), Shield\n1/day: Fireball"
+    }
+  ]
+}

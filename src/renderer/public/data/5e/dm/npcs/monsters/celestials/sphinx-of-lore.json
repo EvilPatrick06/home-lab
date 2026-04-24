@@ -1,0 +1,82 @@
+{
+  "name": "Sphinx of Lore",
+  "slug": "sphinx-of-lore",
+  "size": "Large",
+  "type": "Celestial",
+  "alignment": "Lawful Neutral",
+  "ac": "17",
+  "initiative": "+10 (20)",
+  "hp": "170",
+  "hpFormula": "20d10 + 60",
+  "speed": "40 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 15,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 2,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Arcana +12, History +12, Perception +8, Religion +12",
+  "immunities": "Psychic; Charmed, Frightened",
+  "resistances": "Necrotic, Radiant",
+  "senses": "Truesight 120 ft.; Passive Perception 18",
+  "languages": "Celestial, Common",
+  "cr": "11 (XP 7,200, or 8,400 in lair; PB +4)",
+  "traits": [
+    {
+      "name": "Inscrutable",
+      "description": "No magic can observe the sphinx remotely or detect its thoughts without its permission. Wisdom (Insight) checks made to ascertain its intentions or sincerity are made with Disadvantage."
+    },
+    {
+      "name": "Legendary Resistance (3/Day, or 4/Day in Lair)",
+      "description": "If the sphinx fails a saving throw, it can choose to succeed instead."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The sphinx makes three Claw attacks."
+    },
+    {
+      "name": "Claw",
+      "description": "*Melee Attack Roll:* +8, reach 5 ft. *Hit:* 14 (3d6 + 4) Slashing damage."
+    },
+    {
+      "name": "Mind-Rending Roar (Recharge 5–6)",
+      "description": "*Wisdom Saving Throw:* DC 16, each enemy in a 300-foot Emanation originating from the sphinx. *Failure:* 35 (10d6) Psychic damage, and the target has the Incapacitated condition until the start of the sphinx's next turn."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The sphinx casts one of the following spells, requiring no Material components and using Intelligence as the spellcasting ability (spell save DC 16):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [
+    {
+      "name": "Arcane Prowl",
+      "description": "The sphinx can teleport up to 30 feet to an unoccupied space it can see, and it makes one Claw attack."
+    },
+    {
+      "name": "Weight of Years",
+      "description": "*Constitution Saving Throw:* DC 16, one creature the sphinx can see within 120 feet. *Failure:* The target gains 1 Exhaustion level. While the target has any Exhaustion levels, it appears 3d10 years older. *Failure or Success:* The sphinx can't take this action again until the start of its next turn."
+    }
+  ],
+  "lore": "*Collectors and Keepers of Secrets*\n**Habitat:** Desert, Planar (Upper Planes); **Treasure:** Arcana\nSphinxes protect the secrets of the multiverse. Formed from the spirits of sages and explorers, sphinxes know the power of truth and the importance of preserving it. They share their wisdom only with those who prove themselves wise or overcome tests of worthiness, such as riddles or battles with dangerous beasts. Through their existences, sphinxes might change form as they gain more nuanced understanding of cosmic enigmas.\nA sphinx of wonder is brightly feathered and the size of a lion cub. One comes into being every time a unique idea is conceived on the Material Plane. Each sphinx of wonder is fascinated by a particular type of story or field of study, and it learns all it can about that topic. It bears a unique sigil on its forehead that suggests the type of knowledge that fascinates it. Sometimes, a sphinx of wonder forms a bond with a mortal scholar and aids them in their research.\n> \"Round she is, yet flat as a board\n> Altar of the Lupine Lords\n> Jewel on black velvet, pearl in the sea\n> Unchanged but e'erchanging eternally\"\n> — Riddle of White Plume Mountain\nSphinxes of secrets are commonly associated with a site of great magic or learning. These immortal beings often outlive such locations, though, and might protect a site's ruins as they continue their own studies. Sphinxes of secrets fiercely guard their dwellings and research.\nSphinxes of lore each know a great secret and protect it at all costs. This truth might take the form of an ancient text, a magical puzzle, or a path to another world. These sphinxes might gain reputations as sages or oracles, but they typically dwell far from civilization.\nSphinxes of valor guard world-changing or dangerous secrets—evidence of weird truths, deadly Artifacts, and things that shouldn't exist. They inhabit hidden, magical sites and hold their duty above mortal life. If threatened, a sphinx of valor defends its charge with its supernaturally empowered roar and fierce strikes.",
+  "habitat": "Desert, Planar (Upper Planes)",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Sphinxes",
+    "file": "Sphinxes.md"
+  }
+}

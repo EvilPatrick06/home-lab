@@ -1,0 +1,475 @@
+{
+  "name": "Ancient Red Dragon",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Chromatic"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Hill", "Mountain"],
+  "treasure": ["Any"],
+  "lore": "Ancient red dragons are the most covetous and tyrannical of all chromatic dragons. They dwell in great volcanic lairs amid mountains, ruling over lesser creatures with an iron will and fiery wrath. Each red dragon considers itself the rightful ruler of all it surveys, hoarding treasure of incalculable value and demanding obeisance from all who trespass in its domain. An ancient red dragon's mere presence causes the land around its lair to buckle and smolder, and the stench of sulfur suffuses the air for miles.",
+  "armorClass": {
+    "value": 22,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 546,
+    "dice": {
+      "count": 28,
+      "die": "d20",
+      "modifier": 252
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Burrow",
+      "distance": 40
+    },
+    {
+      "type": "Climb",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 30,
+      "modifier": 10,
+      "save": 10
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 7
+    },
+    "CON": {
+      "score": 29,
+      "modifier": 9,
+      "save": 16
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 9
+    },
+    "CHA": {
+      "score": 23,
+      "modifier": 6,
+      "save": 13
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 16
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "damageImmunities": ["Fire"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 26
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "24",
+  "experiencePoints": 62000,
+  "proficiencyBonus": 7,
+  "traits": [
+    {
+      "name": "Legendary Resistance",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 4
+      }
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes one Bite attack and two Claw attacks. It can replace one attack with a use of Frightful Presence or, if available, Fire Breath.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Frightful Presence"
+      },
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Fire Breath"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +17, reach 15 ft. Hit: 21 (2d10 + 10) Piercing damage plus 14 (4d6) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 21,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 10
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +17, reach 10 ft. Hit: 17 (2d6 + 10) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 10
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the dragon's choice within 120 feet of the dragon must succeed on a DC 21 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success. A creature that succeeds on the saving throw is immune to this dragon's Frightful Presence for 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 21,
+        "targets": "each creature of the dragon's choice within 120 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 21,
+                "targets": "the Frightened creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "1 minute"
+        }
+      ]
+    },
+    {
+      "name": "Fire Breath",
+      "description": "The dragon exhales fire in a 90-foot Cone. Each creature in that area must make a DC 24 Dexterity saving throw, taking 91 (26d6) Fire damage on a failed save or half damage only on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 24,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 91,
+              "dice": {
+                "count": 26,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 90
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +17, reach 20 ft. Hit: 19 (2d8 + 10) Bludgeoning damage.",
+      "trigger": "A creature the dragon can see within 20 feet of it hits it with an attack roll.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 20,
+        "targets": "the attacker",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 10
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Detect",
+        "description": "The dragon makes a Wisdom (Perception) check.",
+        "cost": 1
+      },
+      {
+        "name": "Tail Attack",
+        "description": "The dragon makes one Tail attack. Melee Attack Roll: +17, reach 20 ft. Hit: 19 (2d8 + 10) Bludgeoning damage.",
+        "cost": 1,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 17,
+          "reach": 20,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 19,
+                "dice": {
+                  "count": 2,
+                  "die": "d8",
+                  "modifier": 10
+                },
+                "type": "Bludgeoning"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Wing Attack",
+        "description": "The dragon beats its wings. Each creature within 15 feet of the dragon must succeed on a DC 25 Dexterity saving throw or take 17 (2d6 + 10) Bludgeoning damage and have the Prone condition. The dragon can then Fly up to half its Fly Speed without provoking Opportunity Attacks.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 25,
+          "targets": "each creature within 15 feet of the dragon",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 17,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 10
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 15,
+          "centered": true
+        },
+        "conditions": [
+          {
+            "condition": "Prone"
+          }
+        ]
+      }
+    ]
+  },
+  "lair": {
+    "description": "An ancient red dragon's lair is typically found deep within a mountain or volcanic peak, its halls carved from stone and filled with the heat of magma flows. Pillars of volcanic rock support vast caverns heaped with treasure, and rivers of lava course through the complex like arteries of molten gold.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Magma Eruption",
+        "description": "Magma erupts from a point on the ground the dragon can see within 120 feet of it. Each creature within a 20-foot-radius Sphere centered on that point must make a DC 15 Dexterity saving throw, taking 21 (6d6) Fire damage on a failed save or half as much damage on a successful one.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 15,
+          "targets": "each creature within a 20-foot-radius Sphere centered on that point",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 21,
+                "dice": {
+                  "count": 6,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Fire"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "damage": [
+          {
+            "average": 21,
+            "dice": {
+              "count": 6,
+              "die": "d6",
+              "modifier": 0
+            },
+            "type": "Fire"
+          }
+        ],
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      },
+      {
+        "name": "Trembling Earth",
+        "description": "A tremor shakes the lair in a 60-foot Emanation originating from the dragon. Each creature other than the dragon in that area must succeed on a DC 15 Dexterity saving throw or have the Prone condition.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 15,
+          "targets": "each creature other than the dragon in the area",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 60,
+          "centered": true
+        },
+        "conditions": [
+          {
+            "condition": "Prone"
+          }
+        ]
+      },
+      {
+        "name": "Volcanic Gas",
+        "description": "Volcanic gases coalesce around one creature the dragon can see within 120 feet of it. The target must succeed on a DC 15 Constitution saving throw or have the Poisoned condition until the end of its next turn.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 15,
+          "targets": "one creature the dragon can see within 120 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Poisoned",
+                "duration": "until the end of its next turn"
+              }
+            ]
+          }
+        },
+        "conditions": [
+          {
+            "condition": "Poisoned",
+            "duration": "until the end of its next turn"
+          }
+        ]
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Small earthquakes are common within the region surrounding the lair.",
+        "radius": 6
+      },
+      {
+        "description": "Water sources within the region are supernaturally warm and tainted by sulfur.",
+        "radius": 6
+      },
+      {
+        "description": "Rocky fissures within the region sometimes form portals to the Elemental Plane of Fire, allowing creatures of elemental fire to pass into the world.",
+        "radius": 6,
+        "endCondition": "If the dragon dies, these regional effects fade over 1d10 days."
+      }
+    ]
+  }
+}

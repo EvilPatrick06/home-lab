@@ -1,0 +1,159 @@
+{
+  "name": "Dretch",
+  "sizes": ["Small"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Abyss)"],
+  "treasure": ["None"],
+  "lore": "Dretches are the lowliest demons of the Abyss—wretched, whimpering creatures that exist only to be abused by more powerful fiends. They are formed from the souls of slothful or selfish mortals and driven to spread misery wherever they shamble. Although individually weak, dretches can become dangerous when gathered in large, reeking mobs.",
+  "armorClass": {
+    "value": 11,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 18,
+    "dice": {
+      "count": 4,
+      "die": "d6",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    }
+  },
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 9
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 60,
+    "notes": "Telepathy works only with creatures that understand Abyssal"
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The dretch has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The dretch makes two Rend attacks.",
+    "attacks": [
+      {
+        "actionName": "Rend",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "Melee Attack Roll: +2, reach 5 ft. Hit: 4 (1d8) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 2,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Fetid Cloud",
+      "description": "A 10-foot Emanation of disgusting green gas extends from the dretch. The gas spreads around corners and lasts until the start of the dretch's next turn. Each creature that starts its turn in the Emanation must succeed on a DC 11 Constitution saving throw or have the Poisoned condition until the start of the creature's next turn.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 10,
+        "centered": true
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 11,
+        "targets": "each creature that starts its turn in the Emanation",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Poisoned",
+              "duration": "until the start of the creature's next turn"
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "No effect"
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Poisoned",
+          "duration": "until the start of the creature's next turn"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Mangonel",
+  "slug": "mangonel",
+  "category": "Siege Weapon",
+  "size": "Large",
+  "ac": 15,
+  "hp": 100,
+  "cost": "—",
+  "description": "A catapult-type siege weapon that hurls heavy projectiles in a high arc. It takes two actions to load and fire the Mangonel: Load (action), Fire (action).",
+  "attack": {
+    "toHit": 5,
+    "damage": "5d10",
+    "damageType": "Bludgeoning",
+    "averageDamage": 27,
+    "range": {
+      "normal": 200,
+      "long": 800
+    }
+  },
+  "crew": 5,
+  "actionsToOperate": [
+    {
+      "action": "Load",
+      "description": "Two creatures use their actions to winch the throwing arm into firing position and load a stone."
+    },
+    { "action": "Fire", "description": "One creature uses its action to release the throwing arm." }
+  ],
+  "immunities": ["Poison", "Psychic"],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

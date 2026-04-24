@@ -1,0 +1,72 @@
+{
+  "name": "Weretiger",
+  "slug": "weretiger",
+  "size": "Medium or Small",
+  "type": "Monstrosity",
+  "alignment": "Neutral",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "120",
+  "hpFormula": "16d8 + 48",
+  "speed": "30 ft., 40 ft. (tiger form only)",
+  "abilityScores": {
+    "str": 17,
+    "dex": 15,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 2,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +5, Stealth +4",
+  "gear": "Longbow",
+  "senses": "Darkvision 60 ft.; Passive Perception 15",
+  "languages": "Common (can't speak in tiger form)",
+  "cr": "4 (XP 1,100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The weretiger makes two attacks, using Scratch or Longbow in any combination. It can replace one attack with a Bite attack."
+    },
+    {
+      "name": "Bite (Tiger or Hybrid Form Only)",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 12 (2d8 + 3) Piercing damage. If the target is a Humanoid, it is subjected to the following effect. *Constitution Saving Throw:* DC 13. *Failure:* The target is cursed. If the cursed target drops to 0 Hit Points, it instead becomes a **Weretiger** under the DM's control and has 10 Hit Points. *Success:* The target is immune to this weretiger's curse for 24 hours."
+    },
+    {
+      "name": "Scratch",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 10 (2d6 + 3) Slashing damage."
+    },
+    {
+      "name": "Longbow (Humanoid or Hybrid Form Only)",
+      "description": "*Ranged Attack Roll:* +4, range 150/600 ft. *Hit:* 11 (2d8 + 2) Piercing damage."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Prowl (Tiger or Hybrid Form Only)",
+      "description": "The weretiger moves up to its Speed without provoking Opportunity Attacks. At the end of this movement, the weretiger can take the Hide action."
+    },
+    {
+      "name": "Shape-Shift",
+      "description": "The weretiger shape-shifts into a Large tiger-humanoid hybrid or a Large tiger, or it returns to its true humanoid form. Its game statistics, other than its size, are the same in each form. Any equipment it is wearing or carrying isn't transformed."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Changed by the Power of the Tiger*\n**Habitat:** Desert, Forest, Grassland; **Treasure:** Armaments\nWeretigers shape-shift from humanoid forms into tigers or tiger-humanoid hybrids. Although they can transform at will or when their magical nature demands, many weretigers are nocturnal and transform into their bestial shapes at night. Some weretigers' transformations might also be tied to the crescent moon, seasons, or momentous events. Weretigers often view their abilities as a blessing or a family honor, and they use their shape-shifting abilities to defend something with historic importance. Roll on or choose a result from the Weretiger Wards table to inspire what a weretiger defends.\n> \"I hunt evil like the great cat hunts its prey, but evil will not long yield to blade alone. It takes strength, honor, and sometimes a little more.\" — Delmair Rallyhorn, weretiger",
+  "habitat": "Desert, Forest, Grassland",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Lycanthropes",
+    "file": "Lycanthropes.md"
+  }
+}

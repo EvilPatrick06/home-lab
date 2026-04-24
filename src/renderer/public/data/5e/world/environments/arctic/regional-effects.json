@@ -1,0 +1,41 @@
+{
+  "biome": "Arctic",
+  "legendaryEffects": [
+    {
+      "source": "Ancient White Dragon",
+      "effects": [
+        "Freezing fog lightly obscures the land within 6 miles of the lair.",
+        "Icy walls and barriers spring up in and around the lair to channel intruders.",
+        "Blizzards rage within 6 miles of the lair. A creature without cold weather gear must succeed on a DC 10 Constitution saving throw at the end of each hour or gain one level of exhaustion."
+      ],
+      "radius": "6 miles"
+    },
+    {
+      "source": "Frost Giant Jarl",
+      "effects": [
+        "Heavy snowfall blankets the region, reducing visibility and travel speed by half.",
+        "Wild game becomes scarce as animals flee the area, making foraging checks DC 20.",
+        "Crevasses and ice bridges become treacherous; Dexterity (Acrobatics) checks to traverse ice are made at disadvantage."
+      ],
+      "radius": "3 miles"
+    }
+  ],
+  "naturalHazards": [
+    {
+      "name": "Extreme Cold",
+      "description": "Whenever the temperature is at or below 0 degrees Fahrenheit, a creature exposed to the cold must succeed on a DC 10 Constitution saving throw at the end of each hour or gain one level of exhaustion. Creatures with resistance or immunity to cold damage, as well as creatures wearing cold weather gear, automatically succeed."
+    },
+    {
+      "name": "Thin Ice",
+      "description": "Thin ice has a weight tolerance of 3d10 x 10 pounds per 10-foot area. When the ice breaks, a creature falls into frigid water and must succeed on a DC 10 Constitution saving throw or gain one level of exhaustion. Each minute spent in frigid water requires another saving throw."
+    },
+    {
+      "name": "Avalanche",
+      "description": "An avalanche covers a path 1d6 x 100 feet wide and 2d4 x 100 feet long. Creatures in the path must make a DC 15 Dexterity saving throw. On a failure, a creature takes 4d10 bludgeoning damage, is buried, and is Restrained. On a success, a creature takes half damage and is pushed to the edge."
+    },
+    {
+      "name": "Whiteout",
+      "description": "Heavy snowfall or blowing snow reduces visibility to 5 feet. Navigation checks are made at disadvantage, and creatures must succeed on a DC 15 Wisdom (Survival) check each hour or become lost."
+    }
+  ]
+}

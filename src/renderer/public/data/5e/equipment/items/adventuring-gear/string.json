@@ -1,0 +1,13 @@
+{
+  "name": "String",
+  "cost": "1 SP",
+  "weight": "—",
+  "description": "10 feet long. Tie a knot as Utilize action.",
+  "slug": "string",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

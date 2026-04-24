@@ -1,0 +1,935 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Plane of Ash",
+          "Plane of Ice",
+          "Plane of Magma",
+          "Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "acheron",
+      "name": "Acheron",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Lawful Evil", "Lawful Neutral"],
+      "philosophicalEssence": "Enforced order where rigid conformity leads to crushed spirits and broken hopes. Unending conflict without cause or purpose.",
+      "emotionalInfluence": "The nature of Acheron instills bloodlust in those who visit the plane.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "toward_nearest_surface",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Immense iron blocks drifting through an airy void, sometimes colliding with a fearsome clang. The largest blocks gravitate to the top layer. Tiny shards from the lowest layer are gradually assembled and organized, perhaps under the influence of nearby Mechanus, into the perfect cubes of Avalas.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "An airy void exists between the iron blocks.",
+        "temperature": {
+          "category": "variable",
+          "description": "Varies by layer; upper layers have iron surfaces, lowest layer (Ocanthus) features black ice and icy mire."
+        },
+        "hasSurface": true,
+        "dominantElement": "Iron and metal",
+        "weatherPatterns": "Collisions of immense iron blocks send shudders through the plane. Maelstroms of razor-sharp debris occur on the lowest layer."
+      },
+      "layers": [
+        {
+          "name": "Avalas",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "Spirit soldiers wage endless wars across debris-strewn battlefields. The largest iron blocks gravitate here, forming perfect cubes assembled from shards originating in Ocanthus, possibly under the influence of nearby Mechanus.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Colliding Iron Cubes",
+              "description": "Immense iron blocks sometimes collide with a fearsome clang, crushing all between them and sending shudders through the plane."
+            },
+            {
+              "name": "Endless Warfare",
+              "description": "Spirit soldiers wage endless wars across debris-strewn battlefields. The spirits can't conceive of anyone refusing to obey the will of their commanders."
+            }
+          ],
+          "environmentalDescription": "Debris-strewn battlefields across immense iron cubes, the metallic surfaces ringing beneath the marching feet of endless armies.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Thuldanin",
+          "alternateNames": [],
+          "layerNumber": 2,
+          "description": "Pitted, hollow cubes are filled with the cast-off machinery of war.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Cast-off Machinery of War",
+              "description": "Hollow cubes filled with discarded war machinery. A villain might scavenge Thuldanin for some new horror of warfare to be unleashed on the battlefield."
+            }
+          ],
+          "environmentalDescription": "Pitted, hollow cubes filled with the cast-off machinery of war.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Tintibulus",
+          "alternateNames": [],
+          "layerNumber": 3,
+          "description": "Jagged blocks tumble in darkness, holding frozen memories sapped by the River Styx and crystallized into fleeting images.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Tumbling Jagged Blocks",
+              "description": "Jagged blocks tumble in darkness, posing physical danger to travelers."
+            },
+            {
+              "name": "Crystallized Memories",
+              "description": "Frozen memories sapped by the River Styx are crystallized into fleeting images within the blocks. These imprisoned thoughts or memories may hold secrets."
+            }
+          ],
+          "environmentalDescription": "Jagged blocks tumbling in darkness with crystallized fleeting images of frozen memories.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Ocanthus",
+          "alternateNames": [],
+          "layerNumber": 4,
+          "description": "Maelstroms of razor-sharp debris swirl above a mire of black ice. Tiny shards break off from the icy mire in its deepest recesses and are gradually assembled into the perfect cubes of Avalas.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Razor-Sharp Debris Maelstroms",
+              "description": "Maelstroms of razor-sharp debris swirl above a mire of black ice, posing extreme danger to travelers."
+            },
+            {
+              "name": "Black Ice Mire",
+              "description": "An icy mire in the deepest recesses of the layer from which tiny shards break off."
+            }
+          ],
+          "environmentalDescription": "Maelstroms of razor-sharp debris swirling above a mire of black ice.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 4,
+      "timeFlow": {
+        "type": "normal",
+        "description": "No special time flow rules are specified for Acheron."
+      },
+      "hazards": [
+        {
+          "id": "acheron-bloodlust",
+          "name": "Bloodlust of Acheron",
+          "description": "The nature of Acheron instills bloodlust in those who visit the plane. See Environmental Effects in chapter 3 of the DMG.",
+          "category": "emotional",
+          "severity": "moderate",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 3: Environmental Effects (DMG 2024)"
+        },
+        {
+          "id": "acheron-colliding-blocks",
+          "name": "Colliding Iron Blocks",
+          "description": "The immense iron blocks of Acheron sometimes collide with a fearsome clang, crushing all between them and sending shudders through the plane.",
+          "category": "physical",
+          "severity": "lethal",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology"
+        },
+        {
+          "id": "acheron-ocanthus-debris",
+          "name": "Ocanthus Razor-Sharp Debris Maelstroms",
+          "description": "On the lowest layer, Ocanthus, maelstroms of razor-sharp debris swirl above a mire of black ice.",
+          "category": "physical",
+          "severity": "severe",
+          "areaOfEffect": {
+            "shape": "layer_wide",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "acheron-bloodlust-effect",
+          "name": "Acheron Bloodlust",
+          "description": "The nature of Acheron instills bloodlust in those who visit the plane.",
+          "mechanicalEffect": "Visitors to Acheron are instilled with bloodlust. Full mechanical details are provided in Environmental Effects in chapter 3 of the DMG 2024.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Bloodlust — an overwhelming urge toward violent conflict.",
+          "sourceReference": "Chapter 3: Environmental Effects (DMG 2024)"
+        }
+      ],
+      "portals": [
+        {
+          "id": "acheron-rigus-gate",
+          "type": "gate_town",
+          "name": "Rigus Gate",
+          "destination": "Rigus",
+          "destinationPlane": "Outlands",
+          "bidirectional": true
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "acheron-river-styx",
+          "name": "River Styx through Acheron",
+          "type": "river",
+          "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+          "description": "The River Styx churns through the top layers of Acheron. The ill effects of the Styx are described under Hazards in chapter 3 of the DMG. Sinister ferries float on the waters of the Styx, crewed by pilots skilled in negotiating the unpredictable currents and eddies of the river. For a price, these pilots carry passengers from plane to plane. Some pilots are Fiends, while others are the souls of dead creatures from the Material Plane.",
+          "hazards": ["Memory loss from contact with the waters of the Styx (see chapter 3 Hazards)"],
+          "isOneWay": false,
+          "navigableBy": ["sinister ferries", "skilled pilots"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend", "Humanoid"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Spirit Armies of Avalas",
+            "description": "Spirit soldiers who wage endless wars across debris-strewn battlefields. They are dedicated soldiers, forever lacking a cause. They can't conceive of anyone refusing to obey the will of their commanders.",
+            "location": "Avalas"
+          }
+        ]
+      },
+      "specialRules": [],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Celestial"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on Acheron, a Celestial makes a DC 10 Constitution saving throw. This applies because Acheron has a Lawful Evil alignment component, making it a Lower Plane that is alien to Celestials' nature.",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "customCondition": "Planar Dissonance",
+            "cumulative": true,
+            "cumulativeDescription": "The d4 subtraction is cumulative with each failed save.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            },
+            "exhaustionLevels": 0
+          },
+          "onSuccess": {
+            "description": "The creature resists the planar dissonance for this rest period.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": ["Fiend"],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": false,
+          "recoveryMethods": [
+            "Finishing a Long Rest on a plane that isn't opposed to the creature's nature ends all cumulative planar dissonance effects."
+          ],
+          "failureProbabilityAtDC": {
+            "dc": 10,
+            "noModifierFailChance": 0.45,
+            "commonModifierRange": {
+              "low": 2,
+              "high": 5
+            },
+            "failChanceAtLowMod": 0.35,
+            "failChanceAtHighMod": 0.2
+          }
+        },
+        "description": "Celestials who visit Acheron (a Lower Plane due to its Lawful Evil alignment component) experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane alien to its nature, a Celestial makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [
+        {
+          "id": "acheron-rigus-gatetown",
+          "name": "Rigus",
+          "type": "Gate-town",
+          "description": "The gate-town in the Outlands whose portal leads to Acheron. Like all gate-towns, Rigus shares many of the characteristics of the plane where its gate leads.",
+          "hazards": [],
+          "portalDestination": "Acheron"
+        }
+      ],
+      "adventureThemes": [
+        "Confrontation with the bleak nihilism of unending conflict",
+        "Harsh reality of authoritarian rule",
+        "Uncaring pressures of social conformity",
+        "Grappling with the question of what one is fighting for, among armies that have forgotten how to even ask the question",
+        "Preventing a villain from scavenging Thuldanin for new horrors of warfare",
+        "Retrieving secrets from imprisoned thoughts or memories in the blocks of Tintibulus"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Flame red",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3: Environmental Effects — Acheron bloodlust effect details"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3: Hazards — River Styx ill effects"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "river-styx",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries of the Styx snake through lower layers of these planes. Sinister ferries float on the waters of the Styx, crewed by pilots skilled in negotiating the unpredictable currents and eddies.",
+      "hazards": ["Memory-wiping waters (see chapter 3 Hazards)"],
+      "isOneWay": false,
+      "navigableBy": ["sinister ferries", "skilled planar pilots"]
+    },
+    {
+      "id": "infinite-staircase",
+      "name": "Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": ["All planes"],
+      "description": "An extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down.",
+      "hazards": ["Guarded by devas, sphinxes, yugoloths, and other powerful monsters"],
+      "isOneWay": false,
+      "navigableBy": ["foot travel"]
+    },
+    {
+      "id": "yggdrasil",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Astral Plane", "Material Plane"],
+      "description": "A cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Most of its massive trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+      "isOneWay": false,
+      "navigableBy": ["climbing", "expert guides"]
+    }
+  ],
+  "bloodWar": {
+    "description": "Throughout history, the teeming demon hordes of the Abyss and the regimented legions of devils from the Nine Hells have battled for supremacy in the cosmos. The Blood War has raged for millennia, ravaging the Lower Planes. The battlefields are concentrated in the Nine Hells and the Abyss, though fighting also takes place on the Material Plane, on the planes between those realms on the Great Wheel, and anywhere else demons and devils congregate.",
+    "primaryBattlefields": ["Nine Hells", "Abyss"],
+    "factions": [
+      {
+        "name": "Demon Hordes",
+        "planeOfOrigin": "Abyss",
+        "creatureType": "Fiend (Demon)",
+        "role": "Teeming chaotic assault forces seeking supremacy in the cosmos"
+      },
+      {
+        "name": "Devil Legions",
+        "planeOfOrigin": "Nine Hells",
+        "creatureType": "Fiend (Devil)",
+        "role": "Regimented legions of lawful evil soldiers battling for cosmic supremacy"
+      }
+    ],
+    "spilloverPlanes": ["Material Plane", "Acheron", "Gehenna", "Hades", "Carceri"],
+    "adventureImplications": "Many demons and devils are obsessed with finding some advantage for their side in the Blood War, and powerful mortal adventurers are sometimes drawn into tangled schemes to that end. Open conflict between Fiends is a constant threat on most of the Lower Planes. Natives of the Upper Planes also have roles to play, standing ready to intervene whenever the Blood War spills outside the Abyss and the Nine Hells."
+  },
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some function like doorways, others are locations that exist on multiple planes at once or flicker between planes, and some are vortices joining planes with similar locations.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting portal requirements (command, key item, random timing, situation, or time-based)",
+        "Potentially bypassing guardians"
+      ],
+      "associatedSpells": [],
+      "risks": [
+        "Guardians charged with ensuring certain creatures don't pass through",
+        "Portal requirements may be difficult to discover or fulfill"
+      ],
+      "destinations": ["Any plane, depending on the specific portal"]
+    },
+    {
+      "id": "spells-planar-travel",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Ability to cast the relevant spell", "Spell components"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in arrival location"],
+      "destinations": ["Any plane, depending on the spell used"]
+    }
+  ],
+  "infernalHierarchy": [
+    {
+      "rank": 1,
+      "title": "Lemure",
+      "category": "Least Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Imp"],
+      "canDemoteTo": [],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "N/A - lowest rank"
+    },
+    {
+      "rank": 2,
+      "title": "Imp",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Spined devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 3,
+      "title": "Spined devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bearded devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 4,
+      "title": "Bearded devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Barbed devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 5,
+      "title": "Barbed devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Chain devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 6,
+      "title": "Chain devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 7,
+      "title": "Bone devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Horned devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 8,
+      "title": "Horned devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Erinyes"],
+      "canDemoteTo": ["Bone devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 9,
+      "title": "Erinyes",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Ice devil"],
+      "canDemoteTo": ["Chain devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 10,
+      "title": "Ice devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Pit fiend"],
+      "canDemoteTo": ["Barbed devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 11,
+      "title": "Pit fiend",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Duke/duchess"],
+      "canDemoteTo": ["Horned devil", "Lemure"],
+      "promotionAuthority": "Asmodeus only for promotion to archdevil",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 12,
+      "title": "Duke/duchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Archduke/archduchess"],
+      "canDemoteTo": ["Pit fiend", "Lemure"],
+      "promotionAuthority": "Asmodeus",
+      "demotionAuthority": "Asmodeus"
+    },
+    {
+      "rank": 13,
+      "title": "Archduke/archduchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": [],
+      "canDemoteTo": ["Duke/duchess", "Lemure"],
+      "promotionAuthority": "Asmodeus",
+      "demotionAuthority": "Asmodeus"
+    }
+  ],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds an additional 1d4 subtracted from D20 Tests.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "exhaustionLevels": 0
+      },
+      "onSuccess": {
+        "description": "The creature resists planar dissonance for this Long Rest period.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryMethods": [
+        "Finishing a Long Rest on a plane that isn't opposed to the creature's nature ends all cumulative planar dissonance effects."
+      ],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 2,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.35,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

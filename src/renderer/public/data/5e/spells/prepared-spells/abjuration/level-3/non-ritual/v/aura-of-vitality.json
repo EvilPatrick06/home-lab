@@ -1,0 +1,44 @@
+{
+  "name": "Aura of Vitality",
+  "level": 3,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Druid", "Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "An aura radiates from you in a 30-foot Emanation for the duration. When you create the aura and at the start of each of your turns while it persists, you can restore 2d6 Hit Points to one creature in it.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 30,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetCount": 1,
+  "targetType": "creature",
+  "healing": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 6
+      },
+      "applicationType": "onTurnStart"
+    }
+  ],
+  "tags": ["healing", "aura"]
+}

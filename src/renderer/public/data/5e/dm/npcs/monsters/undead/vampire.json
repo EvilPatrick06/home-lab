@@ -1,0 +1,94 @@
+{
+  "name": "Vampire",
+  "slug": "vampire",
+  "size": "Medium or Small",
+  "type": "Undead",
+  "alignment": "Lawful Evil",
+  "ac": "16",
+  "initiative": "+14 (24)",
+  "hp": "195",
+  "hpFormula": "23d8 + 92",
+  "speed": "40 ft., Climb 40 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 18,
+    "con": 18,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 9,
+    "con": 9,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +7, Stealth +9",
+  "resistances": "Necrotic",
+  "senses": "Darkvision 120 ft.; Passive Perception 17",
+  "languages": "Common plus two other languages",
+  "cr": "13 (XP 10,000, or 11,500 in lair; PB +5)",
+  "traits": [
+    {
+      "name": "Legendary Resistance (3/Day, or 4/Day in Lair)",
+      "description": "If the vampire fails a saving throw, it can choose to succeed instead."
+    },
+    {
+      "name": "Misty Escape",
+      "description": "If the vampire drops to 0 Hit Points outside its resting place, the vampire uses Shape-Shift to become mist (no action required). If it can't use Shape-Shift, it is destroyed."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The vampire can climb difficult surfaces, including along ceilings, without needing to make an ability check."
+    },
+    {
+      "name": "Vampire Weakness",
+      "description": "The vampire has these weaknesses:"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack (Vampire Form Only)",
+      "description": "The vampire makes two Grave Strike attacks and uses Bite."
+    },
+    {
+      "name": "Grave Strike (Vampire Form Only)",
+      "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 8 (1d8 + 4) Bludgeoning damage plus 7 (2d6) Necrotic damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 14) from one of two hands."
+    },
+    {
+      "name": "Bite (Bat or Vampire Form Only)",
+      "description": "*Constitution Saving Throw:* DC 17, one creature within 5 feet that is willing or that has the Grappled, Incapacitated, or Restrained condition. *Failure:* 6 (1d4 + 4) Piercing damage plus 13 (3d8) Necrotic damage. The target's Hit Point maximum decreases by an amount equal to the Necrotic damage taken, and the vampire regains Hit Points equal to that amount. A Humanoid reduced to 0 Hit Points by this damage and then buried rises the following sunset as a **Vampire Spawn** under the vampire's control."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Charm (Recharge 5--6)",
+      "description": "The vampire casts *Charm Person*, requiring no spell components and using Charisma as the spellcasting ability (spell save DC 17), and the duration is 24 hours. The Charmed target is a willing recipient of the vampire's Bite, the damage of which doesn't end the spell. When the spell ends, the target is unaware it was Charmed by the vampire."
+    },
+    {
+      "name": "Shape-Shift",
+      "description": "If the vampire isn't in sunlight or running water, it shape-shifts into a Tiny bat (Speed 5 ft., Fly Speed 30 ft.) or a Medium cloud of mist (Speed 5 ft., Fly Speed 20 ft. [hover]), or it returns to its vampire form. Anything it is wearing transforms with it."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [
+    {
+      "name": "Beguile",
+      "description": "The vampire casts *Command*, requiring no spell components and using Charisma as the spellcasting ability (spell save DC 17). The vampire can't take this action again until the start of its next turn."
+    },
+    {
+      "name": "Deathless Strike",
+      "description": "The vampire moves up to half its Speed, and it makes one Grave Strike attack."
+    }
+  ],
+  "lore": "*Blood-Sucking Lords of the Night*\n**Habitat:** Underdark, Urban; **Treasure:** Any\nVampires disguise their accursed, immortal natures, passing as mortals to feed on the blood of the living. While the youngest vampires might be little more than bloodthirsty servants of their creators, the eldest possess incredible cunning and control over supernatural forces of the night.\nUndead vampires lie dormant during the day, retreating to resting places hidden from foes and the sun's searing rays. Roll on or choose a result from the Vampire Resting Places table to inspire a vampire's grim sanctuary.\nVampire familiars are living people who serve vampires, either willingly or due to coercion by their deathless masters. They channel deathly energy through their weapons, incapacitating unsuspecting targets and leaving their victims as helpless prey for their vampire masters.\nMany vampire familiars aspire to eventually become vampires, while others are magically charmed or serve as part of some terrible bargain. In each case, these vampire servants show signs of their vampiric corruption, such as corpse-like complexions, uncanny reflexes, and evidence of their masters' repeated feedings. A vampire familiar loses its supernatural abilities and returns to its original Humanoid state if its vampire master is destroyed.\nVampire spawn are newly created vampires. They have yet to fully master their abilities, and many are consumed by their thirst for blood. Vampire spawn might serve more powerful vampires or pursue their own depraved agendas.\nBorn of necromantic rituals and planes of existence suffused with negative energy, vampire nightbringers manipulate shadows and feed on the raw life force of living creatures.\nVampires are terrifying hunters and manipulators. They use their powers to shape-shift and bend other creatures' wills as they terrorize and feed on populations over generations.\nVampire umbral lords embrace their ties to the darkness, devoting themselves to sinister powers in exchange for access to forbidden magic.\nVampires and vampire umbral lords create sanctuaries apart from the living, whether hidden in cosmopolitan cities or sequestered in ruins where they dwelled in life.\nThe region containing a vampire's lair is warped by its presence, creating the following effects:\n**Children of the Night.** The vampire exerts influence over the animals in its domain. From dusk until dawn, Medium or smaller Beasts have the Charmed condition while within 1 mile of the lair.\n**Looming Shadows.** Shadows within 1 mile of the lair seem to move as if alive. Any creature (excluding the vampire and its allies) that finishes a Short Rest while within 1 mile of the lair must succeed on a DC 15 Wisdom saving throw or gain no benefit from that rest.\n**Mists.** The area within 1 mile of the lair is Lightly Obscured by a persistent, creeping fog. The vampire and any creatures of its choice are unaffected by the fog.\nIf the vampire dies or moves its lair elsewhere, these effects end immediately.",
+  "habitat": "Underdark, Urban",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

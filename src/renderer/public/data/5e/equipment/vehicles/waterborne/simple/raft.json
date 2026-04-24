@@ -1,0 +1,19 @@
+{
+  "name": "Raft",
+  "slug": "raft",
+  "category": "Waterborne Vehicle",
+  "type": "Simple",
+  "cost": "—",
+  "weight": "—",
+  "speed": "0.5 mph",
+  "crew": 1,
+  "passengers": 4,
+  "cargoTons": 0.25,
+  "description": "A simple platform of logs or planks lashed together. Can be crafted from natural materials with appropriate tools and time. Travels with the current; difficult to maneuver against it.",
+  "craftable": true,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Waterborne Vehicles"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Spellguard Shield",
+  "slug": "spellguard-shield",
+  "type": "Armor (Shield)",
+  "rarity": "Very Rare",
+  "attunement": true,
+  "description": "While holding this Shield, you have Advantage on saving throws against spells and other magical effects, and spell attack rolls have Disadvantage against you.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "Revivify",
+  "level": 3,
+  "school": "Necromancy",
+  "classes": ["Cleric", "Druid", "Paladin", "Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a diamond worth 300+ GP, which the spell consumes",
+      "cost": 300,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You touch a creature that has died within the last minute. That creature revives with 1 Hit Point. This spell can't revive a creature that has died of old age, nor does it restore any missing body parts.",
+  "targetType": "creature",
+  "resurrection": {
+    "maxDeadTime": "1 minute",
+    "hpRestored": 1,
+    "restrictions": "Can't revive a creature that died of old age; doesn't restore missing body parts"
+  },
+  "tags": ["Resurrection"]
+}

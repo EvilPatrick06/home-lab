@@ -1,0 +1,20 @@
+{
+  "name": "Oil of Slipperiness",
+  "cost": {
+    "amount": 200,
+    "denomination": "GP"
+  },
+  "weight": 0.5,
+  "description": "This sticky black unguent is thick and heavy in the container, but it flows quickly when poured. The oil can cover a Medium or smaller creature, along with the equipment it's wearing and carrying (one additional vial is required for each size category above Medium). Applying the oil takes 10 minutes. The affected creature then gains the effect of a Freedom of Movement spell for 8 hours. Alternatively, the oil can be poured on the ground as a Utilize action, where it covers a 10-foot-square area, duplicating the effect of the Grease spell in that area for 8 hours.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "dcFormula": "10"
+  },
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

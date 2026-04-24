@@ -1,0 +1,13 @@
+{
+  "name": "Holy Water",
+  "cost": "25 GP",
+  "weight": "1 lb.",
+  "description": "Replace an attack to throw at a creature within 20 feet. DC 8 + Dex mod + Prof Bonus Dex save or take 2d8 Radiant damage if Fiend or Undead.",
+  "slug": "holy-water",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

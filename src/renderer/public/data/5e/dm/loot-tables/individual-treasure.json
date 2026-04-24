@@ -1,0 +1,52 @@
+{
+  "id": "individual-treasure",
+  "name": "Individual Treasure",
+  "description": "When an individual creature has treasure, roll on the appropriate table based on the creature's CR.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Treasure Tables"
+  },
+  "tables": [
+    {
+      "crRange": "0-4",
+      "label": "Individual Treasure: CR 0-4",
+      "rolls": [
+        { "d100Min": 1, "d100Max": 30, "reward": "5d6 CP" },
+        { "d100Min": 31, "d100Max": 60, "reward": "4d6 SP" },
+        { "d100Min": 61, "d100Max": 70, "reward": "3d6 EP" },
+        { "d100Min": 71, "d100Max": 95, "reward": "3d6 GP" },
+        { "d100Min": 96, "d100Max": 100, "reward": "1d6 PP" }
+      ]
+    },
+    {
+      "crRange": "5-10",
+      "label": "Individual Treasure: CR 5-10",
+      "rolls": [
+        { "d100Min": 1, "d100Max": 30, "reward": "4d6 x 100 CP, 1d6 x 10 EP" },
+        { "d100Min": 31, "d100Max": 60, "reward": "6d6 x 10 SP, 2d6 x 10 GP" },
+        { "d100Min": 61, "d100Max": 70, "reward": "3d6 x 10 EP, 2d6 x 10 GP" },
+        { "d100Min": 71, "d100Max": 95, "reward": "4d6 x 10 GP" },
+        { "d100Min": 96, "d100Max": 100, "reward": "2d6 x 10 GP, 3d6 PP" }
+      ]
+    },
+    {
+      "crRange": "11-16",
+      "label": "Individual Treasure: CR 11-16",
+      "rolls": [
+        { "d100Min": 1, "d100Max": 20, "reward": "4d6 x 100 SP, 1d6 x 100 GP" },
+        { "d100Min": 21, "d100Max": 35, "reward": "1d6 x 100 EP, 1d6 x 100 GP" },
+        { "d100Min": 36, "d100Max": 75, "reward": "2d6 x 100 GP, 1d6 x 10 PP" },
+        { "d100Min": 76, "d100Max": 100, "reward": "2d6 x 100 GP, 2d6 x 10 PP" }
+      ]
+    },
+    {
+      "crRange": "17+",
+      "label": "Individual Treasure: CR 17+",
+      "rolls": [
+        { "d100Min": 1, "d100Max": 15, "reward": "2d6 x 1000 EP, 8d6 x 100 GP" },
+        { "d100Min": 16, "d100Max": 55, "reward": "1d6 x 1000 GP, 1d6 x 100 PP" },
+        { "d100Min": 56, "d100Max": 100, "reward": "1d6 x 1000 GP, 2d6 x 100 PP" }
+      ]
+    }
+  ]
+}

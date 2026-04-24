@@ -1,0 +1,34 @@
+{
+  "id": "warrior-of-the-elements",
+  "name": "Warrior of the Elements",
+  "className": "Monk",
+  "level": 3,
+  "description": "Wield Strikes and Bursts of Elemental Power",
+  "features": [
+    {
+      "name": "Elemental Attunement",
+      "level": 3,
+      "description": "At the start of your turn, you can expend 1 Focus Point to imbue yourself with elemental energy for 10 minutes or until you have the Incapacitated condition. You gain the following benefits while this feature is active: Reach - When you make an Unarmed Strike, your reach is 10 feet greater than normal. Elemental Strikes - Whenever you hit with your Unarmed Strike, you can cause it to deal your choice of Acid, Cold, Fire, Lightning, or Thunder damage. When you deal one of these types, you can also force the target to make a Strength saving throw, and on a failed save, you can move the target up to 10 feet toward or away from you."
+    },
+    {
+      "name": "Manipulate Elements",
+      "level": 3,
+      "description": "You know the *Elementalism* spell, and Wisdom is your spellcasting ability for it."
+    },
+    {
+      "name": "Elemental Burst",
+      "level": 6,
+      "description": "As a Magic action, you can expend 2 Focus Points to cause elemental energy to burst in a 20-foot-radius Sphere centered on a point within 120 feet of yourself. Choose a damage type: Acid, Cold, Fire, Lightning, or Thunder. Each creature in the Sphere must make a Dexterity saving throw, taking damage of the chosen type equal to three rolls of your Martial Arts die on a failed save, or half as much on a successful save."
+    },
+    {
+      "name": "Stride of the Elements",
+      "level": 11,
+      "description": "While your Elemental Attunement is active, you also have a Fly Speed and a Swim Speed equal to your Speed."
+    },
+    {
+      "name": "Elemental Epitome",
+      "level": 17,
+      "description": "While your Elemental Attunement is active, you also gain the following benefits: Damage Resistance - You gain Resistance to one of the following damage types of your choice: Acid, Cold, Fire, Lightning, or Thunder. You can change this choice at the start of each of your turns. Destructive Stride - When you use your Step of the Wind, your Speed increases by 20 feet until the end of the turn. For that duration, any creature of your choice takes damage equal to one roll of your Martial Arts die when you enter a space within 5 feet of it. Empowered Strikes - Once on each of your turns, you can deal extra damage to a target equal to one roll of your Martial Arts die when you hit it with an Unarmed Strike."
+    }
+  ]
+}

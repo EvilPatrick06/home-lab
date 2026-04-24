@@ -1,0 +1,158 @@
+{
+  "name": "Wyvern",
+  "sizes": ["Large"],
+  "creatureType": "Dragon",
+  "alignment": "Unaligned",
+  "habitat": ["Hill", "Mountain"],
+  "treasure": ["None"],
+  "lore": "Wyverns are aggressive, territorial predators that claim vast stretches of sky as their hunting grounds. Smaller and less intelligent than true dragons, wyverns lack breath weapons and the ability to speak but compensate with a lethal, venomous stinger at the tip of their tails. They attack any creatures that encroach on their territory, swooping down from clifftop roosts to snatch prey in their talons. Evil creatures sometimes ally with or domesticate wyverns as aerial mounts, though such arrangements demand a steady supply of fresh meat.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 110,
+    "dice": {
+      "count": 13,
+      "die": "d10",
+      "modifier": 39
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "multiattack": {
+    "description": "The wyvern makes two attacks: one Bite attack and one Stinger attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Stinger",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +7, reach 10 ft. Hit: 11 (2d6 + 4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Stinger",
+      "description": "Melee Attack Roll: +7, reach 10 ft. Hit: 11 (2d6 + 4) Piercing damage plus 24 (7d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 24,
+              "dice": {
+                "count": 7,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

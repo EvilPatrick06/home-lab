@@ -1,0 +1,20 @@
+{
+  "name": "Ring of Animal Influence",
+  "cost": {
+    "amount": 4000,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "Ring, Rare (Requires Attunement). This ring has 3 charges and regains 1d3 expended charges daily at dawn. While wearing the ring, you can expend 1 of its charges to cast one of the following spells (save DC 13): Animal Friendship, Fear (targeting beasts only), or Speak with Animals.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "None",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "dcFormula": "13"
+  },
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

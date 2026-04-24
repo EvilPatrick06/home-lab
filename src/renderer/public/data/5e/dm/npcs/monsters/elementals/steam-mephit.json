@@ -1,0 +1,196 @@
+{
+  "name": "Steam Mephit",
+  "sizes": ["Small"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "lore": "Steam mephits are small, temperamental elementals born from the meeting of fire and water. They delight in scalding others and take perverse pleasure in obscuring vision with billowing clouds of hot vapor. When destroyed, they burst apart in an explosion of searing steam.",
+  "armorClass": {
+    "value": 10
+  },
+  "hitPoints": {
+    "average": 21,
+    "dice": {
+      "count": 6,
+      "die": "d6",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Aquan", "Ignan"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Death Burst",
+      "description": "When the mephit dies, it explodes in a burst of steam. Each creature within 5 feet of it must succeed on a DC 10 Dexterity saving throw or take 4 (1d8) Fire damage."
+    },
+    {
+      "name": "Mist Form",
+      "description": "The mephit can occupy another creature's space and vice versa, and the mephit can move through a space as narrow as 1 inch wide without squeezing."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Blur",
+      "ability": "CHA",
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Blur",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +2, reach 5 ft. Hit: 2 (1d4) Slashing damage plus 2 (1d4) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 2,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Steam Breath",
+      "description": "The mephit exhales scalding steam in a 15-foot Cone. Each creature in that area must make a DC 10 Dexterity saving throw, taking 4 (1d8) Fire damage on a failed save or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 10,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 15
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Blur",
+      "description": "The mephit casts Blur, requiring no spell components and using Charisma as the spellcasting ability.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      }
+    }
+  ]
+}

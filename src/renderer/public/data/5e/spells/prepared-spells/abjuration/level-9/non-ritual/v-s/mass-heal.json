@@ -1,0 +1,35 @@
+{
+  "name": "Mass Heal",
+  "level": 9,
+  "school": "Abjuration",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A flood of healing energy flows from you into creatures around you. You restore up to 700 Hit Points, divided as you choose among any number of creatures that you can see within range. Creatures healed by this spell also have the Blinded, Deafened, and Poisoned conditions removed from them.",
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "healing": [
+    {
+      "flat": 700,
+      "applicationType": "onCast"
+    }
+  ],
+  "conditionsRemoved": ["Blinded", "Deafened", "Poisoned"],
+  "tags": ["healing", "condition-removal"]
+}

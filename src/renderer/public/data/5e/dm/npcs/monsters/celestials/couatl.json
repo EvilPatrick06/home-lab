@@ -1,0 +1,289 @@
+{
+  "name": "Couatl",
+  "sizes": ["Medium"],
+  "creatureType": "Celestial",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Lawful Good",
+  "habitat": ["Forest", "Grassland", "Mountain", "Urban"],
+  "treasure": ["Any"],
+  "lore": "Couatls are benevolent celestial serpents with resplendent, rainbow-feathered wings. They dwell in places of ancient power, serving as guardians, guides, and keepers of sacred knowledge. Couatls are patient and wise, often disguising themselves as humanoids or beasts to observe and subtly guide mortals toward righteous action without revealing their true nature.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 97,
+    "dice": {
+      "count": 13,
+      "die": "d8",
+      "modifier": 39
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 90
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 5
+    },
+    "CON": {
+      "score": 17,
+      "modifier": 3,
+      "save": 5
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "WIS": {
+      "score": 20,
+      "modifier": 5,
+      "save": 7
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 6
+    }
+  },
+  "resistances": ["Radiant"],
+  "damageImmunities": ["Psychic"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["All"],
+    "telepathy": 120
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The couatl has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Shielded Mind",
+      "description": "The couatl is immune to any effect that would sense its emotions or read its thoughts, as well as to any Divination spell that it refuses. Wisdom (Insight) checks made to ascertain the couatl's intentions or sincerity have Disadvantage."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "WIS",
+      "spellSaveDC": 15,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Evil and Good",
+              "level": 1
+            },
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Bless",
+              "level": 1
+            },
+            {
+              "name": "Create Food and Water",
+              "level": 3
+            },
+            {
+              "name": "Cure Wounds",
+              "level": 1,
+              "castAtLevel": 3
+            },
+            {
+              "name": "Lesser Restoration",
+              "level": 2
+            },
+            {
+              "name": "Protection from Poison",
+              "level": 2
+            },
+            {
+              "name": "Shield",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dream",
+              "level": 5
+            },
+            {
+              "name": "Greater Restoration",
+              "level": 5
+            },
+            {
+              "name": "Scrying",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The couatl makes one Bite attack and one Constrict attack. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Constrict",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Piercing damage plus 14 (4d6) Poison damage. If the target is a creature, it must succeed on a DC 13 Constitution saving throw or have the Poisoned condition for 1 hour. The Poisoned creature also has the Unconscious condition. Taking damage or another creature using an action to shake the target awake ends the Unconscious condition on it.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 13,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "1 hour"
+                },
+                {
+                  "condition": "Unconscious",
+                  "duration": "until the creature takes damage or another creature uses an action to shake it awake"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Constrict",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 10 (2d6 + 3) Bludgeoning damage, and the target has the Grappled condition (escape DC 13). Until this grapple ends, the target has the Restrained condition, and the couatl can't Constrict another target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 13
+            },
+            {
+              "condition": "Restrained",
+              "duration": "until the grapple ends"
+            }
+          ],
+          "additionalEffects": "The couatl can't Constrict another target while this grapple persists."
+        }
+      }
+    },
+    {
+      "name": "Change Shape",
+      "description": "The couatl shape-shifts to resemble a Medium or Small Humanoid or Beast, or it returns to its true form. Its game statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed. The couatl reverts to its true form if it dies."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The couatl casts one of the following spells, requiring no Material components, using Wisdom as the spellcasting ability (spell save DC 15):\n\nAt will: Detect Evil and Good, Detect Magic, Detect Thoughts\n3/Day each: Bless, Create Food and Water, Cure Wounds (at 3rd level), Lesser Restoration, Protection from Poison, Shield\n1/Day each: Dream, Greater Restoration, Scrying"
+    }
+  ]
+}

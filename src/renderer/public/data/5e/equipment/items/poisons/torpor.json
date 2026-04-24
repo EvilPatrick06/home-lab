@@ -1,0 +1,16 @@
+{
+  "name": "Torpor",
+  "cost": "600 GP",
+  "type": "Ingested",
+  "dc": 15,
+  "damage": "None",
+  "effect": "Poisoned and Incapacitated for 4d6 hours",
+  "description": "A creature subjected to this poison must succeed on a DC 15 Constitution saving throw or have the Poisoned condition for 4d6 hours. The Poisoned creature has the Incapacitated condition.",
+  "slug": "torpor",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

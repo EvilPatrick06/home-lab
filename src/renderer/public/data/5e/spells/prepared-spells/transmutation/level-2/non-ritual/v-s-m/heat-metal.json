@@ -1,0 +1,82 @@
+{
+  "name": "Heat Metal",
+  "level": 2,
+  "school": "Transmutation",
+  "classes": ["Bard", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a piece of iron and a flame",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Choose a manufactured metal object, such as a metal weapon or a suit of Heavy or Medium metal armor, that you can see within range. You cause the object to glow red-hot. Any creature in physical contact with the object takes 2d8 Fire damage when you cast the spell. Until the spell ends, you can take a Bonus Action on each of your later turns to deal this damage again if the object is within range.\n\nIf a creature is holding or wearing the object and takes the damage from it, the creature must succeed on a Constitution saving throw or drop the object if it can. If it doesn't drop the object, it has Disadvantage on attack rolls and ability checks until the start of your next turn.",
+  "targetType": "object",
+  "mustSeeTarget": true,
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 8
+      },
+      "type": "Fire",
+      "applicationType": "onCast"
+    }
+  ],
+  "savingThrow": {
+    "ability": "Constitution",
+    "effectOnFailure": "The creature drops the object if it can. If it doesn't drop the object, it has Disadvantage on attack rolls and ability checks until the start of your next turn.",
+    "effectOnSuccess": "The creature continues holding or wearing the object with no additional penalty."
+  },
+  "disadvantagesImposed": [
+    {
+      "on": "attackRolls",
+      "condition": "Creature failed Constitution save and did not drop the heated object"
+    },
+    {
+      "on": "abilityChecks",
+      "condition": "Creature failed Constitution save and did not drop the heated object"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "BonusAction",
+    "description": "You deal 2d8 Fire damage again to any creature in physical contact with the object, if it is within range. If the creature is holding or wearing the object and takes damage, it must repeat the Constitution saving throw or drop the object or suffer Disadvantage on attack rolls and ability checks until the start of your next turn.",
+    "damage": {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 8
+      },
+      "type": "Fire",
+      "applicationType": "recurring"
+    }
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 2,
+        "description": "The damage increases by 1d8 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["damage", "fire", "debuff", "metal", "object-targeting", "bonus-action-repeat"]
+}

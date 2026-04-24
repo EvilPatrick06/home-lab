@@ -1,0 +1,183 @@
+{
+  "name": "Iron Golem",
+  "sizes": ["Large"],
+  "creatureType": "Construct",
+  "alignment": "Unaligned",
+  "habitat": ["Urban", "Underground"],
+  "treasure": ["None"],
+  "lore": "Iron golems are among the mightiest of constructs, hulking guardians forged from iron and animated by elemental spirits bound through powerful magic. Their creators—typically archmages or master artificers—fashion them to serve as tireless sentinels over vaults, temples, and sanctums. Once given a command, an iron golem follows it without question or deviation, interpreting orders with literal precision. When provoked, it unleashes devastating melee attacks and a cloud of poisonous gas that can fell entire groups of invaders.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 210,
+    "dice": {
+      "count": 20,
+      "die": "d10",
+      "modifier": 100
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 24,
+      "modifier": 7,
+      "save": 7
+    },
+    "DEX": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "damageImmunities": ["Fire, Poison, and Psychic"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Petrified", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Languages of its creator"],
+    "notes": "Understands the languages of its creator but can't speak"
+  },
+  "challengeRating": "16",
+  "experiencePoints": 15000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Construct Resilience",
+      "description": "The golem has Advantage on saving throws against effects that would give it a condition, and it is immune to effects that would move it to another plane of existence."
+    },
+    {
+      "name": "Fire Absorption",
+      "description": "Whenever the golem is subjected to Fire damage, it regains a number of Hit Points equal to the Fire damage dealt."
+    },
+    {
+      "name": "Immutable Form",
+      "description": "The golem is immune to any spell or effect that would alter its form."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The golem has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The golem makes two Slam attacks. It can replace one of these attacks with a use of Poison Breath if available.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Slam",
+        "replaceCount": 1,
+        "with": "Poison Breath"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +13, reach 5 ft. Hit: 20 (3d8 + 7) Bludgeoning damage plus 7 (2d6) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 20,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 7
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Poison Breath",
+      "description": "The golem exhales poisonous gas in a 15-foot Cone. Each creature in that area makes a DC 19 Constitution saving throw, taking 45 (10d8) Poison damage on a failed save or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 19,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 45,
+              "dice": {
+                "count": 10,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 15
+      }
+    }
+  ]
+}

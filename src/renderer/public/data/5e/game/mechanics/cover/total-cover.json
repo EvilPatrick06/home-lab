@@ -1,0 +1,146 @@
+{
+  "id": "d7a3e2f1-8b4c-4e9a-a1d5-6f3c8e2b7a90",
+  "name": "Total Cover",
+  "slug": "total-cover",
+  "category": "Cover",
+  "subcategory": "Total Cover",
+  "tags": ["cover", "targeting", "line-of-sight", "combat", "defense", "area-of-effect"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "Cover"
+  },
+  "gameEdition": "2024",
+  "description": "Total Cover is the highest degree of cover. A target behind Total Cover is completely shielded by an object that covers the whole target. The target can't be targeted directly by an attack or a spell, although some spells can reach such a target by including it in an area of effect. A target can benefit from cover only when an attack or other effect originates on the opposite side of the cover. If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together. Total Cover also blocks line of sight; to target something, you must have a clear path to it, so it can't be behind Total Cover. However, Blindsight can perceive anything that isn't behind Total Cover within its range.",
+  "shortDescription": "An object covers the whole target. The target can't be targeted directly by an attack or a spell, though area-of-effect spells can still reach it.",
+  "rulesAsWritten": "Total Cover: Can't be targeted directly by an attack or a spell, although some spells can reach such a target by including it in an area of effect. Offered by an object that covers the whole target.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "immunityType": "Effect",
+      "value": "Direct targeting by attacks",
+      "note": "A target behind Total Cover can't be targeted directly by an attack."
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "immunityType": "Effect",
+      "value": "Direct targeting by spells",
+      "note": "A target behind Total Cover can't be targeted directly by a spell, although some spells can reach such a target by including it in an area of effect."
+    }
+  ],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 0,
+      "name": "Total Cover Determination",
+      "description": "Total Cover is provided by an object that covers the whole target. A target can benefit from Total Cover only when an attack or other effect originates on the opposite side of the cover.",
+      "trigger": {
+        "event": "OnTargeted",
+        "condition": "An attack or other effect originates on the opposite side of the covering object, and the object covers the whole target.",
+        "scope": {
+          "requiresLineOfSight": false,
+          "customScope": "The covering object must completely shield the target from the origin of the attack or effect."
+        }
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The target can't be targeted directly by an attack or a spell. Line of sight to the target is blocked. Some spells can still reach the target by including it in an area of effect.",
+          "mechanicalNote": "Total Cover prevents direct targeting but does not prevent inclusion in area-of-effect spells. Blindsight can see anything not behind Total Cover. To target something, you must have a clear path to it, so it can't be behind Total Cover."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "order": 1,
+      "name": "Most Protective Cover Applies",
+      "description": "If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together. Total Cover is the most protective degree.",
+      "trigger": {
+        "event": "OnTargeted",
+        "condition": "Target is behind multiple sources of cover from the same attack or effect origin."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "When behind multiple sources of cover, only the most protective degree applies. Since Total Cover is the highest degree, it supersedes Half Cover (+2 AC and Dexterity saving throws) and Three-Quarters Cover (+5 AC and Dexterity saving throws).",
+          "mechanicalNote": "Cover degrees do not stack. Total Cover always takes precedence over lesser cover types."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "method": "Other",
+      "description": "Total Cover ends when the target is no longer completely covered by an object relative to the origin of the attack or effect, such as by moving away from the cover or the cover being destroyed.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "stackingNote": "If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together. Total Cover is the highest degree and supersedes Half Cover and Three-Quarters Cover."
+  },
+  "dmNotes": "Total Cover is determined by the DM based on the positioning of the target relative to the source of the attack or effect and the intervening obstacle. An object must cover the whole target to provide Total Cover. Note that area-of-effect spells (such as Fireball) can still affect a target behind Total Cover if the area of effect reaches the target's space. Blindsight explicitly sees anything not behind Total Cover, meaning Total Cover blocks even Blindsight. Line of Sight requires a clear path to the target, and Total Cover blocks this path.",
+  "commonRulings": [
+    {
+      "question": "Can a creature behind Total Cover be affected by spells at all?",
+      "ruling": "A creature behind Total Cover can't be targeted directly by a spell, but some spells can reach the creature by including it in an area of effect. For example, a Fireball's explosion can extend around corners and behind Total Cover if the area of effect reaches the target's location.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Total Cover block line of sight?",
+      "ruling": "Yes. The rules state that to target something, you must have a clear path to it, so it can't be behind Total Cover. Line of sight is blocked by Total Cover.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can Blindsight see through Total Cover?",
+      "ruling": "No. Blindsight allows a creature to see anything that isn't behind Total Cover. Total Cover still blocks Blindsight.",
+      "isOfficial": true
+    },
+    {
+      "question": "What provides Total Cover?",
+      "ruling": "An object that covers the whole target provides Total Cover. This must be an object, not a creature — creatures can provide only Half Cover according to the Cover table.",
+      "isOfficial": true
+    },
+    {
+      "question": "If a target is behind both Half Cover and Total Cover from different sources, which applies?",
+      "ruling": "Only the most protective degree of cover applies. Total Cover, being the most protective, would apply. The degrees are not added together.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

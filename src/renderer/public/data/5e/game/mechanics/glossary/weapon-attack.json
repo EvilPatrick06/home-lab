@@ -1,0 +1,11 @@
+{
+  "name": "Weapon Attack",
+  "slug": "weapon-attack",
+  "description": "A weapon attack is an attack made with a weapon — a melee weapon attack or ranged weapon attack. Bonus to hit: ability modifier (Strength for melee, Dexterity for ranged, or as specified by a weapon property like Finesse) + Proficiency Bonus (if proficient with the weapon).",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

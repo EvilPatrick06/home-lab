@@ -1,0 +1,139 @@
+{
+  "id": "d7a3e1f0-4c2b-4e8a-b1d3-9f6a7c8e2d50",
+  "name": "Equipment Sizes",
+  "slug": "equipment-sizes",
+  "category": "VariantRule",
+  "subcategory": "Equipment",
+  "tags": ["equipment", "size", "variant", "armor", "weapons", "creature-size"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "Equipment Proficiencies / Creature Size"
+  },
+  "gameEdition": "2024",
+  "description": "A variant rule governing how creature size affects the use and availability of equipment. By default, most equipment is designed for Small and Medium creatures. Under this variant, equipment found or purchased is made for a particular size category, and creatures of a different size may not be able to use it without modification. Small and Medium creatures can share equipment freely, as they occupy the same 5-by-5-foot space. Equipment for larger or smaller creatures must be appropriately sized, affecting weight and potentially cost. Armor must be refitted by a skilled armorsmith for a creature of a different size to wear it.",
+  "shortDescription": "Variant rule requiring equipment to be sized appropriately for a creature's size category; Small and Medium share equipment freely.",
+  "rulesAsWritten": "In most campaigns, you can use or wear any equipment that you find on your adventures, within the bounds of common sense. As a variant rule, equipment is sized for creatures of a certain size. Small and Medium creatures can use each other's equipment. Equipment made for other sizes must be specifically crafted or modified for creatures of those sizes.",
+  "isVariantRule": true,
+  "isOptionalRule": true,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "order": 0,
+      "name": "Small and Medium Equipment Interchangeability",
+      "description": "Small and Medium creatures can use each other's equipment without modification, as both size categories occupy a 5-by-5-foot space.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature is Small or Medium size and attempts to use equipment made for Small or Medium creatures"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Small and Medium creatures can freely use equipment sized for Small or Medium creatures without penalty or modification.",
+          "mechanicalNote": "Both Small and Medium creatures occupy a 5-by-5-foot space, so their equipment is interchangeable."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "order": 1,
+      "name": "Inappropriately Sized Equipment Restriction",
+      "description": "A creature cannot effectively use equipment that is not sized for its size category (unless the equipment is interchangeable between Small and Medium). Armor made for a different size must be refitted by a skilled armorsmith, and weapons sized for larger creatures may be too unwieldy for smaller creatures to use.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature attempts to use equipment not sized for its size category"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Equipment not sized for the creature's size category cannot be used effectively. Armor requires refitting by an armorsmith. Weapons sized for a creature two or more sizes larger or smaller are unusable without DM adjudication.",
+          "mechanicalNote": "DM determines specific consequences such as inability to don armor, disadvantage, or complete inability to wield oversized or undersized weapons."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 2,
+      "name": "Equipment Weight Scaling by Size",
+      "description": "Equipment made for creatures of different sizes weighs proportionally more or less. Equipment for Large creatures weighs twice as much, Huge creatures four times, and Gargantuan creatures eight times. Equipment for Tiny creatures weighs half as much.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Equipment is sized for a creature other than Small or Medium"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Equipment weight scales with creature size. Tiny: ×0.5 weight. Small/Medium: ×1 weight (standard). Large: ×2 weight. Huge: ×4 weight. Gargantuan: ×8 weight.",
+          "mechanicalNote": "Weight multipliers follow the doubling pattern consistent with creature space scaling from the Creature Size and Space table."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "This variant rule either applies to the entire campaign or it does not. It is not a per-creature effect that stacks."
+  },
+  "dmNotes": "This variant rule adds realism but also complexity. When enforcing equipment sizes, consider that most treasure and equipment found in adventures is sized for the creatures that possessed it. A dragon's hoard might contain armor sized for Medium humanoids (taken from defeated adventurers) or for Large giants. Applying this rule means players must seek out appropriately sized equipment or pay for modifications. The DM should decide at campaign start whether to use this rule. It is most impactful in campaigns featuring parties with diverse creature sizes, such as a Tiny familiar attempting to use a Medium creature's weapon, or a Large creature trying to don Medium armor. The Creature Size and Space table (Tiny: 2.5×2.5 ft, Small: 5×5 ft, Medium: 5×5 ft, Large: 10×10 ft, Huge: 15×15 ft, Gargantuan: 20×20 ft) provides the baseline size categories referenced by this rule.",
+  "commonRulings": [
+    {
+      "question": "Can a Small creature use a weapon made for a Medium creature?",
+      "ruling": "Yes. Small and Medium creatures can use each other's equipment freely under both the default rules and this variant rule, as both size categories occupy a 5-by-5-foot space.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a Large creature wear armor found on a Medium humanoid?",
+      "ruling": "Under this variant rule, no. The armor must be refitted by a skilled armorsmith to accommodate the Large creature's frame. The DM determines the cost and time required.",
+      "isOfficial": false
+    },
+    {
+      "question": "Do weapons sized for larger creatures deal more damage?",
+      "ruling": "The 2024 rules do not provide a general rule for increased weapon damage based on size. Monster stat blocks specify their own damage values. If a player character somehow wields a weapon sized for a larger creature, the DM adjudicates the effect.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does this rule affect carrying capacity?",
+      "ruling": "Carrying capacity is determined by Strength score multiplied by 15, not by creature size directly. However, the weight of sized equipment may affect how much a creature can carry.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

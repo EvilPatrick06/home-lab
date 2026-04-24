@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realm",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "material-plane",
+      "name": "Material Plane",
+      "alternateNames": [],
+      "category": "Material Realm",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Time flows normally on the Material Plane. Creatures require food and water daily based on their size."
+      },
+      "hazards": [
+        {
+          "id": "malnutrition",
+          "name": "Malnutrition",
+          "description": "A creature requires a minimum amount of food each day based on its size (Tiny: 1/4 pound, Small: 1 pound, Medium: 1 pound, Large: 4 pounds, Huge: 16 pounds, Gargantuan: 64 pounds). A creature that eats but consumes less than half the required food must succeed on a DC 15 Constitution saving throw at the end of the day or gain 1 Exhaustion level. A creature that eats nothing automatically gains 1 Exhaustion level at the end of the day with no saving throw allowed.",
+          "category": "physical",
+          "severity": "major",
+          "savingThrowToTraverse": {
+            "ability": "Constitution",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "per_day",
+            "triggerDescription": "At the end of each day when the creature eats but consumes less than half the required food for its size. A creature that eats nothing automatically fails (no save allowed).",
+            "onFailure": {
+              "description": "The creature gains 1 Exhaustion level. Exhaustion is cumulative; each failed save adds 1 level. At 6 Exhaustion levels, the creature dies. Each Exhaustion level reduces all D20 Tests by 2 times the Exhaustion level and reduces Speed by 5 times the Exhaustion level. Finishing a Long Rest removes 1 Exhaustion level.",
+              "exhaustionLevels": 1,
+              "exhaustionIsRemovable": true,
+              "duration": "Until removed by finishing a Long Rest (removes 1 level per Long Rest)",
+              "cumulative": true,
+              "cumulativeMaxStacks": 6,
+              "cumulativeDescription": "Each day without sufficient food can add 1 Exhaustion level. At 6 Exhaustion levels, the creature dies.",
+              "terminalEffect": "Death at 6 Exhaustion levels",
+              "terminalAtExhaustionLevel": 6
+            },
+            "onSuccess": {
+              "description": "The creature suffers no ill effects from insufficient food for that day.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": [
+              "Eating sufficient food for the creature's size and finishing a Long Rest to remove 1 Exhaustion level per Long Rest"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": 0,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.7,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary (Food entry), Chapter 1: Playing the Game (Hazards section)"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Humanoid", "Beast", "Dragon", "Monstrosity", "Plant", "Ooze"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "food-requirements-by-size",
+          "name": "Daily Food Requirements by Creature Size",
+          "description": "Each creature requires a daily amount of food based on its size: Tiny requires 1/4 pound, Small requires 1 pound, Medium requires 1 pound, Large requires 4 pounds, Huge requires 16 pounds, and Gargantuan requires 64 pounds. Eating less than half the required amount triggers a DC 15 Constitution saving throw at the end of the day. Eating nothing results in automatic gain of 1 Exhaustion level with no saving throw.",
+          "mechanicalEffect": "Eating less than half required food: DC 15 Constitution saving throw at end of day or gain 1 Exhaustion level. Eating nothing: automatically gain 1 Exhaustion level at end of day (no save). Exhaustion is cumulative. Each level reduces D20 Tests by 2 times the level and Speed by 5 times the level in feet. Death occurs at 6 Exhaustion levels. A Long Rest removes 1 Exhaustion level.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "adventureThemes": [],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game lists Malnutrition as a hazard defined in the rules glossary. Appendix C: Rules Glossary defines the Food entry with malnutrition mechanics and the Water/Food Needs per Day table."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": false
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

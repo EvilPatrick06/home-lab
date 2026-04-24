@@ -1,0 +1,242 @@
+{
+  "name": "Demilich",
+  "sizes": ["Tiny"],
+  "creatureType": "Undead",
+  "alignment": "Neutral Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Arcana"],
+  "lore": "A demilich is what remains when a lich loses the will or ability to maintain its phylactery. Over time, the lich's body crumbles to dust, leaving only a skull—or sometimes a single tooth or finger bone—set with soul gems that still flicker with trapped essences. Despite this diminished form, a demilich retains formidable magical power and can unleash devastating waves of necrotic energy, drain the life from nearby creatures, and terrify the stoutest of heroes.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 80,
+    "dice": {
+      "count": 32,
+      "die": "d4",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 30,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "DEX": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 20,
+      "modifier": 5,
+      "save": 11
+    },
+    "WIS": {
+      "score": 17,
+      "modifier": 3,
+      "save": 9
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    }
+  },
+  "resistances": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Necrotic, Poison, and Psychic"],
+  "conditionImmunities": [
+    "Charmed",
+    "Deafened",
+    "Exhaustion",
+    "Frightened",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Stunned",
+    "Unconscious"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {},
+  "challengeRating": "18",
+  "experiencePoints": 20000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Avoidance",
+      "description": "If the demilich is subjected to an effect that allows it to make a saving throw to take only half damage, it instead takes no damage if it succeeds on the saving throw and only half damage if it fails."
+    },
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the demilich fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Turn Immunity",
+      "description": "The demilich is immune to effects that turn Undead."
+    }
+  ],
+  "multiattack": {
+    "description": "The demilich makes three Necrotic Enervation attacks.",
+    "attacks": [
+      {
+        "actionName": "Necrotic Enervation",
+        "count": 3
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Necrotic Enervation",
+      "description": "Melee or Ranged Attack Roll: +11, reach 5 ft. or range 120 ft. Hit: 23 (4d8 + 5) Necrotic damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 11,
+        "reach": 5,
+        "range": {
+          "normal": 120,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 23,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 5
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Howl",
+      "description": "Constitution Saving Throw: DC 19, each creature in a 30-foot Emanation originating from the demilich. Failure: 54 (12d8) Necrotic damage. Success: Half damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 19,
+        "targets": "each creature in a 30-foot Emanation originating from the demilich",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 54,
+              "dice": {
+                "count": 12,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 30,
+        "centered": true
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Flight",
+        "description": "The demilich flies up to half its Fly Speed without provoking Opportunity Attacks.",
+        "cost": 1
+      },
+      {
+        "name": "Necrotic Enervation",
+        "description": "The demilich makes one Necrotic Enervation attack.",
+        "cost": 2,
+        "attack": {
+          "type": "MeleeOrRanged",
+          "attackBonus": 11,
+          "reach": 5,
+          "range": {
+            "normal": 120,
+            "long": 120
+          },
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 23,
+                "dice": {
+                  "count": 4,
+                  "die": "d8",
+                  "modifier": 5
+                },
+                "type": "Necrotic"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Frightening Gaze",
+        "description": "The demilich targets one creature it can see within 60 feet of itself. Wisdom Saving Throw: DC 19. Failure: The target has the Frightened condition until the end of its next turn.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 19,
+          "targets": "one creature the demilich can see within 60 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Frightened",
+                "duration": "until the end of its next turn"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

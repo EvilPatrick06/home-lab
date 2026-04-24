@@ -1,0 +1,28 @@
+{
+  "name": "Durable",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Constitution"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Defy Death",
+      "description": "You have Advantage on Death Saving Throws."
+    },
+    {
+      "name": "Speedy Recovery",
+      "description": "As a Bonus Action, you can expend one of your Hit Point Dice, roll the die, and regain a number of Hit Points equal to the roll."
+    }
+  ],
+  "source": "PHB 2024"
+}

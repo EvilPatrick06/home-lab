@@ -1,0 +1,18 @@
+{
+  "name": "Rowboat",
+  "slug": "rowboat",
+  "category": "Waterborne Vehicle",
+  "type": "Simple",
+  "cost": "50 GP",
+  "weight": "100 lb.",
+  "speed": "1.5 mph",
+  "crew": 1,
+  "passengers": 3,
+  "cargoTons": 0.25,
+  "description": "A small flat-bottomed boat propelled by oars. Common on rivers, lakes, and near shorelines.",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

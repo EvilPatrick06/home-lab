@@ -1,0 +1,91 @@
+{
+  "name": "Planar Binding",
+  "level": 5,
+  "school": "Abjuration",
+  "classes": ["Bard", "Cleric", "Druid", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "hours",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a jewel worth 1,000+ GP, which the spell consumes",
+      "cost": 1000,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 24,
+    "unit": "hours"
+  },
+  "description": "You attempt to bind a Celestial, an Elemental, a Fey, or a Fiend to your service. The creature must be within range for the entire casting of the spell. (Typically, the creature is first summoned into the center of the inverted version of the Magic Circle spell to trap it while this spell is cast.) At the completion of the casting, the target must succeed on a Charisma saving throw or be bound to serve you for the duration. If the creature was summoned or created by another spell, that spell's duration is extended to match the duration of this spell. A bound creature must follow your commands to the best of its ability. You might command the creature to accompany you on an adventure, to guard a location, or to deliver a message. If the creature is Hostile, it strives to twist your commands to achieve its own objectives. If the creature carries out your commands completely before the spell ends, it travels to you to report this fact if you are on the same plane of existence. If you are on a different plane, it returns to the place where you bound it and remains there until the spell ends.",
+  "targetType": "creature",
+  "targetCreatureTypes": ["Celestial", "Elemental", "Fey", "Fiend"],
+  "savingThrow": {
+    "ability": "Charisma",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The target is bound to serve you for the duration. If the creature was summoned or created by another spell, that spell's duration is extended to match this spell's duration."
+  },
+  "higherLevelCasting": {
+    "overrides": [
+      {
+        "minSlotLevel": 6,
+        "maxSlotLevel": 6,
+        "description": "The duration increases to 10 days.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": false,
+          "amount": 10,
+          "unit": "days"
+        }
+      },
+      {
+        "minSlotLevel": 7,
+        "maxSlotLevel": 7,
+        "description": "The duration increases to 30 days.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": false,
+          "amount": 30,
+          "unit": "days"
+        }
+      },
+      {
+        "minSlotLevel": 8,
+        "maxSlotLevel": 8,
+        "description": "The duration increases to 180 days.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": false,
+          "amount": 180,
+          "unit": "days"
+        }
+      },
+      {
+        "minSlotLevel": 9,
+        "maxSlotLevel": 9,
+        "description": "The duration increases to 366 days.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": false,
+          "amount": 366,
+          "unit": "days"
+        }
+      }
+    ]
+  },
+  "tags": ["control", "binding", "planar"]
+}

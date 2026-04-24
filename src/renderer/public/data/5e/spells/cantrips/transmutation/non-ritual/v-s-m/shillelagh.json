@@ -1,0 +1,64 @@
+{
+  "name": "Shillelagh",
+  "level": 0,
+  "school": "Transmutation",
+  "classes": ["Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "mistletoe",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "A Club or Quarterstaff you are holding is imbued with nature's power. For the duration, you can use your spellcasting ability instead of Strength for the attack and damage rolls of melee attacks using that weapon, and the weapon's damage die becomes a d8. If the attack deals damage, it can be Force damage or the weapon's normal damage type (your choice). The spell ends early if you cast it again or if you let go of the weapon.",
+  "targetType": "self",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": ["Force", "Bludgeoning"],
+      "applicationType": "perAttack",
+      "condition": "melee attack with imbued Club or Quarterstaff"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 1,
+        "diceValue": 10,
+        "description": "The weapon's damage die becomes a d10."
+      },
+      {
+        "level": 11,
+        "diceCount": 1,
+        "diceValue": 12,
+        "description": "The weapon's damage die becomes a d12."
+      },
+      {
+        "level": 17,
+        "diceCount": 2,
+        "diceValue": 6,
+        "description": "The weapon's damage die becomes 2d6."
+      }
+    ]
+  },
+  "tags": ["weapon-enhancement", "melee", "uses-spellcasting-ability", "club", "quarterstaff"]
+}

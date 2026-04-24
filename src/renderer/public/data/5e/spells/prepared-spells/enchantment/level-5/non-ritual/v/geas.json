@@ -1,0 +1,81 @@
+{
+  "name": "Geas",
+  "level": 5,
+  "school": "Enchantment",
+  "classes": ["Bard", "Cleric", "Druid", "Paladin", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "minutes",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 30,
+    "unit": "days"
+  },
+  "description": "You give a verbal command to a creature that you can see within range, ordering it to carry out some service or refrain from an action or a course of activity as you decide. The target must succeed on a Wisdom saving throw or have the Charmed condition for the duration. The target automatically succeeds if it can't understand your command. While Charmed, the creature takes 5d10 Psychic damage if it acts in a manner directly counter to your command. It takes this damage no more than once each day. You can issue any command you choose, short of an activity that would result in certain death. Should you issue a suicidal command, the spell ends. A Remove Curse, Greater Restoration, or Wish spell ends this spell.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "autoSucceedCondition": "Target can't understand your command"
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 10
+      },
+      "type": "Psychic",
+      "applicationType": "recurring",
+      "condition": "Acts in a manner directly counter to your command; no more than once each day"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Charmed",
+      "trigger": "onFailedSave",
+      "duration": "Spell duration"
+    }
+  ],
+  "higherLevelCasting": {
+    "overrides": [
+      {
+        "minSlotLevel": 7,
+        "maxSlotLevel": 8,
+        "description": "The duration is 365 days.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": false,
+          "amount": 365,
+          "unit": "days"
+        }
+      },
+      {
+        "minSlotLevel": 9,
+        "maxSlotLevel": 9,
+        "description": "The spell lasts until it is ended by a Remove Curse, Greater Restoration, or Wish spell.",
+        "durationOverride": {
+          "type": "UntilDispelled",
+          "concentration": false,
+          "special": "Ended by Remove Curse, Greater Restoration, or Wish"
+        }
+      }
+    ]
+  },
+  "tags": ["control", "command", "curse", "psychic"]
+}

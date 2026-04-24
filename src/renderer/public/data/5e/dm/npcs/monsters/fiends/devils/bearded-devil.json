@@ -1,0 +1,216 @@
+{
+  "name": "Bearded Devil",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar (Nine Hells)"],
+  "treasure": ["None"],
+  "lore": "Bearded devils, also called barbazu, are the foot soldiers of the Nine Hells, serving as shock troops in infernal legions. These fiends earned their name from the writhing, filthy tendrils of their beards, which deliver a poisonous sting. Bearded devils are brutal combatants who relish the carnage of battle, wielding wicked glaives that inflict terrible wounds that bleed profusely.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 52,
+    "dice": {
+      "count": 8,
+      "die": "d8",
+      "modifier": 16
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 5
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 4
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 2
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "resistances": ["Cold", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Frightened", "Poisoned"],
+  "gear": [
+    {
+      "name": "Glaive",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the devil's Darkvision."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The devil makes one Beard attack and one Glaive attack.",
+    "attacks": [
+      {
+        "actionName": "Beard",
+        "count": 1
+      },
+      {
+        "actionName": "Glaive",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Beard",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Piercing damage, and the target must succeed on a DC 12 Constitution saving throw or have the Poisoned condition for 1 minute. While Poisoned in this way, the target can't regain Hit Points. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 12,
+            "targets": "the target",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "1 minute",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 12,
+                    "targets": "the target",
+                    "onSuccess": {
+                      "effects": "The effect ends on the target."
+                    }
+                  }
+                }
+              ],
+              "effects": "While Poisoned in this way, the target can't regain Hit Points."
+            }
+          }
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Poisoned",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 12,
+            "targets": "the target",
+            "onSuccess": {
+              "effects": "The effect ends on the target."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Glaive",
+      "description": "Melee Attack Roll: +5, reach 10 ft. Hit: 8 (1d10 + 3) Slashing damage. If the target is a creature other than an Undead or a Construct, it must succeed on a DC 12 Constitution saving throw or take 5 (1d10) Necrotic damage at the start of each of its turns due to an infernal wound. Each time the devil hits the wounded target with this attack, the damage dealt by the wound increases by 5 (1d10). Any creature can take an action to stanch the wound with a successful DC 12 Wisdom (Medicine) check. The wound also closes if the target receives magical healing.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 12,
+            "targets": "the target (if it is a creature other than an Undead or a Construct)",
+            "onFailure": {
+              "damage": [
+                {
+                  "average": 5,
+                  "dice": {
+                    "count": 1,
+                    "die": "d10",
+                    "modifier": 0
+                  },
+                  "type": "Necrotic",
+                  "notes": "at the start of each of the target's turns due to an infernal wound; increases by 5 (1d10) each time the devil hits the wounded target with this attack"
+                }
+              ],
+              "effects": "The target takes ongoing Necrotic damage at the start of each of its turns due to an infernal wound. Each time the devil hits the wounded target with this attack, the damage increases by 5 (1d10). Any creature can take an action to stanch the wound with a successful DC 12 Wisdom (Medicine) check. The wound also closes if the target receives magical healing."
+            }
+          }
+        }
+      }
+    }
+  ]
+}

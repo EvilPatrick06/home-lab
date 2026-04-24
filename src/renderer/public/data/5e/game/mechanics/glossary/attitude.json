@@ -1,0 +1,11 @@
+{
+  "name": "Attitude",
+  "slug": "attitude",
+  "description": "A monster has a starting attitude toward a player character: Friendly, Hostile, or Indifferent.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

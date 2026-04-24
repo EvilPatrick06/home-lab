@@ -1,0 +1,22 @@
+{
+  "name": "Crafter",
+  "category": "Origin",
+  "prerequisites": {
+    "level": 1
+  },
+  "benefits": [
+    {
+      "name": "Tool Proficiency",
+      "description": "You gain proficiency with three different Artisan's Tools of your choice from the Fast Crafting table."
+    },
+    {
+      "name": "Discount",
+      "description": "Whenever you buy a nonmagical item, you receive a 20 percent discount on it."
+    },
+    {
+      "name": "Fast Crafting",
+      "description": "When you finish a Long Rest, you can craft one piece of gear from the Fast Crafting table, provided you have the Artisan's Tools associated with that item and have proficiency with those tools. The item lasts until you finish another Long Rest, at which point the item falls apart."
+    }
+  ],
+  "source": "PHB 2024"
+}

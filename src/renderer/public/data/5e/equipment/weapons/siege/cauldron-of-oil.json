@@ -1,0 +1,30 @@
+{
+  "name": "Cauldron of Boiling Oil",
+  "slug": "cauldron-of-oil",
+  "category": "Siege Weapon",
+  "size": "Large",
+  "ac": 19,
+  "hp": 20,
+  "cost": "—",
+  "description": "A large iron cauldron of boiling oil mounted on a wall or battlement. It can be tipped to pour its contents onto creatures below. Each creature in a 10-foot-square area directly below must make a DC 15 Dexterity saving throw, taking 10 (3d6) Fire damage on a failed save, or half as much on a successful one. Once used, the cauldron must be refilled and reheated (10 minutes).",
+  "attack": {
+    "damage": "3d6",
+    "damageType": "Fire",
+    "averageDamage": 10,
+    "saveDC": 15,
+    "saveAbility": "Dexterity",
+    "halfDamageOnSave": true,
+    "area": {
+      "shape": "Square",
+      "size": 10
+    }
+  },
+  "crew": 1,
+  "reloadTime": "10 minutes",
+  "immunities": ["Poison", "Psychic"],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

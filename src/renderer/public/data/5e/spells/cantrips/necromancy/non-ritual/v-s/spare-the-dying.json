@@ -1,0 +1,54 @@
+{
+  "name": "Spare the Dying",
+  "level": 0,
+  "school": "Necromancy",
+  "classes": ["Cleric", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 15,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Choose a creature within range that has 0 Hit Points and isn't dead. The creature becomes Stable.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "mustSeeTarget": false,
+  "conditionsApplied": [
+    {
+      "condition": "Stable",
+      "trigger": "onCast"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "rangeFeet": 30,
+        "description": "The range doubles to 30 feet."
+      },
+      {
+        "level": 11,
+        "rangeFeet": 60,
+        "description": "The range doubles to 60 feet."
+      },
+      {
+        "level": 17,
+        "rangeFeet": 120,
+        "description": "The range doubles to 120 feet."
+      }
+    ]
+  },
+  "tags": ["stabilize", "utility"]
+}

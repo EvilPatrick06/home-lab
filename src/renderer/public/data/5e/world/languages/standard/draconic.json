@@ -1,0 +1,13 @@
+{
+  "name": "Draconic",
+  "script": "Draconic",
+  "origin": "Dragons, dragonborn",
+  "speakers": "Dragonborn, dragons, kobolds, lizardfolk",
+  "slug": "draconic",
+  "category": "Standard",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

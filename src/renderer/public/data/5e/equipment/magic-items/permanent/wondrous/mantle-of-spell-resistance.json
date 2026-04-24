@@ -1,0 +1,8 @@
+{
+  "name": "Mantle of Spell Resistance",
+  "itemType": "Wondrous Item",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "description": "You have Advantage on saving throws against spells while you wear this cloak.",
+  "source": "DMG 2024"
+}

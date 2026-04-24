@@ -1,0 +1,188 @@
+{
+  "name": "Sprite",
+  "sizes": ["Tiny"],
+  "creatureType": "Fey",
+  "alignment": "Neutral Good",
+  "habitat": ["Forest", "Feywild"],
+  "treasure": ["None"],
+  "lore": "Sprites are tiny, winged Fey who dwell in forests and meadows connected to the Feywild. As guardians of the natural world, sprites use their ability to sense a creature's emotional state and alignment to determine whether a stranger is a threat. Though diminutive, sprites are fierce defenders of their homelands, wielding tiny swords and bows that deliver sleep-inducing poison.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Leather Armor"]
+  },
+  "hitPoints": {
+    "average": 2,
+    "dice": {
+      "count": 1,
+      "die": "d4",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "gear": [
+    {
+      "name": "Leather Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Longsword",
+      "quantity": 1
+    },
+    {
+      "name": "Shortbow",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Common", "Elvish", "Sylvan"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Heart Sight",
+      "description": "The sprite touches a creature and magically knows the creature's emotional state. If the target fails a DC 10 Charisma saving throw, the sprite also knows the creature's alignment."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Invisibility",
+      "ability": "CHA",
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 1 Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 1,
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shortbow",
+      "description": "Ranged Attack Roll: +5, range 40/160 ft. Hit: 1 Piercing damage, and the target must succeed on a DC 10 Constitution saving throw or have the Poisoned condition for 1 minute. If the saving throw result is 5 or lower, the Poisoned target also has the Unconscious condition for the same duration, ending early if the target takes damage or another creature takes an action to shake it awake.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 5,
+        "range": {
+          "normal": 40,
+          "long": 160
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 1,
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 10,
+            "targets": "the target",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "1 minute"
+                }
+              ],
+              "effects": "If the saving throw result is 5 or lower, the Poisoned target also has the Unconscious condition for the same duration, ending early if the target takes damage or another creature takes an action to shake it awake."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Invisibility",
+      "description": "The sprite casts Invisibility on itself, requiring no spell components and using no spell slots."
+    }
+  ]
+}

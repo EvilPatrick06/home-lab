@@ -1,0 +1,24 @@
+{
+  "id": "bluerot",
+  "name": "Bluerot",
+  "type": "disease",
+  "savingThrow": {
+    "ability": "Constitution",
+    "dc": 12
+  },
+  "transmission": "Contracted through wounds inflicted by undead carrying the disease, or contact with corpses infected with bluerot.",
+  "incubation": "1d4 days",
+  "symptoms": "The infected creature's skin takes on a blue-gray pallor, starting at the wound site and spreading outward. The creature develops a foul odor and their personality becomes dull and apathetic.",
+  "effects": [
+    {
+      "stage": "Infected",
+      "description": "The infected creature has disadvantage on Charisma checks and vulnerability to radiant damage. Additionally, the creature's skin turns visibly blue-gray, making it difficult to hide the disease."
+    }
+  ],
+  "recovery": "At the end of each long rest, an infected creature can make a DC 12 Constitution saving throw. On a successful save, the disease is cured. A creature that fails three of these saving throws gains a randomly determined form of indefinite madness (as described in the DMG madness tables).",
+  "cure": "A Lesser Restoration spell or similar magic cures the disease immediately.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Diseases"
+  }
+}

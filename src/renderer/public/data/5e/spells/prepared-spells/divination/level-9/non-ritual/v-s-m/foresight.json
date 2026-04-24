@@ -1,0 +1,45 @@
+{
+  "name": "Foresight",
+  "level": 9,
+  "school": "Divination",
+  "classes": ["Bard", "Druid", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "minutes",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a hummingbird feather",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "You touch a willing creature and bestow a limited ability to see into the immediate future. For the duration, the target has Advantage on D20 Tests, and other creatures have Disadvantage on attack rolls against it. The spell ends early if you cast it again.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "advantagesGranted": [
+    {
+      "on": "allD20"
+    }
+  ],
+  "disadvantagesImposed": [
+    {
+      "on": "attackRollsAgainstTarget"
+    }
+  ],
+  "tags": ["buff", "utility", "no-concentration"]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Ring of Protection",
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "A magic ring mentioned in Chapter 6 only as an example of Attunement rules. It requires Attunement, and a creature can't attune to more than one Ring of Protection at a time. Full properties and pricing are detailed in the Dungeon Master's Guide, not in the Player's Handbook Equipment chapter.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

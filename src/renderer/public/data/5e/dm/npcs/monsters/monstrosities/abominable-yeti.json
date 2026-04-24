@@ -1,0 +1,228 @@
+{
+  "name": "Abominable Yeti",
+  "sizes": ["Huge"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Arctic", "Mountain"],
+  "treasure": ["None"],
+  "lore": "An abominable yeti is a towering, more savage cousin of the common yeti. Standing over fifteen feet tall, these monstrous predators roam the most desolate frozen peaks, where even hardened mountaineers fear to tread. In addition to rending claws and a paralyzing gaze, an abominable yeti can exhale a devastating blast of supernatural cold that flash-freezes everything in its path. They are apex predators of the coldest climates, sometimes commanding packs of lesser yetis.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 137,
+    "dice": {
+      "count": 11,
+      "die": "d12",
+      "modifier": 66
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Climb",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 24,
+      "modifier": 7,
+      "save": 7
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Cold"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Yeti"]
+  },
+  "challengeRating": "9",
+  "experiencePoints": 5000,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Fear of Fire",
+      "description": "If the yeti takes Fire damage, it has Disadvantage on attack rolls and ability checks until the end of its next turn."
+    },
+    {
+      "name": "Snow Camouflage",
+      "description": "The yeti has Advantage on Dexterity (Stealth) checks made to hide in snowy terrain."
+    }
+  ],
+  "multiattack": {
+    "description": "The yeti makes two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +11, reach 5 ft. Hit: 14 (2d6 + 7) Slashing damage plus 7 (2d6) Cold damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 11,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 7
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Chilling Gaze",
+      "description": "One creature the yeti can see within 30 feet of it must make a DC 18 Constitution saving throw. On a failed save, the target takes 21 (6d6) Cold damage and has the Paralyzed condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success. On a successful save, the target takes half damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 18,
+        "targets": "one creature the yeti can see within 30 feet",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 21,
+              "dice": {
+                "count": 6,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Paralyzed",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 18,
+                "targets": "the affected creature at the end of each of its turns",
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    },
+    {
+      "name": "Cold Breath",
+      "description": "The yeti exhales cold in a 30-foot Cone. Each creature in that area must make a DC 18 Constitution saving throw, taking 45 (10d8) Cold damage on a failed save, or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 30
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 18,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 45,
+              "dice": {
+                "count": 10,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ],
+  "bonusActions": null,
+  "reactions": null,
+  "legendaryActions": null,
+  "lair": null
+}

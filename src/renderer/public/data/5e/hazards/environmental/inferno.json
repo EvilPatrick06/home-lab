@@ -1,0 +1,12 @@
+{
+  "name": "Inferno",
+  "severity": "Level 11+",
+  "description": "Extreme heat. Creatures starting turn in fire take 11 (2d10) Fire damage. A strong magical fire fills the area with smoke (Heavily Obscured, Lightly Obscured within 30 feet).",
+  "slug": "inferno",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

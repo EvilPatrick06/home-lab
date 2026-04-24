@@ -1,0 +1,15 @@
+{
+  "name": "Ballista",
+  "ac": 15,
+  "hp": 50,
+  "attack": "+6, range 120/480 ft.",
+  "damage": "16 (3d10) Piercing",
+  "description": "Requires Load and Aim actions before firing. Large object.",
+  "slug": "ballista",
+  "category": "Siege Equipment",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

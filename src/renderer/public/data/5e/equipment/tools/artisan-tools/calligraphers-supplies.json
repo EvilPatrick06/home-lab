@@ -1,0 +1,15 @@
+{
+  "name": "Calligrapher's Supplies",
+  "cost": "10 GP",
+  "weight": "5 lb.",
+  "ability": "Dexterity",
+  "utilize": "Write text with impressive flourishes that guard against forgery (DC 15)",
+  "craft": "Ink, Spell Scroll",
+  "slug": "calligraphers-supplies",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

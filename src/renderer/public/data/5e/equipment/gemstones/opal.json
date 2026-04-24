@@ -1,0 +1,13 @@
+{
+  "name": "Opal",
+  "slug": "opal",
+  "value": "1,000 GP",
+  "category": "Gemstone",
+  "description": "pale blue with green and golden mottling",
+  "dieValue": "5",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

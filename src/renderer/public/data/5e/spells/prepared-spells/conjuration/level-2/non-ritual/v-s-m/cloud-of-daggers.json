@@ -1,0 +1,68 @@
+{
+  "name": "Cloud of Daggers",
+  "level": 2,
+  "school": "Conjuration",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a sliver of glass",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You conjure spinning daggers in a 5-foot Cube centered on a point within range. Each creature in that area takes 4d4 Slashing damage. A creature also takes this damage if it enters the Cube or ends its turn there. A creature takes this damage only once per turn.\n\nOn your later turns, you can take a Magic action to teleport the Cube up to 30 feet.",
+  "areaOfEffect": [
+    {
+      "shape": "Cube",
+      "sizeFeet": 5,
+      "movablePerTurn": true,
+      "movementFeet": 30
+    }
+  ],
+  "targetType": "point",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 4
+      },
+      "type": "Slashing",
+      "applicationType": "automatic",
+      "condition": "Each creature in the area on cast, on entry, or when ending its turn there; once per turn"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "Teleport the Cube up to 30 feet",
+    "movementFeet": 30
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 2,
+        "diceValue": 4,
+        "baseSpellLevel": 2,
+        "description": "The damage increases by 2d4 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["damage", "area", "no-save", "no-attack", "automatic-damage", "movable"]
+}

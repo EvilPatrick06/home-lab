@@ -1,0 +1,311 @@
+{
+  "id": "a1c2d3e4-5f67-4a8b-9c0d-e1f2a3b4c5d6",
+  "name": "Grappled",
+  "slug": "grappled",
+  "category": "Condition",
+  "subcategory": "Movement-Impairing Condition",
+  "tags": ["condition", "grapple", "speed-reduction", "melee", "combat"],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Rules Glossary",
+    "section": "Conditions"
+  },
+  "gameEdition": "2024",
+  "description": "A Grappled creature has its Speed reduced to 0 and can't benefit from any increase to its Speed. The creature has Disadvantage on Attack Rolls against targets other than the Grappler. The Grappler can drag or carry the Grappled creature when the Grappler moves, but every foot of movement costs 1 extra foot unless the Grappled creature is Tiny or two or more Sizes smaller than the Grappler. The condition ends if the Grappler is Incapacitated or if an effect removes the Grappled creature from the reach of the Grappler or grappling effect.",
+  "shortDescription": "Speed is 0 and can't increase. Disadvantage on Attack Rolls against targets other than the Grappler. Grappler can move the creature at extra cost.",
+  "rulesAsWritten": "While a creature is Grappled, it experiences the following effects:\n\nSpeed 0. The creature's Speed is 0 and can't increase.\n\nAttacks Affected. The creature has Disadvantage on Attack Rolls against targets other than the Grappler.\n\nMovable. The Grappler can drag or carry the Grappled creature when the Grappler moves, but every foot of movement costs 1 extra foot unless the Grappled creature is Tiny or two or more Sizes smaller than the Grappler.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [
+    {
+      "id": "b2c3d4e5-6f78-4a9b-0c1d-e2f3a4b5c6d7",
+      "target": "AllSpeeds",
+      "operation": "Set",
+      "value": 0,
+      "scope": {
+        "targetRelationship": "Self"
+      },
+      "perLevelScaling": false,
+      "note": "Speed is 0 and can't increase. No bonus to Speed can raise it above 0 while Grappled."
+    }
+  ],
+  "advantageGrants": [],
+  "disadvantageImposes": [
+    {
+      "id": "c3d4e5f6-7a89-4b0c-1d2e-f3a4b5c6d7e8",
+      "rollType": "AttackRoll",
+      "scope": {
+        "attackVectors": ["Any"],
+        "customScope": "Only against targets other than the Grappler"
+      },
+      "imposedOn": "Self",
+      "condition": "Attack target is not the Grappler",
+      "note": "The Grappled creature has Disadvantage on Attack Rolls against targets other than the Grappler."
+    }
+  ],
+  "automaticOutcomes": [],
+  "actionRestrictions": [
+    {
+      "id": "d4e5f6a7-8b90-4c1d-2e3f-a4b5c6d7e8f9",
+      "restrictedAction": "Movement",
+      "restrictionType": "Prohibited",
+      "condition": "Speed is set to 0 and cannot be increased by any means",
+      "note": "The creature cannot move under its own power while Grappled. The Grappler may drag or carry the creature."
+    }
+  ],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Incapacitated",
+      "relationship": "RemovedBy",
+      "isAutomatic": true,
+      "note": "Grappled ends immediately if the Grappler becomes Incapacitated."
+    },
+    {
+      "conditionName": "Restrained",
+      "relationship": "OftenCombined",
+      "isAutomatic": false,
+      "note": "Some features or monsters impose both Grappled and Restrained simultaneously."
+    },
+    {
+      "conditionName": "Prone",
+      "relationship": "OftenCombined",
+      "isAutomatic": false,
+      "note": "A creature can be both Grappled and Prone; a Grappled creature knocked Prone cannot stand up because its Speed is 0."
+    },
+    {
+      "conditionName": "Stunned",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "A Stunned Grappler is also Incapacitated, which ends the Grapple."
+    },
+    {
+      "conditionName": "Paralyzed",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "A Paralyzed Grappler is also Incapacitated, which ends the Grapple."
+    },
+    {
+      "conditionName": "Unconscious",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "An Unconscious Grappler is also Incapacitated, which ends the Grapple."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "e5f6a7b8-9c01-4d2e-3f4a-b5c6d7e8f9a0",
+      "order": 0,
+      "name": "Speed Reduced to Zero",
+      "description": "Upon becoming Grappled, the creature's Speed is set to 0 and cannot increase by any means for the duration of the condition.",
+      "trigger": {
+        "event": "OnApply"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "f6a7b8c9-0d12-4e3f-4a5b-c6d7e8f9a0b1",
+            "target": "AllSpeeds",
+            "operation": "Set",
+            "value": 0,
+            "perLevelScaling": false,
+            "note": "All movement speeds (walking, flying, swimming, climbing, burrowing) become 0 and can't increase."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a7b8c9d0-1e23-4f4a-5b6c-d7e8f9a0b1c2",
+      "order": 1,
+      "name": "Disadvantage on Attacks Against Non-Grappler Targets",
+      "description": "The Grappled creature has Disadvantage on Attack Rolls against any target other than the creature or effect that is grappling it.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "The target of the attack is not the Grappler"
+      },
+      "effects": [
+        {
+          "effectType": "DisadvantageImposition",
+          "imposition": {
+            "id": "b8c9d0e1-2f34-4a5b-6c7d-e8f9a0b1c2d3",
+            "rollType": "AttackRoll",
+            "scope": {
+              "customScope": "Attack Rolls against targets other than the Grappler"
+            },
+            "imposedOn": "Self",
+            "condition": "Target of the attack is not the Grappler",
+            "note": "Does not apply to Attack Rolls made against the Grappler itself."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c9d0e1f2-3a45-4b6c-7d8e-f9a0b1c2d3e4",
+      "order": 2,
+      "name": "Movable by Grappler",
+      "description": "The Grappler can drag or carry the Grappled creature when the Grappler moves. Every foot of movement costs 1 extra foot unless the Grappled creature is Tiny or two or more Sizes smaller than the Grappler.",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "The Grappler moves while maintaining the grapple"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The Grappler can drag or carry the Grappled creature along when the Grappler moves. Each foot of movement costs 1 extra foot (effectively halving the Grappler's speed for that movement) unless the Grappled creature is Tiny or two or more Sizes smaller than the Grappler.",
+          "mechanicalNote": "This extra cost applies to the Grappler's movement, not the Grappled creature's movement. The Grappled creature's Speed remains 0; it is involuntarily moved."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d0e1f2a3-4b56-4c7d-8e9f-a0b1c2d3e4f5",
+      "order": 3,
+      "name": "Grapple Ends on Grappler Incapacitation",
+      "description": "The Grappled condition ends immediately if the Grappler becomes Incapacitated.",
+      "trigger": {
+        "event": "OnConditionApplied",
+        "condition": "The Grappler gains the Incapacitated condition"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The Grappled condition ends automatically and immediately when the Grappler becomes Incapacitated.",
+          "mechanicalNote": "This includes any condition that implies Incapacitated (Stunned, Paralyzed, Unconscious, Petrified)."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e1f2a3b4-5c67-4d8e-9f0a-b1c2d3e4f5a6",
+      "order": 4,
+      "name": "Grapple Ends When Moved Out of Reach",
+      "description": "The Grappled condition ends if an effect removes the Grappled creature from the reach of the Grappler or the grappling effect.",
+      "trigger": {
+        "event": "OnForcedMovement",
+        "condition": "An effect moves the Grappled creature out of the Grappler's reach"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The Grappled condition ends immediately if the Grappled creature is moved beyond the reach of the Grappler or the grappling effect (e.g., by the Thunderwave spell or similar forced movement).",
+          "mechanicalNote": "This also applies if the Grappler is moved away from the Grappled creature such that the creature is no longer within reach."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f2a3b4c5-6d78-4e9f-0a1b-c2d3e4f5a6b7",
+      "order": 5,
+      "name": "Escape the Grapple",
+      "description": "The Grappled creature can use its action to attempt to escape by making a Strength (Athletics) or Dexterity (Acrobatics) check against the grapple's escape DC.",
+      "trigger": {
+        "event": "OnAbilityCheckMade",
+        "condition": "The Grappled creature uses its action to attempt escape"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The Grappled creature uses its action to make a Strength (Athletics) or Dexterity (Acrobatics) check against the grapple's escape DC. On a success, the Grappled condition ends on the creature.",
+          "mechanicalNote": "The escape DC is set by the grappling effect or equals the Grappler's Unarmed Strike DC (8 + Proficiency Bonus + Strength modifier) for standard grapples."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "a3b4c5d6-7e89-4f0a-1b2c-d3e4f5a6b7c8",
+      "method": "ConditionEnds",
+      "description": "The Grappled condition ends immediately if the Grappler becomes Incapacitated (including via Stunned, Paralyzed, Unconscious, or Petrified conditions).",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "b4c5d6e7-8f90-4a1b-2c3d-e4f5a6b7c8d9",
+      "method": "SpecialAction",
+      "description": "The Grappled creature can use its action to escape by succeeding on a Strength (Athletics) or Dexterity (Acrobatics) check against the grapple's escape DC.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "c5d6e7f8-9a01-4b2c-3d4e-f5a6b7c8d9e0",
+      "method": "Other",
+      "description": "The Grappled condition ends if an effect (such as Thunderwave) removes the Grappled creature from the reach of the Grappler or the grappling effect.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "A creature can be Grappled by multiple grapplers simultaneously. Each grapple is tracked independently; escaping or ending one does not end the others."
+  },
+  "dmNotes": "The Grappled condition imposes Speed 0 and Disadvantage on attacks against non-Grappler targets. The Grappler may drag the creature. Grapple ends if: (1) the Grappler is Incapacitated, (2) the creature is moved out of reach, or (3) the creature uses its action to escape via Athletics or Acrobatics. Remember that any condition implying Incapacitated (Stunned, Paralyzed, Unconscious, Petrified) on the Grappler automatically ends the grapple. Teleportation or forced movement that separates the pair also ends the grapple.",
+  "commonRulings": [
+    {
+      "question": "Can a Grappled creature still take actions other than trying to escape?",
+      "ruling": "Yes. Grappled only sets Speed to 0 and imposes Disadvantage on Attack Rolls against non-Grappler targets. The creature can still take any action, Bonus Action, or Reaction normally, including casting spells.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does being Grappled prevent a creature from making Opportunity Attacks?",
+      "ruling": "No. A Grappled creature can still make Opportunity Attacks. However, since it has Disadvantage on Attack Rolls against targets other than the Grappler, any Opportunity Attack against a non-Grappler target would be at Disadvantage.",
+      "isOfficial": false
+    },
+    {
+      "question": "If a Grappled creature is also Prone, can it stand up?",
+      "ruling": "No. Standing from Prone requires spending movement equal to half your Speed. Since a Grappled creature's Speed is 0, it has no movement to spend and cannot stand up until the Grapple ends.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does the Grappler need a free hand to maintain a grapple?",
+      "ruling": "The 2024 rules state that the Grapple action requires a free hand. Once established, the Grappler must keep the hand free to maintain the grapple. If the Grappler uses that hand for something else, the grapple ends.",
+      "isOfficial": true
+    },
+    {
+      "question": "If the Grappler is Stunned, does the grapple end?",
+      "ruling": "Yes. The Stunned condition includes Incapacitated, and the Grappled condition ends when the Grappler is Incapacitated.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

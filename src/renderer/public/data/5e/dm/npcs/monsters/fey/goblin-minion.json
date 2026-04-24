@@ -1,0 +1,56 @@
+{
+  "name": "Goblin Minion",
+  "slug": "goblin-minion",
+  "size": "Small",
+  "type": "Fey",
+  "alignment": "Chaotic Neutral",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "7",
+  "hpFormula": "2d6",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 8,
+    "dex": 15,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -1,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +6",
+  "gear": "Daggers (3)",
+  "senses": "Darkvision 60 ft.; Passive Perception 9",
+  "languages": "Common, Goblin",
+  "cr": "1/8 (XP 25; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Dagger",
+      "description": "*Melee or Ranged Attack Roll:* +4, reach 5 ft. or range 20/60 ft. *Hit:* 4 (1d4 + 2) Piercing damage."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Nimble Escape",
+      "description": "The goblin takes the Disengage or Hide action."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Wild Tricksters and Troublemakers*\n**Habitat:** Forest, Grassland, Hill, Planar (Acheron, Feywild), Underdark; **Treasure:** Implements, Individual\nGoblins are Feywild embodiments of recklessness and ruin. They delight in wreckage -- the louder, the more energetic, and the more convoluted, the better. Goblin raids are often as much opportunities to enjoy setting fires and tormenting livestock as they are parts of more disruptive plots.\nGoblins obey those who accomplish the wildest plans. Such leaders might be goblin raid masterminds, bombastic magic-users, or those capable of making the loudest noises. Hobgoblins and forceful humanoids might also command ornery groups of goblins, directing their destructiveness toward banditry, sabotage, or war.\nThe deity Maglubiyet claims to be the god of goblins, hobgoblins, and bugbears, and on the Infinite Battlefield of Acheron, the deity commands innumerable goblinoid legions. In ages long past, Maglubiyet witnessed the destructive propensity of goblinoids and relocated a population of them from the Feywild to his realm on the Outer Planes. Since then, hordes of these more martial-minded goblins have flourished, with some finding their ways to Material Plane worlds. These vicious invaders seek to sow ruin in preparation for their god's conquest.\n> \"Bree-yark!\" -- Approximate translation from Goblin to Common: \"Hey, rube!\"\nGoblin minions enjoy participating in the disruptive schemes of clever leaders but are quick to flee when confronted by their comeuppance.\nGoblin warriors excel at causing mischief. Those in service to Maglubiyet have greater discipline and are likely to withdraw to set up ambushes.\nGoblin bosses are often the most imaginative, disruptive, or forceful goblins. Through a combination of luck, cowardice, and callousness, these leaders avoid harm at the expense of their followers.\nGoblin hexers use flashy and disruptive magic. Many goblin hexers are theatrical, dressing and behaving in exaggerated mimicry of archmages.",
+  "habitat": "Forest, Grassland, Hill, Planar (Acheron, Feywild), Underdark",
+  "treasure": "Implements, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

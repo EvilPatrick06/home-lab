@@ -1,0 +1,160 @@
+{
+  "name": "Ankheg",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Desert", "Forest", "Grassland"],
+  "treasure": ["None"],
+  "lore": "An ankheg is a burrowing predator that lurks beneath the surface of the earth, waiting for prey to pass overhead. When it detects vibrations from above, it erupts from the ground, seizing victims in its powerful mandibles and dousing them with acid. Farmers both fear and grudgingly respect ankhegs, as the creatures' burrowing aerates the soil but their hunting threatens livestock and workers alike.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 39,
+    "dice": {
+      "count": 6,
+      "die": "d10",
+      "modifier": 6
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Burrow",
+      "distance": 10
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      },
+      {
+        "type": "Tremorsense",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {},
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 10 (2d6 + 3) Slashing damage plus 3 (1d6) Acid damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 13). Until this grapple ends, the ankheg can bite only the grappled creature and has Advantage on attack rolls to do so.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ],
+          "additionalEffects": "If the target is a Large or smaller creature, it has the Grappled condition (escape DC 13). Until this grapple ends, the ankheg can bite only the grappled creature and has Advantage on attack rolls to do so.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Acid Spray",
+      "description": "The ankheg spits acid in a 30-foot Line that is 5 feet wide. Each creature in that Line makes a DC 13 Dexterity saving throw, taking 10 (3d6) Acid damage on a failed save or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 13,
+        "targets": "each creature in that Line",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Line",
+        "size": 30,
+        "width": 5
+      }
+    }
+  ]
+}

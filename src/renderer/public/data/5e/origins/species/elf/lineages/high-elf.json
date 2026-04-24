@@ -1,0 +1,15 @@
+{
+  "id": "high-elf",
+  "name": "High Elf",
+  "species": "elf",
+  "description": "High Elves are attuned to arcane magic.",
+  "traits": [
+    {
+      "name": "High Elf Cantrip",
+      "description": "You know one Wizard cantrip. Intelligence is your spellcasting ability."
+    },
+    { "name": "Extra Language", "description": "You speak, read, and write one extra language." }
+  ],
+  "abilityScoreIncrease": { "intelligence": 1 },
+  "source": "PHB 2024"
+}

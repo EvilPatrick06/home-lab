@@ -1,0 +1,187 @@
+{
+  "id": "e7c3a1b2-5d4f-4e8a-9c6b-3f2a1d0e8b7c",
+  "name": "Inspiration",
+  "slug": "inspiration",
+  "category": "GeneralRule",
+  "subcategory": "Heroic Inspiration",
+  "tags": ["inspiration", "heroic-inspiration", "d20-test", "reroll", "natural-20"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "D20 Tests"
+  },
+  "gameEdition": "2024",
+  "description": "Inspiration is a special resource that represents a character's heroic resolve. A character either has Inspiration or doesn't—it is a binary state that cannot be stacked. When a character has Inspiration, the character can expend it to reroll any die on a D20 Test the character just made, and the character must use the new roll. In the 2024 rules, a character gains Heroic Inspiration whenever they roll a 20 on a D20 Test. A DM may also award Inspiration for other reasons. If a character already has Inspiration when they would gain it, they can give their Inspiration to another player character in the group who lacks it.",
+  "shortDescription": "A binary resource allowing a character to reroll any D20 Test. Gained on a natural 20 or by DM award.",
+  "flavorText": "A surge of heroic resolve empowers you to push past failure.",
+  "rulesAsWritten": "Rolling a 20. When you roll a 20 on the d20 for a D20 Test, you gain Heroic Inspiration. If you already have Inspiration, you can give it to a player character in your group who lacks it. Heroic Inspiration. If you have Heroic Inspiration, you can expend it to reroll any die used for a D20 Test you just made, and you must use the new roll.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-1111-4aaa-bbbb-000000000001",
+      "order": 0,
+      "name": "Gain Heroic Inspiration on Natural 20",
+      "description": "When you roll a 20 on the d20 for a D20 Test, you gain Heroic Inspiration. This is automatic and does not require any action.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Natural 20 rolled on any D20 Test (Attack Roll, Saving Throw, or Ability Check)"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The character gains Heroic Inspiration if they do not already have it. Heroic Inspiration is a binary state—you either have it or you do not.",
+          "mechanicalNote": "Triggers on any D20 Test yielding a natural 20, including Attack Rolls, Saving Throws, and Ability Checks."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-2222-4aaa-bbbb-000000000002",
+      "order": 1,
+      "name": "Transfer Inspiration When Already Held",
+      "description": "If you already have Inspiration when you would gain it (e.g., from rolling a natural 20), you can give your Inspiration to a player character in your group who lacks it.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Character already has Inspiration and would gain it again"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The character gives their existing Inspiration to another player character in the group who does not currently have Inspiration.",
+          "mechanicalNote": "The transfer target must be a player character who lacks Inspiration. The giving character retains their existing Inspiration."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-3333-4aaa-bbbb-000000000003",
+      "order": 2,
+      "name": "Expend Inspiration to Reroll a D20 Test",
+      "description": "When you have Heroic Inspiration, you can expend it immediately after rolling any die on a D20 Test to reroll that die. You must use the new roll result.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Immediately after rolling the d20 for any D20 Test (Attack Roll, Saving Throw, or Ability Check), and the character currently has Inspiration"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Reroll any die used for the D20 Test just made. The character must use the new roll. Inspiration is then expended.",
+          "mechanicalNote": "This is a reroll, not Advantage. It applies to the d20 and can be used after seeing the initial result but before the DM declares the outcome. The new roll must be used even if it is lower."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-4444-4aaa-bbbb-000000000004",
+      "order": 3,
+      "name": "DM-Awarded Inspiration",
+      "description": "The Dungeon Master can award Inspiration to a player character for various reasons, such as exceptional roleplaying, clever tactics, or dramatic moments.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "DM decides to award Inspiration"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The character gains Inspiration. If the character already has Inspiration, the normal transfer rule applies.",
+          "mechanicalNote": "DM discretion. No mechanical trigger—purely narrative or reward-based."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "b1b2c3d4-5555-4aaa-bbbb-000000000005",
+      "method": "SpecialAction",
+      "description": "Inspiration is expended when the character uses it to reroll a D20 Test.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "b1b2c3d4-6666-4aaa-bbbb-000000000006",
+      "method": "Other",
+      "description": "Inspiration is lost if the character gives it to another player character when they would gain Inspiration but already have it.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "b1b2c3d4-7777-4aaa-bbbb-000000000007",
+      "method": "LongRest",
+      "description": "Inspiration persists across rests. It does not expire on a Long Rest. It is only removed by expenditure or transfer.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "maxStacks": 1,
+    "stackingNote": "A character either has Inspiration or doesn't. Multiple sources of Inspiration do not stack. If a character already has Inspiration and would gain it, they may instead give it to another player character who lacks it."
+  },
+  "dmNotes": "Inspiration is a powerful pacing and reward tool. The 2024 rules make gaining Inspiration automatic on a natural 20, reducing DM burden. Consider awarding Inspiration for exceptional roleplaying, creative problem-solving, or dramatic narrative moments. Remember that Inspiration cannot be hoarded—it is binary—and the transfer mechanic encourages team play. A reroll is statistically weaker than Advantage since it replaces the original roll rather than adding a second die.",
+  "commonRulings": [
+    {
+      "question": "Does Inspiration stack with Advantage?",
+      "ruling": "Yes. Inspiration allows a reroll after the d20 is rolled, which is a separate mechanic from Advantage. A character with Advantage rolls two d20s and takes the higher. If they also have Inspiration, they can then reroll the chosen die result and must use the new roll.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can you use Inspiration on a Death Saving Throw?",
+      "ruling": "Yes. A Death Saving Throw is a type of D20 Test, so Inspiration can be expended to reroll it.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Inspiration persist between sessions?",
+      "ruling": "Yes, unless the DM rules otherwise. The 2024 rules do not specify an expiration for Inspiration.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can you give Inspiration to an NPC or a creature?",
+      "ruling": "No. When you already have Inspiration and gain it again, you can give it to a player character in your group who lacks it. NPCs and non-player creatures cannot receive Inspiration this way.",
+      "isOfficial": true
+    },
+    {
+      "question": "If I roll a natural 20 on a reroll granted by Inspiration, do I gain Inspiration again?",
+      "ruling": "Yes. Rolling a natural 20 on any d20 for a D20 Test grants Heroic Inspiration, including rerolls. Since you just expended Inspiration to reroll, you would gain it back.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-09-17T00:00:00Z",
+  "updatedAt": "2024-09-17T00:00:00Z",
+  "version": "1.0.0"
+}

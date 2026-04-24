@@ -1,0 +1,15 @@
+{
+  "name": "Armor of Gleaming",
+  "itemType": "Armor",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "This armor never gets dirty.",
+  "properties": [],
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

@@ -1,0 +1,128 @@
+{
+  "name": "Owlbear",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Forest", "Hill"],
+  "treasure": ["None"],
+  "lore": "An owlbear is a ferocious predator with the body of a bear and the head of an owl. These aggressive creatures are the bane of any woodland they inhabit. They attack nearly anything that moves, slaying prey with their crushing claws and snapping beaks. Owlbears live in caves and ruins, venturing out at all hours to hunt. Their terrible shrieks echo through the wilderness, warning all who hear them that a savage killer is on the prowl.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 59,
+    "dice": {
+      "count": 7,
+      "die": "d10",
+      "modifier": 21
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Climb",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Keen Sight and Smell",
+      "description": "The owlbear has Advantage on Wisdom (Perception) checks that rely on sight or smell."
+    }
+  ],
+  "multiattack": {
+    "description": "The owlbear makes two Ravage attacks.",
+    "attacks": [
+      {
+        "actionName": "Ravage",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Ravage",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 14 (2d8 + 5) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Potion of Water Breathing",
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "weight": 0.5,
+  "description": "This potion's cloudy green fluid smells of the sea. As a Bonus Action, you can drink it or administer it to another creature within 5 feet of yourself. The creature that drinks this potion can breathe underwater for 1 hour after drinking it.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Bonus Action",
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

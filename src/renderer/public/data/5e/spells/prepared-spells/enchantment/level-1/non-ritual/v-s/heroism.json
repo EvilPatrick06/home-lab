@@ -1,0 +1,47 @@
+{
+  "name": "Heroism",
+  "level": 1,
+  "school": "Enchantment",
+  "classes": ["Bard", "Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "A willing creature you touch is imbued with bravery. Until the spell ends, the creature is immune to the Frightened condition and gains Temporary Hit Points equal to your spellcasting ability modifier at the start of each of its turns.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "immunitiesGranted": {
+    "conditions": ["Frightened"]
+  },
+  "temporaryHitPoints": {
+    "dice": {
+      "addCasterMod": true
+    }
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 1,
+        "description": "You can target one additional creature for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["buff", "temporary-hit-points", "immunity", "concentration"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Resistance",
+  "slug": "resistance",
+  "description": "If you have Resistance to a damage type, damage of that type is halved against you (round down). Resistance applies after all other modifiers to damage. Multiple instances of Resistance don't stack.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

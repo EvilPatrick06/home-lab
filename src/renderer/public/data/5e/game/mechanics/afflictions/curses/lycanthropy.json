@@ -1,0 +1,105 @@
+{
+  "id": "lycanthropy",
+  "name": "Lycanthropy",
+  "description": "Lycanthropy is a curse that transforms a humanoid into a lycanthrope -- a creature that can shift between humanoid and beast forms. The curse is typically transmitted through a bite from a lycanthrope.",
+  "transmission": {
+    "method": "A humanoid creature can be afflicted with lycanthropy after being bitten by a lycanthrope, or through a curse or other magical means.",
+    "savingThrow": "The DM may allow a Constitution saving throw (DC varies by lycanthrope type) to resist the curse after being bitten.",
+    "onsetTime": "The curse takes hold on the next full moon, unless removed before then."
+  },
+  "types": [
+    {
+      "id": "werewolf",
+      "name": "Werewolf",
+      "alignment": "Chaotic Evil (when cursed unwillingly)",
+      "beastForm": "Wolf-humanoid hybrid or dire wolf",
+      "damageImmunity": "Bludgeoning, Piercing, and Slashing from nonmagical attacks not made with silvered weapons",
+      "abilityModifications": {
+        "strength": 15,
+        "note": "Strength becomes 15 if not already higher"
+      },
+      "traits": [
+        "Keen Hearing and Smell (Advantage on Perception checks relying on hearing or smell)",
+        "Speed 30 ft. (40 ft. in wolf form)"
+      ],
+      "actions": [
+        "Bite (hybrid or wolf form only): melee weapon attack, Piercing damage, DC 12 Constitution save or be cursed"
+      ],
+      "saveDC": 12
+    },
+    {
+      "id": "wererat",
+      "name": "Wererat",
+      "alignment": "Lawful Evil",
+      "beastForm": "Rat-humanoid hybrid or giant rat",
+      "damageImmunity": "Bludgeoning, Piercing, and Slashing from nonmagical attacks not made with silvered weapons",
+      "abilityModifications": {
+        "dexterity": 15,
+        "note": "Dexterity becomes 15 if not already higher"
+      },
+      "traits": ["Keen Smell (Advantage on Perception checks relying on smell)", "Darkvision 60 ft."],
+      "actions": [
+        "Bite (hybrid or rat form only): melee weapon attack, Piercing damage, DC 11 Constitution save or be cursed"
+      ],
+      "saveDC": 11
+    },
+    {
+      "id": "wereboar",
+      "name": "Wereboar",
+      "alignment": "Neutral Evil",
+      "beastForm": "Boar-humanoid hybrid or giant boar",
+      "damageImmunity": "Bludgeoning, Piercing, and Slashing from nonmagical attacks not made with silvered weapons",
+      "abilityModifications": {
+        "strength": 17,
+        "note": "Strength becomes 17 if not already higher"
+      },
+      "traits": [
+        "Charge (if the wereboar moves at least 15 feet straight toward a target and hits with tusks, extra 2d6 Slashing, DC 13 Strength save or be knocked Prone)",
+        "Relentless (if reduced to 0 HP, drops to 1 HP instead, once per day)"
+      ],
+      "actions": [
+        "Tusks (hybrid or boar form only): melee weapon attack, Slashing damage, DC 12 Constitution save or be cursed"
+      ],
+      "saveDC": 12
+    },
+    {
+      "id": "weretiger",
+      "name": "Weretiger",
+      "alignment": "Neutral",
+      "beastForm": "Tiger-humanoid hybrid or tiger",
+      "damageImmunity": "Bludgeoning, Piercing, and Slashing from nonmagical attacks not made with silvered weapons",
+      "abilityModifications": {
+        "strength": 17,
+        "note": "Strength becomes 17 if not already higher"
+      },
+      "traits": [
+        "Keen Hearing and Smell (Advantage on Perception checks relying on hearing or smell)",
+        "Pounce (if moves 15 ft. straight toward creature and hits with claw, DC 14 Strength save or be knocked Prone, bonus bite if Prone)"
+      ],
+      "actions": [
+        "Bite (hybrid or tiger form only): melee weapon attack, Piercing damage, DC 13 Constitution save or be cursed"
+      ],
+      "saveDC": 13
+    },
+    {
+      "id": "werebear",
+      "name": "Werebear",
+      "alignment": "Neutral Good",
+      "beastForm": "Bear-humanoid hybrid or polar bear",
+      "damageImmunity": "Bludgeoning, Piercing, and Slashing from nonmagical attacks not made with silvered weapons",
+      "abilityModifications": {
+        "strength": 19,
+        "note": "Strength becomes 19 if not already higher"
+      },
+      "traits": ["Keen Smell (Advantage on Perception checks relying on smell)"],
+      "actions": [
+        "Bite (hybrid or bear form only): melee weapon attack, Piercing damage, DC 14 Constitution save or be cursed"
+      ],
+      "saveDC": 14
+    }
+  ],
+  "curing": {
+    "spells": ["Remove Curse", "Greater Restoration", "Wish"],
+    "notes": "Remove Curse can end the curse of lycanthropy. If the character was born a natural lycanthrope, Remove Curse cannot cure the condition. A natural lycanthrope can be cured only by a Wish spell. If a character embraces the curse, they may lose their character to the DM's control."
+  }
+}

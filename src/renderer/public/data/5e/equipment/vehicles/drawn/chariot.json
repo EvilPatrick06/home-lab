@@ -1,0 +1,12 @@
+{
+  "name": "Chariot",
+  "cost": "250 GP",
+  "weight": "100 lb.",
+  "slug": "chariot",
+  "category": "Drawn Vehicle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

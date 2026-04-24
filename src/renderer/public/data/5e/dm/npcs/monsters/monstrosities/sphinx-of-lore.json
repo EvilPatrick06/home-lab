@@ -1,0 +1,375 @@
+{
+  "name": "Sphinx of Lore",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "descriptiveTags": ["Sphinx"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Desert"],
+  "treasure": ["Arcana"],
+  "lore": "A sphinx of lore is a great leonine creature with a humanlike face, placed in the world by a god to guard sites of knowledge and to test those who seek wisdom. These sphinxes pose riddles and puzzles to those who approach, and those who fail their tests face the sphinx's wrath. A sphinx of lore hoards knowledge as a dragon hoards gold, collecting lore from across the ages.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 136,
+    "dice": {
+      "count": 16,
+      "die": "d10",
+      "modifier": 48
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 8
+    },
+    {
+      "skill": "History",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    },
+    {
+      "skill": "Religion",
+      "bonus": 8
+    }
+  ],
+  "damageImmunities": ["Psychic"],
+  "conditionImmunities": ["Charmed", "Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common"],
+    "notes": "plus two other languages"
+  },
+  "challengeRating": "11",
+  "experiencePoints": 7200,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Inscrutable",
+      "description": "No ability check or magic can reveal the sphinx's emotions or alignment. Wisdom (Insight) checks made to anticipate the sphinx's intentions or actions have Disadvantage."
+    },
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the sphinx fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The sphinx has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "INT",
+      "spellSaveDC": 16,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Mage Hand",
+              "level": 0
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            },
+            {
+              "name": "Prestidigitation",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Identify",
+              "level": 1
+            },
+            {
+              "name": "Suggestion",
+              "level": 2
+            },
+            {
+              "name": "Tongues",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Banishment",
+              "level": 4
+            },
+            {
+              "name": "Legend Lore",
+              "level": 5
+            },
+            {
+              "name": "Scrying",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The sphinx makes two Rend attacks and uses Enigma of the Sphinx.",
+    "attacks": [
+      {
+        "actionName": "Rend",
+        "count": 2
+      },
+      {
+        "actionName": "Enigma of the Sphinx",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 15 (2d10 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Enigma of the Sphinx",
+      "description": "The sphinx poses a riddle to one creature it can see within 60 feet of itself. Intelligence Saving Throw: DC 16. Failure: 21 (6d6) Psychic damage, and the target has the Frightened condition until the start of the sphinx's next turn. Success: Half damage only.",
+      "savingThrow": {
+        "ability": "INT",
+        "dc": 16,
+        "targets": "one creature the sphinx can see within 60 feet",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 21,
+              "dice": {
+                "count": 6,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "until the start of the sphinx's next turn"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The sphinx casts one of the following spells, requiring no Material components, using Intelligence as the spellcasting ability (spell save DC 16):\n\nAt Will: Detect Magic, Mage Hand, Minor Illusion, Prestidigitation\n\n3/Day Each: Dispel Magic, Identify, Suggestion, Tongues\n\n1/Day Each: Banishment, Legend Lore, Scrying"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Teleport",
+      "description": "The sphinx teleports, along with any equipment it is wearing or carrying, to an unoccupied space it can see within 120 feet of itself.",
+      "teleport": {
+        "distance": 120
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Rend",
+        "description": "The sphinx makes one Rend attack.",
+        "cost": 1
+      },
+      {
+        "name": "Teleport",
+        "description": "The sphinx uses Teleport.",
+        "cost": 1
+      },
+      {
+        "name": "Cast a Spell",
+        "description": "The sphinx uses Spellcasting.",
+        "cost": 2
+      }
+    ]
+  },
+  "lair": {
+    "description": "A sphinx of lore typically lairs in a temple, tomb, or ancient monument dedicated to the pursuit of knowledge. The lair is filled with riddles, puzzles, and traps designed to test the worthiness of those who seek the sphinx's wisdom.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Temporal Warp",
+        "description": "The sphinx targets one creature it can see within 120 feet of itself. The target must succeed on a DC 16 Charisma saving throw or be magically teleported, along with any equipment it is wearing or carrying, to an unoccupied space within 60 feet of the sphinx.",
+        "savingThrow": {
+          "ability": "CHA",
+          "dc": 16,
+          "targets": "one creature the sphinx can see within 120 feet",
+          "onFailure": {
+            "effects": "The target is magically teleported to an unoccupied space within 60 feet of the sphinx."
+          }
+        }
+      },
+      {
+        "name": "Psychic Intrusion",
+        "description": "The sphinx targets one creature it can see within 60 feet of itself. The target must succeed on a DC 16 Intelligence saving throw or take 10 (3d6) Psychic damage.",
+        "savingThrow": {
+          "ability": "INT",
+          "dc": 16,
+          "targets": "one creature the sphinx can see within 60 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 10,
+                "dice": {
+                  "count": 3,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Psychic"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Shifting Sands",
+        "description": "The sphinx creates a wall of sand and force within 120 feet of itself. The wall can be up to 60 feet long, 10 feet high, and 5 feet thick. Each creature in the wall's space must succeed on a DC 16 Strength saving throw or take 7 (2d6) Bludgeoning damage and be pushed 10 feet out of the wall's space. The wall lasts until the sphinx uses another lair action or until the sphinx dies. The wall blocks line of sight.",
+        "savingThrow": {
+          "ability": "STR",
+          "dc": 16,
+          "targets": "each creature in the wall's space",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 7,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "effects": "The target is pushed 10 feet out of the wall's space."
+          }
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Divination spells cast within the region have a 25 percent chance of revealing additional information beyond what is normally revealed, at the DM's discretion.",
+        "radius": 5,
+        "endCondition": "The effect ends if the sphinx dies or leaves the lair."
+      },
+      {
+        "description": "Time flows strangely within the region. After spending a day within the region, visitors are unsure whether one day, several days, or no days have passed in the world outside.",
+        "radius": 5,
+        "endCondition": "The effect ends if the sphinx dies or leaves the lair."
+      }
+    ]
+  }
+}

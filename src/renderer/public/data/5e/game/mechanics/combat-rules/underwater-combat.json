@@ -1,0 +1,246 @@
+{
+  "id": "b7e3c1a4-8f2d-4e6a-9b0c-3d5f7a1e8c42",
+  "name": "Underwater Combat",
+  "slug": "underwater-combat",
+  "category": "CombatRule",
+  "subcategory": "Environmental Combat",
+  "tags": ["underwater", "swimming", "environment", "combat", "ranged-attacks", "melee-attacks", "fire-resistance"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Rules Glossary",
+    "section": "Underwater Combat"
+  },
+  "gameEdition": "2024",
+  "description": "Special rules govern combat when it takes place underwater. A creature without a Swimming Speed has Disadvantage on melee weapon attack rolls unless the weapon deals Piercing damage. Ranged weapon attacks automatically miss targets beyond the weapon's normal range, and even within normal range the attack roll has Disadvantage unless the weapon is a Crossbow, a Net, or a thrown weapon such as a Javelin, Spear, Trident, or Dart. Creatures and objects fully immersed in water have Resistance to Fire damage.",
+  "shortDescription": "Rules for attacking and taking damage while submerged in water, including Disadvantage on certain attacks and Fire Resistance.",
+  "rulesAsWritten": "When making a melee weapon attack underwater, a creature that doesn't have a Swimming Speed has Disadvantage on the attack roll unless the weapon deals Piercing damage. A ranged weapon attack automatically misses a target beyond the weapon's normal range. Even against a target within normal range, the attack roll has Disadvantage unless the weapon is a Crossbow, a Net, or a weapon that is thrown like a Javelin (including a Spear, Trident, or Dart). Creatures and objects that are fully immersed in water have Resistance to Fire damage.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [
+    {
+      "id": "a1d2e3f4-5678-4abc-9def-111111000001",
+      "rollType": "AttackRoll",
+      "scope": {
+        "attackVectors": ["MeleeWeapon"],
+        "customScope": "Applies only to creatures that lack a Swimming Speed and are using a weapon that does not deal Piercing damage"
+      },
+      "imposedOn": "Self",
+      "condition": "Creature does not have a Swimming Speed and the weapon does not deal Piercing damage",
+      "note": "Melee weapon attacks underwater have Disadvantage unless the weapon deals Piercing damage; creatures with a Swimming Speed are exempt"
+    },
+    {
+      "id": "a1d2e3f4-5678-4abc-9def-111111000002",
+      "rollType": "AttackRoll",
+      "scope": {
+        "attackVectors": ["RangedWeapon"],
+        "customScope": "Applies to ranged weapon attacks against targets within normal range, unless the weapon is a Crossbow, a Net, or a thrown weapon such as a Javelin, Spear, Trident, or Dart"
+      },
+      "imposedOn": "Self",
+      "condition": "Target is within the weapon's normal range and the weapon is not a Crossbow, Net, or thrown weapon (Javelin, Spear, Trident, Dart)",
+      "note": "Ranged weapon attacks underwater have Disadvantage within normal range unless using a Crossbow, Net, or qualifying thrown weapon"
+    }
+  ],
+  "automaticOutcomes": [
+    {
+      "id": "a1d2e3f4-5678-4abc-9def-222222000001",
+      "rollType": "AttackRoll",
+      "outcome": "AutoFail",
+      "scope": {
+        "attackVectors": ["RangedWeapon"],
+        "customScope": "Target is beyond the weapon's normal range while attacker is underwater"
+      },
+      "condition": "Target is beyond the weapon's normal range",
+      "note": "A ranged weapon attack underwater automatically misses any target beyond the weapon's normal range"
+    }
+  ],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [
+    {
+      "id": "a1d2e3f4-5678-4abc-9def-333333000001",
+      "damageType": "Fire",
+      "note": "Creatures and objects fully immersed in water have Resistance to Fire damage"
+    }
+  ],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "c1c2c3c4-d5d6-4e7e-8f9f-aaaaaa000001",
+      "order": 0,
+      "name": "Melee Weapon Attack Disadvantage",
+      "description": "When making a melee weapon attack underwater, a creature that doesn't have a Swimming Speed has Disadvantage on the attack roll unless the weapon deals Piercing damage.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Creature is underwater and making a melee weapon attack",
+        "scope": {
+          "attackVectors": ["MeleeWeapon"]
+        }
+      },
+      "effects": [
+        {
+          "effectType": "DisadvantageImposition",
+          "imposition": {
+            "id": "e1e2e3e4-f5f6-4a7a-8b9b-bbbbbb000001",
+            "rollType": "AttackRoll",
+            "scope": {
+              "attackVectors": ["MeleeWeapon"],
+              "customScope": "Weapon does not deal Piercing damage"
+            },
+            "imposedOn": "Self",
+            "condition": "Creature lacks a Swimming Speed and the weapon does not deal Piercing damage",
+            "note": "Exempt if creature has a Swimming Speed or weapon deals Piercing damage"
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c1c2c3c4-d5d6-4e7e-8f9f-aaaaaa000002",
+      "order": 1,
+      "name": "Ranged Weapon Attack Auto-Miss Beyond Normal Range",
+      "description": "A ranged weapon attack made underwater automatically misses a target beyond the weapon's normal range.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Creature is underwater and making a ranged weapon attack against a target beyond normal range",
+        "scope": {
+          "attackVectors": ["RangedWeapon"]
+        }
+      },
+      "effects": [
+        {
+          "effectType": "AutomaticOutcome",
+          "outcome": {
+            "id": "e1e2e3e4-f5f6-4a7a-8b9b-bbbbbb000002",
+            "rollType": "AttackRoll",
+            "outcome": "AutoFail",
+            "scope": {
+              "attackVectors": ["RangedWeapon"],
+              "customScope": "Target beyond normal range underwater"
+            },
+            "condition": "Target is beyond the weapon's normal range",
+            "note": "Attack automatically misses; no roll is made"
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c1c2c3c4-d5d6-4e7e-8f9f-aaaaaa000003",
+      "order": 2,
+      "name": "Ranged Weapon Attack Disadvantage Within Normal Range",
+      "description": "Even against a target within normal range, a ranged weapon attack roll made underwater has Disadvantage unless the weapon is a Crossbow, a Net, or a weapon that is thrown like a Javelin (including a Spear, Trident, or Dart).",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Creature is underwater and making a ranged weapon attack within normal range",
+        "scope": {
+          "attackVectors": ["RangedWeapon"]
+        }
+      },
+      "effects": [
+        {
+          "effectType": "DisadvantageImposition",
+          "imposition": {
+            "id": "e1e2e3e4-f5f6-4a7a-8b9b-bbbbbb000003",
+            "rollType": "AttackRoll",
+            "scope": {
+              "attackVectors": ["RangedWeapon"],
+              "customScope": "Within normal range; weapon is not a Crossbow, Net, or qualifying thrown weapon"
+            },
+            "imposedOn": "Self",
+            "condition": "Weapon is not a Crossbow, Net, Javelin, Spear, Trident, or Dart",
+            "note": "Crossbows, Nets, and thrown weapons like Javelins are exempt from this Disadvantage"
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c1c2c3c4-d5d6-4e7e-8f9f-aaaaaa000004",
+      "order": 3,
+      "name": "Fire Resistance While Immersed",
+      "description": "Creatures and objects that are fully immersed in water have Resistance to Fire damage.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature or object is fully immersed in water and receives Fire damage",
+        "scope": {
+          "damageTypes": ["Fire"]
+        }
+      },
+      "effects": [
+        {
+          "effectType": "ResistanceGrant",
+          "resistance": {
+            "id": "e1e2e3e4-f5f6-4a7a-8b9b-bbbbbb000004",
+            "damageType": "Fire",
+            "note": "Applies to all Fire damage taken while fully immersed in water"
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "d1d2d3d4-e5e6-4f7f-8a9a-cccccc000001",
+      "method": "Other",
+      "description": "All underwater combat effects end immediately when the creature is no longer underwater or fully immersed in water.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Underwater combat rules apply as an environmental overlay. Disadvantage from these rules can combine with Advantage or Disadvantage from other sources following standard rules (they cancel each other out)."
+  },
+  "dmNotes": "Creatures with a Swimming Speed (whether natural or granted by magic such as a spell) are exempt from the melee weapon attack Disadvantage. The Fire Resistance applies to all fully immersed creatures and objects, including enemies. Spell attacks are not subject to the ranged/melee weapon restrictions described here; spells follow their own rules for range and targeting underwater.",
+  "commonRulings": [
+    {
+      "question": "Do spell attacks have Disadvantage underwater?",
+      "ruling": "No. The underwater combat rules specifically reference weapon attacks. Spell attacks (melee or ranged) are not affected by these restrictions unless an individual spell's description says otherwise.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does a creature with a Swimming Speed still suffer Disadvantage on ranged weapon attacks underwater?",
+      "ruling": "Yes. The Swimming Speed exemption applies only to the melee weapon attack Disadvantage. Ranged weapon attacks are still subject to auto-miss beyond normal range and Disadvantage within normal range regardless of Swimming Speed.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does the Fire Resistance from being underwater stack with existing Fire Resistance?",
+      "ruling": "No. Resistance does not stack with itself. A creature that already has Fire Resistance gains no additional benefit from being immersed in water with regard to Fire damage.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-09-17T00:00:00Z",
+  "updatedAt": "2024-09-17T00:00:00Z",
+  "version": "1.0.0"
+}

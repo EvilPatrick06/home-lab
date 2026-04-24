@@ -1,0 +1,443 @@
+{
+  "name": "Ancient Gold Dragon",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Metallic"],
+  "alignment": "Lawful Good",
+  "habitat": ["Hill", "Mountain"],
+  "treasure": ["Any"],
+  "lore": "Gold dragons are the mightiest and most majestic of the metallic dragons. They dwell in secluded lairs of stone and gold, often taking humanoid form to walk among mortals and dispense wise counsel. A gold dragon's sense of justice is legendary, and its wrath against evil is terrible to behold. Of all true dragons, gold dragons are the most inclined to interact with other creatures, often cultivating long-lasting alliances with righteous mortals and celestial beings.",
+  "armorClass": {
+    "value": 22,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 546,
+    "dice": {
+      "count": 28,
+      "die": "d20",
+      "modifier": 252
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 30,
+      "modifier": 10,
+      "save": 10
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 9
+    },
+    "CON": {
+      "score": 29,
+      "modifier": 9,
+      "save": 16
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "WIS": {
+      "score": 17,
+      "modifier": 3,
+      "save": 10
+    },
+    "CHA": {
+      "score": 28,
+      "modifier": 9,
+      "save": 16
+    }
+  },
+  "skills": [
+    {
+      "skill": "Insight",
+      "bonus": 10
+    },
+    {
+      "skill": "Perception",
+      "bonus": 17
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 16
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 9
+    }
+  ],
+  "damageImmunities": ["Fire"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 27
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "24",
+  "experiencePoints": 62000,
+  "proficiencyBonus": 7,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The dragon can breathe air and water."
+    },
+    {
+      "name": "Legendary Resistance",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 4
+      }
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes one Bite attack and two Claw attacks. It can replace one attack with a use of Weakening Breath.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Weakening Breath"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +17, reach 15 ft. Hit: 21 (2d10 + 10) Piercing damage plus 9 (2d8) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 21,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 10
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +17, reach 10 ft. Hit: 19 (2d8 + 10) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 10
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Fire Breath",
+      "description": "The dragon exhales fire in a 90-foot Cone. Each creature in that area must make a DC 24 Dexterity saving throw, taking 71 (13d10) Fire damage on a failed save or half damage only on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 24,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 71,
+              "dice": {
+                "count": 13,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 90
+      }
+    },
+    {
+      "name": "Weakening Breath",
+      "description": "The dragon exhales gas in a 90-foot Cone. Each creature in that area must make a DC 24 Strength saving throw. On a failed save, the creature has Disadvantage on Strength-based D20 Tests for 1 minute. A creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+      "savingThrow": {
+        "ability": "STR",
+        "dc": 24,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "effects": "The creature has Disadvantage on Strength-based D20 Tests for 1 minute. The creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success."
+        },
+        "onSuccess": {
+          "effects": "No effect."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 90
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The dragon magically transforms into a Beast or Humanoid that has a Challenge Rating no higher than its own, or back into its true form (which is a Dragon). In a new form, the dragon retains its Hit Points, ability to speak, proficiencies, Legendary Resistance, and Intelligence, Wisdom, and Charisma scores, as well as this bonus action. Its game statistics are otherwise replaced by those of the new form. Any equipment it is wearing or carrying is absorbed into the new form or borne by it (the dragon's choice). The dragon reverts to its true form if it dies."
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Tail",
+        "description": "Melee Attack Roll: +17, reach 20 ft. Hit: 19 (2d8 + 10) Bludgeoning damage. If the target is a Huge or smaller creature, it has the Prone condition.",
+        "cost": 1,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 17,
+          "reach": 20,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 19,
+                "dice": {
+                  "count": 2,
+                  "die": "d8",
+                  "modifier": 10
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone",
+                "duration": "instant"
+              }
+            ],
+            "additionalEffects": "If the target is a Huge or smaller creature, it has the Prone condition."
+          }
+        }
+      },
+      {
+        "name": "Frightful Presence",
+        "description": "Each creature of the dragon's choice within 120 feet of the dragon must succeed on a DC 24 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. A creature that succeeds on the save is immune to this dragon's Frightful Presence for 24 hours.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 24,
+          "targets": "each creature of the dragon's choice within 120 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Frightened",
+                "duration": "1 minute",
+                "savingThrow": {
+                  "ability": "WIS",
+                  "dc": 24,
+                  "targets": "the Frightened creature",
+                  "onSuccess": {
+                    "effects": "The effect ends on the creature."
+                  }
+                }
+              }
+            ]
+          },
+          "onSuccess": {
+            "effects": "The creature is immune to this dragon's Frightful Presence for 24 hours."
+          }
+        }
+      },
+      {
+        "name": "Wing Attack",
+        "description": "Each creature within 15 feet of the dragon must succeed on a DC 25 Dexterity saving throw or take 17 (2d6 + 10) Bludgeoning damage and have the Prone condition. The dragon can then fly up to half its Fly Speed without provoking Opportunity Attacks.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 25,
+          "targets": "each creature within 15 feet of the dragon",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 17,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 10
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": false
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 15,
+          "centered": true
+        }
+      }
+    ]
+  },
+  "lair": {
+    "description": "A gold dragon's lair is typically a grand cavern complex hidden within a mountain or cliff face, with chambers adorned with golden veins, precious gems, and ancient artifacts. Warm breezes and golden light suffuse the interior, and pools of clear water reflect the treasures within.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Beckon",
+        "description": "The dragon targets one creature it can see within 120 feet of it. The target must succeed on a DC 15 Charisma saving throw or be magically teleported to an unoccupied space the dragon can see within 60 feet of it.",
+        "savingThrow": {
+          "ability": "CHA",
+          "dc": 15,
+          "targets": "one creature the dragon can see within 120 feet",
+          "onFailure": {
+            "effects": "The target is magically teleported to an unoccupied space the dragon can see within 60 feet of it."
+          }
+        }
+      },
+      {
+        "name": "Searing Radiance",
+        "description": "A 30-foot-radius Sphere of magical radiance appears centered on a point the dragon can see within 120 feet of it. Each creature in the Sphere must make a DC 15 Constitution saving throw, taking 14 (4d6) Radiant damage on a failed save, or half damage only on a successful one.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 15,
+          "targets": "each creature in the sphere",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 14,
+                "dice": {
+                  "count": 4,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Radiant"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 30
+        }
+      },
+      {
+        "name": "Beguiling Presence",
+        "description": "Each creature of the dragon's choice that it can see within 120 feet of it must succeed on a DC 15 Wisdom saving throw or have the Charmed condition until initiative count 20 on the next round.",
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 15,
+          "targets": "each creature of the dragon's choice within 120 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Charmed",
+                "duration": "until initiative count 20 on the next round"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Whenever a creature that can understand a language finishes a Long Rest within 6 miles of the lair, it can receive a prophetic dream or vision from the dragon, though the dragon is under no obligation to provide one.",
+        "radius": 6,
+        "endCondition": "The dragon dies or moves its lair."
+      },
+      {
+        "description": "Gentle fogs and warm breezes fill the land within 6 miles of the lair. The fogs appear golden at sunrise and sunset.",
+        "radius": 6,
+        "endCondition": "The dragon dies or moves its lair."
+      },
+      {
+        "description": "Gems and precious metals become unusually common in rock formations within 6 miles of the lair.",
+        "radius": 6,
+        "endCondition": "The dragon dies or moves its lair."
+      }
+    ]
+  }
+}

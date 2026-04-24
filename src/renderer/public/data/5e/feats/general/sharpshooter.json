@@ -1,0 +1,38 @@
+{
+  "name": "Sharpshooter",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "abilityScores": [
+      {
+        "abilities": ["Dexterity"],
+        "minimum": 13
+      }
+    ]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Dexterity"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Bypass Cover",
+      "description": "Your ranged attacks with weapons ignore Half Cover and Three-Quarters Cover."
+    },
+    {
+      "name": "Firing in Melee",
+      "description": "Being within 5 feet of an enemy doesn't impose Disadvantage on your attack rolls with Ranged weapons."
+    },
+    {
+      "name": "Long Shots",
+      "description": "Attacking at long range doesn't impose Disadvantage on your attack rolls with Ranged weapons."
+    }
+  ],
+  "source": "PHB 2024"
+}

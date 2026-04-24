@@ -1,0 +1,130 @@
+{
+  "name": "Kenku",
+  "sizes": ["Small"],
+  "creatureType": "Humanoid",
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Coastal", "Forest", "Urban"],
+  "treasure": ["Individual"],
+  "lore": "Kenku are crow-like humanoids known for their ability to perfectly mimic sounds and voices. Long ago cursed to lose their ability to fly and to speak in their own voices, kenku compensate with a remarkable talent for imitation, using remembered sounds and phrases to communicate. They often live on the fringes of society, working as spies, thieves, or messengers.",
+  "armorClass": {
+    "value": 13
+  },
+  "hitPoints": {
+    "average": 13,
+    "dice": {
+      "count": 3,
+      "die": "d6",
+      "modifier": 3
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "gear": [
+    {
+      "name": "Dagger",
+      "quantity": 2
+    }
+  ],
+  "senses": {
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Common"],
+    "understood": ["Auran"],
+    "notes": "understands Auran but can't speak it"
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Mimicry",
+      "description": "The kenku can mimic sounds it has heard, including voices. A creature that hears the sounds can tell they are imitations with a successful DC 14 Wisdom (Insight) check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Dagger",
+      "description": "Melee or Ranged Attack Roll: +5, reach 5 ft. or range 20/60 ft. Hit: 5 (1d4 + 3) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 5,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Sneak",
+      "description": "The kenku takes the Dash, Disengage, or Hide action."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Fragmentation Grenade",
+  "slug": "fragmentation-grenade",
+  "category": "Explosive",
+  "era": "Modern",
+  "cost": "—",
+  "weight": "1 lb.",
+  "description": "As an action, a character can throw this grenade at a point up to 60 feet away. Each creature within 20 feet of that point must make a DC 15 Dexterity saving throw, taking 17 (5d6) Piercing damage on a failed save, or half as much on a successful one.",
+  "attack": {
+    "throwRange": 60,
+    "damage": "5d6",
+    "damageType": "Piercing",
+    "averageDamage": 17,
+    "saveDC": 15,
+    "saveAbility": "Dexterity",
+    "halfDamageOnSave": true,
+    "area": {
+      "shape": "Sphere",
+      "radius": 20
+    }
+  },
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Explosives"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "Animated Rug of Smothering",
+  "slug": "animated-rug-of-smothering",
+  "size": "Large",
+  "type": "Construct",
+  "alignment": "Unaligned",
+  "ac": "12",
+  "initiative": "+4 (14)",
+  "hp": "27",
+  "hpFormula": "5d10",
+  "speed": "10 ft.",
+  "abilityScores": {
+    "str": 17,
+    "dex": 14,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison, Psychic; Charmed, Deafened, Exhaustion, Frightened, Paralyzed, Petrified, Poisoned",
+  "senses": "Blindsight 60 ft.; Passive Perception 6",
+  "languages": "None",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Smother",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 10 (2d6 + 3) Bludgeoning damage. If the target is a Medium or smaller creature, the rug can give it the Grappled condition (escape DC 13) instead of dealing damage. Until the grapple ends, the target has the Blinded and Restrained conditions, is suffocating, and takes 10 (2d6 + 3) Bludgeoning damage at the start of each of its turns. The rug can smother only one creature at a time."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Mundane Objects Come to Life*\n**Habitat:** Urban; **Treasure:** None\nMagic can manipulate mundane items, compelling them to perform simple tasks. Such animate objects might be unassuming tools or decorations that can defend their creator. These objects follow simple instructions from whatever force or magic-user created them. If left unattended, they might defend an area for ages or repeat a task until they wear out.\nRoll on or choose a result from the Animated Object Catalysts table to inspire what sort of magic motivates an ambulatory item.\nAnimated suits of armor might move with steady deliberateness or awkward gaits. They're often constructed from plate armor, making them easy to mistake for soldiers or helmed horrors. Other types of armor or even metal statuary might also become animated armor.\nAnimated brooms keep their surroundings tidy and defend them when necessary. Launching into the air, these brooms dart about, attacking foes from unexpected angles. Other flying objects, like animated tools or staffs, might also use this stat block.\nAnimated flying swords move as if wielded by unseen warriors. Whether an animated blade is newly forged or a constellation of broken fragments, the object behaves the same. Other weapons from the *Player's Handbook* can also be animated and use game statistics similar to those here.\nAnimated rugs of smothering might attack any creature that steps on them, or they might be passed off as superficially similar magic items, such as *Carpets of Flying*, and attack those who speak a supposed command word. Deadly tapestries, furs, and similar items also use this stat block.",
+  "habitat": "Urban",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Constructs",
+    "file": "Constructs.md"
+  }
+}

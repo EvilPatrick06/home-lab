@@ -1,0 +1,54 @@
+[
+  {
+    "id": "spell-scroll-cantrip",
+    "name": "Spell Scroll (Cantrip)",
+    "rarity": "Common",
+    "saveDC": 13,
+    "attackBonus": 5
+  },
+  { "id": "spell-scroll-1st", "name": "Spell Scroll (1st Level)", "rarity": "Common", "saveDC": 13, "attackBonus": 5 },
+  {
+    "id": "spell-scroll-2nd",
+    "name": "Spell Scroll (2nd Level)",
+    "rarity": "Uncommon",
+    "saveDC": 13,
+    "attackBonus": 5
+  },
+  {
+    "id": "spell-scroll-3rd",
+    "name": "Spell Scroll (3rd Level)",
+    "rarity": "Uncommon",
+    "saveDC": 15,
+    "attackBonus": 7
+  },
+  { "id": "spell-scroll-4th", "name": "Spell Scroll (4th Level)", "rarity": "Rare", "saveDC": 15, "attackBonus": 7 },
+  { "id": "spell-scroll-5th", "name": "Spell Scroll (5th Level)", "rarity": "Rare", "saveDC": 17, "attackBonus": 9 },
+  {
+    "id": "spell-scroll-6th",
+    "name": "Spell Scroll (6th Level)",
+    "rarity": "Very Rare",
+    "saveDC": 17,
+    "attackBonus": 9
+  },
+  {
+    "id": "spell-scroll-7th",
+    "name": "Spell Scroll (7th Level)",
+    "rarity": "Very Rare",
+    "saveDC": 18,
+    "attackBonus": 10
+  },
+  {
+    "id": "spell-scroll-8th",
+    "name": "Spell Scroll (8th Level)",
+    "rarity": "Very Rare",
+    "saveDC": 18,
+    "attackBonus": 10
+  },
+  {
+    "id": "spell-scroll-9th",
+    "name": "Spell Scroll (9th Level)",
+    "rarity": "Legendary",
+    "saveDC": 19,
+    "attackBonus": 11
+  }
+]

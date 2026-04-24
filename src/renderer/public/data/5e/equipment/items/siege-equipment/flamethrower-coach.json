@@ -1,0 +1,15 @@
+{
+  "name": "Flamethrower Coach",
+  "ac": 19,
+  "hp": 100,
+  "attack": "DC 15 Dex save",
+  "damage": "31 (7d8) Fire",
+  "description": "60-foot-long, 5-foot-wide Line. A flammable object hit by this ignites.",
+  "slug": "flamethrower-coach",
+  "category": "Siege Equipment",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "id": "titles",
+  "name": "Titles of Nobility",
+  "description": "Marks of prestige granted to characters for exceptional service, representing noble rank and social standing.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Marks of Prestige"
+  },
+  "titles": [
+    {
+      "id": "knight",
+      "title": "Knight",
+      "description": "The lowest rank of nobility, typically granted for valor in battle or exceptional service to a lord.",
+      "socialRank": 1,
+      "mechanicalEffects": [
+        "You can use the title 'Sir' or 'Dame' before your name.",
+        "Commoners and merchants treat you as Friendly by default.",
+        "You gain advantage on Charisma (Persuasion) checks when dealing with nobles of equal or lower rank."
+      ],
+      "responsibilities": ["Answer your lord's call to arms", "Uphold the code of honor befitting your station"]
+    },
+    {
+      "id": "baron",
+      "title": "Baron / Baroness",
+      "description": "A minor noble with authority over a small fief or township.",
+      "socialRank": 2,
+      "mechanicalEffects": [
+        "You gain a small estate and income of 10 gp per month.",
+        "You can levy a local militia of up to 20 commoners.",
+        "Advantage on Charisma (Persuasion) checks with the general populace.",
+        "You may hold court and adjudicate minor disputes."
+      ],
+      "responsibilities": [
+        "Maintain order in your fief",
+        "Collect taxes for your liege lord",
+        "Provide military service when summoned"
+      ]
+    },
+    {
+      "id": "viscount",
+      "title": "Viscount / Viscountess",
+      "description": "A noble ranking between baron and count, often governing a significant town.",
+      "socialRank": 3,
+      "mechanicalEffects": [
+        "Income of 25 gp per month from your holdings.",
+        "Access to a small retinue of guards (up to 6 guards).",
+        "Advantage on Charisma checks with nobility of lower rank."
+      ],
+      "responsibilities": ["Govern your town or district", "Contribute troops and taxes to higher lords"]
+    },
+    {
+      "id": "count",
+      "title": "Count / Countess",
+      "description": "A noble with authority over a county or large territory.",
+      "socialRank": 4,
+      "mechanicalEffects": [
+        "Income of 50 gp per month from your holdings.",
+        "A keep or small castle is placed at your disposal.",
+        "Command up to 50 soldiers (guards and veterans).",
+        "Advantage on Charisma checks in political negotiations."
+      ],
+      "responsibilities": [
+        "Defend your county from threats",
+        "Administer justice",
+        "Provide significant military contribution in wartime"
+      ]
+    },
+    {
+      "id": "duke",
+      "title": "Duke / Duchess",
+      "description": "One of the highest-ranking nobles, governing an entire duchy.",
+      "socialRank": 5,
+      "mechanicalEffects": [
+        "Income of 200 gp per month.",
+        "A castle and surrounding lands.",
+        "Command a standing army of up to 200 soldiers.",
+        "You can grant knighthoods and baronies to others.",
+        "Advantage on all Charisma checks in political contexts."
+      ],
+      "responsibilities": [
+        "Protect and govern your duchy",
+        "Serve on the royal council if one exists",
+        "Raise armies in times of war",
+        "Maintain roads and infrastructure"
+      ]
+    },
+    {
+      "id": "lord-lady",
+      "title": "Lord / Lady",
+      "description": "A generic noble title used for landed gentry who hold authority without a specific rank in the peerage.",
+      "socialRank": 2,
+      "mechanicalEffects": [
+        "Commoners treat you as Friendly by default.",
+        "You may own land and collect modest rents (5 gp per month).",
+        "Advantage on Charisma (Persuasion) checks with commoners and merchants."
+      ],
+      "responsibilities": ["Manage your estate", "Serve your liege when called upon"]
+    }
+  ]
+}

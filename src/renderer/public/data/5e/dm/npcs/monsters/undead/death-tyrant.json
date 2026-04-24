@@ -1,0 +1,201 @@
+{
+  "name": "Death Tyrant",
+  "sizes": ["Large"],
+  "creatureType": "Undead",
+  "descriptiveTags": ["Beholder"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Arcana"],
+  "lore": "When a beholder's dreams of death and decay become all-consuming, the beholder can transform into an undead monstrosity known as a death tyrant. This horrific entity retains much of the cunning and malice it had in life but is driven by an insatiable hunger for souls. Where a living beholder's central eye emits an antimagic field, a death tyrant's central eye emanates a cone of negative energy that can slay the living and raise them as undead thralls.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 187,
+    "dice": {
+      "count": 25,
+      "die": "d10",
+      "modifier": 50
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 20,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 5
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 7
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 9
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 7
+    },
+    "CHA": {
+      "score": 19,
+      "modifier": 4,
+      "save": 9
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 12
+    }
+  ],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Paralyzed", "Petrified", "Poisoned", "Prone"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 22
+  },
+  "languages": {
+    "spoken": ["Deep Speech", "Undercommon"]
+  },
+  "challengeRating": "14",
+  "experiencePoints": 11500,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Negative Energy Cone",
+      "description": "The death tyrant's central eye emits an invisible, magical 150-foot Cone of negative energy. At the start of each of its turns, the death tyrant decides which way the Cone faces and whether the Cone is active. Any creature in that area that drops to 0 Hit Points dies. Any Humanoid killed in the Cone rises as a Zombie under the death tyrant's control at the start of the death tyrant's next turn. The Zombie acts immediately after the death tyrant in the initiative order."
+    }
+  ],
+  "multiattack": {
+    "description": "The death tyrant makes one Bite attack and uses Eye Rays.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Eye Rays",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 14 (4d6) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Eye Rays",
+      "description": "The death tyrant shoots three of the following magical eye rays at random (roll 3d10, rerolling duplicates), choosing a target it can see within 120 feet of itself for each ray:\n\n1. Charm Ray. The target must succeed on a DC 17 Wisdom saving throw or have the Charmed condition for 1 hour or until the death tyrant or its allies deal damage to the target.\n\n2. Paralyzing Ray. The target must succeed on a DC 17 Constitution saving throw or have the Paralyzed condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.\n\n3. Fear Ray. The target must succeed on a DC 17 Wisdom saving throw or have the Frightened condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.\n\n4. Slowing Ray. The target must succeed on a DC 17 Dexterity saving throw, or its Speed is halved for 1 minute. In addition, the target can't take Reactions, and it can take either an action or a Bonus Action on its turn, not both. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.\n\n5. Enervation Ray. The target must succeed on a DC 17 Constitution saving throw or take 36 (8d8) Necrotic damage. On a failed save, the target's Hit Point maximum is reduced by an amount equal to the Necrotic damage taken.\n\n6. Telekinetic Ray. If the target is a creature, it must succeed on a DC 17 Strength saving throw, or the death tyrant moves it up to 30 feet in any direction, and the target has the Restrained condition until the start of the death tyrant's next turn or until the death tyrant has the Incapacitated condition. If the target is a Large or smaller nonmagical object that isn't being worn or carried, the death tyrant moves it up to 30 feet in any direction. The death tyrant can also exert fine control on objects with this ray, such as manipulating a simple tool or opening a door or a container.\n\n7. Sleep Ray. The target must succeed on a DC 17 Wisdom saving throw or have the Unconscious condition for 1 minute. The target repeats the save when it takes damage and at the end of each of its turns, ending the effect on itself on a success.\n\n8. Petrification Ray. The target must succeed on a DC 17 Dexterity saving throw or begin turning to stone and have the Restrained condition. A target Restrained by this ray repeats the save at the end of each of its turns. On a successful save, the effect ends. On a failed save, the target has the Petrified condition.\n\n9. Disintegration Ray. The target must succeed on a DC 17 Dexterity saving throw or take 45 (10d8) Force damage. If this damage reduces the target to 0 Hit Points, the target and everything nonmagical it is wearing and carrying are disintegrated. A disintegrated creature can be restored to life only by True Resurrection or Wish.\n\n10. Death Ray. The target must succeed on a DC 17 Dexterity saving throw or take 55 (10d10) Necrotic damage. The target dies if the ray reduces it to 0 Hit Points."
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Eye Ray",
+        "description": "The death tyrant uses one random eye ray from its Eye Rays action.",
+        "cost": 1
+      }
+    ]
+  },
+  "lair": {
+    "description": "A death tyrant's lair is usually the same cavernous space it occupied as a living beholder, but warped by undeath into a place of darkness and dread. Bones and corpses litter the lair, some of which are raised as undead by the death tyrant's negative energy cone.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Grasping Appendages",
+        "description": "Walls within 120 feet of the death tyrant sprout spectral appendages until initiative count 20 on the next round. Any creature, other than the death tyrant, that starts its turn within 10 feet of such a wall must succeed on a DC 17 Dexterity saving throw or be Grappled (escape DC 17). While Grappled in this way, the creature has the Restrained condition.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 17,
+          "targets": "any creature that starts its turn within 10 feet of such a wall",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Grappled",
+                "escapeDC": 17
+              },
+              {
+                "condition": "Restrained",
+                "duration": "while grappled"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Slimy Ground",
+        "description": "A 50-foot-square area of ground within 120 feet of the death tyrant becomes slimy. That area is Difficult Terrain until initiative count 20 on the next round.",
+        "areaOfEffect": {
+          "shape": "Cube",
+          "size": 50
+        }
+      },
+      {
+        "name": "Spectral Eye",
+        "description": "A spectral eye opens on a solid surface within 60 feet of the death tyrant. One random eye ray of the death tyrant shoots from that eye, targeting a creature of the death tyrant's choice that the death tyrant can see within 120 feet of the eye. The eye then closes and vanishes."
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Creatures within 1 mile of the death tyrant's lair sometimes feel as if they're being watched even when they aren't.",
+        "radius": 1
+      },
+      {
+        "description": "When a creature hostile to the death tyrant and aware of its existence finishes a Long Rest within 1 mile of the lair, the creature must succeed on a DC 17 Wisdom saving throw or gain no benefit from the Long Rest.",
+        "radius": 1,
+        "endCondition": "The death tyrant is destroyed or moves its lair."
+      }
+    ]
+  }
+}

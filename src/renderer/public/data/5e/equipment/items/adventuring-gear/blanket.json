@@ -1,0 +1,13 @@
+{
+  "name": "Blanket",
+  "cost": "5 SP",
+  "weight": "3 lb.",
+  "description": "While wrapped in a blanket, Advantage on saves against extreme cold.",
+  "slug": "blanket",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,301 @@
+{
+  "id": "b83c4e2a-7f91-4d3e-a6b0-9c8e5d4f1a27",
+  "name": "Movement Types",
+  "slug": "movement-types",
+  "category": "MovementRule",
+  "subcategory": "Speed and Movement",
+  "tags": ["movement", "speed", "walking", "flying", "swimming", "climbing", "burrowing", "core-rule"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Rules Glossary",
+    "section": "Speed"
+  },
+  "gameEdition": "2024",
+  "description": "Every creature has a Speed, which is the distance in feet the creature can cover when it moves on its turn. This number assumes short bursts of energetic movement in the midst of a life-threatening situation. A creature may have one or more of the following movement types: Walking (the default), Climbing, Flying, Swimming, and Burrowing. If a creature has more than one movement type, it chooses which to use each time it moves during its turn, and it can switch between types during its move. Whenever a creature switches movement types, subtract the distance already moved from the new Speed. The result determines how much farther the creature can move. If the result is 0 or less, the creature can't use the new Speed during the current move.",
+  "shortDescription": "Creatures can have Walking, Climbing, Flying, Swimming, or Burrowing speeds, each governing how far they can move using that mode.",
+  "rulesAsWritten": "A creature has one or more of the following speeds: Walking (default), Climb Speed, Fly Speed, Swim Speed, and Burrow Speed. Without a given speed, a creature can still attempt certain movement but at extra cost. Climbing and swimming without the respective speed costs 1 extra foot per foot moved. A flying creature that is knocked Prone, has its speed reduced to 0, or is deprived of the ability to move, falls unless it can hover. Burrowing does not leave a usable tunnel unless stated otherwise.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Prone",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "A flying creature that is knocked Prone falls unless it can hover."
+    },
+    {
+      "conditionName": "Grappled",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "The Grappled condition reduces Speed to 0, which can cause a flying creature to fall."
+    },
+    {
+      "conditionName": "Restrained",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "The Restrained condition reduces Speed to 0, which can cause a flying creature to fall."
+    },
+    {
+      "conditionName": "Incapacitated",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "An Incapacitated flying creature falls unless it can hover."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "a1d2e3f4-5678-4abc-9def-0123456789a0",
+      "order": 0,
+      "name": "Walking Speed (Default)",
+      "description": "A creature's base Speed is its Walking Speed. This is the default movement type used when a creature moves along the ground. Every creature has a Walking Speed, which is listed in its stat block or determined by its species.",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Creature moves along the ground using its Walking Speed"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature can move a number of feet up to its Walking Speed on its turn. Movement can be broken up before, between, and after actions.",
+          "mechanicalNote": "Walking Speed is the default and baseline movement type for all creatures."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b2c3d4e5-6789-4bcd-aef0-123456789ab1",
+      "order": 1,
+      "name": "Climb Speed",
+      "description": "A creature with a Climb Speed can move along vertical surfaces without spending extra movement. Without a Climb Speed, a creature can still climb, but each foot of climbing costs 1 extra foot of movement (effectively halving its speed for climbing).",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Creature attempts to climb a vertical surface"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "c3d4e5f6-789a-4cde-bf01-23456789abc2",
+            "target": "ClimbingSpeed",
+            "operation": "Halve",
+            "value": 0,
+            "scope": {
+              "customScope": "Applies only to creatures without a Climb Speed; each foot of climbing costs 1 extra foot of movement"
+            },
+            "note": "Without a Climb Speed, climbing costs 1 extra foot per foot moved, effectively halving movement rate while climbing."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d4e5f6a7-89ab-4def-c012-3456789abcd3",
+      "order": 2,
+      "name": "Swim Speed",
+      "description": "A creature with a Swim Speed can move through water without spending extra movement. Without a Swim Speed, a creature can still swim, but each foot of swimming costs 1 extra foot of movement (effectively halving its speed for swimming).",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Creature attempts to swim through water or another liquid"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "e5f6a7b8-9abc-4ef0-d123-456789abcde4",
+            "target": "SwimmingSpeed",
+            "operation": "Halve",
+            "value": 0,
+            "scope": {
+              "customScope": "Applies only to creatures without a Swim Speed; each foot of swimming costs 1 extra foot of movement"
+            },
+            "note": "Without a Swim Speed, swimming costs 1 extra foot per foot moved, effectively halving movement rate while swimming."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f6a7b8c9-abcd-4f01-e234-56789abcdef5",
+      "order": 3,
+      "name": "Fly Speed",
+      "description": "A creature with a Fly Speed can move through the air. A flying creature falls if it is knocked Prone, if its Speed is reduced to 0, or if it otherwise loses the ability to move, unless the creature can hover. Some creatures have the ability to hover, which makes their flight especially reliable; such a creature is not subject to involuntary falling.",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Creature uses its Fly Speed to move through the air"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "A flying creature can move through the air using its Fly Speed. The creature falls if it is knocked Prone, its Speed is reduced to 0, or it is otherwise deprived of the ability to move, unless it can hover.",
+          "mechanicalNote": "Falling occurs immediately when the triggering condition is met. Hovering prevents involuntary falling."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a7b8c9d0-bcde-4012-f345-6789abcdef06",
+      "order": 4,
+      "name": "Fly Speed – Falling When Prone",
+      "description": "A flying creature that is knocked Prone immediately falls unless it has the ability to hover. The creature falls a number of feet equal to half its flying speed each turn until it hits the ground or the Prone condition is removed.",
+      "trigger": {
+        "event": "OnConditionApplied",
+        "condition": "Creature has a Fly Speed, is currently flying, and is knocked Prone without the ability to hover"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature immediately begins falling. It descends up to 500 feet per round (at the end of each of its turns) until it hits the ground or the fall is otherwise arrested.",
+          "mechanicalNote": "Falling rate is 500 feet per round unless a rule or feature specifies otherwise."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b8c9d0e1-cdef-4123-a456-789abcdef017",
+      "order": 5,
+      "name": "Fly Speed – Falling When Speed Reduced to 0",
+      "description": "A flying creature whose Speed is reduced to 0 while airborne immediately falls unless it can hover.",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Flying creature's Speed is reduced to 0 while airborne and it cannot hover"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "c9d0e1f2-def0-4234-b567-89abcdef0128",
+            "target": "FlyingSpeed",
+            "operation": "ReduceToZero",
+            "value": 0,
+            "note": "When Fly Speed is reduced to 0, the creature falls unless it can hover."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d0e1f2a3-ef01-4345-c678-9abcdef01239",
+      "order": 6,
+      "name": "Burrow Speed",
+      "description": "A creature with a Burrow Speed can tunnel through earth, sand, mud, or similar material. A Burrow Speed does not grant the ability to tunnel through solid rock unless the creature's description states otherwise. A burrowing creature does not leave behind a usable tunnel unless its stat block or description explicitly says it does.",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Creature uses its Burrow Speed to move through earth or similar material"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature can tunnel through earth, sand, mud, or similar non-rock material at its Burrow Speed. No tunnel is left behind unless stated otherwise. Cannot burrow through solid rock unless specified.",
+          "mechanicalNote": "Burrowing through solid rock requires explicit permission in the creature's stat block or feature description."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e1f2a3b4-f012-4456-d789-abcdef01234a",
+      "order": 7,
+      "name": "Switching Movement Types",
+      "description": "Whenever a creature switches between movement types during its turn, it subtracts the distance already moved from the new Speed to determine how much farther it can move. If the result is 0 or less, the creature cannot use the new Speed during the current move.",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Creature switches from one movement type to another during its turn"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Subtract the distance (in feet) already moved this turn from the new movement type's Speed. The remainder is the maximum distance the creature can move using the new Speed. If the result is 0 or less, the creature cannot use the new movement type this turn.",
+          "mechanicalNote": "Example: A creature with Walking Speed 30 and Fly Speed 40 that has already walked 20 feet can fly up to 20 more feet (40 − 20 = 20)."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": null,
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Multiple sources of the same movement type do not stack; use the highest value unless a feature explicitly states the speeds are cumulative. Different movement types coexist and the creature chooses which to use."
+  },
+  "dmNotes": "When a creature gains a new movement type (e.g., from a spell or magic item), it gains that Speed at the specified value. If a creature already has that Speed, use the higher of the two unless the granting effect says otherwise. Remember that difficult terrain costs 1 extra foot per foot moved regardless of movement type, and that certain conditions (Grappled, Restrained) reduce Speed to 0, which triggers falling for flying creatures that cannot hover.",
+  "commonRulings": [
+    {
+      "question": "Can a creature without a Climb Speed still climb?",
+      "ruling": "Yes. A creature without a Climb Speed can climb, but each foot of climbing costs 1 extra foot of movement, effectively halving its available distance for climbing.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a creature without a Swim Speed still swim?",
+      "ruling": "Yes. A creature without a Swim Speed can swim, but each foot of swimming costs 1 extra foot of movement, effectively halving its available distance for swimming.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does a flying creature with hover fall when knocked Prone?",
+      "ruling": "No. A creature that can hover is not subject to involuntary falling when knocked Prone or when its Speed is reduced to 0.",
+      "isOfficial": true
+    },
+    {
+      "question": "How do you calculate remaining movement when switching movement types?",
+      "ruling": "Subtract the total distance already moved this turn from the new Speed. The remainder is how far the creature can move using the new Speed. If the remainder is 0 or less, the creature cannot use the new Speed on this turn.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does a Burrow Speed let a creature tunnel through solid rock?",
+      "ruling": "No. A Burrow Speed allows movement through earth, sand, mud, and similar materials. Tunneling through solid rock requires the creature's stat block or feature to explicitly grant that ability.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does difficult terrain affect all movement types?",
+      "ruling": "Yes. Difficult terrain costs 1 extra foot per foot of movement regardless of the movement type being used, unless a feature specifically says otherwise.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-03T00:00:00Z",
+  "updatedAt": "2025-01-03T00:00:00Z",
+  "version": "1.0.0"
+}

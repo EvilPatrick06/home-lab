@@ -1,0 +1,10 @@
+{
+  "name": "Enduring Spellbook",
+  "itemType": "Wondrous Item",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "This spellbook, along with anything written on its pages, can't be damaged by fire or water. In addition, the spellbook doesn't deteriorate with age.",
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

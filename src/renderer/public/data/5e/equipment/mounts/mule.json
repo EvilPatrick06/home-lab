@@ -1,0 +1,12 @@
+{
+  "name": "Mule",
+  "cost": "8 GP",
+  "carryingCapacity": "420 lb.",
+  "slug": "mule",
+  "category": "Mount",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

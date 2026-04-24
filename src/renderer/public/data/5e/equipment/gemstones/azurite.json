@@ -1,0 +1,13 @@
+{
+  "name": "Azurite",
+  "slug": "azurite",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "mottled deep blue",
+  "dieValue": "1",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

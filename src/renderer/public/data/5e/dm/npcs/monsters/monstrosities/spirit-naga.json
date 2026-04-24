@@ -1,0 +1,210 @@
+{
+  "name": "Spirit Naga",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Ruins", "Underdark"],
+  "treasure": ["Arcana"],
+  "lore": "Spirit nagas are wicked serpentine immortals that haunt desolate ruins and subterranean lairs. Steeped in dark magic and driven by malice, a spirit naga commands fell sorcery and poisons any who dare approach. Even death provides no lasting reprieve from a spirit naga's menace, for its foul spirit returns to a new body within days, making it an implacable and recurring threat.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 85,
+    "dice": {
+      "count": 10,
+      "die": "d10",
+      "modifier": 30
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 5
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    }
+  },
+  "conditionImmunities": ["Charmed", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common"]
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Rejuvenation",
+      "description": "If the naga dies, it returns to life in 1d6 days, regaining all its Hit Points and becoming active again. Only a Wish spell can prevent this trait from functioning."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 14,
+      "componentOverrides": {
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Mage Hand",
+              "level": 0
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Suggestion",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Bestow Curse",
+              "level": 3
+            },
+            {
+              "name": "Lightning Bolt",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dominate Person",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The naga makes two Bite attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +7, reach 10 ft. Hit: 7 (1d6 + 4) Piercing damage plus 14 (4d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The naga casts one of the following spells, requiring only Verbal components, using Charisma as the spellcasting ability (spell save DC 14):\n\nAt will: Mage Hand, Minor Illusion\n\n3/Day each: Detect Magic, Suggestion\n\n2/Day each: Bestow Curse, Lightning Bolt\n\n1/Day: Dominate Person"
+    }
+  ]
+}

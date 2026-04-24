@@ -1,0 +1,5438 @@
+[
+  {
+    "id": "axe-of-the-dwarvish-lords",
+    "name": "Axe of the Dwarvish Lords",
+    "rarity": "Artifact",
+    "type": "Weapon (Battleaxe)",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/axe-of-the-dwarvish-lords.json"
+  },
+  {
+    "id": "blackrazor",
+    "name": "Blackrazor",
+    "rarity": "Artifact",
+    "type": "Weapon (Greatsword)",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/blackrazor.json"
+  },
+  {
+    "id": "book-of-exalted-deeds-continued",
+    "name": "Book of Exalted Deeds (Continued)",
+    "rarity": "Artifact (Requires Attunement by a Creature of Good Alignment)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/book-of-exalted-deeds-continued.json"
+  },
+  {
+    "id": "book-of-exalted-deeds",
+    "name": "Book of Exalted Deeds",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/book-of-exalted-deeds.json"
+  },
+  {
+    "id": "book-of-vile-darkness",
+    "name": "Book of Vile Darkness",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/book-of-vile-darkness.json"
+  },
+  {
+    "id": "demonomicon-of-iggwilv",
+    "name": "Demonomicon of Iggwilv",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/demonomicon-of-iggwilv.json"
+  },
+  {
+    "id": "eye-and-hand-of-vecna",
+    "name": "Eye and Hand of Vecna",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/eye-and-hand-of-vecna.json"
+  },
+  {
+    "id": "orb-of-dragonkind",
+    "name": "Orb of Dragonkind",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/orb-of-dragonkind.json"
+  },
+  {
+    "id": "sword-of-kas",
+    "name": "Sword of Kas",
+    "rarity": "Artifact",
+    "type": "Weapon (Longsword)",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/sword-of-kas.json"
+  },
+  {
+    "id": "wand-of-orcus",
+    "name": "Wand of Orcus",
+    "rarity": "Artifact",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/wand-of-orcus.json"
+  },
+  {
+    "id": "wave",
+    "name": "Wave",
+    "rarity": "Artifact",
+    "type": "Weapon (Trident)",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/wave.json"
+  },
+  {
+    "id": "whelm",
+    "name": "Whelm",
+    "rarity": "Artifact (Requires Attunement by a Dwarf or a Creature Attuned to a Belt of Dwarvenkind)",
+    "type": "Weapon (Warhammer)",
+    "attunement": true,
+    "path": "equipment/magic-items/artifact/whelm.json"
+  },
+  {
+    "id": "armor-of-gleaming",
+    "name": "Armor of Gleaming",
+    "rarity": "Medium, or Heavy), Common",
+    "type": "Armor (Any Light",
+    "attunement": false,
+    "path": "equipment/magic-items/common/armor-of-gleaming.json"
+  },
+  {
+    "id": "bead-of-nourishment",
+    "name": "Bead of Nourishment",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/bead-of-nourishment.json"
+  },
+  {
+    "id": "bead-of-refreshment",
+    "name": "Bead of Refreshment",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/bead-of-refreshment.json"
+  },
+  {
+    "id": "boots-of-false-tracks",
+    "name": "Boots of False Tracks",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/common/boots-of-false-tracks.json"
+  },
+  {
+    "id": "candle-of-the-deep",
+    "name": "Candle of the Deep",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/candle-of-the-deep.json"
+  },
+  {
+    "id": "cast-off-armor",
+    "name": "Cast-Off Armor",
+    "rarity": "Medium, or Heavy), Common",
+    "type": "Armor (Any Light",
+    "attunement": false,
+    "path": "equipment/magic-items/common/cast-off-armor.json"
+  },
+  {
+    "id": "charlatans-die",
+    "name": "Charlatan's Die",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/common/charlatans-die.json"
+  },
+  {
+    "id": "cloak-of-billowing",
+    "name": "Cloak of Billowing",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/cloak-of-billowing.json"
+  },
+  {
+    "id": "cloak-of-many-fashions",
+    "name": "Cloak of Many Fashions",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/cloak-of-many-fashions.json"
+  },
+  {
+    "id": "clockwork-amulet",
+    "name": "Clockwork Amulet",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/clockwork-amulet.json"
+  },
+  {
+    "id": "clothes-of-mending",
+    "name": "Clothes of Mending",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/clothes-of-mending.json"
+  },
+  {
+    "id": "dark-shard-amulet",
+    "name": "Dark Shard Amulet",
+    "rarity": "Common (Requires Attunement by a Warlock)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/common/dark-shard-amulet.json"
+  },
+  {
+    "id": "dread-helm",
+    "name": "Dread Helm",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/dread-helm.json"
+  },
+  {
+    "id": "ear-horn-of-hearing",
+    "name": "Ear Horn of Hearing",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/ear-horn-of-hearing.json"
+  },
+  {
+    "id": "enduring-spellbook",
+    "name": "Enduring Spellbook",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/enduring-spellbook.json"
+  },
+  {
+    "id": "ersatz-eye",
+    "name": "Ersatz Eye",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/ersatz-eye.json"
+  },
+  {
+    "id": "hat-of-vermin",
+    "name": "Hat of Vermin",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/hat-of-vermin.json"
+  },
+  {
+    "id": "hat-of-wizardry",
+    "name": "Hat of Wizardry",
+    "rarity": "Common (Requires Attunement by a Wizard)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/common/hat-of-wizardry.json"
+  },
+  {
+    "id": "hewards-handy-spice-pouch",
+    "name": "Heward's Handy Spice Pouch",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/hewards-handy-spice-pouch.json"
+  },
+  {
+    "id": "horn-of-silent-alarm",
+    "name": "Horn of Silent Alarm",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/horn-of-silent-alarm.json"
+  },
+  {
+    "id": "instrument-of-illusions",
+    "name": "Instrument of Illusions",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/instrument-of-illusions.json"
+  },
+  {
+    "id": "instrument-of-scribing",
+    "name": "Instrument of Scribing",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/instrument-of-scribing.json"
+  },
+  {
+    "id": "lock-of-trickery",
+    "name": "Lock of Trickery",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/lock-of-trickery.json"
+  },
+  {
+    "id": "moon-touched-sword",
+    "name": "Moon-Touched Sword",
+    "rarity": "Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Common",
+    "type": "Weapon (Glaive",
+    "attunement": false,
+    "path": "equipment/magic-items/common/moon-touched-sword.json"
+  },
+  {
+    "id": "mystery-key",
+    "name": "Mystery Key",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/mystery-key.json"
+  },
+  {
+    "id": "orb-of-direction",
+    "name": "Orb of Direction",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/orb-of-direction.json"
+  },
+  {
+    "id": "orb-of-time",
+    "name": "Orb of Time",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/orb-of-time.json"
+  },
+  {
+    "id": "perfume-of-bewitching",
+    "name": "Perfume of Bewitching",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/perfume-of-bewitching.json"
+  },
+  {
+    "id": "pipe-of-smoke-monsters",
+    "name": "Pipe of Smoke Monsters",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/pipe-of-smoke-monsters.json"
+  },
+  {
+    "id": "pole-of-angling",
+    "name": "Pole of Angling",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/pole-of-angling.json"
+  },
+  {
+    "id": "pole-of-collapsing",
+    "name": "Pole of Collapsing",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/pole-of-collapsing.json"
+  },
+  {
+    "id": "pot-of-awakening",
+    "name": "Pot of Awakening",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/pot-of-awakening.json"
+  },
+  {
+    "id": "potion-of-climbing",
+    "name": "Potion of Climbing",
+    "rarity": "Common",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/common/potion-of-climbing.json"
+  },
+  {
+    "id": "potion-of-comprehension",
+    "name": "Potion of Comprehension",
+    "rarity": "Common",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/common/potion-of-comprehension.json"
+  },
+  {
+    "id": "prosthetic-limb",
+    "name": "Prosthetic Limb",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/prosthetic-limb.json"
+  },
+  {
+    "id": "rival-coin",
+    "name": "Rival Coin",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/rival-coin.json"
+  },
+  {
+    "id": "rope-of-mending",
+    "name": "Rope of Mending",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/rope-of-mending.json"
+  },
+  {
+    "id": "ruby-of-the-war-mage",
+    "name": "Ruby of the War Mage",
+    "rarity": "Common (Requires Attunement by a Spellcaster)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/common/ruby-of-the-war-mage.json"
+  },
+  {
+    "id": "shield-of-expression",
+    "name": "Shield of Expression",
+    "rarity": "Common",
+    "type": "Armor (Shield)",
+    "attunement": false,
+    "path": "equipment/magic-items/common/shield-of-expression.json"
+  },
+  {
+    "id": "silvered-weapon",
+    "name": "Silvered Weapon",
+    "rarity": "Common",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": false,
+    "path": "equipment/magic-items/common/silvered-weapon.json"
+  },
+  {
+    "id": "smoldering-armor",
+    "name": "Smoldering Armor",
+    "rarity": "Medium, or Light), Common",
+    "type": "Armor (Any Heavy",
+    "attunement": false,
+    "path": "equipment/magic-items/common/smoldering-armor.json"
+  },
+  {
+    "id": "staff-of-adornment",
+    "name": "Staff of Adornment",
+    "rarity": "Common",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/common/staff-of-adornment.json"
+  },
+  {
+    "id": "staff-of-birdcalls",
+    "name": "Staff of Birdcalls",
+    "rarity": "Common",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/common/staff-of-birdcalls.json"
+  },
+  {
+    "id": "staff-of-flowers",
+    "name": "Staff of Flowers",
+    "rarity": "Common",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/common/staff-of-flowers.json"
+  },
+  {
+    "id": "sylvan-talon",
+    "name": "Sylvan Talon",
+    "rarity": "Rapier, Scimitar, Shortsword, Sickle, or Spear), Common",
+    "type": "Weapon (Dagger",
+    "attunement": true,
+    "path": "equipment/magic-items/common/sylvan-talon.json"
+  },
+  {
+    "id": "talking-doll",
+    "name": "Talking Doll",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/common/talking-doll.json"
+  },
+  {
+    "id": "tankard-of-sobriety",
+    "name": "Tankard of Sobriety",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/tankard-of-sobriety.json"
+  },
+  {
+    "id": "veterans-cane",
+    "name": "Veteran's Cane",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/common/veterans-cane.json"
+  },
+  {
+    "id": "walloping-ammunition",
+    "name": "Walloping Ammunition",
+    "rarity": "Common",
+    "type": "Weapon (Any Ammunition)",
+    "attunement": false,
+    "path": "equipment/magic-items/common/walloping-ammunition.json"
+  },
+  {
+    "id": "wand-of-conducting",
+    "name": "Wand of Conducting",
+    "rarity": "Common",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/common/wand-of-conducting.json"
+  },
+  {
+    "id": "wand-of-pyrotechnics",
+    "name": "Wand of Pyrotechnics",
+    "rarity": "Common",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/common/wand-of-pyrotechnics.json"
+  },
+  {
+    "id": "apparatus-of-kwalish",
+    "name": "Apparatus of Kwalish",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/apparatus-of-kwalish.json"
+  },
+  {
+    "id": "armor-of-invulnerability",
+    "name": "Armor of Invulnerability",
+    "rarity": "Legendary",
+    "type": "Armor (Plate Armor)",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/armor-of-invulnerability.json"
+  },
+  {
+    "id": "cloak-of-invisibility",
+    "name": "Cloak of Invisibility",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/cloak-of-invisibility.json"
+  },
+  {
+    "id": "crystal-ball-of-mind-reading",
+    "name": "Crystal Ball of Mind Reading",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/crystal-ball-of-mind-reading.json"
+  },
+  {
+    "id": "crystal-ball-of-telepathy",
+    "name": "Crystal Ball of Telepathy",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/crystal-ball-of-telepathy.json"
+  },
+  {
+    "id": "crystal-ball-of-true-seeing",
+    "name": "Crystal Ball of True Seeing",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/crystal-ball-of-true-seeing.json"
+  },
+  {
+    "id": "cubic-gate",
+    "name": "Cubic Gate",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/cubic-gate.json"
+  },
+  {
+    "id": "deck-of-many-things",
+    "name": "Deck of Many Things",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/deck-of-many-things.json"
+  },
+  {
+    "id": "defender",
+    "name": "Defender",
+    "rarity": "Legendary",
+    "type": "Weapon (Any Melee Weapon)",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/defender.json"
+  },
+  {
+    "id": "efreeti-chain",
+    "name": "Efreeti Chain",
+    "rarity": "Legendary",
+    "type": "Armor (Chain Mail or Chain Shirt)",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/efreeti-chain.json"
+  },
+  {
+    "id": "hammer-of-thunderbolts",
+    "name": "Hammer of Thunderbolts",
+    "rarity": "Legendary",
+    "type": "Weapon (Maul or Warhammer)",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/hammer-of-thunderbolts.json"
+  },
+  {
+    "id": "holy-avenger",
+    "name": "Holy Avenger",
+    "rarity": "Legendary (Requires Attunement by a Paladin)",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/holy-avenger.json"
+  },
+  {
+    "id": "iron-flask",
+    "name": "Iron Flask",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/iron-flask.json"
+  },
+  {
+    "id": "luck-blade",
+    "name": "Luck Blade",
+    "rarity": "Greatsword, Longsword, Rapier, Scimitar, Sickle, or Shortsword), Legendary",
+    "type": "Weapon (Glaive",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/luck-blade.json"
+  },
+  {
+    "id": "moonblade",
+    "name": "Moonblade",
+    "rarity": "Longsword, Rapier, Scimitar, or Shortsword), Legendary (Requires Attunement by a Creature of the Weapon's Choice)",
+    "type": "Weapon (Greatsword",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/moonblade.json"
+  },
+  {
+    "id": "plate-armor-of-etherealness",
+    "name": "Plate Armor of Etherealness",
+    "rarity": "Legendary",
+    "type": "Armor (Half Plate Armor or Plate Armor)",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/plate-armor-of-etherealness.json"
+  },
+  {
+    "id": "ring-of-djinni-summoning",
+    "name": "Ring of Djinni Summoning",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/ring-of-djinni-summoning.json"
+  },
+  {
+    "id": "ring-of-elemental-command",
+    "name": "Ring of Elemental Command",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/ring-of-elemental-command.json"
+  },
+  {
+    "id": "ring-of-invisibility",
+    "name": "Ring of Invisibility",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/ring-of-invisibility.json"
+  },
+  {
+    "id": "ring-of-spell-turning",
+    "name": "Ring of Spell Turning",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/ring-of-spell-turning.json"
+  },
+  {
+    "id": "ring-of-three-wishes",
+    "name": "Ring of Three Wishes",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/ring-of-three-wishes.json"
+  },
+  {
+    "id": "robe-of-the-archmagi",
+    "name": "Robe of the Archmagi",
+    "rarity": "Legendary (Requires Attunement by a Sorcerer, Warlock, or Wizard)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/robe-of-the-archmagi.json"
+  },
+  {
+    "id": "rod-of-lordly-might",
+    "name": "Rod of Lordly Might",
+    "rarity": "Legendary",
+    "type": "Rod",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/rod-of-lordly-might.json"
+  },
+  {
+    "id": "rod-of-resurrection",
+    "name": "Rod of Resurrection",
+    "rarity": "Legendary",
+    "type": "Rod",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/rod-of-resurrection.json"
+  },
+  {
+    "id": "scarab-of-protection",
+    "name": "Scarab of Protection",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/scarab-of-protection.json"
+  },
+  {
+    "id": "scroll-of-titan-summoning",
+    "name": "Scroll of Titan Summoning",
+    "rarity": "Legendary",
+    "type": "Scroll",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/scroll-of-titan-summoning.json"
+  },
+  {
+    "id": "sovereign-glue",
+    "name": "Sovereign Glue",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/sovereign-glue.json"
+  },
+  {
+    "id": "sphere-of-annihilation",
+    "name": "Sphere of Annihilation",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/sphere-of-annihilation.json"
+  },
+  {
+    "id": "staff-of-the-magi",
+    "name": "Staff of the Magi",
+    "rarity": "Legendary (Requires Attunement by a Sorcerer, Warlock, or Wizard)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/staff-of-the-magi.json"
+  },
+  {
+    "id": "sword-of-answering",
+    "name": "Sword of Answering",
+    "rarity": "Legendary",
+    "type": "Weapon (Longsword)",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/sword-of-answering.json"
+  },
+  {
+    "id": "talisman-of-pure-good",
+    "name": "Talisman of Pure Good",
+    "rarity": "Legendary (Requires Attunement by a Cleric or Paladin)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/talisman-of-pure-good.json"
+  },
+  {
+    "id": "talisman-of-the-sphere",
+    "name": "Talisman of the Sphere",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/talisman-of-the-sphere.json"
+  },
+  {
+    "id": "talisman-of-ultimate-evil",
+    "name": "Talisman of Ultimate Evil",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/talisman-of-ultimate-evil.json"
+  },
+  {
+    "id": "tome-of-the-stilled-tongue",
+    "name": "Tome of the Stilled Tongue",
+    "rarity": "Legendary (Requires Attunement by a Wizard)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/tome-of-the-stilled-tongue.json"
+  },
+  {
+    "id": "universal-solvent",
+    "name": "Universal Solvent",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/universal-solvent.json"
+  },
+  {
+    "id": "vorpal-sword",
+    "name": "Vorpal Sword",
+    "rarity": "Greatsword, Longsword, or Scimitar), Legendary",
+    "type": "Weapon (Glaive",
+    "attunement": true,
+    "path": "equipment/magic-items/legendary/vorpal-sword.json"
+  },
+  {
+    "id": "well-of-many-worlds",
+    "name": "Well of Many Worlds",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/legendary/well-of-many-worlds.json"
+  },
+  {
+    "id": "belt-of-giant-strength",
+    "name": "Belt of Giant Strength",
+    "rarity": "Rarity Varies",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/other/belt-of-giant-strength.json"
+  },
+  {
+    "id": "enspelled-armor",
+    "name": "Enspelled Armor",
+    "rarity": "Medium, or Heavy), Rarity Varies",
+    "type": "Armor (Any Light",
+    "attunement": true,
+    "path": "equipment/magic-items/other/enspelled-armor.json"
+  },
+  {
+    "id": "enspelled-staff",
+    "name": "Enspelled Staff",
+    "rarity": "Rarity Varies (Requires Attunement by a Spellcaster)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/other/enspelled-staff.json"
+  },
+  {
+    "id": "enspelled-weapon",
+    "name": "Enspelled Weapon",
+    "rarity": "Rarity Varies",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": true,
+    "path": "equipment/magic-items/other/enspelled-weapon.json"
+  },
+  {
+    "id": "figurine-of-wondrous-power",
+    "name": "Figurine of Wondrous Power",
+    "rarity": "Rarity Varies",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/other/figurine-of-wondrous-power.json"
+  },
+  {
+    "id": "instrument-of-the-bards",
+    "name": "Instrument of the Bards",
+    "rarity": "Rarity Varies (Requires Attunement by a Bard)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/other/instrument-of-the-bards.json"
+  },
+  {
+    "id": "ioun-stone",
+    "name": "Ioun Stone",
+    "rarity": "Rarity Varies",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/other/ioun-stone.json"
+  },
+  {
+    "id": "potion-of-giant-strength",
+    "name": "Potion of Giant Strength",
+    "rarity": "Rarity Varies",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/other/potion-of-giant-strength.json"
+  },
+  {
+    "id": "potions-of-healing",
+    "name": "Potions of Healing",
+    "rarity": "Rarity Varies",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/other/potions-of-healing.json"
+  },
+  {
+    "id": "quaals-feather-token",
+    "name": "Quaal's Feather Token",
+    "rarity": "Rarity Varies",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/other/quaals-feather-token.json"
+  },
+  {
+    "id": "spell-scroll",
+    "name": "Spell Scroll",
+    "rarity": "Rarity Varies",
+    "type": "Scroll",
+    "attunement": false,
+    "path": "equipment/magic-items/other/spell-scroll.json"
+  },
+  {
+    "id": "adamantine-armor",
+    "name": "Adamantine Armor",
+    "rarity": "Uncommon",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/adamantine-armor.json"
+  },
+  {
+    "id": "adamantine-weapon",
+    "name": "Adamantine Weapon",
+    "rarity": "Uncommon",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/adamantine-weapon.json"
+  },
+  {
+    "id": "alchemy-jug",
+    "name": "Jug",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/alchemy-jug.json"
+  },
+  {
+    "id": "ammunition-of-slaying",
+    "name": "Ammunition of Slaying",
+    "rarity": "Very Rare",
+    "type": "Weapon (Any Ammunition)",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ammunition-of-slaying.json"
+  },
+  {
+    "id": "amulet-of-health",
+    "name": "Amulet of Health",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/amulet-of-health.json"
+  },
+  {
+    "id": "amulet-of-proof-against-detection-and-location",
+    "name": "Amulet of Proof Against Detection and Location",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/amulet-of-proof-against-detection-and-location.json"
+  },
+  {
+    "id": "amulet-of-the-planes",
+    "name": "Amulet of the Planes",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/amulet-of-the-planes.json"
+  },
+  {
+    "id": "animated-shield",
+    "name": "Shield",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/animated-shield.json"
+  },
+  {
+    "id": "apparatus-of-kwalish",
+    "name": "Apparatus of Kwalish",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/apparatus-of-kwalish.json"
+  },
+  {
+    "id": "armor-of-gleaming",
+    "name": "Armor of Gleaming",
+    "rarity": "Common",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/armor-of-gleaming.json"
+  },
+  {
+    "id": "armor-of-invulnerability",
+    "name": "Armor of Invulnerability",
+    "rarity": "Legendary",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/armor-of-invulnerability.json"
+  },
+  {
+    "id": "armor-of-resistance",
+    "name": "Armor of Resistance",
+    "rarity": "Rare",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/armor-of-resistance.json"
+  },
+  {
+    "id": "armor-of-vulnerability",
+    "name": "Armor of Vulnerability",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/armor-of-vulnerability.json"
+  },
+  {
+    "id": "axe-of-the-dwarvish-lords",
+    "name": "Axe of the Dwarvish Lords",
+    "rarity": "Artifact",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/axe-of-the-dwarvish-lords.json"
+  },
+  {
+    "id": "baba-yaga-s-dancing-broom",
+    "name": "Baba Yaga's Dancing Broom",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/baba-yaga-s-dancing-broom.json"
+  },
+  {
+    "id": "bag-of-beans",
+    "name": "Bag of Beans",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bag-of-beans.json"
+  },
+  {
+    "id": "bag-of-devouring",
+    "name": "Bag of Devouring",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bag-of-devouring.json"
+  },
+  {
+    "id": "bag-of-holding",
+    "name": "Bag of Holding",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bag-of-holding.json"
+  },
+  {
+    "id": "bag-of-tricks",
+    "name": "Bag of Tricks",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bag-of-tricks.json"
+  },
+  {
+    "id": "bead-of-force",
+    "name": "Bead of Force",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bead-of-force.json"
+  },
+  {
+    "id": "bead-of-nourishment",
+    "name": "Bead of Nourishment",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bead-of-nourishment.json"
+  },
+  {
+    "id": "bead-of-refreshment",
+    "name": "Bead of Refreshment",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bead-of-refreshment.json"
+  },
+  {
+    "id": "belt-of-dwarvenkind",
+    "name": "Belt of Dwarvenkind",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/belt-of-dwarvenkind.json"
+  },
+  {
+    "id": "belt-of-giant-strength",
+    "name": "Belt Of Giant Strength",
+    "rarity": "Rarity Varies",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/belt-of-giant-strength.json"
+  },
+  {
+    "id": "berserker-axe",
+    "name": "Berserker Axe",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/berserker-axe.json"
+  },
+  {
+    "id": "blackrazor",
+    "name": "Blackrazor",
+    "rarity": "Artifact",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/blackrazor.json"
+  },
+  {
+    "id": "book-of-exalted-deeds",
+    "name": "Book",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/book-of-exalted-deeds.json"
+  },
+  {
+    "id": "book-of-vile-darkness",
+    "name": "Book of Vile Darkness",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/book-of-vile-darkness.json"
+  },
+  {
+    "id": "boots-of-elvenkind",
+    "name": "Boots of Elvenkind",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/boots-of-elvenkind.json"
+  },
+  {
+    "id": "boots-of-false-tracks",
+    "name": "Boots of False Tracks",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/boots-of-false-tracks.json"
+  },
+  {
+    "id": "boots-of-levitation",
+    "name": "Boots of Levitation",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/boots-of-levitation.json"
+  },
+  {
+    "id": "boots-of-speed",
+    "name": "Boots of Speed",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/boots-of-speed.json"
+  },
+  {
+    "id": "boots-of-striding-and-springing",
+    "name": "Boots of Striding and Springing",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/boots-of-striding-and-springing.json"
+  },
+  {
+    "id": "boots-of-the-winterlands",
+    "name": "Boots of the Winterlands",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/boots-of-the-winterlands.json"
+  },
+  {
+    "id": "bowl-of-commanding-water-elementals",
+    "name": "Bowl of Commanding Water Elementals",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bowl-of-commanding-water-elementals.json"
+  },
+  {
+    "id": "bracers-of-archery",
+    "name": "Bracers of Archery",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bracers-of-archery.json"
+  },
+  {
+    "id": "bracers-of-defense",
+    "name": "Bracers of Defense",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/bracers-of-defense.json"
+  },
+  {
+    "id": "brazier-of-commanding-fire-elementals",
+    "name": "Brazier of Commanding Fire Elementals",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/brazier-of-commanding-fire-elementals.json"
+  },
+  {
+    "id": "brooch-of-shielding",
+    "name": "Brooch of Shielding",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/brooch-of-shielding.json"
+  },
+  {
+    "id": "broom-of-flying",
+    "name": "Broom of Flying",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/broom-of-flying.json"
+  },
+  {
+    "id": "candle-of-invocation",
+    "name": "Candle",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/candle-of-invocation.json"
+  },
+  {
+    "id": "candle-of-the-deep",
+    "name": "Candle",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/candle-of-the-deep.json"
+  },
+  {
+    "id": "cap-of-water-breathing",
+    "name": "Cap of Water Breathing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cap-of-water-breathing.json"
+  },
+  {
+    "id": "cape-of-the-mountebank",
+    "name": "Cape of the Mountebank",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cape-of-the-mountebank.json"
+  },
+  {
+    "id": "carpet-of-flying",
+    "name": "Carpet of Flying",
+    "rarity": "Very Rare",
+    "type": "Wondrous",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/carpet-of-flying.json"
+  },
+  {
+    "id": "cauldron-of-rebirth",
+    "name": "Cauldron of Rebirth",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cauldron-of-rebirth.json"
+  },
+  {
+    "id": "censer-of-controlling-air-elementals",
+    "name": "Censer of Controlling Air Elementals",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/censer-of-controlling-air-elementals.json"
+  },
+  {
+    "id": "charlatan-s-die",
+    "name": "Charlatan's Die",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/charlatan-s-die.json"
+  },
+  {
+    "id": "chime-of-opening",
+    "name": "Chime of Opening",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/chime-of-opening.json"
+  },
+  {
+    "id": "circlet-of-blasting",
+    "name": "Circlet of Blasting",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/circlet-of-blasting.json"
+  },
+  {
+    "id": "cloak-of-arachnida",
+    "name": "Cloak of Arachnida",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-arachnida.json"
+  },
+  {
+    "id": "cloak-of-billowing",
+    "name": "Cloak of Billowing",
+    "rarity": "Common",
+    "type": "Wondrous",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-billowing.json"
+  },
+  {
+    "id": "cloak-of-displacement",
+    "name": "Cloak of Displacement",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-displacement.json"
+  },
+  {
+    "id": "cloak-of-elvenkind",
+    "name": "Cloak of Elvenkind",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-elvenkind.json"
+  },
+  {
+    "id": "cloak-of-invisibility",
+    "name": "Cloak of Invisibility",
+    "rarity": "Legendary",
+    "type": "Wondrous",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-invisibility.json"
+  },
+  {
+    "id": "cloak-of-many-fashions",
+    "name": "Cloak of Many Fashions",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-many-fashions.json"
+  },
+  {
+    "id": "cloak-of-protection",
+    "name": "Cloak of Protection",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-protection.json"
+  },
+  {
+    "id": "cloak-of-the-bat",
+    "name": "Cloak of the Bat",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-the-bat.json"
+  },
+  {
+    "id": "cloak-of-the-manta-ray",
+    "name": "Cloak of the Manta Ray",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cloak-of-the-manta-ray.json"
+  },
+  {
+    "id": "clockwork-amulet",
+    "name": "Clockwork Amulet",
+    "rarity": "Common",
+    "type": "Wondrous",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/clockwork-amulet.json"
+  },
+  {
+    "id": "clothes-of-mending",
+    "name": "Clothes of Mending",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/clothes-of-mending.json"
+  },
+  {
+    "id": "crystal-ball-of-mind-reading",
+    "name": "Crystal Ball of Mind Reading",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/crystal-ball-of-mind-reading.json"
+  },
+  {
+    "id": "crystal-ball-of-telepathy",
+    "name": "Crystal Ball of Telepathy",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/crystal-ball-of-telepathy.json"
+  },
+  {
+    "id": "crystal-ball-of-true-seeing",
+    "name": "Crystal Ball of True Seeing",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/crystal-ball-of-true-seeing.json"
+  },
+  {
+    "id": "crystal-ball",
+    "name": "Crystal",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/crystal-ball.json"
+  },
+  {
+    "id": "cube-of-force",
+    "name": "Cube of Force",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cube-of-force.json"
+  },
+  {
+    "id": "cube-of-summoning",
+    "name": "Cube of Summoning",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cube-of-summoning.json"
+  },
+  {
+    "id": "cubic-gate",
+    "name": "Cubic Gate",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/cubic-gate.json"
+  },
+  {
+    "id": "daern-s-instant-fortress",
+    "name": "Daern's Instant Fortress",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/daern-s-instant-fortress.json"
+  },
+  {
+    "id": "dagger-of-venom",
+    "name": "Dagger of Venom",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dagger-of-venom.json"
+  },
+  {
+    "id": "dancing-sword",
+    "name": "Dancing Sword",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dancing-sword.json"
+  },
+  {
+    "id": "dark-shard-amulet",
+    "name": "Dark Shard Amulet",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dark-shard-amulet.json"
+  },
+  {
+    "id": "decanter-of-endless-water",
+    "name": "Decanter of Endless Water",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/decanter-of-endless-water.json"
+  },
+  {
+    "id": "deck-of-illusions",
+    "name": "Deck of Illusions",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/deck-of-illusions.json"
+  },
+  {
+    "id": "deck-of-many-things",
+    "name": "Deck of Many Things",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/deck-of-many-things.json"
+  },
+  {
+    "id": "defender",
+    "name": "Defender",
+    "rarity": "Legendary",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/defender.json"
+  },
+  {
+    "id": "demon-armor",
+    "name": "Demon Armor",
+    "rarity": "Very Rare",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/demon-armor.json"
+  },
+  {
+    "id": "demonomicon-of-iggwilv",
+    "name": "Demonomicon of Iggwilv",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/demonomicon-of-iggwilv.json"
+  },
+  {
+    "id": "dimensional-shackles",
+    "name": "Dimensional Shackles",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dimensional-shackles.json"
+  },
+  {
+    "id": "dragon-scale-mail",
+    "name": "Dragon Scale Mail",
+    "rarity": "Very Rare",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dragon-scale-mail.json"
+  },
+  {
+    "id": "dragon-slayer",
+    "name": "Dragon Slayer",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dragon-slayer.json"
+  },
+  {
+    "id": "dread-helm",
+    "name": "Dread Helm",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dread-helm.json"
+  },
+  {
+    "id": "driftglobe",
+    "name": "Driftglobe",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/driftglobe.json"
+  },
+  {
+    "id": "dust-of-disappearance",
+    "name": "Dust of Disappearance",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dust-of-disappearance.json"
+  },
+  {
+    "id": "dust-of-dryness",
+    "name": "Dust of Dryness",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dust-of-dryness.json"
+  },
+  {
+    "id": "dust-of-sneezing-and-choking",
+    "name": "Dust of Sneezing and Choking",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dust-of-sneezing-and-choking.json"
+  },
+  {
+    "id": "dwarven-plate",
+    "name": "Dwarven Plate",
+    "rarity": "Very Rare",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dwarven-plate.json"
+  },
+  {
+    "id": "dwarven-thrower",
+    "name": "Dwarven Thrower",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/dwarven-thrower.json"
+  },
+  {
+    "id": "ear-horn-of-hearing",
+    "name": "Ear Horn of Hearing",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ear-horn-of-hearing.json"
+  },
+  {
+    "id": "efreeti-bottle",
+    "name": "Efreeti Bottle",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/efreeti-bottle.json"
+  },
+  {
+    "id": "efreeti-chain",
+    "name": "Efreeti Chain",
+    "rarity": "Legendary",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/efreeti-chain.json"
+  },
+  {
+    "id": "elemental-gem",
+    "name": "Elemental Gem",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/elemental-gem.json"
+  },
+  {
+    "id": "elixir-of-health",
+    "name": "Elixir of Health",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/elixir-of-health.json"
+  },
+  {
+    "id": "elven-chain",
+    "name": "Elven Chain",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/elven-chain.json"
+  },
+  {
+    "id": "enduring-spellbook",
+    "name": "Enduring Spellbook",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/enduring-spellbook.json"
+  },
+  {
+    "id": "energy-bow",
+    "name": "Energy Bow",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/energy-bow.json"
+  },
+  {
+    "id": "enspelled-armor",
+    "name": "Enspelled Armor",
+    "rarity": "Varies",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/enspelled-armor.json"
+  },
+  {
+    "id": "enspelled-staff",
+    "name": "Enspelled Staff",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/enspelled-staff.json"
+  },
+  {
+    "id": "enspelled-weapon",
+    "name": "Enspelled Weapon",
+    "rarity": "Rarity Varies",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/enspelled-weapon.json"
+  },
+  {
+    "id": "ersatz-eye",
+    "name": "Ersatz Eye",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ersatz-eye.json"
+  },
+  {
+    "id": "eversmoking-bottle",
+    "name": "Eversmoking Bottle",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/eversmoking-bottle.json"
+  },
+  {
+    "id": "executioner-s-axe",
+    "name": "Executioner's Axe",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/executioner-s-axe.json"
+  },
+  {
+    "id": "eye-and-hand-of-vecna",
+    "name": "Eye And Hand Of Vecna",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/eye-and-hand-of-vecna.json"
+  },
+  {
+    "id": "eyes-of-charming",
+    "name": "Eyes of Charming",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/eyes-of-charming.json"
+  },
+  {
+    "id": "eyes-of-minute-seeing",
+    "name": "Eyes of Minute Seeing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/eyes-of-minute-seeing.json"
+  },
+  {
+    "id": "eyes-of-the-eagle",
+    "name": "Eyes of the Eagle",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/eyes-of-the-eagle.json"
+  },
+  {
+    "id": "figurine-of-wondrous-power",
+    "name": "Figurine of Wondrous Power",
+    "rarity": "Rarity Varies",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/figurine-of-wondrous-power.json"
+  },
+  {
+    "id": "flame-tongue",
+    "name": "Flame Tongue",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/flame-tongue.json"
+  },
+  {
+    "id": "folding-boat",
+    "name": "Folding Boat",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/folding-boat.json"
+  },
+  {
+    "id": "frost-brand",
+    "name": "Frost Brand",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/frost-brand.json"
+  },
+  {
+    "id": "gauntlets-of-ogre-power",
+    "name": "Gauntlets of Ogre Power",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/gauntlets-of-ogre-power.json"
+  },
+  {
+    "id": "gem-of-brightness",
+    "name": "Gem of Brightness",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/gem-of-brightness.json"
+  },
+  {
+    "id": "gem-of-seeing",
+    "name": "Gem of Seeing",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/gem-of-seeing.json"
+  },
+  {
+    "id": "giant-slayer",
+    "name": "Giant Slayer",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/giant-slayer.json"
+  },
+  {
+    "id": "glamoured-studded-leather",
+    "name": "Studded Leather Armor",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/glamoured-studded-leather.json"
+  },
+  {
+    "id": "gloves-of-missile-snaring",
+    "name": "Gloves of Missile Snaring",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/gloves-of-missile-snaring.json"
+  },
+  {
+    "id": "gloves-of-swimming-and-climbing",
+    "name": "Gloves of Swimming and Climbing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/gloves-of-swimming-and-climbing.json"
+  },
+  {
+    "id": "gloves-of-thievery",
+    "name": "Gloves of Thievery",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/gloves-of-thievery.json"
+  },
+  {
+    "id": "goggles-of-night",
+    "name": "Goggles of Night",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/goggles-of-night.json"
+  },
+  {
+    "id": "hag-eye",
+    "name": "Hag Eye",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/hag-eye.json"
+  },
+  {
+    "id": "hammer-of-thunderbolts",
+    "name": "Hammer of Thunderbolts",
+    "rarity": "Legendary",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/hammer-of-thunderbolts.json"
+  },
+  {
+    "id": "hat-of-disguise",
+    "name": "Hat of Disguise",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/hat-of-disguise.json"
+  },
+  {
+    "id": "hat-of-many-spells",
+    "name": "Hat of Many Spells",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/hat-of-many-spells.json"
+  },
+  {
+    "id": "hat-of-vermin",
+    "name": "Hat of Vermin",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/hat-of-vermin.json"
+  },
+  {
+    "id": "hat-of-wizardry",
+    "name": "Hat of Wizardry",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/hat-of-wizardry.json"
+  },
+  {
+    "id": "headband-of-intellect",
+    "name": "Headband of Intellect",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/headband-of-intellect.json"
+  },
+  {
+    "id": "helm-of-brilliance",
+    "name": "Helm of Brilliance",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/helm-of-brilliance.json"
+  },
+  {
+    "id": "helm-of-comprehending-languages",
+    "name": "Helm of Comprehending Languages",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/helm-of-comprehending-languages.json"
+  },
+  {
+    "id": "helm-of-telepathy",
+    "name": "Helm of Telepathy",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/helm-of-telepathy.json"
+  },
+  {
+    "id": "helm-of-teleportation",
+    "name": "Helm of Teleportation",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/helm-of-teleportation.json"
+  },
+  {
+    "id": "heward-s-handy-haversack",
+    "name": "Heward's Handy Haversack",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/heward-s-handy-haversack.json"
+  },
+  {
+    "id": "heward-s-handy-spice-pouch",
+    "name": "Heward's Handy Spice Pouch",
+    "rarity": "Common",
+    "type": "Wondrous",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/heward-s-handy-spice-pouch.json"
+  },
+  {
+    "id": "holy-avenger",
+    "name": "Holy Avenger",
+    "rarity": "Legendary",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/holy-avenger.json"
+  },
+  {
+    "id": "horn-of-blasting",
+    "name": "Musical Instrument",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/horn-of-blasting.json"
+  },
+  {
+    "id": "horn-of-silent-alarm",
+    "name": "Horn of Silent Alarm",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/horn-of-silent-alarm.json"
+  },
+  {
+    "id": "horn-of-valhalla",
+    "name": "Musical Instrument",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/horn-of-valhalla.json"
+  },
+  {
+    "id": "horseshoes-of-a-zephyr",
+    "name": "Horseshoes of a Zephyr",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/horseshoes-of-a-zephyr.json"
+  },
+  {
+    "id": "horseshoes-of-speed",
+    "name": "Horseshoes of Speed",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/horseshoes-of-speed.json"
+  },
+  {
+    "id": "immovable-rod",
+    "name": "Immovable Rod",
+    "rarity": "Uncommon",
+    "type": "Rod",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/immovable-rod.json"
+  },
+  {
+    "id": "instrument-of-illusions",
+    "name": "Instrument of Illusions",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/instrument-of-illusions.json"
+  },
+  {
+    "id": "instrument-of-scribing",
+    "name": "Calligrapher's Supplies",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/instrument-of-scribing.json"
+  },
+  {
+    "id": "instrument-of-the-bards",
+    "name": "Musical Instrument",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/instrument-of-the-bards.json"
+  },
+  {
+    "id": "ioun-stone",
+    "name": "Ioun Stone",
+    "rarity": "Rarity Varies",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ioun-stone.json"
+  },
+  {
+    "id": "iron-bands-of-bilarro",
+    "name": "Iron Bands of Bilarro",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/iron-bands-of-bilarro.json"
+  },
+  {
+    "id": "iron-flask",
+    "name": "Flask",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/iron-flask.json"
+  },
+  {
+    "id": "javelin-of-lightning",
+    "name": "Javelin",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/javelin-of-lightning.json"
+  },
+  {
+    "id": "keoghtom-s-ointment",
+    "name": "Keoghtom's Ointment",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/keoghtom-s-ointment.json"
+  },
+  {
+    "id": "lantern-of-revealing",
+    "name": "Lantern of Revealing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/lantern-of-revealing.json"
+  },
+  {
+    "id": "lock-of-trickery",
+    "name": "Lock",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/lock-of-trickery.json"
+  },
+  {
+    "id": "luck-blade",
+    "name": "Luck Blade",
+    "rarity": "Legendary",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/luck-blade.json"
+  },
+  {
+    "id": "lute-of-thunderous-thumping",
+    "name": "Lute of Thunderous Thumping",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/lute-of-thunderous-thumping.json"
+  },
+  {
+    "id": "mace-of-disruption",
+    "name": "Mace",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/mace-of-disruption.json"
+  },
+  {
+    "id": "mace-of-smiting",
+    "name": "Mace",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/mace-of-smiting.json"
+  },
+  {
+    "id": "mace-of-terror",
+    "name": "Mace",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/mace-of-terror.json"
+  },
+  {
+    "id": "mantle-of-spell-resistance",
+    "name": "Mantle of Spell Resistance",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/mantle-of-spell-resistance.json"
+  },
+  {
+    "id": "manual-of-bodily-health",
+    "name": "Manual of Bodily Health",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/manual-of-bodily-health.json"
+  },
+  {
+    "id": "manual-of-gainful-exercise",
+    "name": "Manual of Gainful Exercise",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/manual-of-gainful-exercise.json"
+  },
+  {
+    "id": "manual-of-golems",
+    "name": "Manual Of Golems",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/manual-of-golems.json"
+  },
+  {
+    "id": "manual-of-quickness-of-action",
+    "name": "Manual of Quickness of Action",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/manual-of-quickness-of-action.json"
+  },
+  {
+    "id": "mariner-s-armor",
+    "name": "Mariner's Armor",
+    "rarity": "Uncommon",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/mariner-s-armor.json"
+  },
+  {
+    "id": "medallion-of-thoughts",
+    "name": "Medallion of Thoughts",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/medallion-of-thoughts.json"
+  },
+  {
+    "id": "mirror-of-life-trapping",
+    "name": "Mirror",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/mirror-of-life-trapping.json"
+  },
+  {
+    "id": "mithral-armor",
+    "name": "Mithral Armor",
+    "rarity": "Uncommon",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/mithral-armor.json"
+  },
+  {
+    "id": "moonblade",
+    "name": "Moonblade",
+    "rarity": "Legendary",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/moonblade.json"
+  },
+  {
+    "id": "mystery-key",
+    "name": "Mystery Key",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/mystery-key.json"
+  },
+  {
+    "id": "nature-s-mantle",
+    "name": "Robe",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/nature-s-mantle.json"
+  },
+  {
+    "id": "necklace-of-adaptation",
+    "name": "Necklace of Adaptation",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/necklace-of-adaptation.json"
+  },
+  {
+    "id": "necklace-of-fireballs",
+    "name": "Necklace of Fireballs",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/necklace-of-fireballs.json"
+  },
+  {
+    "id": "necklace-of-prayer-beads",
+    "name": "Necklace of Prayer Beads",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/necklace-of-prayer-beads.json"
+  },
+  {
+    "id": "nine-lives-stealer",
+    "name": "Nine Lives Stealer",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/nine-lives-stealer.json"
+  },
+  {
+    "id": "nolzur-s-marvelous-pigments",
+    "name": "Nolzur's Marvelous Pigments",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/nolzur-s-marvelous-pigments.json"
+  },
+  {
+    "id": "oathbow",
+    "name": "Oathbow",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/oathbow.json"
+  },
+  {
+    "id": "oil-of-etherealness",
+    "name": "Oil of Etherealness",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/oil-of-etherealness.json"
+  },
+  {
+    "id": "oil-of-sharpness",
+    "name": "Oil of Sharpness",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/oil-of-sharpness.json"
+  },
+  {
+    "id": "oil-of-slipperiness",
+    "name": "Oil of Slipperiness",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/oil-of-slipperiness.json"
+  },
+  {
+    "id": "orb-of-direction",
+    "name": "Orb of Direction",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/orb-of-direction.json"
+  },
+  {
+    "id": "orb-of-dragonkind",
+    "name": "Orb of Dragonkind",
+    "rarity": "Artifact",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/orb-of-dragonkind.json"
+  },
+  {
+    "id": "orb-of-time",
+    "name": "Orb of Time",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/orb-of-time.json"
+  },
+  {
+    "id": "pearl-of-power",
+    "name": "Pearl of Power",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/pearl-of-power.json"
+  },
+  {
+    "id": "perfume-of-bewitching",
+    "name": "Perfume",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/perfume-of-bewitching.json"
+  },
+  {
+    "id": "periapt-of-health",
+    "name": "Periapt of Health",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/periapt-of-health.json"
+  },
+  {
+    "id": "periapt-of-proof-against-poison",
+    "name": "Periapt of Proof against Poison",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/periapt-of-proof-against-poison.json"
+  },
+  {
+    "id": "periapt-of-wound-closure",
+    "name": "Periapt of Wound Closure",
+    "rarity": "Uncommon",
+    "type": "Wondrous",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/periapt-of-wound-closure.json"
+  },
+  {
+    "id": "philter-of-love",
+    "name": "Philter of Love",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/philter-of-love.json"
+  },
+  {
+    "id": "pipe-of-smoke-monsters",
+    "name": "Pipe of Smoke Monsters",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/pipe-of-smoke-monsters.json"
+  },
+  {
+    "id": "pipes-of-haunting",
+    "name": "Pipes of Haunting",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/pipes-of-haunting.json"
+  },
+  {
+    "id": "pipes-of-the-sewers",
+    "name": "Pipes of the Sewers",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/pipes-of-the-sewers.json"
+  },
+  {
+    "id": "plate-armor-of-etherealness",
+    "name": "Plate Armor",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/plate-armor-of-etherealness.json"
+  },
+  {
+    "id": "pole-of-angling",
+    "name": "Pole of Angling",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/pole-of-angling.json"
+  },
+  {
+    "id": "pole-of-collapsing",
+    "name": "Pole",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/pole-of-collapsing.json"
+  },
+  {
+    "id": "portable-hole",
+    "name": "Portable Hole",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/portable-hole.json"
+  },
+  {
+    "id": "pot-of-awakening",
+    "name": "Pot, Iron",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/pot-of-awakening.json"
+  },
+  {
+    "id": "potion-of-animal-friendship",
+    "name": "Potion of Animal Friendship",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-animal-friendship.json"
+  },
+  {
+    "id": "potion-of-clairvoyance",
+    "name": "Potion of Clairvoyance",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-clairvoyance.json"
+  },
+  {
+    "id": "potion-of-climbing",
+    "name": "Potion of Climbing",
+    "rarity": "Common",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-climbing.json"
+  },
+  {
+    "id": "potion-of-comprehension",
+    "name": "Potion of Comprehension",
+    "rarity": "Common",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-comprehension.json"
+  },
+  {
+    "id": "potion-of-diminution",
+    "name": "Potion of Diminution",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-diminution.json"
+  },
+  {
+    "id": "potion-of-fire-breath",
+    "name": "Potion of Fire Breath",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-fire-breath.json"
+  },
+  {
+    "id": "potion-of-flying",
+    "name": "Potion of Flying",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-flying.json"
+  },
+  {
+    "id": "potion-of-gaseous-form",
+    "name": "Potion of Gaseous Form",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-gaseous-form.json"
+  },
+  {
+    "id": "potion-of-giant-strength",
+    "name": "Potion of Giant Strength",
+    "rarity": "Rarity Varies",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-giant-strength.json"
+  },
+  {
+    "id": "potion-of-greater-invisibility",
+    "name": "Potion of Greater Invisibility",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-greater-invisibility.json"
+  },
+  {
+    "id": "potion-of-growth",
+    "name": "Potion of Growth",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-growth.json"
+  },
+  {
+    "id": "potion-of-heroism",
+    "name": "Potion of Healing",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-heroism.json"
+  },
+  {
+    "id": "potion-of-invisibility",
+    "name": "Potion of Invisibility",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-invisibility.json"
+  },
+  {
+    "id": "potion-of-invulnerability",
+    "name": "Potion of Invulnerability",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-invulnerability.json"
+  },
+  {
+    "id": "potion-of-longevity",
+    "name": "Potion of Longevity",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-longevity.json"
+  },
+  {
+    "id": "potion-of-mind-reading",
+    "name": "Potion of Mind Reading",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-mind-reading.json"
+  },
+  {
+    "id": "potion-of-poison",
+    "name": "Poison, Basic",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-poison.json"
+  },
+  {
+    "id": "potion-of-pugilism",
+    "name": "Potion of Pugilism",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-pugilism.json"
+  },
+  {
+    "id": "potion-of-resistance",
+    "name": "Potion of Resistance",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-resistance.json"
+  },
+  {
+    "id": "potion-of-speed",
+    "name": "Potion of Speed",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-speed.json"
+  },
+  {
+    "id": "potion-of-vitality",
+    "name": "Potion of Vitality",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-vitality.json"
+  },
+  {
+    "id": "potion-of-water-breathing",
+    "name": "Potion of Water Breathing",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potion-of-water-breathing.json"
+  },
+  {
+    "id": "potions-of-healing",
+    "name": "Potion of Healing",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/potions-of-healing.json"
+  },
+  {
+    "id": "prosthetic-limb",
+    "name": "Prosthetic Limb",
+    "rarity": "Common",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/prosthetic-limb.json"
+  },
+  {
+    "id": "quaal-s-feather-token",
+    "name": "Quaal's Feather Token",
+    "rarity": "Varies",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/quaal-s-feather-token.json"
+  },
+  {
+    "id": "quarterstaff-of-the-acrobat",
+    "name": "Quarterstaff of the Acrobat",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/quarterstaff-of-the-acrobat.json"
+  },
+  {
+    "id": "quiver-of-ehlonna",
+    "name": "Quiver",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/quiver-of-ehlonna.json"
+  },
+  {
+    "id": "ring-of-animal-influence",
+    "name": "Ring of Animal Influence",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-animal-influence.json"
+  },
+  {
+    "id": "ring-of-djinni-summoning",
+    "name": "Ring of Djinni Summoning",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-djinni-summoning.json"
+  },
+  {
+    "id": "ring-of-elemental-command",
+    "name": "Ring of Elemental Command",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-elemental-command.json"
+  },
+  {
+    "id": "ring-of-evasion",
+    "name": "Ring of Evasion",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-evasion.json"
+  },
+  {
+    "id": "ring-of-feather-falling",
+    "name": "Ring of Feather Falling",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-feather-falling.json"
+  },
+  {
+    "id": "ring-of-free-action",
+    "name": "Ring of Free Action",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-free-action.json"
+  },
+  {
+    "id": "ring-of-invisibility",
+    "name": "Ring of Invisibility",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-invisibility.json"
+  },
+  {
+    "id": "ring-of-jumping",
+    "name": "Ring of Jumping",
+    "rarity": "Uncommon",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-jumping.json"
+  },
+  {
+    "id": "ring-of-mind-shielding",
+    "name": "Ring of Mind Shielding",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-mind-shielding.json"
+  },
+  {
+    "id": "ring-of-protection",
+    "name": "Ring of Protection",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-protection.json"
+  },
+  {
+    "id": "ring-of-regeneration",
+    "name": "Ring of Regeneration",
+    "rarity": "Very Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-regeneration.json"
+  },
+  {
+    "id": "ring-of-resistance",
+    "name": "Ring of Resistance",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-resistance.json"
+  },
+  {
+    "id": "ring-of-shooting-stars",
+    "name": "Ring of Shooting Stars",
+    "rarity": "Very Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-shooting-stars.json"
+  },
+  {
+    "id": "ring-of-spell-storing",
+    "name": "Ring of Spell Storing",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-spell-storing.json"
+  },
+  {
+    "id": "ring-of-spell-turning",
+    "name": "Ring of Spell Turning",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-spell-turning.json"
+  },
+  {
+    "id": "ring-of-swimming",
+    "name": "Ring of Swimming",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-swimming.json"
+  },
+  {
+    "id": "ring-of-telekinesis",
+    "name": "Ring of Telekinesis",
+    "rarity": "Very Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-telekinesis.json"
+  },
+  {
+    "id": "ring-of-the-ram",
+    "name": "Ring of the Ram",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-the-ram.json"
+  },
+  {
+    "id": "ring-of-three-wishes",
+    "name": "Ring of Three Wishes",
+    "rarity": "Legendary",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-three-wishes.json"
+  },
+  {
+    "id": "ring-of-warmth",
+    "name": "Ring of Warmth",
+    "rarity": "Uncommon",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-warmth.json"
+  },
+  {
+    "id": "ring-of-water-walking",
+    "name": "Ring of Water Walking",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ring-of-water-walking.json"
+  },
+  {
+    "id": "rival-coin",
+    "name": "Rival Coin",
+    "rarity": "Common",
+    "type": "Wondrous",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rival-coin.json"
+  },
+  {
+    "id": "robe-of-eyes",
+    "name": "Robe",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/robe-of-eyes.json"
+  },
+  {
+    "id": "robe-of-scintillating-colors",
+    "name": "Robe of Scintillating Colors",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/robe-of-scintillating-colors.json"
+  },
+  {
+    "id": "robe-of-stars",
+    "name": "Robe",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/robe-of-stars.json"
+  },
+  {
+    "id": "robe-of-the-archmagi",
+    "name": "Robe",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/robe-of-the-archmagi.json"
+  },
+  {
+    "id": "robe-of-useful-items",
+    "name": "Robe",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/robe-of-useful-items.json"
+  },
+  {
+    "id": "rod-of-absorption",
+    "name": "Rod",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rod-of-absorption.json"
+  },
+  {
+    "id": "rod-of-alertness",
+    "name": "Rod (Arcane Focus)",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rod-of-alertness.json"
+  },
+  {
+    "id": "rod-of-lordly-might",
+    "name": "Rod",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rod-of-lordly-might.json"
+  },
+  {
+    "id": "rod-of-resurrection",
+    "name": "Rod of Resurrection",
+    "rarity": "Legendary",
+    "type": "Rod",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rod-of-resurrection.json"
+  },
+  {
+    "id": "rod-of-rulership",
+    "name": "Arcane Focus (Rod)",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rod-of-rulership.json"
+  },
+  {
+    "id": "rod-of-security",
+    "name": "Rod (Arcane Focus)",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rod-of-security.json"
+  },
+  {
+    "id": "rod-of-the-pact-keeper",
+    "name": "Rod of the Pact Keeper",
+    "rarity": ["Uncommon", "Rare", "Very Rare"],
+    "type": "Rod",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rod-of-the-pact-keeper.json"
+  },
+  {
+    "id": "rope-of-climbing",
+    "name": "Rope",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rope-of-climbing.json"
+  },
+  {
+    "id": "rope-of-entanglement",
+    "name": "Rope",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rope-of-entanglement.json"
+  },
+  {
+    "id": "rope-of-mending",
+    "name": "Rope",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/rope-of-mending.json"
+  },
+  {
+    "id": "ruby-of-the-war-mage",
+    "name": "Ruby of the War Mage",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/ruby-of-the-war-mage.json"
+  },
+  {
+    "id": "saddle-of-the-cavalier",
+    "name": "Saddle of the Cavalier",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/saddle-of-the-cavalier.json"
+  },
+  {
+    "id": "scarab-of-protection",
+    "name": "Scarab of Protection",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/scarab-of-protection.json"
+  },
+  {
+    "id": "scimitar-of-speed",
+    "name": "Scimitar",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/scimitar-of-speed.json"
+  },
+  {
+    "id": "scroll-of-protection",
+    "name": "Scroll of Protection",
+    "rarity": "Rare",
+    "type": "Scroll",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/scroll-of-protection.json"
+  },
+  {
+    "id": "scroll-of-titan-summoning",
+    "name": "Scroll of Titan Summoning",
+    "rarity": "Legendary",
+    "type": "Scroll",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/scroll-of-titan-summoning.json"
+  },
+  {
+    "id": "sending-stones",
+    "name": "Sending Stones",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sending-stones.json"
+  },
+  {
+    "id": "sentinel-shield",
+    "name": "Shield",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sentinel-shield.json"
+  },
+  {
+    "id": "shield-of-expression",
+    "name": "Shield of Expression",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/shield-of-expression.json"
+  },
+  {
+    "id": "shield-of-missile-attraction",
+    "name": "Shield",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/shield-of-missile-attraction.json"
+  },
+  {
+    "id": "shield-of-the-cavalier",
+    "name": "Shield of the Cavalier",
+    "rarity": "Very Rare",
+    "type": "Armor (Shield)",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/shield-of-the-cavalier.json"
+  },
+  {
+    "id": "silvered-weapon",
+    "name": "Silvered Weapon",
+    "rarity": "Common",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/silvered-weapon.json"
+  },
+  {
+    "id": "slippers-of-spider-climbing",
+    "name": "Slippers of Spider Climbing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/slippers-of-spider-climbing.json"
+  },
+  {
+    "id": "smoldering-armor",
+    "name": "Smoldering Armor",
+    "rarity": "Common",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/smoldering-armor.json"
+  },
+  {
+    "id": "sovereign-glue",
+    "name": "Sovereign Glue",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sovereign-glue.json"
+  },
+  {
+    "id": "spell-scroll",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/spell-scroll.json"
+  },
+  {
+    "id": "spellguard-shield",
+    "name": "Spellguard Shield",
+    "rarity": "Very Rare",
+    "type": "Armor",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/spellguard-shield.json"
+  },
+  {
+    "id": "sphere-of-annihilation",
+    "name": "Sphere of Annihilation",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sphere-of-annihilation.json"
+  },
+  {
+    "id": "spirit-board",
+    "name": "Spirit Board",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/spirit-board.json"
+  },
+  {
+    "id": "staff-of-adornment",
+    "name": "Staff of Adornment",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-adornment.json"
+  },
+  {
+    "id": "staff-of-birdcalls",
+    "name": "Staff of Birdcalls",
+    "rarity": "Common",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-birdcalls.json"
+  },
+  {
+    "id": "staff-of-charming",
+    "name": "Staff of Charming",
+    "rarity": "Rare",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-charming.json"
+  },
+  {
+    "id": "staff-of-fire",
+    "name": "Staff of Fire",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-fire.json"
+  },
+  {
+    "id": "staff-of-flowers",
+    "name": "Staff of Flowers",
+    "rarity": "Common",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-flowers.json"
+  },
+  {
+    "id": "staff-of-frost",
+    "name": "Staff of Frost",
+    "rarity": "Very Rare",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-frost.json"
+  },
+  {
+    "id": "staff-of-healing",
+    "name": "Staff of Healing",
+    "rarity": "Rare",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-healing.json"
+  },
+  {
+    "id": "staff-of-power",
+    "name": "Arcane Focus (Staff)",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-power.json"
+  },
+  {
+    "id": "staff-of-striking",
+    "name": "Staff of Striking",
+    "rarity": "Very Rare",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-striking.json"
+  },
+  {
+    "id": "staff-of-swarming-insects",
+    "name": "Staff of Swarming Insects",
+    "rarity": "Rare",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-swarming-insects.json"
+  },
+  {
+    "id": "staff-of-the-adder",
+    "name": "Staff of the Adder",
+    "rarity": "Uncommon",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-the-adder.json"
+  },
+  {
+    "id": "staff-of-the-magi",
+    "name": "Staff of the Magi",
+    "rarity": "Legendary",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-the-magi.json"
+  },
+  {
+    "id": "staff-of-the-python",
+    "name": "Staff of the Python",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-the-python.json"
+  },
+  {
+    "id": "staff-of-the-woodlands",
+    "name": "Staff of the Woodlands",
+    "rarity": "Rare",
+    "type": "Staff",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-the-woodlands.json"
+  },
+  {
+    "id": "staff-of-thunder-and-lightning",
+    "name": "Staff of Thunder and Lightning",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-thunder-and-lightning.json"
+  },
+  {
+    "id": "staff-of-withering",
+    "name": "Staff of Withering",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/staff-of-withering.json"
+  },
+  {
+    "id": "stone-of-controlling-earth-elementals",
+    "name": "Stone of Controlling Earth Elementals",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/stone-of-controlling-earth-elementals.json"
+  },
+  {
+    "id": "sun-blade",
+    "name": "Sun Blade",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sun-blade.json"
+  },
+  {
+    "id": "sword-of-answering",
+    "name": "Sword of Answering",
+    "rarity": "Legendary",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sword-of-answering.json"
+  },
+  {
+    "id": "sword-of-kas",
+    "name": "Sword of Kas",
+    "rarity": "Artifact",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sword-of-kas.json"
+  },
+  {
+    "id": "sword-of-life-stealing",
+    "name": "Sword of Life Stealing",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sword-of-life-stealing.json"
+  },
+  {
+    "id": "sword-of-sharpness",
+    "name": "Sword of Sharpness",
+    "rarity": "Very Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sword-of-sharpness.json"
+  },
+  {
+    "id": "sword-of-vengeance",
+    "name": "Sword of Vengeance",
+    "rarity": "Uncommon",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sword-of-vengeance.json"
+  },
+  {
+    "id": "sword-of-wounding",
+    "name": "Sword of Wounding",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sword-of-wounding.json"
+  },
+  {
+    "id": "sylvan-talon",
+    "name": "Sylvan Talon",
+    "rarity": "Common",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/sylvan-talon.json"
+  },
+  {
+    "id": "talisman-of-pure-good",
+    "name": "Talisman of Pure Good",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/talisman-of-pure-good.json"
+  },
+  {
+    "id": "talisman-of-the-sphere",
+    "name": "Talisman of the Sphere",
+    "rarity": "Legendary",
+    "type": "Wondrous",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/talisman-of-the-sphere.json"
+  },
+  {
+    "id": "talisman-of-ultimate-evil",
+    "name": "Talisman of Ultimate Evil",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/talisman-of-ultimate-evil.json"
+  },
+  {
+    "id": "talking-doll",
+    "name": "Talking Doll",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/talking-doll.json"
+  },
+  {
+    "id": "tankard-of-sobriety",
+    "name": "Tankard of Sobriety",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/tankard-of-sobriety.json"
+  },
+  {
+    "id": "tentacle-rod",
+    "name": "Tentacle Rod",
+    "rarity": "Rare",
+    "type": "Rod",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/tentacle-rod.json"
+  },
+  {
+    "id": "thunderous-greatclub",
+    "name": "Greatclub",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/thunderous-greatclub.json"
+  },
+  {
+    "id": "tome-of-clear-thought",
+    "name": "Tome of Clear Thought",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/tome-of-clear-thought.json"
+  },
+  {
+    "id": "tome-of-leadership-and-influence",
+    "name": "Tome of Leadership and Influence",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/tome-of-leadership-and-influence.json"
+  },
+  {
+    "id": "tome-of-the-stilled-tongue",
+    "name": "Tome of the Stilled Tongue",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/tome-of-the-stilled-tongue.json"
+  },
+  {
+    "id": "tome-of-understanding",
+    "name": "Tome of Understanding",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/tome-of-understanding.json"
+  },
+  {
+    "id": "trident-of-fish-command",
+    "name": "Trident",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/trident-of-fish-command.json"
+  },
+  {
+    "id": "universal-solvent",
+    "name": "Universal Solvent",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/universal-solvent.json"
+  },
+  {
+    "id": "veteran-s-cane",
+    "name": "Quarterstaff",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/veteran-s-cane.json"
+  },
+  {
+    "id": "vicious-weapon",
+    "name": "Vicious Weapon",
+    "rarity": "Rare",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/vicious-weapon.json"
+  },
+  {
+    "id": "vorpal-sword",
+    "name": "Vorpal Sword",
+    "rarity": "Legendary",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/vorpal-sword.json"
+  },
+  {
+    "id": "walloping-ammunition",
+    "name": "Walloping Ammunition",
+    "rarity": "Common",
+    "type": "Weapon (Any Ammunition)",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/walloping-ammunition.json"
+  },
+  {
+    "id": "wand-of-binding",
+    "name": "Wand",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-binding.json"
+  },
+  {
+    "id": "wand-of-conducting",
+    "name": "Wand of Conducting",
+    "rarity": "Common",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-conducting.json"
+  },
+  {
+    "id": "wand-of-enemy-detection",
+    "name": "Wand of Enemy Detection",
+    "rarity": "Rare",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-enemy-detection.json"
+  },
+  {
+    "id": "wand-of-fear",
+    "name": "Wand",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-fear.json"
+  },
+  {
+    "id": "wand-of-fireballs",
+    "name": "Wand of Fireballs",
+    "rarity": "Rare",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-fireballs.json"
+  },
+  {
+    "id": "wand-of-lightning-bolts",
+    "name": "Wand of Lightning Bolts",
+    "rarity": "Rare",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-lightning-bolts.json"
+  },
+  {
+    "id": "wand-of-magic-detection",
+    "name": "Wand of Magic Detection",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-magic-detection.json"
+  },
+  {
+    "id": "wand-of-magic-missiles",
+    "name": "Wand of Magic Missiles",
+    "rarity": "Uncommon",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-magic-missiles.json"
+  },
+  {
+    "id": "wand-of-orcus",
+    "name": "Wand of Orcus",
+    "rarity": "Artifact",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-orcus.json"
+  },
+  {
+    "id": "wand-of-paralysis",
+    "name": "Wand",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-paralysis.json"
+  },
+  {
+    "id": "wand-of-polymorph",
+    "name": "Wand of Polymorph",
+    "rarity": "Very Rare",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-polymorph.json"
+  },
+  {
+    "id": "wand-of-pyrotechnics",
+    "name": "Wand",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-pyrotechnics.json"
+  },
+  {
+    "id": "wand-of-secrets",
+    "name": "Wand",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-secrets.json"
+  },
+  {
+    "id": "wand-of-web",
+    "name": "Wand of Web",
+    "rarity": "Uncommon",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-web.json"
+  },
+  {
+    "id": "wand-of-wonder",
+    "name": "Wand of Wonder",
+    "rarity": "Rare",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wand-of-wonder.json"
+  },
+  {
+    "id": "wave",
+    "name": "Glaive",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wave.json"
+  },
+  {
+    "id": "weapon-of-warning",
+    "name": "Weapon of Warning",
+    "rarity": "Uncommon",
+    "type": "Weapon",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/weapon-of-warning.json"
+  },
+  {
+    "id": "well-of-many-worlds",
+    "name": "Well of Many Worlds",
+    "rarity": "Legendary",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/well-of-many-worlds.json"
+  },
+  {
+    "id": "whelm",
+    "name": "Warhammer",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/whelm.json"
+  },
+  {
+    "id": "wind-fan",
+    "name": "Wind Fan",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wind-fan.json"
+  },
+  {
+    "id": "winged-boots",
+    "name": "Winged Boots",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/winged-boots.json"
+  },
+  {
+    "id": "wings-of-flying",
+    "name": "Wings of Flying",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wings-of-flying.json"
+  },
+  {
+    "id": "wraps-of-unarmed-power",
+    "name": "Wraps of Unarmed Power",
+    "rarity": {
+      "common": "+1",
+      "rare": "+2",
+      "veryRare": "+3"
+    },
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/permanent/wondrous/wraps-of-unarmed-power.json"
+  },
+  {
+    "id": "ammunition-of-slaying",
+    "name": "Ammunition of Slaying",
+    "rarity": "Very Rare",
+    "type": "Weapon (Any Ammunition)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/ammunition-of-slaying.json"
+  },
+  {
+    "id": "amulet-of-health",
+    "name": "Amulet of Health",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/amulet-of-health.json"
+  },
+  {
+    "id": "amulet-of-the-planes",
+    "name": "Amulet of the Planes",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/amulet-of-the-planes.json"
+  },
+  {
+    "id": "animated-shield",
+    "name": "Animated Shield",
+    "rarity": "Very Rare",
+    "type": "Armor (Shield)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/animated-shield.json"
+  },
+  {
+    "id": "armor-of-resistance",
+    "name": "Armor of Resistance",
+    "rarity": "Medium, or Heavy), Rare",
+    "type": "Armor (Any Light",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/armor-of-resistance.json"
+  },
+  {
+    "id": "armor-of-vulnerability",
+    "name": "Armor of Vulnerability",
+    "rarity": "Medium, or Heavy), Rare",
+    "type": "Armor (Any Light",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/armor-of-vulnerability.json"
+  },
+  {
+    "id": "arrow-catching-shield",
+    "name": "Arrow-Catching Shield",
+    "rarity": "Rare",
+    "type": "Armor (Shield)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/arrow-catching-shield.json"
+  },
+  {
+    "id": "bag-of-beans",
+    "name": "Bag of Beans",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/bag-of-beans.json"
+  },
+  {
+    "id": "bag-of-devouring",
+    "name": "Bag of Devouring",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/bag-of-devouring.json"
+  },
+  {
+    "id": "bead-of-force",
+    "name": "Bead of Force",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/bead-of-force.json"
+  },
+  {
+    "id": "belt-of-dwarvenkind",
+    "name": "Belt of Dwarvenkind",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/belt-of-dwarvenkind.json"
+  },
+  {
+    "id": "berserker-axe",
+    "name": "Berserker Axe",
+    "rarity": "Greataxe, or Halberd), Rare",
+    "type": "Weapon (Battleaxe",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/berserker-axe.json"
+  },
+  {
+    "id": "boots-of-levitation",
+    "name": "Boots of Levitation",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/boots-of-levitation.json"
+  },
+  {
+    "id": "boots-of-speed",
+    "name": "Boots of Speed",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/boots-of-speed.json"
+  },
+  {
+    "id": "bowl-of-commanding-water-elementals",
+    "name": "Bowl of Commanding Water Elementals",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/bowl-of-commanding-water-elementals.json"
+  },
+  {
+    "id": "bracers-of-defense",
+    "name": "Bracers of Defense",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/bracers-of-defense.json"
+  },
+  {
+    "id": "brazier-of-commanding-fire-elementals",
+    "name": "Brazier of Commanding Fire Elementals",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/brazier-of-commanding-fire-elementals.json"
+  },
+  {
+    "id": "candle-of-invocation",
+    "name": "Candle of Invocation",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/candle-of-invocation.json"
+  },
+  {
+    "id": "cape-of-the-mountebank",
+    "name": "Cape of the Mountebank",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/cape-of-the-mountebank.json"
+  },
+  {
+    "id": "carpet-of-flying",
+    "name": "Carpet of Flying",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/carpet-of-flying.json"
+  },
+  {
+    "id": "cauldron-of-rebirth",
+    "name": "Cauldron of Rebirth",
+    "rarity": "Very Rare (Requires Attunement by a Druid or Warlock)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/cauldron-of-rebirth.json"
+  },
+  {
+    "id": "censer-of-controlling-air-elementals",
+    "name": "Censer of Controlling Air Elementals",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/censer-of-controlling-air-elementals.json"
+  },
+  {
+    "id": "chime-of-opening",
+    "name": "Chime of Opening",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/chime-of-opening.json"
+  },
+  {
+    "id": "cloak-of-arachnida",
+    "name": "Cloak of Arachnida",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/cloak-of-arachnida.json"
+  },
+  {
+    "id": "cloak-of-displacement",
+    "name": "Cloak of Displacement",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/cloak-of-displacement.json"
+  },
+  {
+    "id": "cloak-of-the-bat",
+    "name": "Cloak of the Bat",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/cloak-of-the-bat.json"
+  },
+  {
+    "id": "crystal-ball",
+    "name": "Crystal Ball",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/crystal-ball.json"
+  },
+  {
+    "id": "cube-of-force",
+    "name": "Cube of Force",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/cube-of-force.json"
+  },
+  {
+    "id": "cube-of-summoning",
+    "name": "Cube of Summoning",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/cube-of-summoning.json"
+  },
+  {
+    "id": "daerns-instant-fortress",
+    "name": "Daern's Instant Fortress",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/daerns-instant-fortress.json"
+  },
+  {
+    "id": "dagger-of-venom",
+    "name": "Dagger of Venom",
+    "rarity": "Rare",
+    "type": "Weapon (Dagger)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/dagger-of-venom.json"
+  },
+  {
+    "id": "dancing-sword",
+    "name": "Dancing Sword",
+    "rarity": "Longsword, Rapier, Scimitar, or Shortsword), Very Rare",
+    "type": "Weapon (Greatsword",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/dancing-sword.json"
+  },
+  {
+    "id": "demon-armor",
+    "name": "Demon Armor",
+    "rarity": "Medium, or Heavy), Very Rare",
+    "type": "Armor (Any Light",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/demon-armor.json"
+  },
+  {
+    "id": "dimensional-shackles",
+    "name": "Dimensional Shackles",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/dimensional-shackles.json"
+  },
+  {
+    "id": "dragon-scale-mail",
+    "name": "Dragon Scale Mail",
+    "rarity": "Very Rare",
+    "type": "Armor (Scale Mail)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/dragon-scale-mail.json"
+  },
+  {
+    "id": "dragon-slayer",
+    "name": "Dragon Slayer",
+    "rarity": "Rare",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/dragon-slayer.json"
+  },
+  {
+    "id": "dwarven-plate",
+    "name": "Dwarven Plate",
+    "rarity": "Very Rare",
+    "type": "Armor (Half Plate or Plate Armor)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/dwarven-plate.json"
+  },
+  {
+    "id": "dwarven-thrower",
+    "name": "Dwarven Thrower",
+    "rarity": "Very Rare (Requires Attunement by a Dwarf or a Creature Attuned to a Belt of Dwarvenkind)",
+    "type": "Weapon (Warhammer)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/dwarven-thrower.json"
+  },
+  {
+    "id": "efreeti-bottle",
+    "name": "Efreeti Bottle",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/efreeti-bottle.json"
+  },
+  {
+    "id": "elixir-of-health",
+    "name": "Elixir of Health",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/elixir-of-health.json"
+  },
+  {
+    "id": "elven-chain",
+    "name": "Elven Chain",
+    "rarity": "Rare",
+    "type": "Armor (Chain Mail or Chain Shirt)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/elven-chain.json"
+  },
+  {
+    "id": "energy-bow",
+    "name": "Energy Bow",
+    "rarity": "Very Rare",
+    "type": "Weapon (Longbow or Shortbow)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/energy-bow.json"
+  },
+  {
+    "id": "executioners-axe",
+    "name": "Executioner's Axe",
+    "rarity": "Greataxe, Halberd, or Handaxe), Very Rare",
+    "type": "Weapon (Battleaxe",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/executioners-axe.json"
+  },
+  {
+    "id": "flame-tongue",
+    "name": "Flame Tongue",
+    "rarity": "Rare",
+    "type": "Weapon (Any Melee Weapon)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/flame-tongue.json"
+  },
+  {
+    "id": "folding-boat",
+    "name": "Folding Boat",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/folding-boat.json"
+  },
+  {
+    "id": "frost-brand",
+    "name": "Frost Brand",
+    "rarity": "Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Very Rare",
+    "type": "Weapon (Glaive",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/frost-brand.json"
+  },
+  {
+    "id": "gem-of-seeing",
+    "name": "Gem of Seeing",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/gem-of-seeing.json"
+  },
+  {
+    "id": "giant-slayer",
+    "name": "Giant Slayer",
+    "rarity": "Rare",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/giant-slayer.json"
+  },
+  {
+    "id": "glamoured-studded-leather",
+    "name": "Glamoured Studded Leather",
+    "rarity": "Rare",
+    "type": "Armor (Studded Leather Armor)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/glamoured-studded-leather.json"
+  },
+  {
+    "id": "hat-of-many-spells",
+    "name": "Hat of Many Spells",
+    "rarity": "Very Rare (Requires Attunement by a Wizard)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/hat-of-many-spells.json"
+  },
+  {
+    "id": "helm-of-brilliance",
+    "name": "Helm of Brilliance",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/helm-of-brilliance.json"
+  },
+  {
+    "id": "helm-of-teleportation",
+    "name": "Helm of Teleportation",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/helm-of-teleportation.json"
+  },
+  {
+    "id": "hewards-handy-haversack",
+    "name": "Heward's Handy Haversack",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/hewards-handy-haversack.json"
+  },
+  {
+    "id": "horn-of-blasting",
+    "name": "Horn of Blasting",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/horn-of-blasting.json"
+  },
+  {
+    "id": "horn-of-valhalla",
+    "name": "Horn of Valhalla",
+    "rarity": "Rare (Silver or Brass), Very Rare (Bronze), or Legendary (Iron)",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/horn-of-valhalla.json"
+  },
+  {
+    "id": "horseshoes-of-a-zephyr",
+    "name": "Horseshoes of a Zephyr",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/horseshoes-of-a-zephyr.json"
+  },
+  {
+    "id": "horseshoes-of-speed",
+    "name": "Horseshoes of Speed",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/horseshoes-of-speed.json"
+  },
+  {
+    "id": "iron-bands-of-bilarro",
+    "name": "Iron Bands of Bilarro",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/iron-bands-of-bilarro.json"
+  },
+  {
+    "id": "lute-of-thunderous-thumping",
+    "name": "Lute of Thunderous Thumping",
+    "rarity": "Very Rare",
+    "type": "Weapon (Club)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/lute-of-thunderous-thumping.json"
+  },
+  {
+    "id": "mace-of-disruption",
+    "name": "Mace of Disruption",
+    "rarity": "Rare",
+    "type": "Weapon (Mace)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/mace-of-disruption.json"
+  },
+  {
+    "id": "mace-of-smiting",
+    "name": "Mace of Smiting",
+    "rarity": "Rare",
+    "type": "Weapon (Mace)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/mace-of-smiting.json"
+  },
+  {
+    "id": "mace-of-terror",
+    "name": "Mace of Terror",
+    "rarity": "Rare",
+    "type": "Weapon (Mace)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/mace-of-terror.json"
+  },
+  {
+    "id": "mantle-of-spell-resistance",
+    "name": "Mantle of Spell Resistance",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/mantle-of-spell-resistance.json"
+  },
+  {
+    "id": "manual-of-bodily-health",
+    "name": "Manual of Bodily Health",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/manual-of-bodily-health.json"
+  },
+  {
+    "id": "manual-of-gainful-exercise",
+    "name": "Manual of Gainful Exercise",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/manual-of-gainful-exercise.json"
+  },
+  {
+    "id": "manual-of-golems",
+    "name": "Manual of Golems",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/manual-of-golems.json"
+  },
+  {
+    "id": "manual-of-quickness-of-action",
+    "name": "Manual of Quickness of Action",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/manual-of-quickness-of-action.json"
+  },
+  {
+    "id": "mirror-of-life-trapping",
+    "name": "Mirror of Life Trapping",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/mirror-of-life-trapping.json"
+  },
+  {
+    "id": "necklace-of-fireballs",
+    "name": "Necklace of Fireballs",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/necklace-of-fireballs.json"
+  },
+  {
+    "id": "necklace-of-prayer-beads",
+    "name": "Necklace of Prayer Beads",
+    "rarity": "Rare (Requires Attunement by a Cleric, Druid, or Paladin)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/necklace-of-prayer-beads.json"
+  },
+  {
+    "id": "nine-lives-stealer",
+    "name": "Nine Lives Stealer",
+    "rarity": "Very Rare",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/nine-lives-stealer.json"
+  },
+  {
+    "id": "nolzurs-marvelous-pigments",
+    "name": "Nolzur's Marvelous Pigments",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/nolzurs-marvelous-pigments.json"
+  },
+  {
+    "id": "oathbow",
+    "name": "Oathbow",
+    "rarity": "Very Rare",
+    "type": "Weapon (Longbow or Shortbow)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/oathbow.json"
+  },
+  {
+    "id": "oil-of-etherealness",
+    "name": "Oil of Etherealness",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/oil-of-etherealness.json"
+  },
+  {
+    "id": "oil-of-sharpness",
+    "name": "Oil of Sharpness",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/oil-of-sharpness.json"
+  },
+  {
+    "id": "periapt-of-proof-against-poison",
+    "name": "Periapt of Proof against Poison",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/periapt-of-proof-against-poison.json"
+  },
+  {
+    "id": "portable-hole",
+    "name": "Portable Hole",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/portable-hole.json"
+  },
+  {
+    "id": "potion-of-clairvoyance",
+    "name": "Potion of Clairvoyance",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-clairvoyance.json"
+  },
+  {
+    "id": "potion-of-diminution",
+    "name": "Potion of Diminution",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-diminution.json"
+  },
+  {
+    "id": "potion-of-flying",
+    "name": "Potion of Flying",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-flying.json"
+  },
+  {
+    "id": "potion-of-gaseous-form",
+    "name": "Potion of Gaseous Form",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-gaseous-form.json"
+  },
+  {
+    "id": "potion-of-greater-invisibility",
+    "name": "Potion of Greater Invisibility",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-greater-invisibility.json"
+  },
+  {
+    "id": "potion-of-heroism",
+    "name": "Potion of Heroism",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-heroism.json"
+  },
+  {
+    "id": "potion-of-invisibility",
+    "name": "Potion of Invisibility",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-invisibility.json"
+  },
+  {
+    "id": "potion-of-invulnerability",
+    "name": "Potion of Invulnerability",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-invulnerability.json"
+  },
+  {
+    "id": "potion-of-longevity",
+    "name": "Potion of Longevity",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-longevity.json"
+  },
+  {
+    "id": "potion-of-mind-reading",
+    "name": "Potion of Mind Reading",
+    "rarity": "Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-mind-reading.json"
+  },
+  {
+    "id": "potion-of-speed",
+    "name": "Potion of Speed",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-speed.json"
+  },
+  {
+    "id": "potion-of-vitality",
+    "name": "Potion of Vitality",
+    "rarity": "Very Rare",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/potion-of-vitality.json"
+  },
+  {
+    "id": "quarterstaff-of-the-acrobat",
+    "name": "Quarterstaff of the Acrobat",
+    "rarity": "Very Rare",
+    "type": "Weapon (Quarterstaff)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/quarterstaff-of-the-acrobat.json"
+  },
+  {
+    "id": "ring-of-animal-influence",
+    "name": "Ring of Animal Influence",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/ring-of-animal-influence.json"
+  },
+  {
+    "id": "ring-of-evasion",
+    "name": "Ring of Evasion",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-evasion.json"
+  },
+  {
+    "id": "ring-of-feather-falling",
+    "name": "Ring of Feather Falling",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-feather-falling.json"
+  },
+  {
+    "id": "ring-of-free-action",
+    "name": "Ring of Free Action",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-free-action.json"
+  },
+  {
+    "id": "ring-of-protection",
+    "name": "Ring of Protection",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-protection.json"
+  },
+  {
+    "id": "ring-of-regeneration",
+    "name": "Ring of Regeneration",
+    "rarity": "Very Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-regeneration.json"
+  },
+  {
+    "id": "ring-of-resistance",
+    "name": "Ring of Resistance",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/ring-of-resistance.json"
+  },
+  {
+    "id": "ring-of-shooting-stars",
+    "name": "Ring of Shooting Stars",
+    "rarity": "Very Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-shooting-stars.json"
+  },
+  {
+    "id": "ring-of-spell-storing",
+    "name": "Ring of Spell Storing",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-spell-storing.json"
+  },
+  {
+    "id": "ring-of-telekinesis",
+    "name": "Ring of Telekinesis",
+    "rarity": "Very Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-telekinesis.json"
+  },
+  {
+    "id": "ring-of-the-ram",
+    "name": "Ring of the Ram",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-the-ram.json"
+  },
+  {
+    "id": "ring-of-x-ray-vision",
+    "name": "Ring of X-ray Vision",
+    "rarity": "Rare",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/ring-of-x-ray-vision.json"
+  },
+  {
+    "id": "robe-of-eyes",
+    "name": "Robe of Eyes",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/robe-of-eyes.json"
+  },
+  {
+    "id": "robe-of-scintillating-colors",
+    "name": "Robe of Scintillating Colors",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/robe-of-scintillating-colors.json"
+  },
+  {
+    "id": "robe-of-stars",
+    "name": "Robe of Stars",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/robe-of-stars.json"
+  },
+  {
+    "id": "rod-of-absorption",
+    "name": "Rod of Absorption",
+    "rarity": "Very Rare",
+    "type": "Rod",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/rod-of-absorption.json"
+  },
+  {
+    "id": "rod-of-alertness",
+    "name": "Rod of Alertness",
+    "rarity": "Very Rare",
+    "type": "Rod",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/rod-of-alertness.json"
+  },
+  {
+    "id": "rod-of-rulership",
+    "name": "Rod of Rulership",
+    "rarity": "Rare",
+    "type": "Rod",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/rod-of-rulership.json"
+  },
+  {
+    "id": "rod-of-security",
+    "name": "Rod of Security",
+    "rarity": "Very Rare",
+    "type": "Rod",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/rod-of-security.json"
+  },
+  {
+    "id": "rope-of-entanglement-continued",
+    "name": "Rope of Entanglement (Continued)",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/rope-of-entanglement-continued.json"
+  },
+  {
+    "id": "rope-of-entanglement",
+    "name": "Rope of Entanglement",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/rope-of-entanglement.json"
+  },
+  {
+    "id": "scimitar-of-speed",
+    "name": "Scimitar of Speed",
+    "rarity": "Very Rare",
+    "type": "Weapon (Scimitar)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/scimitar-of-speed.json"
+  },
+  {
+    "id": "scroll-of-protection",
+    "name": "Scroll of Protection",
+    "rarity": "Rare",
+    "type": "Scroll",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/scroll-of-protection.json"
+  },
+  {
+    "id": "shield-of-missile-attraction",
+    "name": "Shield of Missile Attraction",
+    "rarity": "Rare",
+    "type": "Armor (Shield)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/shield-of-missile-attraction.json"
+  },
+  {
+    "id": "shield-of-the-cavalier",
+    "name": "Shield of the Cavalier",
+    "rarity": "Very Rare",
+    "type": "Armor (Shield)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/shield-of-the-cavalier.json"
+  },
+  {
+    "id": "spellguard-shield",
+    "name": "Spellguard Shield",
+    "rarity": "Very Rare",
+    "type": "Armor (Shield)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/spellguard-shield.json"
+  },
+  {
+    "id": "spirit-board",
+    "name": "Spirit Board",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/spirit-board.json"
+  },
+  {
+    "id": "staff-of-charming",
+    "name": "Staff of Charming",
+    "rarity": "Rare (Requires Attunement by a Bard, Cleric, Druid, Sorcerer, Warlock, or Wizard)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-charming.json"
+  },
+  {
+    "id": "staff-of-fire",
+    "name": "Staff of Fire",
+    "rarity": "Very Rare (Requires Attunement by a Druid, Sorcerer, Warlock, or Wizard)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-fire.json"
+  },
+  {
+    "id": "staff-of-frost",
+    "name": "Staff of Frost",
+    "rarity": "Very Rare (Requires Attunement by a Druid, Sorcerer, Warlock, or Wizard)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-frost.json"
+  },
+  {
+    "id": "staff-of-healing",
+    "name": "Staff of Healing",
+    "rarity": "Rare (Requires Attunement by a Bard, Cleric, or Druid)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-healing.json"
+  },
+  {
+    "id": "staff-of-power",
+    "name": "Staff of Power",
+    "rarity": "Very Rare (Requires Attunement by a Sorcerer, Warlock, or Wizard)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-power.json"
+  },
+  {
+    "id": "staff-of-striking",
+    "name": "Staff of Striking",
+    "rarity": "Very Rare",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-striking.json"
+  },
+  {
+    "id": "staff-of-swarming-insects",
+    "name": "Staff of Swarming Insects",
+    "rarity": "Rare (Requires Attunement by a Bard, Cleric, Druid, Sorcerer, Warlock, or Wizard)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-swarming-insects.json"
+  },
+  {
+    "id": "staff-of-the-woodlands",
+    "name": "Staff of the Woodlands",
+    "rarity": "Rare (Requires Attunement by a Druid)",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-the-woodlands.json"
+  },
+  {
+    "id": "staff-of-thunder-and-lightning",
+    "name": "Staff of Thunder and Lightning",
+    "rarity": "Very Rare",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-thunder-and-lightning.json"
+  },
+  {
+    "id": "staff-of-withering",
+    "name": "Staff of Withering",
+    "rarity": "Rare",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/staff-of-withering.json"
+  },
+  {
+    "id": "stone-of-controlling-earth-elementals",
+    "name": "Stone of Controlling Earth Elementals",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/stone-of-controlling-earth-elementals.json"
+  },
+  {
+    "id": "sun-blade",
+    "name": "Sun Blade",
+    "rarity": "Rare",
+    "type": "Weapon (Longsword)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/sun-blade.json"
+  },
+  {
+    "id": "sword-of-life-stealing",
+    "name": "Sword of Life Stealing",
+    "rarity": "Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Rare",
+    "type": "Weapon (Glaive",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/sword-of-life-stealing.json"
+  },
+  {
+    "id": "sword-of-sharpness",
+    "name": "Sword of Sharpness",
+    "rarity": "Greatsword, Longsword, or Scimitar), Very Rare",
+    "type": "Weapon (Glaive",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/sword-of-sharpness.json"
+  },
+  {
+    "id": "sword-of-wounding",
+    "name": "Sword of Wounding",
+    "rarity": "Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Rare",
+    "type": "Weapon (Glaive",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/sword-of-wounding.json"
+  },
+  {
+    "id": "tentacle-rod",
+    "name": "Tentacle Rod",
+    "rarity": "Rare",
+    "type": "Rod",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/tentacle-rod.json"
+  },
+  {
+    "id": "thunderous-greatclub",
+    "name": "Thunderous Greatclub",
+    "rarity": "Very Rare",
+    "type": "Weapon (Greatclub)",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/thunderous-greatclub.json"
+  },
+  {
+    "id": "tome-of-clear-thought",
+    "name": "Tome of Clear Thought",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/tome-of-clear-thought.json"
+  },
+  {
+    "id": "tome-of-leadership-and-influence",
+    "name": "Tome of Leadership and Influence",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/tome-of-leadership-and-influence.json"
+  },
+  {
+    "id": "tome-of-understanding",
+    "name": "Tome of Understanding",
+    "rarity": "Very Rare",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/tome-of-understanding.json"
+  },
+  {
+    "id": "vicious-weapon",
+    "name": "Vicious Weapon",
+    "rarity": "Rare",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": false,
+    "path": "equipment/magic-items/rare/vicious-weapon.json"
+  },
+  {
+    "id": "wand-of-binding",
+    "name": "Wand of Binding",
+    "rarity": "Rare",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wand-of-binding.json"
+  },
+  {
+    "id": "wand-of-enemy-detection",
+    "name": "Wand of Enemy Detection",
+    "rarity": "Rare",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wand-of-enemy-detection.json"
+  },
+  {
+    "id": "wand-of-fear",
+    "name": "Wand of Fear",
+    "rarity": "Rare",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wand-of-fear.json"
+  },
+  {
+    "id": "wand-of-fireballs",
+    "name": "Wand of Fireballs",
+    "rarity": "Rare (Requires Attunement by a Spellcaster)",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wand-of-fireballs.json"
+  },
+  {
+    "id": "wand-of-lightning-bolts",
+    "name": "Wand of Lightning Bolts",
+    "rarity": "Rare (Requires Attunement by a Spellcaster)",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wand-of-lightning-bolts.json"
+  },
+  {
+    "id": "wand-of-paralysis",
+    "name": "Wand of Paralysis",
+    "rarity": "Rare (Requires Attunement by a Spellcaster)",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wand-of-paralysis.json"
+  },
+  {
+    "id": "wand-of-polymorph",
+    "name": "Wand of Polymorph",
+    "rarity": "Very Rare (Requires Attunement by a Spellcaster)",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wand-of-polymorph.json"
+  },
+  {
+    "id": "wand-of-wonder",
+    "name": "Wand of Wonder",
+    "rarity": "Rare",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wand-of-wonder.json"
+  },
+  {
+    "id": "wings-of-flying",
+    "name": "Wings of Flying",
+    "rarity": "Rare",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/rare/wings-of-flying.json"
+  },
+  {
+    "id": "adamantine-armor",
+    "name": "Adamantine Armor",
+    "rarity": "Except Hide Armor), Uncommon",
+    "type": "Armor (Any Medium or Heavy",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/adamantine-armor.json"
+  },
+  {
+    "id": "adamantine-weapon",
+    "name": "Adamantine Weapon",
+    "rarity": "Uncommon",
+    "type": "Weapon (Any Ammunition or Melee Weapon)",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/adamantine-weapon.json"
+  },
+  {
+    "id": "alchemy-jug",
+    "name": "Alchemy Jug",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/alchemy-jug.json"
+  },
+  {
+    "id": "amulet-of-proof-against-detection-and-location",
+    "name": "Amulet of Proof against Detection and Location",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/amulet-of-proof-against-detection-and-location.json"
+  },
+  {
+    "id": "baba-yagas-dancing-broom",
+    "name": "Baba Yaga's Dancing Broom",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/baba-yagas-dancing-broom.json"
+  },
+  {
+    "id": "bag-of-holding",
+    "name": "Bag of Holding",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/bag-of-holding.json"
+  },
+  {
+    "id": "bag-of-tricks",
+    "name": "Bag of Tricks",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/bag-of-tricks.json"
+  },
+  {
+    "id": "boots-of-elvenkind",
+    "name": "Boots of Elvenkind",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/boots-of-elvenkind.json"
+  },
+  {
+    "id": "boots-of-striding-and-springing",
+    "name": "Boots of Striding and Springing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/boots-of-striding-and-springing.json"
+  },
+  {
+    "id": "boots-of-the-winterlands",
+    "name": "Boots of the Winterlands",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/boots-of-the-winterlands.json"
+  },
+  {
+    "id": "bracers-of-archery",
+    "name": "Bracers of Archery",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/bracers-of-archery.json"
+  },
+  {
+    "id": "brooch-of-shielding",
+    "name": "Brooch of Shielding",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/brooch-of-shielding.json"
+  },
+  {
+    "id": "broom-of-flying",
+    "name": "Broom of Flying",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/broom-of-flying.json"
+  },
+  {
+    "id": "cap-of-water-breathing",
+    "name": "Cap of Water Breathing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/cap-of-water-breathing.json"
+  },
+  {
+    "id": "circlet-of-blasting",
+    "name": "Circlet of Blasting",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/circlet-of-blasting.json"
+  },
+  {
+    "id": "cloak-of-elvenkind",
+    "name": "Cloak of Elvenkind",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/cloak-of-elvenkind.json"
+  },
+  {
+    "id": "cloak-of-protection",
+    "name": "Cloak of Protection",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/cloak-of-protection.json"
+  },
+  {
+    "id": "cloak-of-the-manta-ray",
+    "name": "Cloak of the Manta Ray",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/cloak-of-the-manta-ray.json"
+  },
+  {
+    "id": "decanter-of-endless-water",
+    "name": "Decanter of Endless Water",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/decanter-of-endless-water.json"
+  },
+  {
+    "id": "deck-of-illusions",
+    "name": "Deck of Illusions",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/deck-of-illusions.json"
+  },
+  {
+    "id": "driftglobe",
+    "name": "Driftglobe",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/driftglobe.json"
+  },
+  {
+    "id": "dust-of-disappearance",
+    "name": "Dust of Disappearance",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/dust-of-disappearance.json"
+  },
+  {
+    "id": "dust-of-dryness",
+    "name": "Dust of Dryness",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/dust-of-dryness.json"
+  },
+  {
+    "id": "dust-of-sneezing-and-choking",
+    "name": "Dust of Sneezing and Choking",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/dust-of-sneezing-and-choking.json"
+  },
+  {
+    "id": "elemental-gem",
+    "name": "Elemental Gem",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/elemental-gem.json"
+  },
+  {
+    "id": "eversmoking-bottle",
+    "name": "Eversmoking Bottle",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/eversmoking-bottle.json"
+  },
+  {
+    "id": "eyes-of-charming",
+    "name": "Eyes of Charming",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/eyes-of-charming.json"
+  },
+  {
+    "id": "eyes-of-minute-seeing",
+    "name": "Eyes of Minute Seeing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/eyes-of-minute-seeing.json"
+  },
+  {
+    "id": "eyes-of-the-eagle",
+    "name": "Eyes of the Eagle",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/eyes-of-the-eagle.json"
+  },
+  {
+    "id": "gauntlets-of-ogre-power",
+    "name": "Gauntlets of Ogre Power",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/gauntlets-of-ogre-power.json"
+  },
+  {
+    "id": "gem-of-brightness",
+    "name": "Gem of Brightness",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/gem-of-brightness.json"
+  },
+  {
+    "id": "gloves-of-missile-snaring",
+    "name": "Gloves of Missile Snaring",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/gloves-of-missile-snaring.json"
+  },
+  {
+    "id": "gloves-of-swimming-and-climbing",
+    "name": "Gloves of Swimming and Climbing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/gloves-of-swimming-and-climbing.json"
+  },
+  {
+    "id": "gloves-of-thievery",
+    "name": "Gloves of Thievery",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/gloves-of-thievery.json"
+  },
+  {
+    "id": "goggles-of-night",
+    "name": "Goggles of Night",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/goggles-of-night.json"
+  },
+  {
+    "id": "hag-eye",
+    "name": "Hag Eye",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/hag-eye.json"
+  },
+  {
+    "id": "hat-of-disguise",
+    "name": "Hat of Disguise",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/hat-of-disguise.json"
+  },
+  {
+    "id": "headband-of-intellect",
+    "name": "Headband of Intellect",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/headband-of-intellect.json"
+  },
+  {
+    "id": "helm-of-comprehending-languages",
+    "name": "Helm of Comprehending Languages",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/helm-of-comprehending-languages.json"
+  },
+  {
+    "id": "helm-of-telepathy",
+    "name": "Helm of Telepathy",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/helm-of-telepathy.json"
+  },
+  {
+    "id": "immovable-rod",
+    "name": "Immovable Rod",
+    "rarity": "Uncommon",
+    "type": "Rod",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/immovable-rod.json"
+  },
+  {
+    "id": "javelin-of-lightning",
+    "name": "Javelin of Lightning",
+    "rarity": "Uncommon",
+    "type": "Weapon (Javelin)",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/javelin-of-lightning.json"
+  },
+  {
+    "id": "keoghtoms-ointment",
+    "name": "Keoghtom's Ointment",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/keoghtoms-ointment.json"
+  },
+  {
+    "id": "lantern-of-revealing",
+    "name": "Lantern of Revealing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/lantern-of-revealing.json"
+  },
+  {
+    "id": "mariners-armor",
+    "name": "Mariner's Armor",
+    "rarity": "Medium, or Heavy), Uncommon",
+    "type": "Armor (Any Light",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/mariners-armor.json"
+  },
+  {
+    "id": "medallion-of-thoughts",
+    "name": "Medallion of Thoughts",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/medallion-of-thoughts.json"
+  },
+  {
+    "id": "mithral-armor",
+    "name": "Mithral Armor",
+    "rarity": "Except Hide Armor), Uncommon",
+    "type": "Armor (Any Medium or Heavy",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/mithral-armor.json"
+  },
+  {
+    "id": "natures-mantle",
+    "name": "Nature's Mantle",
+    "rarity": "Uncommon (Requires Attunement by a Druid or Ranger)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/natures-mantle.json"
+  },
+  {
+    "id": "necklace-of-adaptation",
+    "name": "Necklace of Adaptation",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/necklace-of-adaptation.json"
+  },
+  {
+    "id": "oil-of-slipperiness",
+    "name": "Oil of Slipperiness",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/oil-of-slipperiness.json"
+  },
+  {
+    "id": "pearl-of-power",
+    "name": "Pearl of Power",
+    "rarity": "Uncommon (Requires Attunement by a Spellcaster)",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/pearl-of-power.json"
+  },
+  {
+    "id": "periapt-of-health",
+    "name": "Periapt of Health",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/periapt-of-health.json"
+  },
+  {
+    "id": "periapt-of-wound-closure",
+    "name": "Periapt of Wound Closure",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/periapt-of-wound-closure.json"
+  },
+  {
+    "id": "philter-of-love",
+    "name": "Philter of Love",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/philter-of-love.json"
+  },
+  {
+    "id": "pipes-of-haunting",
+    "name": "Pipes of Haunting",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/pipes-of-haunting.json"
+  },
+  {
+    "id": "pipes-of-the-sewers",
+    "name": "Pipes of the Sewers",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/pipes-of-the-sewers.json"
+  },
+  {
+    "id": "potion-of-animal-friendship",
+    "name": "Potion of Animal Friendship",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/potion-of-animal-friendship.json"
+  },
+  {
+    "id": "potion-of-fire-breath",
+    "name": "Potion of Fire Breath",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/potion-of-fire-breath.json"
+  },
+  {
+    "id": "potion-of-growth",
+    "name": "Potion of Growth",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/potion-of-growth.json"
+  },
+  {
+    "id": "potion-of-poison",
+    "name": "Potion of Poison",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/potion-of-poison.json"
+  },
+  {
+    "id": "potion-of-pugilism",
+    "name": "Potion of Pugilism",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/potion-of-pugilism.json"
+  },
+  {
+    "id": "potion-of-resistance",
+    "name": "Potion of Resistance",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/potion-of-resistance.json"
+  },
+  {
+    "id": "potion-of-water-breathing",
+    "name": "Potion of Water Breathing",
+    "rarity": "Uncommon",
+    "type": "Potion",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/potion-of-water-breathing.json"
+  },
+  {
+    "id": "quiver-of-ehlonna",
+    "name": "Quiver of Ehlonna",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/quiver-of-ehlonna.json"
+  },
+  {
+    "id": "ring-of-jumping",
+    "name": "Ring of Jumping",
+    "rarity": "Uncommon",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/ring-of-jumping.json"
+  },
+  {
+    "id": "ring-of-mind-shielding",
+    "name": "Ring of Mind Shielding",
+    "rarity": "Uncommon",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/ring-of-mind-shielding.json"
+  },
+  {
+    "id": "ring-of-swimming",
+    "name": "Ring of Swimming",
+    "rarity": "Uncommon",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/ring-of-swimming.json"
+  },
+  {
+    "id": "ring-of-warmth",
+    "name": "Ring of Warmth",
+    "rarity": "Uncommon",
+    "type": "Ring",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/ring-of-warmth.json"
+  },
+  {
+    "id": "ring-of-water-walking",
+    "name": "Ring of Water Walking",
+    "rarity": "Uncommon",
+    "type": "Ring",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/ring-of-water-walking.json"
+  },
+  {
+    "id": "robe-of-useful-items",
+    "name": "Robe of Useful Items",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/robe-of-useful-items.json"
+  },
+  {
+    "id": "rope-of-climbing",
+    "name": "Rope of Climbing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/rope-of-climbing.json"
+  },
+  {
+    "id": "saddle-of-the-cavalier",
+    "name": "Saddle of the Cavalier",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/saddle-of-the-cavalier.json"
+  },
+  {
+    "id": "sending-stones",
+    "name": "Sending Stones",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/sending-stones.json"
+  },
+  {
+    "id": "sentinel-shield",
+    "name": "Sentinel Shield",
+    "rarity": "Uncommon",
+    "type": "Armor (Shield)",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/sentinel-shield.json"
+  },
+  {
+    "id": "slippers-of-spider-climbing",
+    "name": "Slippers of Spider Climbing",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/slippers-of-spider-climbing.json"
+  },
+  {
+    "id": "staff-of-the-adder",
+    "name": "Staff of the Adder",
+    "rarity": "Uncommon",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/staff-of-the-adder.json"
+  },
+  {
+    "id": "staff-of-the-python",
+    "name": "Staff of the Python",
+    "rarity": "Uncommon",
+    "type": "Staff",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/staff-of-the-python.json"
+  },
+  {
+    "id": "stone-of-good-luck-luckstone",
+    "name": "Stone of Good Luck (Luckstone)",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/stone-of-good-luck-luckstone.json"
+  },
+  {
+    "id": "sword-of-vengeance",
+    "name": "Sword of Vengeance",
+    "rarity": "Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Uncommon",
+    "type": "Weapon (Glaive",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/sword-of-vengeance.json"
+  },
+  {
+    "id": "trident-of-fish-command",
+    "name": "Trident of Fish Command",
+    "rarity": "Uncommon",
+    "type": "Weapon (Trident)",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/trident-of-fish-command.json"
+  },
+  {
+    "id": "wand-of-magic-detection",
+    "name": "Wand of Magic Detection",
+    "rarity": "Uncommon",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/wand-of-magic-detection.json"
+  },
+  {
+    "id": "wand-of-magic-missiles",
+    "name": "Wand of Magic Missiles",
+    "rarity": "Uncommon",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/wand-of-magic-missiles.json"
+  },
+  {
+    "id": "wand-of-secrets",
+    "name": "Wand of Secrets",
+    "rarity": "Uncommon",
+    "type": "Wand",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/wand-of-secrets.json"
+  },
+  {
+    "id": "wand-of-web",
+    "name": "Wand of Web",
+    "rarity": "Uncommon (Requires Attunement by a Spellcaster)",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/wand-of-web.json"
+  },
+  {
+    "id": "weapon-of-warning",
+    "name": "Weapon of Warning",
+    "rarity": "Uncommon",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/weapon-of-warning.json"
+  },
+  {
+    "id": "wind-fan",
+    "name": "Wind Fan",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/uncommon/wind-fan.json"
+  },
+  {
+    "id": "winged-boots",
+    "name": "Winged Boots",
+    "rarity": "Uncommon",
+    "type": "Wondrous Item",
+    "attunement": true,
+    "path": "equipment/magic-items/uncommon/winged-boots.json"
+  },
+  {
+    "id": "ammunition-1-2-or-3",
+    "name": "Ammunition, +1, +2, or +3",
+    "rarity": "Uncommon (+1), Rare (+2), or Very Rare (+3)",
+    "type": "Weapon (Any Ammunition)",
+    "attunement": false,
+    "path": "equipment/magic-items/varies/ammunition-1-2-or-3.json"
+  },
+  {
+    "id": "armor-1-2-or-3",
+    "name": "Armor, +1, +2, or +3",
+    "rarity": "Medium, or Heavy), Rare (+1), Very Rare (+2), or Legendary (+3)",
+    "type": "Armor (Any Light",
+    "attunement": false,
+    "path": "equipment/magic-items/varies/armor-1-2-or-3.json"
+  },
+  {
+    "id": "rod-of-the-pact-keeper",
+    "name": "Rod of the Pact Keeper",
+    "rarity": "Uncommon (+1), Rare (+2), or Very Rare (+3) (Requires Attunement by a Warlock)",
+    "type": "Rod",
+    "attunement": true,
+    "path": "equipment/magic-items/varies/rod-of-the-pact-keeper.json"
+  },
+  {
+    "id": "shield-1-2-or-3",
+    "name": "Shield, +1, +2, or +3",
+    "rarity": "Uncommon (+1), Rare (+2), or Very Rare (+3)",
+    "type": "Armor (Shield)",
+    "attunement": false,
+    "path": "equipment/magic-items/varies/shield-1-2-or-3.json"
+  },
+  {
+    "id": "wand-of-the-war-mage-1-2-or-3",
+    "name": "Wand of the War Mage, +1, +2, or +3",
+    "rarity": "Uncommon (+1), Rare (+2), or Very Rare (+3) (Requires Attunement by a Spellcaster)",
+    "type": "Wand",
+    "attunement": true,
+    "path": "equipment/magic-items/varies/wand-of-the-war-mage-1-2-or-3.json"
+  },
+  {
+    "id": "weapon-1-2-or-3",
+    "name": "Weapon, +1, +2, or +3",
+    "rarity": "Uncommon (+1), Rare (+2), or Very Rare (+3)",
+    "type": "Weapon (Any Simple or Martial)",
+    "attunement": false,
+    "path": "equipment/magic-items/varies/weapon-1-2-or-3.json"
+  },
+  {
+    "id": "wraps-of-unarmed-power",
+    "name": "Wraps of Unarmed Power",
+    "rarity": "Uncommon (+1), Rare (+2), or Very Rare (+3)",
+    "type": "Wondrous Item",
+    "attunement": false,
+    "path": "equipment/magic-items/varies/wraps-of-unarmed-power.json"
+  }
+]

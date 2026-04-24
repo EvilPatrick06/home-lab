@@ -1,0 +1,23 @@
+{
+  "name": "Burnt Othur Fumes",
+  "slug": "burnt-othur-fumes",
+  "category": "Poison",
+  "type": "Inhaled",
+  "cost": "500 GP",
+  "weight": "—",
+  "description": "A creature subjected to this poison must succeed on a DC 13 Constitution saving throw or take 10 (3d6) Poison damage, and must repeat the saving throw at the start of each of its turns. On each successive failed save, the creature takes 3 (1d6) Poison damage. After three successful saves, the poison ends.",
+  "saveDC": 13,
+  "saveAbility": "Constitution",
+  "damage": "3d6",
+  "damageType": "Poison",
+  "averageDamage": 10,
+  "repeatDamage": "1d6",
+  "repeatAverageDamage": 3,
+  "repeatSave": true,
+  "successesRequired": 3,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poisons"
+  }
+}

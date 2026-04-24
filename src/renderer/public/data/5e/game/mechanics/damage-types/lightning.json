@@ -1,0 +1,13 @@
+{
+  "id": "lightning",
+  "name": "Lightning",
+  "description": "A Lightning Bolt spell and a Blue Dragon's breath deal Lightning damage. Lightning damage represents electrical energy and galvanic shock.",
+  "commonSources": [
+    "Blue Dragon breath weapon",
+    "Lightning Bolt spell",
+    "Call Lightning spell",
+    "Shocking Grasp cantrip",
+    "Storm giant attacks"
+  ],
+  "resistanceNotes": "Blue dragons and storm giants are immune to Lightning. Some creatures like Shambling Mounds absorb Lightning to regain hit points."
+}

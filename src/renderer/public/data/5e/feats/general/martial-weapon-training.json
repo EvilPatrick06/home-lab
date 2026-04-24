@@ -1,0 +1,24 @@
+{
+  "name": "Martial Weapon Training",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength", "Dexterity"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Weapon Proficiency",
+      "description": "You gain proficiency with Martial weapons."
+    }
+  ],
+  "source": "PHB 2024"
+}

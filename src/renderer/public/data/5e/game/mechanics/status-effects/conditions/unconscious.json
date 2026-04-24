@@ -1,0 +1,393 @@
+{
+  "id": "b83e4a72-7f3d-4c8e-9a61-d5e1f2a0c9b7",
+  "name": "Unconscious",
+  "slug": "unconscious",
+  "category": "Condition",
+  "subcategory": "Incapacitation",
+  "tags": ["condition", "incapacitation", "death-and-dying", "combat", "prone"],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Rules Glossary",
+    "section": "Conditions"
+  },
+  "gameEdition": "2024",
+  "description": "While a creature is Unconscious, it experiences the following effects: it is Incapacitated, can't move or speak, and is unaware of its surroundings. The creature drops whatever it's holding and falls Prone. The creature automatically fails Strength and Dexterity Saving Throws. Attack rolls against the creature have Advantage. Any attack that hits the creature is a Critical Hit if the attacker is within 5 feet of it.",
+  "shortDescription": "The creature is Incapacitated, can't move or speak, drops items, falls Prone, auto-fails STR/DEX saves, grants Advantage to attackers, and melee hits are Critical Hits.",
+  "flavorText": "The creature collapses, completely unaware of its surroundings.",
+  "rulesAsWritten": "Unconscious [Condition]. While a creature is Unconscious, it experiences the following effects.\n\nInert. The creature is Incapacitated (see the condition), can't move or speak, and is unaware of its surroundings.\n\nDropped Items. The creature drops whatever it's holding and falls Prone.\n\nStrength and Dexterity Saving Throws. The creature automatically fails Strength and Dexterity Saving Throws.\n\nAttack Rolls Affected. Attack rolls against the creature have Advantage.\n\nCritical Hits. Any attack that hits the creature is a Critical Hit if the attacker is within 5 feet of it.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [
+    {
+      "id": "a1f0c3b2-4d5e-4f6a-8b7c-9d0e1f2a3b4c",
+      "target": "AllSpeeds",
+      "operation": "ReduceToZero",
+      "value": 0,
+      "scope": {
+        "targetRelationship": "Self"
+      },
+      "perLevelScaling": false,
+      "note": "Inert: The creature can't move."
+    }
+  ],
+  "advantageGrants": [
+    {
+      "id": "c3d4e5f6-7a8b-4c9d-0e1f-2a3b4c5d6e7f",
+      "rollType": "AttackRoll",
+      "scope": {
+        "targetRelationship": "Enemy"
+      },
+      "grantedTo": "Attacker",
+      "condition": "The target is Unconscious.",
+      "note": "Attack Rolls Affected: Attack rolls against the creature have Advantage."
+    }
+  ],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [
+    {
+      "id": "d4e5f6a7-8b9c-4d0e-1f2a-3b4c5d6e7f8a",
+      "rollType": "SavingThrow",
+      "outcome": "AutoFail",
+      "scope": {
+        "abilityScores": ["STR"],
+        "targetRelationship": "Self"
+      },
+      "condition": "The creature is Unconscious.",
+      "note": "Strength and Dexterity Saving Throws: The creature automatically fails Strength Saving Throws."
+    },
+    {
+      "id": "e5f6a7b8-9c0d-4e1f-2a3b-4c5d6e7f8a9b",
+      "rollType": "SavingThrow",
+      "outcome": "AutoFail",
+      "scope": {
+        "abilityScores": ["DEX"],
+        "targetRelationship": "Self"
+      },
+      "condition": "The creature is Unconscious.",
+      "note": "Strength and Dexterity Saving Throws: The creature automatically fails Dexterity Saving Throws."
+    },
+    {
+      "id": "f6a7b8c9-0d1e-4f2a-3b4c-5d6e7f8a9b0c",
+      "rollType": "AttackRoll",
+      "outcome": "CriticalHit",
+      "scope": {
+        "attackVectors": ["Any"],
+        "rangeConstraint": {
+          "distance": 5,
+          "unit": "Feet"
+        },
+        "targetRelationship": "Enemy"
+      },
+      "condition": "The attacker is within 5 feet of the Unconscious creature and the attack hits.",
+      "note": "Critical Hits: Any attack that hits the creature is a Critical Hit if the attacker is within 5 feet of it."
+    }
+  ],
+  "actionRestrictions": [
+    {
+      "id": "17a8b9c0-1d2e-4f3a-4b5c-6d7e8f9a0b1c",
+      "restrictedAction": "Action",
+      "restrictionType": "Prohibited",
+      "condition": "Implied by the Incapacitated condition.",
+      "note": "Inert: The creature is Incapacitated and can't take Actions."
+    },
+    {
+      "id": "28b9c0d1-2e3f-4a4b-5c6d-7e8f9a0b1c2d",
+      "restrictedAction": "Reaction",
+      "restrictionType": "Prohibited",
+      "condition": "Implied by the Incapacitated condition.",
+      "note": "Inert: The creature is Incapacitated and can't take Reactions."
+    },
+    {
+      "id": "39c0d1e2-3f4a-4b5c-6d7e-8f9a0b1c2d3e",
+      "restrictedAction": "Movement",
+      "restrictionType": "Prohibited",
+      "note": "Inert: The creature can't move."
+    },
+    {
+      "id": "4ad1e2f3-4a5b-4c6d-7e8f-9a0b1c2d3e4f",
+      "restrictedAction": "VerbalComponent",
+      "restrictionType": "Prohibited",
+      "note": "Inert: The creature can't speak."
+    },
+    {
+      "id": "5be2f3a4-5b6c-4d7e-8f9a-0b1c2d3e4f5a",
+      "restrictedAction": "BonusAction",
+      "restrictionType": "Prohibited",
+      "condition": "Implied by the Incapacitated condition, which prohibits Actions and Reactions. Bonus Actions also require being able to take actions.",
+      "note": "Inert: The creature is Incapacitated."
+    }
+  ],
+  "conditionsImposed": [
+    {
+      "id": "6cf3a4b5-6c7d-4e8f-9a0b-1c2d3e4f5a6b",
+      "conditionName": "Incapacitated",
+      "isAutomatic": true,
+      "note": "Inert: The creature is Incapacitated."
+    },
+    {
+      "id": "7da4b5c6-7d8e-4f9a-0b1c-2d3e4f5a6b7c",
+      "conditionName": "Prone",
+      "isAutomatic": true,
+      "note": "Dropped Items: The creature falls Prone."
+    }
+  ],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Incapacitated",
+      "relationship": "Implies",
+      "isAutomatic": true,
+      "note": "An Unconscious creature is always Incapacitated."
+    },
+    {
+      "conditionName": "Prone",
+      "relationship": "CanCause",
+      "isAutomatic": true,
+      "note": "An Unconscious creature immediately falls Prone."
+    },
+    {
+      "conditionName": "Paralyzed",
+      "relationship": "OftenCombined",
+      "isAutomatic": false,
+      "note": "Paralyzed shares many effects with Unconscious (auto-fail STR/DEX saves, Advantage on attacks, Critical Hits within 5 feet) but Paralyzed does not make the creature unaware."
+    },
+    {
+      "conditionName": "Stunned",
+      "relationship": "SupersededBy",
+      "isAutomatic": false,
+      "note": "Unconscious is more severe than Stunned, encompassing all its restrictions and more."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "8eb5c6d7-8e9f-4a0b-1c2d-3e4f5a6b7c8d",
+      "order": 0,
+      "name": "Inert",
+      "description": "The creature is Incapacitated, can't move or speak, and is unaware of its surroundings.",
+      "trigger": {
+        "event": "OnApply"
+      },
+      "effects": [
+        {
+          "effectType": "ConditionImposition",
+          "imposition": {
+            "id": "90c6d7e8-9f0a-4b1c-2d3e-4f5a6b7c8d9e",
+            "conditionName": "Incapacitated",
+            "isAutomatic": true,
+            "note": "The creature is Incapacitated."
+          }
+        },
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "a1d7e8f9-0a1b-4c2d-3e4f-5a6b7c8d9e0f",
+            "target": "AllSpeeds",
+            "operation": "ReduceToZero",
+            "value": 0,
+            "perLevelScaling": false,
+            "note": "The creature can't move."
+          }
+        },
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature can't speak and is unaware of its surroundings.",
+          "mechanicalNote": "Unaware of surroundings means the creature cannot perceive anything via any sense."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b2e8f9a0-1b2c-4d3e-4f5a-6b7c8d9e0f1a",
+      "order": 1,
+      "name": "Dropped Items",
+      "description": "The creature drops whatever it's holding and falls Prone.",
+      "trigger": {
+        "event": "OnApply"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature drops whatever it's holding.",
+          "mechanicalNote": "All held items are immediately dropped into the creature's space."
+        },
+        {
+          "effectType": "ConditionImposition",
+          "imposition": {
+            "id": "c3f9a0b1-2c3d-4e4f-5a6b-7c8d9e0f1a2b",
+            "conditionName": "Prone",
+            "isAutomatic": true,
+            "note": "The creature falls Prone."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d4a0b1c2-3d4e-4f5a-6b7c-8d9e0f1a2b3c",
+      "order": 2,
+      "name": "Strength and Dexterity Saving Throws",
+      "description": "The creature automatically fails Strength and Dexterity Saving Throws.",
+      "trigger": {
+        "event": "OnSavingThrowMade",
+        "condition": "The saving throw uses Strength or Dexterity.",
+        "scope": {
+          "abilityScores": ["STR", "DEX"]
+        }
+      },
+      "effects": [
+        {
+          "effectType": "AutomaticOutcome",
+          "outcome": {
+            "id": "e5b1c2d3-4e5f-4a6b-7c8d-9e0f1a2b3c4d",
+            "rollType": "SavingThrow",
+            "outcome": "AutoFail",
+            "scope": {
+              "abilityScores": ["STR", "DEX"]
+            },
+            "note": "The creature automatically fails Strength and Dexterity Saving Throws."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f6c2d3e4-5f6a-4b7c-8d9e-0f1a2b3c4d5e",
+      "order": 3,
+      "name": "Attack Rolls Affected",
+      "description": "Attack rolls against the creature have Advantage.",
+      "trigger": {
+        "event": "OnAttackRollReceived"
+      },
+      "effects": [
+        {
+          "effectType": "AdvantageGrant",
+          "grant": {
+            "id": "a7d3e4f5-6a7b-4c8d-9e0f-1a2b3c4d5e6f",
+            "rollType": "AttackRoll",
+            "grantedTo": "Attacker",
+            "note": "Attack rolls against the Unconscious creature have Advantage."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b8e4f5a6-7b8c-4d9e-0f1a-2b3c4d5e6f7a",
+      "order": 4,
+      "name": "Critical Hits",
+      "description": "Any attack that hits the creature is a Critical Hit if the attacker is within 5 feet of it.",
+      "trigger": {
+        "event": "OnAttackRollReceived",
+        "condition": "The attacker is within 5 feet of the Unconscious creature and the attack hits.",
+        "scope": {
+          "rangeConstraint": {
+            "distance": 5,
+            "unit": "Feet"
+          }
+        }
+      },
+      "effects": [
+        {
+          "effectType": "AutomaticOutcome",
+          "outcome": {
+            "id": "c9f5a6b7-8c9d-4e0f-1a2b-3c4d5e6f7a8b",
+            "rollType": "AttackRoll",
+            "outcome": "CriticalHit",
+            "scope": {
+              "rangeConstraint": {
+                "distance": 5,
+                "unit": "Feet"
+              }
+            },
+            "condition": "The attack hits and the attacker is within 5 feet.",
+            "note": "Any attack that hits the creature is a Critical Hit if the attacker is within 5 feet of it."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "d0a6b7c8-9d0e-4f1a-2b3c-4d5e6f7a8b9c",
+      "method": "HealingMagic",
+      "description": "If the creature was reduced to 0 Hit Points, regaining any Hit Points causes it to regain consciousness.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "e1b7c8d9-0e1f-4a2b-3c4d-5e6f7a8b9c0d",
+      "method": "Other",
+      "description": "The Unconscious condition ends based on whatever effect caused it (e.g., a spell ending, taking damage while at 0 HP to trigger a death saving throw, or the passage of time for sleep).",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "f2c8d9e0-1f2a-4b3c-4d5e-6f7a8b9c0d1e",
+      "method": "SpecialAction",
+      "description": "A creature can be roused from natural sleep (a form of the Unconscious condition) by taking damage or by another creature using an action to shake or slap it awake.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Multiple sources of Unconscious do not stack, but the condition persists as long as at least one source still applies."
+  },
+  "dmNotes": "The Unconscious condition most commonly results from dropping to 0 Hit Points, certain spells (e.g., Sleep, Power Word Stun escalation), poisons, and natural sleep. A creature that is merely sleeping (naturally Unconscious) can typically be awakened by taking damage or by another creature using an Action to wake it. When Unconscious due to 0 HP, the creature must make Death Saving Throws at the start of each turn.",
+  "commonRulings": [
+    {
+      "question": "Does a sleeping creature have the Unconscious condition?",
+      "ruling": "Yes. A creature that is asleep has the Unconscious condition. It can be awakened by taking damage or by another creature using an Action to shake or slap it awake.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does the Critical Hit effect apply to ranged attacks from within 5 feet?",
+      "ruling": "Yes. Any attack that hits is a Critical Hit if the attacker is within 5 feet, regardless of whether it is a melee or ranged attack.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can an Unconscious creature concentrate on a spell?",
+      "ruling": "No. The Unconscious condition includes the Incapacitated condition, which causes a creature to automatically lose Concentration.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does the creature automatically drop everything when it becomes Unconscious?",
+      "ruling": "Yes. The Dropped Items effect states the creature drops whatever it's holding immediately upon becoming Unconscious.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-12-20T12:00:00Z",
+  "updatedAt": "2024-12-20T12:00:00Z",
+  "version": "1.0.0"
+}

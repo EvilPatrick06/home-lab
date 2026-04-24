@@ -1,0 +1,35 @@
+{
+  "name": "Greater Invisibility",
+  "level": 4,
+  "school": "Illusion",
+  "classes": ["Bard", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "A creature you touch has the Invisible condition until the spell ends.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "conditionsApplied": [
+    {
+      "condition": "Invisible",
+      "trigger": "onCast",
+      "duration": "until the spell ends"
+    }
+  ],
+  "tags": ["buff", "stealth", "invisible"]
+}

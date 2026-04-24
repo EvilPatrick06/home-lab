@@ -1,0 +1,853 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between astral realms (Astral Plane and Outer Planes) above and elemental realms (Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: Material Plane, Transitive Planes, single Elemental Plane, Overheaven, and Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in complex orbits, exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "ethereal-plane",
+      "name": "Ethereal Plane",
+      "alternateNames": [],
+      "category": "Transitive Plane",
+      "subcategory": "Ethereal",
+      "alignments": [],
+      "philosophicalEssence": "A misty, fog-bound dimension that serves as passage between other planes. Its shores (Border Ethereal) overlap the Material Plane, the Feywild, the Shadowfell, and the Inner Planes. Its depths (Deep Ethereal) contain swirling mist and colorful curtains leading to other planes.",
+      "emotionalInfluence": "None specified; however, the unending mist and unseen terrors can evoke a sense of isolation.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Fog-bound dimension with Border Ethereal overlapping other planes and Deep Ethereal of swirling mist",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Misty, fog-bound atmosphere. The plane is navigable but visibility is severely limited.",
+        "hasSurface": false
+      },
+      "layers": [
+        {
+          "name": "Border Ethereal",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "The shores of the Ethereal Plane that overlap the Material Plane, the Feywild, the Shadowfell, and the Inner Planes. Every location on those planes has a corresponding location on the Ethereal Plane. From the Border Ethereal, a traveler can see into whatever plane it overlaps, but that plane appears grayish and indistinct, its colors blurring into each other and its edges turning fuzzy.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "lightLevel": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 60,
+              "inBorderRegion": 30,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "mist and fog"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Grayish and indistinct; colors from overlapped plane blur into each other"
+          },
+          "movementPenalty": {
+            "type": "gravity_alteration",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "none",
+              "description": "The Ethereal Plane disobeys the laws of gravity; a creature there can freely move in any direction.",
+              "affectsFloatingObjects": true
+            },
+            "effectiveSpeedReductionPercent": 0,
+            "distanceMeaningless": false
+          },
+          "environmentalDescription": "A misty dimension where visibility is limited to 60 feet. The overlapped plane appears grayish and indistinct with fuzzy edges, limiting visibility into the other plane to 30 feet. Creatures are imperceptible to those on the overlapped plane. Solid objects on the overlapped plane don't hamper movement. Exceptions are magical effects (including anything made of magical force) and living beings.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Deep Ethereal",
+          "alternateNames": [],
+          "layerNumber": 2,
+          "description": "The depths of the Ethereal Plane, a region of swirling mist and fog where visibility is usually limited to 30 feet. Scattered throughout the plane are curtains of vaporous color that lead to regions of the Border Ethereal connected to specific planes. Distance is meaningless; travel time between curtains is 1d10 × 10 hours regardless of origin and destination. In combat, creatures move at their normal speeds.",
+          "notableLocations": [
+            {
+              "name": "Radiant Citadel",
+              "description": "A living relic of the ingenuity and collaboration of twenty-seven great civilizations on the Material Plane. A floating city carved out of a single massive fossil that snakes around a colossal gemstone shard known as the Auroral Diamond. A nexus of diplomacy and trade, a repository of histories and secrets, and a thriving sanctuary."
+            },
+            {
+              "name": "Keening Gloom",
+              "description": "A massive ether cyclone that whirls just beyond the Radiant Citadel, a looming threat and grim reminder of the citadel's precarious position."
+            },
+            {
+              "name": "Auroral Diamond",
+              "description": "A colossal gemstone shard at the center of the Radiant Citadel whose luminescence is mirrored by fifteen structure-sized Concord Jewels that orbit the city. Visible from miles away in the haze of the Ethereal Plane as a scintillating beacon."
+            },
+            {
+              "name": "Concord Jewels",
+              "description": "Fifteen structure-sized gemstones orbiting the Radiant Citadel that provide transportation to the far-flung homes of the city's founding civilizations."
+            }
+          ],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Ether Cyclone",
+              "description": "A serpentine column that spins through the plane, appearing abruptly, distorting and uprooting everything in its path and carrying the debris for miles. Travelers with Passive Perception 15+ receive 1 minute of warning: a deep thrum in the ethereal matter.",
+              "savingThrow": {
+                "ability": "Charisma",
+                "dc": 15,
+                "proficiencyApplies": true,
+                "trigger": "situational",
+                "triggerDescription": "When caught in an ether cyclone and the d20 roll is 1-12 (Extended journey effect)",
+                "onFailure": {
+                  "description": "If fewer than half the group succeeds, the journey's travel time is doubled. If at least half succeed, travel is delayed by 1d10 hours.",
+                  "duration": "Variable based on travel time modification"
+                },
+                "onSuccess": {
+                  "description": "Travel is delayed by only 1d10 hours instead of doubled, provided at least half the group succeeds.",
+                  "endsEffect": false
+                },
+                "autoSuccessCreatureTypes": [],
+                "autoSuccessTraits": [],
+                "autoSuccessConditions": [],
+                "repeatSaveAllowed": false,
+                "recoveryMethods": []
+              }
+            }
+          ],
+          "lightLevel": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 30,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "swirling mist and fog"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Misty with scattered curtains of vaporous color"
+          },
+          "movementPenalty": {
+            "type": "gravity_alteration",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "none",
+              "description": "The Ethereal Plane disobeys the laws of gravity; a creature there can freely move in any direction.",
+              "affectsFloatingObjects": true
+            },
+            "effectiveSpeedReductionPercent": 0,
+            "distanceMeaningless": true,
+            "travelTimeModel": {
+              "formula": "1d10 × 10 hours from one curtain to another, regardless of origin and destination",
+              "dice": {
+                "count": 1,
+                "die": 10,
+                "modifier": 0,
+                "expression": "1d10+0",
+                "averageResult": 5.5
+              },
+              "multiplierHours": 10,
+              "isDeterministic": false,
+              "subjectToWill": false
+            }
+          },
+          "environmentalDescription": "A region of roiling mist and fog where visibility is limited to 30 feet. Curtains of vaporous color are scattered throughout, each leading to a Border Ethereal region connected to a specific plane. Distance is meaningless; travel time is 1d10 × 10 hours between curtains. In combat, creatures move at their normal speeds.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 2,
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Time appears to pass normally. However, distance is meaningless in the Deep Ethereal, and it is impossible to measure speed and hard to track the passage of time. A trip through the Deep Ethereal takes 1d10 × 10 hours from one curtain to another, regardless of origin and destination. In combat, creatures move at their normal speeds."
+      },
+      "hazards": [
+        {
+          "id": "ether-cyclone",
+          "name": "Ether Cyclone",
+          "description": "A serpentine column that spins through the plane. The cyclone appears abruptly, distorting and uprooting everything in its path and carrying the debris for miles. Travelers with a Passive Perception score of 15 or higher receive 1 minute of warning: a deep thrum in the ethereal matter. Travelers who can't reach a curtain or portal leading elsewhere suffer the cyclone's effect.",
+          "category": "planar_trait",
+          "severity": "major",
+          "savingThrowToTraverse": {
+            "ability": "Charisma",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "situational",
+            "triggerDescription": "When caught in an ether cyclone and the d20 location effect roll is 1-12 (Extended journey). Each character in a group traveling together makes the save. If at least half the group succeeds, travel is delayed by 1d10 hours. Otherwise, the journey's travel time is doubled.",
+            "onFailure": {
+              "description": "If fewer than half the group succeeds on the DC 15 Charisma saving throw, the journey's travel time is doubled.",
+              "duration": "Until journey completion"
+            },
+            "onSuccess": {
+              "description": "If at least half the group succeeds, travel is delayed by 1d10 hours instead of doubled.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": []
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": false
+          },
+          "detectionMethod": {
+            "passivePerceptionDC": 15,
+            "warningTimeMinutes": 1,
+            "warningDescription": "A deep thrum in the ethereal matter"
+          },
+          "locationTableRoll": {
+            "die": 20,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 12,
+                "effect": "Extended journey",
+                "description": "Each character in a group traveling together makes a DC 15 Charisma saving throw. If at least half the group succeeds, travel is delayed by 1d10 hours. Otherwise, the journey's travel time is doubled."
+              },
+              {
+                "rangeLow": 13,
+                "rangeHigh": 19,
+                "effect": "Blown to a random location",
+                "description": "Blown to a random location in the Border Ethereal overlapping a random plane (roll on the Ethereal Curtains table)."
+              },
+              {
+                "rangeLow": 20,
+                "rangeHigh": 20,
+                "effect": "Hurled to a random destination",
+                "description": "Hurled to a random destination on the Astral Plane."
+              }
+            ]
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Ethereal Plane"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "border-ethereal-imperceptibility",
+          "name": "Border Ethereal Imperceptibility",
+          "description": "A traveler on the Ethereal Plane is imperceptible to someone on the overlapped plane, and solid objects on the overlapped plane don't hamper the movement of a creature in the Border Ethereal. The exceptions are certain magical effects (including anything made of magical force) and living beings.",
+          "mechanicalEffect": "Creatures in the Border Ethereal cannot normally attack creatures on the overlapped plane, and vice versa. A traveler on the Ethereal Plane is imperceptible to someone on the overlapped plane. Solid objects on the overlapped plane don't hamper movement. Exceptions: magical effects (including magical force) and living beings. This makes the Ethereal Plane ideal for scouting, spying on opponents, and moving around without being detected.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": ["Truesight", "Magic that allows perception of the Ethereal Plane"],
+          "sourceReference": "Chapter 6: Cosmology - Ethereal Plane, Border Ethereal"
+        },
+        {
+          "id": "border-ethereal-vision",
+          "name": "Border Ethereal Vision",
+          "description": "From the Border Ethereal, a traveler can see into whatever plane it overlaps, but that plane appears grayish and indistinct, its colors blurring into each other and its edges turning fuzzy, limiting visibility to 30 feet into the other plane.",
+          "mechanicalEffect": "Visibility into the overlapped plane from the Border Ethereal is limited to 30 feet. The overlapped plane appears grayish and indistinct with blurred colors and fuzzy edges. Conversely, the Ethereal Plane is usually imperceptible to those on the overlapped planes, except with the aid of magic.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 60,
+              "withDarkvision": 60,
+              "inBorderRegion": 30,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "fog and mist causing grayish indistinct appearance"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Grayish and indistinct; colors blur into each other, edges turn fuzzy",
+            "illuminationModifierPercent": -50
+          },
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Ethereal Plane, Border Ethereal"
+        },
+        {
+          "id": "ethereal-gravity-freedom",
+          "name": "Freedom of Movement in All Directions",
+          "description": "The Ethereal Plane disobeys the laws of gravity; a creature there can freely move in any direction.",
+          "mechanicalEffect": "No gravity applies. Creatures can move freely in any direction at their normal Speed. In the Deep Ethereal, distance is meaningless for overland travel (1d10 × 10 hours between curtains regardless of origin and destination), but in combat creatures move at their normal speeds.",
+          "isOptional": false,
+          "movementPenalty": {
+            "type": "gravity_alteration",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "none",
+              "description": "The Ethereal Plane disobeys the laws of gravity; a creature there can freely move in any direction.",
+              "affectsFloatingObjects": true
+            },
+            "effectiveSpeedReductionPercent": 0,
+            "distanceMeaningless": true
+          },
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Ethereal Plane, Border Ethereal"
+        }
+      ],
+      "portals": [
+        {
+          "id": "ethereal-curtain-material-plane",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Material Plane",
+          "destination": "Border Ethereal connected to Material Plane",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "colorOrAppearance": "Turquoise vaporous curtain, distinguishable by texture and temperature reflecting the nature of the plane beyond",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-shadowfell",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Shadowfell",
+          "destination": "Border Ethereal connected to Shadowfell",
+          "destinationPlane": "Shadowfell",
+          "bidirectional": true,
+          "colorOrAppearance": "Dusky gray vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-feywild",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Feywild",
+          "destination": "Border Ethereal connected to Feywild",
+          "destinationPlane": "Feywild",
+          "bidirectional": true,
+          "colorOrAppearance": "Opalescent vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-air",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Plane of Air",
+          "destination": "Border Ethereal connected to Elemental Plane of Air",
+          "destinationPlane": "Elemental Plane of Air",
+          "bidirectional": true,
+          "colorOrAppearance": "Pale blue vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-earth",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Plane of Earth",
+          "destination": "Border Ethereal connected to Elemental Plane of Earth",
+          "destinationPlane": "Elemental Plane of Earth",
+          "bidirectional": true,
+          "colorOrAppearance": "Chestnut vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-fire",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Plane of Fire",
+          "destination": "Border Ethereal connected to Elemental Plane of Fire",
+          "destinationPlane": "Elemental Plane of Fire",
+          "bidirectional": true,
+          "colorOrAppearance": "Orange vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-water",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Plane of Water",
+          "destination": "Border Ethereal connected to Elemental Plane of Water",
+          "destinationPlane": "Elemental Plane of Water",
+          "bidirectional": true,
+          "colorOrAppearance": "Green vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-ash",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Plane of Ash",
+          "destination": "Border Ethereal connected to Para-elemental Plane of Ash",
+          "destinationPlane": "Para-elemental Plane of Ash",
+          "bidirectional": true,
+          "colorOrAppearance": "Dark gray vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-ice",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Plane of Ice",
+          "destination": "Border Ethereal connected to Para-elemental Plane of Ice",
+          "destinationPlane": "Para-elemental Plane of Ice",
+          "bidirectional": true,
+          "colorOrAppearance": "Aquamarine vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-magma",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Plane of Magma",
+          "destination": "Border Ethereal connected to Para-elemental Plane of Magma",
+          "destinationPlane": "Para-elemental Plane of Magma",
+          "bidirectional": true,
+          "colorOrAppearance": "Maroon vaporous curtain",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-curtain-ooze",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Plane of Ooze",
+          "destination": "Border Ethereal connected to Para-elemental Plane of Ooze",
+          "destinationPlane": "Para-elemental Plane of Ooze",
+          "bidirectional": true,
+          "colorOrAppearance": "Chocolate vaporous curtain",
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "uncommon",
+      "planarConnections": [
+        {
+          "id": "ethereal-border-overlap",
+          "name": "Border Ethereal Overlap",
+          "type": "other",
+          "connectedPlanes": [
+            "Material Plane",
+            "Feywild",
+            "Shadowfell",
+            "Elemental Plane of Air",
+            "Elemental Plane of Earth",
+            "Elemental Plane of Fire",
+            "Elemental Plane of Water",
+            "Para-elemental Plane of Ash",
+            "Para-elemental Plane of Ice",
+            "Para-elemental Plane of Magma",
+            "Para-elemental Plane of Ooze"
+          ],
+          "description": "The Border Ethereal overlaps the Material Plane, the Feywild, the Shadowfell, and the Inner Planes. Every location on those planes has a corresponding location on the Ethereal Plane.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["Etherealness spell", "Plane Shift spell", "magical portals"]
+        },
+        {
+          "id": "deep-ethereal-curtains",
+          "name": "Ethereal Curtains",
+          "type": "other",
+          "connectedPlanes": [
+            "Material Plane",
+            "Feywild",
+            "Shadowfell",
+            "Elemental Plane of Air",
+            "Elemental Plane of Earth",
+            "Elemental Plane of Fire",
+            "Elemental Plane of Water",
+            "Para-elemental Plane of Ash",
+            "Para-elemental Plane of Ice",
+            "Para-elemental Plane of Magma",
+            "Para-elemental Plane of Ooze"
+          ],
+          "description": "Scattered throughout the Deep Ethereal are curtains of vaporous color. Passing through a curtain leads a traveler to a region of the Border Ethereal connected to a specific plane. The color of the curtain indicates the plane. The curtains are also distinguishable by texture and temperature, each reflecting something of the nature of the plane beyond.",
+          "hazards": ["Ether Cyclones"],
+          "travelTime": {
+            "formula": "1d10 × 10 hours from one curtain to another",
+            "dice": {
+              "count": 1,
+              "die": 10,
+              "modifier": 0,
+              "expression": "1d10+0",
+              "averageResult": 5.5
+            },
+            "unitMultiplier": "times 10 hours"
+          },
+          "isOneWay": false,
+          "navigableBy": ["Any traveler in the Deep Ethereal"]
+        },
+        {
+          "id": "ether-cyclone-connection",
+          "name": "Ether Cyclone",
+          "type": "ether_cyclone",
+          "connectedPlanes": [
+            "Astral Plane",
+            "Material Plane",
+            "Feywild",
+            "Shadowfell",
+            "Elemental Plane of Air",
+            "Elemental Plane of Earth",
+            "Elemental Plane of Fire",
+            "Elemental Plane of Water",
+            "Para-elemental Plane of Ash",
+            "Para-elemental Plane of Ice",
+            "Para-elemental Plane of Magma",
+            "Para-elemental Plane of Ooze"
+          ],
+          "description": "An ether cyclone is a serpentine column that spins through the plane. On a d20 roll of 13-19, travelers are blown to a random location in the Border Ethereal overlapping a random plane. On a 20, travelers are hurled to a random destination on the Astral Plane.",
+          "hazards": ["Extended travel time", "Random displacement", "Ejection to Astral Plane"],
+          "isOneWay": true,
+          "navigableBy": []
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Radiant Citadel",
+            "description": "A living relic of twenty-seven great civilizations on the Material Plane, abandoned and lost for ages, then resurrected and reclaimed. A nexus of diplomacy and trade, a repository of histories and secrets, and a thriving sanctuary. Heroes and paupers meet on equal footing; power and resources are equitably shared. Dignity is afforded to all.",
+            "location": "Deep Ethereal, floating near the Keening Gloom ether cyclone"
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "border-ethereal-interaction-rules",
+          "name": "Border Ethereal Interaction Rules",
+          "description": "Normally, creatures in the Border Ethereal can't attack creatures on the overlapped plane, and vice versa. A traveler on the Ethereal Plane is imperceptible to someone on the overlapped plane, and solid objects on the overlapped plane don't hamper the movement of a creature in the Border Ethereal. The exceptions are certain magical effects (including anything made of magical force) and living beings.",
+          "mechanicalEffect": "No attacks between Border Ethereal and overlapped plane (normally). Traveler is imperceptible from overlapped plane. Solid objects on overlapped plane do not impede movement. Exceptions: magical effects (including magical force) and living beings. Ideal for scouting, spying, and undetected movement.",
+          "affectsSpellcasting": true,
+          "spellcastingRestrictions": {
+            "blockedSpells": [],
+            "exemptSpells": [],
+            "modifiedSpells": [
+              {
+                "spell": "Etherealness",
+                "modification": "Allows characters to enter the Border Ethereal from the overlapped plane."
+              },
+              {
+                "spell": "Plane Shift",
+                "modification": "Allows transport to the Border Ethereal or the Deep Ethereal, but unless the destination is a specific location or teleportation circle, the point of arrival could be anywhere on the plane."
+              },
+              {
+                "spell": "Gate",
+                "modification": "Can be used to reach the Deep Ethereal."
+              }
+            ]
+          }
+        },
+        {
+          "id": "deep-ethereal-travel-mechanics",
+          "name": "Deep Ethereal Travel Mechanics",
+          "description": "Traveling through the Deep Ethereal is unlike physical travel. Distance is meaningless, so although travelers feel as if they can move by a simple act of will, it's impossible to measure speed and hard to track the passage of time. A trip through the Deep Ethereal takes 1d10 × 10 hours from one curtain to another, regardless of the origin and destination. In combat, creatures move at their normal speeds.",
+          "mechanicalEffect": "Travel time between any two curtains in the Deep Ethereal is 1d10 × 10 hours (average 55 hours) regardless of origin and destination. Distance is meaningless outside combat. In combat, creatures move at normal speeds."
+        },
+        {
+          "id": "truesight-ethereal-visibility",
+          "name": "Truesight Sees Into Ethereal",
+          "description": "A creature with Truesight can see into the Ethereal Plane within the range of its Truesight.",
+          "mechanicalEffect": "Truesight pierces the boundary between the overlapped plane and the Ethereal Plane, allowing perception of creatures and objects in the Border Ethereal within the Truesight range. This is an exception to the general rule that the Ethereal Plane is imperceptible from overlapped planes."
+        }
+      ],
+      "adventureThemes": [
+        "Scouting and espionage using Border Ethereal imperceptibility",
+        "Traveling between planes via Deep Ethereal curtains",
+        "Navigating ether cyclones",
+        "Exploring the Radiant Citadel as a home base",
+        "Encounters with unseen terrors in the mist"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Spiraling white",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Journeys through the Radiant Citadel",
+          "description": "An anthology of short adventures set in worlds accessible from the Radiant Citadel in the Ethereal Plane."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Etherealness spell and Plane Shift spell referenced as means of entering the Ethereal Plane."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Truesight (Rules Glossary): vision pierces into the Ethereal Plane within specified range."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "etherealness-spell",
+      "name": "Etherealness Spell",
+      "type": "spell",
+      "description": "Allows adventurers to enter the Ethereal Plane. Characters can use the Etherealness spell to enter the Border Ethereal.",
+      "requirements": ["Ability to cast the Etherealness spell"],
+      "associatedSpells": ["Etherealness"],
+      "risks": ["Ether cyclones in Deep Ethereal", "Imperceptible hazards"],
+      "destinations": ["Border Ethereal"]
+    },
+    {
+      "id": "plane-shift-to-ethereal",
+      "name": "Plane Shift to Ethereal Plane",
+      "type": "spell",
+      "description": "The Plane Shift spell allows transport to the Border Ethereal or the Deep Ethereal, but unless the intended destination is a specific location or a teleportation circle, the point of arrival could be anywhere on the plane.",
+      "requirements": ["Ability to cast the Plane Shift spell", "Tuning fork attuned to the Ethereal Plane"],
+      "associatedSpells": ["Plane Shift"],
+      "risks": ["Arrival at unknown location", "Ether cyclones"],
+      "destinations": ["Border Ethereal", "Deep Ethereal"]
+    },
+    {
+      "id": "gate-to-deep-ethereal",
+      "name": "Gate to Deep Ethereal",
+      "type": "spell",
+      "description": "The Gate spell can be used to reach the Deep Ethereal.",
+      "requirements": ["Ability to cast the Gate spell"],
+      "associatedSpells": ["Gate"],
+      "risks": ["Ether cyclones"],
+      "destinations": ["Deep Ethereal"]
+    },
+    {
+      "id": "ethereal-curtain-travel",
+      "name": "Ethereal Curtain Travel",
+      "type": "natural_crossing",
+      "description": "Scattered throughout the Deep Ethereal are curtains of vaporous color. Passing through a curtain leads a traveler to a region of the Border Ethereal connected to a specific Inner Plane, the Material Plane, the Feywild, or the Shadowfell. The color of the curtain indicates the plane whose Border Ethereal the curtain conceals. Travel time between curtains is 1d10 × 10 hours.",
+      "requirements": ["Must be in the Deep Ethereal"],
+      "associatedSpells": [],
+      "risks": ["Ether cyclones", "1d10 × 10 hours travel time between curtains"],
+      "destinations": [
+        "Material Plane",
+        "Shadowfell",
+        "Feywild",
+        "Elemental Plane of Air",
+        "Elemental Plane of Earth",
+        "Elemental Plane of Fire",
+        "Elemental Plane of Water",
+        "Para-elemental Plane of Ash",
+        "Para-elemental Plane of Ice",
+        "Para-elemental Plane of Magma",
+        "Para-elemental Plane of Ooze"
+      ]
+    },
+    {
+      "id": "astral-color-pool-to-ethereal",
+      "name": "Astral Color Pool to Ethereal Plane",
+      "type": "portal",
+      "description": "From the Astral Plane, a spiraling white color pool leads to the Ethereal Plane.",
+      "requirements": ["Must be on the Astral Plane", "Must locate a spiraling white color pool"],
+      "associatedSpells": [],
+      "risks": ["Psychic winds on the Astral Plane"],
+      "destinations": ["Ethereal Plane"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

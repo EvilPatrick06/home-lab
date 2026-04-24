@@ -1,0 +1,51 @@
+{
+  "name": "Steel Wind Strike",
+  "level": 5,
+  "school": "Conjuration",
+  "classes": ["Ranger", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": false,
+    "somatic": true,
+    "material": {
+      "description": "a Melee weapon worth 1+ SP",
+      "cost": 1,
+      "currency": "SP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You flourish the weapon used in the casting and then vanish to strike like the wind. Choose up to five creatures you can see within range. Make a melee spell attack against each target. On a hit, a target takes 6d10 Force damage. You then teleport to an unoccupied space you can see within 5 feet of one of the targets.",
+  "targetCount": 5,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "attackType": "MeleeSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 6,
+        "diceValue": 10
+      },
+      "type": "Force",
+      "applicationType": "onHit"
+    }
+  ],
+  "teleportation": {
+    "distanceFeet": 5,
+    "selfOnly": true,
+    "description": "You then teleport to an unoccupied space you can see within 5 feet of one of the targets."
+  },
+  "tags": ["teleportation", "multi-target", "melee-spell-attack"]
+}

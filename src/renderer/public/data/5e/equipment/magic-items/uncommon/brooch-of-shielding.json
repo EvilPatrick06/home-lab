@@ -1,0 +1,13 @@
+{
+  "name": "Brooch of Shielding",
+  "slug": "brooch-of-shielding",
+  "type": "Wondrous Item",
+  "rarity": "Uncommon",
+  "attunement": true,
+  "description": "While wearing this brooch, you have Resistance to Force damage, and you have Immunity to damage from the *Magic Missile* spell.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

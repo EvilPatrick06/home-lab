@@ -1,0 +1,400 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding of these planes visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around and behind (or above or below) that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms above and the elemental realms below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Plane of Ash",
+          "Plane of Ice",
+          "Plane of Magma",
+          "Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "heavily-obscured-environment",
+      "name": "Heavily Obscured",
+      "alternateNames": ["Heavy Obscurement", "Total Visual Obstruction"],
+      "category": "Special",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "philosophicalEssence": "Heavily Obscured is an environmental condition that blocks vision entirely. A Heavily Obscured area is opaque and causes the Blinded condition for any creature trying to see something within it.",
+      "emotionalInfluence": "Creatures in Heavily Obscured areas experience sensory deprivation of sight, which can induce disorientation and tactical disadvantage.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": false,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Heavily Obscured areas do not inherently affect breathing unless the obscuring medium (such as thick fog or dense smoke) also impairs respiration.",
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "Time flows normally in Heavily Obscured areas; they are environmental conditions, not separate planes."
+      },
+      "hazards": [
+        {
+          "id": "heavily-obscured-vision-block",
+          "name": "Heavily Obscured Area",
+          "description": "A Heavily Obscured area — such as Darkness, thick fog, or dense foliage — blocks vision entirely. You have the Blinded condition while trying to see something in a Heavily Obscured area. Examples include areas of Darkness, heavy fog, and dense foliage.",
+          "category": "environmental",
+          "severity": "moderate",
+          "lightLevelModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "withDarkvision": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": false,
+              "obscuresVision": true,
+              "obscuringMedium": "Darkness, thick fog, dense foliage, or other opaque medium",
+              "absorbsLight": false,
+              "radiatesEnergy": false
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Opaque; no colors visible through the obscurement",
+            "illuminationModifierPercent": -100
+          },
+          "movementSpeedPenalty": {
+            "type": "none",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 0
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": ["Blindsight", "Tremorsense", "Truesight"],
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 1: Playing the Game — Vision and Light; Appendix C: Rules Glossary — Heavily Obscured"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "heavily-obscured-blinded",
+          "name": "Blinded Condition from Heavily Obscured",
+          "description": "You have the Blinded condition while trying to see something in a Heavily Obscured area. A Heavily Obscured area blocks vision entirely. The Blinded condition means: a Blinded creature can't see and automatically fails any ability check that requires sight; attack rolls against the creature have Advantage; and the creature's attack rolls have Disadvantage.",
+          "mechanicalEffect": "Creature gains the Blinded condition while trying to see something in the Heavily Obscured area. Blinded: can't see; automatically fails any ability check that requires sight; attack rolls against the creature have Advantage; the creature's attack rolls have Disadvantage.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Darkness, thick fog, dense foliage, or other opaque obstruction"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": -100
+          },
+          "affectsEmotions": false,
+          "duration": "While trying to see something in the Heavily Obscured area",
+          "removalMethods": [
+            "Leave the Heavily Obscured area",
+            "Use Blindsight to perceive without relying on physical sight",
+            "Use Darkvision to treat Darkness as Dim Light (which converts a Darkness-based Heavily Obscured area to a Lightly Obscured area for the Darkvision user)",
+            "Use Truesight which pierces through Darkness including magical Darkness",
+            "Use Tremorsense to detect creatures and moving objects through contact with the same surface or liquid"
+          ],
+          "sourceReference": "Appendix C: Rules Glossary — Heavily Obscured, Blinded condition"
+        },
+        {
+          "id": "darkness-creates-heavily-obscured",
+          "name": "Darkness Creates Heavily Obscured Area",
+          "description": "Darkness creates a Heavily Obscured area. Characters face Darkness outdoors at night (even most moonlit nights), within the confines of an unlit dungeon, or in an area of magical Darkness.",
+          "mechanicalEffect": "Any area of Darkness is automatically a Heavily Obscured area. Creatures trying to see something in Darkness have the Blinded condition unless they have a special sense such as Darkvision, Blindsight, or Truesight.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "withDarkvision": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Absence of light"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": -100
+          },
+          "affectsEmotions": false,
+          "removalMethods": [
+            "Introduce Bright Light or Dim Light source",
+            "Cast a spell that produces light",
+            "Use Darkvision: see in Darkness within specified range as if it were Dim Light (Lightly Obscured instead of Heavily Obscured, but only as shades of gray)",
+            "Use Blindsight to see without relying on physical sight",
+            "Use Truesight which pierces through Darkness including magical Darkness"
+          ],
+          "sourceReference": "Chapter 1: Playing the Game — Light; Appendix C: Rules Glossary — Light"
+        },
+        {
+          "id": "invisible-creature-heavily-obscured",
+          "name": "Invisible Creature is Heavily Obscured",
+          "description": "An Invisible creature is impossible to see without the aid of magic or a special sense. The creature is Heavily Obscured. The creature's location can be detected by any noise it makes or any tracks it leaves. Attack rolls against the creature have Disadvantage, and the creature's attack rolls have Advantage.",
+          "mechanicalEffect": "An Invisible creature counts as Heavily Obscured. Attack rolls against it have Disadvantage. Its attack rolls have Advantage. Its location can be detected by noise or tracks. Blindsight can see an Invisible creature within its range.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [
+            "Blindsight allows seeing the Invisible creature within range",
+            "Truesight pierces invisibility within range",
+            "Detect the creature's location by noise or tracks (still Disadvantage on attacks against it)",
+            "Spells or effects that end the Invisible condition"
+          ],
+          "sourceReference": "Appendix C: Rules Glossary — Invisible condition"
+        },
+        {
+          "id": "darkvision-mitigation",
+          "name": "Darkvision Mitigates Darkness-Based Heavy Obscurement",
+          "description": "If you have Darkvision, you can see in Dim Light within a specified range as if it were Bright Light and in Darkness within that range as if it were Dim Light. You discern colors in that Darkness only as shades of gray. This effectively converts a Darkness-based Heavily Obscured area to a Lightly Obscured area for the creature with Darkvision (within its Darkvision range).",
+          "mechanicalEffect": "Darkvision converts Darkness (Heavily Obscured) to Dim Light equivalent (Lightly Obscured) within its range. The creature has Disadvantage on Wisdom (Perception) checks that rely on sight in that area instead of having the Blinded condition. Colors appear as shades of gray.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Appendix C: Rules Glossary — Darkvision"
+        },
+        {
+          "id": "unseen-attacker-target-rules",
+          "name": "Unseen Attackers and Targets in Heavily Obscured Areas",
+          "description": "When you make an attack roll against a target you can't see (such as one in a Heavily Obscured area), you have Disadvantage on the roll. This is true whether you're guessing the target's location or targeting a creature you can hear but not see. If the target isn't in the location you targeted, you miss. When a creature can't see you (such as when you are in a Heavily Obscured area), you have Advantage on attack rolls against it.",
+          "mechanicalEffect": "Attacking a target you can't see: Disadvantage on the attack roll. If the target isn't where you targeted, automatic miss. Being unseen by a target: Advantage on attack rolls against that target. If hidden when making an attack, you give away your location when the attack hits or misses.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": ["Gain sight of the target through special senses or by removing the obscurement"],
+          "sourceReference": "Chapter 1: Playing the Game — Unseen Attackers and Targets"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "none",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "heavily-obscured-definition",
+          "name": "Heavily Obscured Definition",
+          "description": "A Heavily Obscured area — such as Darkness, thick fog, or dense foliage — blocks vision entirely. You have the Blinded condition while trying to see something in a Heavily Obscured area.",
+          "mechanicalEffect": "Blinded condition imposed: can't see; automatically fails any ability check that requires sight; attack rolls against the creature have Advantage; the creature's attack rolls have Disadvantage. This applies while the creature is trying to see something in the Heavily Obscured area.",
+          "affectsSpellcasting": true,
+          "spellcastingRestrictions": {
+            "blockedSpells": [],
+            "exemptSpells": [],
+            "modifiedSpells": [
+              {
+                "spell": "Any spell requiring sight of a target",
+                "modification": "Cannot target a creature or point you cannot see in a Heavily Obscured area unless you have a special sense that bypasses the obstruction. Spells that require you to see the target fail if the target is in a Heavily Obscured area and you lack special senses."
+              }
+            ]
+          }
+        },
+        {
+          "id": "heavily-obscured-sources",
+          "name": "Sources of Heavy Obscurement",
+          "description": "The following conditions create Heavily Obscured areas: Darkness (absence of light), heavy fog (thick fog), dense foliage, magical Darkness, and the Invisible condition (an Invisible creature is Heavily Obscured). Dim Light creates a Lightly Obscured area, not a Heavily Obscured area.",
+          "mechanicalEffect": "Darkness = Heavily Obscured. Thick fog = Heavily Obscured. Dense foliage = Heavily Obscured. Dim Light = Lightly Obscured (Disadvantage on Wisdom (Perception) checks relying on sight, NOT Blinded). Invisible creatures are Heavily Obscured.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "special-senses-bypass",
+          "name": "Special Senses That Bypass Heavy Obscurement",
+          "description": "Blindsight: see within a specific range without relying on physical sight; can see anything not behind Total Cover even if Blinded or in Darkness; can see Invisible creatures. Darkvision: see in Darkness within range as if Dim Light (converts Heavy Obscurement from Darkness to Light Obscurement within range). Tremorsense: pinpoint location of creatures and moving objects if both in contact with same surface or liquid. Truesight: vision pierces through Darkness (including magical Darkness), Illusions, invisibility, and transmutations within range.",
+          "mechanicalEffect": "Blindsight: completely negates Heavily Obscured for perception within its range. Darkvision: downgrades Darkness-based Heavy Obscurement to Light Obscurement within range. Tremorsense: detects location but does not grant sight. Truesight: completely negates Heavily Obscured (including magical Darkness and invisibility) within range.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "lightly-vs-heavily-obscured-distinction",
+          "name": "Lightly Obscured vs Heavily Obscured Distinction",
+          "description": "In a Lightly Obscured area (such as Dim Light, patchy fog, or moderate foliage), you have Disadvantage on Wisdom (Perception) checks that rely on sight. In a Heavily Obscured area (such as Darkness, thick fog, or dense foliage), you have the Blinded condition when trying to see something there. These are distinct levels of visual obstruction with different mechanical effects.",
+          "mechanicalEffect": "Lightly Obscured: Disadvantage on Wisdom (Perception) checks relying on sight. Heavily Obscured: Blinded condition (can't see, auto-fail sight-based ability checks, attack rolls against have Advantage, own attack rolls have Disadvantage).",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Vision and light management",
+        "Stealth and ambush tactics",
+        "Special senses utilization",
+        "Environmental hazard navigation"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 1: Playing the Game — Vision and Light; Appendix C: Rules Glossary",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game — Vision and Light section defines Heavily Obscured areas and their interaction with the Blinded condition."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary — Defines Heavily Obscured, Lightly Obscured, Blinded condition, Darkvision, Blindsight, Tremorsense, Truesight, Invisible condition, and Light categories."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

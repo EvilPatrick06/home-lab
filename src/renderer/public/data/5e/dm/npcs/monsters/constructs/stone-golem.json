@@ -1,0 +1,148 @@
+{
+  "name": "Stone Golem",
+  "sizes": ["Large"],
+  "creatureType": "Construct",
+  "descriptiveTags": ["Golem"],
+  "alignment": "Unaligned",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "lore": "A stone golem is a massive, humanoid figure hewn from stone and animated by powerful magic. These tireless constructs serve as guardians, executing their creators' orders with unwavering obedience. Nearly impervious to magic and capable of emitting a pulse of antimagic that slows nearby foes, a stone golem is a formidable sentinel.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 178,
+    "dice": {
+      "count": 17,
+      "die": "d10",
+      "modifier": 85
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Petrified", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Languages of its creator"],
+    "notes": "Understands the languages of its creator but can't speak"
+  },
+  "challengeRating": "10",
+  "experiencePoints": 5900,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Immutable Form",
+      "description": "The golem is immune to any spell or effect that would alter its form."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The golem has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The golem makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +10, reach 5 ft. Hit: 19 (3d8 + 6) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Slow",
+      "description": "The golem emits a burst of magic. Each creature of the golem's choice within 10 feet of it must succeed on a DC 17 Wisdom saving throw or have its Speed halved and be unable to use Reactions for 1 minute. In addition, on each of its turns, an affected target can take either an action or a Bonus Action, not both, and it can't make more than one attack on its turn. An affected creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 17,
+        "targets": "each creature of the golem's choice within 10 feet of it",
+        "onFailure": {
+          "effects": "The target's Speed is halved, it can't use Reactions, and on each of its turns it can take either an action or a Bonus Action (not both) and can make only one attack. The effect lasts for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on a success."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 10,
+        "centered": true
+      }
+    }
+  ]
+}

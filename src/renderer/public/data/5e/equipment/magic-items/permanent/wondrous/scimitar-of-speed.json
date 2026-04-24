@@ -1,0 +1,24 @@
+{
+  "name": "Scimitar",
+  "category": "Martial",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 25,
+    "denomination": "GP"
+  },
+  "damage": {
+    "count": 1,
+    "die": 6,
+    "type": "Slashing"
+  },
+  "weight": 3,
+  "properties": [
+    {
+      "property": "Finesse"
+    },
+    {
+      "property": "Light"
+    }
+  ],
+  "mastery": "Nick"
+}

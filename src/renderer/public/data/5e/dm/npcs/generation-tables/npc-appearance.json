@@ -1,0 +1,22 @@
+{
+  "heights": ["Short", "Average", "Tall", "Very Tall"],
+  "builds": ["Thin", "Average", "Stocky", "Muscular", "Heavyset"],
+  "hairColors": ["Black", "Brown", "Blonde", "Red", "Gray", "White", "Auburn"],
+  "hairStyles": ["Bald", "Short", "Medium", "Long", "Braided", "Mohawk", "Ponytail", "Shaved sides"],
+  "distinguishingFeatures": [
+    "Scar across face",
+    "Tattoo on arm",
+    "Missing finger",
+    "Eyepatch",
+    "Birthmark on cheek",
+    "Gold tooth",
+    "Unusual eye color",
+    "Crooked nose",
+    "Burns on hands",
+    "Pointed ears (non-elf)",
+    "Extremely pale",
+    "Deeply tanned",
+    "Freckled"
+  ],
+  "clothingStyles": ["Ragged", "Plain", "Fine", "Exotic", "Armored", "Robed", "Layered", "Uniform"]
+}

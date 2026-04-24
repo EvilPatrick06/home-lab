@@ -1,0 +1,56 @@
+{
+  "name": "Tyrannosaurus Rex",
+  "slug": "tyrannosaurus-rex",
+  "size": "Huge",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "136",
+  "hpFormula": "13d12 + 52",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 25,
+    "dex": 10,
+    "con": 19,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 10,
+    "dex": 0,
+    "con": 4,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4",
+  "senses": "Passive Perception 14",
+  "languages": "None",
+  "cr": "8 (XP 3,900; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The tyrannosaurus makes one Bite attack and one Tail attack."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +10, reach 10 ft. *Hit:* 33 (4d12 + 7) Piercing damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 17). While Grappled, the target has the Restrained condition and can't be targeted by the tyrannosaurus's Tail."
+    },
+    {
+      "name": "Tail",
+      "description": "*Melee Attack Roll:* +10, reach 15 ft. *Hit:* 25 (4d8 + 7) Bludgeoning damage. If the target is a Huge or smaller creature, it has the Prone condition."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

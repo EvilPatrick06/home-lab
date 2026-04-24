@@ -1,0 +1,15 @@
+{
+  "name": "Scriptorium",
+  "slug": "scriptorium",
+  "type": "",
+  "level": "",
+  "space": "Roomy",
+  "hirelings": "1",
+  "order": "Craft",
+  "description": "*Level 9 Bastion Facility*\n\n**Prerequisite:** None\n**Space:** Roomy\n**Hirelings:** 1\n**Order:** Craft\n\nA Scriptorium contains desks and writing supplies.\n\n***Craft Options.*** When you issue the Craft order to this facility, choose one of the following options:\n\n**Craft: Book Replica.** You commission the facility's hireling to make a copy of a nonmagical Book. Doing so requires a blank book. The work takes 7 days.\n\n**Craft: Spell Scroll.** You commission the facility's hireling to scribe a *Spell Scroll* containing one Cleric or Wizard spell of level 3 or lower. The facility has the necessary Calligrapher's Supplies, and the hireling meets all the prerequisites needed to scribe the scroll. The \"Crafting Equipment\" section in the *Player's Handbook* specifies the time needed to scribe the scroll and the cost of the scroll, which you must pay.\n\n**Craft: Paperwork.** You commission the facility's hireling to create up to fifty copies of a broadsheet, a pamphlet, or another loose-leaf paper product. The work takes 7 days and costs you 1 GP per copy. At no additional cost in time or money, the facility's hireling can distribute the paperwork to one or more locations within 50 miles of your Bastion.\n\n---",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

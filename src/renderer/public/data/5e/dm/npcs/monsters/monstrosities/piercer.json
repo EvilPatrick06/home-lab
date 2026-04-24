@@ -1,0 +1,123 @@
+{
+  "name": "Piercer",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "A piercer is a creature that resembles a stalactite, clinging to the ceiling of a cavern and dropping onto creatures that pass below. Related to the roper, some sages believe piercers are a juvenile form of that larger predator. A piercer that survives long enough and consumes sufficient prey may eventually undergo a transformation into a roper.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 3,
+      "die": "d8",
+      "modifier": 9
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 5
+    },
+    {
+      "type": "Climb",
+      "distance": 5
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 30
+      },
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {},
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "If the piercer is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the piercer move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern that the piercer is animate."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The piercer can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Drop",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 3 (1d6) Piercing damage per 10 feet fallen, up to 21 (6d6). Miss: The piercer takes half the damage it would have dealt.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one creature directly below the piercer",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Piercing",
+              "notes": "per 10 feet fallen, up to 21 (6d6)"
+            }
+          ]
+        },
+        "miss": {
+          "effects": "The piercer takes half the damage it would have dealt."
+        }
+      }
+    }
+  ]
+}

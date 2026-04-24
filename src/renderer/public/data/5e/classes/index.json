@@ -1,0 +1,74 @@
+[
+  {
+    "id": "barbarian",
+    "name": "Barbarian",
+    "primaryAbility": [],
+    "path": "classes/barbarian.json"
+  },
+  {
+    "id": "bard",
+    "name": "Bard",
+    "primaryAbility": [],
+    "path": "classes/bard.json"
+  },
+  {
+    "id": "cleric",
+    "name": "Cleric",
+    "primaryAbility": [],
+    "path": "classes/cleric.json"
+  },
+  {
+    "id": "druid",
+    "name": "Druid",
+    "primaryAbility": [],
+    "path": "classes/druid.json"
+  },
+  {
+    "id": "fighter",
+    "name": "Fighter",
+    "primaryAbility": [],
+    "path": "classes/fighter.json"
+  },
+  {
+    "id": "monk",
+    "name": "Monk",
+    "primaryAbility": [],
+    "path": "classes/monk.json"
+  },
+  {
+    "id": "paladin",
+    "name": "Paladin",
+    "primaryAbility": [],
+    "path": "classes/paladin.json"
+  },
+  {
+    "id": "ranger",
+    "name": "Ranger",
+    "primaryAbility": [],
+    "path": "classes/ranger.json"
+  },
+  {
+    "id": "rogue",
+    "name": "Rogue",
+    "primaryAbility": [],
+    "path": "classes/rogue.json"
+  },
+  {
+    "id": "sorcerer",
+    "name": "Sorcerer",
+    "primaryAbility": [],
+    "path": "classes/sorcerer.json"
+  },
+  {
+    "id": "warlock",
+    "name": "Warlock",
+    "primaryAbility": [],
+    "path": "classes/warlock.json"
+  },
+  {
+    "id": "wizard",
+    "name": "Wizard",
+    "primaryAbility": [],
+    "path": "classes/wizard.json"
+  }
+]

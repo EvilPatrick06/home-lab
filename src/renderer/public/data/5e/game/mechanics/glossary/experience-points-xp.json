@@ -1,0 +1,11 @@
+{
+  "name": "Experience Points (XP)",
+  "slug": "experience-points-xp",
+  "description": "Experience Points are a measure of a character's progress toward gaining a level. When a character earns enough XP, the character advances in level.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

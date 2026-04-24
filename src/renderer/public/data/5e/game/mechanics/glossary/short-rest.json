@@ -1,0 +1,11 @@
+{
+  "name": "Short Rest",
+  "slug": "short-rest",
+  "description": "A Short Rest is a 1-hour period of downtime, during which a character does nothing more strenuous than eating, drinking, reading, and tending to wounds. During a Short Rest, a character can spend Hit Dice to regain Hit Points. Roll each spent Hit Die and add the character's Constitution modifier to determine the Hit Points regained.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

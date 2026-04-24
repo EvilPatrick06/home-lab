@@ -1,0 +1,40 @@
+{
+  "name": "Sphinx of Wonder",
+  "slug": "sphinx-of-wonder",
+  "size": "Tiny",
+  "type": "Celestial",
+  "alignment": "Lawful Good",
+  "ac": 13,
+  "hp": 7,
+  "hpFormula": "2d4 + 2",
+  "speed": "20 ft., Fly 40 ft.",
+  "abilityScores": {
+    "str": 6,
+    "dex": 16,
+    "con": 13,
+    "int": 14,
+    "wis": 12,
+    "cha": 11
+  },
+  "skills": "Arcana +4, Religion +4",
+  "senses": "Truesight 30 ft., Passive Perception 11",
+  "languages": "Celestial, Common",
+  "cr": "1/4",
+  "xp": "50 XP",
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Ankh of Wounds",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) Radiant."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

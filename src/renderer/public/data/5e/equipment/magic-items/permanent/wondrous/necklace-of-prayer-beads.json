@@ -1,0 +1,46 @@
+{
+  "name": "Necklace of Prayer Beads",
+  "itemType": "Wondrous Item",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": ["Cleric", "Druid", "Paladin"],
+  "description": "This necklace has 1d4 + 2 magic beads made from aquamarine, black pearl, or topaz. It also has many nonmagical beads made from stones such as amber, bloodstone, citrine, coral, jade, pearl, or quartz. If a magic bead is removed from the necklace, that bead loses its magic.",
+  "properties": [
+    {
+      "name": "Bead of Blessing",
+      "activationType": "Bonus Action",
+      "effect": "Casts Bless"
+    },
+    {
+      "name": "Bead of Curing",
+      "activationType": "Bonus Action",
+      "effect": "Casts Cure Wounds (level 2 version)"
+    },
+    {
+      "name": "Bead of Favor",
+      "activationType": "Bonus Action",
+      "effect": "Casts Greater Restoration"
+    },
+    {
+      "name": "Bead of Smiting",
+      "activationType": "Bonus Action",
+      "effect": "Casts Shining Smite"
+    },
+    {
+      "name": "Bead of Summons",
+      "activationType": "Bonus Action",
+      "effect": "Casts Guardian of Faith"
+    },
+    {
+      "name": "Bead of Wind Walking",
+      "activationType": "Bonus Action",
+      "effect": "Casts Wind Walk"
+    }
+  ],
+  "weight": null,
+  "cost": {
+    "amount": 500,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

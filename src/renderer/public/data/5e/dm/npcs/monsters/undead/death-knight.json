@@ -1,0 +1,97 @@
+{
+  "name": "Death Knight",
+  "slug": "death-knight",
+  "size": "Medium or Small",
+  "type": "Undead",
+  "alignment": "Chaotic Evil",
+  "ac": "20",
+  "initiative": "+12 (22)",
+  "hp": "199",
+  "hpFormula": "21d8 + 105",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 20,
+    "dex": 11,
+    "con": 20,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 5,
+    "dex": 6,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Necrotic, Poison; Exhaustion, Frightened, Poisoned",
+  "senses": "Darkvision 120 ft.; Passive Perception 13",
+  "languages": "Abyssal, Common",
+  "cr": "17 (XP 18,000; PB +6)",
+  "traits": [
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the death knight fails a saving throw, it can choose to succeed instead."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The death knight has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Marshal Undead",
+      "description": "Undead creatures of the death knight's choice (excluding itself) in a 60-foot *Emanation* originating from it have Advantage on attack rolls and saving throws. It can't use this trait if it has the *Incapacitated* condition."
+    },
+    {
+      "name": "Undead Restoration",
+      "description": "If the death knight is destroyed before it atones for its evil, it gains a new body in 1d10 days, reviving with all its Hit Points. The new body appears in a location significant to the death knight."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The death knight makes three Dread Blade attacks."
+    },
+    {
+      "name": "Dread Blade",
+      "description": "*Melee Attack Roll:* +11, reach 5 ft. *Hit:* 12 (2d6 + 5) Slashing damage plus 13 (3d8) Necrotic damage."
+    },
+    {
+      "name": "Hellfire Orb (Recharge 5--6)",
+      "description": "*Dexterity Saving Throw:* DC 18, each creature in a 20-foot-radius *Sphere* centered on a point the death knight can see within 120 feet. *Failure:* 35 (10d6) Fire damage plus 35 (10d6) Necrotic damage. *Success:* Half damage."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The death knight casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 18):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Parry",
+      "description": "*Trigger:* The death knight is hit by a melee attack roll while holding a weapon. *Response:* The death knight adds 6 to its AC against that attack, possibly causing it to miss."
+    }
+  ],
+  "legendaryActions": [
+    {
+      "name": "Dread Authority",
+      "description": "The death knight uses Spellcasting to cast *Command*. The death knight can't take this action again until the start of its next turn."
+    },
+    {
+      "name": "Fell Word",
+      "description": "*Constitution Saving Throw:* DC 18, one creature the death knight can see within 120 feet. *Failure:* 17 (5d6) Necrotic damage, and the target's Hit Point maximum decreases by an amount equal to the damage taken. *Failure or Success:* The death knight can't take this action again until the start of its next turn."
+    },
+    {
+      "name": "Lunge",
+      "description": "The death knight moves up to half its Speed, and it makes one Dread Blade attack."
+    }
+  ],
+  "lore": "*Haunted Commanders of Unliving Legions*\n**Habitat:** Any; **Treasure:** Armaments\nChampions of evil, death knights are armor-clad, skeletal warlords. Combining devastating martial prowess and blasphemous magic, these undying tyrants lead unholy legions against the living or brood in cursed citadels. Every death knight is haunted by a legacy of tragedy and dishonor that drives it to commit greater evils.\nDeath knights are deadly combatants and domineering commanders with grim histories. Some strive to end the curses that doom them to undeath, though their selfish souls eternally shackle them to their fates. Others, like the infamous death knight Lord Soth, brood in dismal ruins for centuries, rousing themselves to action only when something reignites their deathless evil.\nWhen the leader of a villainous order rises as a death knight, their wicked devotees might join them in their cursed existence as death knight aspirants. These followers bear a measure of their leader's power and serve as they did in life, obediently following the death knight's decrees and heralding its terrible will.",
+  "habitat": "Any",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

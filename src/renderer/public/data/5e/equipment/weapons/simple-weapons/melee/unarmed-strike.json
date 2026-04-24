@@ -1,0 +1,82 @@
+{
+  "name": "Unarmed Strike",
+  "slug": "unarmed-strike",
+  "category": "Simple",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "damage": {
+    "count": 0,
+    "die": 0,
+    "type": "Bludgeoning",
+    "fixedValue": 1
+  },
+  "weight": 0,
+  "properties": [],
+  "mastery": null,
+  "specialActions": [
+    {
+      "id": "grapple",
+      "name": "Grapple",
+      "type": "replacement",
+      "description": "You can use your Unarmed Strike to grapple a creature. The target must be no more than one size larger than you and within your reach.",
+      "rules": {
+        "abilityCheck": {
+          "attacker": { "skill": "Athletics", "ability": "Strength" },
+          "defender": {
+            "options": [
+              { "skill": "Athletics", "ability": "Strength" },
+              { "skill": "Acrobatics", "ability": "Dexterity" }
+            ]
+          }
+        },
+        "onSuccess": {
+          "condition": "Grappled",
+          "details": "The target has the Grappled condition. The grapple's escape DC equals 8 + the grappler's Strength modifier + the grappler's Proficiency Bonus."
+        },
+        "movementWhileGrappling": "When you move, you can drag or carry the Grappled creature with you, but your Speed is halved unless the creature is two or more sizes smaller than you.",
+        "endConditions": [
+          "The grappler is Incapacitated",
+          "The target is moved outside the grappler's reach by an effect (such as being hurled by the Thunderwave spell)"
+        ]
+      }
+    },
+    {
+      "id": "shove",
+      "name": "Shove",
+      "type": "replacement",
+      "description": "You can use your Unarmed Strike to shove a creature. The target must be no more than one size larger than you and within your reach.",
+      "rules": {
+        "abilityCheck": {
+          "attacker": { "skill": "Athletics", "ability": "Strength" },
+          "defender": {
+            "options": [
+              { "skill": "Athletics", "ability": "Strength" },
+              { "skill": "Acrobatics", "ability": "Dexterity" }
+            ]
+          }
+        },
+        "onSuccess": {
+          "options": [
+            {
+              "name": "Push",
+              "effect": "You push the target 5 feet away from you in a direction of your choice."
+            },
+            {
+              "name": "Knock Prone",
+              "effect": "The target has the Prone condition."
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "notes": "An Unarmed Strike is a melee attack that involves using your body to damage, grapple, or shove a target within 5 feet of you. Your bonus to hit equals your Strength modifier + your Proficiency Bonus. On a hit you deal 1 + your Strength modifier in Bludgeoning damage.",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 1",
+    "section": "Rules Glossary"
+  }
+}

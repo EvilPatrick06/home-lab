@@ -1,0 +1,53 @@
+{
+  "name": "Tiefling",
+  "slug": "tiefling",
+  "creatureType": "Humanoid",
+  "size": "Medium (about 4–7 feet tall) or Small (about 3–4 feet tall), chosen when you select this species",
+  "speed": "30 feet",
+  "lore": "Tieflings are either born in the Lower Planes or have fiendish ancestors who originated there. A tiefling (pronounced TEE-fling) is linked by blood to a devil, a demon, or some other Fiend. This connection to the Lower Planes is the tiefling's fiendish legacy, which comes with the promise of power yet has no effect on the tiefling's moral outlook.\n\nA tiefling chooses whether to embrace or lament their fiendish legacy. The three legacies are described below.\n\n**Abyssal.** The entropy of the Abyss, the chaos of Pandemonium, and the despair of Carceri call to tieflings who have the abyssal legacy. Horns, fur, tusks, and peculiar scents are common physical features of such tieflings, most of whom have the blood of demons coursing through their veins.\n\n**Chthonic.** Tieflings who have the chthonic legacy feel not only the tug of Carceri but also the greed of Gehenna and the gloom of Hades. Some of these tieflings look cadaverous. Others possess the unearthly beauty of a succubus, or they have physical features in common with a night hag, a yugoloth, or some other Neutral Evil fiendish ancestor.\n\n**Infernal.** The infernal legacy connects tieflings not only to Gehenna but also the Nine Hells and the raging battlefields of Acheron. Horns, spines, tails, golden eyes, and a faint odor of sulfur or smoke are common physical features of such tieflings, most of whom trace their ancestry to devils.",
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "You have Darkvision with a range of 60 feet."
+    },
+    {
+      "name": "Fiendish Legacy",
+      "description": "You are the recipient of a legacy that grants you supernatural abilities. Choose a legacy from the Fiendish Legacies table. You gain the level 1 benefit of the chosen legacy."
+    },
+    {
+      "name": "Otherworldly Presence",
+      "description": "You know the *Thaumaturgy* cantrip. When you cast it with this trait, the spell uses the same spellcasting ability you use for your Fiendish Legacy trait."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 4",
+    "section": "Species"
+  },
+  "lineageTable": [
+    {
+      "lineage": "Abyssal",
+      "values": [
+        "You have Resistance to Poison damage. You also know the *Poison Spray* cantrip.",
+        "*Ray of Sickness*",
+        "*Hold Person*"
+      ]
+    },
+    {
+      "lineage": "Chthonic",
+      "values": [
+        "You have Resistance to Necrotic damage. You also know the *Chill Touch* cantrip.",
+        "*False Life*",
+        "*Ray of Enfeeblement*"
+      ]
+    },
+    {
+      "lineage": "Infernal",
+      "values": [
+        "You have Resistance to Fire damage. You also know the *Fire Bolt* cantrip.",
+        "*Hellish Rebuke*",
+        "*Darkness*"
+      ]
+    }
+  ]
+}

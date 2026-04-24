@@ -1,0 +1,13 @@
+{
+  "name": "Onyx",
+  "slug": "onyx",
+  "value": "50 GP",
+  "category": "Gemstone",
+  "description": "bands of black and white, or pure black or white",
+  "dieValue": "8",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

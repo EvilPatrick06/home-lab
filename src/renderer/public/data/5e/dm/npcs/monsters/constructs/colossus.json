@@ -1,0 +1,211 @@
+{
+  "name": "Colossus",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Construct",
+  "alignment": "Unaligned",
+  "habitat": ["Any"],
+  "treasure": ["None"],
+  "lore": "A colossus is a towering construct of stone, metal, or similar materials, animated by powerful magic. Standing dozens of feet tall, these awe-inspiring automatons are built by mighty spellcasters or civilizations at the height of their power. A colossus might serve as a guardian of a city, a weapon of war, or the lasting monument of a forgotten empire. When its creator perishes or the magic sustaining it fades, a colossus might continue to follow its last commands for centuries, patrolling ruins long after the civilization that built it has crumbled to dust.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 350,
+    "dice": {
+      "count": 20,
+      "die": "d20",
+      "modifier": 140
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 28,
+      "modifier": 9,
+      "save": 9
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 24,
+      "modifier": 7,
+      "save": 7
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 7
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "damageImmunities": ["Poison and Psychic"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Petrified", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Common"],
+    "notes": "Understands the languages of its creator but can't speak"
+  },
+  "challengeRating": "22",
+  "experiencePoints": 41000,
+  "proficiencyBonus": 7,
+  "traits": [
+    {
+      "name": "Immutable Form",
+      "description": "The colossus is immune to any spell or effect that would alter its form."
+    },
+    {
+      "name": "Legendary Resistance",
+      "description": "If the colossus fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The colossus has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Siege Monster",
+      "description": "The colossus deals double damage to objects and structures."
+    }
+  ],
+  "multiattack": {
+    "description": "The colossus makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +16, reach 15 ft. Hit: 36 (6d8 + 9) Bludgeoning damage. If the target is a Huge or smaller creature, the target has the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 16,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 36,
+              "dice": {
+                "count": 6,
+                "die": "d8",
+                "modifier": 9
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Prone",
+              "duration": "until the creature ends the condition on itself"
+            }
+          ],
+          "additionalEffects": "If the target is a Huge or smaller creature, the target has the Prone condition."
+        }
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Stomp",
+        "description": "Melee Attack Roll: +16, reach 15 ft. Hit: 22 (3d8 + 9) Bludgeoning damage. If the target is a Large or smaller creature, the target has the Prone condition.",
+        "cost": 1,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 16,
+          "reach": 15,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 22,
+                "dice": {
+                  "count": 3,
+                  "die": "d8",
+                  "modifier": 9
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone",
+                "duration": "until the creature ends the condition on itself"
+              }
+            ],
+            "additionalEffects": "If the target is a Large or smaller creature, the target has the Prone condition."
+          }
+        }
+      },
+      {
+        "name": "Sunder",
+        "description": "The colossus strikes the ground, creating a shockwave. Each creature within 20 feet of the colossus must make a DC 24 Dexterity saving throw, taking 28 (8d6) Bludgeoning damage on a failed save, or half as much damage on a successful one.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 24,
+          "targets": "each creature within 20 feet of the colossus",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 28,
+                "dice": {
+                  "count": 8,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Bludgeoning"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 20,
+          "centered": true
+        }
+      }
+    ]
+  }
+}

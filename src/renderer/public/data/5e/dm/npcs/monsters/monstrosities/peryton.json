@@ -1,0 +1,158 @@
+{
+  "name": "Peryton",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Hill", "Mountain"],
+  "treasure": ["Individual"],
+  "lore": "A peryton is a vicious predator that combines the features of a stag and an eagle. It hunts humanoids relentlessly, driven by an unnatural craving for mortal hearts. A peryton's shadow on the ground appears as a humanoid silhouette until the creature consumes a fresh heart, after which the shadow briefly reflects its true form.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 33,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 6
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    }
+  ],
+  "senses": {
+    "specialSenses": [],
+    "passivePerception": 15
+  },
+  "languages": {
+    "understood": ["Common", "Elvish"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Dive Attack",
+      "description": "If the peryton is flying and dives at least 30 feet straight toward a target and then hits it with a Gore attack on the same turn, the attack deals an extra 9 (2d8) Piercing damage to the target."
+    },
+    {
+      "name": "Flyby",
+      "description": "The peryton doesn't provoke Opportunity Attacks when it flies out of an enemy's reach."
+    },
+    {
+      "name": "Keen Sight and Smell",
+      "description": "The peryton has Advantage on Wisdom (Perception) checks that rely on sight or smell."
+    }
+  ],
+  "multiattack": {
+    "description": "The peryton makes one Gore attack and one Talon attack.",
+    "attacks": [
+      {
+        "actionName": "Gore",
+        "count": 1
+      },
+      {
+        "actionName": "Talon",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Gore",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Talon",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 8 (2d4 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

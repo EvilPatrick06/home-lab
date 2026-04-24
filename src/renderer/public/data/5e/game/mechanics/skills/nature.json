@@ -1,0 +1,15 @@
+{
+  "id": "nature",
+  "name": "Nature",
+  "ability": "intelligence",
+  "description": "Your Intelligence (Nature) check measures your ability to recall lore about terrain, plants and animals, the weather, and natural cycles. This skill reflects knowledge of the natural world and its workings.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Identify a plant, animal, or natural phenomenon",
+    "Recall information about terrain types and their hazards",
+    "Predict upcoming weather patterns",
+    "Know which plants are edible, medicinal, or poisonous",
+    "Recall lore about natural cycles and ecology"
+  ]
+}

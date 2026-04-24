@@ -1,0 +1,47 @@
+{
+  "name": "Regenerate",
+  "level": 7,
+  "school": "Transmutation",
+  "classes": ["Bard", "Cleric", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "minutes",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a prayer wheel",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "A creature you touch regains 4d8 + 15 Hit Points. For the duration, the target regains 1 Hit Point at the start of each of its turns, and any severed body parts regrow after 2 minutes.",
+  "targetType": "creature",
+  "healing": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 8,
+        "fixedBonus": 15
+      },
+      "applicationType": "onCast"
+    },
+    {
+      "flat": 1,
+      "applicationType": "onTurnStart"
+    }
+  ],
+  "tags": ["healing", "regrowth", "limb restoration"]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Healer's Kit",
+  "cost": "5 GP",
+  "weight": "3 lb.",
+  "description": "10 uses. As Utilize action, expend one use to stabilize an Unconscious creature at 0 HP without Medicine check.",
+  "slug": "healers-kit",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "your-turn": { "title": "Your Turn!", "body": "It's your turn in combat" },
+  "roll-request": { "title": "Roll Requested", "body": "" },
+  "whisper": { "title": "Whisper", "body": "" },
+  "ai-response": { "title": "DM Response", "body": "The DM has responded" },
+  "timer-expired": { "title": "Time's Up!", "body": "Timer expired" },
+  "combat-start": { "title": "Roll Initiative!", "body": "Combat has begun" },
+  "level-up": { "title": "Level Up!", "body": "" },
+  "damage-taken": { "title": "Damage!", "body": "" }
+}

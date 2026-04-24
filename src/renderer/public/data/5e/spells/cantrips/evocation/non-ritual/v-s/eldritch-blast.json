@@ -1,0 +1,63 @@
+{
+  "name": "Eldritch Blast",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Warlock"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You hurl a beam of crackling energy. Make a ranged spell attack against one creature or object within range. On a hit, the target takes 1d10 Force damage. The spell creates two beams at level 5, three beams at level 11, and four beams at level 17. You can direct the beams at the same target or at different ones. Make a separate attack roll for each beam.",
+  "targetType": "creatureOrObject",
+  "attackType": "RangedSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 10
+      },
+      "type": "Force",
+      "applicationType": "onHit"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "beamCount": 2,
+        "diceCount": 1,
+        "diceValue": 10,
+        "description": "The spell creates two beams. You can direct the beams at the same target or at different ones. Make a separate attack roll for each beam."
+      },
+      {
+        "level": 11,
+        "beamCount": 3,
+        "diceCount": 1,
+        "diceValue": 10,
+        "description": "The spell creates three beams. You can direct the beams at the same target or at different ones. Make a separate attack roll for each beam."
+      },
+      {
+        "level": 17,
+        "beamCount": 4,
+        "diceCount": 1,
+        "diceValue": 10,
+        "description": "The spell creates four beams. You can direct the beams at the same target or at different ones. Make a separate attack roll for each beam."
+      }
+    ]
+  },
+  "tags": ["damage", "attack", "cantrip", "multi-beam"]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Truth Serum",
+  "cost": "150 GP",
+  "type": "Ingested",
+  "dc": 11,
+  "damage": "None",
+  "effect": "Poisoned for 1 hour, can't lie",
+  "description": "A creature subjected to this poison must succeed on a DC 11 Constitution saving throw or have the Poisoned condition for 1 hour. The Poisoned creature can't knowingly communicate a lie.",
+  "slug": "truth-serum",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

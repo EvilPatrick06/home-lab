@@ -1,0 +1,133 @@
+{
+  "name": "Tridrone",
+  "sizes": ["Medium"],
+  "creatureType": "Construct",
+  "descriptiveTags": ["Modron"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Planar (Mechanus)"],
+  "treasure": ["None"],
+  "lore": "Tridrones are three-sided modrons that serve as squad leaders and minor overseers in the hierarchy of Mechanus. A tridrone can manage three tasks at once, allowing it to coordinate groups of duodrones and monodrones with remarkable efficiency. They relay commands from quadrones and ensure their subordinates carry out their duties.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 39,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Modron"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Axiomatic Mind",
+      "description": "The modron can't be compelled to act in a manner contrary to its nature or its instructions."
+    },
+    {
+      "name": "Disintegration",
+      "description": "If the modron dies, its body disintegrates into dust, leaving behind anything it was carrying."
+    }
+  ],
+  "multiattack": {
+    "description": "The tridrone makes three Javelin attacks.",
+    "attacks": [
+      {
+        "actionName": "Javelin",
+        "count": 3
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Javelin",
+      "description": "Melee or Ranged Attack Roll: +4, reach 5 ft. or range 30/120 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 4,
+        "reach": 5,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "gear": [
+    {
+      "name": "Javelin",
+      "quantity": 6
+    }
+  ]
+}

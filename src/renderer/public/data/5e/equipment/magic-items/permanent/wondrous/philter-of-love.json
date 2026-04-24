@@ -1,0 +1,20 @@
+{
+  "name": "Philter of Love",
+  "itemType": "Potion",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "The next time you see a creature within 10 minutes after drinking this philter, you are charmed by that creature and have the Charmed condition for 1 hour.\n\nThis rose-hued, effervescent liquid contains one easy-to-miss bubble shaped like a heart.",
+  "properties": null,
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "charges": null,
+  "rechargeRate": null,
+  "rechargeAmount": null,
+  "spells": null,
+  "damage": null,
+  "source": "DMG 2024"
+}

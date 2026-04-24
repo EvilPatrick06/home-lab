@@ -1,0 +1,11 @@
+{
+  "name": "Ability Score Point Cost",
+  "slug": "ability-score-point-cost",
+  "description": "| Score | Cost |\n|---|---|\n| 8 | 0 |\n| 9 | 1 |\n| 10 | 2 |\n| 11 | 3 |\n| 12 | 4 |\n| 13 | 5 |\n| 14 | 7 |\n| 15 | 9 |\n**Action.** On each of your turns during combat, you can move and take one action. The Actions table lists the game's main actions.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

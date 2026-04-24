@@ -1,0 +1,23 @@
+{
+  "name": "Revolver",
+  "slug": "revolver",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Modern",
+  "damage": "2d8",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Reload (6)"],
+  "weight": "3 lb.",
+  "cost": "—",
+  "range": {
+    "normal": 40,
+    "long": 120
+  },
+  "ammunitionType": "Modern Bullet",
+  "reloadCapacity": 6,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

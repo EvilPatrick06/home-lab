@@ -1,0 +1,13 @@
+{
+  "id": "protector-aasimar",
+  "name": "Protector Aasimar",
+  "species": "aasimar",
+  "description": "Charged by the powers of good to guard the weak.",
+  "traits": [
+    {
+      "name": "Radiant Soul",
+      "description": "At 3rd level, use action to sprout incorporeal wings (30ft flying speed) for 1 minute. Deal extra radiant damage equal to level once per turn."
+    }
+  ],
+  "source": "PHB 2024"
+}

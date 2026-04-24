@@ -1,0 +1,140 @@
+{
+  "name": "Hydra",
+  "sizes": ["Huge"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Coastal", "Swamp"],
+  "treasure": ["Any"],
+  "lore": "A hydra is a reptilian horror with a crocodilian body and multiple heads on long, serpentine necks. It lurks in swamps, along lakeshores, and in coastal shallows. When one of its heads is destroyed, two more grow from the stump unless the wound is cauterized with fire.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 172,
+    "dice": {
+      "count": 15,
+      "die": "d12",
+      "modifier": 75
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Swim",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Hold Breath",
+      "description": "The hydra can hold its breath for 1 hour."
+    },
+    {
+      "name": "Multiple Heads",
+      "description": "The hydra has five heads. Whenever the hydra takes 25 or more damage in a single turn, one of its heads dies. If all its heads die, the hydra dies. At the end of its turn, it grows two heads for each of its heads that died since its last turn, unless it has taken Fire damage since its last turn. The hydra regains 10 Hit Points for each head regrown in this way."
+    },
+    {
+      "name": "Reactive Heads",
+      "description": "For each head the hydra has beyond one, it gets an extra Reaction that can be used only for Opportunity Attacks."
+    },
+    {
+      "name": "Wakeful",
+      "description": "While the hydra sleeps, at least one of its heads is awake."
+    }
+  ],
+  "multiattack": {
+    "description": "The hydra makes a number of Bite attacks equal to the number of heads it has.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 5
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +8, reach 10 ft. Hit: 10 (1d10 + 5) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

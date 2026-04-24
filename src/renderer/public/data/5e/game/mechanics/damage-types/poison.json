@@ -1,0 +1,13 @@
+{
+  "id": "poison",
+  "name": "Poison",
+  "description": "Venomous stings and the toxic gas of a Green Dragon's breath deal Poison damage. Poison damage represents toxic substances and venom.",
+  "commonSources": [
+    "Green Dragon breath weapon",
+    "Poison Spray cantrip",
+    "Cloudkill spell",
+    "Giant spider bite",
+    "Poisoned weapons"
+  ],
+  "resistanceNotes": "Poison is the most commonly resisted and immunized damage type. Undead, constructs, fiends, and many other creature types are immune to Poison. Dwarves have resistance to Poison damage."
+}

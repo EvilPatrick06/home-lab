@@ -1,0 +1,16 @@
+{
+  "id": "spellbook-template",
+  "name": "Spellbook",
+  "cost": "50 gp",
+  "weight": 3,
+  "pages": 100,
+  "maxSpells": 100,
+  "description": "A wizard's spellbook is a leather-bound tome containing 100 pages of vellum. Essential to a wizard's practice, it records the complex notation and instructions for each spell the wizard knows. Each spell takes up one page per spell level (a cantrip takes one page). A wizard can copy spells from spell scrolls or other spellbooks into their own spellbook. If the spellbook is lost or destroyed, the wizard cannot prepare any spells except those currently prepared until they obtain a new spellbook and transcribe their spells anew.",
+  "copyCost": "50 gp per spell level",
+  "copyTime": "2 hours per spell level",
+  "rules": {
+    "copying": "For each level of the spell, the process takes 2 hours and costs 50 gp. The cost represents material components you expend as you experiment with the spell to master it, as well as the fine inks you need to record it. Once you have spent this time and money, you can prepare the spell just like your other spells.",
+    "replacingTheBook": "You can copy a spell from your own spellbook into another book. This is just like copying a new spell into your spellbook, but faster and easier, since you understand your own notation and already know how to cast the spell. You need spend only 1 hour and 10 gp for each level of the copied spell.",
+    "theBookAppearance": "Your spellbook is a unique compilation of spells, with its own decorative flourishes and margin notes. It might be a plain, functional leather volume, a finely bound gilt-edged tome, or a loose collection of notes scrounged together after you lost your previous spellbook."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Pale Tincture",
+  "cost": "250 GP",
+  "type": "Ingested",
+  "dc": 16,
+  "damage": "1d6 Poison",
+  "effect": "Repeat save each 24 hours",
+  "description": "A creature subjected to this poison must succeed on a DC 16 Constitution saving throw or take 3 (1d6) Poison damage and have the Poisoned condition. The Poisoned creature must repeat the save every 24 hours, taking 3 (1d6) Poison damage on a failed save. The poison ends after seven successful saves or a Lesser Restoration spell.",
+  "slug": "pale-tincture",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

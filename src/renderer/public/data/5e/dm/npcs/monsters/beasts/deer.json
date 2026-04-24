@@ -1,0 +1,53 @@
+{
+  "name": "Deer",
+  "slug": "deer",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "4",
+  "hpFormula": "1d8",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 11,
+    "dex": 16,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 3,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4",
+  "senses": "Darkvision 60 ft.; Passive Perception 14",
+  "languages": "None",
+  "cr": "0 (XP 10; PB +2)",
+  "traits": [
+    {
+      "name": "Agile",
+      "description": "The deer doesn't provoke an Opportunity Attack when it moves out of an enemy's reach."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Ram",
+      "description": "*Melee Attack Roll:* +2, reach 5 ft. *Hit:* 2 (1d4) Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "name": "Dragon Turtle",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Dragon",
+  "alignment": "Neutral",
+  "habitat": ["Coastal", "Underwater"],
+  "treasure": ["Any"],
+  "lore": "Dragon turtles are among the most fearsome creatures of the deep oceans. These immense beings combine the features of great sea turtles and dragons, dwelling in underwater caverns and sunken ruins. Territorial and avaricious, dragon turtles demand tribute from ships that pass through their domains, threatening to capsize or destroy vessels whose crews refuse to pay. Despite their turtle-like shells, dragon turtles are true dragons and possess the greed and pride common to dragonkind. Some coastal civilizations make bargains with dragon turtles, paying them regular tribute in exchange for safe passage or even protection from other aquatic threats.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 341,
+    "dice": {
+      "count": 22,
+      "die": "d20",
+      "modifier": 110
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 25,
+      "modifier": 7,
+      "save": 7
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 6
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 11
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 7
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "resistances": ["Fire"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Aquan", "Draconic"]
+  },
+  "challengeRating": "17",
+  "experiencePoints": 18000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The dragon turtle can breathe air and water."
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon turtle makes one Bite attack and two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +13, reach 15 ft. Hit: 20 (2d12 + 7) Piercing damage plus 7 (2d6) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 20,
+              "dice": {
+                "count": 2,
+                "die": "d12",
+                "modifier": 7
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +13, reach 10 ft. Hit: 16 (2d8 + 7) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 7
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Steam Breath",
+      "description": "The dragon turtle exhales scalding steam in a 60-foot Cone. Each creature in that area must make a DC 19 Constitution saving throw, taking 52 (15d6) Fire damage on a failed save or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 19,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 52,
+              "dice": {
+                "count": 15,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 60
+      }
+    }
+  ]
+}

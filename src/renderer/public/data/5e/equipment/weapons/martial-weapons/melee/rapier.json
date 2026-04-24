@@ -1,0 +1,17 @@
+{
+  "name": "Rapier",
+  "slug": "rapier",
+  "category": "Martial",
+  "type": "Melee",
+  "damage": "1d8",
+  "damageType": "Piercing",
+  "properties": ["Finesse"],
+  "mastery": "Vex",
+  "weight": "2 lb.",
+  "cost": "25 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

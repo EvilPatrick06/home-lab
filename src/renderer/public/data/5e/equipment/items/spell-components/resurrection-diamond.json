@@ -1,0 +1,15 @@
+{
+  "name": "Diamond (1,000 GP)",
+  "slug": "resurrection-diamond",
+  "category": "Spell Component",
+  "cost": "1000 GP",
+  "weight": "—",
+  "consumed": true,
+  "description": "A diamond worth at least 1,000 GP, consumed by the spell.",
+  "usedBy": ["Resurrection"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 7",
+    "section": "Spell Descriptions"
+  }
+}

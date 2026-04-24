@@ -1,0 +1,13 @@
+{
+  "name": "Dark Shard Amulet",
+  "slug": "dark-shard-amulet",
+  "type": "Wondrous Item",
+  "rarity": "Common (Requires Attunement by a Warlock)",
+  "attunement": true,
+  "description": "This amulet is fashioned from a shard of resilient material originating from an otherworldly realm. While you are wearing it, you gain the following benefits.\n\n**Spellcasting Focus.** You can use the amulet as a Spellcasting Focus for your Warlock spells.\n\n**Unknown Spell.** As a Magic action, you can try to cast a cantrip that you don't know. The cantrip must be on the Warlock spell list and have a casting time of an action, and you make a DC 10 Intelligence (Arcana) check. On a successful check, you cast the spell. On a failed check, the spell fails, and the action used to cast it is wasted. In either case, you can't use this property again until you finish a Long Rest.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

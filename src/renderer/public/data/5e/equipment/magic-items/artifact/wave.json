@@ -1,0 +1,13 @@
+{
+  "name": "Wave",
+  "slug": "wave",
+  "type": "Weapon (Trident)",
+  "rarity": "Artifact",
+  "attunement": true,
+  "description": "Held in the dungeon of White Plume Mountain, *Wave* is engraved with images of waves, shells, and sea creatures.\n\nYou gain a +3 bonus to attack rolls and damage rolls made with this magic weapon. When you roll a 20 on the d20 for an attack roll with this weapon, the target takes an extra 21 Necrotic damage.\n\nWhile holding *Wave*, you gain the following benefits:\n\n**Combat Ready.** You have Advantage on Initiative rolls.\n\n**Underwater Adaptation.** A bubble of air forms around your head while you are underwater, allowing you to breathe normally in that environment.\n\n**Aquatic Command.** *Wave* has 3 charges and regains 1d3 expended charges daily at dawn. While you carry it, you can expend 1 charge to cast *Dominate Beast* (save DC 20) from it on a Beast that has a Swim Speed.\n\n**Globe of Invulnerability.** While holding *Wave*, you can cast the level 9 version of *Globe of Invulnerability* from it. Once used, this property can't be used again until the next dawn.\n\n**Sentience.** *Wave* is a sentient weapon of Neutral alignment, with an Intelligence of 14, a Wisdom of 10, and a Charisma of 18. It has hearing and Darkvision out to 120 feet.\n\nThe weapon communicates telepathically with its wielder and speaks Aquan.\n\n**Personality.** *Wave* zealously encourages mortals to worship sea gods and has a habit of humming sea chanteys. Conflict arises if the wielder fails to further the weapon's objectives in the world.\n\n**Destroying Wave.** *Wave* can be destroyed only on the island of Thunderforge, where it was forged. The weapon must be melted down by a storm giant or someone imbued with a storm giant's strength. Destroying *Wave* angers a god of the sea, who sends powerful agents to attack the island and punish the destroyers.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

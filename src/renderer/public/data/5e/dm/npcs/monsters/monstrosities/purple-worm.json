@@ -1,0 +1,192 @@
+{
+  "name": "Purple Worm",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["Any"],
+  "lore": "Purple worms are enormous, burrowing predators that terrorize the Underdark and occasionally surface in deserts, mountains, and other desolate places. They mindlessly consume anything in their path—earth, stone, and creature alike—leaving behind vast tunnels that reshape the underground landscape. Entire civilizations have risen and fallen in the winding warrens these worms leave behind. When a purple worm detects vibrations from nearby creatures, it erupts from stone to swallow its prey whole, dissolving victims in its gullet.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 247,
+    "dice": {
+      "count": 15,
+      "die": "d20",
+      "modifier": 90
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    },
+    {
+      "type": "Burrow",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": -2,
+    "score": 8
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 28,
+      "modifier": 9,
+      "save": 14
+    },
+    "DEX": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "CON": {
+      "score": 22,
+      "modifier": 6,
+      "save": 11
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": 4
+    },
+    "CHA": {
+      "score": 4,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 30
+      },
+      {
+        "type": "Tremorsense",
+        "range": 60
+      }
+    ],
+    "passivePerception": 9
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "15",
+  "experiencePoints": 13000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Tunneler",
+      "description": "The worm can burrow through solid rock at half its Burrow Speed and leaves a 10-foot-diameter tunnel in its wake."
+    }
+  ],
+  "multiattack": {
+    "description": "The worm makes one Bite attack and one Tail Stinger attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Tail Stinger",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +14, reach 10 ft. Hit: 22 (3d8 + 9) Piercing damage. If the target is a Large or smaller creature, it must succeed on a DC 19 Dexterity saving throw or be swallowed by the worm. A swallowed creature has the Blinded and Restrained conditions, has Total Cover against attacks and other effects outside the worm, and takes 21 (6d6) Acid damage at the start of each of the worm's turns. If the worm takes 30 damage or more on a single turn from a creature inside it, the worm must succeed on a DC 21 Constitution saving throw at the end of that turn or regurgitate all swallowed creatures, each of which falls in a space within 10 feet of the worm and has the Prone condition. If the worm dies, a swallowed creature is no longer Restrained by it and can escape from the corpse by using 20 feet of movement, exiting Prone.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 9
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "DEX",
+            "dc": 19,
+            "targets": "Large or smaller target hit by this attack",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Blinded",
+                  "duration": "until the creature is no longer swallowed"
+                },
+                {
+                  "condition": "Restrained",
+                  "duration": "until the creature is no longer swallowed"
+                }
+              ],
+              "effects": "The target is swallowed. A swallowed creature has Total Cover against attacks and other effects outside the worm and takes 21 (6d6) Acid damage at the start of each of the worm's turns. If the worm takes 30 damage or more on a single turn from a creature inside it, the worm must succeed on a DC 21 Constitution saving throw at the end of that turn or regurgitate all swallowed creatures, each of which falls in a space within 10 feet of the worm and has the Prone condition. If the worm dies, a swallowed creature is no longer Restrained by it and can escape from the corpse by using 20 feet of movement, exiting Prone."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Tail Stinger",
+      "description": "Melee Attack Roll: +14, reach 10 ft. Hit: 19 (3d6 + 9) Piercing damage, and the target must make a DC 19 Constitution saving throw, taking 42 (12d6) Poison damage on a failed save, or half as much damage on a successful one.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 9
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 19,
+            "targets": "the target hit by this attack",
+            "onFailure": {
+              "damage": [
+                {
+                  "average": 42,
+                  "dice": {
+                    "count": 12,
+                    "die": "d6",
+                    "modifier": 0
+                  },
+                  "type": "Poison"
+                }
+              ]
+            },
+            "onSuccess": {
+              "halfDamage": true
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "name": "Giant Crab",
+  "slug": "giant-crab",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "15",
+  "initiative": "+1 (11)",
+  "hp": "13",
+  "hpFormula": "3d8",
+  "speed": "30 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 13,
+    "dex": 13,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 1,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +3",
+  "senses": "Blindsight 30 ft.; Passive Perception 9",
+  "languages": "None",
+  "cr": "1/8 (XP 25; PB +2)",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The crab can breathe air and water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) Bludgeoning damage. If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 11) from one of two claws."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

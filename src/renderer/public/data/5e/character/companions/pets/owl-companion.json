@@ -1,0 +1,21 @@
+{
+  "id": "owl-companion",
+  "name": "Owl",
+  "statBlockRef": "dm/npcs/creatures-companions/owl.json",
+  "type": "pet",
+  "loyalty": "A trained owl bonds with a single handler and can be used for nighttime scouting and message delivery. Owls are nocturnal and prefer to rest during the day. They require fresh meat (mice, voles, or similar) daily.",
+  "specialAbilities": [
+    {
+      "name": "Flyby",
+      "description": "The owl doesn't provoke opportunity attacks when it flies out of an enemy's reach, making it an excellent scout."
+    },
+    {
+      "name": "Keen Hearing and Sight",
+      "description": "The owl has advantage on Wisdom (Perception) checks that rely on hearing or sight."
+    },
+    {
+      "name": "Night Scout",
+      "description": "With darkvision out to 120 feet, the owl excels at nighttime reconnaissance. It can scout a 1-mile area and return with general information about threats or terrain."
+    }
+  ]
+}

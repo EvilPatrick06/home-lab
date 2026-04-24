@@ -1,0 +1,42 @@
+{
+  "name": "Antimagic Field",
+  "level": 8,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "iron filings",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "An aura of antimagic surrounds you in a 10-foot Emanation. No one can cast spells, take Magic actions, or create other magical effects inside the aura, and those things can't target or otherwise affect anything inside it. Magical properties of magic items don't work inside the aura or on anything inside it.\n\nAreas of effect created by spells or other magic can't extend into the aura, and no one can teleport into or out of it or use planar travel there. Portals close temporarily while in the aura.\n\nOngoing spells, except those cast by an Artifact or a deity, are suppressed in the area. While an effect is suppressed, it doesn't function, but the time it spends suppressed counts against its duration.\n\nDispel Magic has no effect on the aura, and the auras created by different Antimagic Field spells don't nullify each other.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 10,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "self",
+  "preventsSpellcasting": true,
+  "countersOrDispels": {
+    "description": "Ongoing spells, except those cast by an Artifact or a deity, are suppressed in the area. While an effect is suppressed, it doesn't function, but the time it spends suppressed counts against its duration. Dispel Magic has no effect on the aura. Magical properties of magic items don't work inside the aura."
+  },
+  "tags": ["antimagic", "aura", "suppression", "blocks_teleportation", "blocks_planar_travel", "suppresses_magic_items"]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "Boar",
+  "slug": "boar",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "11",
+  "initiative": "+0 (10)",
+  "hp": "13",
+  "hpFormula": "2d8 + 4",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 13,
+    "dex": 11,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 0,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 9",
+  "languages": "None",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [
+    {
+      "name": "Bloodied Fury",
+      "description": "While Bloodied, the boar has Advantage on attack rolls."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Gore",
+      "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) Piercing damage. If the target is a Medium or smaller creature and the boar moved 20+ feet straight toward it immediately before the hit, the target takes an extra 3 (1d6) Piercing damage and has the Prone condition."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

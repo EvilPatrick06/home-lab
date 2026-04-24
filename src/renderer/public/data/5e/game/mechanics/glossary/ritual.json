@@ -1,0 +1,11 @@
+{
+  "name": "Ritual",
+  "slug": "ritual",
+  "description": "If a spell has the Ritual tag, you can cast it as a Ritual. Casting a spell as a Ritual adds 10 minutes to its casting time, and the spell doesn't expend a spell slot.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

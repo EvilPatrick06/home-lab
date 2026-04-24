@@ -1,0 +1,176 @@
+{
+  "name": "Smoke Mephit",
+  "sizes": ["Small"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 5,
+      "die": "d6",
+      "modifier": 5
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Auran", "Ignan"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Death Burst",
+      "description": "When the mephit dies, it leaves behind a cloud of smoke that fills a 5-foot Emanation originating from the mephit's space. The area is Heavily Obscured. The cloud lasts for 1 minute or until dispersed by a strong wind."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Slashing damage plus 2 (1d4) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cinder Breath",
+      "description": "The mephit exhales a 15-foot Cone of smoky embers. Each creature in that area must succeed on a DC 11 Constitution saving throw or take 5 (2d4) Fire damage. On a successful save, a creature takes half as much damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 11,
+        "targets": "each creature in that area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 15
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Invisibility",
+      "description": "The mephit casts Invisibility on itself, requiring no spell components.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      }
+    }
+  ]
+}

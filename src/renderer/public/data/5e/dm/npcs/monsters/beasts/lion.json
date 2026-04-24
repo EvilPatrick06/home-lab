@@ -1,0 +1,65 @@
+{
+  "name": "Lion",
+  "slug": "lion",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "22",
+  "hpFormula": "4d10",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 17,
+    "dex": 15,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +3, Stealth +4",
+  "senses": "Darkvision 60 ft.; Passive Perception 13",
+  "languages": "None",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The lion has Advantage on an attack roll against a creature if at least one of the lion's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    },
+    {
+      "name": "Running Leap",
+      "description": "With a 10-foot running start, the lion can Long Jump up to 25 feet."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The lion makes two Rend attacks. It can replace one attack with a use of Roar."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 7 (1d8 + 3) Slashing damage."
+    },
+    {
+      "name": "Roar",
+      "description": "*Wisdom Saving Throw:* DC 11, one creature within 15 feet. *Failure:* The target has the Frightened condition until the start of the lion's next turn."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

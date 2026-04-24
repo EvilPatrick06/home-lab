@@ -1,0 +1,29 @@
+{
+  "id": "pit-fighting",
+  "name": "Pit Fighting",
+  "description": "Pit fighting includes boxing, wrestling, and other nonlethal forms of combat in an pointed setting. A character who participates in pit fighting makes a series of checks to determine their earnings.",
+  "costPerDay": "0 GP (entrance is free)",
+  "costPerDayGP": 0,
+  "minimumDuration": "1 workweek (5 days)",
+  "resolution": "The character makes three checks: Strength (Athletics), Dexterity (Acrobatics), and a Constitution saving throw. The DC for each is 5 + the number of opponents faced (DM determines). Compare successes to failures.",
+  "checks": [
+    {
+      "check": "Strength (Athletics)",
+      "description": "Represents the character's raw combat ability and grappling skill."
+    },
+    {
+      "check": "Dexterity (Acrobatics)",
+      "description": "Represents agility, footwork, and the ability to dodge attacks."
+    },
+    { "check": "Constitution saving throw", "description": "Represents endurance and the ability to take punishment." }
+  ],
+  "results": [
+    {
+      "successes": 0,
+      "result": "The character loses badly. No earnings, and may suffer a minor injury (1d4 damage that can't be healed during the workweek)."
+    },
+    { "successes": 1, "result": "The character loses more than they win. Earnings: 2d4 GP." },
+    { "successes": 2, "result": "The character wins more than they lose. Earnings: 2d10 GP." },
+    { "successes": 3, "result": "The character dominates the pit. Earnings: 4d10 GP and gains a reputation." }
+  ]
+}

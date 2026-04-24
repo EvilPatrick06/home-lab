@@ -1,0 +1,22 @@
+{
+  "name": "Blowgun",
+  "slug": "blowgun",
+  "category": "Martial",
+  "type": "Ranged",
+  "damage": "1",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Loading"],
+  "mastery": "Vex",
+  "weight": "1 lb.",
+  "cost": "10 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 25,
+    "long": 100
+  },
+  "ammunitionType": "Needle"
+}

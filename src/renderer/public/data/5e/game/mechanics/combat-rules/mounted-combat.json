@@ -1,0 +1,329 @@
+{
+  "id": "e3c7a1f0-8d2e-4b6a-9f3c-7d1e5a2b4c80",
+  "name": "Mounted Combat",
+  "slug": "mounted-combat",
+  "category": "CombatRule",
+  "subcategory": "Mounting and Riding",
+  "tags": ["combat", "movement", "mount", "riding", "prone", "reaction"],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Playing the Game",
+    "section": "Mounted Combat"
+  },
+  "gameEdition": "2024",
+  "description": "A willing creature that is at least one size larger than a rider and that has an appropriate anatomy can serve as a mount. Once during your move, you can mount a creature that is within 5 feet of you or dismount. Doing so costs an amount of movement equal to half your Speed. While mounted, you can either control the mount or allow it to act independently.",
+  "shortDescription": "Rules for mounting, dismounting, controlling a mount, and falling off during combat.",
+  "flavorText": null,
+  "rulesAsWritten": "Once during your move, you can mount a creature that is within 5 feet of you or dismount. Doing so costs an amount of movement equal to half your Speed. The mount must be willing and at least one size larger than you. While mounted, you can control the mount (it acts on your turn with only Dash, Disengage, or Dodge) or allow it to act independently. If an effect moves the mount against its will while you're on it, you must succeed on a DC 10 Dexterity saving throw or fall off the mount, landing Prone in a space within 5 feet of it. If you're knocked Prone while mounted, you must make the same saving throw. If your mount is knocked Prone, you can use your Reaction to dismount it as it falls and land on your feet. Otherwise, you are dismounted and fall Prone in a space within 5 feet of it.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [
+    {
+      "id": "a1b2c3d4-0001-4e5f-a6b7-c8d9e0f10001",
+      "target": "Speed",
+      "operation": "Subtract",
+      "value": 0,
+      "scope": {
+        "customScope": "Mounting or dismounting costs movement equal to half your Speed"
+      },
+      "perLevelScaling": false,
+      "note": "Mounting or dismounting a creature costs an amount of movement equal to half your Speed. The actual value depends on the rider's Speed at the time."
+    }
+  ],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Prone",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "Failing the DC 10 DEX save when forced movement occurs, when knocked Prone while mounted, or when mount is knocked Prone and Reaction is not used causes the rider to land Prone."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "b1000001-aaaa-4bbb-cccc-ddddeeee0001",
+      "order": 0,
+      "name": "Mounting a Creature",
+      "description": "Once during your move, you can mount a willing creature that is within 5 feet of you and at least one size larger than you. Doing so costs movement equal to half your Speed. The creature must have appropriate anatomy to serve as a mount.",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Willing creature at least one size larger is within 5 feet and rider has at least half their Speed remaining"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "c1000001-aaaa-4bbb-cccc-ddddeeee0001",
+            "target": "Speed",
+            "operation": "Subtract",
+            "value": 0,
+            "scope": {
+              "customScope": "Costs movement equal to half the rider's Speed"
+            },
+            "perLevelScaling": false,
+            "note": "The subtracted value equals half the rider's current Speed."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b1000001-aaaa-4bbb-cccc-ddddeeee0002",
+      "order": 1,
+      "name": "Dismounting a Creature",
+      "description": "Once during your move, you can dismount. Doing so costs movement equal to half your Speed. If you don't have enough movement remaining, you can't dismount.",
+      "trigger": {
+        "event": "OnMovement",
+        "condition": "Currently mounted and have at least half your Speed in movement remaining"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "c1000001-aaaa-4bbb-cccc-ddddeeee0002",
+            "target": "Speed",
+            "operation": "Subtract",
+            "value": 0,
+            "scope": {
+              "customScope": "Costs movement equal to half the rider's Speed"
+            },
+            "perLevelScaling": false,
+            "note": "The subtracted value equals half the rider's current Speed."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b1000001-aaaa-4bbb-cccc-ddddeeee0003",
+      "order": 2,
+      "name": "Controlled Mount",
+      "description": "A controlled mount acts on the rider's Initiative and can move and act on the turn the rider mounts it. The mount can only take the Dash, Disengage, or Dodge action while controlled.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "The rider chooses to control the mount"
+      },
+      "effects": [
+        {
+          "effectType": "ActionRestriction",
+          "restriction": {
+            "id": "d1000001-aaaa-4bbb-cccc-ddddeeee0003",
+            "restrictedAction": "Attack",
+            "restrictionType": "Prohibited",
+            "condition": "Mount is controlled by rider",
+            "note": "Controlled mount can only take Dash, Disengage, or Dodge actions."
+          }
+        },
+        {
+          "effectType": "ActionRestriction",
+          "restriction": {
+            "id": "d1000002-aaaa-4bbb-cccc-ddddeeee0003",
+            "restrictedAction": "Any",
+            "restrictionType": "Limited",
+            "condition": "Mount is controlled by rider",
+            "note": "Controlled mount is limited to Dash, Disengage, or Dodge action only. It acts on the rider's Initiative."
+          }
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b1000001-aaaa-4bbb-cccc-ddddeeee0004",
+      "order": 3,
+      "name": "Independent Mount",
+      "description": "An independent mount retains its place in the Initiative order and bears the rider, acting as it normally would. It might flee combat, rush to attack, or otherwise act on its own.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "The rider allows the mount to act independently"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The mount retains its own place in the Initiative order, moves and acts as it chooses. It might flee from combat, rush to attack, or otherwise act against the rider's wishes.",
+          "mechanicalNote": "The DM controls the independent mount's actions."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "b1000001-aaaa-4bbb-cccc-ddddeeee0005",
+      "order": 4,
+      "name": "Forced Movement of Mount",
+      "description": "If an effect moves your mount against its will while you're on it, you must succeed on a DC 10 Dexterity saving throw or fall off the mount, landing Prone in an unoccupied space within 5 feet of it.",
+      "trigger": {
+        "event": "OnForcedMovement",
+        "condition": "An effect moves the mount against its will while a rider is mounted"
+      },
+      "effects": [
+        {
+          "effectType": "ConditionImposition",
+          "imposition": {
+            "id": "e1000001-aaaa-4bbb-cccc-ddddeeee0005",
+            "conditionName": "Prone",
+            "isAutomatic": false,
+            "savingThrow": {
+              "ability": "DEX",
+              "dc": 10,
+              "onSuccess": "Rider stays mounted",
+              "onFailure": "Rider falls off mount and lands Prone in a space within 5 feet of the mount"
+            },
+            "note": "Triggered when mount is moved against its will by an effect."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b1000001-aaaa-4bbb-cccc-ddddeeee0006",
+      "order": 5,
+      "name": "Rider Knocked Prone While Mounted",
+      "description": "If you are knocked Prone while mounted, you must succeed on a DC 10 Dexterity saving throw or fall off your mount, landing Prone in a space within 5 feet of it.",
+      "trigger": {
+        "event": "OnConditionApplied",
+        "condition": "Rider has the Prone condition applied while mounted"
+      },
+      "effects": [
+        {
+          "effectType": "ConditionImposition",
+          "imposition": {
+            "id": "e1000001-aaaa-4bbb-cccc-ddddeeee0006",
+            "conditionName": "Prone",
+            "isAutomatic": false,
+            "savingThrow": {
+              "ability": "DEX",
+              "dc": 10,
+              "onSuccess": "Rider stays mounted and is not dismounted",
+              "onFailure": "Rider is dismounted and lands Prone in a space within 5 feet of the mount"
+            },
+            "note": "Triggered when the rider is subjected to the Prone condition while mounted."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b1000001-aaaa-4bbb-cccc-ddddeeee0007",
+      "order": 6,
+      "name": "Mount Knocked Prone",
+      "description": "If your mount is knocked Prone, you can use your Reaction to dismount it as it falls and land on your feet. Otherwise, you are dismounted and fall Prone in a space within 5 feet of the mount.",
+      "trigger": {
+        "event": "OnConditionApplied",
+        "condition": "The mount is knocked Prone while a rider is mounted on it"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The rider can use their Reaction to dismount as the mount falls and land on their feet in an unoccupied space within 5 feet. If the Reaction is not used, the rider is dismounted and falls Prone in a space within 5 feet of the mount.",
+          "mechanicalNote": "Using the Reaction avoids the Prone condition entirely. Not using it results in the Prone condition."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "f1000001-aaaa-4bbb-cccc-ddddeeee0001",
+      "method": "SpecialAction",
+      "description": "Rider voluntarily dismounts using half their Speed of movement.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "f1000002-aaaa-4bbb-cccc-ddddeeee0002",
+      "method": "Other",
+      "description": "Rider is knocked off the mount by failing a DC 10 Dexterity saving throw when the mount is forcibly moved, or when the rider or mount is knocked Prone.",
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 10,
+        "frequency": "Once"
+      },
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "f1000003-aaaa-4bbb-cccc-ddddeeee0003",
+      "method": "Other",
+      "description": "Mount is killed or otherwise removed, ending the mounted state.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "stackingNote": "A creature can only be mounted on one mount at a time."
+  },
+  "dmNotes": "The DM determines whether a creature's anatomy is appropriate for serving as a mount. A controlled mount shares the rider's Initiative; an independent mount retains its own. If the mount provokes an Opportunity Attack while moving, the attacker can target the rider or the mount. When determining whether a creature is one size larger, use the Size categories: Tiny < Small < Medium < Large < Huge < Gargantuan.",
+  "commonRulings": [
+    {
+      "question": "Can you mount a creature in combat if it is unwilling?",
+      "ruling": "No. The mount must be a willing creature. An unwilling creature cannot serve as a controlled or independent mount under these rules.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a Small creature mount a Medium creature?",
+      "ruling": "Yes. A mount must be at least one size larger than the rider. A Medium creature is one size larger than a Small creature, so this is allowed.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a Medium creature mount another Medium creature?",
+      "ruling": "No. The mount must be at least one size larger than the rider. Two Medium creatures are the same size.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does a controlled mount get its own action on the rider's turn?",
+      "ruling": "Yes, but the controlled mount can only take the Dash, Disengage, or Dodge action. It can also move on the rider's turn.",
+      "isOfficial": true
+    },
+    {
+      "question": "If an Opportunity Attack targets a mounted rider and reduces them to 0 HP, what happens?",
+      "ruling": "The rider falls Unconscious (and Prone). They would need to make the DC 10 DEX saving throw to avoid falling off the mount, which they automatically fail while Unconscious, causing them to fall Prone within 5 feet of the mount.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

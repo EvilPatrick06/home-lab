@@ -1,0 +1,246 @@
+{
+  "name": "Oni",
+  "sizes": ["Large"],
+  "creatureType": "Giant",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Forest", "Hill", "Urban"],
+  "treasure": ["Any"],
+  "lore": "Oni are fiendish ogre-like giants cloaked in magic. Using their shapechanging abilities, oni infiltrate humanoid settlements to feast on victims and sow misery. In their true forms, oni are hulking figures with blue or green skin, dark hair, and ivory horns. They delight in treachery, using Invisibility and disguises to manipulate and terrorize mortals.",
+  "armorClass": {
+    "value": 16,
+    "sources": ["Chain Mail"]
+  },
+  "hitPoints": {
+    "average": 119,
+    "dice": {
+      "count": 14,
+      "die": "d10",
+      "modifier": 42
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 3
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 4
+    },
+    "CHA": {
+      "score": 15,
+      "modifier": 2,
+      "save": 5
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 5
+    },
+    {
+      "skill": "Deception",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "gear": [
+    {
+      "name": "Chain Mail",
+      "quantity": 1
+    },
+    {
+      "name": "Glaive",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Common", "Giant"]
+  },
+  "challengeRating": "7",
+  "experiencePoints": 2900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The oni has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Regeneration",
+      "description": "The oni regains 10 Hit Points at the start of each of its turns if it has at least 1 Hit Point."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 13,
+      "spellAttackBonus": 5,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Darkness",
+              "level": 2
+            },
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Gaseous Form",
+              "level": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The oni makes two Glaive or Arcane Bolt attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Glaive",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Glaive",
+        "replaceCount": 2,
+        "with": "Arcane Bolt"
+      },
+      {
+        "replace": "Glaive",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Glaive",
+      "description": "Melee Attack Roll: +7, reach 10 ft. Hit: 15 (2d10 + 4) Slashing damage plus 7 (2d6) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Arcane Bolt",
+      "description": "Ranged Attack Roll: +5, range 60 ft. Hit: 12 (3d6 + 2) Force damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 5,
+        "range": {
+          "normal": 60,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The oni casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 13):\n\nAt Will: Darkness, Invisibility (self only)\n\n1/Day: Gaseous Form"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The oni shape-shifts into a Small or Medium Humanoid, into a Large Giant, or back to its true form. Other than its size and Speed, its statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed."
+    }
+  ]
+}

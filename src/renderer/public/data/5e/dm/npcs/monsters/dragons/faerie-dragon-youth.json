@@ -1,0 +1,68 @@
+{
+  "name": "Faerie Dragon Youth",
+  "slug": "faerie-dragon-youth",
+  "size": "Tiny",
+  "type": "Dragon",
+  "alignment": "Chaotic Good",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "21",
+  "hpFormula": "6d4 + 6",
+  "speed": "10 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 10,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 0,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Arcana +3, Perception +3, Stealth +5",
+  "senses": "Darkvision 60 ft.; Passive Perception 13",
+  "languages": "Draconic, Sylvan; telepathy 60 ft. (faerie dragons only)",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The dragon has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) Piercing damage plus 2 (1d4) Psychic damage."
+    },
+    {
+      "name": "Euphoria Breath (Recharge 5--6)",
+      "description": "*Wisdom Saving Throw:* DC 12, each creature in a 15-foot Cone. *Failure:* The target has the Incapacitated condition until the end of its next turn and uses all its movement on its turn to move in a random direction."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The dragon casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 12):"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Superior Invisibility",
+      "description": "The dragon casts *Greater Invisibility* on itself, requiring no spell components and using the same spellcasting ability as Spellcasting."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Whimsical Draconic Tricksters*\n**Habitat:** Forest; **Treasure:** Implements\nFaerie dragons are cat-size pranksters with draconic features, butterfly-like wings, and scales of warm hues as youths and cool hues as adults.\nThe pranks of faerie dragon adults tend to lead others to people in need or wrongs to be righted.\nFaerie dragon youths are quick to use their euphoria-inducing breath on rude or uptight folk.",
+  "habitat": "Forest",
+  "treasure": "Implements",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Dragons-Other",
+    "file": "Dragons-Other.md"
+  }
+}

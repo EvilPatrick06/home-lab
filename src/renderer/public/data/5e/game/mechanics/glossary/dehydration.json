@@ -1,0 +1,11 @@
+{
+  "name": "Dehydration",
+  "slug": "dehydration",
+  "description": "A creature requires an amount of water per day based on its size. A creature that drinks less than half the required water must succeed on a DC 15 Constitution saving throw or gain 1 Exhaustion level at the end of the day. A creature with access to even less water automatically gains 1 Exhaustion level.\n\n### Water/Food Needs per Day\n\n| Size | Water | Food |\n|---|---|---|\n| Tiny | 1/4 gallon | 1/4 pound |\n| Small | 1 gallon | 1 pound |\n| Medium | 1 gallon | 1 pound |\n| Large | 4 gallons | 4 pounds |\n| Huge | 16 gallons | 16 pounds |\n| Gargantuan | 64 gallons | 64 pounds |",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "name": "Dretch",
+  "slug": "dretch",
+  "size": "Small",
+  "type": "Fiend",
+  "alignment": "Chaotic Evil",
+  "ac": "11",
+  "initiative": "+0 (10)",
+  "hp": "18",
+  "hpFormula": "4d6 + 4",
+  "speed": "20 ft.",
+  "abilityScores": {
+    "str": 12,
+    "dex": 11,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 0,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison; Poisoned",
+  "resistances": "Cold, Fire, Lightning",
+  "senses": "Darkvision 60 ft.; Passive Perception 9",
+  "languages": "Abyssal; telepathy 60 ft. (works only with creatures that understand Abyssal)",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) Slashing damage."
+    },
+    {
+      "name": "Fetid Cloud (1/Day)",
+      "description": "*Constitution Saving Throw:* DC 11, each creature in a 10-foot Emanation originating from the dretch. *Failure:* The target has the Poisoned condition until the end of its next turn. While Poisoned, the creature can take either an action or a Bonus Action on its turn, not both, and it can't take Reactions."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Demons of Frenzy and Vulgarity*\n**Habitat:** Planar (Abyss); **Treasure:** None\nThe servants and victims of greater demons, dretches embody petty instincts, chaotic impulses, and violent urges. Dretches exist in unfathomable numbers in the depths of the Abyss, where their reeking throngs fill vast demonic hordes.\nLone dretches serve other demons or evil magic-users. They are erratic, filthy, and violent, and they demonstrate little sense of self-preservation.\nSwarms of dretches sometimes escape the Abyss onto other planes of existence, or they might be part of a demonic invasion. Without direction, these crude demons rampage and despoil with cruel enthusiasm.\n> \"Ah, the infinite wonders of the Abyss. If there's anything you don't like, you'll find it here.\" -- Jaranda, expert on the Abyss",
+  "habitat": "Planar (Abyss)",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Demons",
+    "file": "Demons.md"
+  }
+}

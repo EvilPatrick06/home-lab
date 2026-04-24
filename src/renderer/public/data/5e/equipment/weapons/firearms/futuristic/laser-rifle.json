@@ -1,0 +1,23 @@
+{
+  "name": "Laser Rifle",
+  "slug": "laser-rifle",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Futuristic",
+  "damage": "3d8",
+  "damageType": "Radiant",
+  "properties": ["Ammunition", "Reload (30)", "Two-Handed"],
+  "weight": "7 lb.",
+  "cost": "—",
+  "range": {
+    "normal": 100,
+    "long": 300
+  },
+  "ammunitionType": "Energy Cell",
+  "reloadCapacity": 30,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

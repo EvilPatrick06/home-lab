@@ -1,0 +1,13 @@
+{
+  "name": "Caltrops",
+  "cost": "1 GP",
+  "weight": "2 lb.",
+  "description": "As a Utilize action, spread to cover a 5-foot-square area within 5 feet. DC 15 Dex save or take 1 Piercing damage and Speed reduced to 0 until start of next turn.",
+  "slug": "caltrops",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

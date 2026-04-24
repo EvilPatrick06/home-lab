@@ -1,0 +1,17 @@
+{
+  "name": "Bead of Nourishment",
+  "cost": {
+    "amount": 5,
+    "denomination": "SP"
+  },
+  "weight": 0,
+  "description": "This spongy, flavorless, gelatinous bead dissolves on your tongue and provides as much nourishment as 1 day of Rations.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "None",
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

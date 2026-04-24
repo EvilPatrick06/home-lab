@@ -1,0 +1,137 @@
+{
+  "name": "Cockatrice",
+  "sizes": ["Small"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Grassland", "Hill"],
+  "treasure": ["None"],
+  "lore": "A cockatrice is a hideous, repulsive hybrid that resembles a scrawny rooster with bat wings and a lizard's tail. Its beady eyes and venomous bite can petrify creatures, turning the living to stone. These dim-witted creatures flock together in wild areas, pecking at the ground for sustenance and aggressively attacking anything that startles or provokes them.",
+  "armorClass": {
+    "value": 11,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 27,
+    "dice": {
+      "count": 6,
+      "die": "d6",
+      "modifier": 6
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 3 (1d4 + 1) Piercing damage, and if the target is a Medium or smaller creature, it must succeed on a DC 11 Constitution saving throw or have the Restrained condition as it begins to turn to stone. The Restrained creature must repeat the saving throw at the end of its next turn. On a successful save, the effect ends. On a failed save, the creature has the Petrified condition instead of Restrained.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If the target is a Medium or smaller creature, it must succeed on a DC 11 Constitution saving throw or have the Restrained condition as it begins to turn to stone. The Restrained creature must repeat the saving throw at the end of its next turn. On a successful save, the effect ends. On a failed save, the creature has the Petrified condition instead of Restrained.",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 11,
+            "targets": "Medium or smaller creature hit by this attack",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Restrained",
+                  "duration": "until the end of the target's next turn, then re-save",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 11,
+                    "onFailure": {
+                      "conditions": [
+                        {
+                          "condition": "Petrified"
+                        }
+                      ],
+                      "effects": "The creature has the Petrified condition instead of Restrained."
+                    },
+                    "onSuccess": {
+                      "effects": "The effect ends."
+                    }
+                  }
+                }
+              ],
+              "effects": "The target begins to turn to stone and has the Restrained condition."
+            }
+          }
+        }
+      }
+    }
+  ]
+}

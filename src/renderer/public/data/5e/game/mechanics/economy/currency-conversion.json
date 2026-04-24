@@ -1,0 +1,24 @@
+{
+  "id": "currency-conversion",
+  "name": "Currency Conversion",
+  "description": "The standard coin exchange rates in D&D 2024. Each higher denomination is worth 10 of the next lower denomination, with Electrum (EP) equal to 5 Silver Pieces.",
+  "currencies": [
+    { "id": "cp", "name": "Copper Piece", "abbreviation": "CP", "valueInCP": 1, "weight": 0.02 },
+    { "id": "sp", "name": "Silver Piece", "abbreviation": "SP", "valueInCP": 10, "weight": 0.02 },
+    { "id": "ep", "name": "Electrum Piece", "abbreviation": "EP", "valueInCP": 50, "weight": 0.02 },
+    { "id": "gp", "name": "Gold Piece", "abbreviation": "GP", "valueInCP": 100, "weight": 0.02 },
+    { "id": "pp", "name": "Platinum Piece", "abbreviation": "PP", "valueInCP": 1000, "weight": 0.02 }
+  ],
+  "conversionTable": {
+    "1CP": { "cp": 1, "sp": 0.1, "ep": 0.02, "gp": 0.01, "pp": 0.001 },
+    "1SP": { "cp": 10, "sp": 1, "ep": 0.2, "gp": 0.1, "pp": 0.01 },
+    "1EP": { "cp": 50, "sp": 5, "ep": 1, "gp": 0.5, "pp": 0.05 },
+    "1GP": { "cp": 100, "sp": 10, "ep": 2, "gp": 1, "pp": 0.1 },
+    "1PP": { "cp": 1000, "sp": 100, "ep": 20, "gp": 10, "pp": 1 }
+  },
+  "weightPerCoin": {
+    "pounds": 0.02,
+    "coinsPerPound": 50,
+    "description": "Fifty coins of any type weigh 1 pound."
+  }
+}

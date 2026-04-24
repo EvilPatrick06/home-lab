@@ -1,0 +1,71 @@
+{
+  "name": "Shadow Demon",
+  "slug": "shadow-demon",
+  "size": "Medium",
+  "type": "Fiend",
+  "alignment": "Chaotic Evil",
+  "ac": "14",
+  "initiative": "+3 (13)",
+  "hp": "66",
+  "hpFormula": "12d8 + 12",
+  "speed": "30 ft., Fly 30 ft. (hover)",
+  "abilityScores": {
+    "str": 1,
+    "dex": 17,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -5,
+    "dex": 5,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +7",
+  "immunities": "Necrotic, Poison; Exhaustion, Grappled, Paralyzed, Petrified, Poisoned, Prone, Restrained",
+  "resistances": "Acid, Bludgeoning, Cold, Fire, Lightning, Piercing, Slashing, Thunder",
+  "vulnerabilities": "Radiant",
+  "senses": "Darkvision 120 ft.; Passive Perception 11",
+  "languages": "Abyssal; telepathy 120 ft.",
+  "cr": "4 (XP 1,100; PB +2)",
+  "traits": [
+    {
+      "name": "Demonic Restoration",
+      "description": "If the demon dies outside the Abyss, its body dissolves into ichor, and it gains a new body instantly, reviving with all its Hit Points somewhere in the Abyss."
+    },
+    {
+      "name": "Incorporeal Movement",
+      "description": "The demon can move through other creatures and objects as if they were Difficult Terrain. It takes 5 (1d10) Force damage if it ends its turn inside an object."
+    },
+    {
+      "name": "Light Sensitivity",
+      "description": "While in Bright Light, the demon has Disadvantage on ability checks and attack rolls."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Umbral Claw",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 16 (3d8 + 3) Psychic damage."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shadow Stealth",
+      "description": "While in Dim Light or Darkness, the demon takes the Hide action."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Vestige of Evil*\n**Habitat:** Planar (Abyss); **Treasure:** None\nShadow demons form when exceptionally wicked demons are destroyed and prevented from reconstituting their physical forms in the Abyss. This might occur due to divine intervention, when a demon is destroyed in the Abyss, or under more unusual circumstances. Shadow demons are the incorporeal remnants of these destroyed demons' evil. They usually vaguely resemble their former shapes, but some take purposefully deceptive shapes. Many lurk in dark places or venture out only at night to hide their true forms from those they manipulate.\nShadow demons seek ways to regain their former might and take revenge on those who destroyed them. They often ingratiate themselves with more powerful demons or mortal spellcasters, bargaining with and coercing others into restoring them to power. Many try to claim or corrupt souls to restore their fiendish forms, while some shadow demons seek wicked relics or nexuses of profane magic. It typically takes shadow demons centuries to recover their demonic power, if they ever do.\nParticularly powerful demons might return as multiple shadow demons after being defeated. These fiendish entities each think they're the true manifestation of their past self and hunt one another to recover their power.\nIn rare cases, Fiends other than demons might adopt forms similar to shadow demons.\n> \"There are three rules to endings. First, good always wins. Second, evil always returns. Third, the first rule isn't always true.\" -- Tarsheva Longreach, planar traveler",
+  "habitat": "Planar (Abyss)",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Demons",
+    "file": "Demons.md"
+  }
+}

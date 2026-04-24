@@ -1,0 +1,17 @@
+{
+  "name": "Hide Armor",
+  "slug": "hide-armor",
+  "category": "Medium",
+  "ac": "12 + Dex modifier (max 2)",
+  "strength": null,
+  "stealthDisadvantage": false,
+  "weight": "12 lb.",
+  "cost": "10 GP",
+  "donTime": "5 Minutes",
+  "doffTime": "1 Minute",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "name": "Githyanki Knight",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Gith"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Astral Plane"],
+  "treasure": ["Armaments"],
+  "lore": "Githyanki knights are elite warriors who lead githyanki warbands in raids across the multiverse. Sworn to the lich-queen Vlaakith, they wield psionic power alongside martial prowess, teleporting across the battlefield and bolstering their allies with psychic energy.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Plate Armor"]
+  },
+  "hitPoints": {
+    "average": 91,
+    "dice": {
+      "count": 14,
+      "die": "d8",
+      "modifier": 28
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 4
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    },
+    "CHA": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Intimidation",
+      "bonus": 5
+    },
+    {
+      "skill": "Perception",
+      "bonus": 5
+    }
+  ],
+  "gear": [
+    {
+      "name": "Greatsword",
+      "quantity": 1
+    },
+    {
+      "name": "Plate Armor",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Common", "Gith"]
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Psychic Spur",
+      "description": "When the knight hits a target with a melee attack roll, one ally of the knight within 30 feet of the knight can take a Reaction to make one melee attack."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 13,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Mage Hand",
+              "level": 0,
+              "notes": "The hand is Invisible"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Blur",
+              "level": 2
+            },
+            {
+              "name": "Misty Step",
+              "level": 2
+            },
+            {
+              "name": "Nondetection",
+              "level": 3,
+              "restriction": "self only"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The knight makes three Greatsword or Telekinetic Bolt attacks.",
+    "attacks": [
+      {
+        "actionName": "Greatsword",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greatsword",
+        "replaceCount": 3,
+        "with": "Telekinetic Bolt"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greatsword",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 10 (2d6 + 3) Slashing damage plus 17 (5d6) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 17,
+              "dice": {
+                "count": 5,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Telekinetic Bolt",
+      "description": "Ranged Attack Roll: +5, range 60 ft. Hit: 19 (5d6 + 2) Psychic damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 5,
+        "range": {
+          "normal": 60,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 5,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The knight casts one of the following spells, requiring no spell components, using Charisma as the spellcasting ability (spell save DC 13):\n\nAt will: Mage Hand (the hand is Invisible)\n3/Day each: Blur, Misty Step, Nondetection (self only)\n1/Day: Plane Shift (self only)"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Astral Step",
+      "description": "The knight teleports, along with any equipment it is wearing or carrying, up to 30 feet to an unoccupied space it can see.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 4,
+        "maxRoll": 6
+      },
+      "teleport": {
+        "distance": 30,
+        "notes": "Along with any equipment it is wearing or carrying, to an unoccupied space it can see"
+      }
+    }
+  ]
+}

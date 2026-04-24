@@ -1,0 +1,20 @@
+{
+  "name": "Wand of Enemy Detection",
+  "itemType": "Wand",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": "Attunement",
+  "description": "This wand has 7 charges. While holding it, you can take a Magic action to expend 1 charge to detect the direction of the nearest creature Hostile to you within 60 feet, but not its distance from you. The wand can sense the presence of Hostile creatures that are Invisible, ethereal, disguised, or hidden, as well as those in plain sight. The effect ends if you stop holding the wand.",
+  "properties": [],
+  "weight": null,
+  "cost": {
+    "amount": 4000,
+    "denomination": "GP"
+  },
+  "charges": 7,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d6 + 1",
+  "spells": [],
+  "damage": null,
+  "source": "DMG 2024"
+}

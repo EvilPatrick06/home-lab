@@ -1,0 +1,41 @@
+{
+  "biome": "Forest",
+  "legendaryEffects": [
+    {
+      "source": "Ancient Green Dragon",
+      "effects": [
+        "Thickets form labyrinthine passages within 1 mile of the lair, causing creatures to become lost. Navigation checks in the area have disadvantage.",
+        "The roots and vines within 1 mile of the lair grow rapidly and can grapple intruders; creatures must succeed on a DC 15 Strength saving throw or be Restrained.",
+        "Fog obscures the forest within 6 miles of the lair, making the area lightly obscured at all times."
+      ],
+      "radius": "6 miles"
+    },
+    {
+      "source": "Treant Elder",
+      "effects": [
+        "Trees within 3 miles lean away from pathways, creating natural corridors that guide visitors to the treant.",
+        "Animals within 3 miles act as sentinels, alerting the treant to intruders.",
+        "The forest floor within 3 miles is free of undergrowth, making travel easy for those the treant approves of, but overgrown and impassable for those it does not."
+      ],
+      "radius": "3 miles"
+    }
+  ],
+  "naturalHazards": [
+    {
+      "name": "Falling Trees",
+      "description": "Strong winds or rotting trunks can cause trees to fall. A creature in the path of a falling tree must make a DC 12 Dexterity saving throw, taking 3d6 bludgeoning damage on a failure and being knocked Prone, or half damage on a success."
+    },
+    {
+      "name": "Dense Undergrowth",
+      "description": "Heavy undergrowth functions as difficult terrain. Creatures moving through dense undergrowth cannot use the Dash action unless they have a feature that allows movement through nonmagical plants."
+    },
+    {
+      "name": "Forest Fire",
+      "description": "A forest fire spreads 1d4 x 100 feet per round with the wind. Creatures in the fire take 2d6 fire damage at the start of each turn. Smoke creates a heavily obscured area extending 2d4 x 100 feet from the fire's edge. Creatures in smoke must succeed on a DC 10 Constitution saving throw or spend their action coughing."
+    },
+    {
+      "name": "Poisonous Flora",
+      "description": "Certain plants release toxic spores or have poisonous thorns. A creature that touches or disturbs such a plant must succeed on a DC 12 Constitution saving throw or be Poisoned for 1 hour."
+    }
+  ]
+}

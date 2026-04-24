@@ -1,0 +1,17 @@
+{
+  "name": "Rod (Arcane Focus)",
+  "cost": {
+    "amount": 10,
+    "denomination": "GP"
+  },
+  "weight": 2,
+  "description": "An Arcane Focus in the form of a rod, bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

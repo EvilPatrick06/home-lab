@@ -1,0 +1,15 @@
+{
+  "name": "Teleportation Circle",
+  "slug": "teleportation-circle",
+  "type": "",
+  "level": "",
+  "space": "Roomy",
+  "hirelings": "1",
+  "order": "Recruit",
+  "description": "*Level 9 Bastion Facility*\n\n**Prerequisite:** None\n**Space:** Roomy\n**Hirelings:** 1\n**Order:** Recruit\n\nInscribed on the floor of this room is a permanent teleportation circle created by the *Teleportation Circle* spell.\n\n***Recruit: Spellcaster.*** Each time you issue the Recruit order to this facility, its hireling extends an invitation to a Friendly NPC spellcaster. Roll any die. If the number rolled is odd, the invitee declines the invitation, and you gain no benefit from having issued the order. If the number rolled is even, the invitee accepts the invitation and arrives in your Bastion via your Teleportation Circle.\n\nWhile you are in your Bastion, you can ask the spellcaster to cast one Wizard spell of level 4 or lower; if you are level 17+, the spell's maximum level increases to 8. The spellcaster is assumed to have the spell prepared. If the spell has one or more Material components that cost money, you must pay for them before the spell can be cast.\n\nThe spellcaster stays for 14 days or until they cast a spell for you. The spellcaster won't defend your Bastion and departs immediately if the Bastion is attacked (see \"Bastion Events\" at the end of the chapter).\n\n---",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

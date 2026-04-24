@@ -1,0 +1,13 @@
+{
+  "name": "Ring of Jumping",
+  "slug": "ring-of-jumping",
+  "type": "Ring",
+  "rarity": "Uncommon",
+  "attunement": true,
+  "description": "While wearing this ring, you can cast *Jump* from it, but can target only yourself when you do so.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

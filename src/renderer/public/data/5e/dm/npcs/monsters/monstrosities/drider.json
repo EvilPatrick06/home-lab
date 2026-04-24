@@ -1,0 +1,238 @@
+{
+  "name": "Drider",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "descriptiveTags": ["Elf"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Armaments"],
+  "lore": "A drider is a drow that has been transformed by Lolth into a horrific creature with the upper body of a drow and the lower body of a giant spider. This agonizing transformation is a punishment inflicted on those who displease the Spider Queen despite showing great promise. Driders are cast out from drow society, yet they remain fanatically devoted to Lolth, lurking in the dark corners of the Underdark and attacking interlopers with venomous fury.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 123,
+    "dice": {
+      "count": 13,
+      "die": "d10",
+      "modifier": 52
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 6
+    }
+  ],
+  "gear": [
+    {
+      "name": "Longsword",
+      "quantity": 1
+    },
+    {
+      "name": "Longbow",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Elvish", "Undercommon"]
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Fey Ancestry",
+      "description": "The drider has Advantage on saving throws it makes to avoid or end the Charmed condition on itself."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The drider can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "WIS",
+      "spellSaveDC": 14,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Dancing Lights",
+              "level": 0
+            },
+            {
+              "name": "Darkness",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Faerie Fire",
+              "level": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The drider makes three attacks, using Longsword, Longbow, or a combination of them.",
+    "attacks": [
+      {
+        "actionName": "Longsword",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Longsword",
+        "replaceCount": 3,
+        "with": "Longbow"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 7 (1d8 + 3) Slashing damage plus 13 (3d8) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Longbow",
+      "description": "Ranged Attack Roll: +6, range 150/600 ft. Hit: 7 (1d8 + 3) Piercing damage plus 13 (3d8) Poison damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 6,
+        "range": {
+          "normal": 150,
+          "long": 600
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

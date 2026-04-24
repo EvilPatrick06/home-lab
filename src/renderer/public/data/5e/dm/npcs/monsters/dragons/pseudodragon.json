@@ -1,0 +1,152 @@
+{
+  "name": "Pseudodragon",
+  "sizes": ["Tiny"],
+  "creatureType": "Dragon",
+  "alignment": "Neutral Good",
+  "habitat": ["Hill", "Mountain", "Urban"],
+  "treasure": ["None"],
+  "lore": "A pseudodragon is a cat-sized dragon with a pointed tail that it uses to inject venom. Despite its small stature, it possesses a sharp mind and a playful, sometimes mischievous personality. A pseudodragon communicates through limited telepathy, projecting simple ideas, emotions, and images to nearby creatures. Pseudodragons are prized as companions by mages and adventurers alike, though they choose their own partners and can be difficult to win over. Those that form bonds are fiercely loyal to their chosen companions.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 7,
+    "dice": {
+      "count": 2,
+      "die": "d4",
+      "modifier": 2
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 15
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 10
+      },
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "understood": ["Common", "Draconic"],
+    "telepathy": 100,
+    "notes": "Understands Common and Draconic but can't speak; telepathy is limited to simple ideas, emotions, and images"
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The pseudodragon has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Sting",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 3 (1d4 + 1) Piercing damage plus 2 (1d4) Poison damage. If the target is a creature, it must succeed on a DC 11 Constitution saving throw or have the Poisoned condition for 1 hour. If the saving throw fails by 5 or more, the target also has the Unconscious condition for the same duration, or until it takes damage or a creature uses an action to shake it awake.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 11,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "1 hour"
+                }
+              ],
+              "effects": "If the saving throw fails by 5 or more, the target also has the Unconscious condition for the same duration, or until it takes damage or a creature uses an action to shake it awake."
+            }
+          }
+        }
+      }
+    }
+  ]
+}

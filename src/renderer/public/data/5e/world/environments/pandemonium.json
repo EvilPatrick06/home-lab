@@ -1,0 +1,1059 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "pandemonium",
+      "name": "Pandemonium",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Chaotic Evil", "Chaotic Neutral"],
+      "philosophicalEssence": "Overwhelming chaos manifested as howling wind through endless dark tunnels. The plane of last straws, where incessant howling brings everyone to the edge of lashing out in frustration, breaking down in despair, or dissolving into incoherence.",
+      "emotionalInfluence": "The incessant winds force inhabitants and visitors toward frustration, despair, and incoherence. Simply existing on the plane is exhausting; trying to accomplish even a basic conversation is aggravating.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A great mass of rock riddled with tunnels carved by howling winds",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Breathable but filled with howling winds that extinguish nonmagical open flames and make conversation possible only by yelling to a maximum distance of 10 feet.",
+        "temperature": {
+          "category": "cold",
+          "description": "Cold plane with no natural light. Blowing snow in some layers."
+        },
+        "hasSurface": true,
+        "dominantElement": "Rock tunnels and wind",
+        "weatherPatterns": "Constant howling winds of varying intensity through tunnel systems. Blowing snow in Pandesmos."
+      },
+      "layers": [
+        {
+          "name": "Pandesmos",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "Howling winds, dark streams bound for the River Styx, and blowing snow pour through vast, desolate caverns.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Howling Winds",
+              "description": "Howling winds pour through vast, desolate caverns along with blowing snow."
+            },
+            {
+              "name": "Dark Streams",
+              "description": "Dark streams bound for the River Styx flow through the caverns."
+            }
+          ],
+          "environmentalDescription": "Vast, desolate caverns with howling winds, dark streams, and blowing snow.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Cocytus",
+          "alternateNames": ["Layer of Lamentation"],
+          "layerNumber": 2,
+          "description": "Winds blowing through narrower tunnels create a stronger force and louder wails, making this the so-called 'Layer of Lamentation.'",
+          "notableLocations": [
+            {
+              "name": "Howler's Crag",
+              "description": "A jagged spike rumored to have a unique magical property: anything yelled from the top of the crag is said to find the ears of its intended recipient—carried on a shrieking, frigid wind—no matter where in the multiverse that person might be."
+            }
+          ],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Intensified Winds",
+              "description": "Winds blowing through narrower tunnels create a stronger force and louder wails than Pandesmos."
+            }
+          ],
+          "environmentalDescription": "Narrower tunnels with stronger, louder winds that create wailing sounds, earning it the name 'Layer of Lamentation.'",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Phlegethon",
+          "alternateNames": [],
+          "layerNumber": 3,
+          "description": "Tunnel walls absorb light while water creates intricate rock formations.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Light-Absorbing Walls",
+              "description": "Tunnel walls absorb light, making illumination even more difficult than in the upper layers."
+            }
+          ],
+          "lightLevel": {
+            "baseLevel": "magical_darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": true,
+              "absorbsLight": true
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "No visible light; tunnel walls absorb illumination"
+          },
+          "environmentalDescription": "Tunnels whose walls absorb light, creating an even deeper darkness. Water flowing through the tunnels creates intricate rock formations.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Agathion",
+          "alternateNames": [],
+          "layerNumber": 4,
+          "description": "Sealed-off tunnels are largely inaccessible from elsewhere, making them ideal as vaults for ancient secrets.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Sealed-off tunnels largely inaccessible from elsewhere. Used as vaults for ancient secrets.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 4,
+      "timeFlow": {
+        "type": "normal",
+        "description": "Time flows normally on Pandemonium, though the lack of natural light and the constant howling winds make tracking time difficult."
+      },
+      "hazards": [
+        {
+          "id": "pandemonium-winds",
+          "name": "Howling Winds of Pandemonium",
+          "description": "Pandemonium is riddled with tunnels carved by howling winds. The winds are constant and overwhelming, extinguishing nonmagical open flames such as torches and campfires, and making conversation possible only by yelling to a maximum distance of 10 feet.",
+          "category": "environmental",
+          "severity": "major",
+          "lightLevelModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": true,
+              "extinguishesMagicalFlames": false,
+              "absorbsLight": false
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none",
+              "description": "No natural light exists on Pandemonium."
+            },
+            "effectOnConversation": {
+              "maxConversationDistanceFeet": 10,
+              "requiresYelling": true,
+              "reason": "The howling winds make conversation possible only by yelling, and even then only to a maximum distance of 10 feet."
+            },
+            "colorDescription": "No natural light; complete darkness"
+          },
+          "movementSpeedPenalty": {
+            "type": "none",
+            "gravityModel": {
+              "type": "normal"
+            },
+            "windForce": {
+              "category": "hurricane",
+              "opposesMovement": true,
+              "description": "Howling winds pour through vast tunnels, varying in intensity across layers. In Cocytus, narrower tunnels create even stronger force."
+            }
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Pandemonium; Environmental Effects in Chapter 3"
+        },
+        {
+          "id": "pandemonium-darkness",
+          "name": "No Natural Light",
+          "description": "Pandemonium is dark with no natural light. Wind quickly extinguishes nonmagical open flames such as torches and campfires.",
+          "category": "environmental",
+          "severity": "moderate",
+          "lightLevelModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": true,
+              "extinguishesMagicalFlames": false
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            }
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Pandemonium"
+        },
+        {
+          "id": "pandemonium-cold",
+          "name": "Cold Environment",
+          "description": "Pandemonium is cold. Blowing snow in Pandesmos and frigid winds throughout the plane.",
+          "category": "environmental",
+          "severity": "moderate",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Pandemonium"
+        },
+        {
+          "id": "pandemonium-madness",
+          "name": "Wind-Driven Madness",
+          "description": "The incessant howling of the winds brings everyone on the plane, sooner or later, to the edge of lashing out in frustration, breaking down in despair, or dissolving into incoherence—and then some event, force, or creature on the plane pushes them over that edge. See Environmental Effects in chapter 3 for more information about the winds of Pandemonium.",
+          "category": "psychic",
+          "severity": "major",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Pandemonium; Environmental Effects in Chapter 3"
+        },
+        {
+          "id": "phlegethon-light-absorption",
+          "name": "Phlegethon Light Absorption",
+          "description": "In Phlegethon, the third layer, tunnel walls absorb light, making illumination exceptionally difficult.",
+          "category": "magical",
+          "severity": "moderate",
+          "lightLevelModification": {
+            "baseLevel": "magical_darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "absorbsLight": true,
+              "extinguishesNonmagicalFlames": true
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            }
+          },
+          "areaOfEffect": {
+            "shape": "layer_wide",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Pandemonium, Phlegethon layer"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "pandemonium-wind-effect",
+          "name": "Winds of Pandemonium",
+          "description": "The howling winds of Pandemonium extinguish nonmagical open flames and limit conversation to yelling at a maximum distance of 10 feet. The winds also drive inhabitants toward frustration, despair, or incoherence. Full mechanical effects are described in Environmental Effects in chapter 3.",
+          "mechanicalEffect": "Nonmagical open flames (torches, campfires) are extinguished. Conversation is possible only by yelling, maximum distance 10 feet. Extended exposure drives creatures toward madness. Simply existing on the plane is exhausting.",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "The incessant howling brings everyone on the plane to the edge of lashing out in frustration, breaking down in despair, or dissolving into incoherence.",
+          "removalMethods": ["Leaving the plane"],
+          "sourceReference": "Chapter 6: Cosmology - Pandemonium; Environmental Effects in Chapter 3"
+        }
+      ],
+      "portals": [
+        {
+          "id": "pandemonium-abyss-portal",
+          "type": "vortex",
+          "destination": "The Plain of Infinite Portals (Layer 1 of the Abyss)",
+          "destinationPlane": "Abyss",
+          "bidirectional": true,
+          "requirement": {
+            "type": "none",
+            "description": "Portals from the first layer of the Abyss lead to Pandemonium among other destinations."
+          }
+        },
+        {
+          "id": "pandemonium-bedlam-gate",
+          "type": "gate_town",
+          "name": "Gate from Bedlam",
+          "destination": "Bedlam",
+          "destinationPlane": "Outlands",
+          "bidirectional": true,
+          "requirement": {
+            "type": "none",
+            "description": "The gate-town of Bedlam in the Outlands contains a portal leading to Pandemonium."
+          }
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "pandemonium-styx",
+          "name": "River Styx",
+          "type": "river",
+          "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+          "description": "The River Styx churns through the top layers of Pandemonium. Tributaries of the Styx snake through lower layers. Sinister ferries float on the waters of the Styx, crewed by pilots skilled in negotiating the unpredictable currents.",
+          "hazards": ["Ill effects of the Styx as described in chapter 3", "Unpredictable currents and eddies"],
+          "isOneWay": false,
+          "navigableBy": ["Sinister ferries crewed by Fiends or souls of the dead"]
+        },
+        {
+          "id": "pandemonium-yggdrasil",
+          "name": "Yggdrasil, the World Tree",
+          "type": "world_tree",
+          "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Material Plane"],
+          "description": "The roots of Yggdrasil, the World Tree, stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Planar travelers can climb among the roots and branches to travel from plane to plane.",
+          "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+          "isOneWay": false,
+          "navigableBy": ["Planar travelers", "Expert guides"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Creatures banished to the plane with no hope of escape"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "pandemonium-flame-extinguish",
+          "name": "Wind Extinguishes Nonmagical Flames",
+          "description": "The howling winds of Pandemonium quickly extinguish nonmagical open flames such as torches and campfires.",
+          "mechanicalEffect": "All nonmagical open flames (torches, campfires, etc.) are automatically extinguished by the wind. Only magical light sources or enclosed lanterns can provide illumination.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "pandemonium-conversation-limit",
+          "name": "Limited Conversation Distance",
+          "description": "The howling winds make conversation possible only by yelling, and even then only to a maximum distance of 10 feet.",
+          "mechanicalEffect": "Verbal communication is limited to yelling. Maximum conversation distance is 10 feet. This may affect spells with verbal components or abilities that require a creature to hear the caster at greater distances.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "howlers-crag-property",
+          "name": "Howler's Crag Magical Property",
+          "description": "A jagged spike in Cocytus called Howler's Crag is rumored to have a unique magical property: anything yelled from the top of the crag is said to find the ears of its intended recipient—carried on a shrieking, frigid wind—no matter where in the multiverse that person might be.",
+          "mechanicalEffect": "Messages yelled from the top of Howler's Crag reach the intended recipient anywhere in the multiverse, carried on a shrieking, frigid wind.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Celestial"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on Pandemonium, a Celestial makes a DC 10 Constitution saving throw.",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, it must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "customCondition": "Planar Dissonance",
+            "cumulative": true,
+            "cumulativeDescription": "The d4 penalty is cumulative with each failed save. Each failed Long Rest save adds another 1d4 subtracted from all D20 Tests.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            }
+          },
+          "onSuccess": {
+            "description": "No additional dissonance penalty accrued from this rest."
+          },
+          "autoSuccessCreatureTypes": ["Fiend"],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": ["Creature is on a plane that is not opposed to its nature"],
+          "repeatSaveAllowed": false,
+          "recoveryMethods": [
+            "Finishing a Long Rest on a plane that isn't opposed to the creature's nature ends all cumulative effects"
+          ]
+        },
+        "description": "Celestials who visit Pandemonium (a Lower Plane) experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest, a Celestial makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, it must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Exploring what happens to characters on their worst day when everything goes wrong",
+        "Conveying frustration without transferring it to the players",
+        "Banishment and imprisonment with no hope of escape",
+        "Secrets hidden in sealed-off tunnels",
+        "Multiverse-spanning communication via Howler's Crag"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Magenta",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Environmental Effects in Chapter 3 for more information about the winds of Pandemonium"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "river-styx-global",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries snake through lower layers of these planes.",
+      "hazards": ["Ill effects of the Styx described in chapter 3", "Unpredictable currents and eddies"],
+      "isOneWay": false,
+      "navigableBy": ["Sinister ferries crewed by Fiend pilots or souls of the dead"]
+    },
+    {
+      "id": "yggdrasil-global",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Astral Plane", "Material Plane"],
+      "description": "The World Tree, Yggdrasil, is a cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Most of its trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+      "isOneWay": false,
+      "navigableBy": ["Planar travelers", "Expert guides"]
+    },
+    {
+      "id": "infinite-staircase-global",
+      "name": "Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": ["All planes"],
+      "description": "An extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down.",
+      "hazards": ["Guarded by devas, sphinxes, yugoloths, and other powerful monsters"],
+      "isOneWay": false,
+      "navigableBy": ["Any creature that finds a door"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "portal-travel",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Portals can be doorways, locations, or vortices.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting the portal's requirements (command, key item, random timing, situation, or time-based)"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portals may have guardians", "Portals may not be open at all times", "One-way portals exist"],
+      "destinations": ["Any plane"]
+    },
+    {
+      "id": "spell-travel",
+      "name": "Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Appropriate spell slot", "Spellcasting ability"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in destination"],
+      "destinations": ["Any plane depending on spell"]
+    },
+    {
+      "id": "river-styx-travel",
+      "name": "River Styx",
+      "type": "planar_pathway",
+      "description": "Sinister ferries float on the waters of the Styx, crewed by pilots skilled in negotiating the unpredictable currents and eddies of the river. For a price, these pilots carry passengers from plane to plane.",
+      "requirements": ["Payment to ferry pilots"],
+      "associatedSpells": [],
+      "risks": ["Ill effects of the Styx", "Unpredictable currents"],
+      "destinations": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"]
+    },
+    {
+      "id": "yggdrasil-travel",
+      "name": "Yggdrasil, the World Tree",
+      "type": "planar_pathway",
+      "description": "Planar travelers can climb among the roots and branches of Yggdrasil to travel from plane to plane or world to world.",
+      "requirements": ["Finding the roots or branches", "Expert guides recommended"],
+      "associatedSpells": [],
+      "risks": ["Ever-changing paths"],
+      "destinations": ["Lower Planes", "Ysgard", "Upper Planes", "Astral Plane", "Material Plane"]
+    },
+    {
+      "id": "infinite-staircase-travel",
+      "name": "Infinite Staircase",
+      "type": "planar_pathway",
+      "description": "An extradimensional staircase connecting the planes via nondescript doors found in dusty, half-forgotten places.",
+      "requirements": ["Finding a door to the staircase"],
+      "associatedSpells": [],
+      "risks": [
+        "Doors guarded by powerful monsters",
+        "Chaotic jumble of stairs with varying gravitational orientation"
+      ],
+      "destinations": ["Any plane"]
+    }
+  ],
+  "infernalHierarchy": [
+    {
+      "rank": 1,
+      "title": "Lemure",
+      "category": "Least Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Imp"],
+      "canDemoteTo": [],
+      "promotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 2,
+      "title": "Imp",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Spined devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 3,
+      "title": "Spined devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bearded devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 4,
+      "title": "Bearded devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Barbed devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 5,
+      "title": "Barbed devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Chain devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 6,
+      "title": "Chain devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 7,
+      "title": "Bone devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Horned devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 8,
+      "title": "Horned devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Erinyes"],
+      "canDemoteTo": ["Bone devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 9,
+      "title": "Erinyes",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Ice devil"],
+      "canDemoteTo": ["Chain devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 10,
+      "title": "Ice devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Pit fiend"],
+      "canDemoteTo": ["Barbed devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 11,
+      "title": "Pit fiend",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Duke/duchess"],
+      "canDemoteTo": ["Ice devil", "Lemure"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 12,
+      "title": "Duke/duchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Archduke/archduchess"],
+      "canDemoteTo": ["Pit fiend", "Lemure"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    },
+    {
+      "rank": 13,
+      "title": "Archduke/archduchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": [],
+      "canDemoteTo": ["Duke/duchess", "Lemure"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    }
+  ],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 subtracted from all D20 Tests.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        }
+      },
+      "onSuccess": {
+        "description": "No additional dissonance penalty is accrued from this Long Rest."
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryMethods": [
+        "Finishing a Long Rest on a plane that isn't opposed to the creature's nature ends all cumulative effects"
+      ]
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

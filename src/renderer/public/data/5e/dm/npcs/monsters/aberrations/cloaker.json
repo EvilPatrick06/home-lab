@@ -1,0 +1,211 @@
+{
+  "name": "Cloaker",
+  "sizes": ["Large"],
+  "creatureType": "Aberration",
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "A cloaker resembles a dark leather cloak or a manta ray when at rest. These cunning predators lurk in the Underdark, draping over stone formations or hanging from cavern ceilings, waiting for prey to pass beneath them. When a victim draws near, the cloaker wraps around its prey and bites with rows of sharp teeth hidden on its underside. Cloakers emit a low moan that fills nearby creatures with dread, and they can create illusory duplicates of themselves to confuse attackers.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 97,
+    "dice": {
+      "count": 13,
+      "die": "d10",
+      "modifier": 26
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Deep Speech", "Undercommon"]
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Damage Transfer",
+      "description": "While attached to a creature, the cloaker takes only half the damage dealt to it (round down), and that creature takes the other half."
+    },
+    {
+      "name": "False Appearance",
+      "description": "If the cloaker is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the cloaker move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern that the cloaker is animate."
+    },
+    {
+      "name": "Light Sensitivity",
+      "description": "While in Bright Light, the cloaker has Disadvantage on attack rolls and ability checks."
+    }
+  ],
+  "multiattack": {
+    "description": "The cloaker makes one Bite attack and one Tail attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Tail",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 10 (2d6 + 3) Piercing damage. If the target is Large or smaller, the cloaker attaches to it. While attached, the cloaker can't Bite another target, and at the start of each of the cloaker's turns, the target takes 10 (2d6 + 3) Piercing damage. The attached cloaker moves with the target whenever the target moves, requiring none of the cloaker's movement. The cloaker can detach itself by spending 5 feet of its movement. A creature, including the target, can take an action to try to detach the cloaker, doing so with a successful DC 14 Strength (Athletics) check.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If the target is Large or smaller, the cloaker attaches to it. While attached, the cloaker can't Bite another target, and at the start of each of the cloaker's turns, the target takes 10 (2d6 + 3) Piercing damage. The attached cloaker moves with the target whenever the target moves, requiring none of the cloaker's movement. The cloaker can detach itself by spending 5 feet of its movement. A creature, including the target, can take an action to try to detach the cloaker, doing so with a successful DC 14 Strength (Athletics) check."
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 8 (1d10 + 3) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Moan",
+      "description": "Each creature within 60 feet of the cloaker that can hear it must succeed on a DC 13 Wisdom saving throw or have the Frightened condition until the end of the cloaker's next turn. If a creature's save is successful, the creature is immune to the cloaker's Moan for the next 24 hours.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 13,
+        "targets": "each creature within 60 feet that can hear the cloaker",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "until the end of the cloaker's next turn"
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature is immune to the cloaker's Moan for the next 24 hours."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 60,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "until the end of the cloaker's next turn"
+        }
+      ]
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Phantasms",
+      "description": "The cloaker magically creates 1d4 + 2 illusory duplicates of itself if it isn't in Bright Light. The duplicates move with it and mimic its actions, shifting position so as to make it impossible to track which cloaker is the real one. If the cloaker is ever in Bright Light, the duplicates disappear. A creature can take a Study action to examine the cloaker and its duplicates, determining which are illusory with a successful DC 13 Intelligence (Investigation) check. Each duplicate has an AC of 14, and any other attack roll or saving throw against a duplicate automatically succeeds. A duplicate is destroyed when it takes any amount of damage, and each duplicate disappears at the end of the cloaker's next turn.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      }
+    }
+  ]
+}

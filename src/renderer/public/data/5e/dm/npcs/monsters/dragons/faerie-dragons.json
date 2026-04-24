@@ -1,0 +1,220 @@
+{
+  "name": "Faerie Dragon",
+  "sizes": ["Tiny"],
+  "creatureType": "Dragon",
+  "alignment": "Chaotic Good",
+  "habitat": ["Forest", "Planar (Feywild)"],
+  "treasure": ["Arcana"],
+  "lore": "Faerie dragons are tiny, whimsical dragons with shimmering, butterfly-like wings. They dwell in enchanted forests and the Feywild, where they delight in playing pranks and tricks on travelers. Despite their mischief, faerie dragons are generally good-natured and can be valuable allies. Their scales shift in color as they age, cycling through the hues of the rainbow. Faerie dragons are drawn to areas of natural beauty and strong connections to the Feywild, where they guard ancient groves and hidden glens.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 14,
+    "dice": {
+      "count": 4,
+      "die": "d4",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 4
+    },
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Draconic", "Sylvan"]
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The dragon has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Superior Invisibility",
+      "description": "When the dragon casts Invisibility on itself, the dragon doesn't need to maintain Concentration on the spell. While Invisible, the dragon can't use Euphoria Breath, and if it makes an attack or casts a spell other than Invisibility, the Invisibility ends on it."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 13,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Dancing Lights",
+              "level": 0
+            },
+            {
+              "name": "Druidcraft",
+              "level": 0
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Invisibility",
+              "level": 2
+            },
+            {
+              "name": "Suggestion",
+              "level": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Euphoria Breath",
+      "description": "The dragon exhales a puff of euphoria gas at one creature within 5 feet of itself. The target must succeed on a DC 11 Wisdom saving throw or have the Incapacitated condition for 1 minute, during which the target has a Speed of 0 and giggles uncontrollably. A creature that has the Frightened or Poisoned condition is unaffected. The affected target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 11,
+        "targets": "one creature within 5 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Incapacitated",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 11,
+                "targets": "the affected creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ],
+          "effects": "The target has a Speed of 0 and giggles uncontrollably. A creature that has the Frightened or Poisoned condition is unaffected."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Incapacitated",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "WIS",
+            "dc": 11,
+            "targets": "the affected creature",
+            "onSuccess": {
+              "effects": "The effect ends on the target."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

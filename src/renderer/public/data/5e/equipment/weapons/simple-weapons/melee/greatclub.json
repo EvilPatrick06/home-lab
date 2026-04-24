@@ -1,0 +1,17 @@
+{
+  "name": "Greatclub",
+  "slug": "greatclub",
+  "category": "Simple",
+  "type": "Melee",
+  "damage": "1d8",
+  "damageType": "Bludgeoning",
+  "properties": ["Two-Handed"],
+  "mastery": "Push",
+  "weight": "10 lb.",
+  "cost": "2 SP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

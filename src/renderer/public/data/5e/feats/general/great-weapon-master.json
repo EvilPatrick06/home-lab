@@ -1,0 +1,34 @@
+{
+  "name": "Great Weapon Master",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "abilityScores": [
+      {
+        "abilities": ["Strength"],
+        "minimum": 13
+      }
+    ]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Heavy Weapon Mastery",
+      "description": "When you hit a creature with a weapon that has the Heavy property as part of the Attack action on your turn, you can cause the weapon to deal extra damage to the target. The extra damage equals your Proficiency Bonus."
+    },
+    {
+      "name": "Hew",
+      "description": "Immediately after you score a Critical Hit with a Melee weapon or reduce a creature to 0 Hit Points with one, you can make one attack with the same weapon as a Bonus Action."
+    }
+  ],
+  "source": "PHB 2024"
+}

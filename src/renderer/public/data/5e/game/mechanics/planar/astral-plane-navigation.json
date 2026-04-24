@@ -1,0 +1,323 @@
+{
+  "id": "d83a1f7e-4c2b-4e9a-b6f3-8e1a2d5c9b07",
+  "name": "Astral Plane - Navigation",
+  "slug": "astral-plane-navigation",
+  "category": "VariantRule",
+  "subcategory": "Planar Navigation",
+  "tags": [
+    "astral-plane",
+    "planar-travel",
+    "navigation",
+    "psychic-wind",
+    "color-pools",
+    "thought-movement",
+    "intelligence-based-flight",
+    "wildspace"
+  ],
+  "source": {
+    "book": "Dungeon Master's Guide",
+    "chapter": "Chapter 6: Cosmology",
+    "section": "Astral Plane - Navigating the Astral Plane"
+  },
+  "gameEdition": "2024",
+  "description": "Rules governing movement and navigation within the Astral Plane. Travelers move by thinking about moving; distance has little meaning outside of combat. In combat, a creature's Fly Speed in feet equals 5 times its Intelligence score, and it can hover. To find a destination within the Astral Plane or Wildspace, a creature need only think about it, which makes the creature aware of the most direct route to that location. The creature does not know how long the journey will take or how perilous it will be, only which direction to go. The DM decides travel time: a trek to a specific location (such as a particular Wildspace system or Astral outpost) might take 4d6 days; a more general location (such as a color pool leading to a specified plane) might take 1d4 × 10 hours. Creatures on the Astral Plane don't age or suffer from hunger or thirst. Psychic winds can divert, delay, or redirect travelers, and inflict psychic effects on individuals who fail a DC 15 Intelligence saving throw. Color pools—two-dimensional pools of rippling color 1d6 × 10 feet in diameter—serve as gateways to other planes, identifiable by their color.",
+  "shortDescription": "Astral Plane navigation uses thought-based movement, Intelligence-based Fly Speed in combat, thought-based wayfinding, variable DM-set travel times, and hazards from psychic winds.",
+  "flavorText": "The Astral Plane is a great silvery sea, the same above and below, with swirling wisps of white and gray streaking among motes of light—the distant stars of far-flung Wildspace systems.",
+  "rulesAsWritten": "A traveler in the Astral Plane can move by simply thinking about moving, but distance has little meaning. In combat, though, a creature has a Fly Speed (in feet) equal to 5 times its Intelligence score and can hover. Just as movement is accomplished by the power of thought, all that is required to find one's destination is to think about it. As long as the destination is somewhere in the Astral Plane (or in Wildspace)—such as 'the nearest githyanki outpost,' 'the nearest color pool leading to the Abyss,' or 'the Wildspace system of Realmspace'—thinking about a place makes the creature aware of the most direct route to that location. The creature doesn't know how long the journey will take or how perilous it will be, just which direction to go in. The DM decides how long it takes to get to a desired destination. A trek to a specific location—a particular Wildspace system or Astral outpost, for example—might take 4d6 days. For a more general location, such as a color pool leading to a specified plane, the journey might take 1d4 × 10 hours.",
+  "isVariantRule": true,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "target": "FlyingSpeed",
+      "operation": "Set",
+      "value": 5,
+      "note": "In combat on the Astral Plane, a creature's Fly Speed in feet equals 5 times its Intelligence score. This modifier represents the multiplier per Intelligence score point; effective speed = 5 × Intelligence score. Creature can hover.",
+      "scope": {
+        "customScope": "Astral Plane combat only; effective Fly Speed equals 5 × creature's Intelligence score"
+      }
+    }
+  ],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "immunityType": "Effect",
+      "value": "Aging",
+      "note": "Creatures on the Astral Plane don't age."
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "immunityType": "Effect",
+      "value": "Hunger",
+      "note": "Creatures on the Astral Plane don't suffer from hunger."
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "immunityType": "Effect",
+      "value": "Thirst",
+      "note": "Creatures on the Astral Plane don't suffer from thirst."
+    }
+  ],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Stunned",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "Psychic Wind psychic effect (d20 roll 1-8): Stunned for 1 minute; repeat DC 15 Intelligence saving throw at end of each turn to end."
+    },
+    {
+      "conditionName": "Unconscious",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "Psychic Wind psychic effect (d20 roll 18-20): Unconscious for 1d10 hours; ends if creature takes damage or another creature uses an action to shake it awake."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "order": 0,
+      "name": "Thought-Based Movement",
+      "description": "A traveler in the Astral Plane can move by simply thinking about moving. Distance has little meaning outside of combat. In combat, a creature has a Fly Speed (in feet) equal to 5 times its Intelligence score and can hover.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature is on the Astral Plane"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Creature gains a Fly Speed equal to 5 × its Intelligence score (in feet) and can hover while in combat on the Astral Plane. Outside combat, movement is accomplished by thought and distance is largely meaningless.",
+          "mechanicalNote": "Fly Speed = 5 × Intelligence score. Can hover. Outside combat, thinking about moving propels the creature."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "order": 1,
+      "name": "Thought-Based Wayfinding",
+      "description": "To find a destination within the Astral Plane or Wildspace, a creature need only think about that destination. Thinking about a place makes the creature aware of the most direct route to that location. The creature doesn't know how long the journey will take or how perilous it will be, just which direction to go.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature is on the Astral Plane and thinks of a destination within the Astral Plane or Wildspace"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature becomes aware of the most direct route to the desired destination. It learns only the direction, not the travel time or dangers along the way.",
+          "mechanicalNote": "Automatic wayfinding for any destination in the Astral Plane or Wildspace. No check required."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a7b8c9d0-e1f2-3456-abcd-567890123456",
+      "order": 2,
+      "name": "DM-Determined Travel Time",
+      "description": "The DM decides how long it takes to get to a desired destination. A trek to a specific location (a particular Wildspace system or Astral outpost) might take 4d6 days. For a more general location (such as a color pool leading to a specified plane), the journey might take 1d4 × 10 hours.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature begins traveling to a destination in the Astral Plane"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Travel time is set by the DM. Specific destination: approximately 4d6 days. General location (e.g., a color pool to a specified plane): approximately 1d4 × 10 hours.",
+          "mechanicalNote": "Specific destination: 4d6 days (4-24 days). General destination: 1d4 × 10 hours (10-40 hours)."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "b8c9d0e1-f2a3-4567-bcde-678901234567",
+      "order": 3,
+      "name": "Psychic Wind - Onset",
+      "description": "A psychic wind is a storm of thought that batters travelers' minds. It is first sensed as a rapid darkening of the silver-gray sky. After 1d4 minutes, the area becomes as dark as a moonless night. The buffeting and shaking are felt as the plane rebels against the storm. The psychic wind passes quickly, and the sky returns to normal in 1 minute.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "DM determines a psychic wind occurs during Astral travel"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Warning phase: rapid darkening of the sky over 1d4 minutes until total darkness like a moonless night. Buffeting and shaking experienced. Storm passes and sky returns to normal in 1 minute after onset.",
+          "mechanicalNote": "1d4 minutes warning before full onset. Lasts until sky returns to normal in 1 minute."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "c9d0e1f2-a3b4-5678-cdef-789012345678",
+      "order": 4,
+      "name": "Psychic Wind - Location Effects",
+      "description": "A group of travelers journeying together is subjected to one location effect. Roll d20: 1-8 Diverted (add 1d6 days to travel time); 9-12 Blown astray (add 3d10 days to travel time); 13-16 Lost (arrive at a location other than the intended destination at end of travel time); 17-20 Sent through a random color pool.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "A psychic wind strikes a group of Astral travelers"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Roll d20 for location effect: 1-8 Diverted (add 1d6 days to travel time), 9-12 Blown astray (add 3d10 days to travel time), 13-16 Lost (arrive at wrong destination), 17-20 Sent through random color pool (roll on Astral Color Pools table).",
+          "mechanicalNote": "d20 roll. 1-8: +1d6 days. 9-12: +3d10 days. 13-16: Wrong destination. 17-20: Random color pool transport."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "d0e1f2a3-b4c5-6789-defa-890123456789",
+      "order": 5,
+      "name": "Psychic Wind - Individual Psychic Effects",
+      "description": "Each traveler caught in a psychic wind makes a DC 15 Intelligence saving throw. On a failed save, the traveler suffers a random psychic effect: d20 roll 1-8 Stunned for 1 minute (repeat save at end of each turn to end), 9-12 take 2d10 Psychic damage, 13-17 take 4d10 Psychic damage, 18-20 Unconscious for 1d10 hours (ends on taking damage or being shaken awake as an action).",
+      "trigger": {
+        "event": "Passive",
+        "condition": "A creature is caught in a psychic wind on the Astral Plane"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "DC 15 Intelligence saving throw. On failure, roll d20: 1-8 Stunned for 1 minute (repeat save end of each turn), 9-12 take 11 (2d10) Psychic damage, 13-17 take 22 (4d10) Psychic damage, 18-20 Unconscious for 5 (1d10) hours (ends on damage or action to shake awake).",
+          "mechanicalNote": "DC 15 INT save. Failure triggers d20 psychic effect table. Effects: Stunned (1-8), 2d10 Psychic (9-12), 4d10 Psychic (13-17), Unconscious 1d10 hours (18-20)."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e1f2a3b4-c5d6-7890-efab-901234567890",
+      "order": 6,
+      "name": "Color Pool Identification and Use",
+      "description": "Gateways leading from the Astral Plane to other planes appear as two-dimensional pools of rippling colors, 1d6 × 10 feet in diameter. They can be identified by color: Abyss (Amethyst), Acheron (Flame red), Arborea (Sapphire blue), Arcadia (Saffron), Beastlands (Emerald green), Bytopia (Amber), Carceri (Olive), Elysium (Orange), Ethereal Plane (Spiraling white), Gehenna (Russet), Hades (Rust), Limbo (Jet black), Material Plane (Silver, d20 13-14), Mechanus (Diamond blue), Mount Celestia (Gold), Nine Hells (Ruby), Outlands (Leather brown), Pandemonium (Magenta), Ysgard (Indigo).",
+      "trigger": {
+        "event": "Passive",
+        "condition": "A creature encounters a color pool on the Astral Plane"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Color pools are two-dimensional portals 1d6 × 10 feet in diameter (10-60 feet). Colors are perceived by the Astral self (understood rather than seen). Each color corresponds to a destination plane per the Astral Color Pools table. Passing through transports the creature to the corresponding plane.",
+          "mechanicalNote": "Diameter: 1d6 × 10 feet. 20 possible destinations on d20 table; Material Plane on 13-14. Colors are metaphorically perceived."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f2a3b4c5-d6e7-8901-fabc-012345678901",
+      "order": 7,
+      "name": "Agelessness and Biological Stasis",
+      "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst. For this reason, creatures that live on the Astral Plane (such as githyanki) establish outposts on other planes, often the Material Plane, so their children can grow to maturity.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature is on the Astral Plane"
+      },
+      "effects": [
+        {
+          "effectType": "ImmunityGrant",
+          "immunity": {
+            "id": "a3b4c5d6-e7f8-9012-abcd-123456789abc",
+            "immunityType": "Effect",
+            "value": "Aging, hunger, and thirst",
+            "note": "Creatures on the Astral Plane don't age or suffer from hunger or thirst. Children cannot grow to maturity on the Astral Plane."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "b4c5d6e7-f8a9-0123-bcde-23456789abcd",
+      "method": "Other",
+      "description": "Navigation rules cease to apply when the creature leaves the Astral Plane.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Astral Plane navigation rules replace normal movement and travel rules while on the Astral Plane. The Intelligence-based Fly Speed replaces any normal speed in combat."
+  },
+  "dmNotes": "Travel time on the Astral Plane is at DM discretion. Suggested guidelines: specific locations (named Wildspace system, known Astral outpost) take 4d6 days; general locations (color pool to a named plane) take 1d4 × 10 hours. Psychic winds are encountered at DM discretion and can significantly alter travel. The Fly Speed of 5 × Intelligence score means creatures with higher Intelligence are faster in Astral combat (e.g., INT 10 = 50 ft, INT 20 = 100 ft, INT 1 = 5 ft). Color pools are the primary means of transit to Outer Planes from the Astral Plane. The Material Plane appears on the color pool table at positions 13-14 (silver color), making it the most likely random destination.",
+  "commonRulings": [
+    {
+      "question": "What is a creature's speed on the Astral Plane outside of combat?",
+      "ruling": "Outside combat, a creature moves by thinking about moving and distance has little meaning. No specific speed value applies; the DM determines travel time based on destination type (4d6 days for specific locations, 1d4 × 10 hours for general locations).",
+      "isOfficial": true
+    },
+    {
+      "question": "What is a creature's Fly Speed on the Astral Plane in combat?",
+      "ruling": "In combat, a creature has a Fly Speed in feet equal to 5 times its Intelligence score and can hover. For example, a creature with an Intelligence of 16 has a Fly Speed of 80 feet.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does a creature need to make any check to navigate the Astral Plane?",
+      "ruling": "No ability check is required. Thinking about a destination within the Astral Plane or Wildspace automatically reveals the most direct route. The creature learns only the direction, not the travel time or dangers.",
+      "isOfficial": true
+    },
+    {
+      "question": "What happens when a psychic wind hits Astral travelers?",
+      "ruling": "One location effect applies to the entire group (d20 roll on location table). Additionally, each individual traveler makes a DC 15 Intelligence saving throw; on failure, they suffer a random psychic effect (d20 roll on psychic effects table). Location effects range from added travel time to being sent through a random color pool.",
+      "isOfficial": true
+    },
+    {
+      "question": "How large are color pools and how do you identify them?",
+      "ruling": "Color pools are two-dimensional pools of rippling color, 1d6 × 10 feet in diameter (10-60 feet). Their colors are perceived metaphorically by the Astral self rather than by physical eyes. Each color corresponds to a specific destination plane per the Astral Color Pools table.",
+      "isOfficial": true
+    },
+    {
+      "question": "Do creatures age, need food, or need water on the Astral Plane?",
+      "ruling": "No. Creatures on the Astral Plane don't age or suffer from hunger or thirst. This is why githyanki establish outposts on other planes so their children can grow to maturity.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

@@ -1,0 +1,304 @@
+{
+  "id": "d4e2c1a7-8f3b-4a5e-9c6d-2b1e0f3a7d8c",
+  "name": "Carceri - Prison Plane",
+  "slug": "carceri-prison-plane",
+  "category": "VariantRule",
+  "subcategory": "Planar Properties",
+  "tags": [
+    "Outer Planes",
+    "Lower Planes",
+    "Carceri",
+    "Prison Plane",
+    "Planar Travel",
+    "Chaotic Evil",
+    "Neutral Evil",
+    "River Styx"
+  ],
+  "source": {
+    "book": "Dungeon Master's Guide",
+    "chapter": "Chapter 6: Cosmology",
+    "section": "Carceri"
+  },
+  "gameEdition": "2024",
+  "description": "Carceri is the grim inspiration for all other prisons in existence, a plane of desolation and despair. Its six layers hold vast bogs, fetid jungles, windswept deserts, jagged mountains, frigid oceans, and black ice. All form a miserable home for the traitors and backstabbers trapped on this prison plane. The plane has been described as a long series of spherical worlds arranged like beads on a string, with each sphere consisting of six nested spheres — the layers of the plane. Carceri's alignment is Chaotic Evil and Neutral Evil. The River Styx churns through the top layers of Carceri. The gate-town of Curst in the Outlands contains a portal leading to Carceri, and the Astral Color Pool leading to Carceri is olive in color.",
+  "shortDescription": "The prison plane of desolation and despair with six layers. Magical efforts to leave by any spell other than Wish simply fail; portals and gates become one-way only.",
+  "flavorText": "Carceri is a sunless plane of despair, of passions and poisons, and of realm-shattering betrayals. Hatreds run like a deep, slow-moving river, and there's no telling what the flood of treachery will consume next.",
+  "rulesAsWritten": "No one can leave Carceri easily. Magical efforts to leave the plane by any spell other than Wish simply fail. Portals and gates that open onto the plane become one-way only. Secret passages out of the plane exist, but they are hidden and well guarded by traps and deadly monsters. And though the River Styx flows between Carceri and its neighbors, the passage is extremely dangerous, and ferries leading out of Carceri are both rare and expensive.",
+  "isVariantRule": true,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": true,
+  "maxLevel": 6,
+  "levels": [
+    {
+      "level": 1,
+      "name": "Orthrys",
+      "description": "The River Styx meanders through a layer of vast bogs and quicksand. This is the first and topmost layer of Carceri, and the arrival point for most visitors via portals from elsewhere.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": []
+    },
+    {
+      "level": 2,
+      "name": "Cathrys",
+      "description": "The stench of decay hangs over fetid jungles and scarlet plains.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": []
+    },
+    {
+      "level": 3,
+      "name": "Minethys",
+      "description": "Stinging sand blows in unending storms, hiding the ruins of the ancient city Payratheon.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": []
+    },
+    {
+      "level": 4,
+      "name": "Colothys",
+      "description": "Deep chasms cut between cruel mountains make foot travel nearly impossible.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": []
+    },
+    {
+      "level": 5,
+      "name": "Porphatys",
+      "description": "Cold, acidic oceans are fed by constant black snow.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": []
+    },
+    {
+      "level": 6,
+      "name": "Agathys",
+      "description": "Black ice streaked with red covers this frigid realm.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": []
+    }
+  ],
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "restrictedAction": "Any",
+      "restrictionType": "Prohibited",
+      "condition": "Attempting to use any spell other than Wish to magically leave the plane of Carceri",
+      "note": "Magical efforts to leave the plane by any spell other than Wish simply fail. This includes spells like Plane Shift, Gate, Teleport, and any other spell that would transport creatures off the plane."
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "restrictedAction": "Any",
+      "restrictionType": "Limited",
+      "condition": "Attempting to leave Carceri via portals or gates",
+      "note": "Portals and gates that open onto the plane become one-way only, allowing entry but preventing departure through them."
+    }
+  ],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 0,
+      "name": "Prison Plane - Spell Restriction",
+      "description": "When a creature on Carceri attempts to leave the plane using any spell other than Wish, the spell simply fails. The spell slot (if any) is expended, but the spell produces no effect regarding planar travel away from Carceri.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "Creature attempts to cast a spell (other than Wish) that would transport it or others off the plane of Carceri"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The spell fails to transport the caster or any targets off the plane of Carceri. The spell slot is expended but produces no planar travel effect. Only the Wish spell can overcome this restriction.",
+          "mechanicalNote": "This affects spells such as Plane Shift, Gate (for transport purposes), Teleport (if targeting another plane), Astral Projection, Etherealness, and any other spell that would move creatures off Carceri."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "order": 1,
+      "name": "Prison Plane - One-Way Portals",
+      "description": "Any portal or gate that opens onto Carceri becomes one-way only, permitting entry into Carceri but not exit. This applies to all portals and gates regardless of their original properties.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Any portal or gate connects to the plane of Carceri"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Portals and gates that open onto Carceri become one-way only, allowing travel into the plane but not out of it. This overrides the normal bidirectional properties of such portals and gates.",
+          "mechanicalNote": "This is a passive property of the plane that affects all portals and gates connecting to Carceri."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "order": 2,
+      "name": "Prison Plane - Secret Passages",
+      "description": "Secret passages out of Carceri exist but are hidden and well guarded by traps and deadly monsters. These represent the only non-magical means of escape besides the River Styx.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature searches for a way to escape Carceri without using Wish"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Secret passages out of Carceri exist but are hidden and well guarded by traps and deadly monsters. The River Styx flows between Carceri and its neighbors, but the passage is extremely dangerous, and ferries leading out of Carceri are both rare and expensive.",
+          "mechanicalNote": "Finding and using these passages requires exploration, overcoming guardians, and navigating traps. The DM determines the specifics of any secret passage."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "order": 3,
+      "name": "Planar Dissonance - Celestials",
+      "description": "Celestials who visit Carceri (a Lower Plane) experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on Carceri, a Celestial makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+      "trigger": {
+        "event": "OnLongRest",
+        "condition": "A Celestial creature finishes a Long Rest on Carceri"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The Celestial must make a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, it must subtract 1d4 from the roll. This effect is cumulative with each subsequent failed save on Carceri and ends only when the creature finishes a Long Rest on a plane that is not opposed to its nature.",
+          "mechanicalNote": "Carceri is a Lower Plane (Chaotic Evil/Neutral Evil alignment), making it opposed to Celestial nature. The cumulative 1d4 penalty applies to all D20 Tests including attack rolls, saving throws, and ability checks."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "a7b8c9d0-e1f2-3456-abcd-567890123456",
+      "method": "SpellEffect",
+      "description": "A creature can leave Carceri by successfully casting the Wish spell to transport itself and others off the plane.",
+      "automaticAfterDuration": false,
+      "spellsOrEffects": ["Wish"]
+    },
+    {
+      "id": "b8c9d0e1-f2a3-4567-bcde-678901234567",
+      "method": "Other",
+      "description": "A creature can escape Carceri by finding and navigating one of the hidden secret passages out of the plane, which are guarded by traps and deadly monsters.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "c9d0e1f2-a3b4-5678-cdef-789012345678",
+      "method": "Other",
+      "description": "A creature can attempt to leave Carceri via the River Styx, though the passage is extremely dangerous and ferries leading out of Carceri are both rare and expensive.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "d0e1f2a3-b4c5-6789-defa-890123456789",
+      "method": "Other",
+      "description": "It is said that prisoners can escape Carceri only by becoming stronger than whatever force imprisoned them there, though the plane's nature of breeding despair and betrayal makes this extremely difficult.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "The Prison Plane property applies uniformly to all creatures on the plane. Planar Dissonance effects on Celestials are cumulative with each failed save."
+  },
+  "dmNotes": "Carceri is a sunless plane of despair, of passions and poisons, and of realm-shattering betrayals. The same tendency toward betrayal prevents those who are imprisoned here from working together for long toward the common goal of escape. Adventures on Carceri might explore the forces — spiritual and psychological as well as physical and outright demonic — that keep characters trapped or imprisoned there. Characters might help a prisoner escape, from an unjustly held spirit to some primeval god banished to oblivion here. The gate-town of Curst in the Outlands contains the portal to Carceri. The Astral Color Pool leading to Carceri is olive in color. The River Styx flows through the top layer (Orthrys) of Carceri, with tributaries potentially reaching lower layers. The plane has been described as a long series of spherical worlds arranged like beads on a string, with each sphere consisting of six nested spheres representing the layers.",
+  "commonRulings": [
+    {
+      "question": "Can Plane Shift be used to leave Carceri?",
+      "ruling": "No. Magical efforts to leave the plane by any spell other than Wish simply fail. Plane Shift, like all other planar travel spells except Wish, fails when used to leave Carceri. The spell slot is expended but produces no effect.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can Gate be used to leave Carceri?",
+      "ruling": "No. Gate, when used to create a portal to leave Carceri, fails like any other spell except Wish. Additionally, all portals and gates that open onto Carceri become one-way only, allowing entry but not exit.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a creature enter Carceri freely?",
+      "ruling": "Yes. The Prison Plane property restricts leaving the plane, not entering it. Portals and gates become one-way into Carceri, and spells that transport creatures to Carceri function normally.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does the River Styx provide a way out of Carceri?",
+      "ruling": "The River Styx flows between Carceri and its neighbors, so theoretically passage is possible. However, the text states the passage is extremely dangerous, and ferries leading out of Carceri are both rare and expensive. This is not a magical means of travel and thus is not blocked by the Prison Plane property.",
+      "isOfficial": true
+    },
+    {
+      "question": "Do Celestials suffer Planar Dissonance on Carceri?",
+      "ruling": "Yes. Carceri is a Lower Plane with Chaotic Evil and Neutral Evil alignment. Celestials who finish a Long Rest on Carceri must make a DC 10 Constitution saving throw or subtract 1d4 from all D20 Tests. This penalty is cumulative with each failed save.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T12:00:00Z",
+  "updatedAt": "2025-01-15T12:00:00Z",
+  "version": "1.0.0"
+}

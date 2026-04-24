@@ -1,0 +1,11 @@
+{
+  "name": "Spellcasting Focus",
+  "slug": "spellcasting-focus",
+  "description": "A Spellcasting Focus is a special item — such as a crystal, wand, or holy symbol — that you can use in place of any Material component that lacks a cost and that isn't consumed.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

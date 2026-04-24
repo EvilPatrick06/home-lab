@@ -1,0 +1,11 @@
+{
+  "name": "Grappled",
+  "slug": "grappled",
+  "description": "A Grappled creature's Speed is 0 and can't increase. The condition ends if the grappler has the Incapacitated condition or if the distance between the Grappled creature and the grappler exceeds the grapple's range.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

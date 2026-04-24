@@ -1,0 +1,196 @@
+{
+  "name": "Quasit",
+  "sizes": ["Tiny"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Abyss)"],
+  "treasure": ["None"],
+  "lore": "Quasits are tiny demons of spite and malice that lurk alongside mortal spellcasters as familiars or infest places corrupted by the Abyss. They delight in tormenting creatures larger than themselves, using their shape-shifting abilities and invisibility to sow confusion and fear. When bound as a familiar through a pact or summoning, a quasit serves its master with a blend of obsequious loyalty and self-serving treachery.",
+  "armorClass": {
+    "value": 13
+  },
+  "hitPoints": {
+    "average": 25,
+    "dice": {
+      "count": 10,
+      "die": "d4",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common"]
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The quasit has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Invisibility",
+      "ability": "CHA",
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ],
+      "notes": "Cast as a Bonus Action. The invisibility ends if the quasit attacks, deals damage, or casts another spell."
+    }
+  ],
+  "multiattack": {
+    "description": "The quasit makes two Rend attacks.",
+    "attacks": [
+      {
+        "actionName": "Rend",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 5 (1d4 + 3) Slashing damage, and the target has the Poisoned condition until the start of the quasit's next turn.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Poisoned",
+              "duration": "until the start of the quasit's next turn"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shape-Shift",
+      "description": "The quasit shape-shifts into a Beast form or back into its true form. In a Beast form, the quasit retains its game statistics but can look like a bat (Speed 10 ft., Fly 40 ft.), a centipede (Speed 40 ft., Climb 40 ft.), or a toad (Speed 40 ft., Swim 40 ft.). Any equipment it's wearing or carrying isn't transformed."
+    },
+    {
+      "name": "Scare",
+      "description": "One creature within 20 feet of the quasit makes a DC 10 Wisdom saving throw. On a failed save, the target has the Frightened condition for 1 minute. The Frightened target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 10,
+        "targets": "one creature within 20 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 10,
+                "targets": "the Frightened target at the end of each of its turns",
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Invisibility",
+      "description": "The quasit casts Invisibility on itself, requiring no spell components and using Charisma as the spellcasting ability."
+    }
+  ]
+}

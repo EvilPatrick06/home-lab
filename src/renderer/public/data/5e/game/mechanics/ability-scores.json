@@ -1,0 +1,287 @@
+{
+  "id": "b3e7c1a0-4f2d-4e8a-9b6c-d5a1f3e7b9c2",
+  "name": "Ability Scores",
+  "slug": "ability-scores",
+  "category": "GeneralRule",
+  "subcategory": "Core Character Attributes",
+  "tags": ["ability-scores", "core-mechanic", "modifier", "character-creation", "d20-test", "foundation"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 1",
+    "section": "Ability Scores and Modifiers"
+  },
+  "gameEdition": "2024",
+  "description": "Six abilities provide a quick description of every creature's physical and mental characteristics: Strength (STR), Dexterity (DEX), Constitution (CON), Intelligence (INT), Wisdom (WIS), and Charisma (CHA). Each ability has a score, a number that defines the magnitude of that ability, typically ranging from 1 to 30 for any creature, with 10 representing typical human capability. Each ability score also has an associated modifier, derived from the score using the formula: modifier = floor((score − 10) ÷ 2). Ability scores and their modifiers are the foundation for nearly every d20 test in the game, including Ability Checks, Attack Rolls, and Saving Throws. A player character's ability scores typically start between 3 and 20 at character creation and can be increased through level advancement and certain features, up to a normal maximum of 20 unless a feature explicitly raises that cap.",
+  "shortDescription": "Six scores (STR, DEX, CON, INT, WIS, CHA) define creature capabilities. Each has a modifier equal to (score − 10) ÷ 2, rounded down.",
+  "flavorText": "A score of 10 or 11 is the normal human average, but adventurers and many monsters are a cut above average in most abilities.",
+  "rulesAsWritten": "Each of a creature's abilities has a score that defines the magnitude of that ability. An ability score is not just a measure of innate capabilities but also encompasses training and competence. From each score, a modifier is derived: (score − 10) ÷ 2, rounded down. The modifier is the number most frequently applied to d20 Tests and other game calculations. Player character ability scores cannot exceed 20 unless a feature states otherwise, and no score can exceed 30.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-1111-4aaa-b111-000000000001",
+      "order": 0,
+      "name": "Modifier Calculation",
+      "description": "Each ability score produces a modifier used in d20 Tests and other calculations. The modifier equals the score minus 10, divided by 2, and rounded down (toward negative infinity). For example, a score of 15 yields a +2 modifier; a score of 8 yields a −1 modifier; a score of 10 yields a +0 modifier.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Always active for every creature that has ability scores"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Ability modifier = floor((ability score − 10) ÷ 2). This modifier is added to d20 Tests (Ability Checks, Attack Rolls, and Saving Throws) associated with the ability, and to other derived statistics such as damage rolls (Strength or Dexterity for weapons), Hit Point maximum (Constitution), Armor Class (Dexterity), and Spell Save DC or Spell Attack bonus (spellcasting ability).",
+          "mechanicalNote": "Score 1 → −5, Score 2–3 → −4, Score 4–5 → −3, Score 6–7 → −2, Score 8–9 → −1, Score 10–11 → +0, Score 12–13 → +1, Score 14–15 → +2, Score 16–17 → +3, Score 18–19 → +4, Score 20–21 → +5, Score 22–23 → +6, Score 24–25 → +7, Score 26–27 → +8, Score 28–29 → +9, Score 30 → +10"
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-2222-4aaa-b222-000000000002",
+      "order": 1,
+      "name": "Ability Check Resolution",
+      "description": "When a creature attempts a task other than an attack, and the outcome is uncertain, the DM calls for an Ability Check using one of the six ability scores. The player rolls 1d20, adds the relevant ability modifier, adds Proficiency Bonus if proficient in an applicable skill or tool, and compares the total to the DC set by the DM.",
+      "trigger": {
+        "event": "OnAbilityCheckMade"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Ability Check total = 1d20 + ability modifier + Proficiency Bonus (if proficient in the relevant skill or tool). The total is compared against a Difficulty Class (DC). If the total equals or exceeds the DC, the check succeeds; otherwise, it fails.",
+          "mechanicalNote": "Typical DCs: 5 (Very Easy), 10 (Easy), 15 (Medium), 20 (Hard), 25 (Very Hard), 30 (Nearly Impossible)"
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-3333-4aaa-b333-000000000003",
+      "order": 2,
+      "name": "Saving Throw Resolution",
+      "description": "A Saving Throw is a d20 Test made to resist or mitigate a spell, trap, poison, disease, or similar threat. The creature rolls 1d20, adds the relevant ability modifier, and adds Proficiency Bonus if proficient in that saving throw.",
+      "trigger": {
+        "event": "OnSavingThrowMade"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Saving Throw total = 1d20 + ability modifier + Proficiency Bonus (if proficient in that save). The total is compared against the DC of the effect. Equals or exceeds = success; below = failure."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-4444-4aaa-b444-000000000004",
+      "order": 3,
+      "name": "Player Character Score Cap",
+      "description": "A player character's ability scores each have a default maximum of 20. No ability score can ever exceed 30 for any creature. Certain class features, magic items, or other effects can raise the cap above 20 up to a maximum of 30 only if they explicitly state so.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Applies at all times during character advancement and when effects modify ability scores"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Player character ability scores cannot be raised above 20 by normal means such as Ability Score Improvement. Some features explicitly allow scores to exceed 20, up to the absolute maximum of 30. No creature's ability score can ever exceed 30.",
+          "mechanicalNote": "Default PC cap: 20. Absolute cap for all creatures: 30. Barbarian Primal Champion raises STR and CON cap to 24. Some magic items raise specific scores to set values (e.g., to 19 or 21)."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-5555-4aaa-b555-000000000005",
+      "order": 4,
+      "name": "Strength Applications",
+      "description": "Strength measures physical power. It is the modifier added to melee weapon attack and damage rolls (unless a weapon has the Finesse property), Athletics checks, Strength saving throws, and determines carrying capacity and push/drag/lift limits.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "STR modifier is added to: melee weapon Attack Rolls and Damage Rolls (unless using Finesse with DEX), Athletics checks, and Strength Saving Throws. Carrying Capacity = STR score × 15 (in pounds). Push/Drag/Lift limit = STR score × 30 (in pounds).",
+          "mechanicalNote": "Finesse weapons allow choice of STR or DEX. Thrown weapons use STR for Attack and Damage unless Finesse."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-6666-4aaa-b666-000000000006",
+      "order": 5,
+      "name": "Dexterity Applications",
+      "description": "Dexterity measures agility, reflexes, and balance. It is the modifier added to ranged weapon attack and damage rolls, Finesse melee weapon rolls (if chosen), AC (if wearing light or medium armor or no armor), Initiative rolls, Acrobatics/Sleight of Hand/Stealth checks, and Dexterity saving throws.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "DEX modifier is added to: ranged weapon Attack Rolls and Damage Rolls, AC calculation (full modifier for Light Armor and no armor; max +2 for Medium Armor), Initiative rolls, Acrobatics/Sleight of Hand/Stealth checks, and Dexterity Saving Throws.",
+          "mechanicalNote": "Base AC without armor = 10 + DEX modifier. Light Armor AC = base AC of armor + DEX modifier. Medium Armor AC = base AC of armor + DEX modifier (max 2)."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-7777-4aaa-b777-000000000007",
+      "order": 6,
+      "name": "Constitution Applications",
+      "description": "Constitution measures health, stamina, and vital force. The CON modifier is added to each Hit Die rolled for Hit Points. When Constitution modifier increases, Hit Point maximum increases retroactively for all levels. Constitution saving throws resist effects such as poison and endurance challenges, and Concentration checks are Constitution saving throws.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "CON modifier is added to HP gained per level (minimum 1 HP per level). If CON modifier changes, HP maximum adjusts retroactively across all levels. Concentration checks to maintain spells are Constitution Saving Throws (DC = higher of 10 or half damage taken).",
+          "mechanicalNote": "HP per level = Hit Die roll (or fixed value) + CON modifier. Retroactive HP adjustment = (new CON mod − old CON mod) × character level."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-8888-4aaa-b888-000000000008",
+      "order": 7,
+      "name": "Intelligence Applications",
+      "description": "Intelligence measures mental acuity, information recall, and analytical skill. INT modifier applies to Arcana, History, Investigation, Nature, and Religion checks, Intelligence saving throws, and is the spellcasting ability for Wizards.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "INT modifier is added to: Arcana, History, Investigation, Nature, and Religion ability checks, Intelligence Saving Throws, and Wizard Spell Attack Rolls and Spell Save DCs."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-9999-4aaa-b999-000000000009",
+      "order": 8,
+      "name": "Wisdom Applications",
+      "description": "Wisdom reflects awareness, intuition, and insight. WIS modifier applies to Animal Handling, Insight, Medicine, Perception, and Survival checks, Wisdom saving throws, Passive Perception, and is the spellcasting ability for Clerics, Druids, and Rangers.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "WIS modifier is added to: Animal Handling, Insight, Medicine, Perception, and Survival ability checks, Wisdom Saving Throws, and Passive Perception (10 + WIS modifier + proficiency bonus if proficient). WIS is the spellcasting ability for Clerics, Druids, and Rangers."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-aaaa-4aaa-baaa-00000000000a",
+      "order": 9,
+      "name": "Charisma Applications",
+      "description": "Charisma measures force of personality, persuasiveness, and personal magnetism. CHA modifier applies to Deception, Intimidation, Performance, and Persuasion checks, Charisma saving throws, and is the spellcasting ability for Bards, Paladins, Sorcerers, and Warlocks.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "CHA modifier is added to: Deception, Intimidation, Performance, and Persuasion ability checks, Charisma Saving Throws, and is the spellcasting ability for Bards, Paladins, Sorcerers, and Warlocks."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Multiple effects that modify the same ability score stack unless they originate from the same named feature or spell. If multiple effects set a score to a specific value, the highest value applies. Bonuses and set-value effects do not combine; the creature uses whichever produces the higher score."
+  },
+  "dmNotes": "Ability Scores are the foundational mechanic of D&D 2024. Every d20 Test, damage roll with weapons, Hit Point calculation, Armor Class, Initiative, and spellcasting DC derives from one of the six ability scores. When adjudicating unusual situations, the DM selects the most relevant ability score for an Ability Check. If two scores seem equally applicable, the DM chooses which one applies.",
+  "commonRulings": [
+    {
+      "question": "How is an ability modifier calculated?",
+      "ruling": "Modifier = floor((score − 10) ÷ 2). For example: score 1 = −5, score 10 = +0, score 15 = +2, score 20 = +5, score 30 = +10.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a player character's ability score exceed 20?",
+      "ruling": "Only if a feature explicitly states the score can exceed 20. The absolute maximum for any ability score is 30. Standard Ability Score Improvement cannot raise a score above 20.",
+      "isOfficial": true
+    },
+    {
+      "question": "What happens to HP when Constitution modifier changes?",
+      "ruling": "Hit Point maximum adjusts retroactively. Multiply the difference in CON modifier by the character's total level and add (or subtract) that amount from the HP maximum.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does an ability score of 0 have any special effect?",
+      "ruling": "In the 2024 rules, a score reduced to 0 by certain effects (such as some forms of ability score drain by monsters) typically incapacitates or kills the creature, as specified by the effect causing the reduction.",
+      "isOfficial": false
+    },
+    {
+      "question": "Do multiple ability score increases from different sources stack?",
+      "ruling": "Yes, bonuses that increase an ability score from different features stack, but the score still cannot exceed 20 (or a higher cap if a feature explicitly raises it). Effects that set a score to a fixed number do not stack; you use the highest set value.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-03T00:00:00Z",
+  "updatedAt": "2025-01-03T00:00:00Z",
+  "version": "1.0.0"
+}

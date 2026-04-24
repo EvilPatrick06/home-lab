@@ -1,0 +1,146 @@
+{
+  "id": "d4a2c1f0-8e3b-4b7a-9c1d-5f6e7a8b9c0d",
+  "name": "Three-Quarters Cover",
+  "slug": "three-quarters-cover",
+  "category": "Cover",
+  "subcategory": "Cover Degrees",
+  "tags": ["cover", "AC", "Dexterity saving throw", "defense", "combat", "obstacle"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "Cover"
+  },
+  "gameEdition": "2024",
+  "description": "A target has Three-Quarters Cover when it is behind an object that covers at least three-quarters of the target. Three-Quarters Cover grants a +5 bonus to AC and Dexterity saving throws. A target can benefit from cover only when an attack or other effect originates on the opposite side of the cover. If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together. For example, if a target is behind a creature that gives Half Cover and a tree trunk that gives Three-Quarters Cover, the target has Three-Quarters Cover.",
+  "shortDescription": "An object covering at least three-quarters of a target grants +5 bonus to AC and Dexterity saving throws.",
+  "rulesAsWritten": "Three-Quarters Cover: +5 bonus to AC and Dexterity saving throws. Offered by an object that covers at least three-quarters of the target. A target can benefit from cover only when an attack or other effect originates on the opposite side of the cover. If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "target": "AC",
+      "operation": "Add",
+      "value": 5,
+      "scope": {
+        "customScope": "When an attack or other effect originates on the opposite side of the cover providing Three-Quarters Cover"
+      },
+      "perLevelScaling": false,
+      "note": "Three-Quarters Cover grants +5 bonus to AC"
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "target": "SavingThrow",
+      "operation": "Add",
+      "value": 5,
+      "scope": {
+        "abilityScores": ["DEX"],
+        "customScope": "When an attack or other effect originates on the opposite side of the cover providing Three-Quarters Cover"
+      },
+      "perLevelScaling": false,
+      "note": "Three-Quarters Cover grants +5 bonus to Dexterity saving throws"
+    }
+  ],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 0,
+      "name": "Three-Quarters Cover Defensive Bonus",
+      "description": "When a target is behind an object that covers at least three-quarters of the target, and an attack or other effect originates on the opposite side of the cover, the target gains a +5 bonus to AC and Dexterity saving throws.",
+      "trigger": {
+        "event": "OnTargeted",
+        "condition": "An attack or other effect originates on the opposite side of the three-quarters cover object"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+            "target": "AC",
+            "operation": "Add",
+            "value": 5,
+            "perLevelScaling": false,
+            "note": "Three-Quarters Cover AC bonus"
+          }
+        },
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+            "target": "SavingThrow",
+            "operation": "Add",
+            "value": 5,
+            "scope": {
+              "abilityScores": ["DEX"]
+            },
+            "perLevelScaling": false,
+            "note": "Three-Quarters Cover Dexterity saving throw bonus"
+          }
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "method": "Other",
+      "description": "Three-Quarters Cover ends when the target is no longer behind an object that covers at least three-quarters of its body, or when the attack or effect no longer originates from the opposite side of the cover.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "stackingNote": "If a target is behind multiple sources of cover, only the most protective degree of cover applies; the degrees aren't added together. For example, if a target is behind a creature that gives Half Cover and a tree trunk that gives Three-Quarters Cover, the target has Three-Quarters Cover."
+  },
+  "dmNotes": "Three-Quarters Cover is provided by objects such as thick tree trunks, portcullises, arrow slits, or similar obstacles that block at least three-quarters of the target. Unlike Half Cover, Three-Quarters Cover cannot be provided by another creature; it must be an object. The DM determines whether a given obstacle qualifies as Three-Quarters Cover based on how much of the target it conceals relative to the origin of the attack or effect.",
+  "commonRulings": [
+    {
+      "question": "Can another creature provide Three-Quarters Cover?",
+      "ruling": "No. The rules specify that Three-Quarters Cover is offered by 'an object that covers at least three-quarters of the target.' Half Cover can be provided by another creature, but Three-Quarters Cover requires an object.",
+      "isOfficial": true
+    },
+    {
+      "question": "How does Three-Quarters Cover interact with Half Cover and Total Cover?",
+      "ruling": "If a target is behind multiple sources of cover, only the most protective degree of cover applies. The degrees are not added together. If a target has both Half Cover and Three-Quarters Cover from different sources, only Three-Quarters Cover applies.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Three-Quarters Cover protect against all Dexterity saving throws?",
+      "ruling": "Three-Quarters Cover grants a +5 bonus to Dexterity saving throws, but only when the effect that triggers the saving throw originates on the opposite side of the cover from the target.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Three-Quarters Cover affect spell targeting?",
+      "ruling": "Three-Quarters Cover provides a +5 bonus to AC against attack rolls (including spell attack rolls) and +5 to Dexterity saving throws, but it does not prevent direct targeting. Only Total Cover prevents a target from being targeted directly by an attack or a spell.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-07-15T00:00:00Z",
+  "updatedAt": "2024-07-15T00:00:00Z",
+  "version": "1.0.0"
+}

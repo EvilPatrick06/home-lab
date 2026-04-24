@@ -1,0 +1,11 @@
+{
+  "name": "Truesight",
+  "slug": "truesight",
+  "description": "If you have Truesight, your vision is enhanced within a specified range. In that range, your vision pierces through Darkness (including magical Darkness), Illusions, invisibility, and transmutations. You also see into the Ethereal Plane within that range.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

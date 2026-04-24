@@ -1,0 +1,24 @@
+{
+  "id": "kelemvor",
+  "name": "Kelemvor",
+  "title": "God of the Dead",
+  "alignment": "Lawful Neutral",
+  "domains": ["Death", "Grave"],
+  "symbol": "Upright skeletal arm holding balanced scales",
+  "description": "Kelemvor is the god of death and the dead, overseeing the transition of souls from life to their final rest. Unlike previous deities of death who were cruel or indifferent, Kelemvor is fair and compassionate. He views death as a natural part of life and despises undead as abominations that pervert the natural cycle. His followers comfort the dying, hunt undead, and ensure the dead are properly buried.",
+  "piety": {
+    "thresholds": [
+      { "score": 3, "benefit": "You can cast Spare the Dying at a range of 30 feet." },
+      { "score": 10, "benefit": "You have advantage on saving throws against effects from undead creatures." },
+      {
+        "score": 25,
+        "benefit": "You can cast Speak with Dead once without expending a spell slot. You regain this ability after a long rest."
+      },
+      { "score": 50, "benefit": "Undead creatures have disadvantage on attack rolls against you." }
+    ]
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Deities of the Multiverse"
+  }
+}

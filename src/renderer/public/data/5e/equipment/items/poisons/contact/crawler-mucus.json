@@ -1,0 +1,20 @@
+{
+  "name": "Crawler Mucus",
+  "slug": "crawler-mucus",
+  "category": "Poison",
+  "type": "Contact",
+  "cost": "200 GP",
+  "weight": "—",
+  "description": "A creature subjected to this poison must succeed on a DC 13 Constitution saving throw or be Poisoned for 1 minute. The Poisoned creature is Paralyzed. The creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+  "saveDC": 13,
+  "saveAbility": "Constitution",
+  "effect": "Poisoned",
+  "additionalEffect": "Paralyzed while Poisoned",
+  "duration": "1 minute",
+  "repeatSave": true,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poisons"
+  }
+}

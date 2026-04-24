@@ -1,0 +1,27 @@
+{
+  "id": "temporary-hit-points",
+  "name": "Temporary Hit Points",
+  "description": "Some spells and special abilities confer Temporary Hit Points to a creature. Temporary Hit Points aren't actual Hit Points; they are a buffer against damage, a pool of Hit Points that protect you from injury.",
+  "rules": [
+    {
+      "rule": "Don't Stack",
+      "description": "If you have Temporary Hit Points and receive more of them, you decide whether to keep the ones you have or gain the new ones. You can't add them together. For example, if a spell grants you 12 Temporary Hit Points when you already have 10, you can have 12 or 10, not 22."
+    },
+    {
+      "rule": "Absorbed Before Real HP",
+      "description": "When you have Temporary Hit Points and take damage, the Temporary Hit Points are lost first, and any leftover damage carries over to your normal Hit Points."
+    },
+    {
+      "rule": "Not Healing",
+      "description": "Temporary Hit Points can't be restored by healing. Because they aren't real Hit Points, they aren't affected by any feature or effect that restores Hit Points."
+    },
+    {
+      "rule": "Duration",
+      "description": "Temporary Hit Points last until they're depleted or until you finish a Long Rest, unless the effect that granted them specifies a different duration."
+    },
+    {
+      "rule": "0 Hit Points",
+      "description": "If you have 0 Hit Points, receiving Temporary Hit Points doesn't restore you to consciousness or stabilize you. They can still absorb damage directed at you while in that state, potentially preventing Death Saving Throw failures."
+    }
+  ]
+}

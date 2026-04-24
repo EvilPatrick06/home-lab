@@ -1,0 +1,13 @@
+{
+  "name": "Cloak of Protection",
+  "slug": "cloak-of-protection",
+  "type": "Wondrous Item",
+  "rarity": "Uncommon",
+  "attunement": true,
+  "description": "You gain a +1 bonus to Armor Class and saving throws while you wear this cloak.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

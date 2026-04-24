@@ -1,0 +1,32 @@
+{
+  "name": "Mage Slayer",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "benefits": [
+    {
+      "name": "Ability Score Increase",
+      "description": "Increase your Strength or Dexterity score by 1, to a maximum of 20."
+    },
+    {
+      "name": "Concentration Breaker",
+      "description": "When you damage a creature that is concentrating, it has Disadvantage on the saving throw it makes to maintain Concentration."
+    },
+    {
+      "name": "Guarded Mind",
+      "description": "If you fail an Intelligence, a Wisdom, or a Charisma saving throw, you can cause yourself to succeed instead. Once you use this benefit, you can't use it again until you finish a Short or Long Rest."
+    }
+  ],
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength", "Dexterity"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "source": "PHB 2024"
+}

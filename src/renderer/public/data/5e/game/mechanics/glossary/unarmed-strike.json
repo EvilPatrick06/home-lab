@@ -1,0 +1,11 @@
+{
+  "name": "Unarmed Strike",
+  "slug": "unarmed-strike",
+  "description": "An Unarmed Strike is a melee attack that involves using your body to damage, shove, or grapple. Whenever you use your Unarmed Strike, choose one of the following options:\n\n- **Damage.** You make an attack roll against the target. Your bonus to hit equals your Strength modifier + your Proficiency Bonus. On a hit, the target takes Bludgeoning damage equal to 1 + your Strength modifier.\n- **Grapple.** The target must succeed on a Strength or Dexterity saving throw (its choice), or it has the Grappled condition. The DC equals 8 + your Strength modifier + your Proficiency Bonus. You need a free hand for the grapple.\n- **Shove.** The target must succeed on a Strength or Dexterity saving throw (its choice), or you either push the target 5 feet away or cause it to have the Prone condition. The DC equals 8 + your Strength modifier + your Proficiency Bonus.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

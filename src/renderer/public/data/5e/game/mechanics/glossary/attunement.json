@@ -1,0 +1,11 @@
+{
+  "name": "Attunement",
+  "slug": "attunement",
+  "description": "Some magic items require a creature to form a bond — called Attunement — with them before the creature can use the item's magical properties. A creature can be attuned to no more than three magic items at a time. Attuning to an item requires a Short Rest focused on only that item while in physical contact with it. An item can be attuned to only one creature at a time.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

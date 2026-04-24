@@ -1,0 +1,21 @@
+{
+  "id": "cat-companion",
+  "name": "Cat",
+  "statBlockRef": "dm/npcs/creatures-companions/cat.json",
+  "type": "pet",
+  "loyalty": "A cat is an independent creature that tolerates its owner's company. While not as obedient as a dog, a well-treated cat will return home and may bring 'gifts' of dead vermin. Cats are useful for keeping rodent populations in check.",
+  "specialAbilities": [
+    {
+      "name": "Keen Smell",
+      "description": "The cat has advantage on Wisdom (Perception) checks that rely on smell."
+    },
+    {
+      "name": "Mouser",
+      "description": "Keeps rodent populations in check. A cat in a dwelling prevents vermin infestations and can detect the presence of rats or similar creatures."
+    },
+    {
+      "name": "Stealthy Companion",
+      "description": "The cat has +4 to Stealth checks and can scout small areas (under doors, through windows) without attracting attention."
+    }
+  ]
+}

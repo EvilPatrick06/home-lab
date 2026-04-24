@@ -1,0 +1,1762 @@
+{
+  "name": "Warlock",
+  "description": "Warlocks quest for knowledge that lies hidden in the fabric of the multiverse. They often begin their search for magical power by delving into tomes of forbidden lore, dabbling in invocations meant to attract the power of extraplanar beings, or seeking places of power where the influence of these beings can be felt. In no time, each Warlock is drawn into a binding pact with a powerful patron. Drawing on the ancient knowledge of beings such as angels, archfey, demons, devils, hags, and alien entities of the Far Realm, Warlocks piece together arcane secrets to bolster their own power.",
+  "coreTraits": {
+    "primaryAbility": ["Charisma"],
+    "hitPointDie": "D8",
+    "savingThrowProficiencies": ["Wisdom", "Charisma"],
+    "skillProficiencies": {
+      "count": 2,
+      "from": ["Arcana", "Deception", "History", "Intimidation", "Investigation", "Nature", "Religion"]
+    },
+    "weaponProficiencies": [
+      {
+        "category": "Simple"
+      }
+    ],
+    "armorTraining": ["Light"],
+    "startingEquipment": [
+      {
+        "label": "A",
+        "items": ["Leather Armor", "Sickle", "2 Daggers", "Arcane Focus (orb)", "Book (occult lore)", "Scholar's Pack"],
+        "gp": 15
+      },
+      {
+        "label": "B",
+        "items": [],
+        "gp": 100
+      }
+    ]
+  },
+  "multiclassing": {
+    "hitPointDie": true,
+    "armorTraining": ["Light"],
+    "spellcastingNote": "See the multiclassing rules in chapter 2 to determine your available spell slots."
+  },
+  "spellcasting": {
+    "type": "pact",
+    "ability": "Charisma",
+    "focus": ["Arcane Focus"],
+    "ritualCasting": "none",
+    "cantripsKnown": true,
+    "preparedSpellsMechanic": "oneSwapOnLevelUp",
+    "usesSpellbook": false,
+    "pactMagic": true,
+    "initialCantrips": 2,
+    "initialPreparedSpells": 2
+  },
+  "levelProgression": [
+    {
+      "level": 1,
+      "proficiencyBonus": 2,
+      "features": ["Eldritch Invocations", "Pact Magic"],
+      "cantrips": 2,
+      "preparedSpells": 2,
+      "pactMagicSlots": 1,
+      "pactMagicSlotLevel": 1,
+      "eldritchInvocations": 1
+    },
+    {
+      "level": 2,
+      "proficiencyBonus": 2,
+      "features": ["Magical Cunning"],
+      "cantrips": 2,
+      "preparedSpells": 3,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 1,
+      "eldritchInvocations": 3
+    },
+    {
+      "level": 3,
+      "proficiencyBonus": 2,
+      "features": ["Warlock Subclass"],
+      "cantrips": 2,
+      "preparedSpells": 4,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 2,
+      "eldritchInvocations": 3
+    },
+    {
+      "level": 4,
+      "proficiencyBonus": 2,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 3,
+      "preparedSpells": 5,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 2,
+      "eldritchInvocations": 3
+    },
+    {
+      "level": 5,
+      "proficiencyBonus": 3,
+      "features": [],
+      "cantrips": 3,
+      "preparedSpells": 6,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 3,
+      "eldritchInvocations": 5
+    },
+    {
+      "level": 6,
+      "proficiencyBonus": 3,
+      "features": ["Subclass feature"],
+      "cantrips": 3,
+      "preparedSpells": 7,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 3,
+      "eldritchInvocations": 5
+    },
+    {
+      "level": 7,
+      "proficiencyBonus": 3,
+      "features": [],
+      "cantrips": 3,
+      "preparedSpells": 8,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 4,
+      "eldritchInvocations": 6
+    },
+    {
+      "level": 8,
+      "proficiencyBonus": 3,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 3,
+      "preparedSpells": 9,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 4,
+      "eldritchInvocations": 6
+    },
+    {
+      "level": 9,
+      "proficiencyBonus": 4,
+      "features": ["Contact Patron"],
+      "cantrips": 3,
+      "preparedSpells": 10,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 7
+    },
+    {
+      "level": 10,
+      "proficiencyBonus": 4,
+      "features": ["Subclass feature"],
+      "cantrips": 4,
+      "preparedSpells": 10,
+      "pactMagicSlots": 2,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 7
+    },
+    {
+      "level": 11,
+      "proficiencyBonus": 4,
+      "features": ["Mystic Arcanum (level 6 spell)"],
+      "cantrips": 4,
+      "preparedSpells": 11,
+      "pactMagicSlots": 3,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 7
+    },
+    {
+      "level": 12,
+      "proficiencyBonus": 4,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 4,
+      "preparedSpells": 11,
+      "pactMagicSlots": 3,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 8
+    },
+    {
+      "level": 13,
+      "proficiencyBonus": 5,
+      "features": ["Mystic Arcanum (level 7 spell)"],
+      "cantrips": 4,
+      "preparedSpells": 12,
+      "pactMagicSlots": 3,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 8
+    },
+    {
+      "level": 14,
+      "proficiencyBonus": 5,
+      "features": ["Subclass feature"],
+      "cantrips": 4,
+      "preparedSpells": 12,
+      "pactMagicSlots": 3,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 8
+    },
+    {
+      "level": 15,
+      "proficiencyBonus": 5,
+      "features": ["Mystic Arcanum (level 8 spell)"],
+      "cantrips": 4,
+      "preparedSpells": 13,
+      "pactMagicSlots": 3,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 9
+    },
+    {
+      "level": 16,
+      "proficiencyBonus": 5,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 4,
+      "preparedSpells": 13,
+      "pactMagicSlots": 3,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 9
+    },
+    {
+      "level": 17,
+      "proficiencyBonus": 6,
+      "features": ["Mystic Arcanum (level 9 spell)"],
+      "cantrips": 4,
+      "preparedSpells": 14,
+      "pactMagicSlots": 4,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 9
+    },
+    {
+      "level": 18,
+      "proficiencyBonus": 6,
+      "features": [],
+      "cantrips": 4,
+      "preparedSpells": 14,
+      "pactMagicSlots": 4,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 10
+    },
+    {
+      "level": 19,
+      "proficiencyBonus": 6,
+      "features": ["Epic Boon"],
+      "cantrips": 4,
+      "preparedSpells": 15,
+      "pactMagicSlots": 4,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 10
+    },
+    {
+      "level": 20,
+      "proficiencyBonus": 6,
+      "features": ["Eldritch Master"],
+      "cantrips": 4,
+      "preparedSpells": 15,
+      "pactMagicSlots": 4,
+      "pactMagicSlotLevel": 5,
+      "eldritchInvocations": 10
+    }
+  ],
+  "classFeatures": [
+    {
+      "name": "Eldritch Invocations",
+      "level": 1,
+      "description": "You have unearthed Eldritch Invocations, pieces of forbidden knowledge that imbue you with an abiding magical ability or other lessons. You gain one invocation of your choice, such as Pact of the Tome. If an invocation has a prerequisite, you must meet it to learn that invocation. Whenever you gain a Warlock level, you can replace one of your invocations with another one for which you qualify. You can't replace an invocation if it's a prerequisite for another invocation that you have. When you gain certain Warlock levels, you gain more invocations of your choice, as shown in the Invocations column of the Warlock Features table. You can't pick the same invocation more than once unless its description says otherwise.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Pact Magic",
+      "level": 1,
+      "description": "Through occult ceremony, you have formed a pact with a mysterious entity to gain magical powers. You know two Warlock cantrips of your choice. Eldritch Blast and Prestidigitation are recommended. Whenever you gain a Warlock level, you can replace one of your cantrips from this feature with another Warlock cantrip of your choice. When you reach Warlock levels 4 and 10, you learn another Warlock cantrip of your choice. The Warlock Features table shows how many spell slots you have to cast your Warlock spells of levels 1–5. The table also shows the level of those slots, all of which are the same level. You regain all expended Pact Magic spell slots when you finish a Short or Long Rest. You prepare the list of level 1+ spells that are available for you to cast with this feature. To start, choose two level 1 Warlock spells. Charm Person and Hex are recommended. Whenever that number increases, choose additional Warlock spells until the number of spells on your list matches the number in the table. The chosen spells must be of a level no higher than what's shown in the table's Slot Level column for your level. Whenever you gain a Warlock level, you can replace one spell on your list with another Warlock spell of an eligible level. Charisma is the spellcasting ability for your Warlock spells. You can use an Arcane Focus as a Spellcasting Focus for your Warlock spells.",
+      "activation": "Special"
+    },
+    {
+      "name": "Magical Cunning",
+      "level": 2,
+      "description": "You can perform an esoteric rite for 1 minute. At the end of it, you regain expended Pact Magic spell slots but no more than a number equal to half your maximum (round up). Once you use this feature, you can't do so again until you finish a Long Rest.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Warlock Subclass",
+      "level": 3,
+      "description": "You gain a Warlock subclass of your choice. The Archfey Patron, Celestial Patron, Fiend Patron, and Great Old One Patron subclasses are detailed after this class's description. A subclass is a specialization that grants you features at certain Warlock levels. For the rest of your career, you gain each of your subclass's features that are of your Warlock level or lower.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 4,
+      "description": "You gain the Ability Score Improvement feat (see chapter 5) or another feat of your choice for which you qualify. You gain this feature again at Warlock levels 8, 12, and 16.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Contact Patron",
+      "level": 9,
+      "description": "In the past, you usually contacted your patron through intermediaries. Now you can communicate directly; you always have the Contact Other Plane spell prepared. With this feature, you can cast the spell without expending a spell slot to contact your patron, and you automatically succeed on the spell's saving throw. Once you cast the spell with this feature, you can't do so in this way again until you finish a Long Rest.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      },
+      "grantsSpells": [
+        {
+          "spell": "Contact Other Plane",
+          "alwaysPrepared": true,
+          "freeUses": 1,
+          "freeUseRestType": "Long",
+          "ritualOnly": false
+        }
+      ]
+    },
+    {
+      "name": "Mystic Arcanum (level 6 spell)",
+      "level": 11,
+      "description": "Your patron grants you a magical secret called an arcanum. Choose one level 6 Warlock spell as this arcanum. You can cast your arcanum spell once without expending a spell slot, and you must finish a Long Rest before you can cast it in this way again. You regain all uses of your Mystic Arcanum when you finish a Long Rest. Whenever you gain a Warlock level, you can replace one of your arcanum spells with another Warlock spell of the same level.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Mystic Arcanum (level 7 spell)",
+      "level": 13,
+      "description": "You gain another Warlock spell of your choice that can be cast once without expending a spell slot. The spell must be of level 7. You must finish a Long Rest before you can cast it in this way again. You regain all uses of your Mystic Arcanum when you finish a Long Rest. Whenever you gain a Warlock level, you can replace this arcanum spell with another Warlock spell of the same level.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Mystic Arcanum (level 8 spell)",
+      "level": 15,
+      "description": "You gain another Warlock spell of your choice that can be cast once without expending a spell slot. The spell must be of level 8. You must finish a Long Rest before you can cast it in this way again. You regain all uses of your Mystic Arcanum when you finish a Long Rest. Whenever you gain a Warlock level, you can replace this arcanum spell with another Warlock spell of the same level.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Mystic Arcanum (level 9 spell)",
+      "level": 17,
+      "description": "You gain another Warlock spell of your choice that can be cast once without expending a spell slot. The spell must be of level 9. You must finish a Long Rest before you can cast it in this way again. You regain all uses of your Mystic Arcanum when you finish a Long Rest. Whenever you gain a Warlock level, you can replace this arcanum spell with another Warlock spell of the same level.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Epic Boon",
+      "level": 19,
+      "description": "You gain an Epic Boon feat (see chapter 5) or another feat of your choice for which you qualify. Boon of Fate is recommended.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Eldritch Master",
+      "level": 20,
+      "description": "When you use your Magical Cunning feature, you regain all your expended Pact Magic spell slots.",
+      "activation": "Passive",
+      "replacesOrImproves": "Magical Cunning"
+    }
+  ],
+  "subclassLabel": "Warlock Subclass",
+  "subclassFeatureLevels": [3, 6, 10, 14],
+  "subclasses": [
+    {
+      "name": "Archfey Patron",
+      "description": "Your pact draws on the power of the Feywild. When you choose this subclass, you might make a deal with an archfey, such as the Prince of Frost; the Queen of Air and Darkness, ruler of the Gloaming Court; Titania of the Summer Court; or an ancient hag. Or you might call on a spectrum of Fey, weaving a web of favors and debts. Whoever they are, your patron is often inscrutable and whimsical.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Archfey Spells",
+          "level": 3,
+          "description": "The magic of your patron ensures you always have certain spells ready; when you reach a Warlock level specified in the Archfey Spells table, you thereafter always have the listed spells prepared.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Calm Emotions",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Faerie Fire",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Misty Step",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Phantasmal Force",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Sleep",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Blink",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Plant Growth",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dominate Beast",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Greater Invisibility",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dominate Person",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Seeming",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Steps of the Fey",
+          "level": 3,
+          "description": "Your patron grants you the ability to move between the boundaries of the planes. You can cast Misty Step without expending a spell slot a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. In addition, whenever you cast that spell, you can choose one of the following additional effects.",
+          "activation": "Special",
+          "usesPerRest": {
+            "uses": "Charisma modifier (minimum of once)",
+            "restType": "Long"
+          },
+          "grantsSpells": [
+            {
+              "spell": "Misty Step",
+              "alwaysPrepared": true,
+              "freeUses": "Charisma modifier (minimum of once)",
+              "freeUseRestType": "Long"
+            }
+          ],
+          "options": [
+            {
+              "name": "Refreshing Step",
+              "description": "Immediately after you teleport, you or one creature you can see within 10 feet of yourself gains 1d10 Temporary Hit Points."
+            },
+            {
+              "name": "Taunting Step",
+              "description": "Creatures within 5 feet of the space you left must succeed on a Wisdom saving throw against your spell save DC or have Disadvantage on attack rolls against creatures other than you until the start of your next turn."
+            }
+          ]
+        },
+        {
+          "name": "Misty Escape",
+          "level": 6,
+          "description": "You can cast Misty Step as a Reaction in response to taking damage. In addition, the following effects are now among your Steps of the Fey options.",
+          "activation": "Reaction",
+          "replacesOrImproves": "Steps of the Fey",
+          "options": [
+            {
+              "name": "Disappearing Step",
+              "description": "You have the Invisible condition until the start of your next turn or until immediately after you make an attack roll, deal damage, or cast a spell."
+            },
+            {
+              "name": "Dreadful Step",
+              "description": "Creatures within 5 feet of the space you left or the space you appear in (your choice) must succeed on a Wisdom saving throw against your spell save DC or take 2d10 Psychic damage."
+            }
+          ]
+        },
+        {
+          "name": "Beguiling Defenses",
+          "level": 10,
+          "description": "Your patron teaches you how to guard your mind and body. You are immune to the Charmed condition. In addition, immediately after a creature you can see hits you with an attack roll, you can take a Reaction to reduce the damage you take by half (round down), and you can force the attacker to make a Wisdom saving throw against your spell save DC. On a failed save, the attacker takes Psychic damage equal to the damage you take. Once you use this Reaction, you can't use it again until you finish a Long Rest unless you expend a Pact Magic spell slot (no action required) to restore your use of it.",
+          "activation": "Reaction",
+          "conditionImmunities": ["Charmed"],
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "Expend a Pact Magic spell slot (no action required)"
+          },
+          "savingThrow": {
+            "ability": "Charisma",
+            "formula": "spell save DC"
+          }
+        },
+        {
+          "name": "Bewitching Magic",
+          "level": 14,
+          "description": "Your patron grants you the ability to weave your magic with teleportation. Immediately after you cast an Enchantment or Illusion spell using an action and a spell slot, you can cast Misty Step as part of the same action and without expending a spell slot.",
+          "activation": "Special"
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Archfey Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Calm Emotions", "Faerie Fire", "Misty Step", "Phantasmal Force", "Sleep"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Blink", "Plant Growth"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Dominate Beast", "Greater Invisibility"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Dominate Person", "Seeming"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Celestial Patron",
+      "description": "Your pact draws on the Upper Planes, the realms of everlasting bliss. You might enter an agreement with an empyrean, a couatl, a sphinx, a unicorn, or another heavenly entity. Or you might call on numerous such beings as you pursue goals aligned with theirs. Your pact allows you to experience a hint of the holy light that illuminates the multiverse.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Celestial Spells",
+          "level": 3,
+          "description": "The magic of your patron ensures you always have certain spells ready; when you reach a Warlock level specified in the Celestial Spells table, you thereafter always have the listed spells prepared.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Aid",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Cure Wounds",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Guiding Bolt",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Lesser Restoration",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Light",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Sacred Flame",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Daylight",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Revivify",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Guardian of Faith",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Wall of Fire",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Greater Restoration",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Summon Celestial",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Healing Light",
+          "level": 3,
+          "description": "You gain the ability to channel celestial energy to heal wounds. You have a pool of d6s to fuel this healing. The number of dice in the pool equals 1 plus your Warlock level. As a Bonus Action, you can heal yourself or one creature you can see within 60 feet of yourself, expending dice from the pool. The maximum number of dice you can expend at once equals your Charisma modifier (minimum of one die). Roll the dice you expend, and restore a number of Hit Points equal to the roll's total. Your pool regains all expended dice when you finish a Long Rest.",
+          "activation": "BonusAction",
+          "usesPerRest": {
+            "uses": "1 + Warlock level (pool of d6s)",
+            "restType": "Long"
+          }
+        },
+        {
+          "name": "Radiant Soul",
+          "level": 6,
+          "description": "Your link to your patron allows you to serve as a conduit for radiant energy. You have Resistance to Radiant damage. Once per turn, when a spell you cast deals Radiant or Fire damage, you can add your Charisma modifier to that spell's damage against one of the spell's targets.",
+          "activation": "Passive",
+          "damageResistances": ["Radiant"]
+        },
+        {
+          "name": "Celestial Resilience",
+          "level": 10,
+          "description": "You gain Temporary Hit Points whenever you use your Magical Cunning feature or finish a Short or Long Rest. These Temporary Hit Points equal your Warlock level plus your Charisma modifier. Additionally, choose up to five creatures you can see when you gain the points. Those creatures each gain Temporary Hit Points equal to half your Warlock level plus your Charisma modifier.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Searing Vengeance",
+          "level": 14,
+          "description": "When you or an ally within 60 feet of you is about to make a Death Saving Throw, you can unleash radiant energy to save the creature. The creature regains Hit Points equal to half its Hit Point maximum and can end the Prone condition on itself. Each creature of your choice that is within 30 feet of the creature takes Radiant damage equal to 2d8 plus your Charisma modifier, and each has the Blinded condition until the end of the current turn. Once you use this feature, you can't use it again until you finish a Long Rest.",
+          "activation": "Special",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long"
+          }
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Celestial Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Aid", "Cure Wounds", "Guiding Bolt", "Lesser Restoration", "Light", "Sacred Flame"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Daylight", "Revivify"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Guardian of Faith", "Wall of Fire"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Greater Restoration", "Summon Celestial"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fiend Patron",
+      "description": "Your pact draws on the Lower Planes, the realms of perdition. You might forge a bargain with a demon lord such as Demogorgon or Orcus; an archdevil such as Asmodeus; or a pit fiend, balor, yugoloth, or night hag that is especially mighty. That patron's aims are evil — the corruption or destruction of all things, ultimately including you — and your path is defined by the extent to which you strive against those aims.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Dark One's Blessing",
+          "level": 3,
+          "description": "When you reduce an enemy to 0 Hit Points, you gain Temporary Hit Points equal to your Charisma modifier plus your Warlock level (minimum of 1 Temporary Hit Point). You also gain this benefit if someone else reduces an enemy within 10 feet of you to 0 Hit Points.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Fiend Spells",
+          "level": 3,
+          "description": "The magic of your patron ensures you always have certain spells ready; when you reach a Warlock level specified in the Fiend Spells table, you thereafter always have the listed spells prepared.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Burning Hands",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Command",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Scorching Ray",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Suggestion",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Fireball",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Stinking Cloud",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Fire Shield",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Wall of Fire",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Geas",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Insect Plague",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Dark One's Own Luck",
+          "level": 6,
+          "description": "You can call on your fiendish patron to alter fate in your favor. When you make an ability check or a saving throw, you can use this feature to add 1d10 to your roll. You can do so after seeing the roll but before any of the roll's effects occur. You can use this feature a number of times equal to your Charisma modifier (minimum of once), but you can use it no more than once per roll. You regain all expended uses when you finish a Long Rest.",
+          "activation": "Free",
+          "usesPerRest": {
+            "uses": "Charisma modifier (minimum of once)",
+            "restType": "Long"
+          }
+        },
+        {
+          "name": "Fiendish Resilience",
+          "level": 10,
+          "description": "Choose one damage type, other than Force, whenever you finish a Short or Long Rest. You have Resistance to that damage type until you choose a different one with this feature.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Hurl Through Hell",
+          "level": 14,
+          "description": "Once per turn when you hit a creature with an attack roll, you can try to instantly transport the target through the Lower Planes. The target must succeed on a Charisma saving throw against your spell save DC, or the target disappears and hurtles through a nightmare landscape. The target takes 8d10 Psychic damage if it isn't a Fiend, and it has the Incapacitated condition until the end of your next turn, when it returns to the space it previously occupied or the nearest unoccupied space. Once you use this feature, you can't use it again until you finish a Long Rest unless you expend a Pact Magic spell slot (no action required) to restore your use of it.",
+          "activation": "Special",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "Expend a Pact Magic spell slot (no action required)"
+          },
+          "savingThrow": {
+            "ability": "Charisma",
+            "formula": "spell save DC"
+          }
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Fiend Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Burning Hands", "Command", "Scorching Ray", "Suggestion"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Fireball", "Stinking Cloud"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Fire Shield", "Wall of Fire"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Geas", "Insect Plague"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Great Old One Patron",
+      "description": "When you choose this subclass, you might bind yourself to an unspeakable being from the Far Realm or an elder god — a being such as Tharizdun, the Chained God; Zargon, the Returner; Hadar, the Dark Hunger; or Great Cthulhu. Or you might invoke several entities without yoking yourself to one. The motives of these beings are incomprehensible, and the Great Old One might be indifferent to your existence. But the secrets you've learned nevertheless allow you to draw strange magic from it.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Awakened Mind",
+          "level": 3,
+          "description": "You can form a telepathic connection between your mind and the mind of another. As a Bonus Action, choose one creature you can see within 30 feet of yourself. You and the chosen creature can communicate telepathically with each other while the two of you are within a number of miles of each other equal to your Charisma modifier (minimum of 1 mile). To understand each other, you each must mentally use a language the other knows. The telepathic connection lasts for a number of minutes equal to your Warlock level. It ends early if you use this ability to connect with a different creature.",
+          "activation": "BonusAction"
+        },
+        {
+          "name": "Great Old One Spells",
+          "level": 3,
+          "description": "The magic of your patron ensures you always have certain spells ready; when you reach a Warlock level specified in the Great Old One Spells table, you thereafter always have the listed spells prepared.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Detect Thoughts",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dissonant Whispers",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Phantasmal Force",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Tasha's Hideous Laughter",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Clairvoyance",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Hunger of Hadar",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Confusion",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Summon Aberration",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Modify Memory",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Telekinesis",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Psychic Spells",
+          "level": 3,
+          "description": "When you cast a Warlock spell that deals damage, you can change its damage type to Psychic. In addition, when you cast a Warlock spell that is an Enchantment or Illusion, you can do so without Verbal or Somatic components.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Clairvoyant Combatant",
+          "level": 6,
+          "description": "When you form a telepathic bond with a creature using your Awakened Mind, you can force that creature to make a Wisdom saving throw against your spell save DC. On a failed save, the creature has Disadvantage on attack rolls against you, and you have Advantage on attack rolls against that creature for the duration of the bond. Once you use this feature, you can't use it again until you finish a Short or Long Rest unless you expend a Pact Magic spell slot (no action required) to restore your use of it.",
+          "activation": "Special",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "ShortOrLong",
+            "rechargeAlternative": "Expend a Pact Magic spell slot (no action required)"
+          },
+          "savingThrow": {
+            "ability": "Charisma",
+            "formula": "spell save DC"
+          }
+        },
+        {
+          "name": "Eldritch Hex",
+          "level": 10,
+          "description": "Your alien patron grants you a powerful curse. You always have the Hex spell prepared. When you cast Hex and choose an ability, the target also has Disadvantage on saving throws of the chosen ability for the duration of the spell.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Hex",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Thought Shield",
+          "level": 10,
+          "description": "Your thoughts can't be read by telepathy or other means unless you allow it. You also have Resistance to Psychic damage, and whenever a creature deals Psychic damage to you, that creature takes the same amount of damage that you take.",
+          "activation": "Passive",
+          "damageResistances": ["Psychic"]
+        },
+        {
+          "name": "Create Thrall",
+          "level": 14,
+          "description": "When you cast Summon Aberration, you can modify it so that it doesn't require Concentration. If you do so, the spell's duration becomes 1 minute for that casting, and when summoned, the Aberration has a number of Temporary Hit Points equal to your Warlock level plus your Charisma modifier. In addition, the first time each turn the Aberration hits a creature under the effect of your Hex, the Aberration deals extra Psychic damage to the target equal to the bonus damage of that spell.",
+          "activation": "Special"
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Great Old One Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Detect Thoughts", "Dissonant Whispers", "Phantasmal Force", "Tasha's Hideous Laughter"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Clairvoyance", "Hunger of Hadar"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Confusion", "Summon Aberration"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Modify Memory", "Telekinesis"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "spellList": {
+    "cantrips": [
+      {
+        "name": "Blade Ward",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Chill Touch",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Eldritch Blast",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Friends",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mage Hand",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mind Sliver",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Minor Illusion",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Poison Spray",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Prestidigitation",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Thunderclap",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Toll the Dead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "True Strike",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level1": [
+      {
+        "name": "Armor of Agathys",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Arms of Hadar",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Bane",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Charm Person",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Comprehend Languages",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Detect Magic",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Expeditious Retreat",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hellish Rebuke",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hex",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Illusory Script",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Protection from Evil and Good",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Speak with Animals",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Tasha's Hideous Laughter",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Unseen Servant",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Witch Bolt",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level2": [
+      {
+        "name": "Cloud of Daggers",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Crown of Madness",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Darkness",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Enthrall",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hold Person",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Invisibility",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mind Spike",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mirror Image",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Misty Step",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Ray of Enfeeblement",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Spider Climb",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Suggestion",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level3": [
+      {
+        "name": "Counterspell",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dispel Magic",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fear",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fly",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Gaseous Form",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hunger of Hadar",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hypnotic Pattern",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Magic Circle",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Major Image",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Remove Curse",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Summon Fey",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Undead",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Tongues",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Vampiric Touch",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level4": [
+      {
+        "name": "Banishment",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Blight",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Charm Monster",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dimension Door",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hallucinatory Terrain",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Summon Aberration",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ],
+    "level5": [
+      {
+        "name": "Contact Other Plane",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Dream",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hold Monster",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Jallarzi's Storm of Radiance",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mislead",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Planar Binding",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Scrying",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Synaptic Static",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Teleportation Circle",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ],
+    "level6": [
+      {
+        "name": "Arcane Gate",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Circle of Death",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Create Undead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Eyebite",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Summon Fiend",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Tasha's Bubbling Cauldron",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "True Seeing",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ],
+    "level7": [
+      {
+        "name": "Etherealness",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Finger of Death",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Forcecage",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Plane Shift",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ],
+    "level8": [
+      {
+        "name": "Befuddlement",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Demiplane",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dominate Monster",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Glibness",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Power Word Stun",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level9": [
+      {
+        "name": "Astral Projection",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Foresight",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Gate",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Imprisonment",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Power Word Kill",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "True Polymorph",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Weird",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ]
+  },
+  "eldritchInvocationOptions": [
+    {
+      "name": "Agonizing Blast",
+      "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls.",
+      "prerequisite": "Level 2+ Warlock, a Warlock Cantrip That Deals Damage",
+      "repeatable": true
+    },
+    {
+      "name": "Armor of Shadows",
+      "description": "You can cast Mage Armor on yourself without expending a spell slot.",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Mage Armor",
+        "noSlot": true,
+        "selfOnly": true
+      }
+    },
+    {
+      "name": "Ascendant Step",
+      "description": "You can cast Levitate on yourself without expending a spell slot.",
+      "prerequisite": "Level 5+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Levitate",
+        "noSlot": true,
+        "selfOnly": true
+      }
+    },
+    {
+      "name": "Devil's Sight",
+      "description": "You can see normally in Dim Light and Darkness — both magical and nonmagical — within 120 feet of yourself.",
+      "prerequisite": "Level 2+ Warlock",
+      "repeatable": false
+    },
+    {
+      "name": "Devouring Blade",
+      "description": "The Extra Attack of your Thirsting Blade invocation confers two extra attacks rather than one.",
+      "prerequisite": "Level 12+ Warlock, Thirsting Blade Invocation",
+      "repeatable": false
+    },
+    {
+      "name": "Eldritch Mind",
+      "description": "You have Advantage on Constitution saving throws that you make to maintain Concentration.",
+      "repeatable": false
+    },
+    {
+      "name": "Eldritch Smite",
+      "description": "Once per turn when you hit a creature with your pact weapon, you can expend a Pact Magic spell slot to deal an extra 1d8 Force damage to the target, plus another 1d8 per level of the spell slot, and you can give the target the Prone condition if it is Huge or smaller.",
+      "prerequisite": "Level 5+ Warlock, Pact of the Blade Invocation",
+      "repeatable": false
+    },
+    {
+      "name": "Eldritch Spear",
+      "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level.",
+      "prerequisite": "Level 2+ Warlock, a Warlock Cantrip That Deals Damage",
+      "repeatable": true
+    },
+    {
+      "name": "Fiendish Vigor",
+      "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+      "prerequisite": "Level 2+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "False Life",
+        "noSlot": true,
+        "selfOnly": true
+      }
+    },
+    {
+      "name": "Gaze of Two Minds",
+      "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+      "prerequisite": "Level 5+ Warlock",
+      "repeatable": false
+    },
+    {
+      "name": "Gift of the Depths",
+      "description": "You can breathe underwater, and you gain a Swim Speed equal to your Speed. You can also cast Water Breathing once without expending a spell slot. You regain the ability to cast it in this way again when you finish a Long Rest.",
+      "prerequisite": "Level 5+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Water Breathing",
+        "noSlot": true,
+        "selfOnly": false
+      }
+    },
+    {
+      "name": "Gift of the Protectors",
+      "description": "A new page appears in your Book of Shadows when you conjure it. With your permission, a creature can take an action to write its name on that page, which can contain a number of names equal to your Charisma modifier (minimum of one name). When any creature whose name is on the page is reduced to 0 Hit Points but not killed outright, the creature magically drops to 1 Hit Point instead. Once this magic is triggered, no creature can benefit from it until you finish a Long Rest. As a Magic action, you can erase a name on the page by touching it.",
+      "prerequisite": "Level 9+ Warlock, Pact of the Tome Invocation",
+      "repeatable": false
+    },
+    {
+      "name": "Investment of the Chain Master",
+      "description": "When you cast Find Familiar, you infuse the summoned familiar with a measure of your eldritch power, granting the creature the following benefits. Aerial or Aquatic: The familiar gains either a Fly Speed or a Swim Speed (your choice) of 40 feet. Quick Attack: As a Bonus Action, you can command the familiar to take the Attack action. Necrotic or Radiant Damage: Whenever the familiar deals Bludgeoning, Piercing, or Slashing damage, you can make it deal Necrotic or Radiant damage instead. Your Save DC: If the familiar forces a creature to make a saving throw, it uses your spell save DC. Resistance: When the familiar takes damage, you can take a Reaction to grant it Resistance against that damage.",
+      "prerequisite": "Level 5+ Warlock, Pact of the Chain Invocation",
+      "repeatable": false
+    },
+    {
+      "name": "Lessons of the First Ones",
+      "description": "You have received knowledge from an elder entity of the multiverse, allowing you to gain one Origin feat of your choice (see chapter 5).",
+      "prerequisite": "Level 2+ Warlock",
+      "repeatable": true
+    },
+    {
+      "name": "Lifedrinker",
+      "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Point).",
+      "prerequisite": "Level 9+ Warlock, Pact of the Blade Invocation",
+      "repeatable": false
+    },
+    {
+      "name": "Mask of Many Faces",
+      "description": "You can cast Disguise Self without expending a spell slot.",
+      "prerequisite": "Level 2+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Disguise Self",
+        "noSlot": true,
+        "selfOnly": false
+      }
+    },
+    {
+      "name": "Master of Myriad Forms",
+      "description": "You can cast Alter Self without expending a spell slot.",
+      "prerequisite": "Level 5+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Alter Self",
+        "noSlot": true,
+        "selfOnly": false
+      }
+    },
+    {
+      "name": "Misty Visions",
+      "description": "You can cast Silent Image without expending a spell slot.",
+      "prerequisite": "Level 2+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Silent Image",
+        "noSlot": true,
+        "selfOnly": false
+      }
+    },
+    {
+      "name": "One with Shadows",
+      "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+      "prerequisite": "Level 5+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Invisibility",
+        "noSlot": true,
+        "selfOnly": true
+      }
+    },
+    {
+      "name": "Otherworldly Leap",
+      "description": "You can cast Jump on yourself without expending a spell slot.",
+      "prerequisite": "Level 2+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Jump",
+        "noSlot": true,
+        "selfOnly": true
+      }
+    },
+    {
+      "name": "Pact of the Blade",
+      "description": "As a Bonus Action, you can conjure a pact weapon in your hand — a Simple or Martial Melee weapon of your choice with which you bond — or create a bond with a magic weapon if you touch it; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends.",
+      "repeatable": false,
+      "grantsPactFeature": true
+    },
+    {
+      "name": "Pact of the Chain",
+      "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake. Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction.",
+      "repeatable": false,
+      "grantsPactFeature": true,
+      "grantsSpell": {
+        "spell": "Find Familiar",
+        "noSlot": true,
+        "selfOnly": false
+      }
+    },
+    {
+      "name": "Pact of the Tome",
+      "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals: When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus: You can use the book as a Spellcasting Focus.",
+      "repeatable": false,
+      "grantsPactFeature": true
+    },
+    {
+      "name": "Repelling Blast",
+      "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you.",
+      "prerequisite": "Level 2+ Warlock, a Warlock Cantrip That Deals Damage via an Attack Roll",
+      "repeatable": true
+    },
+    {
+      "name": "Thirsting Blade",
+      "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+      "prerequisite": "Level 5+ Warlock, Pact of the Blade Invocation",
+      "repeatable": false
+    },
+    {
+      "name": "Visions of Distant Realms",
+      "description": "You can cast Arcane Eye without expending a spell slot.",
+      "prerequisite": "Level 9+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Arcane Eye",
+        "noSlot": true,
+        "selfOnly": false
+      }
+    },
+    {
+      "name": "Whispers of the Grave",
+      "description": "You can cast Speak with Dead without expending a spell slot.",
+      "prerequisite": "Level 7+ Warlock",
+      "repeatable": false,
+      "grantsSpell": {
+        "spell": "Speak with Dead",
+        "noSlot": true,
+        "selfOnly": false
+      }
+    },
+    {
+      "name": "Witch Sight",
+      "description": "You have Truesight with a range of 30 feet.",
+      "prerequisite": "Level 15+ Warlock",
+      "repeatable": false
+    }
+  ]
+}

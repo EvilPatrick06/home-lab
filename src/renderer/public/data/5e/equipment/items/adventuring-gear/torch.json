@@ -1,0 +1,13 @@
+{
+  "name": "Torch",
+  "cost": "1 CP",
+  "weight": "1 lb.",
+  "description": "Burns 1 hour. Bright Light in 20-foot radius and Dim Light for additional 20 feet. Can be used as Simple Melee weapon for 1 Fire damage.",
+  "slug": "torch",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

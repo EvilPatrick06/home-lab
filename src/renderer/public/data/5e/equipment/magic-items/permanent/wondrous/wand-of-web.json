@@ -1,0 +1,26 @@
+{
+  "name": "Wand of Web",
+  "itemType": "Wand",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "attunementRequirements": "by a Spellcaster",
+  "description": "This wand has 7 charges. While holding it, you can expend 1 charge to cast *Web* (save DC 13) from it.",
+  "properties": [],
+  "weight": null,
+  "cost": null,
+  "charges": 7,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d6 + 1",
+  "spells": [
+    {
+      "name": "Web",
+      "castingTime": null,
+      "range": null,
+      "components": null,
+      "duration": null,
+      "saveDC": 13
+    }
+  ],
+  "damage": null,
+  "source": "DMG 2024"
+}

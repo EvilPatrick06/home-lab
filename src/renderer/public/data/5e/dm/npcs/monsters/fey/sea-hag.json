@@ -1,0 +1,177 @@
+{
+  "name": "Sea Hag",
+  "sizes": ["Medium"],
+  "creatureType": "Fey",
+  "descriptiveTags": ["Hag"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Coastal", "Underwater"],
+  "treasure": ["Arcana", "Implements"],
+  "lore": "Sea hags dwell in dismal underwater caves and derelict ships, delighting in the suffering of others. These wretched creatures appear as withered crones with slimy skin, tangled hair, and dead eyes that can freeze a mortal's heart with terror. A sea hag covers its ugly form with an illusory disguise when it goes among the living.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 58,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "CHA": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Aquan", "Common", "Giant"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The hag can breathe air and water."
+    },
+    {
+      "name": "Horrific Appearance",
+      "description": "Any Humanoid that starts its turn within 30 feet of the hag and can see the hag's true form must make a DC 11 Wisdom saving throw. On a failed save, the creature has the Frightened condition for 1 minute. A creature can repeat the saving throw at the end of each of its turns, with Disadvantage if the hag is within line of sight, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to this hag's Horrific Appearance for the next 24 hours. Unless the target is surprised or the revelation of the hag's true form is sudden, the target can avert its eyes and avoid the initial saving throw. Until the start of its next turn, a creature that averts its eyes has Disadvantage on attack rolls against the hag."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "WIS",
+      "spellSaveDC": 11,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Disguise Self",
+              "level": 1
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The hag makes two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 10 (2d6 + 3) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Death Glare",
+      "description": "The hag targets one Frightened creature it can see within 30 feet. The target must succeed on a DC 11 Wisdom saving throw or drop to 0 Hit Points.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 11,
+        "targets": "one Frightened creature the hag can see within 30 feet",
+        "onFailure": {
+          "effects": "The target drops to 0 Hit Points."
+        },
+        "onSuccess": {
+          "effects": "The creature is unaffected."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Heroic Inspiration",
+  "slug": "heroic-inspiration",
+  "description": "If you have Heroic Inspiration, you can expend it when you make a D20 Test to give yourself Advantage on the roll. You either have Heroic Inspiration or you don't; you can't stockpile multiple instances. If you have it when you gain it, you can give it to another character in your group.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

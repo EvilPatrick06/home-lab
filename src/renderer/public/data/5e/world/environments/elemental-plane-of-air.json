@@ -1,0 +1,443 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "elemental-plane-of-air",
+      "name": "Elemental Plane of Air",
+      "alternateNames": ["Plane of Air"],
+      "category": "Inner Plane",
+      "subcategory": "Elemental Air",
+      "alignments": [],
+      "philosophicalEssence": "The essential nature of air is movement, animation, and inspiration. Air is the breath of life, the winds of change, the fresh breeze that clears away the fog of ignorance and the stuffiness of old ideas.",
+      "emotionalInfluence": "When turned toward wicked ideals by cultists of Elemental Evil, elemental air represents destructive power turned to vengeful ends. Cultists of Evil Air wield howling storms to forcefully express their personal freedom or lay claim to things they feel they have been wrongfully denied.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Open expanse of air with drifting earth motes and cloud banks",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "The air is mild, except near the Para-elemental Planes at either end of the plane, where the temperature is more extreme. The plane is composed entirely of open air with drifting chunks of earth and magically solidified cloud banks.",
+        "temperature": {
+          "category": "variable",
+          "description": "The air is mild, except near the Para-elemental Planes at either end of the plane, where the temperature is more extreme. Near the Para-elemental Plane of Ice, frigid winds and driving snowstorms prevail. Near the Para-elemental Plane of Ash, hot, dry winds scour earth motes into barren rock."
+        },
+        "hasSurface": false,
+        "dominantElement": "Air",
+        "weatherPatterns": "Storms are frequent, ranging from strong thunderstorms to fierce tornadoes or mighty hurricanes. Rain and snow fall only in the part of the plane nearest to the Para-elemental Plane of Ice."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "No specific time flow alteration documented for the Elemental Plane of Air."
+      },
+      "hazards": [
+        {
+          "id": "air-labyrinth-winds",
+          "name": "Labyrinth Winds",
+          "description": "Much of the Plane of Air is a complex web of air streams, currents, and winds called the Labyrinth Winds. These range from stiff breezes to howling gales that can rip a creature apart. Even the most skilled flying creatures must navigate these currents carefully, flying with the winds, not against them.",
+          "category": "weather",
+          "severity": "severe",
+          "movementSpeedPenalty": {
+            "type": "gravity_alteration",
+            "affectedMovementTypes": ["fly", "all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "none",
+              "description": "The plane has no gravity. Creatures and objects float unless acted upon by wind currents. Earth motes drift in the openness.",
+              "affectsFloatingObjects": true,
+              "driftSpeed": "Variable depending on wind currents"
+            },
+            "effectiveSpeedReductionPercent": 0,
+            "windForce": {
+              "category": "variable",
+              "opposesMovement": true,
+              "description": "Ranges from stiff breezes to howling gales that can rip a creature apart. Even the most skilled flying creatures must navigate these currents carefully, flying with the winds, not against them."
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Air"
+        },
+        {
+          "id": "air-frequent-storms",
+          "name": "Frequent Storms",
+          "description": "Storms are frequent on the Elemental Plane of Air, ranging from strong thunderstorms to fierce tornadoes or mighty hurricanes.",
+          "category": "weather",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Air"
+        },
+        {
+          "id": "air-obscured-visibility",
+          "name": "Cloud Obscured Visibility",
+          "description": "Drifting clouds can obscure visibility in any direction in the plane.",
+          "category": "environmental",
+          "severity": "minor",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Air"
+        },
+        {
+          "id": "air-mistral-reach-cold",
+          "name": "Mistral Reach Extreme Cold",
+          "description": "Located near the Para-elemental Plane of Ice, the Mistral Reach is a region of frigid winds and driving snowstorms. Earth motes in the reach are covered with snow and ice.",
+          "category": "elemental",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Air"
+        },
+        {
+          "id": "air-sirocco-straits-heat",
+          "name": "Sirocco Straits Extreme Heat",
+          "description": "The Sirocco Straits is the region of the plane nearest to the Para-elemental Plane of Ash, where hot, dry winds scour earth motes into barren chunks of rock.",
+          "category": "elemental",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Air"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [
+        {
+          "id": "air-vortex-portal",
+          "type": "vortex",
+          "destination": "Material Plane",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "Vortices join the Elemental Plane of Air with very similar locations on the Material Plane, such as locations with strong aerial characteristics.",
+            "situationCondition": "A location on the Material Plane with a very similar aerial nature"
+          },
+          "colorOrAppearance": "Swirling vortex of air",
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "air-to-ice",
+          "name": "Border with Para-elemental Plane of Ice",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Air", "Para-elemental Plane of Ice"],
+          "description": "The region of the Plane of Air nearest to the Para-elemental Plane of Ice is the Mistral Reach, a region of frigid winds and driving snowstorms. Rain and snow fall only in this part of the plane.",
+          "hazards": ["Frigid winds", "Driving snowstorms"],
+          "isOneWay": false
+        },
+        {
+          "id": "air-to-ash",
+          "name": "Border with Para-elemental Plane of Ash",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Air", "Para-elemental Plane of Ash"],
+          "description": "The Sirocco Straits is the region of the plane nearest to the Para-elemental Plane of Ash, where hot, dry winds scour earth motes into barren chunks of rock.",
+          "hazards": ["Hot dry winds", "Barren scouring"],
+          "isOneWay": false
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental", "Humanoid"],
+        "notableEntities": [
+          {
+            "name": "Wind Dukes of Aaqa",
+            "title": "Wind Dukes",
+            "description": "The Wind Dukes of Aaqa are dedicated to law and good, and they maintain a vigilant watch against the depredations of Elemental Evil. They are served by aarakocra.",
+            "rulesLocation": "Aaqa"
+          },
+          {
+            "name": "Elemental Princes of Evil",
+            "description": "Primordial beings of pure elemental fury that dwell in the outermost extents of the Elemental Planes.",
+            "rulesLocation": "Outer regions of the plane"
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Aaqa",
+            "race": "Wind Dukes and Aarakocra",
+            "description": "A shining domain of silver spires and verdant gardens atop a fertile earth mote. A hidden realm reachable only by following a particular sequence of flowing winds. The Wind Dukes of Aaqa are dedicated to law and good.",
+            "location": "Hidden realm atop a fertile earth mote"
+          },
+          {
+            "name": "Djinn Settlements",
+            "description": "Djinn and other natives of the plane live on earth motes that drift in the openness, many covered with lush vegetation.",
+            "location": "Various earth motes throughout the plane"
+          },
+          {
+            "name": "Cloud Bank Communities",
+            "description": "Other creatures live on cloud banks infused with magic to become solid surfaces, supporting towns and castles.",
+            "location": "Various magically solidified cloud banks"
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [
+        {
+          "id": "air-aaqa",
+          "name": "Aaqa",
+          "type": "Realm",
+          "ruler": {
+            "name": "Wind Dukes of Aaqa",
+            "title": "Wind Dukes",
+            "description": "Dedicated to law and good, maintaining a vigilant watch against the depredations of Elemental Evil. Served by aarakocra."
+          },
+          "description": "A shining domain of silver spires and verdant gardens atop a fertile earth mote. One of the hidden realms reachable only by following a particular sequence of flowing winds.",
+          "hazards": []
+        },
+        {
+          "id": "air-labyrinth-winds-region",
+          "name": "Labyrinth Winds",
+          "type": "Region",
+          "description": "Much of the Plane of Air is a complex web of air streams, currents, and winds called the Labyrinth Winds. These range from stiff breezes to howling gales that can rip a creature apart. Even the most skilled flying creatures must navigate these currents carefully, flying with the winds, not against them.",
+          "hazards": ["Howling gales that can rip a creature apart"]
+        },
+        {
+          "id": "air-mistral-reach",
+          "name": "Mistral Reach",
+          "type": "Region",
+          "description": "Located near the Para-elemental Plane of Ice, the Mistral Reach is a region of frigid winds and driving snowstorms. Earth motes in the reach are covered with snow and ice.",
+          "hazards": ["Frigid winds", "Driving snowstorms"]
+        },
+        {
+          "id": "air-sirocco-straits",
+          "name": "Sirocco Straits",
+          "type": "Region",
+          "description": "The Sirocco Straits is the region of the plane nearest to the Para-elemental Plane of Ash, where hot, dry winds scour earth motes into barren chunks of rock.",
+          "hazards": ["Hot dry winds", "Scouring erosion"]
+        }
+      ],
+      "adventureThemes": [
+        "Movement, animation, and inspiration",
+        "The breath of life and winds of change",
+        "Confronting Elemental Evil cults of air",
+        "Destructive power of storms turned to vengeful ends",
+        "Navigating treacherous wind currents",
+        "Hidden realms accessible only through specific wind sequences"
+      ],
+      "adventureSituations": [],
+      "etherealCurtainColor": "Pale blue",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some portals are vortices, joining an Elemental Plane with a very similar location on the Material Plane.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting portal requirements (command, key item, random, situation, or time)"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portal guardians", "One-way portals", "Random opening/closing times"],
+      "destinations": ["Any connected plane"]
+    },
+    {
+      "id": "spells-travel",
+      "name": "Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Ability to cast the relevant spell"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying precision of arrival"],
+      "destinations": ["Any plane depending on spell"]
+    },
+    {
+      "id": "ethereal-curtain-to-air",
+      "name": "Ethereal Curtain to Plane of Air",
+      "type": "natural_crossing",
+      "description": "In the Deep Ethereal, curtains of vaporous color lead to the Border Ethereal connected to the Elemental Plane of Air. The curtain for the Plane of Air is pale blue.",
+      "requirements": ["Access to the Deep Ethereal"],
+      "associatedSpells": ["Plane Shift", "Gate"],
+      "risks": ["Ether cyclones in the Deep Ethereal", "Travel time of 1d10 × 10 hours between curtains"],
+      "destinations": ["Elemental Plane of Air"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

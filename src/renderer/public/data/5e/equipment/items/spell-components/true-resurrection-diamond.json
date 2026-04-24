@@ -1,0 +1,15 @@
+{
+  "name": "Diamond (25,000 GP)",
+  "slug": "true-resurrection-diamond",
+  "category": "Spell Component",
+  "cost": "25000 GP",
+  "weight": "—",
+  "consumed": true,
+  "description": "A diamond worth at least 25,000 GP, consumed by the spell.",
+  "usedBy": ["True Resurrection"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 7",
+    "section": "Spell Descriptions"
+  }
+}

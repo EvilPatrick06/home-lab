@@ -1,0 +1,73 @@
+{
+  "name": "Salamander Inferno Master",
+  "slug": "salamander-inferno-master",
+  "size": "Large",
+  "type": "Elemental",
+  "alignment": "Neutral Evil",
+  "ac": "18",
+  "initiative": "+8 (18)",
+  "hp": "256",
+  "hpFormula": "27d10 + 108",
+  "speed": "40 ft., Climb 40 ft.",
+  "abilityScores": {
+    "str": 24,
+    "dex": 16,
+    "con": 18,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 7,
+    "dex": 8,
+    "con": 4,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Fire",
+  "vulnerabilities": "Cold",
+  "senses": "Darkvision 120 ft.; Passive Perception 10",
+  "languages": "Primordial (Ignan)",
+  "cr": "15 (XP 13,000; PB +5)",
+  "traits": [
+    {
+      "name": "Fire Aura",
+      "description": "At the end of each of the salamander's turns, each creature of the salamander's choice in a 10-foot Emanation originating from the salamander takes 10 (3d6) Fire damage."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The salamander has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The salamander makes two Flame Trident attacks."
+    },
+    {
+      "name": "Flame Trident",
+      "description": "*Melee or Ranged Attack Roll:* +12, reach 5 ft. or range 30/90 ft. *Hit:* 16 (2d8 + 7) Piercing damage plus 14 (4d6) Fire damage. *Hit or Miss:* The trident magically returns to the salamander's hand immediately after a ranged attack."
+    },
+    {
+      "name": "Inferno Blast (Recharge 5--6)",
+      "description": "*Dexterity Saving Throw:* DC 18, each creature in a 30-foot-radius Sphere centered on a point the salamander can see within 120 feet. *Failure:* 35 (10d6) Fire damage, and the target starts burning, taking 5 (1d10) Fire damage at the start of each of its turns instead of the normal burning damage. The target gains 1 Exhaustion level whenever it takes this burning damage. *Success:* Half damage only."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Blazing Movement",
+      "description": "The salamander moves up to its Speed without provoking Opportunity Attacks. During this movement, fire fills a 5-foot Emanation originating from the salamander. When the Emanation enters a creature's space, that creature takes 7 (2d6) Fire damage. A creature can take this damage only once per turn."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Serpentine Artists of the Inferno*\n**Habitat:** Planar (Elemental Plane of Fire), Underdark; **Treasure:** Armaments\nSalamanders are serpentine denizens of the Elemental Plane of Fire. They believe that flames expose the purest forms of all things and delight in burning and melting things, seeing fleeting beauty and striking nuances in blazes consuming different fuels -- ancient forests, artistic masterpieces, or living creatures. To salamanders, those that can't endure their flames are nothing but ashes in disguise. They harbor malice toward few creatures, but they consider creating remarkable flames more important than the pain and loss their fires cause.\nSalamanders are typically content to dwell on the Elemental Plane of Fire, creating strange, temporary art amid the flames. Some travel to other planes of existence and worlds to experience the flames of other realms or create conflagrations of unprecedented scale.\nJuvenile salamanders emerge from burning hot, two-foot-diameter eggs. Called fire snakes, these serpentlike creatures slither through the Plane of Fire and other intensely hot places. After consuming the proper fuels and exposing themselves to fiery extremes, fire snakes grow into salamanders.\nMost salamanders are arrogant yet curious, seeking to create artful blazes or burn that which has never been burned. They eagerly explain their work to strangers before trying to determine how the strangers burn. Salamanders radiate intense heat, which is conducted by their blazing weapons.\nSalamander inferno masters are ancient connoisseurs of flames and often inhabit places with unique scorching properties. They gather communes of apprentices who learn fiery techniques while helping their mentors accomplish great works. Inferno masters have ambitious goals, such as causing massive volcanic eruptions, opening portals to burning planes, destroying Artifacts, or burning all instances of something from the multiverse.\n> \"The salamanders of the Elemental Plane of Fire delight in meeting visitors from other realms. For them, every stranger is a potential addition to their fiery artistry. Don't fall for their flattery, no matter how beautifully they say you'll burn.\" -- Filiag Highthumbs, *Planes and Travel*",
+  "habitat": "Planar (Elemental Plane of Fire), Underdark",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Elementals",
+    "file": "Elementals.md"
+  }
+}

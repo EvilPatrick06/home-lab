@@ -1,0 +1,589 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "elemental-plane-of-fire",
+      "name": "Elemental Plane of Fire",
+      "alternateNames": ["Plane of Fire"],
+      "category": "Inner Plane",
+      "subcategory": "Elemental Fire",
+      "alignments": [],
+      "philosophicalEssence": "The fundamental nature of fire: energy, passion, transformation, and destruction. Fire represents vibrancy, passion, and change. At its best, fire reflects the light of inspiration, the warmth of compassion, and the flame of desire.",
+      "emotionalInfluence": "The entire substance of the plane is suffused with the fundamental nature of fire. Even objects of solid brass or basalt seem to dance with flame in a manifestation of the vibrancy of fire's dominion.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "The air is breathable, but creatures not native to the plane must cover their mouths and eyes to avoid stinging cinders. The efreet use magic to keep the cinder storms away from the City of Brass, but elsewhere in the plane, the wind always blows, sometimes rising to hurricane force during the worst storms.",
+        "temperature": {
+          "category": "extreme_heat",
+          "description": "The heat on the Plane of Fire is comparable to a hot desert on the Material Plane and poses a similar threat to travelers (see Environmental Effects in chapter 3). Sources of water are rare, so travelers must carry their own supplies or produce water by magic."
+        },
+        "hasSurface": true,
+        "dominantElement": "Fire",
+        "weatherPatterns": "The weather on the plane is marked by fierce winds and thick ash. The efreet use magic to keep the cinder storms away from the City of Brass, but elsewhere in the plane, the wind always blows, sometimes rising to hurricane force during the worst storms."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "The plane operates on a 24-hour cycle determined by the blazing sun that waxes and wanes at the zenith of the golden sky."
+      },
+      "hazards": [
+        {
+          "id": "fire-heat-desert",
+          "name": "Extreme Heat",
+          "description": "The heat on the Plane of Fire is comparable to a hot desert on the Material Plane and poses a similar threat to travelers. Sources of water are rare, so travelers must carry their own supplies or produce water by magic.",
+          "category": "elemental",
+          "severity": "major",
+          "immuneCreatureTypes": ["Elemental"],
+          "immuneDamageTypes": ["Fire"],
+          "immuneTraits": ["native to the Elemental Plane of Fire"],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Environmental Effects in chapter 3"
+        },
+        {
+          "id": "cinder-storms",
+          "name": "Cinder Storms and Stinging Ash",
+          "description": "The weather on the plane is marked by fierce winds and thick ash. Creatures not native to the plane must cover their mouths and eyes to avoid stinging cinders. The wind always blows outside the City of Brass, sometimes rising to hurricane force during the worst storms.",
+          "category": "elemental",
+          "severity": "moderate",
+          "movementSpeedPenalty": {
+            "type": "none",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "windForce": {
+              "category": "variable",
+              "opposesMovement": true
+            },
+            "effectiveSpeedReductionPercent": 0
+          },
+          "immuneCreatureTypes": ["Elemental"],
+          "immuneTraits": ["native to the Elemental Plane of Fire"],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Fire"
+        },
+        {
+          "id": "water-scarcity",
+          "name": "Water Scarcity",
+          "description": "Sources of water are rare on the Plane of Fire, so travelers must carry their own supplies or produce water by magic.",
+          "category": "environmental",
+          "severity": "major",
+          "immuneCreatureTypes": ["Elemental"],
+          "immuneTraits": ["native to the Elemental Plane of Fire"],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Fire"
+        },
+        {
+          "id": "hurricane-winds",
+          "name": "Hurricane-Force Winds",
+          "description": "Outside the City of Brass, the wind always blows, sometimes rising to hurricane force during the worst storms.",
+          "category": "weather",
+          "severity": "severe",
+          "movementSpeedPenalty": {
+            "type": "none",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "windForce": {
+              "category": "hurricane",
+              "opposesMovement": true
+            },
+            "effectiveSpeedReductionPercent": 0
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "encounterProbability": {
+            "description": "Sometimes rises to hurricane force during the worst storms"
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Fire"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "intense-noon-light",
+          "name": "Intense Noon Light",
+          "description": "A blazing sun hangs at the zenith of a golden sky above the Plane of Fire, waxing and waning on a 24-hour cycle. It ranges from white hot at noon to deep red at midnight. At noon, the light is intense.",
+          "mechanicalEffect": "At noon, the light from the blazing sun is intense. Most business in the City of Brass takes place during the darker hours due to the intensity of noon light.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "variable",
+            "naturalLightSource": "A blazing sun at the zenith of a golden sky, waxing and waning on a 24-hour cycle. White hot at noon, deep red at midnight.",
+            "visibilityRange": {
+              "standard": null,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "radiatesEnergy": true,
+              "radiationDamageType": "Fire"
+            },
+            "dayNightCycle": {
+              "exists": true,
+              "periodHours": 24,
+              "lightPhaseDuration": 12,
+              "darkPhaseDuration": 12,
+              "transitionType": "gradual",
+              "description": "The blazing sun waxes and wanes on a 24-hour cycle, ranging from white hot at noon to deep red at midnight. The darkest hours display a deep-red twilight.",
+              "peakIntensity": "white hot at noon",
+              "minimumIntensity": "deep red at midnight"
+            },
+            "colorDescription": "Golden sky; white-hot sunlight at noon fading to deep-red twilight at midnight",
+            "illuminationModifierPercent": 0
+          },
+          "duration": "Continuous, following 24-hour cycle",
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Fire"
+        },
+        {
+          "id": "cinder-eye-protection",
+          "name": "Cinder Protection Requirement",
+          "description": "Creatures not native to the plane must cover their mouths and eyes to avoid stinging cinders carried by thick ash and fierce winds.",
+          "mechanicalEffect": "Non-native creatures must cover their mouths and eyes to avoid stinging cinders. The efreet use magic to keep the cinder storms away from the City of Brass.",
+          "isOptional": false,
+          "duration": "Continuous while on the plane outside protected areas",
+          "removalMethods": [
+            "Covering mouths and eyes",
+            "Being in the City of Brass where efreet magic keeps cinder storms away"
+          ],
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Fire"
+        }
+      ],
+      "portals": [
+        {
+          "id": "fire-vortex-volcano",
+          "type": "vortex",
+          "name": "Volcanic Vortex",
+          "destination": "Material Plane volcano",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "A swirling pool of magma in the heart of a volcano creates a vortex connecting the Material Plane to the Plane of Fire.",
+            "situationCondition": "Swirling pool of magma in the heart of a volcano"
+          },
+          "colorOrAppearance": "Swirling pool of magma"
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "fire-to-ash",
+          "name": "Border with Para-elemental Plane of Ash",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Fire", "Para-elemental Plane of Ash"],
+          "description": "The Sea of Fire's lava flows through the Fountains of Creation toward the Para-elemental Plane of Ash. The Sirocco Straits on the Plane of Air is the region nearest to the Para-elemental Plane of Ash, where hot, dry winds scour earth motes.",
+          "hazards": ["Raging conflagration", "Flames, smoke, and ash"],
+          "isOneWay": false,
+          "navigableBy": ["Brass ships", "Efreeti sailors", "Azer sailors"]
+        },
+        {
+          "id": "fire-to-magma",
+          "name": "Border with Para-elemental Plane of Magma",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Fire", "Para-elemental Plane of Magma"],
+          "description": "The boundary between the Plane of Earth and the Plane of Fire is a great range of volcanic mountains forming the Plane of Magma (Fountains of Creation). Lava flows down the slopes of these mountains toward the Plane of Fire.",
+          "hazards": ["Volcanic eruptions", "Lava flows"],
+          "isOneWay": false,
+          "navigableBy": []
+        },
+        {
+          "id": "fire-ethereal-curtain",
+          "name": "Ethereal Curtain to Plane of Fire",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Fire", "Ethereal Plane"],
+          "description": "An orange-colored ethereal curtain in the Deep Ethereal leads to the Border Ethereal overlapping the Elemental Plane of Fire.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": []
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental", "Fiend", "Dragon", "Humanoid"],
+        "notableEntities": [
+          {
+            "name": "Emperor of the Efreet",
+            "title": "Tyrannical Emperor",
+            "creatureType": "Elemental (Efreeti)",
+            "description": "The tyrannical emperor of the efreet reigns supreme from the Charcoal Palace at the heart of the City of Brass, surrounded by nobles and a host of servants, guardians, and sycophants.",
+            "rulesLocation": "City of Brass, Charcoal Palace"
+          },
+          {
+            "name": "Torchy",
+            "creatureType": "Sentient Magic Item",
+            "description": "A sentient Flame Tongue (Mace) that is the proprietor of an iron-walled tavern built atop a tall basalt crag in the middle of a lava river. Sells fine ale and seems to have a new wielder every few months. Popular hangout for ballooning enthusiasts.",
+            "rulesLocation": "Torchy's tavern, basalt crag in lava river"
+          },
+          {
+            "name": "Elemental Princes of Evil",
+            "title": "Primordial beings of pure elemental fury",
+            "creatureType": "Elemental",
+            "description": "Primordial beings of pure elemental fury dwelling in the outer regions of the Elemental Planes.",
+            "rulesLocation": "Outer regions of the Elemental Plane of Fire"
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Efreet of the City of Brass",
+            "race": "Efreeti",
+            "description": "The efreet are the dominant civilization on the Plane of Fire. Their ornate spires and spiked walls reflect their grandiose and cruel nature. Everything in the city seems alive with dancing flames. The efreet are fond of trading in favors, especially when they have the upper hand in negotiations.",
+            "location": "City of Brass, on the shores of the Sea of Fire"
+          },
+          {
+            "name": "Azer Outposts",
+            "race": "Azer",
+            "description": "Azers maintain outposts across the Cinder Wastes and sail the Sea of Fire in great brass ships alongside efreeti sailors.",
+            "location": "Cinder Wastes and Sea of Fire"
+          },
+          {
+            "name": "Salamander Bands",
+            "race": "Salamander",
+            "description": "Roving bands of salamanders battle each other, raid azer outposts, and avoid patrols from the City of Brass across the Cinder Wastes.",
+            "location": "Cinder Wastes"
+          },
+          {
+            "name": "Red Dragons",
+            "race": "Dragon",
+            "description": "Powerful red dragons maintain lairs on islands of obsidian and basalt jutting from the Sea of Fire.",
+            "location": "Islands in the Sea of Fire"
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [
+        {
+          "id": "cinder-wastes",
+          "name": "Cinder Wastes",
+          "type": "Region",
+          "description": "The Plane of Fire is dominated by a great expanse of black cinders and embers crossed by rivers of lava. Roving bands of salamanders battle each other, raid azer outposts, and avoid patrols from the City of Brass. Obsidian ruins dot the desert—remnants of forgotten civilizations.",
+          "hazards": ["Rivers of lava", "Cinder storms", "Salamander raids"]
+        },
+        {
+          "id": "city-of-brass",
+          "name": "City of Brass",
+          "type": "City",
+          "ruler": {
+            "name": "Emperor of the Efreet",
+            "title": "Tyrannical Emperor",
+            "description": "The tyrannical emperor of the efreet reigns supreme from the Charcoal Palace, surrounded by nobles and a host of servants, guardians, and sycophants."
+          },
+          "description": "Perhaps the best-known location on the Inner Planes, the City of Brass stands on the shores of the Sea of Fire. This is the fabled city of the efreet, and its ornate spires and spiked walls reflect the efreet's grandiose and cruel nature. True to the nature of the Plane of Fire, everything in the city seems alive with dancing flames, reflecting the vibrant energy of the place. The heart of the city is the formidable Charcoal Palace. If it's possible to buy magic items in your campaign, the City of Brass is the most likely place to find any item for sale.",
+          "hazards": ["Efreet use magic to keep cinder storms away"],
+          "portalDestination": "Various planes via trade routes"
+        },
+        {
+          "id": "sea-of-fire",
+          "name": "Sea of Fire",
+          "type": "Region",
+          "description": "Lava flows through the Fountains of Creation toward the Para-elemental Plane of Ash and pools into a great expanse of lava called the Sea of Fire, traversed by efreeti and azer sailors in great brass ships. Islands of obsidian and basalt jut up from the sea, dotted with ancient ruins and the lairs of powerful red dragons.",
+          "hazards": ["Lava", "Red dragon lairs"]
+        },
+        {
+          "id": "torchys-tavern",
+          "name": "Torchy's",
+          "type": "Region",
+          "description": "Built atop a tall basalt crag in the middle of a lava river is an iron-walled tavern that is most easily reached by hot-air balloon. The proprietor is a sentient Flame Tongue (Mace) named Torchy, who sells a fine ale and seems to have a new wielder every few months. Torchy's is a popular hangout for ballooning enthusiasts.",
+          "hazards": ["Surrounded by lava river"]
+        },
+        {
+          "id": "fountains-of-creation",
+          "name": "Fountains of Creation",
+          "type": "Region",
+          "description": "Lava flows through the Fountains of Creation toward the Para-elemental Plane of Ash. This region borders the Para-elemental Plane of Magma.",
+          "hazards": ["Constant lava flows"]
+        }
+      ],
+      "adventureThemes": [
+        "Fire represents vibrancy, passion, and change",
+        "Light of inspiration, warmth of compassion, flame of desire",
+        "Cults of Elemental Evil represent fire at its worst: cruel and wantonly destructive",
+        "Cultists of Evil Fire seek power to burn away impurities with volcanic eruptions, wildfires, heat waves, and droughts",
+        "Transforming the Material Plane into a mirror of the Cinder Wastes",
+        "Quests for legendary magic in the City of Brass",
+        "Trading in favors with the efreet",
+        "Purchasing magic items",
+        "Seeking cures for magical contagions or poisons in the markets of the City of Brass"
+      ],
+      "adventureSituations": [
+        {
+          "diceValue": 10,
+          "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis."
+        }
+      ],
+      "etherealCurtainColor": "Orange",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Environmental Effects in chapter 3 for heat and desert conditions applicable to the Plane of Fire"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 6 Inner Planes general description covering border regions, outer regions, and Elemental Chaos"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "ethereal-to-fire",
+      "name": "Ethereal Curtain to Elemental Plane of Fire",
+      "type": "other",
+      "connectedPlanes": ["Ethereal Plane", "Elemental Plane of Fire"],
+      "description": "An orange-colored ethereal curtain in the Deep Ethereal leads to the Border Ethereal overlapping the Elemental Plane of Fire. The curtain is distinguishable by its orange color, texture, and temperature reflecting the fiery nature of the plane beyond.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Any creature in the Deep Ethereal"]
+    },
+    {
+      "id": "elemental-chaos-border",
+      "name": "Elemental Chaos",
+      "type": "other",
+      "connectedPlanes": [
+        "Elemental Plane of Fire",
+        "Elemental Plane of Air",
+        "Elemental Plane of Earth",
+        "Elemental Plane of Water"
+      ],
+      "description": "At the outermost extents of the Elemental Planes, the pure elements dissolve and bleed together into an unending tumult of clashing energies and colliding substance called the Elemental Chaos.",
+      "hazards": ["Clashing energies", "Colliding substance", "Unending tumult"],
+      "isOneWay": false,
+      "navigableBy": []
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "portal-vortex-fire",
+      "name": "Volcanic Vortex Portal",
+      "type": "portal",
+      "description": "Some portals are vortices, joining an Elemental Plane with a very similar location on the Material Plane, such as a swirling pool of magma in the heart of a volcano leading to the Plane of Fire.",
+      "requirements": ["Locate a volcano with a swirling pool of magma that serves as a vortex"],
+      "associatedSpells": [],
+      "risks": ["Extreme heat", "Lava exposure", "Guardian creatures"],
+      "destinations": ["Elemental Plane of Fire"]
+    },
+    {
+      "id": "spell-plane-shift",
+      "name": "Plane Shift Spell",
+      "type": "spell",
+      "description": "Plane Shift can directly transport adventurers to the Elemental Plane of Fire with varying degrees of precision.",
+      "requirements": ["Plane Shift spell", "Appropriate tuning fork attuned to the Plane of Fire"],
+      "associatedSpells": ["Plane Shift"],
+      "risks": ["Arriving in a dangerous location"],
+      "destinations": ["Elemental Plane of Fire"]
+    },
+    {
+      "id": "spell-gate",
+      "name": "Gate Spell",
+      "type": "spell",
+      "description": "Gate can create a portal directly to a specific location on the Elemental Plane of Fire.",
+      "requirements": ["Gate spell", "Knowledge of destination"],
+      "associatedSpells": ["Gate"],
+      "risks": [],
+      "destinations": ["Elemental Plane of Fire"]
+    },
+    {
+      "id": "spell-etherealness",
+      "name": "Etherealness Spell",
+      "type": "spell",
+      "description": "Etherealness allows adventurers to enter the Ethereal Plane, from which they can find an orange curtain leading to the Border Ethereal of the Elemental Plane of Fire.",
+      "requirements": ["Etherealness spell"],
+      "associatedSpells": ["Etherealness"],
+      "risks": ["Ether cyclones", "Finding the correct orange curtain"],
+      "destinations": ["Border Ethereal overlapping Elemental Plane of Fire"]
+    },
+    {
+      "id": "deep-ethereal-curtain",
+      "name": "Orange Ethereal Curtain",
+      "type": "natural_crossing",
+      "description": "In the Deep Ethereal, passing through an orange-colored curtain of vapor leads to the Border Ethereal connected to the Elemental Plane of Fire.",
+      "requirements": ["Access to the Deep Ethereal", "Locate an orange curtain"],
+      "associatedSpells": ["Plane Shift", "Gate"],
+      "risks": ["Ether cyclones in the Deep Ethereal", "1d10 × 10 hours travel time between curtains"],
+      "destinations": ["Elemental Plane of Fire"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

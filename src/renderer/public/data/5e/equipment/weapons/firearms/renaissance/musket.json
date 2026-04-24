@@ -1,0 +1,22 @@
+{
+  "name": "Musket",
+  "slug": "musket",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Renaissance",
+  "damage": "1d12",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Loading", "Two-Handed"],
+  "weight": "10 lb.",
+  "cost": "500 GP",
+  "range": {
+    "normal": 40,
+    "long": 120
+  },
+  "ammunitionType": "Bullet",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

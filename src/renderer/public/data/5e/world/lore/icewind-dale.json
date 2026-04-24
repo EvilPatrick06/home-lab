@@ -1,0 +1,10 @@
+{
+  "name": "Icewind Dale",
+  "slug": "icewind-dale",
+  "description": "Icewind Dale is the northernmost settled region of the Forgotten Realms setting. Freezing wind sweeps across the tundra, finding its way through every crack and draining any hint of warmth. Between the ice cliffs of the eastern glacier, the snowcapped peaks of the mountains to the south, and the Sea of Moving Ice to the north and west, ten small towns cluster around three icy lakes.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Appendix A",
+    "section": "Lore Glossary"
+  }
+}

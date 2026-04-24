@@ -1,0 +1,128 @@
+{
+  "name": "Rust Monster",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Cave", "Underground"],
+  "treasure": ["None"],
+  "lore": "A rust monster is drawn to the scent of iron and other ferrous metals. It corrodes such metal on contact with its antennae, feeding on the resulting rust. Rust monsters pose little danger to those who lack ferrous metal equipment, but they can reduce a knight's plate armor to scrap in moments. These creatures inhabit caves and underground passages, skittering through the dark in search of their next metallic meal.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 27,
+    "dice": {
+      "count": 5,
+      "die": "d8",
+      "modifier": 5
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Iron Scent",
+      "description": "The rust monster can pinpoint, by scent, the location of ferrous metal within 30 feet of itself."
+    },
+    {
+      "name": "Rust Metal",
+      "description": "Any nonmagical weapon made of metal that hits the rust monster corrodes. After dealing damage, the weapon takes a permanent and cumulative −1 penalty to damage rolls. If its penalty drops to −5, the weapon is destroyed. Nonmagical ammunition made of metal that hits the rust monster is destroyed after dealing damage."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 5 (1d8 + 1) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Antennae",
+      "description": "The rust monster corrodes a nonmagical ferrous metal object it can see within 5 feet of itself. If the object isn't being worn or carried, the touch destroys a 1-foot cube of it. If the object is being worn or carried by a creature, the creature makes a DC 11 Dexterity saving throw, destroying one such object of the creature's choice on a failed save. A metal shield or suit of armor that is partly destroyed in this way gives its wearer a cumulative −1 penalty to the AC it offers. If the penalty reduces the AC it offers to 10, it is destroyed. A weapon that is partly destroyed in this way takes a permanent and cumulative −1 penalty to damage rolls. If the penalty drops to −5, the weapon is destroyed.",
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 11,
+        "targets": "a creature wearing or carrying a targeted nonmagical ferrous metal object",
+        "onFailure": {
+          "effects": "One nonmagical ferrous metal object of the creature's choice that it is wearing or carrying is destroyed or partially corroded. A metal shield or suit of armor takes a cumulative −1 penalty to the AC it offers (destroyed at AC 10). A weapon takes a cumulative −1 penalty to damage rolls (destroyed at −5)."
+        },
+        "onSuccess": {
+          "effects": "The object is unaffected."
+        }
+      }
+    }
+  ]
+}

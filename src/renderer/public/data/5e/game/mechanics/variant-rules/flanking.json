@@ -1,0 +1,30 @@
+{
+  "id": "flanking",
+  "name": "Flanking",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "When a creature and at least one of its allies are adjacent to an enemy and on opposite sides or corners of the enemy's space, they each have Advantage on melee attack rolls against that enemy. The flanking ally must not have the Incapacitated condition and must be within 5 feet of the target.",
+  "mechanics": {
+    "requiresGrid": true,
+    "benefit": "Advantage on melee attack rolls against the flanked creature",
+    "positioning": {
+      "requirement": "Attacker and at least one non-Incapacitated ally must be on opposite sides or corners of the target's space",
+      "distance": "Both must be within 5 feet of the target",
+      "applicableTo": ["melee weapon attacks", "melee spell attacks"]
+    },
+    "largeCreatures": "For creatures larger than Medium, opposite sides or corners are measured across the full extent of the target's space. The DM adjudicates whether positioning qualifies.",
+    "limitations": [
+      "Does not apply to ranged attacks",
+      "Does not apply if the flanking ally has the Incapacitated condition",
+      "Reach weapons do not qualify if the attacker is more than 5 feet away",
+      "Multiple flanking allies do not stack beyond a single instance of Advantage"
+    ]
+  },
+  "interactions": [
+    "Advantage from flanking and Disadvantage from another source (e.g., not seeing the target) cancel each other out, resulting in a straight roll",
+    "A Prone creature can still provide flanking as long as it is not Incapacitated and is within 5 feet on an opposite side",
+    "An Invisible ally on the opposite side still provides flanking since it depends on physical positioning, not visibility",
+    "Features that trigger on having Advantage (such as Sneak Attack) benefit from flanking Advantage",
+    "Solo monsters become significantly easier to defeat when flanking is enabled; DMs should consider adjusting encounter difficulty"
+  ]
+}

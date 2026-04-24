@@ -1,0 +1,35 @@
+{
+  "name": "True Seeing",
+  "level": 6,
+  "school": "Divination",
+  "classes": ["Bard", "Cleric", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "mushroom powder worth 25+ GP, which the spell consumes",
+      "cost": 25,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "For the duration, the willing creature you touch has Truesight with a range of 120 feet.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "tags": ["sensory", "truesight", "detection", "utility"]
+}

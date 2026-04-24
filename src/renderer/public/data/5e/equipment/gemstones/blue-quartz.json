@@ -1,0 +1,13 @@
+{
+  "name": "Blue quartz",
+  "slug": "blue-quartz",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "pale blue",
+  "dieValue": "3",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

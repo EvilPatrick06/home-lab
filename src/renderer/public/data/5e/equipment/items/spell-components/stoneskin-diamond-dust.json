@@ -1,0 +1,15 @@
+{
+  "name": "Diamond Dust (100 GP)",
+  "slug": "stoneskin-diamond-dust",
+  "category": "Spell Component",
+  "cost": "100 GP",
+  "weight": "—",
+  "consumed": true,
+  "description": "Diamond dust worth at least 100 GP, consumed by the spell.",
+  "usedBy": ["Stoneskin"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 7",
+    "section": "Spell Descriptions"
+  }
+}

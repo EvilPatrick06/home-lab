@@ -1,0 +1,50 @@
+{
+  "id": "massive-damage",
+  "name": "Massive Damage",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "When a creature takes damage equal to or greater than half its Hit Point Maximum from a single source of damage, it must succeed on a DC 15 Constitution saving throw or suffer a random effect from the System Shock table. This rule makes large hits more dangerous and creates dramatic combat moments.",
+  "mechanics": {
+    "trigger": "A creature takes damage from a single source equal to or greater than half its Hit Point Maximum (before the damage is applied)",
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 15
+    },
+    "onSuccess": "No additional effect beyond the damage taken",
+    "onFailure": "Roll on the System Shock table (1d10)",
+    "systemShockTable": [
+      {
+        "roll": 1,
+        "effect": "The creature drops to 0 Hit Points"
+      },
+      {
+        "roll": [2, 3],
+        "effect": "The creature has the Stunned condition until the end of its next turn"
+      },
+      {
+        "roll": [4, 5],
+        "effect": "The creature can't take Reactions, and its Speed is halved, until the end of its next turn"
+      },
+      {
+        "roll": [6, 7],
+        "effect": "The creature can't take Reactions until the end of its next turn"
+      },
+      {
+        "roll": [8, 9, 10],
+        "effect": "No additional effect"
+      }
+    ],
+    "limitations": [
+      "The threshold is half the creature's Hit Point Maximum, not half its current Hit Points",
+      "Each instance of damage is evaluated separately; multiple smaller hits do not combine to trigger this rule",
+      "Creatures immune to the Stunned condition are still affected by other results on the table"
+    ]
+  },
+  "interactions": [
+    "High-damage single-hit attacks (such as Disintegrate, critical hits with Sneak Attack, or falling from great heights) are the most common triggers",
+    "Creatures with low HP maximums (e.g., commoners, low-CR creatures) will trigger this frequently, adding lethality to encounters",
+    "The Stunned condition from result 2-3 is extremely punishing as it causes auto-failed Strength and Dexterity saves and grants Advantage to attackers",
+    "Constitution saving throw proficiency and high Constitution scores make characters more resilient against this rule",
+    "This interacts with the Relentless Endurance trait (half-orcs) which can prevent the drop to 0 HP from result 1"
+  ]
+}

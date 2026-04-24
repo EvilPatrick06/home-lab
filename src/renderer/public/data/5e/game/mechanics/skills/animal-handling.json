@@ -1,0 +1,15 @@
+{
+  "id": "animal-handling",
+  "name": "Animal Handling",
+  "ability": "wisdom",
+  "description": "When there's any question whether you can calm a domesticated animal, keep a mount from getting spooked, or intuit an animal's intentions, the DM might call for a Wisdom (Animal Handling) check. You also make a Wisdom (Animal Handling) check to control your mount when you attempt a risky maneuver.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Calm a frightened or agitated animal",
+    "Intuit an animal's mood or intentions",
+    "Control a mount during a risky maneuver",
+    "Train an animal to perform a simple task",
+    "Keep a wild animal from attacking"
+  ]
+}

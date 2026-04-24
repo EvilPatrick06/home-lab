@@ -1,0 +1,9 @@
+{
+  "id": "mountain-dwarf",
+  "name": "Mountain Dwarf",
+  "species": "dwarf",
+  "description": "Mountain Dwarves are strong and hardy.",
+  "traits": [{ "name": "Dwarven Armor Training", "description": "Proficiency with light and medium armor." }],
+  "abilityScoreIncrease": { "strength": 2 },
+  "source": "PHB 2024"
+}

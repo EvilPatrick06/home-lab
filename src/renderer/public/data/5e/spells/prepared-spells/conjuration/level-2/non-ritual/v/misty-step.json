@@ -1,0 +1,30 @@
+{
+  "name": "Misty Step",
+  "level": 2,
+  "school": "Conjuration",
+  "classes": ["Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space you can see.",
+  "targetType": "self",
+  "teleportation": {
+    "distanceFeet": 30,
+    "selfOnly": true,
+    "description": "You teleport up to 30 feet to an unoccupied space you can see."
+  },
+  "tags": ["teleportation", "movement", "bonus action"]
+}

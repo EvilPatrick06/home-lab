@@ -1,0 +1,68 @@
+{
+  "name": "Yolande's Regal Presence",
+  "level": 5,
+  "school": "Enchantment",
+  "classes": ["Bard", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a miniature tiara",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You surround yourself with unearthly majesty in a 10-foot Emanation. Whenever the Emanation enters the space of a creature you can see and whenever a creature you can see enters the Emanation or ends its turn there, you can force that creature to make a Wisdom saving throw. On a failed save, the target takes 4d6 Psychic damage and has the Prone condition, and you can push it up to 10 feet away. On a successful save, the target takes half as much damage only. A creature makes this save only once per turn.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 10,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 6
+      },
+      "type": "Psychic",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Prone",
+      "trigger": "onFailedSave"
+    }
+  ],
+  "forcedMovement": [
+    {
+      "type": "push",
+      "distanceFeet": 10,
+      "direction": "away",
+      "onFailedSave": true
+    }
+  ],
+  "tags": ["damage", "control", "area", "emanation", "psychic", "prone", "push"]
+}

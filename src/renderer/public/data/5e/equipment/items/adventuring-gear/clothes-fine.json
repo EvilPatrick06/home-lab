@@ -1,0 +1,13 @@
+{
+  "name": "Clothes, Fine",
+  "cost": "15 GP",
+  "weight": "6 lb.",
+  "description": "Made of expensive fabrics. Some events and locations admit only people wearing these.",
+  "slug": "clothes-fine",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "name": "Pixie",
+  "sizes": ["Tiny"],
+  "creatureType": "Fey",
+  "alignment": "Chaotic Good",
+  "habitat": ["Feywild", "Forest"],
+  "treasure": ["None"],
+  "lore": "Pixies are tiny, mischievous fey that dwell in enchanted forests and the Feywild. Despite their diminutive size, pixies wield potent magic and delight in harmless pranks—though they can turn formidable if their homes or allies are threatened.",
+  "armorClass": {
+    "value": 15
+  },
+  "hitPoints": {
+    "average": 1,
+    "dice": {
+      "count": 1,
+      "die": "d4",
+      "modifier": -1
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Sylvan"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The pixie has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Fey Magic",
+      "ability": "CHA",
+      "spellSaveDC": 12,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Druidcraft",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Confusion",
+              "level": 4
+            },
+            {
+              "name": "Dancing Lights",
+              "level": 0
+            },
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Entangle",
+              "level": 1
+            },
+            {
+              "name": "Fly",
+              "level": 3
+            },
+            {
+              "name": "Phantasmal Force",
+              "level": 2
+            },
+            {
+              "name": "Polymorph",
+              "level": 4
+            },
+            {
+              "name": "Sleep",
+              "level": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Pixie Blade",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Fey Magic",
+      "description": "The pixie casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 12):\n\nAt will: Druidcraft\n\n1/Day each: Confusion, Dancing Lights, Dispel Magic, Entangle, Fly, Phantasmal Force, Polymorph, Sleep"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Invisibility",
+      "description": "The pixie casts Invisibility on itself, requiring no spell components. The spell doesn't require Concentration for the pixie, and it ends early immediately after the pixie deals damage, forces a saving throw, or casts a spell."
+    }
+  ]
+}

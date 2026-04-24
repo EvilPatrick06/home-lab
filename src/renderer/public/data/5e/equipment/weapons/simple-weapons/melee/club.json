@@ -1,0 +1,17 @@
+{
+  "name": "Club",
+  "slug": "club",
+  "category": "Simple",
+  "type": "Melee",
+  "damage": "1d4",
+  "damageType": "Bludgeoning",
+  "properties": ["Light"],
+  "mastery": "Slow",
+  "weight": "2 lb.",
+  "cost": "1 SP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

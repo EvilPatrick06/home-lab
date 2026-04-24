@@ -1,0 +1,79 @@
+{
+  "name": "Dao",
+  "slug": "dao",
+  "size": "Large",
+  "type": "Elemental",
+  "alignment": "Neutral",
+  "ac": "18",
+  "initiative": "+1 (11)",
+  "hp": "200",
+  "hpFormula": "16d10 + 112",
+  "speed": "30 ft., Burrow 30 ft., Fly 30 ft. (hover)",
+  "abilityScores": {
+    "str": 23,
+    "dex": 12,
+    "con": 24,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 6,
+    "dex": 5,
+    "con": 7,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Petrified",
+  "senses": "Darkvision 120 ft.; Passive Perception 11",
+  "languages": "Primordial (Terran)",
+  "cr": "11 (XP 7,200; PB +4)",
+  "traits": [
+    {
+      "name": "Earth Glide",
+      "description": "The dao can burrow through nonmagical, unworked earth and stone. While doing so, the dao doesn't disturb the material it moves through."
+    },
+    {
+      "name": "Elemental Restoration",
+      "description": "If the dao dies outside the Elemental Plane of Earth, its body dissolves into dirt, and it gains a new body in 1d4 days, reviving with all its Hit Points somewhere on the Plane of Earth."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The dao has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Wishes",
+      "description": "The dao has a 30 percent chance of knowing the *Wish* spell. If the dao knows it, the dao can cast it only on behalf of a non-genie creature who communicates a wish in a way the dao can understand. If the dao casts the spell for the creature, the dao suffers none of the spell's stress. Once the dao has cast it three times, the dao can't do so again for 365 days."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The dao makes three Earthen Maul attacks or two Earth Burst attacks."
+    },
+    {
+      "name": "Earthen Maul",
+      "description": "*Melee Attack Roll:* +10, reach 5 ft. *Hit:* 20 (4d6 + 6) Bludgeoning damage. If the target is a Large or smaller creature, it has the Prone condition."
+    },
+    {
+      "name": "Earth Burst",
+      "description": "*Ranged Attack Roll:* +10, range 120 ft. *Hit:* 15 (2d8 + 6) Bludgeoning damage. *Hit or Miss:* Earth explodes from the target's space, creating the following effect. *Dexterity Saving Throw:* DC 16, each creature in a 10-foot Emanation originating from and including the target. *Failure:* 10 (3d6) Thunder damage."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The dao casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 16):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Elemental Lords of Wish and Wonder*\nGenies are powerful elemental beings that dwell on the Elemental Planes. Each type of genie is associated with one of the four elements and possesses innate magical abilities, including the potential to grant wishes. Genies build wondrous cities on their home planes and often interact with mortals, sometimes granting boons and other times exacting terrible prices.\n*Genie of the Earth*\n**Habitat:** Planar (Elemental Plane of Earth), Underdark; **Treasure:** Implements\nGenies of minerals and gemstones, dao embody the resolve of rock. Using innate magic, they move through the earth unimpeded, exploring depths inaccessible to most. Dao delight in the treasures of the earth, whether raw gemstones, jewelry crafted from pure metals, or wondrous fossils. In exchange for such treasures, dao might reveal underground mysteries, such as paths through the Underdark, buried ruins, or whole subterranean realms.\nMany dao call the Elemental Plane of Earth home. There, they create cities that glitter with treasure. Among these realms is the labyrinthine expanse called the Great Dismal Delve or the Sevenfold Mazework, which protects the City of Jewels, the Iron Crucible, and the Strait of Magnets.\n> \"On the Elemental Plane of Earth, galaxies of gemstones twinkle over vaults of treasure. If dao are there, so is wealth worth hunting.\" — Gundren Rockseeker, dwarf treasure hunter",
+  "habitat": "Planar (Elemental Plane of Earth), Underdark",
+  "treasure": "Implements",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Genies",
+    "file": "Genies.md"
+  }
+}

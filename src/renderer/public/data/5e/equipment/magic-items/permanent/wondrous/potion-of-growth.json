@@ -1,0 +1,13 @@
+{
+  "name": "Potion of Growth",
+  "itemType": "Potion",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "description": "When you drink this potion, you gain the \"enlarge\" effect of the *Enlarge/Reduce* spell for 10 minutes (no Concentration required).",
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

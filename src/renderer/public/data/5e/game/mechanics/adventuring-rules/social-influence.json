@@ -1,0 +1,39 @@
+{
+  "id": "social-influence",
+  "name": "Social Influence",
+  "description": "Rules for social interaction, NPC attitudes, and influencing creatures through conversation in D&D 2024.",
+  "npcAttitudes": [
+    {
+      "attitude": "Hostile",
+      "description": "A Hostile creature opposes the adventurers and their goals but doesn't necessarily attack them on sight. The creature might try to undermine the characters, hinder their plans, or work against them.",
+      "influenceDC": 20,
+      "successResult": "The creature becomes Indifferent for 1d4 hours.",
+      "failureConsequence": "The creature remains Hostile and may become more aggressive."
+    },
+    {
+      "attitude": "Indifferent",
+      "description": "An Indifferent creature might help or hinder the party, depending on what it considers in its best interest. Most NPCs start with this attitude.",
+      "influenceDC": 15,
+      "successResult": "The creature becomes Friendly for the duration of the interaction.",
+      "failureConsequence": "The creature remains Indifferent."
+    },
+    {
+      "attitude": "Friendly",
+      "description": "A Friendly creature wants to help the adventurers and wishes for their success. It might not risk its life for them, but it is positively disposed toward them.",
+      "influenceDC": 10,
+      "successResult": "The creature will provide direct assistance, such as information, resources, or services.",
+      "failureConsequence": "The creature remains Friendly but may not go out of its way to help."
+    }
+  ],
+  "influenceChecks": {
+    "description": "To influence an NPC's attitude, a character can make a Charisma check using one of the following skills: Deception, Intimidation, Performance, or Persuasion. The DM sets the DC based on the NPC's current attitude and what the character is asking.",
+    "applicableSkills": ["Deception", "Intimidation", "Performance", "Persuasion"],
+    "modifiers": [
+      { "circumstance": "Character offers something the NPC wants", "modifier": -5, "note": "Reduces DC by 5" },
+      { "circumstance": "Character appeals to NPC's bonds or ideals", "modifier": -2, "note": "Reduces DC by 2" },
+      { "circumstance": "Character has previously wronged the NPC", "modifier": 5, "note": "Increases DC by 5" },
+      { "circumstance": "Character asks for something risky or costly", "modifier": 5, "note": "Increases DC by 5" }
+    ]
+  },
+  "notes": "The Influence action is a formal action in 2024 rules. On your turn, you can use it to make a Charisma check to alter a creature's attitude. The DM determines whether the check is possible and which skill applies."
+}

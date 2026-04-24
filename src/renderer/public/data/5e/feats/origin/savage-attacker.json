@@ -1,0 +1,9 @@
+{
+  "name": "Savage Attacker",
+  "category": "Origin",
+  "prerequisites": {
+    "level": 1
+  },
+  "description": "You've trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon's damage dice twice and use either roll against the target.",
+  "source": "PHB 2024"
+}

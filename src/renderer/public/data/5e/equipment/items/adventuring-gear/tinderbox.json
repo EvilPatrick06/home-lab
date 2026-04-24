@@ -1,0 +1,13 @@
+{
+  "name": "Tinderbox",
+  "cost": "5 SP",
+  "weight": "1 lb.",
+  "description": "Contains flint, fire steel, tinder. Bonus Action to light Candle/Lamp/Lantern/Torch. 1 minute for other fires.",
+  "slug": "tinderbox",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Collapsing Roof",
+  "type": "mechanical",
+  "trigger": "A creature crosses a trip wire",
+  "duration": "Instantaneous",
+  "severity": "Level 1+",
+  "dc": 11,
+  "detectDC": 11,
+  "disarmDC": 11,
+  "damage": "11 (2d10) Bludgeoning",
+  "description": "Each creature in a 10-foot-square area beneath the roof makes a DC 15 Dex save. On failure: 11 (2d10) Bludgeoning damage. On success: half damage. Rubble makes area Difficult Terrain.",
+  "slug": "collapsing-roof",
+  "category": "Trap",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Traps"
+  }
+}

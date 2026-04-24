@@ -1,0 +1,15 @@
+{
+  "id": "medicine",
+  "name": "Medicine",
+  "ability": "wisdom",
+  "description": "A Wisdom (Medicine) check lets you try to stabilize a dying companion or diagnose an illness. This skill covers practical medical knowledge -- first aid, identifying diseases and poisons, and basic anatomy.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Stabilize a dying creature (DC 10)",
+    "Diagnose a disease or identify a poison",
+    "Determine the cause of death by examining a body",
+    "Provide first aid to treat a wound",
+    "Assess the severity of an injury"
+  ]
+}

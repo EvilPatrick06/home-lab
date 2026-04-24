@@ -1,0 +1,13 @@
+{
+  "name": "Potion of Healing",
+  "cost": "50 GP",
+  "weight": "1/2 lb.",
+  "description": "Magic item. As Bonus Action, drink or administer within 5 feet. Regain 2d4 + 2 Hit Points.",
+  "slug": "potion-of-healing",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

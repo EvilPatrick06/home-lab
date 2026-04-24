@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realm",
+        "description": "The Material Plane and its echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "material-plane",
+      "name": "Material Plane",
+      "alternateNames": [],
+      "category": "Material Realm",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [
+        {
+          "id": "suffocation",
+          "name": "Suffocation",
+          "description": "A creature can hold its breath for a number of minutes equal to 1 + its Constitution modifier (minimum of 30 seconds). When a creature runs out of breath or is choking, it can survive for a number of rounds equal to its Constitution modifier (minimum of 1 round). At the start of its next turn, it drops to 0 Hit Points and is dying, and it can't regain Hit Points or be stabilized until it can breathe again.",
+          "category": "environmental",
+          "severity": "lethal",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "mechanical",
+          "sourceReference": "Appendix C: Rules Glossary (Suffocation); Chapter 1: Playing the Game (Hazards)"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "suffocation-hold-breath-phase",
+          "name": "Suffocation: Hold Breath Phase",
+          "description": "A creature can hold its breath for a number of minutes equal to 1 + its Constitution modifier (minimum of 30 seconds). During this time the creature suffers no ill effects from lack of air.",
+          "mechanicalEffect": "Duration of safe breath-holding equals 1 + Constitution modifier in minutes, with a minimum duration of 30 seconds. No game-mechanical penalties apply during this phase.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "1 + Constitution modifier minutes (minimum 30 seconds)",
+          "removalMethods": ["Restoring access to breathable air"],
+          "sourceReference": "Appendix C: Rules Glossary (Suffocation)"
+        },
+        {
+          "id": "suffocation-choking-phase",
+          "name": "Suffocation: Choking Phase",
+          "description": "When a creature runs out of breath or is choking, it can survive for a number of rounds equal to its Constitution modifier (minimum of 1 round). At the start of its next turn after this duration expires, it drops to 0 Hit Points and is dying.",
+          "mechanicalEffect": "After breath-holding expires or choking begins, the creature survives for a number of rounds equal to its Constitution modifier (minimum 1 round). At the start of its next turn after those rounds elapse, the creature drops to 0 HP and is dying. The creature cannot regain Hit Points or be stabilized until it can breathe again.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "Constitution modifier rounds (minimum 1 round), then creature drops to 0 HP",
+          "removalMethods": [
+            "Restoring access to breathable air",
+            "Providing the creature the ability to breathe (e.g., Water Breathing spell, breathable atmosphere)"
+          ],
+          "sourceReference": "Appendix C: Rules Glossary (Suffocation)"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Humanoid"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "suffocation-no-healing-while-choking",
+          "name": "No Recovery Until Breathing Restored",
+          "description": "A creature that has dropped to 0 Hit Points due to suffocation can't regain Hit Points or be stabilized until it can breathe again.",
+          "mechanicalEffect": "While unable to breathe and at 0 HP due to suffocation, the creature cannot benefit from healing or stabilization. Normal Death Saving Throw rules apply but stabilization (including via the Help action DC 10 Wisdom (Medicine) check) and healing have no effect until breathing is restored.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "adventureThemes": [],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "2024 Player's Handbook",
+          "description": "Chapter 1: Playing the Game lists Suffocation as a hazard under Exploration. Appendix C: Rules Glossary provides the full mechanical definition of Suffocation."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

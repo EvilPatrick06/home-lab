@@ -1,0 +1,456 @@
+{
+  "id": "d8e1a3f0-7b2c-4d5e-9a1f-3c6e8b0d2f4a",
+  "name": "Infernal Hierarchy",
+  "slug": "infernal-hierarchy",
+  "category": "VariantRule",
+  "subcategory": "Planar Society",
+  "tags": [
+    "nine-hells",
+    "devils",
+    "fiends",
+    "hierarchy",
+    "promotion",
+    "demotion",
+    "lower-planes",
+    "asmodeus",
+    "planar-rules"
+  ],
+  "source": {
+    "book": "Dungeon Master's Guide",
+    "chapter": "Chapter 6: Cosmology",
+    "section": "Nine Hells - Infernal Hierarchy"
+  },
+  "gameEdition": "2024",
+  "description": "The Nine Hells has a rigid hierarchy that defines every aspect of its society. Asmodeus is the supreme ruler of all devils and wields the power of a lesser god. Worshiped as such on the Material Plane, Asmodeus inspires evil cults and sinister warlocks. In the Nine Hells, he commands scores of pit fiend generals, which in turn command legions of subordinates. A supreme tyrant, a brilliant deceiver, and a master of subtlety, Asmodeus protects his throne by keeping his friends close and his enemies closer. He delegates most matters of rulership to the pit fiends and lesser archdevils that make up the infernal bureaucracy of the Nine Hells, even as he knows that those powerful devils conspire to usurp his throne. Asmodeus appoints archdevils, and he can strip any member of the infernal hierarchy of rank and status as he likes.",
+  "shortDescription": "The rigid 13-tier hierarchy of devils in the Nine Hells, from lemure to archduke, with rules governing promotion and demotion.",
+  "flavorText": "A supreme tyrant, a brilliant deceiver, and a master of subtlety, Asmodeus protects his throne by keeping his friends close and his enemies closer.",
+  "rulesAsWritten": "The Nine Hells has a rigid hierarchy that defines every aspect of its society. Asmodeus is the supreme ruler of all devils and wields the power of a lesser god. He delegates most matters of rulership to the pit fiends and lesser archdevils that make up the infernal bureaucracy of the Nine Hells, even as he knows that those powerful devils conspire to usurp his throne. Asmodeus appoints archdevils, and he can strip any member of the infernal hierarchy of rank and status as he likes. When the soul of an evil mortal sinks into the Nine Hells, it takes on the physical form of a wretched lemure. Archdevils and greater devils can promote lemures to lesser devils. Archdevils can promote lesser devils to greater devils, and Asmodeus alone can promote a greater devil to archdevil status. All diabolic promotions involve a brief, painful transformation, with the devil's memories passing intact from one form to the next. Low-level promotions are typically based on need, such as when a pit fiend transforms lemures into imps to gain stealthy spies under its command. High-level promotions are almost always based on merit, such as when a bone devil that distinguishes itself in battle is transformed into a horned devil by the archdevil it serves. A devil is seldom promoted more than one step at a time. Demotion is the customary punishment for failure or disobedience among the devils. Archdevils or greater devils can demote a lesser devil to a lemure, which loses all memory of its prior existence. An archdevil can demote a greater devil to lesser devil status, but the demoted devil retains its memories—and might seek vengeance if the severity of the demotion is excessive. No devil can promote or demote another devil that hasn't sworn fealty to it, preventing rival archdevils from demoting each other's most powerful servants. Since all devils swear fealty to Asmodeus, he can freely demote any other devil, transforming it into whatever infernal form he desires.",
+  "isVariantRule": true,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": true,
+  "maxLevel": 13,
+  "levels": [
+    {
+      "level": 1,
+      "name": "Lemure (Least Devil)",
+      "description": "The lowest rank in the infernal hierarchy. When the soul of an evil mortal sinks into the Nine Hells, it takes on the physical form of a wretched lemure. A lemure demoted from lesser devil status loses all memory of its prior existence.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Evil mortal souls arriving in the Nine Hells take on lemure form. Lemures can be promoted to lesser devils by archdevils or greater devils.",
+      "isFatal": false
+    },
+    {
+      "level": 2,
+      "name": "Imp (Lesser Devil)",
+      "description": "The first rank of lesser devils. A pit fiend might transform lemures into imps to gain stealthy spies under its command. Low-level promotions are typically based on need.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Promotion from lemure to imp is typically based on need. Memories pass intact through the transformation.",
+      "isFatal": false
+    },
+    {
+      "level": 3,
+      "name": "Spined Devil (Lesser Devil)",
+      "description": "The second rank of lesser devils in the infernal hierarchy. Promotions involve a brief, painful transformation with memories intact.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "A devil is seldom promoted more than one step at a time.",
+      "isFatal": false
+    },
+    {
+      "level": 4,
+      "name": "Bearded Devil (Lesser Devil)",
+      "description": "The third rank of lesser devils in the infernal hierarchy. Promotions involve a brief, painful transformation with memories intact.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "isFatal": false
+    },
+    {
+      "level": 5,
+      "name": "Barbed Devil (Lesser Devil)",
+      "description": "The fourth rank of lesser devils in the infernal hierarchy.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "isFatal": false
+    },
+    {
+      "level": 6,
+      "name": "Chain Devil (Lesser Devil)",
+      "description": "The fifth rank of lesser devils in the infernal hierarchy.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "isFatal": false
+    },
+    {
+      "level": 7,
+      "name": "Bone Devil (Lesser Devil)",
+      "description": "The highest rank of lesser devils. A bone devil that distinguishes itself in battle might be transformed into a horned devil by the archdevil it serves. High-level promotions are almost always based on merit.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Can be promoted to greater devil rank by an archdevil, based on merit.",
+      "isFatal": false
+    },
+    {
+      "level": 8,
+      "name": "Horned Devil (Greater Devil)",
+      "description": "The first rank of greater devils. Archdevils and greater devils can promote lemures to lesser devils and can demote lesser devils to lemures (causing total memory loss).",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Greater devils can promote lemures to lesser devils and demote lesser devils to lemures (which lose all memory).",
+      "isFatal": false
+    },
+    {
+      "level": 9,
+      "name": "Erinyes (Greater Devil)",
+      "description": "The second rank of greater devils in the infernal hierarchy. Greater devils can promote and demote lesser devils.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Greater devils can promote lemures to lesser devils and demote lesser devils to lemures (which lose all memory).",
+      "isFatal": false
+    },
+    {
+      "level": 10,
+      "name": "Ice Devil (Greater Devil)",
+      "description": "The third rank of greater devils in the infernal hierarchy. Greater devils can promote and demote lesser devils.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Greater devils can promote lemures to lesser devils and demote lesser devils to lemures (which lose all memory).",
+      "isFatal": false
+    },
+    {
+      "level": 11,
+      "name": "Pit Fiend (Greater Devil)",
+      "description": "The highest rank of greater devils. Pit fiend generals command legions of subordinates on behalf of Asmodeus. A pit fiend might transform lemures into imps to gain stealthy spies under its command.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Pit fiend generals command legions of subordinates. Can promote lemures to lesser devils and demote lesser devils to lemures.",
+      "isFatal": false
+    },
+    {
+      "level": 12,
+      "name": "Duke/Duchess (Archdevil)",
+      "description": "The first rank of archdevils. Archdevils can promote lesser devils to greater devils and demote greater devils to lesser devil status (though the demoted devil retains its memories and might seek vengeance). An archdevil can demote a lesser devil to a lemure, which loses all memory of its prior existence.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Can promote lesser devils to greater devils. Can demote greater devils to lesser devil status (memories retained) and lesser devils to lemures (all memory lost). Cannot promote or demote a devil that hasn't sworn fealty to them.",
+      "isFatal": false
+    },
+    {
+      "level": 13,
+      "name": "Archduke/Archduchess (Archdevil)",
+      "description": "The highest rank below Asmodeus. The rulers of the first eight layers of the Nine Hells are archdukes/archduchesses who answer to Asmodeus. Collectively, the rulers of the Hells are called the Lords of the Nine. Only Asmodeus can promote a greater devil to archdevil status. Asmodeus appoints archdevils, and he can strip any member of the infernal hierarchy of rank and status as he likes. Since all devils swear fealty to Asmodeus, he can freely demote any other devil, transforming it into whatever infernal form he desires.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Rules a layer of the Nine Hells. Can promote lesser devils to greater devils and demote any subordinate devil. Only Asmodeus can grant or revoke archdevil status.",
+      "isFatal": false
+    }
+  ],
+  "levelStackingBehavior": "Replace",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "order": 0,
+      "name": "Evil Mortal Soul Arrival",
+      "description": "When the soul of an evil mortal sinks into the Nine Hells, it takes on the physical form of a wretched lemure, the lowest rank in the hierarchy.",
+      "trigger": {
+        "event": "OnDeath",
+        "condition": "Evil mortal soul arrives in the Nine Hells"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The evil mortal soul takes on the physical form of a wretched lemure upon arriving in the Nine Hells.",
+          "mechanicalNote": "The soul enters at level 1 (Lemure) of the infernal hierarchy."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "order": 1,
+      "name": "Promotion - Lemure to Lesser Devil",
+      "description": "Archdevils and greater devils can promote lemures to lesser devils. Low-level promotions are typically based on need. All promotions involve a brief, painful transformation, with the devil's memories passing intact from one form to the next.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "An archdevil or greater devil chooses to promote a lemure that has sworn fealty to them"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The lemure undergoes a brief, painful transformation into a lesser devil form. Memories pass intact from one form to the next. Low-level promotions are typically based on need.",
+          "mechanicalNote": "Requires the promoting devil to be rank 8 (Greater Devil) or higher. The promoted devil is seldom promoted more than one step at a time. Only works on devils that have sworn fealty to the promoter."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 2,
+      "name": "Promotion - Lesser Devil to Greater Devil",
+      "description": "Archdevils can promote lesser devils to greater devils. High-level promotions are almost always based on merit, such as distinguishing oneself in battle.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "An archdevil chooses to promote a lesser devil that has sworn fealty to them"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The lesser devil undergoes a brief, painful transformation into a greater devil form. Memories pass intact. High-level promotions are almost always based on merit.",
+          "mechanicalNote": "Requires the promoting devil to be rank 12 (Archdevil) or higher. A devil is seldom promoted more than one step at a time. Only works on devils that have sworn fealty to the promoter."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "order": 3,
+      "name": "Promotion - Greater Devil to Archdevil",
+      "description": "Asmodeus alone can promote a greater devil to archdevil status.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Asmodeus chooses to promote a greater devil to archdevil status"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Only Asmodeus can promote a greater devil to archdevil status. The transformation involves a brief, painful transformation with memories intact.",
+          "mechanicalNote": "This is exclusive to Asmodeus. No other being in the Nine Hells can grant archdevil status."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "order": 4,
+      "name": "Demotion - Lesser Devil to Lemure",
+      "description": "Archdevils or greater devils can demote a lesser devil to a lemure, which loses all memory of its prior existence.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "An archdevil or greater devil demotes a lesser devil that has sworn fealty to them as punishment for failure or disobedience"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The lesser devil is transformed into a lemure and loses all memory of its prior existence. Demotion is the customary punishment for failure or disobedience.",
+          "mechanicalNote": "Requires the demoting devil to be rank 8 (Greater Devil) or higher. Only works on devils that have sworn fealty to the demoter. Total memory loss occurs."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "order": 5,
+      "name": "Demotion - Greater Devil to Lesser Devil",
+      "description": "An archdevil can demote a greater devil to lesser devil status, but the demoted devil retains its memories and might seek vengeance if the severity of the demotion is excessive.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "An archdevil demotes a greater devil that has sworn fealty to them as punishment for failure or disobedience"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The greater devil is demoted to lesser devil status. Unlike demotion to lemure form, the demoted devil retains its memories and might seek vengeance if the severity of the demotion is excessive.",
+          "mechanicalNote": "Requires the demoting devil to be rank 12 (Archdevil) or higher. Only works on devils that have sworn fealty to the demoter. Memories are retained."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "a7b8c9d0-e1f2-3456-abcd-567890123456",
+      "order": 6,
+      "name": "Fealty Restriction on Promotion and Demotion",
+      "description": "No devil can promote or demote another devil that hasn't sworn fealty to it, preventing rival archdevils from demoting each other's most powerful servants. Since all devils swear fealty to Asmodeus, he can freely demote any other devil, transforming it into whatever infernal form he desires.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "A devil attempts to promote or demote another devil"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Promotion and demotion can only be exercised over devils that have sworn fealty to the acting devil. This prevents rival archdevils from interfering with each other's subordinates. As supreme ruler to whom all devils swear fealty, Asmodeus can freely promote or demote any devil in the hierarchy.",
+          "mechanicalNote": "This is the fundamental constraint on the promotion/demotion system, ensuring hierarchical integrity across the Nine Hells."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "stackingNote": "A devil occupies exactly one rank in the hierarchy at any given time. Promotion or demotion replaces the current rank entirely."
+  },
+  "dmNotes": "The infernal hierarchy provides a framework for political intrigue in Nine Hells adventures. Asmodeus delegates most matters of rulership to pit fiends and lesser archdevils that make up the infernal bureaucracy, even knowing they conspire to usurp his throne. He protects his position by keeping his friends close and his enemies closer. Archdevils rule individual layers but answer to Asmodeus, who appoints them and can strip any member of rank and status as he likes. The promotion/demotion system drives devil behavior: ambition for promotion and fear of demotion are primary motivators. Memory retention rules are crucial — demotion to lemure causes total memory loss, while demotion from greater to lesser devil preserves memories, creating potential for vengeance plots.",
+  "commonRulings": [
+    {
+      "question": "Can a greater devil promote another greater devil to archdevil status?",
+      "ruling": "No. Only Asmodeus can promote a greater devil to archdevil status. Greater devils can only promote lemures to lesser devils.",
+      "isOfficial": true
+    },
+    {
+      "question": "What happens to a devil's memories during promotion?",
+      "ruling": "All diabolic promotions involve a brief, painful transformation, with the devil's memories passing intact from one form to the next.",
+      "isOfficial": true
+    },
+    {
+      "question": "What happens to a devil's memories during demotion to lemure?",
+      "ruling": "A lesser devil demoted to a lemure loses all memory of its prior existence.",
+      "isOfficial": true
+    },
+    {
+      "question": "What happens to a devil's memories when demoted from greater to lesser devil?",
+      "ruling": "A greater devil demoted to lesser devil status retains its memories and might seek vengeance if the severity of the demotion is excessive.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can an archdevil demote another archdevil's servants?",
+      "ruling": "No. No devil can promote or demote another devil that hasn't sworn fealty to it, preventing rival archdevils from demoting each other's most powerful servants. Only Asmodeus, to whom all devils swear fealty, can freely demote any devil.",
+      "isOfficial": true
+    },
+    {
+      "question": "How many ranks can a devil be promoted at once?",
+      "ruling": "A devil is seldom promoted more than one step at a time, though the rules do not impose an absolute prohibition.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

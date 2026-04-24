@@ -1,0 +1,176 @@
+{
+  "name": "Flumph",
+  "sizes": ["Small"],
+  "creatureType": "Aberration",
+  "alignment": "Lawful Good",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "Flumphs are benevolent, jellyfish-like aberrations that float through the Underdark, feeding on psionic energy. Unlike most creatures of the deep, flumphs are gentle and altruistic, eager to warn travelers of lurking dangers and to aid those in need. Their soft glow and hovering forms make them an unmistakable and welcome sight in the lightless tunnels below the world.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 7,
+    "dice": {
+      "count": 2,
+      "die": "d6",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 5
+    },
+    {
+      "type": "Fly",
+      "distance": 30,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 4
+    },
+    {
+      "skill": "History",
+      "bonus": 4
+    },
+    {
+      "skill": "Religion",
+      "bonus": 4
+    }
+  ],
+  "resistances": ["Psychic"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "understood": ["Undercommon"],
+    "telepathy": 60
+  },
+  "challengeRating": "1/8",
+  "experiencePoints": 25,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Advanced Telepathy",
+      "description": "The flumph can perceive the content of any telepathic communication used within 60 feet of it, and it can't be surprised by creatures with any form of telepathy."
+    },
+    {
+      "name": "Prone Deficiency",
+      "description": "If the flumph is knocked Prone, roll a die. On an odd result, the flumph lands upside down and has the Incapacitated condition. At the end of each of its turns, the flumph can make a DC 10 Dexterity saving throw, righting itself and ending the Incapacitated condition on a success."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Tendrils",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Acid damage plus 2 (1d4) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Acid"
+            },
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Stench Spray",
+      "description": "Each creature in a 15-foot Cone must succeed on a DC 10 Dexterity saving throw or be coated in a foul-smelling liquid. A coated creature has the Poisoned condition for 1 hour unless it or another creature uses an action to wash off the liquid. While a creature has this Poisoned condition, any creature within 5 feet of the Poisoned creature has the Poisoned condition while within that distance.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 10,
+        "targets": "each creature in a 15-foot Cone",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Poisoned",
+              "duration": "1 hour"
+            }
+          ],
+          "effects": "The creature is coated in a foul-smelling liquid. While it has this Poisoned condition, any creature within 5 feet of it also has the Poisoned condition while within that distance. The liquid can be washed off using an action."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 15
+      },
+      "conditions": [
+        {
+          "condition": "Poisoned",
+          "duration": "1 hour"
+        }
+      ]
+    }
+  ]
+}

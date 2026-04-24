@@ -1,0 +1,21 @@
+{
+  "name": "Plate Armor",
+  "category": "Heavy",
+  "cost": {
+    "amount": 1500,
+    "denomination": "GP"
+  },
+  "ac": {
+    "base": 18,
+    "addDexModifier": false,
+    "maxDexBonus": null,
+    "isShieldBonus": false
+  },
+  "strengthRequirement": 15,
+  "stealthDisadvantage": true,
+  "weight": 65,
+  "donDoffTime": {
+    "donMinutes": 10,
+    "doffMinutes": 5
+  }
+}

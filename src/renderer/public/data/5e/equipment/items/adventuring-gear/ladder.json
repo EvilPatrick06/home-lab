@@ -1,0 +1,13 @@
+{
+  "name": "Ladder",
+  "cost": "1 SP",
+  "weight": "25 lb.",
+  "description": "10 feet tall. Must climb to move up or down it.",
+  "slug": "ladder",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

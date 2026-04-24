@@ -1,0 +1,236 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. Bright Light is a fundamental illumination category that applies across all planes of the multiverse, defining baseline visual conditions for creatures.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Environments",
+        "description": "Illumination categories that define vision and obscurement across all planes. Bright Light, Dim Light, and Darkness are the three categories of illumination.",
+        "memberPlanes": ["bright-light"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "bright-light",
+      "name": "Bright Light",
+      "alternateNames": [],
+      "category": "Special",
+      "alignments": [],
+      "philosophicalEssence": "Bright Light is one of the three categories of illumination (Bright Light, Dim Light, Darkness). It represents the baseline standard for normal visual conditions. Bright Light lets most creatures see normally.",
+      "emotionalInfluence": "None inherent. Bright Light is a neutral illumination state representing normal visibility.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": false,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": false
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "Bright Light has no inherent effect on time flow. It is simply an illumination category."
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "bright-light-illumination",
+          "name": "Bright Light Illumination",
+          "description": "Bright Light lets most creatures see normally. Even gloomy days provide Bright Light, as do torches, lanterns, fires, and other sources of illumination within a specific radius. Bright Light does NOT create an Obscured area. Creatures in Bright Light can see normally and do not suffer Disadvantage on Wisdom (Perception) checks that rely on sight, nor do they gain the Blinded condition from the illumination level itself.",
+          "mechanicalEffect": "No negative mechanical effects on vision. Creatures can see normally. No Disadvantage on Wisdom (Perception) checks from light level. No Blinded condition imposed. Bright Light is the baseline illumination category against which Dim Light (Lightly Obscured) and Darkness (Heavily Obscured) are contrasted.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "bright_light",
+            "naturalLightSource": "Sunlight on clear or gloomy days, torches, lanterns, fires, and other sources of illumination within a specific radius",
+            "visibilityRange": {
+              "standard": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": false,
+              "obscuresVision": false,
+              "absorbsLight": false,
+              "radiatesEnergy": false
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": 0
+          },
+          "movementPenalty": {
+            "type": "none",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 0
+          },
+          "affectsEmotions": false,
+          "duration": "As long as the light source persists or ambient conditions provide Bright Light",
+          "removalMethods": [
+            "Extinguishing or removing the light source",
+            "Moving to an area of Dim Light or Darkness",
+            "Magical effects that create Darkness"
+          ],
+          "sourceReference": "Chapter 1: Playing the Game, Vision and Light; Appendix C: Rules Glossary, Light"
+        },
+        {
+          "id": "bright-light-interaction-with-dim-light",
+          "name": "Bright Light Boundary with Dim Light",
+          "description": "Dim Light, also called shadows, creates a Lightly Obscured area. An area of Dim Light is usually a boundary between Bright Light and surrounding Darkness. Bright Light transitions to Dim Light at the edge of a light source's illumination radius before giving way to Darkness beyond.",
+          "mechanicalEffect": "The boundary region between Bright Light and Darkness is Dim Light (Lightly Obscured). In Dim Light, creatures have Disadvantage on Wisdom (Perception) checks that rely on sight. Bright Light itself imposes no such penalty.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Chapter 1: Playing the Game, Vision and Light"
+        },
+        {
+          "id": "bright-light-interaction-with-darkvision",
+          "name": "Darkvision Interaction with Bright Light",
+          "description": "Darkvision allows a creature to see in Dim Light within a specified range as if it were Bright Light, and in Darkness within that range as if it were Dim Light. Bright Light itself functions identically for creatures with and without Darkvision.",
+          "mechanicalEffect": "Darkvision references Bright Light as the baseline: Dim Light is treated as Bright Light within Darkvision range (no Disadvantage on Perception checks relying on sight). Darkness is treated as Dim Light within Darkvision range (Lightly Obscured, Disadvantage on sight-based Perception checks). In actual Bright Light, Darkvision provides no additional benefit.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Appendix C: Rules Glossary, Darkvision"
+        },
+        {
+          "id": "bright-light-not-obscured",
+          "name": "Bright Light Does Not Obscure",
+          "description": "Unlike Dim Light (which creates a Lightly Obscured area) and Darkness (which creates a Heavily Obscured area), Bright Light does not create any obscured area. A Lightly Obscured area includes areas with Dim Light, patchy fog, or moderate foliage. A Heavily Obscured area includes areas with Darkness, heavy fog, or dense foliage. Bright Light is explicitly excluded from both obscurement categories.",
+          "mechanicalEffect": "In a Lightly Obscured area (Dim Light), creatures have Disadvantage on Wisdom (Perception) checks that rely on sight. In a Heavily Obscured area (Darkness), creatures have the Blinded condition when trying to see something there. Bright Light imposes neither of these effects.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Chapter 1: Playing the Game, Obscured Areas"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "none",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "bright-light-core-rule",
+          "name": "Bright Light Core Definition",
+          "description": "Bright Light lets most creatures see normally. Even gloomy days provide Bright Light, as do torches, lanterns, fires, and other sources of illumination within a specific radius.",
+          "mechanicalEffect": "Normal vision. No obscurement penalties. Creatures can see clearly and make Wisdom (Perception) checks that rely on sight without illumination-based Disadvantage. Bright Light is the standard illumination level assumed for normal gameplay unless otherwise specified.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "bright-light-sources",
+          "name": "Sources of Bright Light",
+          "description": "Bright Light is provided by: sunlight (even on gloomy days), torches (within their illumination radius), lanterns (within their illumination radius), fires (within their illumination radius), and other sources of illumination within a specific radius. Each source typically also creates a boundary of Dim Light beyond its Bright Light radius.",
+          "mechanicalEffect": "The specific radius of Bright Light depends on the light source. Beyond the Bright Light radius, each source typically casts Dim Light for an additional distance before giving way to Darkness.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "bright-light-three-categories",
+          "name": "Three Categories of Illumination",
+          "description": "The presence or absence of light determines the category of illumination in an area. The three categories are: Bright Light (normal vision, no obscurement), Dim Light (Lightly Obscured, Disadvantage on sight-based Perception checks), and Darkness (Heavily Obscured, Blinded condition when trying to see).",
+          "mechanicalEffect": "Bright Light is the most favorable illumination category for vision. It creates no obscurement. Dim Light creates a Lightly Obscured area. Darkness creates a Heavily Obscured area.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [],
+      "adventureThemes": [],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 1: Playing the Game / Appendix C: Rules Glossary",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game defines Bright Light under Vision and Light as one of three illumination categories."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary defines Bright Light under the Light entry and references it in the Darkvision entry."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary defines Lightly Obscured (associated with Dim Light, not Bright Light) and Heavily Obscured (associated with Darkness, not Bright Light)."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": false
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2025-02-18T00:00:00Z"
+  }
+}

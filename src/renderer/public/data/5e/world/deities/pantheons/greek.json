@@ -1,0 +1,144 @@
+{
+  "id": "greek-pantheon",
+  "name": "Greek Pantheon",
+  "description": "The gods of Olympus make themselves known with the gentle lap of waves against the shores and the crash of thunder among the cloud-enshrouded peaks. The thick boar-infested woods and the sere, olive-covered hillsides hold evidence of their passing. Every aspect of nature echoes with their presence, and they've made a place for themselves inside the human heart, too.",
+  "deities": [
+    {
+      "name": "Zeus",
+      "title": "God of the Sky, Ruler of the Gods",
+      "alignment": "Neutral",
+      "domains": ["Tempest"],
+      "symbol": "Fist full of lightning bolts"
+    },
+    {
+      "name": "Aphrodite",
+      "title": "Goddess of Love and Beauty",
+      "alignment": "Chaotic Good",
+      "domains": ["Light"],
+      "symbol": "Sea shell"
+    },
+    {
+      "name": "Apollo",
+      "title": "God of Light, Music, and Healing",
+      "alignment": "Chaotic Good",
+      "domains": ["Knowledge", "Life", "Light"],
+      "symbol": "Lyre"
+    },
+    {
+      "name": "Ares",
+      "title": "God of War and Strife",
+      "alignment": "Chaotic Evil",
+      "domains": ["War"],
+      "symbol": "Spear"
+    },
+    {
+      "name": "Artemis",
+      "title": "Goddess of Hunting and Childbirth",
+      "alignment": "Neutral Good",
+      "domains": ["Life", "Nature"],
+      "symbol": "Bow and arrow on a lunar disk"
+    },
+    {
+      "name": "Athena",
+      "title": "Goddess of Wisdom and Civilization",
+      "alignment": "Lawful Good",
+      "domains": ["Knowledge", "War"],
+      "symbol": "Owl"
+    },
+    {
+      "name": "Demeter",
+      "title": "Goddess of Agriculture",
+      "alignment": "Neutral Good",
+      "domains": ["Life"],
+      "symbol": "Mare's head"
+    },
+    {
+      "name": "Dionysus",
+      "title": "God of Mirth and Wine",
+      "alignment": "Chaotic Neutral",
+      "domains": ["Life"],
+      "symbol": "Thyrsus (staff tipped with a pine cone)"
+    },
+    {
+      "name": "Hades",
+      "title": "God of the Underworld",
+      "alignment": "Lawful Evil",
+      "domains": ["Death"],
+      "symbol": "Black ram"
+    },
+    {
+      "name": "Hecate",
+      "title": "Goddess of Magic and the Moon",
+      "alignment": "Chaotic Evil",
+      "domains": ["Knowledge", "Trickery"],
+      "symbol": "Setting moon"
+    },
+    {
+      "name": "Hephaestus",
+      "title": "God of the Forge and Fire",
+      "alignment": "Neutral Good",
+      "domains": ["Knowledge"],
+      "symbol": "Hammer and anvil"
+    },
+    {
+      "name": "Hera",
+      "title": "Goddess of Marriage and Intrigue",
+      "alignment": "Chaotic Neutral",
+      "domains": ["Trickery"],
+      "symbol": "Fan of peacock feathers"
+    },
+    {
+      "name": "Heracles",
+      "title": "God of Strength and Adventure",
+      "alignment": "Chaotic Good",
+      "domains": ["Tempest", "War"],
+      "symbol": "Lion's head"
+    },
+    {
+      "name": "Hermes",
+      "title": "God of Travel and Commerce",
+      "alignment": "Chaotic Good",
+      "domains": ["Trickery"],
+      "symbol": "Caduceus (winged staff and serpents)"
+    },
+    {
+      "name": "Hestia",
+      "title": "Goddess of Home and Family",
+      "alignment": "Neutral Good",
+      "domains": ["Life"],
+      "symbol": "Hearth"
+    },
+    {
+      "name": "Nike",
+      "title": "Goddess of Victory",
+      "alignment": "Lawful Neutral",
+      "domains": ["War"],
+      "symbol": "Winged woman"
+    },
+    {
+      "name": "Pan",
+      "title": "God of Nature",
+      "alignment": "Chaotic Neutral",
+      "domains": ["Nature"],
+      "symbol": "Syrinx (pan pipes)"
+    },
+    {
+      "name": "Poseidon",
+      "title": "God of the Sea and Earthquakes",
+      "alignment": "Chaotic Neutral",
+      "domains": ["Tempest"],
+      "symbol": "Trident"
+    },
+    {
+      "name": "Tyche",
+      "title": "Goddess of Good Fortune",
+      "alignment": "Neutral",
+      "domains": ["Trickery"],
+      "symbol": "Red pentagram"
+    }
+  ],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "section": "Appendix B: Gods of the Multiverse"
+  }
+}

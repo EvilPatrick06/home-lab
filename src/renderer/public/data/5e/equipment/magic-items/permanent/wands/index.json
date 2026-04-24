@@ -1,0 +1,56 @@
+[
+  {
+    "id": "wand-of-magic-missiles",
+    "name": "Wand of Magic Missiles",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/wand-of-magic-missiles.json"
+  },
+  {
+    "id": "wand-of-the-war-mage",
+    "name": "Wand of the War Mage",
+    "rarity": "Varies",
+    "variants": ["+1 (Uncommon)", "+2 (Rare)", "+3 (Very Rare)"]
+  },
+  {
+    "id": "wand-of-fireballs",
+    "name": "Wand of Fireballs",
+    "rarity": "Rare",
+    "path": "../../rare/wand-of-fireballs.json"
+  },
+  {
+    "id": "wand-of-lightning-bolts",
+    "name": "Wand of Lightning Bolts",
+    "rarity": "Rare",
+    "path": "../../rare/wand-of-lightning-bolts.json"
+  },
+  { "id": "wand-of-binding", "name": "Wand of Binding", "rarity": "Rare", "path": "../../rare/wand-of-binding.json" },
+  { "id": "wand-of-fear", "name": "Wand of Fear", "rarity": "Rare", "path": "../../rare/wand-of-fear.json" },
+  {
+    "id": "wand-of-paralysis",
+    "name": "Wand of Paralysis",
+    "rarity": "Rare",
+    "path": "../../rare/wand-of-paralysis.json"
+  },
+  { "id": "wand-of-polymorph", "name": "Wand of Polymorph", "rarity": "Very Rare" },
+  { "id": "wand-of-wonder", "name": "Wand of Wonder", "rarity": "Rare", "path": "../../rare/wand-of-wonder.json" },
+  { "id": "wand-of-web", "name": "Wand of Web", "rarity": "Uncommon", "path": "../../uncommon/wand-of-web.json" },
+  {
+    "id": "wand-of-enemy-detection",
+    "name": "Wand of Enemy Detection",
+    "rarity": "Rare",
+    "path": "../../rare/wand-of-enemy-detection.json"
+  },
+  {
+    "id": "wand-of-secrets",
+    "name": "Wand of Secrets",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/wand-of-secrets.json"
+  },
+  {
+    "id": "wand-of-magic-detection",
+    "name": "Wand of Magic Detection",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/wand-of-magic-detection.json"
+  },
+  { "id": "wand-of-orcus", "name": "Wand of Orcus", "rarity": "Artifact", "path": "../../artifact/wand-of-orcus.json" }
+]

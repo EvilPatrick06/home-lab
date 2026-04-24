@@ -1,0 +1,43 @@
+{
+  "name": "Druidic Focus",
+  "slug": "druidic-focus",
+  "category": "Spellcasting Focus",
+  "type": "Druidic",
+  "description": "A Druidic Focus is a special item designed to channel the power of primal spells. A Druid or Ranger can use such an item as a Spellcasting Focus.",
+  "variants": [
+    {
+      "name": "Sprig of Mistletoe",
+      "slug": "druidic-focus-sprig-of-mistletoe",
+      "cost": "1 GP",
+      "weight": "—",
+      "description": "A sprig of sacred mistletoe used to channel primal magic."
+    },
+    {
+      "name": "Totem",
+      "slug": "druidic-focus-totem",
+      "cost": "1 GP",
+      "weight": "—",
+      "description": "A small carved or painted figurine representing a nature spirit or animal."
+    },
+    {
+      "name": "Wooden Staff",
+      "slug": "druidic-focus-wooden-staff",
+      "cost": "5 GP",
+      "weight": "4 lb.",
+      "description": "A wooden staff carved from a living tree, used to channel primal magic."
+    },
+    {
+      "name": "Yew Wand",
+      "slug": "druidic-focus-yew-wand",
+      "cost": "10 GP",
+      "weight": "1 lb.",
+      "description": "A slender wand crafted from yew wood, used to channel primal magic."
+    }
+  ],
+  "usableBy": ["Druid", "Ranger"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

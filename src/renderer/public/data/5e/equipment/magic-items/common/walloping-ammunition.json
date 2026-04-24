@@ -1,0 +1,13 @@
+{
+  "name": "Walloping Ammunition",
+  "slug": "walloping-ammunition",
+  "type": "Weapon (Any Ammunition)",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "A creature hit by this ammunition must succeed on a DC 10 Strength saving throw or have the Prone condition.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

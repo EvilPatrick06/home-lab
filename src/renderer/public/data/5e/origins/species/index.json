@@ -1,0 +1,52 @@
+[
+  {
+    "id": "aasimar",
+    "name": "Aasimar",
+    "path": "origins/species/aasimar.json"
+  },
+  {
+    "id": "dragonborn",
+    "name": "Dragonborn",
+    "path": "origins/species/dragonborn.json"
+  },
+  {
+    "id": "dwarf",
+    "name": "Dwarf",
+    "path": "origins/species/dwarf.json"
+  },
+  {
+    "id": "elf",
+    "name": "Elf",
+    "path": "origins/species/elf.json"
+  },
+  {
+    "id": "gnome",
+    "name": "Gnome",
+    "path": "origins/species/gnome.json"
+  },
+  {
+    "id": "goliath",
+    "name": "Goliath",
+    "path": "origins/species/goliath.json"
+  },
+  {
+    "id": "halfling",
+    "name": "Halfling",
+    "path": "origins/species/halfling.json"
+  },
+  {
+    "id": "human",
+    "name": "Human",
+    "path": "origins/species/human.json"
+  },
+  {
+    "id": "orc",
+    "name": "Orc",
+    "path": "origins/species/orc.json"
+  },
+  {
+    "id": "tiefling",
+    "name": "Tiefling",
+    "path": "origins/species/tiefling.json"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "name": "Circlet of Blasting",
+  "cost": {
+    "amount": 200,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "While wearing this circlet, you can use it to cast Scorching Ray. When you do so, the spell's attack bonus is +5. Once the circlet has been used to cast the spell, it can't be used again until the next dawn.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Attack",
+  "savingThrow": null,
+  "damage": {
+    "count": 2,
+    "die": 6,
+    "type": "Fire"
+  },
+  "lightProperties": null,
+  "capacityDescription": null
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Undercommon",
+  "script": "Elvish",
+  "origin": "The Underdark",
+  "speakers": "Underdark traders, drow",
+  "slug": "undercommon",
+  "category": "Rare",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

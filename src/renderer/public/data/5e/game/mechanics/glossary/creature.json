@@ -1,0 +1,11 @@
+{
+  "name": "Creature",
+  "slug": "creature",
+  "description": "Any being in the game, including a player's character, is a creature.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "name": "Blob of Annihilation",
+  "sizes": ["Large"],
+  "creatureType": "Ooze",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "A blob of annihilation is a terrible ooze suffused with the destructive energy of the Negative Plane. These amorphous horrors dissolve all nonmagical matter they touch, leaving nothing behind. A blob might form spontaneously in places where the fabric of the multiverse is worn thin or in the wake of powerful necromantic magic.",
+  "armorClass": {
+    "value": 5
+  },
+  "hitPoints": {
+    "average": 75,
+    "dice": {
+      "count": 10,
+      "die": "d10",
+      "modifier": 20
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": -5,
+    "score": 5
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "damageImmunities": ["Acid, Cold, Fire, Lightning, Necrotic, Poison, and Psychic"],
+  "conditionImmunities": [
+    "Blinded",
+    "Charmed",
+    "Deafened",
+    "Exhaustion",
+    "Frightened",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Restrained",
+    "Stunned",
+    "Unconscious"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "blind beyond this radius"
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Amorphous",
+      "description": "The blob can move through a space as narrow as 1 inch without squeezing."
+    },
+    {
+      "name": "Annihilation",
+      "description": "The blob destroys any nonmagical object or creation of magical force that touches it. A creature that touches the blob or hits it with a melee attack while within 5 feet of it takes 22 (4d10) Force damage. A creature can take this damage no more than once per turn."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The blob can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 10 (2d6 + 3) Bludgeoning damage plus 22 (4d10) Force damage. If the target is a nonmagical object that isn't being worn or carried, it is destroyed.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Force"
+            }
+          ],
+          "additionalEffects": "If the target is a nonmagical object that isn't being worn or carried, it is destroyed."
+        }
+      }
+    }
+  ]
+}

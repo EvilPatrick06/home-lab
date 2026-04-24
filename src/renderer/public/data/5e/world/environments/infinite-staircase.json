@@ -1,0 +1,812 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all. Four planar features connect multiple Outer Planes: the Infinite Staircase, the River Oceanus, the River Styx, and Yggdrasil the World Tree.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Above Elemental Below",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Plane of Ash",
+          "Plane of Ice",
+          "Plane of Magma",
+          "Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      },
+      {
+        "name": "Planar Pathways",
+        "description": "Extradimensional features that connect multiple Outer Planes, enabling travel between them.",
+        "memberPlanes": ["Infinite Staircase", "River Oceanus", "River Styx", "Yggdrasil"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "infinite-staircase",
+      "name": "Infinite Staircase",
+      "alternateNames": [],
+      "category": "Special",
+      "subcategory": "Demiplane",
+      "alignments": [],
+      "philosophicalEssence": "An extradimensional staircase that connects the planes of existence, serving as a planar pathway between Outer Planes and potentially all other planes. It embodies the concept of interconnection across the multiverse.",
+      "emotionalInfluence": "None specified; the staircase is a neutral conduit between planes.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "multiple_surfaces",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "magically_morphic",
+        "shape": "An endless construction of stairs, ramps, hovering platforms, and clockwork conveyor belts that changes appearance as it climbs and descends. Ranges from simple stairs of wood or stone to a chaotic jumble of stairs hanging in radiant space where no two steps share the same gravitational orientation.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Planar winds blow into the expanse through its myriad doors. These winds are significant enough to have created Nafas, a noble genie.",
+        "hasSurface": true,
+        "dominantElement": "None; extradimensional space"
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "No specific time flow alterations are documented for the Infinite Staircase."
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "infinite-staircase-variable-gravity",
+          "name": "Variable Gravitational Orientation",
+          "description": "The Infinite Staircase features stairs where no two steps share the same gravitational orientation, creating a chaotic jumble of stairs hanging in radiant space. Gravity pulls toward the surface of each individual step or platform.",
+          "mechanicalEffect": "Creatures traversing the staircase must navigate steps, ramps, hovering platforms, and clockwork conveyor belts with varying gravitational orientations. Each step may have its own gravity pulling toward its surface. The staircase changes appearance from simple stairs of wood or stone to chaotic arrangements in radiant space.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "sourceReference": "Chapter 6: Cosmology - Traveling the Outer Planes - Infinite Staircase"
+        },
+        {
+          "id": "infinite-staircase-planar-winds",
+          "name": "Planar Winds",
+          "description": "Planar winds blow into the expanse of the Infinite Staircase through its myriad doors from across the multiverse. These winds are powerful enough to have created Nafas, a noble genie.",
+          "mechanicalEffect": "The planar winds that blow through the Infinite Staircase's myriad doors are a defining environmental feature. They created the noble genie Nafas and carry wishes spoken throughout the multiverse to him.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "sourceReference": "Chapter 6: Cosmology - Traveling the Outer Planes - Infinite Staircase"
+        }
+      ],
+      "portals": [
+        {
+          "id": "infinite-staircase-doors",
+          "type": "doorway",
+          "name": "Doors to the Infinite Staircase",
+          "destination": "Various planes of existence",
+          "destinationPlane": "Multiple",
+          "bidirectional": true,
+          "requirement": {
+            "type": "none",
+            "description": "Doors to the Infinite Staircase are often tucked away in dusty, half-forgotten places that no one frequents or pays any attention to. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down. On any given plane, multiple doors might lead to the Infinite Staircase, though entrances aren't common knowledge."
+          },
+          "colorOrAppearance": "A nondescript door leading to a small landing with a stairway leading up and down",
+          "isDetectable": true,
+          "guardian": {
+            "creatureType": "Various",
+            "creatureName": "Devas, sphinxes, yugoloths, and other powerful monsters"
+          }
+        }
+      ],
+      "portalFrequency": "uncommon",
+      "planarConnections": [
+        {
+          "id": "infinite-staircase-planar-pathway",
+          "name": "Infinite Staircase",
+          "type": "staircase",
+          "connectedPlanes": ["All Outer Planes", "Potentially all planes of existence"],
+          "description": "The Infinite Staircase is an extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down. The staircase changes appearance as it climbs and descends, going from simple stairs of wood or stone to a chaotic jumble of stairs hanging in radiant space, where no two steps share the same gravitational orientation. It includes ramps, hovering platforms, and clockwork conveyor belts along its endless construction. On any given plane, multiple doors might lead to the Infinite Staircase.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["foot", "any creature capable of walking, climbing, or navigating platforms"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial", "Fiend", "Elemental"],
+        "notableEntities": [
+          {
+            "name": "Nafas",
+            "title": "Noble Genie of the Infinite Staircase",
+            "creatureType": "Elemental (Genie)",
+            "description": "A noble genie created by the planar winds that blow into the expanse through its myriad doors. A distant and benevolent observer, Nafas hears wishes spoken throughout the multiverse—wishes he fulfills with the help of adventurers who happen upon his aeolian palace.",
+            "rulesLayer": "Infinite Staircase",
+            "rulesLocation": "Chapter 6: Cosmology - Traveling the Outer Planes - Infinite Staircase"
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "infinite-staircase-entrance-concealment",
+          "name": "Concealed Entrances",
+          "description": "Doors to the Infinite Staircase are often tucked away in dusty, half-forgotten places that no one frequents or pays any attention to. On any given plane, multiple doors might lead to the Infinite Staircase, though entrances aren't common knowledge.",
+          "mechanicalEffect": "Entrances to the Infinite Staircase appear as nondescript doors in obscure, forgotten locations. They are not common knowledge and may require investigation or exploration to locate. Each entrance leads to a small landing with a stairway leading up and down.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "infinite-staircase-variable-appearance",
+          "name": "Shifting Architectural Form",
+          "description": "The Infinite Staircase changes appearance as it climbs and descends, going from simple stairs of wood or stone to a chaotic jumble of stairs hanging in radiant space, where no two steps share the same gravitational orientation. It includes ramps, hovering platforms, and clockwork conveyor belts along its endless construction.",
+          "mechanicalEffect": "The physical structure of the staircase is not uniform. Travelers encounter diverse architectural forms including wooden stairs, stone stairs, stairs in radiant space with variable gravity per step, ramps, hovering platforms, and clockwork conveyor belts. Navigation requires adapting to these changing conditions.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "infinite-staircase-guarded-entrances",
+          "name": "Guarded Entrances",
+          "description": "Entrances to the Infinite Staircase are occasionally guarded by devas, sphinxes, yugoloths, and other powerful monsters.",
+          "mechanicalEffect": "Some doors to the Infinite Staircase are protected by powerful guardians including devas (Celestials), sphinxes, yugoloths (Fiends), and other powerful monsters. These guardians may need to be bypassed, defeated, or negotiated with to gain access.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "adventureThemes": [
+        "Planar travel between Outer Planes",
+        "Wish fulfillment through Nafas",
+        "Exploration of extradimensional space",
+        "Discovery of hidden entrances",
+        "Navigating variable gravity and shifting architecture",
+        "Encounters with planar guardians"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Quests from the Infinite Staircase",
+          "description": "The adventure anthology Quests from the Infinite Staircase provides more details about this planar pathway, including further information about Nafas and his aeolian palace."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "global-infinite-staircase",
+      "name": "Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": [
+        "Abyss",
+        "Acheron",
+        "Arborea",
+        "Arcadia",
+        "Beastlands",
+        "Bytopia",
+        "Carceri",
+        "Elysium",
+        "Gehenna",
+        "Hades",
+        "Limbo",
+        "Mechanus",
+        "Mount Celestia",
+        "Nine Hells",
+        "Outlands",
+        "Pandemonium",
+        "Ysgard",
+        "Material Plane",
+        "Feywild",
+        "Shadowfell",
+        "Ethereal Plane",
+        "Astral Plane",
+        "Elemental Plane of Air",
+        "Elemental Plane of Earth",
+        "Elemental Plane of Fire",
+        "Elemental Plane of Water"
+      ],
+      "description": "The Infinite Staircase is an extradimensional staircase that connects the planes. It is one of four planar features that connect multiple Outer Planes, alongside the River Oceanus, the River Styx, and Yggdrasil the World Tree. On any given plane, multiple doors might lead to the Infinite Staircase. An entrance usually appears as a nondescript door, beyond which lies a small landing with a stairway leading up and down. The staircase changes appearance as it climbs and descends, going from simple stairs of wood or stone to a chaotic jumble of stairs hanging in radiant space where no two steps share the same gravitational orientation. It includes ramps, hovering platforms, and clockwork conveyor belts along its endless construction. Doors are often tucked away in dusty, half-forgotten places and are occasionally guarded by devas, sphinxes, yugoloths, and other powerful monsters.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["foot", "any creature capable of traversing stairs, ramps, platforms, and conveyor belts"]
+    },
+    {
+      "id": "global-river-oceanus",
+      "name": "River Oceanus",
+      "type": "river",
+      "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+      "description": "The River Oceanus provides a path through some of the Upper Planes, flowing through each of Elysium's layers, the top layer of the Beastlands, the top layer of Arborea, and draining away in Arborea's second layer.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["boat", "ship", "trading vessel"]
+    },
+    {
+      "id": "global-river-styx",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries snake through lower layers.",
+      "hazards": ["Memory loss from contact with the water"],
+      "isOneWay": false,
+      "navigableBy": ["sinister ferries", "boats crewed by skilled pilots"]
+    },
+    {
+      "id": "global-yggdrasil",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Astral Plane", "Material Plane"],
+      "description": "The World Tree spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, most of its trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["climbing among roots and branches", "guided travel"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "travel-planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some function like doorways, others are locations that exist on multiple planes or flicker between them, and some are vortices joining elemental planes to similar material locations.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting portal requirements (command word, key item, random timing, situation, or time-based)",
+        "Bypassing guardians"
+      ],
+      "associatedSpells": [],
+      "risks": [
+        "Guardians charged with ensuring certain creatures don't pass through",
+        "Portal requirements may be difficult to meet"
+      ],
+      "destinations": ["Any plane connected by the specific portal"]
+    },
+    {
+      "id": "travel-spells",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Ability to cast the relevant spell", "Spell components"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in destination"],
+      "destinations": ["Any plane depending on the spell"]
+    },
+    {
+      "id": "travel-infinite-staircase",
+      "name": "Infinite Staircase",
+      "type": "planar_pathway",
+      "description": "The Infinite Staircase is an extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door tucked away in dusty, half-forgotten places. Beyond the portal lies a small landing with a stairway leading up and down. On any given plane, multiple doors might lead to the Infinite Staircase, though entrances aren't common knowledge and are occasionally guarded by devas, sphinxes, yugoloths, and other powerful monsters.",
+      "requirements": ["Finding a door to the Infinite Staircase", "Bypassing any guardians"],
+      "associatedSpells": [],
+      "risks": [
+        "Variable gravitational orientation",
+        "Guarded entrances by devas, sphinxes, yugoloths, and other powerful monsters"
+      ],
+      "destinations": ["Multiple Outer Planes", "Potentially any plane with a door to the staircase"]
+    }
+  ],
+  "infernalHierarchy": [
+    {
+      "rank": 1,
+      "title": "Lemure",
+      "category": "Least Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": [],
+      "promotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 2,
+      "title": "Imp",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Spined devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 3,
+      "title": "Spined devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bearded devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 4,
+      "title": "Bearded devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Barbed devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 5,
+      "title": "Barbed devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Chain devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 6,
+      "title": "Chain devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 7,
+      "title": "Bone devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Horned devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 8,
+      "title": "Horned devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Erinyes"],
+      "canDemoteTo": ["Any lesser devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 9,
+      "title": "Erinyes",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Ice devil"],
+      "canDemoteTo": ["Any lesser devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 10,
+      "title": "Ice devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Pit fiend"],
+      "canDemoteTo": ["Any lesser devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 11,
+      "title": "Pit fiend",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Duke/duchess"],
+      "canDemoteTo": ["Any lesser devil"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 12,
+      "title": "Duke/duchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Archduke/archduchess"],
+      "canDemoteTo": ["Any greater or lesser devil"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    },
+    {
+      "rank": 13,
+      "title": "Archduke/archduchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": [],
+      "canDemoteTo": ["Any form Asmodeus desires"],
+      "demotionAuthority": "Asmodeus only"
+    }
+  ],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 subtracted from D20 Tests",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature",
+        "exhaustionLevels": 0
+      },
+      "onSuccess": {
+        "description": "The creature suffers no additional penalty from this rest.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 1,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.4,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

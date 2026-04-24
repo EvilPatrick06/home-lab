@@ -1,0 +1,18 @@
+{
+  "name": "Calligrapher's Supplies",
+  "category": "Artisan's Tools",
+  "cost": {
+    "amount": 10,
+    "denomination": "GP"
+  },
+  "weight": 5,
+  "ability": "Dexterity",
+  "utilize": [
+    {
+      "description": "Write text with impressive flourishes that guard against forgery",
+      "dc": 15
+    }
+  ],
+  "craft": ["Ink", "Spell Scroll"],
+  "variants": null
+}

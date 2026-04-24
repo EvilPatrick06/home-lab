@@ -1,0 +1,1157 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Plane of Ash",
+          "Plane of Ice",
+          "Plane of Magma",
+          "Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "outlands",
+      "name": "Outlands",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Neutral Plane",
+      "alignments": ["Neutral"],
+      "philosophicalEssence": "The plane of neutrality, keeping all aspects of the planes in a paradoxical balance—simultaneously concordant and in opposition. A microcosm of the planes.",
+      "emotionalInfluence": "Balance between all extremes; no particular emotional pull dominates.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": true,
+        "isInfinite": false,
+        "morphic": "static",
+        "shape": "A great disk. Those who envision the Outer Planes as a wheel point to the Outlands as proof, calling it a microcosm of the planes. Evenly spaced around the outside edge of the circle are the gate-towns. At the center is the Spire, a needle-shaped mountain.",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Varied terrain with prairies, mountains, and shallow rivers suggests a temperate but variable climate similar to Material Plane environments."
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Varied, similar to different environments found on worlds of the Material Plane."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "No special time flow rules are specified for the Outlands. Distance is virtually meaningless on the Outer Planes in general, but the Outlands is noted as the closest the Outer Planes come to being like a world on the Material Plane."
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [
+        {
+          "id": "outlands-gate-automata",
+          "type": "gate_town",
+          "name": "Automata Gate",
+          "destination": "Mechanus",
+          "destinationPlane": "Mechanus",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-bedlam",
+          "type": "gate_town",
+          "name": "Bedlam Gate",
+          "destination": "Pandemonium",
+          "destinationPlane": "Pandemonium",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-curst",
+          "type": "gate_town",
+          "name": "Curst Gate",
+          "destination": "Carceri",
+          "destinationPlane": "Carceri",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-ecstasy",
+          "type": "gate_town",
+          "name": "Ecstasy Gate",
+          "destination": "Elysium",
+          "destinationPlane": "Elysium",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-excelsior",
+          "type": "gate_town",
+          "name": "Excelsior Gate",
+          "destination": "Mount Celestia",
+          "destinationPlane": "Mount Celestia",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-faunel",
+          "type": "gate_town",
+          "name": "Faunel Gate",
+          "destination": "Beastlands",
+          "destinationPlane": "Beastlands",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-fortitude",
+          "type": "gate_town",
+          "name": "Fortitude Gate",
+          "destination": "Arcadia",
+          "destinationPlane": "Arcadia",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-glorium",
+          "type": "gate_town",
+          "name": "Glorium Gate",
+          "destination": "Ysgard",
+          "destinationPlane": "Ysgard",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-hopeless",
+          "type": "gate_town",
+          "name": "Hopeless Gate",
+          "destination": "Hades",
+          "destinationPlane": "Hades",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-plague-mort",
+          "type": "gate_town",
+          "name": "Plague-Mort Gate",
+          "destination": "Abyss",
+          "destinationPlane": "Abyss",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-ribcage",
+          "type": "gate_town",
+          "name": "Ribcage Gate",
+          "destination": "Nine Hells",
+          "destinationPlane": "Nine Hells",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-rigus",
+          "type": "gate_town",
+          "name": "Rigus Gate",
+          "destination": "Acheron",
+          "destinationPlane": "Acheron",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-sylvania",
+          "type": "gate_town",
+          "name": "Sylvania Gate",
+          "destination": "Arborea",
+          "destinationPlane": "Arborea",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-torch",
+          "type": "gate_town",
+          "name": "Torch Gate",
+          "destination": "Gehenna",
+          "destinationPlane": "Gehenna",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-tradegate",
+          "type": "gate_town",
+          "name": "Tradegate Gate",
+          "destination": "Bytopia",
+          "destinationPlane": "Bytopia",
+          "bidirectional": true
+        },
+        {
+          "id": "outlands-gate-xaos",
+          "type": "gate_town",
+          "name": "Xaos Gate",
+          "destination": "Limbo",
+          "destinationPlane": "Limbo",
+          "bidirectional": true
+        }
+      ],
+      "portalFrequency": "abundant",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial", "Fiend", "Humanoid"],
+        "notableEntities": [
+          {
+            "name": "Lady of Pain",
+            "title": "Ruler of Sigil",
+            "creatureType": "Unknown",
+            "description": "An inscrutable being whose purpose and goals are unknown. She appears almost human but most definitely isn't. She wears ornate robes that shroud her body, and a mantle of blades coated in blue-green verdigris surrounds her masklike face. Widely accepted she is a being on par with deities.",
+            "rulesLocation": "Sigil, City of Doors (above the Spire at the center of the Outlands)"
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Automata",
+            "description": "Gate-town built around a portal leading to Mechanus. Shares many characteristics of Mechanus.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Bedlam",
+            "description": "Gate-town built around a portal leading to Pandemonium. Shares many characteristics of Pandemonium.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Curst",
+            "description": "Gate-town built around a portal leading to Carceri. Shares many characteristics of Carceri.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Ecstasy",
+            "description": "Gate-town built around a portal leading to Elysium. Shares many characteristics of Elysium.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Excelsior",
+            "description": "Gate-town built around a portal leading to Mount Celestia. Shares many characteristics of Mount Celestia.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Faunel",
+            "description": "Gate-town built around a portal leading to the Beastlands. Shares many characteristics of the Beastlands.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Fortitude",
+            "description": "Gate-town built around a portal leading to Arcadia. Shares many characteristics of Arcadia.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Glorium",
+            "description": "Gate-town built around a portal leading to Ysgard. Shares many characteristics of Ysgard.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Hopeless",
+            "description": "Gate-town built around a portal leading to Hades. Shares many characteristics of Hades.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Plague-Mort",
+            "description": "Gate-town built around a portal leading to the Abyss. Shares many characteristics of the Abyss. The portal to the Abyss's first layer (Plain of Infinite Portals) is tucked within a fortress called the Broken Reach, ruled by a succubus named Red Shroud.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Ribcage",
+            "description": "Gate-town built around a portal leading to the Nine Hells. Shares many characteristics of the Nine Hells.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Rigus",
+            "description": "Gate-town built around a portal leading to Acheron. Shares many characteristics of Acheron.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Sylvania",
+            "description": "Gate-town built around a portal leading to Arborea. Shares many characteristics of Arborea.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Torch",
+            "description": "Gate-town built around a portal leading to Gehenna. Shares many characteristics of Gehenna.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Tradegate",
+            "description": "Gate-town built around a portal leading to Bytopia. Shares many characteristics of Bytopia.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Xaos",
+            "description": "Gate-town built around a portal leading to Limbo. Shares many characteristics of Limbo.",
+            "location": "Outside edge of the Outlands disk"
+          },
+          {
+            "name": "Sigil, City of Doors",
+            "description": "A ring-shaped city floating above the Spire at the center of the Outlands. It is a plane in its own right, a bustling planar metropolis holding countless portals to other planes and worlds. A trader's paradise where goods and information come from across the planes. Structures are built on the ring's inner surface; creatures standing on a street can see the city curve up over their heads.",
+            "location": "Floating above the Spire at the center of the Outlands"
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "outlands-gate-town-characteristics",
+          "name": "Gate-Town Planar Characteristics",
+          "description": "Each of the sixteen gate-towns shares many of the characteristics of the plane where its gate leads. Planar emissaries often meet in these gate-towns, so it isn't unusual to see strange interactions, such as a Celestial and a Fiend arguing in a tavern while sharing a fine bottle of wine.",
+          "mechanicalEffect": "Each gate-town takes on environmental, social, and thematic qualities of the Outer Plane its portal connects to.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "outlands-balance",
+          "name": "Plane of Balance",
+          "description": "The Outlands is the plane of neutrality, keeping all aspects of the planes in a paradoxical balance—simultaneously concordant and in opposition. Toward the center of the plane, away from the gate-towns, lie vast stretches of land similar to the different environments found on worlds of the Material Plane.",
+          "mechanicalEffect": "The Outlands maintains neutrality and balance. No single alignment or planar influence dominates the plane overall, though gate-towns at the edge reflect their connected plane's nature.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "sigil-item-keyed-portals",
+          "name": "Sigil Item-Keyed Portals",
+          "description": "Sigil above the Outlands is known as the City of Doors because it features an overwhelming number of item-keyed portals. A portal functions if the traveler carries a particular object; the item acts much like a key to a door. This item can be a common object or a particular one created for that portal.",
+          "mechanicalEffect": "Portals in Sigil require specific key items to activate. The city sustains a brisk trade in information about the planes, particularly the commands or items required for the operation of particular portals.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Celestial", "Fiend"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw.",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            },
+            "cumulative": true,
+            "cumulativeDescription": "The effect is cumulative with each failed save, stacking additional 1d4 penalties.",
+            "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature"
+          },
+          "onSuccess": {
+            "description": "The creature avoids additional cumulative penalty this rest period.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": [],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": true,
+          "repeatSaveTiming": "After finishing each Long Rest on the alien plane",
+          "recoveryTrigger": "Finishing a Long Rest on a plane that isn't opposed to its nature",
+          "recoveryMethods": ["Finishing a Long Rest on a plane that is not opposed to the creature's nature"],
+          "failureProbabilityAtDC": {
+            "dc": 10,
+            "noModifierFailChance": 0.45,
+            "commonModifierRange": {
+              "low": 1,
+              "high": 5
+            },
+            "failChanceAtLowMod": 0.4,
+            "failChanceAtHighMod": 0.2
+          }
+        },
+        "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. The Outlands is Neutral and is not specifically an Upper or Lower Plane, so Planar Dissonance does not normally apply to Celestials or Fiends visiting the Outlands itself. However, gate-towns that share characteristics of Upper or Lower Planes could potentially trigger dissonance-like effects at DM discretion."
+      },
+      "domainsOrRegions": [
+        {
+          "id": "gate-town-automata",
+          "name": "Automata",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Mechanus. Shares characteristics of Mechanus.",
+          "portalDestination": "Mechanus"
+        },
+        {
+          "id": "gate-town-bedlam",
+          "name": "Bedlam",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Pandemonium. Shares characteristics of Pandemonium.",
+          "portalDestination": "Pandemonium"
+        },
+        {
+          "id": "gate-town-curst",
+          "name": "Curst",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Carceri. Shares characteristics of Carceri.",
+          "portalDestination": "Carceri"
+        },
+        {
+          "id": "gate-town-ecstasy",
+          "name": "Ecstasy",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Elysium. Shares characteristics of Elysium.",
+          "portalDestination": "Elysium"
+        },
+        {
+          "id": "gate-town-excelsior",
+          "name": "Excelsior",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Mount Celestia. Shares characteristics of Mount Celestia.",
+          "portalDestination": "Mount Celestia"
+        },
+        {
+          "id": "gate-town-faunel",
+          "name": "Faunel",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Beastlands. Shares characteristics of Beastlands.",
+          "portalDestination": "Beastlands"
+        },
+        {
+          "id": "gate-town-fortitude",
+          "name": "Fortitude",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Arcadia. Shares characteristics of Arcadia.",
+          "portalDestination": "Arcadia"
+        },
+        {
+          "id": "gate-town-glorium",
+          "name": "Glorium",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Ysgard. Shares characteristics of Ysgard.",
+          "portalDestination": "Ysgard"
+        },
+        {
+          "id": "gate-town-hopeless",
+          "name": "Hopeless",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Hades. Shares characteristics of Hades.",
+          "portalDestination": "Hades"
+        },
+        {
+          "id": "gate-town-plague-mort",
+          "name": "Plague-Mort",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to the Abyss. Shares characteristics of the Abyss. The portal leads to the Plain of Infinite Portals (Layer 1 of the Abyss), tucked within a fortress called the Broken Reach, ruled by a succubus named Red Shroud.",
+          "portalDestination": "Abyss"
+        },
+        {
+          "id": "gate-town-ribcage",
+          "name": "Ribcage",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to the Nine Hells. Shares characteristics of the Nine Hells.",
+          "portalDestination": "Nine Hells"
+        },
+        {
+          "id": "gate-town-rigus",
+          "name": "Rigus",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Acheron. Shares characteristics of Acheron.",
+          "portalDestination": "Acheron"
+        },
+        {
+          "id": "gate-town-sylvania",
+          "name": "Sylvania",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Arborea. Shares characteristics of Arborea.",
+          "portalDestination": "Arborea"
+        },
+        {
+          "id": "gate-town-torch",
+          "name": "Torch",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Gehenna. Shares characteristics of Gehenna.",
+          "portalDestination": "Gehenna"
+        },
+        {
+          "id": "gate-town-tradegate",
+          "name": "Tradegate",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Bytopia. Shares characteristics of Bytopia.",
+          "portalDestination": "Bytopia"
+        },
+        {
+          "id": "gate-town-xaos",
+          "name": "Xaos",
+          "type": "Gate-town",
+          "description": "Gate-town with a portal to Limbo. Shares characteristics of Limbo.",
+          "portalDestination": "Limbo"
+        },
+        {
+          "id": "sigil-city-of-doors",
+          "name": "Sigil, City of Doors",
+          "type": "City",
+          "ruler": {
+            "name": "Lady of Pain",
+            "title": "Ruler of Sigil",
+            "description": "An inscrutable being on par with deities. She wears ornate robes and a mantle of blades coated in blue-green verdigris surrounds her masklike face. Her purpose and goals are unknown."
+          },
+          "description": "A ring-shaped city floating above the Spire at the center of the Outlands. A plane in its own right, it is a bustling planar metropolis holding countless item-keyed portals to other planes and worlds. A trader's paradise for goods and information from across the planes."
+        },
+        {
+          "id": "the-spire",
+          "name": "The Spire",
+          "type": "Region",
+          "description": "A needle-shaped mountain at the center of the Outlands that rises high into the sky. Above its narrow peak floats the ring-shaped city of Sigil."
+        }
+      ],
+      "adventureThemes": [
+        "Conflicts between opposing planar influences",
+        "Celestial spies and Fiend assassins carrying out subtle plots and deadly sabotage",
+        "Preserving nature's balance from the pull of powerful extremes",
+        "Easy travel between gate-towns for planar-themed adventures",
+        "Slaadi wreaking havoc in ordered gate-towns like Automata",
+        "Material Plane-like exploration toward the center of the plane"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Leather brown",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Planescape: Adventures in the Multiverse",
+          "description": "Includes extensive information on the Outlands."
+        },
+        {
+          "book": "Planescape: Adventures in the Multiverse",
+          "description": "Includes extensive information on Sigil, City of Doors."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "infinite-staircase",
+      "name": "Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": ["Outlands", "Material Plane", "Outer Planes", "Inner Planes"],
+      "description": "An extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down. The staircase changes appearance as it climbs and descends. Doors to the Infinite Staircase are often tucked away in dusty, half-forgotten places. On any given plane, multiple doors might lead to the Infinite Staircase.",
+      "hazards": ["Guarded by devas, sphinxes, yugoloths, and other powerful monsters"],
+      "isOneWay": false,
+      "navigableBy": ["foot"]
+    },
+    {
+      "id": "river-styx",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. The Styx churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries snake through lower layers of these planes.",
+      "hazards": ["Ill effects of the Styx (described in chapter 3)", "Unpredictable currents and eddies"],
+      "isOneWay": false,
+      "navigableBy": [
+        "Sinister ferries crewed by skilled pilots",
+        "Fiend pilots",
+        "Souls of dead creatures from the Material Plane"
+      ]
+    },
+    {
+      "id": "river-oceanus",
+      "name": "River Oceanus",
+      "type": "river",
+      "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+      "description": "Sweet and fragrant water originating in Thalasia (Elysium's lowest layer). Flows through each of Elysium's layers, passes through the top layer of the Beastlands, streams across the top layer of Arborea, and drains away somewhere in Arborea's second layer.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Trading vessels", "Hired boats"]
+    },
+    {
+      "id": "yggdrasil",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Astral Plane", "Material Plane"],
+      "description": "A cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Most of its massive trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+      "isOneWay": false,
+      "navigableBy": ["Climbing among roots and branches", "Expert guides"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some function like doorways, others are locations that exist on multiple planes at once or flicker from one plane to another.",
+      "requirements": [
+        "Finding a portal leading to the desired destination",
+        "Meeting the portal's activation requirement (Command, Key Item, Random, Situation, or Time)"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portals often have guardians", "Most portals aren't open all the time"],
+      "destinations": ["Any plane connected by the specific portal"]
+    },
+    {
+      "id": "gate-spell",
+      "name": "Gate Spell",
+      "type": "spell",
+      "description": "The Gate spell can directly transport adventurers to any other plane with precision.",
+      "requirements": ["Ability to cast the Gate spell"],
+      "associatedSpells": ["Gate"],
+      "risks": [],
+      "destinations": ["Any plane"]
+    },
+    {
+      "id": "plane-shift-spell",
+      "name": "Plane Shift Spell",
+      "type": "spell",
+      "description": "Plane Shift can directly transport adventurers to any other plane, with different degrees of precision than Gate.",
+      "requirements": ["Ability to cast the Plane Shift spell", "Tuning fork attuned to the destination plane"],
+      "associatedSpells": ["Plane Shift"],
+      "risks": ["Less precise than Gate"],
+      "destinations": ["Any plane"]
+    },
+    {
+      "id": "etherealness-spell",
+      "name": "Etherealness Spell",
+      "type": "spell",
+      "description": "Etherealness allows adventurers to enter the Ethereal Plane.",
+      "requirements": ["Ability to cast the Etherealness spell"],
+      "associatedSpells": ["Etherealness"],
+      "risks": [],
+      "destinations": ["Ethereal Plane"]
+    },
+    {
+      "id": "astral-projection-spell",
+      "name": "Astral Projection Spell",
+      "type": "spell",
+      "description": "Astral Projection lets adventurers project themselves into the Astral Plane and from there travel to the Outer Planes.",
+      "requirements": ["Ability to cast the Astral Projection spell"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["Psychic winds in the Astral Plane"],
+      "destinations": ["Astral Plane", "Outer Planes via color pools"]
+    }
+  ],
+  "infernalHierarchy": [
+    {
+      "rank": 1,
+      "title": "Lemure",
+      "category": "Least Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": [],
+      "promotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 2,
+      "title": "Imp",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Spined devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 3,
+      "title": "Spined devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bearded devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 4,
+      "title": "Bearded devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Barbed devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 5,
+      "title": "Barbed devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Chain devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 6,
+      "title": "Chain devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 7,
+      "title": "Bone devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Horned devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 8,
+      "title": "Horned devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Erinyes"],
+      "canDemoteTo": ["Bone devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 9,
+      "title": "Erinyes",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Ice devil"],
+      "canDemoteTo": ["Chain devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 10,
+      "title": "Ice devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Pit fiend"],
+      "canDemoteTo": ["Barbed devil", "Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 11,
+      "title": "Pit fiend",
+      "category": "Greater Devils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Duke/duchess"],
+      "canDemoteTo": ["Ice devil", "Lemure"],
+      "promotionAuthority": "Asmodeus",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 12,
+      "title": "Duke/duchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": ["Archduke/archduchess"],
+      "canDemoteTo": ["Pit fiend", "Lemure"],
+      "promotionAuthority": "Asmodeus",
+      "demotionAuthority": "Asmodeus"
+    },
+    {
+      "rank": 13,
+      "title": "Archduke/archduchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend (Devil)",
+      "canPromoteTo": [],
+      "canDemoteTo": ["Duke/duchess", "Lemure"],
+      "promotionAuthority": "Asmodeus",
+      "demotionAuthority": "Asmodeus"
+    }
+  ],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to its nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds an additional 1d4 subtracted from all D20 Tests.",
+        "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature"
+      },
+      "onSuccess": {
+        "description": "The creature avoids gaining an additional cumulative penalty from this Long Rest.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": true,
+      "repeatSaveTiming": "After each Long Rest on the opposing plane",
+      "recoveryTrigger": "Finishing a Long Rest on a plane that isn't opposed to its nature",
+      "recoveryMethods": ["Finishing a Long Rest on a plane that is not opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 1,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.4,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

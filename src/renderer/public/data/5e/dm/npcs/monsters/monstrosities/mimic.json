@@ -1,0 +1,182 @@
+{
+  "name": "Mimic",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Neutral",
+  "habitat": ["Underdark", "Urban"],
+  "treasure": ["None"],
+  "lore": "A mimic is a predatory shapechanger that can alter its form to resemble ordinary objects, such as chests, doors, barrels, or other furnishings. It lurks in dungeons and other dark places, waiting for unsuspecting creatures to touch it so it can feed. A mimic's adhesive surface holds victims in place while its pseudopods batter them and its maw devours them. Some mimics develop the ability to communicate in rudimentary fashion, luring prey with false promises of treasure.",
+  "armorClass": {
+    "value": 12,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 58,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 15
+    },
+    {
+      "type": "Climb",
+      "distance": 15
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "damageImmunities": ["Acid"],
+  "conditionImmunities": ["Prone"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "understood": ["Common"],
+    "notes": "can't speak"
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance (Object Form Only)",
+      "description": "While the mimic remains motionless, it is indistinguishable from an ordinary object."
+    },
+    {
+      "name": "Adhesive (Object Form Only)",
+      "description": "The mimic adheres to anything that touches it. A Huge or smaller creature adhered to the mimic has the Grappled condition (escape DC 13). Ability checks made to escape this grapple have Disadvantage."
+    }
+  ],
+  "multiattack": {
+    "description": "The mimic makes two Pseudopod attacks. It can replace one of these attacks with a Bite.",
+    "attacks": [
+      {
+        "actionName": "Pseudopod",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Pseudopod",
+        "replaceCount": 1,
+        "with": "Bite"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Bludgeoning damage. If the mimic is in object form, the target is subjected to the mimic's Adhesive trait.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the mimic is in object form, the target is subjected to the mimic's Adhesive trait."
+        }
+      }
+    },
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Piercing damage plus 4 (1d8) Acid damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shape-Shift",
+      "description": "The mimic shape-shifts into a Medium object or back into its true amorphous form. Its statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed. It reverts to its true form if it dies."
+    }
+  ]
+}

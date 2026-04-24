@@ -1,0 +1,56 @@
+{
+  "name": "Mammoth",
+  "slug": "mammoth",
+  "size": "Huge",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "13",
+  "initiative": "+2 (12)",
+  "hp": "126",
+  "hpFormula": "11d12 + 55",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 24,
+    "dex": 9,
+    "con": 21,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 10,
+    "dex": -1,
+    "con": 8,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 10",
+  "languages": "None",
+  "cr": "6 (XP 2,300; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The mammoth makes two Gore attacks."
+    },
+    {
+      "name": "Gore",
+      "description": "*Melee Attack Roll:* +10, reach 10 ft. *Hit:* 18 (2d10 + 7) Piercing damage. If the target is a Huge or smaller creature and the mammoth moved 20+ feet straight toward it immediately before the hit, the target has the Prone condition."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Trample",
+      "description": "*Dexterity Saving Throw:* DC 18, one creature within 5 feet that has the Prone condition. *Failure:* 29 (4d10 + 7) Bludgeoning damage. *Success:* Half damage."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

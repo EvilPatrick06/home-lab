@@ -1,0 +1,143 @@
+{
+  "name": "Myconid Adult",
+  "sizes": ["Medium"],
+  "creatureType": "Plant",
+  "alignment": "Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "Myconid adults are the fully mature members of a myconid colony. They tend fungal crops, maintain the colony, and defend it when necessary, using their pacifying spores to subdue threats without violence whenever possible.",
+  "armorClass": {
+    "value": 12,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 33,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 6
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "notes": "No languages; see Rapport Spores"
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Rapport Spores",
+      "description": "A creature that willingly inhales spores released by the myconid or that is a Myconid can communicate telepathically with the myconid, provided the creature and the myconid are within 30 feet of each other. The communication consists of shared emotions, basic ideas, and simple concepts."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Fist",
+      "description": "Melee Attack Roll: +2, reach 5 ft. Hit: 4 (1d8) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 2,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Pacifying Spores",
+      "description": "Constitution Saving Throw: DC 11, one creature the myconid can see within 5 feet. Failure: The target has the Stunned condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 11,
+        "targets": "one creature the myconid can see within 5 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Stunned",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 11,
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Stunned",
+          "duration": "1 minute"
+        }
+      ]
+    },
+    {
+      "name": "Distress Spores",
+      "description": "Each Myconid within 240 feet of this myconid senses a distress signal from this myconid, learning the myconid's location and general emotional state."
+    }
+  ]
+}

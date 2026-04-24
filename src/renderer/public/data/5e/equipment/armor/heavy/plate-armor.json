@@ -1,0 +1,17 @@
+{
+  "name": "Plate Armor",
+  "slug": "plate-armor",
+  "category": "Heavy",
+  "ac": "18",
+  "strength": "Str 15",
+  "stealthDisadvantage": true,
+  "weight": "65 lb.",
+  "cost": "1,500 GP",
+  "donTime": "10 Minutes",
+  "doffTime": "5 Minutes",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

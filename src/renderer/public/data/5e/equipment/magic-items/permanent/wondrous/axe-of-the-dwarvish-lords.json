@@ -1,0 +1,57 @@
+{
+  "name": "Axe of the Dwarvish Lords",
+  "itemType": "Weapon",
+  "weaponType": "Battleaxe",
+  "rarity": "Artifact",
+  "requiresAttunement": true,
+  "attunementRequirements": "A dwarf or other creature",
+  "description": "A young dwarf prince set out to forge a weapon that would be regarded as a symbol of unity among his people. Venturing deep under the mountains, deeper than any dwarf had ever delved, the prince came to the blazing heart of a great volcano. With the aid of Moradin, a god of creation, he first crafted four mighty tools: the Starmetal Pick, the Earthheart Forge, the Anvil of Songs, and the Shaping Hammer. With these tools, he forged the Axe of the Dwarvish Lords.\n\nArmed with the Artifact, the prince brought peace to the dwarf clans, ending grudges and answering slights. The clans became allies, and they threw back their enemies and enjoyed an era of prosperity. This young dwarf is remembered as the First King. When he became old, he passed the weapon, which had become his badge of office, to his heir. The rightful inheritors passed the axe on for many generations.\n\nLater, in an era marked by treachery and wickedness, the axe was lost in a bloody civil war fomented by greed for its power and the status it bestowed. Centuries later, the dwarves still search for the axe, and many adventurers have made careers of chasing after rumors and plundering old vaults to find it.",
+  "properties": {
+    "magicBonus": {
+      "attackRolls": 3,
+      "damageRolls": 3
+    },
+    "criticalHitDamage": {
+      "count": 20,
+      "type": "Slashing"
+    },
+    "thrown": {
+      "range": {
+        "normal": 20,
+        "long": 60
+      },
+      "extraDamage": {
+        "count": 1,
+        "die": 8,
+        "type": "Force",
+        "giantTypeMultiplier": 2
+      }
+    },
+    "blessingsOfMoradin": {
+      "darkvision": {
+        "range": 60
+      },
+      "constitutionIncrease": 2,
+      "proficiencies": ["Brewer's Supplies", "Mason's Tools", "Smith's Tools"],
+      "immunityAndResistance": {
+        "poison": "immunity",
+        "fire": "resistance"
+      },
+      "sundering": true
+    },
+    "conjureEarthElemental": {
+      "rechargeRate": "next dawn"
+    },
+    "travelTheDepths": {
+      "rechargeRate": "3 days"
+    },
+    "randomProperties": {
+      "minorBeneficial": 2,
+      "majorBeneficial": 1,
+      "minorDetrimental": 2
+    }
+  },
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

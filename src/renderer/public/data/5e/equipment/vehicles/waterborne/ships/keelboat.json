@@ -1,0 +1,20 @@
+{
+  "name": "Keelboat",
+  "slug": "keelboat",
+  "category": "Waterborne Vehicle",
+  "type": "Ship",
+  "cost": "3000 GP",
+  "speed": "1 mph",
+  "crew": 1,
+  "passengers": 6,
+  "cargoTons": 0.5,
+  "ac": 15,
+  "hp": 100,
+  "damageThreshold": 10,
+  "description": "A small sailing vessel with a single mast, suitable for rivers and coastal waters. Can be operated by a single crew member.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Waterborne Vehicles"
+  }
+}

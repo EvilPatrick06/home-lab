@@ -1,0 +1,152 @@
+{
+  "name": "Chasme",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "lore": "A chasme resembles a bloated, buzzing fly the size of a horse. This loathsome demon's droning is supernaturally soporific, putting enemies to sleep so the chasme can feed on them with its blood-draining proboscis. Demon lords sometimes dispatch chasmes to the Material Plane to hunt down those who have crossed them.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 84,
+    "dice": {
+      "count": 13,
+      "die": "d10",
+      "modifier": 13
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 120
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Droning",
+      "description": "The chasme produces a horrid droning sound to which demons are immune. Any other creature that starts its turn within 30 feet of the chasme and can hear the droning must succeed on a DC 12 Constitution saving throw or have the Unconscious condition for 10 minutes. A creature that can't be put to sleep is immune to this effect. The Unconscious condition ends on the creature if it takes damage or if another creature uses an action to shake it awake."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The chasme has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The chasme can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    }
+  ],
+  "multiattack": {
+    "description": "The chasme makes two Proboscis attacks.",
+    "attacks": [
+      {
+        "actionName": "Proboscis",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Proboscis",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 12 (2d8 + 3) Piercing damage plus 10 (3d6) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [],
+  "reactions": []
+}

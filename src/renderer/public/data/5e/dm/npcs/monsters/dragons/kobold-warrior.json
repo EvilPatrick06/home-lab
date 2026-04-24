@@ -1,0 +1,59 @@
+{
+  "name": "Kobold Warrior",
+  "slug": "kobold-warrior",
+  "size": "Small",
+  "type": "Dragon",
+  "alignment": "Neutral",
+  "ac": "14",
+  "initiative": "+2 (12)",
+  "hp": "7",
+  "hpFormula": "3d6 − 3",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 7,
+    "dex": 15,
+    "con": 9,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -2,
+    "dex": 2,
+    "con": -1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "gear": "Daggers (3)",
+  "senses": "Darkvision 60 ft.; Passive Perception 8",
+  "languages": "Common, Draconic",
+  "cr": "1/8 (XP 25; PB +2)",
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The kobold has Advantage on an attack roll against a creature if at least one of the kobold's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the kobold has Disadvantage on ability checks and attack rolls."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Dagger",
+      "description": "*Melee or Ranged Attack Roll:* +4, reach 5 ft. or range 20/60 ft. *Hit:* 4 (1d4 + 2) Piercing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Tricksters and Servants to Chromatic Dragons*\n**Habitat:** Arctic, Coastal, Desert, Forest, Hill, Mountain, Swamp, Underdark, Urban; **Treasure:** Armaments\nCowardly cousins to chromatic dragons, kobolds serve draconic overlords as warriors and servants. These scrappy menaces mimic the behaviors of their dragon masters. Though their small stature and recklessness make kobolds poor imitators of dragons, what they lack in ferocity they make up for in zeal and ingenuity. They are especially adept at creating traps and setting ambushes.\nKobolds' scales resemble those of chromatic dragons that live near their warrens. Rarely, kobolds possess features evocative of metallic dragons or other dragon-like creatures.\nKobold warriors use hit-and-run tactics to raid their enemies and defend their homes. To avoid danger, they frequently employ haphazard traps.\nSome kobolds are born with wings. Called urds by others of their kind, these kobolds are thought to be blessed by a dragon or Tiamat, the Dragon Queen. Despite their favored status, winged kobolds are as cowardly as their brethren and use their flight mostly to keep out of reach of their foes.",
+  "habitat": "Arctic, Coastal, Desert, Forest, Hill, Mountain, Swamp, Underdark, Urban",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

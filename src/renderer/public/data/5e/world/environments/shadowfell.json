@@ -1,0 +1,560 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "shadowfell",
+      "name": "Shadowfell",
+      "alternateNames": ["Plane of Shadow"],
+      "category": "Material Realm",
+      "subcategory": "Shadowfell",
+      "alignments": [],
+      "philosophicalEssence": "A gloomy dimension of death, gloom, and dread whose bleak landscape mirrors the Material Plane in distorted and sinister forms.",
+      "emotionalInfluence": "A melancholic atmosphere pervades the Shadowfell, and extended forays to this plane can afflict characters with despair.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Parallel dimension occupying the same cosmological space as the Material Plane",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Gloomy dimension whose sky is a black vault with neither sun nor stars.",
+        "temperature": {
+          "category": "variable",
+          "description": "Not explicitly specified; the plane is described as bleak and gloomy but no specific temperature rules are given."
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Not explicitly described; the plane is characterized by gloom and darkness."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "No special time flow rules are specified for the Shadowfell. Unlike the Feywild, no time warp mechanic is described."
+      },
+      "hazards": [
+        {
+          "id": "shadowfell-despair",
+          "name": "Shadowfell Despair",
+          "description": "A melancholic atmosphere pervades the Shadowfell, and extended forays to this plane can afflict characters with despair. When the DM deems it appropriate, though usually not more than once per day, a character not from the Shadowfell must make a DC 10 Wisdom saving throw. On a failed save, the character is affected by despair, determined by rolling on the Shadowfell Despair table. If a character is already suffering a despair effect and fails the saving throw, the new despair effect replaces the old one. After finishing a Long Rest, a character can attempt to overcome the despair with a DC 15 Wisdom saving throw. On a successful save, the despair effect ends. A Calm Emotions spell or magic that removes curses cures the despair.",
+          "category": "emotional",
+          "severity": "moderate",
+          "savingThrowToTraverse": {
+            "ability": "Wisdom",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "per_day",
+            "triggerDescription": "When the DM deems it appropriate, though usually not more than once per day.",
+            "onFailure": {
+              "description": "The character is affected by despair. Roll d6: 1-3 Apathy (Disadvantage on Death Saving Throws and Initiative rolls), 4-5 Dread (Disadvantage on all saving throws), 6 Delusion (Disadvantage on ability checks and saving throws that use Intelligence, Wisdom, or Charisma). If already suffering a despair effect, the new effect replaces the old one.",
+              "customCondition": "Despair (Apathy, Dread, or Delusion variant)",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "duration": "Until removed by a DC 15 Wisdom saving throw after a Long Rest, or by Calm Emotions spell or magic that removes curses",
+              "cumulative": false,
+              "preventsDeath": false
+            },
+            "onSuccess": {
+              "description": "The character resists the melancholic atmosphere and is not affected by despair.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": ["Native to the Shadowfell"],
+            "repeatSaveAllowed": true,
+            "repeatSaveTiming": "After finishing a Long Rest",
+            "recoveryDC": 15,
+            "recoveryTrigger": "After finishing a Long Rest, a character can attempt to overcome the despair with a DC 15 Wisdom saving throw.",
+            "recoveryMethods": [
+              "Calm Emotions spell",
+              "Magic that removes curses",
+              "DC 15 Wisdom saving throw after a Long Rest"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 10,
+              "noModifierFailChance": 0.45,
+              "commonModifierRange": {
+                "low": 0,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.45,
+              "failChanceAtHighMod": 0.2
+            }
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "psychicEffectTableRoll": {
+            "die": 6,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 3,
+                "effect": "Apathy",
+                "durationDescription": "Until removed by DC 15 Wisdom save after Long Rest, Calm Emotions, or curse-removing magic"
+              },
+              {
+                "rangeLow": 4,
+                "rangeHigh": 5,
+                "effect": "Dread",
+                "durationDescription": "Until removed by DC 15 Wisdom save after Long Rest, Calm Emotions, or curse-removing magic"
+              },
+              {
+                "rangeLow": 6,
+                "rangeHigh": 6,
+                "effect": "Delusion",
+                "durationDescription": "Until removed by DC 15 Wisdom save after Long Rest, Calm Emotions, or curse-removing magic"
+              }
+            ]
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Shadowfell - Shadowfell Despair"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "shadowfell-despair-apathy",
+          "name": "Shadowfell Despair: Apathy",
+          "description": "The character has Disadvantage on Death Saving Throws and Initiative rolls.",
+          "mechanicalEffect": "Disadvantage on Death Saving Throws and Initiative rolls.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Apathy - the character feels listless and disengaged from the urgency of survival and combat.",
+          "duration": "Until removed by a DC 15 Wisdom saving throw after a Long Rest, or by Calm Emotions spell or magic that removes curses.",
+          "removalMethods": [
+            "DC 15 Wisdom saving throw after a Long Rest",
+            "Calm Emotions spell",
+            "Magic that removes curses"
+          ],
+          "sourceReference": "Chapter 6: Cosmology - Shadowfell Despair table (d6 result 1-3)"
+        },
+        {
+          "id": "shadowfell-despair-dread",
+          "name": "Shadowfell Despair: Dread",
+          "description": "The character has Disadvantage on all saving throws.",
+          "mechanicalEffect": "Disadvantage on all saving throws.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Dread - the character is overwhelmed with a pervasive sense of fear and hopelessness.",
+          "duration": "Until removed by a DC 15 Wisdom saving throw after a Long Rest, or by Calm Emotions spell or magic that removes curses.",
+          "removalMethods": [
+            "DC 15 Wisdom saving throw after a Long Rest",
+            "Calm Emotions spell",
+            "Magic that removes curses"
+          ],
+          "sourceReference": "Chapter 6: Cosmology - Shadowfell Despair table (d6 result 4-5)"
+        },
+        {
+          "id": "shadowfell-despair-delusion",
+          "name": "Shadowfell Despair: Delusion",
+          "description": "The character has Disadvantage on ability checks and saving throws that use Intelligence, Wisdom, or Charisma.",
+          "mechanicalEffect": "Disadvantage on ability checks and saving throws that use Intelligence, Wisdom, or Charisma.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Delusion - the character's mind becomes clouded, impairing reasoning, perception, and social faculties.",
+          "duration": "Until removed by a DC 15 Wisdom saving throw after a Long Rest, or by Calm Emotions spell or magic that removes curses.",
+          "removalMethods": [
+            "DC 15 Wisdom saving throw after a Long Rest",
+            "Calm Emotions spell",
+            "Magic that removes curses"
+          ],
+          "sourceReference": "Chapter 6: Cosmology - Shadowfell Despair table (d6 result 6)"
+        },
+        {
+          "id": "shadowfell-no-sun-no-stars",
+          "name": "Black Vault Sky",
+          "description": "The Shadowfell's sky is a black vault with neither sun nor stars. There is no natural light source on the plane.",
+          "mechanicalEffect": "No natural light exists on the plane. The sky provides no illumination whatsoever.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "no_natural_light",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": null,
+              "unit": "feet",
+              "minimumVisibility": 0
+            },
+            "magicalProperties": {},
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none",
+              "description": "The Shadowfell has no sun, no stars, and no natural day-night cycle. The sky is a perpetual black vault."
+            },
+            "colorDescription": "Gloomy, bleak, dark - a black vault sky with no celestial bodies"
+          },
+          "affectsEmotions": false,
+          "duration": "Permanent planar trait",
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Shadowfell"
+        }
+      ],
+      "portals": [
+        {
+          "id": "shadowfell-shadow-crossings",
+          "type": "shadow_crossing",
+          "name": "Shadow Crossings",
+          "destination": "Material Plane",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "Shadow crossings form in gloomy places where spirits or the stench of death lingers, such as battlefields, graveyards, and tombs. They manifest only in darkness, closing as soon as they feel light's kiss.",
+            "situationCondition": "Must be in darkness; the crossing closes as soon as it is exposed to light. Forms in gloomy places where spirits or the stench of death lingers."
+          },
+          "colorOrAppearance": "A blot of shadow in the corner of a dusty crypt, an open grave, or similar dark and gloomy location.",
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "uncommon",
+      "planarConnections": [
+        {
+          "id": "shadowfell-ethereal-border",
+          "name": "Ethereal Border",
+          "type": "other",
+          "connectedPlanes": ["Ethereal Plane", "Shadowfell"],
+          "description": "The Border Ethereal overlaps the Shadowfell. Ethereal curtains of dusky gray color in the Deep Ethereal lead to the Border Ethereal connected to the Shadowfell.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["Etherealness spell", "Plane Shift spell", "Gate spell"]
+        },
+        {
+          "id": "shadowfell-material-overlap",
+          "name": "Material Plane Overlap",
+          "type": "other",
+          "connectedPlanes": ["Material Plane", "Shadowfell"],
+          "description": "The Shadowfell overlaps the Material Plane in much the same way as the Feywild. Aside from the bleak landscape, it appears similar to the Material Plane. Landmarks similar to the world left behind appear distorted and often sinister.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["Shadow crossings", "Plane Shift spell", "Gate spell"]
+        },
+        {
+          "id": "shadowfell-interworld-travel",
+          "name": "Interworld Travel Route",
+          "type": "other",
+          "connectedPlanes": ["Material Plane", "Shadowfell"],
+          "description": "It is possible to travel through the Shadowfell to reach different worlds of the Material Plane, though such routes are less charted and no less perilous than other methods.",
+          "hazards": ["Uncharted routes", "Perilous journey"],
+          "isOneWay": false,
+          "navigableBy": ["Travelers undertaking the Great Journey between Material Plane worlds"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Undead", "Dragon", "Monstrosity"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [
+        {
+          "id": "domain-of-dread-barovia",
+          "name": "Barovia",
+          "type": "Domain of Dread",
+          "ruler": {
+            "name": "Strahd von Zarovich",
+            "title": "The First Vampire",
+            "description": "The towering spires of Castle Ravenloft loom above the valley of Barovia, ruled by Strahd von Zarovich, the first vampire."
+          },
+          "description": "The towering spires of Castle Ravenloft loom above the valley of Barovia, which is ruled by Strahd von Zarovich, the first vampire.",
+          "hazards": ["Mists surrounding the domain"],
+          "portalDestination": "Mist-shrouded, controlled by the Dark Powers"
+        },
+        {
+          "id": "domain-of-dread-borca",
+          "name": "Borca",
+          "type": "Domain of Dread",
+          "ruler": {
+            "name": "Ivana Boritsi and Ivan Dilisnya",
+            "title": "Dual Darklords",
+            "description": "The vicious poisoner Ivana Boritsi and the childishly cruel stalker Ivan Dilisnya pursue their obsessive schemes."
+          },
+          "description": "Amid opulent estates and impoverished villages, two Darklords—the vicious poisoner Ivana Boritsi and the childishly cruel stalker Ivan Dilisnya—pursue their obsessive schemes.",
+          "hazards": ["Mists surrounding the domain"]
+        },
+        {
+          "id": "domain-of-dread-falkovnia",
+          "name": "Falkovnia",
+          "type": "Domain of Dread",
+          "ruler": {
+            "name": "Vladeska Drakov",
+            "title": "General",
+            "description": "General Vladeska Drakov commands a fierce military force that desperately clings to power against an endless plague of zombies."
+          },
+          "description": "Empty countryside surrounds ruined or crumbling cities, with only a few pockets of civilization fighting a losing battle against an endless plague of zombies.",
+          "hazards": ["Endless plague of zombies", "Mists surrounding the domain"]
+        },
+        {
+          "id": "domain-of-dread-kalakeri",
+          "name": "Kalakeri",
+          "type": "Domain of Dread",
+          "ruler": {
+            "name": "Three Royal Heirs",
+            "description": "Three royal heirs transformed into monsters by their depravity and hatred battle endlessly to claim the throne of their ancient dynasty."
+          },
+          "description": "A beautiful land of rainforests, rivers, and lakes is a quagmire of intrigue and despair as three royal heirs—transformed into monsters—battle endlessly to claim the throne of their ancient dynasty.",
+          "hazards": ["Mists surrounding the domain"]
+        },
+        {
+          "id": "domain-of-dread-lamordia",
+          "name": "Lamordia",
+          "type": "Domain of Dread",
+          "ruler": {
+            "name": "Doctor Viktra Mordenheim",
+            "title": "Darklord",
+            "description": "Doctor Viktra Mordenheim's efforts to create life and abolish death have led to tragedy."
+          },
+          "description": "Inventors and scholars violate both natural and moral laws in the frozen bogs and glacial expanses of Lamordia.",
+          "hazards": ["Mists surrounding the domain"]
+        },
+        {
+          "id": "domain-of-dread-mordent",
+          "name": "Mordent",
+          "type": "Domain of Dread",
+          "description": "Death in Mordent heralds the beginning of a haunted afterlife as a restless spirit. The dead here earn no rest, no finality, no peace—just a passage into a shadow world of wispy phantoms, mournful groaning, and clanking chains.",
+          "hazards": ["Restless spirits", "Mists surrounding the domain"]
+        },
+        {
+          "id": "domain-of-dread-valachan",
+          "name": "Valachan",
+          "type": "Domain of Dread",
+          "ruler": {
+            "name": "Chakuna",
+            "title": "Darklord",
+            "description": "The devious hunter Chakuna roams the jungles of her domain, hunting the most dangerous beasts and drawing people into a fatal contest."
+          },
+          "description": "The devious hunter Chakuna roams the jungles of her domain, hunting the most dangerous beasts she can find. When she grows dissatisfied with simpler prey, she draws people into a fatal contest.",
+          "hazards": ["Fatal hunting contests", "Mists surrounding the domain"]
+        }
+      ],
+      "adventureThemes": [
+        "Encounters with Undead",
+        "Explorations of distorted mirror-landscapes",
+        "Descents into mist-shrouded Domains of Dread",
+        "Horror and dread",
+        "Escape from seemingly inescapable prisons",
+        "Confronting despair and melancholy"
+      ],
+      "adventureSituations": [
+        {
+          "diceValue": 2,
+          "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed."
+        }
+      ],
+      "etherealCurtainColor": "Dusky gray",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Van Richten's Guide to Ravenloft",
+          "description": "The Domains of Dread within the Shadowfell are described in more detail in Van Richten's Guide to Ravenloft."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "shadow-crossing-travel",
+      "name": "Shadow Crossings",
+      "type": "natural_crossing",
+      "description": "Shadow crossings are locations where the veil between the Material Plane and the Shadowfell is so thin that creatures can pass from one plane to the other. They form in gloomy places where spirits or the stench of death lingers, such as battlefields, graveyards, and tombs. They manifest only in darkness, closing as soon as they feel light's kiss.",
+      "requirements": [
+        "Location must be in darkness",
+        "Location must be gloomy, associated with spirits or the stench of death"
+      ],
+      "associatedSpells": [],
+      "risks": ["Shadowfell Despair upon extended stay", "Encountering Undead and shadow creatures"],
+      "destinations": ["Shadowfell", "Material Plane"]
+    },
+    {
+      "id": "spell-travel-shadowfell",
+      "name": "Spells",
+      "type": "spell",
+      "description": "Spells such as Gate and Plane Shift can transport adventurers to the Shadowfell. The Etherealness spell can be used to reach the Border Ethereal overlapping the Shadowfell.",
+      "requirements": ["Appropriate spell slot", "Tuning fork attuned to the Shadowfell (for Plane Shift)"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness"],
+      "risks": ["Shadowfell Despair", "Encounters with native creatures"],
+      "destinations": ["Shadowfell"]
+    },
+    {
+      "id": "ethereal-curtain-shadowfell",
+      "name": "Ethereal Curtain to Shadowfell",
+      "type": "portal",
+      "description": "In the Deep Ethereal, curtains of dusky gray color lead to the Border Ethereal connected to the Shadowfell.",
+      "requirements": ["Access to the Deep Ethereal"],
+      "associatedSpells": ["Plane Shift", "Gate"],
+      "risks": ["Ether cyclones in the Deep Ethereal", "Travel time of 1d10 × 10 hours"],
+      "destinations": ["Shadowfell"]
+    },
+    {
+      "id": "interworld-shadowfell-route",
+      "name": "The Great Journey via Shadowfell",
+      "type": "planar_pathway",
+      "description": "It is possible to travel through the Shadowfell to reach different worlds of the Material Plane, though such routes are less charted and no less perilous.",
+      "requirements": ["Knowledge of the route", "Means to enter and exit the Shadowfell"],
+      "associatedSpells": [],
+      "risks": ["Uncharted routes", "Perilous journey", "Shadowfell Despair", "Encounters with native creatures"],
+      "destinations": ["Various Material Plane worlds"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "name": "Staff of Frost",
+  "itemType": "Staff",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": "by a Druid, Sorcerer, Warlock, or Wizard",
+  "description": "You have Resistance to Cold damage while you hold this staff.\n\n**Spells.** The staff has 10 charges. While holding the staff, you can cast one of the spells on the following table from it, using your spell save DC. The table indicates how many charges you must expend to cast the spell.\n\n| Spell | Charge Cost |\n|-------|-------------|  \n| *Cone of Cold* | 5 |\n| *Fog Cloud* | 1 |\n| *Ice Storm* | 4 |\n| *Wall of Ice* | 4 |\n\n**Regaining Charges.** The staff regains 1d6 + 4 expended charges daily at dawn. If you expend the last charge, roll 1d20. On a 1, the staff turns to water and is destroyed.",
+  "properties": [
+    {
+      "name": "Resistance to Cold Damage",
+      "description": "You have Resistance to Cold damage while you hold this staff."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The staff has 10 charges. While holding the staff, you can cast one of the spells on the staff's spell table, expending the indicated number of charges."
+    },
+    {
+      "name": "Recharging Charges",
+      "description": "The staff regains 1d6 + 4 expended charges daily at dawn. If the last charge is expended, the staff turns to water and is destroyed."
+    }
+  ],
+  "spells": [
+    {
+      "name": "Cone of Cold",
+      "chargesCost": 5
+    },
+    {
+      "name": "Fog Cloud",
+      "chargesCost": 1
+    },
+    {
+      "name": "Ice Storm",
+      "chargesCost": 4
+    },
+    {
+      "name": "Wall of Ice",
+      "chargesCost": 4
+    }
+  ],
+  "charges": 10,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d6 + 4",
+  "weight": "2 to 7 pounds",
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

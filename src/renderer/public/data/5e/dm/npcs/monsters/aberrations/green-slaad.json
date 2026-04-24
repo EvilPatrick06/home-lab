@@ -1,0 +1,218 @@
+{
+  "name": "Green Slaad",
+  "sizes": ["Large"],
+  "creatureType": "Aberration",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Planar (Limbo)"],
+  "treasure": ["None"],
+  "lore": "Green slaadi are cunning and powerful agents of chaos spawned in the roiling soup of Limbo. Capable of assuming humanoid form, they infiltrate civilizations to sow discord and confusion. A green slaad's innate magic and shapeshifting make it a versatile and deceptive foe. Some green slaadi seek arcane secrets, hoping to transform into the more powerful gray slaadi.",
+  "armorClass": {
+    "value": 16,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 170,
+    "dice": {
+      "count": 20,
+      "die": "d10",
+      "modifier": 60
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 4
+    },
+    {
+      "skill": "Perception",
+      "bonus": 2
+    }
+  ],
+  "resistances": ["Acid, Cold, Fire, Lightning, and Thunder"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Slaad"],
+    "telepathy": 60
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The slaad has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 13,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Mage Hand",
+              "level": 0,
+              "notes": "The hand is Invisible"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Fear",
+              "level": 3
+            },
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            },
+            {
+              "name": "Tongues",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Fireball",
+              "level": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The slaad makes two Claw attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 11 (2d6 + 4) Slashing damage plus 7 (2d6) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The slaad casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 13):\n\nAt will: Detect Magic, Detect Thoughts, Mage Hand (the hand is Invisible)\n2/day each: Fear, Invisibility (self only), Tongues\n1/day: Fireball"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shape-Shift",
+      "description": "The slaad transforms into a Medium or Small Humanoid, or back into its true form. Other than its size, its statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed. The slaad reverts to its true form if it dies."
+    }
+  ]
+}

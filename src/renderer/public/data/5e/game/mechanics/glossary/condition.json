@@ -1,0 +1,11 @@
+{
+  "name": "Condition",
+  "slug": "condition",
+  "description": "A condition is a temporary game state. The definition of a condition says how it affects its recipient.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

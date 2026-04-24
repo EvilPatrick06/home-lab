@@ -1,0 +1,213 @@
+{
+  "id": "a7c3e1f0-4b29-4d8a-b6e5-9f1c2d3e4a5b",
+  "name": "Falling",
+  "slug": "falling",
+  "category": "EnvironmentRule",
+  "subcategory": "Hazard",
+  "tags": ["falling", "bludgeoning", "prone", "gravity", "hazard", "movement", "flying"],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Rules Glossary",
+    "section": "Falling"
+  },
+  "gameEdition": "2024",
+  "description": "A creature that falls takes 1d6 Bludgeoning damage at the end of the fall for every 10 feet it fell, to a maximum of 20d6. The creature lands with the Prone condition unless it avoids taking damage from the fall. A flying creature that has the Incapacitated or Prone condition or has its Speed reduced to 0 falls unless it can hover. A creature falls 500 feet instantly. If a creature starts falling and its fall doesn't end during the same turn, the creature falls 500 feet at the start of each of its subsequent turns. A creature that falls into water or another liquid can use its Reaction to make a DC 15 Dexterity (Acrobatics) check to enter the water gracefully. On a successful check, any damage resulting from the fall is halved.",
+  "shortDescription": "Take 1d6 Bludgeoning per 10 ft fallen (max 20d6) and land Prone unless you avoid all damage from the fall.",
+  "rulesAsWritten": "A creature that falls takes 1d6 Bludgeoning damage at the end of the fall for every 10 feet it fell, to a maximum of 20d6. The creature lands with the Prone condition unless it avoids taking damage from the fall.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [
+    {
+      "id": "b2d4f6a8-1c3e-5d7f-a9b1-c3d5e7f90a2b",
+      "conditionName": "Prone",
+      "isAutomatic": true,
+      "note": "Applied when a creature lands after a fall, unless the creature avoids taking damage from the fall."
+    }
+  ],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Prone",
+      "relationship": "CanCause",
+      "isAutomatic": true,
+      "note": "A creature that takes falling damage lands with the Prone condition."
+    },
+    {
+      "conditionName": "Incapacitated",
+      "relationship": "CanCause",
+      "isAutomatic": false,
+      "note": "A flying creature that has the Incapacitated condition falls unless it can hover."
+    },
+    {
+      "conditionName": "Prone",
+      "relationship": "CausedBy",
+      "isAutomatic": false,
+      "note": "A flying creature with the Prone condition falls unless it can hover."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "c3e5a7b9-2d4f-6a8c-b0d2-e4f6a8b0c2d4",
+      "order": 0,
+      "name": "Falling Damage",
+      "description": "At the end of a fall, a creature takes 1d6 Bludgeoning damage for every 10 feet it fell, to a maximum of 20d6 (200 feet). Fractional distances of less than 10 feet do not count toward damage.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature reaches the end of a fall of 10 or more feet."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature takes 1d6 Bludgeoning damage for every 10 feet it fell, to a maximum of 20d6.",
+          "mechanicalNote": "Damage formula: floor(distance_in_feet / 10)d6 Bludgeoning, capped at 20d6. At 10 ft = 1d6, 20 ft = 2d6, ... 200 ft = 20d6. Beyond 200 ft the damage remains 20d6."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d4f6b8c0-3e5a-7b9d-c1e3-f5a7b9c1d3e5",
+      "order": 1,
+      "name": "Prone on Landing",
+      "description": "A creature that takes falling damage lands with the Prone condition unless it avoids taking damage from the fall entirely.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature takes damage from a fall."
+      },
+      "effects": [
+        {
+          "effectType": "ConditionImposition",
+          "imposition": {
+            "id": "e5a7c9d1-4f6b-8c0e-d2f4-a6b8c0d2e4f6",
+            "conditionName": "Prone",
+            "isAutomatic": true,
+            "note": "Applied upon landing if any falling damage was taken. Avoided only if the creature takes zero damage from the fall."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f6b8d0e2-5a7c-9d1f-e3a5-b7c9d1e3f5a7",
+      "order": 2,
+      "name": "Rate of Falling",
+      "description": "A creature falls 500 feet instantly. If a creature starts falling and the fall doesn't end during the same turn, the creature falls 500 feet at the start of each of its subsequent turns.",
+      "trigger": {
+        "event": "StartOfTurn",
+        "condition": "Creature is currently in a state of falling that began on a previous turn."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature falls 500 feet at the start of its turn. If it reaches a surface, the remaining fall resolves immediately with applicable falling damage.",
+          "mechanicalNote": "Initial fall is 500 feet instantaneous. Each subsequent turn the creature falls an additional 500 feet at the start of its turn. This means a 1,000-foot fall resolves across 2 turns."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a7c9e1f3-6b8d-0e2a-f4b6-c8d0e2f4a6b8",
+      "order": 3,
+      "name": "Flying Creature Falls",
+      "description": "A flying creature that has the Incapacitated or Prone condition, or has its Speed reduced to 0, falls unless it has the ability to hover.",
+      "trigger": {
+        "event": "OnConditionApplied",
+        "condition": "A flying creature gains the Incapacitated or Prone condition, or has its Speed reduced to 0, and it cannot hover."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The flying creature immediately begins falling at the standard rate (500 feet instantly), unless it can hover.",
+          "mechanicalNote": "Hover capability negates this forced fall. Applies to any flight whether magical, natural, or granted by a spell."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b8d0f2a4-7c9e-1f3b-a5c7-d9e1f3a5b7c9",
+      "order": 4,
+      "name": "Falling into Water",
+      "description": "A creature that falls into water or another liquid can use its Reaction to make a DC 15 Dexterity (Acrobatics) check. On a successful check, any damage resulting from the fall is halved.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature falls into water or another liquid and has a Reaction available."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature may use its Reaction to attempt a DC 15 Dexterity (Acrobatics) check. On a success, all falling damage is halved. On a failure, full falling damage applies as normal.",
+          "mechanicalNote": "Costs a Reaction. DC 15 Dexterity (Acrobatics) check. Success: total falling damage is halved (round down). Failure: full damage. Only applicable when landing in water or another liquid."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Falling damage is a single event resolved at the end of a fall. Multiple falls are separate events, each resolved independently."
+  },
+  "dmNotes": "Falling damage is always Bludgeoning. The maximum of 20d6 (average 70, max 120) represents terminal velocity. A creature that is immune to Bludgeoning damage or avoids all damage from the fall (e.g., via Feather Fall or a Monk's Slow Fall) does not land Prone. The 500-feet-per-round rate gives creatures a brief window to react to a very long fall (e.g., casting Feather Fall). Determine whether partial 10-foot increments round down—RAW only full 10-foot increments count.",
+  "commonRulings": [
+    {
+      "question": "Does a creature that is immune to Bludgeoning damage still land Prone from a fall?",
+      "ruling": "No. The creature avoids taking damage from the fall, so the Prone condition is not applied.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does the Feather Fall spell prevent the Prone condition from falling?",
+      "ruling": "Yes. Feather Fall reduces the falling damage to 0, and since the creature avoids taking damage from the fall, it does not land Prone.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can a creature fall more than 500 feet on the first turn?",
+      "ruling": "No. A creature falls 500 feet instantly. Any remaining distance is covered at the start of subsequent turns at 500 feet per turn.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does falling provoke Opportunity Attacks?",
+      "ruling": "No. Falling is not voluntary movement using your Speed, action, or Reaction, so it does not provoke Opportunity Attacks.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

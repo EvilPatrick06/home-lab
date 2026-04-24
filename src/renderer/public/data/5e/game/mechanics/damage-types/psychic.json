@@ -1,0 +1,13 @@
+{
+  "id": "psychic",
+  "name": "Psychic",
+  "description": "Mental abilities such as a mind flayer's psionic blast deal Psychic damage. Psychic damage represents harm to the mind and consciousness.",
+  "commonSources": [
+    "Mind Flayer mind blast",
+    "Phantasmal Killer spell",
+    "Synaptic Static spell",
+    "Vicious Mockery cantrip",
+    "Intellect Devourer attacks"
+  ],
+  "resistanceNotes": "Psychic damage is rarely resisted. Constructs and some undead without minds may be immune. Mind Flayers and other psionic creatures often resist Psychic damage."
+}

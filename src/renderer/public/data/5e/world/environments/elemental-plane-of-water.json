@@ -1,0 +1,533 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "elemental-plane-of-water",
+      "name": "Elemental Plane of Water",
+      "alternateNames": ["Plane of Water"],
+      "category": "Inner Plane",
+      "subcategory": "Elemental Water",
+      "alignments": [],
+      "philosophicalEssence": "The nature of water is to flow, not like the gusting wind or the leaping flame, but smoothly and steadily. It is the rhythm of the tide, the nectar of life, the bitter tears of mourning, and the balm of sympathy and healing. Given time, it can erode all in its path.",
+      "emotionalInfluence": "The plane embodies the steady, rhythmic flow of water—smooth, patient, and relentless. Its nature is life-giving yet capable of overwhelming destruction.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "An endless sea called the Sea of Worlds, dotted with atolls and islands rising from enormous coral reefs that stretch forever into the depths.",
+        "breathableAtmosphere": false,
+        "atmosphereNotes": "The plane is predominantly water. Air breathers require air pockets, islands, or atolls that rise above the surface. Most natives never break the surface of the sea. Land above the surface is hotly contested by the few air breathers that live on the plane. Fleets of rafts and ships lashed together serve as solid ground where nothing else is available.",
+        "temperature": {
+          "category": "variable",
+          "description": "A warm sun arcs across the sky. The Sea of Light has sunlit warm waters. The Sea of Ice bordering the Para-elemental Plane of Ice features frigid water choked with icebergs and sheet ice. The Darkened Depths have absolute cold and crushing pressure."
+        },
+        "hasSurface": true,
+        "dominantElement": "Water",
+        "weatherPatterns": "Weather on the plane is a lesson in extremes. If the sea isn't calm, it is battered by storms. Several times a day, the sky clouds over and releases a deluge of rain, often accompanied by spectacular shows of lightning, before clearing up again. On rare occasions, a tremor in the planar firmament sends a rogue wave sweeping across the plane, swamping entire islands and driving ships down to the reefs."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Time flows normally on the Elemental Plane of Water. No special time flow rules are specified."
+      },
+      "hazards": [
+        {
+          "id": "water-hazard-rogue-waves",
+          "name": "Rogue Waves",
+          "description": "On rare occasions, a tremor in the planar firmament sends a rogue wave sweeping across the plane, swamping entire islands and driving ships down to the reefs.",
+          "category": "elemental",
+          "severity": "severe",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "encounterProbability": {
+            "description": "Rare occasions; a tremor in the planar firmament triggers the event"
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Water"
+        },
+        {
+          "id": "water-hazard-storms",
+          "name": "Extreme Storms",
+          "description": "The weather on the plane is a lesson in extremes. If the sea isn't calm, it is battered by storms. Several times a day, the sky clouds over and releases a deluge of rain, often accompanied by spectacular shows of lightning, before clearing up again.",
+          "category": "weather",
+          "severity": "moderate",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "encounterProbability": {
+            "description": "Several times a day the sky clouds over and releases a deluge of rain with lightning"
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Water"
+        },
+        {
+          "id": "water-hazard-darkened-depths",
+          "name": "Darkened Depths",
+          "description": "The deeper extents of the plane, where no sunlight reaches, are called the Darkened Depths. Horrid creatures dwell here, and the absolute cold and crushing pressure mean a swift end to creatures accustomed to the surface or the Sea of Light. Krakens and other mighty leviathans claim this realm.",
+          "category": "environmental",
+          "severity": "lethal",
+          "lightLevelModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {},
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none",
+              "description": "No sunlight reaches the Darkened Depths."
+            }
+          },
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Water"
+        },
+        {
+          "id": "water-hazard-temporary-storm-portals",
+          "name": "Temporary Storm Portals",
+          "description": "The storms that move across the sea sometimes create temporary portals to the Material Plane and draw ships into the Plane of Water. Surviving vessels from countless worlds and navies ply these waters with little hope of ever returning home.",
+          "category": "planar_trait",
+          "severity": "major",
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "encounterProbability": {
+            "description": "Storms sometimes create temporary portals; ships are drawn in from the Material Plane"
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Water"
+        },
+        {
+          "id": "water-hazard-underwater-combat",
+          "name": "Underwater Combat Rules",
+          "description": "Most of the plane is underwater. Melee attacks with weapons have Disadvantage unless the weapon deals Piercing damage or the attacker has a Swim Speed. Ranged weapon attacks automatically miss beyond normal range and have Disadvantage within normal range. Anything underwater has Resistance to Fire damage.",
+          "category": "environmental",
+          "severity": "moderate",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": ["Fire"],
+          "immuneTraits": [],
+          "narrativeWeight": "mechanical",
+          "sourceReference": "Chapter 1: Playing the Game - Underwater Combat"
+        },
+        {
+          "id": "water-hazard-suffocation",
+          "name": "Suffocation Risk",
+          "description": "Air-breathing creatures submerged in the endless sea risk suffocation. A creature can hold its breath for a number of minutes equal to 1 + its Constitution modifier (minimum of 30 seconds). When out of breath, it can survive for a number of rounds equal to its Constitution modifier (minimum 1 round), then drops to 0 HP and is dying until it can breathe again.",
+          "category": "environmental",
+          "severity": "lethal",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "mechanical",
+          "sourceReference": "Appendix C: Rules Glossary - Suffocation"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "water-env-fire-resistance",
+          "name": "Underwater Fire Resistance",
+          "description": "Anything underwater has Resistance to Fire damage.",
+          "mechanicalEffect": "All creatures and objects underwater on this plane have Resistance to Fire damage. Fire damage is halved (rounded down).",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "sourceReference": "Chapter 1: Playing the Game - Underwater Combat"
+        },
+        {
+          "id": "water-env-impeded-weapons",
+          "name": "Impeded Weapons Underwater",
+          "description": "When making a melee attack roll with a weapon underwater, a creature that lacks a Swim Speed has Disadvantage on the attack roll unless the weapon deals Piercing damage. A ranged attack roll with a weapon underwater automatically misses a target beyond the weapon's normal range, and the attack roll has Disadvantage against a target within normal range.",
+          "mechanicalEffect": "Creatures without Swim Speed have Disadvantage on melee weapon attacks unless weapon deals Piercing damage. Ranged weapon attacks auto-miss beyond normal range and have Disadvantage within normal range.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "sourceReference": "Chapter 1: Playing the Game - Underwater Combat"
+        }
+      ],
+      "portals": [
+        {
+          "id": "water-portal-maelstrom-vortex",
+          "type": "vortex",
+          "name": "Oceanic Maelstrom Vortex",
+          "destination": "Material Plane",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "A maelstrom in the depths of the ocean on the Material Plane leads to the Plane of Water. The storms that move across the sea sometimes create temporary portals to the Material Plane.",
+            "situationCondition": "Maelstrom in the ocean depths or storms on the Plane of Water"
+          },
+          "colorOrAppearance": "A swirling maelstrom in the depths of the ocean"
+        },
+        {
+          "id": "water-portal-isle-of-dread-storm",
+          "type": "temporary",
+          "name": "Isle of Dread Storm Portal",
+          "destination": "Material Plane (various worlds)",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "A storm regularly sweeps over the Isle of Dread, connecting it to the Material Plane. Ships from different worlds end up wrecked on the island. Travelers who understand the workings of the storm could use it to travel to a desired Material Plane world.",
+            "situationCondition": "The regular storm that sweeps over the Isle of Dread"
+          },
+          "colorOrAppearance": "A storm that regularly sweeps over the island"
+        }
+      ],
+      "portalFrequency": "uncommon",
+      "planarConnections": [
+        {
+          "id": "water-connection-para-ice",
+          "name": "Sea of Ice to Para-elemental Plane of Ice",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Water", "Para-elemental Plane of Ice"],
+          "description": "Bordering the Para-elemental Plane of Ice is the Sea of Ice. The frigid water is choked with icebergs and sheet ice, which are inhabited by cold-loving creatures from the Plane of Ice. Drifting icebergs can carry these creatures farther into the Plane of Water.",
+          "hazards": ["Frigid water", "Icebergs", "Sheet ice", "Cold-loving creatures"],
+          "isOneWay": false
+        },
+        {
+          "id": "water-connection-para-ooze",
+          "name": "Silt Flats to Para-elemental Plane of Ooze",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Water", "Para-elemental Plane of Ooze"],
+          "description": "The region of the Plane of Water nearest to the Para-elemental Plane of Ooze is called the Silt Flats. The water is thick with soil and sludge, turning into muddy ground before giving way to the great swamp that is the Para-elemental Plane.",
+          "hazards": ["Thick water with soil and sludge", "Muddy ground"],
+          "isOneWay": false
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental", "Monstrosity", "Beast", "Humanoid"],
+        "notableEntities": [
+          {
+            "name": "Emperor of the Marids",
+            "title": "Nominal Emperor of the Marids",
+            "creatureType": "Elemental (Genie)",
+            "description": "The nominal emperor of the marids dwells in the Citadel of Ten Thousand Pearls. Visitors are welcome to ask favors of the emperor, whose mood is as changeable as the sea.",
+            "rulesLocation": "Citadel of Ten Thousand Pearls, Sea of Light"
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Marid Court",
+            "race": "Marid (Genie)",
+            "description": "The marids dwell in the Citadel of Ten Thousand Pearls, an opulent palace made of coral and studded with pearls. The palace is the glittering centerpiece of the Sea of Light.",
+            "location": "Citadel of Ten Thousand Pearls, Sea of Light"
+          },
+          {
+            "name": "Sea of Light Aquatic Peoples",
+            "race": "Various aquatic peoples",
+            "description": "Aquatic peoples craft castles and fortresses in the coral reefs of the Sea of Light.",
+            "location": "Sea of Light"
+          },
+          {
+            "name": "Isle of Dread Settlements",
+            "race": "Various (descendants of shipwrecked sailors)",
+            "description": "Settlements across the Isle of Dread are populated by the descendants of sailors from different worlds of the Material Plane who never found a way home.",
+            "location": "Isle of Dread"
+          },
+          {
+            "name": "Shipwrecked Fleets",
+            "race": "Various",
+            "description": "Surviving vessels from countless worlds and navies ply these waters with little hope of ever returning home. Fleets of rafts and ships lashed together serve as solid ground.",
+            "location": "Various, across the Sea of Worlds"
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [
+        {
+          "id": "water-region-sea-of-worlds",
+          "name": "Sea of Worlds",
+          "type": "Region",
+          "description": "The endless sea that constitutes the Elemental Plane of Water, dotted with atolls and islands that rise up from enormous coral reefs that seem to stretch forever into the depths."
+        },
+        {
+          "id": "water-region-citadel-ten-thousand-pearls",
+          "name": "Citadel of Ten Thousand Pearls",
+          "type": "Realm",
+          "ruler": {
+            "name": "Emperor of the Marids",
+            "title": "Nominal Emperor of the Marids",
+            "description": "The nominal emperor of the marids dwells in the Citadel of Ten Thousand Pearls. Visitors are welcome to ask favors of the emperor, whose mood is as changeable as the sea."
+          },
+          "description": "An opulent palace made of coral and studded with pearls. The palace is the glittering centerpiece of the Sea of Light."
+        },
+        {
+          "id": "water-region-darkened-depths",
+          "name": "Darkened Depths",
+          "type": "Region",
+          "description": "The deeper extents of the plane, where no sunlight reaches. Horrid creatures dwell here, and the absolute cold and crushing pressure mean a swift end to creatures accustomed to the surface or the Sea of Light. Krakens and other mighty leviathans claim this realm."
+        },
+        {
+          "id": "water-region-isle-of-dread",
+          "name": "Isle of Dread",
+          "type": "Region",
+          "description": "One of the few islands on the plane, connected to the Material Plane by means of a storm that regularly sweeps over the island. Ships from different worlds of the Material Plane end up wrecked on the rocks and reefs around the island. Settlements are populated by descendants of sailors who never found a way home. Theoretically, travelers who understand the workings of the storm could use it to travel to a desired Material Plane world."
+        },
+        {
+          "id": "water-region-sea-of-ice",
+          "name": "Sea of Ice",
+          "type": "Region",
+          "description": "Bordering the Para-elemental Plane of Ice. The frigid water is choked with icebergs and sheet ice, which are inhabited by cold-loving creatures from the Plane of Ice. Drifting icebergs can carry these creatures farther into the Plane of Water to threaten ships and islands in warmer seas."
+        },
+        {
+          "id": "water-region-sea-of-light",
+          "name": "Sea of Light",
+          "type": "Region",
+          "description": "Life flourishes in the sunlit waters of the Sea of Light, located in the upper reaches of the Sea of Worlds. Aquatic peoples craft castles and fortresses in the coral reefs here. The Citadel of Ten Thousand Pearls is the glittering centerpiece of this region."
+        },
+        {
+          "id": "water-region-silt-flats",
+          "name": "Silt Flats",
+          "type": "Region",
+          "description": "The region of the Plane of Water nearest to the Para-elemental Plane of Ooze. The water is thick with soil and sludge, turning into muddy ground before giving way to the great swamp that is the Para-elemental Plane."
+        }
+      ],
+      "adventureThemes": [
+        "The erosive power of water over time",
+        "Destruction wrought by surging tides, deadly maelstroms, and raging torrents",
+        "The rhythm of the tide as metaphor for life's flow",
+        "Water as the nectar of life, the bitter tears of mourning, and the balm of sympathy and healing",
+        "Cultists of Evil Water who believe the seas are eager to reclaim the water trapped in living creatures",
+        "Exploration of endless oceanic wilderness",
+        "Survival on a plane dominated by water with scarce dry land",
+        "Encounters with shipwrecked civilizations from countless worlds"
+      ],
+      "adventureSituations": [],
+      "etherealCurtainColor": "Green",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3 referenced for Environmental Effects applicable to Inner Planes"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Ethereal Curtains table (d12 entry 8): Elemental Plane of Water has Green curtain color"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Planar Portals section: a maelstrom in the depths of the ocean is cited as a vortex portal leading to the Plane of Water"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "travel-portal",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "Portals are stationary interplanar connections. A maelstrom in the depths of the ocean on the Material Plane can serve as a vortex portal to the Plane of Water. Storms on the Plane of Water sometimes create temporary portals to the Material Plane.",
+      "requirements": [
+        "Find a portal leading to the desired destination",
+        "Meet the portal's requirements (command, key item, random timing, situation, or time-based)"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portals may have guardians", "Portals may not be open at all times", "One-way portals exist"],
+      "destinations": ["Elemental Plane of Water", "Material Plane"]
+    },
+    {
+      "id": "travel-spells",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "Spells such as Gate and Plane Shift can directly transport adventurers to the Elemental Plane of Water. Etherealness allows entry to the Ethereal Plane, from which the Border Ethereal overlapping the Plane of Water can be accessed.",
+      "requirements": ["Ability to cast the appropriate spell", "Proper tuning fork for Plane Shift"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness"],
+      "risks": ["Plane Shift may lack precision in arrival location"],
+      "destinations": ["Elemental Plane of Water"]
+    },
+    {
+      "id": "travel-ethereal-curtain",
+      "name": "Ethereal Curtain to Plane of Water",
+      "type": "natural_crossing",
+      "description": "In the Deep Ethereal, green-colored curtains of vapor lead to a region of the Border Ethereal connected to the Elemental Plane of Water.",
+      "requirements": ["Access to the Deep Ethereal via Plane Shift, Gate, or a magical portal"],
+      "associatedSpells": ["Plane Shift", "Gate"],
+      "risks": ["Travel through the Deep Ethereal takes 1d10 × 10 hours", "Ether cyclones may divert travelers"],
+      "destinations": ["Elemental Plane of Water"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

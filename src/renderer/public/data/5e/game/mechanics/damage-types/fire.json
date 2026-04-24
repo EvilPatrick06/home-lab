@@ -1,0 +1,13 @@
+{
+  "id": "fire",
+  "name": "Fire",
+  "description": "Red Dragons breathe fire, and many spells conjure flames to deal Fire damage. Fire damage represents extreme heat and combustion.",
+  "commonSources": [
+    "Red Dragon breath weapon",
+    "Fire Bolt cantrip",
+    "Fireball spell",
+    "Burning Hands spell",
+    "Fire Elemental attacks"
+  ],
+  "resistanceNotes": "Fire is the most commonly resisted damage type among monsters. Tieflings have resistance to Fire. Fire damage is halved underwater per DMG 2024 rules (separate from resistance)."
+}

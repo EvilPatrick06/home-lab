@@ -1,0 +1,13 @@
+{
+  "name": "Scholar's Pack",
+  "cost": "40 GP",
+  "weight": "22 lb.",
+  "contents": "Backpack, Book, Ink, Ink Pen, Lamp, 10 flasks of Oil, 10 sheets of Parchment, Tinderbox",
+  "slug": "scholars-pack",
+  "category": "Equipment Bundle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

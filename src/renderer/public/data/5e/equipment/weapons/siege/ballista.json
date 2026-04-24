@@ -1,0 +1,32 @@
+{
+  "name": "Ballista",
+  "slug": "ballista",
+  "category": "Siege Weapon",
+  "size": "Large",
+  "ac": 15,
+  "hp": 50,
+  "cost": "—",
+  "description": "A large crossbow-like siege weapon that fires heavy bolts. It takes three actions to load, aim, and fire the Ballista: Load (action), Aim (action), Fire (action).",
+  "attack": {
+    "toHit": 6,
+    "damage": "3d10",
+    "damageType": "Piercing",
+    "averageDamage": 16,
+    "range": {
+      "normal": 120,
+      "long": 480
+    }
+  },
+  "crew": 3,
+  "actionsToOperate": [
+    { "action": "Load", "description": "One creature uses its action to load the Ballista." },
+    { "action": "Aim", "description": "One creature uses its action to aim the Ballista." },
+    { "action": "Fire", "description": "One creature uses its action to fire the Ballista." }
+  ],
+  "immunities": ["Poison", "Psychic"],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

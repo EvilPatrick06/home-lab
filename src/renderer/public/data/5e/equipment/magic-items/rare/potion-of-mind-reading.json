@@ -1,0 +1,13 @@
+{
+  "name": "Potion of Mind Reading",
+  "slug": "potion-of-mind-reading",
+  "type": "Potion",
+  "rarity": "Rare",
+  "attunement": false,
+  "description": "When you drink this potion, you gain the effect of the *Detect Thoughts* spell (save DC 13) for 10 minutes (no Concentration required).\n\nThis potion's dense, purple liquid has an ovoid cloud of pink floating in it.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

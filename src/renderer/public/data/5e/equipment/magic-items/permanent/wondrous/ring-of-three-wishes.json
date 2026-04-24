@@ -1,0 +1,20 @@
+{
+  "name": "Ring of Three Wishes",
+  "itemType": "Ring",
+  "rarity": "Legendary",
+  "requiresAttunement": false,
+  "description": "While wearing this ring, you can expend 1 of its 3 charges to cast *Wish* from it. The ring becomes nonmagical when you use the last charge.",
+  "weight": null,
+  "cost": null,
+  "charges": 3,
+  "rechargeRate": null,
+  "rechargeAmount": null,
+  "spells": [
+    {
+      "name": "Wish",
+      "chargeCost": 1
+    }
+  ],
+  "damage": null,
+  "source": "DMG 2024"
+}

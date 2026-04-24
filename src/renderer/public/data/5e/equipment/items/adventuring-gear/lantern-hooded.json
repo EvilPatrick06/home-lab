@@ -1,0 +1,13 @@
+{
+  "name": "Lantern, Hooded",
+  "cost": "5 GP",
+  "weight": "2 lb.",
+  "description": "Burns Oil. Bright Light in 30-foot radius and Dim Light for 30 feet. Bonus Action to lower/raise hood.",
+  "slug": "lantern-hooded",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

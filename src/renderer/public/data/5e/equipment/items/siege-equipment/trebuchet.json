@@ -1,0 +1,15 @@
+{
+  "name": "Trebuchet",
+  "ac": 15,
+  "hp": 150,
+  "attack": "+5, range 300/1,200 ft. (can't hit within 60 ft.)",
+  "damage": "44 (8d10) Bludgeoning",
+  "description": "Requires Load and Aim. Huge object.",
+  "slug": "trebuchet",
+  "category": "Siege Equipment",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

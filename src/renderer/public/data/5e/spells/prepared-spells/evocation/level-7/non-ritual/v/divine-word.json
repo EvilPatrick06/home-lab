@@ -1,0 +1,66 @@
+{
+  "name": "Divine Word",
+  "level": 7,
+  "school": "Evocation",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You utter a word imbued with power from the Upper Planes. Each creature of your choice in range makes a Charisma saving throw. On a failed save, a target that has 50 Hit Points or fewer suffers an effect based on its current Hit Points, as shown in the Divine Word Effects table. Regardless of its Hit Points, a Celestial, an Elemental, a Fey, or a Fiend that fails its save is forced back to its plane of origin (if it isn't there already) and can't return to the current plane for 24 hours by any means short of a Wish spell.",
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Charisma",
+    "noEffectOnSuccess": true
+  },
+  "hpThresholdEffects": [
+    {
+      "minHP": 0,
+      "maxHP": 20,
+      "effect": "The target dies.",
+      "kills": true
+    },
+    {
+      "minHP": 21,
+      "maxHP": 30,
+      "effect": "The target has the Blinded, Deafened, and Stunned conditions for 1 hour.",
+      "conditionsApplied": ["Blinded", "Deafened", "Stunned"],
+      "duration": "1 hour"
+    },
+    {
+      "minHP": 31,
+      "maxHP": 40,
+      "effect": "The target has the Blinded and Deafened conditions for 10 minutes.",
+      "conditionsApplied": ["Blinded", "Deafened"],
+      "duration": "10 minutes"
+    },
+    {
+      "minHP": 41,
+      "maxHP": 50,
+      "effect": "The target has the Deafened condition for 1 minute.",
+      "conditionsApplied": ["Deafened"],
+      "duration": "1 minute"
+    }
+  ],
+  "banishment": {
+    "savingThrowAbility": "Charisma",
+    "hpThreshold": 0,
+    "affectsCreatureTypes": ["Celestial", "Elemental", "Fey", "Fiend"],
+    "description": "Regardless of its Hit Points, a Celestial, an Elemental, a Fey, or a Fiend that fails its save is forced back to its plane of origin (if it isn't there already) and can't return to the current plane for 24 hours by any means short of a Wish spell."
+  },
+  "tags": ["banishment", "instant-kill", "hp-threshold", "verbal-only"]
+}

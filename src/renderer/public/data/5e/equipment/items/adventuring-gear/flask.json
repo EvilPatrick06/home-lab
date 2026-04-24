@@ -1,0 +1,13 @@
+{
+  "name": "Flask",
+  "cost": "2 CP",
+  "weight": "1 lb.",
+  "description": "Holds up to 1 pint.",
+  "slug": "flask",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

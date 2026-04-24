@@ -1,0 +1,186 @@
+{
+  "name": "Ghoul",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Ruins", "Underground", "Urban"],
+  "treasure": ["None"],
+  "lore": "Driven by an insatiable craving for Humanoid flesh, ghouls haunt graveyards and other places where they can feast on the dead. In their rapacious hunger, ghouls also pursue the living. The paralytic touch of a ghoul makes the monster a formidable hunter.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 36,
+    "dice": {
+      "count": 8,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The ghoul has Advantage on an attack roll against a creature if at least one of the ghoul's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "multiattack": {
+    "description": "The ghoul makes one Bite attack and one Claw attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 7 (2d4 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Slashing damage. If the target is a creature other than an Elf or an Undead, it must succeed on a DC 10 Constitution saving throw or have the Paralyzed condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ],
+          "additionalEffects": "If the target is a creature other than an Elf or an Undead, it must succeed on a DC 10 Constitution saving throw or have the Paralyzed condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+          "conditions": [
+            {
+              "condition": "Paralyzed",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 10,
+                "targets": "the target at the end of each of its turns",
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 10,
+            "targets": "the target, if it is a creature other than an Elf or an Undead",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Paralyzed",
+                  "duration": "1 minute",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 10,
+                    "targets": "the target at the end of each of its turns",
+                    "onSuccess": {
+                      "effects": "The effect ends on the target."
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

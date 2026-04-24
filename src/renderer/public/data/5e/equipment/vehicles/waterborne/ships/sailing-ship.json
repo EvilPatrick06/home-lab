@@ -1,0 +1,20 @@
+{
+  "name": "Sailing Ship",
+  "slug": "sailing-ship",
+  "category": "Waterborne Vehicle",
+  "type": "Ship",
+  "cost": "10000 GP",
+  "speed": "2 mph",
+  "crew": 20,
+  "passengers": 20,
+  "cargoTons": 100,
+  "ac": 15,
+  "hp": 300,
+  "damageThreshold": 15,
+  "description": "An ocean-going vessel with multiple masts and sails. Sailing ships are the standard for long-distance sea travel and trade.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Waterborne Vehicles"
+  }
+}

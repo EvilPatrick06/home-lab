@@ -1,0 +1,51 @@
+{
+  "name": "Quasit",
+  "slug": "quasit",
+  "size": "Tiny",
+  "type": "Fiend",
+  "alignment": "Chaotic Evil",
+  "ac": 13,
+  "hp": 7,
+  "hpFormula": "3d4",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 5,
+    "dex": 17,
+    "con": 10,
+    "int": 7,
+    "wis": 10,
+    "cha": 10
+  },
+  "skills": "Stealth +5",
+  "resistances": "Cold, Fire, Lightning; Bludgeoning, Piercing, and Slashing from nonmagical attacks",
+  "immunities": "Poison",
+  "conditionImmunities": "Poisoned",
+  "senses": "Darkvision 120 ft., Passive Perception 10",
+  "languages": "Abyssal, Common",
+  "cr": "1",
+  "xp": "200 XP",
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Scare (1/Day)",
+      "description": "One creature of the quasit's choice within 20 ft. must succeed on a DC 10 Wisdom saving throw or have the Frightened condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on a success."
+    },
+    {
+      "name": "Invisibility",
+      "description": "The quasit turns Invisible until it attacks, it uses Scare, or its Concentration ends (as if concentrating on a spell). Equipment the quasit wears or carries is also Invisible."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claw (Bite in Beast Form)",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) Piercing plus 5 (2d4) Poison damage. If the target is a creature, it must succeed on a DC 10 Constitution saving throw or have the Poisoned condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on a success."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

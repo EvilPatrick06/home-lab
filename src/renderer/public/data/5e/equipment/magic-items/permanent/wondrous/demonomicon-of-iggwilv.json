@@ -1,0 +1,76 @@
+{
+  "name": "Demonomicon of Iggwilv",
+  "itemType": "Wondrous Item",
+  "rarity": "Artifact",
+  "requiresAttunement": true,
+  "attunementRequirements": "None",
+  "description": "This treatise, composed by Iggwilv the archmage, documents the Abyss's layers and inhabitants and is widely regarded as the most thorough and blasphemous tome of demonology in the multiverse. The tome recounts both the oldest and most current profanities of the Abyss and demons. Demons have attempted to censor the text, and while sections have been ripped from the book's spine, the general chapters remain, ever revealing demonic secrets. Caged behind lines of script roils a secret piece of the Abyss itself, which keeps the book up-to-date, no matter how many pages are removed, and it longs to be more than mere reference material.",
+  "properties": [
+    {
+      "name": "Abyssal Lore",
+      "description": "You can reference the *Demonomicon* whenever you make an Intelligence check to discern information about demons or a Wisdom (Survival) check related to the Abyss. When you do so, you gain Advantage on the check."
+    },
+    {
+      "name": "Containment",
+      "description": "The first ten pages of the *Demonomicon* are blank. As a Magic action while holding the book, you can target a Fiend that you can see that is trapped within the area of a *Magic Circle* spell. The Fiend must succeed on a DC 20 Charisma saving throw with Disadvantage or become trapped within one of the *Demonomicon's* blank pages, which fills with writing detailing the trapped creature's widely known name and depravities. Once used, this action can't be used again until the next dawn.\n\nWhen you finish a Long Rest, if you and the *Demonomicon* are on the same plane of existence, one trapped creature within the book can attempt to possess you. You make a DC 20 Charisma saving throw. On a failed save, you are possessed by the creature, which controls you like a puppet. As a Magic action, the possessing creature can release you and appear in the closest unoccupied space to you. On a successful save, the Fiend can't try to possess you again for 7 days (but another Fiend trapped in the book can certainly try)."
+    },
+    {
+      "name": "Ensnarement",
+      "description": "While carrying the book, whenever you cast *Magic Circle* naming only Fiends or cast *Planar Binding* targeting a Fiend, the spell is cast at level 9, regardless of what level spell slot you used, if any. Additionally, the Fiend has Disadvantage on its saving throw against the spell."
+    },
+    {
+      "name": "Fiendish Scourging",
+      "description": "While carrying the book, when you make a damage roll for a spell you cast against a Fiend, you use the maximum possible result instead of rolling."
+    }
+  ],
+  "charges": 8,
+  "rechargeRate": "Daily at dawn",
+  "rechargeAmount": "1d8",
+  "spells": [
+    {
+      "name": "Magic Circle",
+      "costCharges": 1
+    },
+    {
+      "name": "Magic Jar",
+      "costCharges": 3
+    },
+    {
+      "name": "Planar Ally",
+      "costCharges": 3
+    },
+    {
+      "name": "Planar Binding",
+      "costCharges": 2
+    },
+    {
+      "name": "Plane Shift (to the Abyss only)",
+      "costCharges": 3
+    },
+    {
+      "name": "Summon Fiend",
+      "costCharges": 3
+    },
+    {
+      "name": "Tasha's Hideous Laughter",
+      "costCharges": 0
+    }
+  ],
+  "randomProperties": [
+    {
+      "type": "Minor Beneficial",
+      "count": 2
+    },
+    {
+      "type": "Minor Detrimental",
+      "count": 1
+    },
+    {
+      "type": "Major Detrimental",
+      "count": 1
+    }
+  ],
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

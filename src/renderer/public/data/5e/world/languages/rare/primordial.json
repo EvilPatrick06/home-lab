@@ -1,0 +1,14 @@
+{
+  "name": "Primordial",
+  "script": "Dwarvish",
+  "origin": "Elementals",
+  "speakers": "Elementals",
+  "dialects": ["Aquan", "Auran", "Ignan", "Terran"],
+  "slug": "primordial",
+  "category": "Rare",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

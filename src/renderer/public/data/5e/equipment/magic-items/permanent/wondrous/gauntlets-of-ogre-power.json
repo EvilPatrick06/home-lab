@@ -1,0 +1,15 @@
+{
+  "name": "Gauntlets of Ogre Power",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "Your Strength is 19 while you wear these gauntlets. They have no effect on you if your Strength is 19 or higher without them.",
+  "properties": null,
+  "weight": null,
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

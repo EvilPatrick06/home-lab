@@ -1,0 +1,13 @@
+{
+  "name": "Boots of False Tracks",
+  "slug": "boots-of-false-tracks",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": true,
+  "description": "While wearing these boots, you can have them leave tracks like those of any kind of Humanoid of your size.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "Salamander Fire Snake",
+  "slug": "salamander-fire-snake",
+  "size": "Medium",
+  "type": "Elemental",
+  "alignment": "Neutral Evil",
+  "ac": "14",
+  "initiative": "+2 (12)",
+  "hp": "27",
+  "hpFormula": "6d8",
+  "speed": "30 ft., Climb 30 ft.",
+  "abilityScores": {
+    "str": 12,
+    "dex": 14,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Fire",
+  "vulnerabilities": "Cold",
+  "senses": "Darkvision 60 ft.; Passive Perception 10",
+  "languages": "Understands Primordial but can't speak",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Fire Aura",
+      "description": "At the end of each of the salamander's turns, each creature of the salamander's choice in a 5-foot Emanation originating from the salamander takes 3 (1d6) Fire damage."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 6 (1d8 + 2) Piercing damage plus 3 (1d6) Fire damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Serpentine Artists of the Inferno*\n**Habitat:** Planar (Elemental Plane of Fire), Underdark; **Treasure:** Armaments\nSalamanders are serpentine denizens of the Elemental Plane of Fire. They believe that flames expose the purest forms of all things and delight in burning and melting things, seeing fleeting beauty and striking nuances in blazes consuming different fuels -- ancient forests, artistic masterpieces, or living creatures. To salamanders, those that can't endure their flames are nothing but ashes in disguise. They harbor malice toward few creatures, but they consider creating remarkable flames more important than the pain and loss their fires cause.\nSalamanders are typically content to dwell on the Elemental Plane of Fire, creating strange, temporary art amid the flames. Some travel to other planes of existence and worlds to experience the flames of other realms or create conflagrations of unprecedented scale.\nJuvenile salamanders emerge from burning hot, two-foot-diameter eggs. Called fire snakes, these serpentlike creatures slither through the Plane of Fire and other intensely hot places. After consuming the proper fuels and exposing themselves to fiery extremes, fire snakes grow into salamanders.\nMost salamanders are arrogant yet curious, seeking to create artful blazes or burn that which has never been burned. They eagerly explain their work to strangers before trying to determine how the strangers burn. Salamanders radiate intense heat, which is conducted by their blazing weapons.\nSalamander inferno masters are ancient connoisseurs of flames and often inhabit places with unique scorching properties. They gather communes of apprentices who learn fiery techniques while helping their mentors accomplish great works. Inferno masters have ambitious goals, such as causing massive volcanic eruptions, opening portals to burning planes, destroying Artifacts, or burning all instances of something from the multiverse.\n> \"The salamanders of the Elemental Plane of Fire delight in meeting visitors from other realms. For them, every stranger is a potential addition to their fiery artistry. Don't fall for their flattery, no matter how beautifully they say you'll burn.\" -- Filiag Highthumbs, *Planes and Travel*",
+  "habitat": "Planar (Elemental Plane of Fire), Underdark",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Elementals",
+    "file": "Elementals.md"
+  }
+}

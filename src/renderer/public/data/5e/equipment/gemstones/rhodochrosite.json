@@ -1,0 +1,13 @@
+{
+  "name": "Rhodochrosite",
+  "slug": "rhodochrosite",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "light pink",
+  "dieValue": "10",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

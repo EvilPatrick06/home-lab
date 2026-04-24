@@ -1,0 +1,14 @@
+{
+  "name": "Potion of Longevity",
+  "itemType": "Potion",
+  "rarity": "Very Rare",
+  "requiresAttunement": false,
+  "description": "When you drink this potion, your physical age is reduced by 1d6 + 6 years, to a minimum of 13 years. Each time you subsequently drink a Potion of Longevity, there is 10 percent cumulative chance that you instead age by 1d6 + 6 years.",
+  "properties": null,
+  "weight": null,
+  "cost": {
+    "amount": 40000,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

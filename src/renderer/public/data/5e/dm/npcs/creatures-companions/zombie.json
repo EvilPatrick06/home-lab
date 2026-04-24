@@ -1,0 +1,42 @@
+{
+  "name": "Zombie",
+  "slug": "zombie",
+  "size": "Medium",
+  "type": "Undead",
+  "alignment": "Neutral Evil",
+  "ac": 8,
+  "hp": 22,
+  "hpFormula": "3d8 + 9",
+  "speed": "20 ft.",
+  "abilityScores": {
+    "str": 13,
+    "dex": 6,
+    "con": 16,
+    "int": 3,
+    "wis": 6,
+    "cha": 5
+  },
+  "savingThrows": "Wisdom +0",
+  "immunities": "Poison",
+  "conditionImmunities": "Exhaustion, Poisoned",
+  "senses": "Darkvision 60 ft., Passive Perception 8",
+  "languages": "understands the languages it knew in life but can't speak",
+  "cr": "1/4",
+  "xp": "50 XP",
+  "traits": [
+    {
+      "name": "Undead Fortitude",
+      "description": "If damage reduces the zombie to 0 HP, it makes a Constitution saving throw with a DC of 5 + the damage taken, unless the damage is Radiant or from a Critical Hit. On a success, the zombie drops to 1 HP instead."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "*Melee:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) Bludgeoning."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

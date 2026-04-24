@@ -1,0 +1,24 @@
+{
+  "name": "Pale Tincture",
+  "slug": "pale-tincture",
+  "category": "Poison",
+  "type": "Ingested",
+  "cost": "250 GP",
+  "weight": "—",
+  "description": "A creature subjected to this poison must succeed on a DC 16 Constitution saving throw or take 3 (1d6) Poison damage and have the Poisoned condition. The Poisoned creature repeats the saving throw every 24 hours, taking 3 (1d6) Poison damage on a failed save. Until the poison ends, the damage can't be healed by any means. After seven successful saving throws, the effect ends and the creature can heal normally.",
+  "saveDC": 16,
+  "saveAbility": "Constitution",
+  "damage": "1d6",
+  "damageType": "Poison",
+  "averageDamage": 3,
+  "effect": "Poisoned",
+  "repeatSave": true,
+  "repeatInterval": "24 hours",
+  "successesRequired": 7,
+  "preventsHealing": true,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poisons"
+  }
+}

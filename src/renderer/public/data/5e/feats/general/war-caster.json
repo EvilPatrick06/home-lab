@@ -1,0 +1,33 @@
+{
+  "name": "War Caster",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "features": ["Spellcasting or Pact Magic Feature"]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Intelligence", "Wisdom", "Charisma"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Concentration",
+      "description": "You have Advantage on Constitution saving throws that you make to maintain Concentration."
+    },
+    {
+      "name": "Reactive Spell",
+      "description": "When a creature provokes an Opportunity Attack from you by leaving your reach, you can take a Reaction to cast a spell at the creature rather than making an Opportunity Attack. The spell must have a casting time of one action and must target only that creature."
+    },
+    {
+      "name": "Somatic Components",
+      "description": "You can perform the Somatic components of spells even when you have weapons or a Shield in one or both hands."
+    }
+  ],
+  "source": "PHB 2024"
+}

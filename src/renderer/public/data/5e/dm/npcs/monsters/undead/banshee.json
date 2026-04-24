@@ -1,0 +1,223 @@
+{
+  "name": "Banshee",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Ruins"],
+  "treasure": ["None"],
+  "lore": "A banshee is the hateful spirit of a once-beautiful elf who was cursed. It appears as a luminous, ghostly figure wreathed in tattered vestments. Its anguished wail can instantly slay those who hear it, and its very visage can paralyze with terror. Banshees haunt the ruins of places tied to their former lives, forever lamenting what they have lost.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 58,
+    "dice": {
+      "count": 13,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 40,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 2
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 5
+    }
+  },
+  "resistances": ["Acid, Fire, Lightning, and Thunder", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Cold, Necrotic, and Poison"],
+  "conditionImmunities": [
+    "Charmed",
+    "Exhaustion",
+    "Frightened",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Common", "Elvish"]
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Detect Life",
+      "description": "The banshee magically senses the general direction of living creatures within 5 miles of it."
+    },
+    {
+      "name": "Incorporeal Movement",
+      "description": "The banshee can move through other creatures and objects as if they were Difficult Terrain. It takes 5 (1d10) Force damage if it ends its turn inside an object."
+    },
+    {
+      "name": "Undead Resilience",
+      "description": "The banshee is immune to the Poisoned condition and to Poison damage, and it doesn't need food, drink, or air."
+    }
+  ],
+  "multiattack": {
+    "description": "The banshee makes two Corruption Touch attacks.",
+    "attacks": [
+      {
+        "actionName": "Corruption Touch",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Corruption Touch",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 12 (2d8 + 3) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Horrifying Visage",
+      "description": "Each creature within 60 feet of the banshee that can see it must succeed on a DC 13 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature can repeat the save at the end of each of its turns, ending the effect on itself on a success. On a successful save, a creature is immune to this banshee's Horrifying Visage for 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 13,
+        "targets": "each creature within 60 feet that can see the banshee",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 13,
+                "targets": "the Frightened creature at the end of each of its turns",
+                "onSuccess": {
+                  "effects": "The Frightened condition ends on the creature."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature is immune to this banshee's Horrifying Visage for 24 hours."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 60,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "WIS",
+            "dc": 13,
+            "targets": "the Frightened creature at the end of each of its turns",
+            "onSuccess": {
+              "effects": "The Frightened condition ends on the creature."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wail",
+      "description": "Each creature within 30 feet of the banshee that can hear it must succeed on a DC 13 Constitution saving throw or drop to 0 Hit Points. On a successful save, a creature instead takes 10 (3d6) Psychic damage.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 13,
+        "targets": "each creature within 30 feet that can hear the banshee",
+        "onFailure": {
+          "effects": "The creature drops to 0 Hit Points."
+        },
+        "onSuccess": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 30,
+        "centered": true
+      }
+    }
+  ]
+}

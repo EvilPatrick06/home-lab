@@ -1,0 +1,63 @@
+{
+  "name": "Melf's Acid Arrow",
+  "level": 2,
+  "school": "Evocation",
+  "classes": ["Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "powdered rhubarb leaf",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A shimmering green arrow streaks toward a target within range and bursts in a spray of acid. Make a ranged spell attack against the target. On a hit, the target takes 4d4 Acid damage and 2d4 Acid damage at the end of its next turn. On a miss, the arrow splashes the target with acid for half as much of the initial damage only.",
+  "targetType": "creatureOrObject",
+  "attackType": "RangedSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 4
+      },
+      "type": "Acid",
+      "applicationType": "onHit",
+      "halfOnMiss": true
+    },
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 4
+      },
+      "type": "Acid",
+      "applicationType": "onTurnEnd",
+      "condition": "At the end of the target's next turn; only on a hit"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 4,
+        "baseSpellLevel": 2,
+        "description": "The damage (both initial and later) increases by 1d4 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["attack", "acid", "ranged", "delayed-damage"]
+}

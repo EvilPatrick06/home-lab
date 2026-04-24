@@ -1,0 +1,17 @@
+{
+  "name": "Shield",
+  "slug": "shield",
+  "category": "Shield",
+  "ac": "+2",
+  "strength": null,
+  "stealthDisadvantage": false,
+  "weight": "6 lb.",
+  "cost": "10 GP",
+  "donTime": "1 Action",
+  "doffTime": "1 Action",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

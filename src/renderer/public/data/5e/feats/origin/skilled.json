@@ -1,0 +1,15 @@
+{
+  "name": "Skilled",
+  "category": "Origin",
+  "prerequisites": null,
+  "repeatable": {
+    "restriction": "You can take this feat more than once"
+  },
+  "benefits": [
+    {
+      "name": "Skill Proficiencies",
+      "description": "You gain proficiency in any combination of three skills or tools of your choice"
+    }
+  ],
+  "source": "PHB 2024"
+}

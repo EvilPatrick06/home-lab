@@ -1,0 +1,50 @@
+{
+  "name": "Enhance Ability",
+  "level": 2,
+  "school": "Transmutation",
+  "classes": ["Bard", "Cleric", "Druid", "Ranger", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "fur or a feather",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You touch a creature and choose Strength, Dexterity, Intelligence, Wisdom, or Charisma. For the duration, the target has Advantage on ability checks using the chosen ability. Using a Higher-Level Spell Slot: You can target one additional creature for each spell slot level above 2. You can choose a different ability for each target.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "mustSeeTarget": false,
+  "targetMustBeWilling": false,
+  "advantagesGranted": [
+    {
+      "on": "abilityChecks",
+      "condition": "using the chosen ability (Strength, Dexterity, Intelligence, Wisdom, or Charisma)"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 2,
+        "description": "You can target one additional creature for each spell slot level above 2. You can choose a different ability for each target."
+      }
+    ]
+  },
+  "tags": ["buff", "ability-checks", "advantage"]
+}

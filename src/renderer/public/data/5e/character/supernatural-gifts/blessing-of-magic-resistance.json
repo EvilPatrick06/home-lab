@@ -1,0 +1,11 @@
+{
+  "name": "Blessing of Magic Resistance",
+  "type": "Blessing",
+  "description": "You have Advantage on saving throws against spells.",
+  "slug": "blessing-of-magic-resistance",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

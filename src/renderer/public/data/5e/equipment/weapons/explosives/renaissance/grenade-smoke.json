@@ -1,0 +1,23 @@
+{
+  "name": "Smoke Grenade",
+  "slug": "grenade-smoke",
+  "category": "Explosive",
+  "era": "Renaissance",
+  "cost": "150 GP",
+  "weight": "2 lb.",
+  "description": "As an action, a character can throw this grenade at a point up to 60 feet away. The grenade detonates on impact and creates a 20-foot-radius sphere of smoke that spreads around corners. The area is Heavily Obscured. The smoke lasts for 1 minute or until dispersed by a strong wind.",
+  "attack": {
+    "throwRange": 60,
+    "area": {
+      "shape": "Sphere",
+      "radius": 20
+    }
+  },
+  "effect": "Heavily Obscured",
+  "duration": "1 minute",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Explosives"
+  }
+}

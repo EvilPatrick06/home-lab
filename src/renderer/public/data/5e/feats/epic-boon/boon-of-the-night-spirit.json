@@ -1,0 +1,28 @@
+{
+  "name": "Boon of the Night Spirit",
+  "category": "Epic Boon",
+  "prerequisites": {
+    "level": 19
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": "any",
+        "amount": 1,
+        "maximum": 30,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Merge with Shadows",
+      "description": "While within Dim Light or Darkness, you can give yourself the Invisible condition as a Bonus Action. The condition ends on you immediately after you take an action, a Bonus Action, or a Reaction."
+    },
+    {
+      "name": "Shadowy Form",
+      "description": "While within Dim Light or Darkness, you have Resistance to all damage except Psychic and Radiant."
+    }
+  ],
+  "source": "PHB 2024"
+}

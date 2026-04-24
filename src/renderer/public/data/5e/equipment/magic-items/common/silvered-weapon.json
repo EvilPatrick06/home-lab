@@ -1,0 +1,13 @@
+{
+  "name": "Silvered Weapon",
+  "slug": "silvered-weapon",
+  "type": "Weapon (Any Simple or Martial)",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "An alchemical process has bonded silver to this magic weapon. When you score a Critical Hit with it against a creature that is shape-shifted, the weapon deals one additional die of damage.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

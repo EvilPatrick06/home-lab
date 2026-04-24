@@ -1,0 +1,137 @@
+{
+  "name": "Homunculus",
+  "sizes": ["Tiny"],
+  "creatureType": "Construct",
+  "alignment": "Neutral",
+  "habitat": ["Urban"],
+  "treasure": ["None"],
+  "lore": "A homunculus is a construct made of organic materials, given a semblance of life through an alchemical process. It serves as a faithful companion and spy, sharing a telepathic bond with its creator. If its creator dies, the homunculus also dies.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 5,
+    "dice": {
+      "count": 2,
+      "die": "d4",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 4,
+      "modifier": -3,
+      "save": -3
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Common"],
+    "notes": "understands the languages of its creator but can't speak"
+  },
+  "challengeRating": "0",
+  "experiencePoints": 10,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Telepathic Bond",
+      "description": "While the homunculus and its creator are on the same plane of existence, the creator can communicate with the homunculus telepathically, and the creator can perceive through the homunculus's senses."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 3 (1d4 + 1) Piercing damage, and the target must succeed on a DC 10 Constitution saving throw or have the Poisoned condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 10,
+            "targets": "the target",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "1 minute",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 10,
+                    "targets": "the target at the end of each of its turns",
+                    "onSuccess": {
+                      "effects": "The effect ends on the target."
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

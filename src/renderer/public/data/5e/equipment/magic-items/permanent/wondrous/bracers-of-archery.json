@@ -1,0 +1,13 @@
+{
+  "name": "Bracers of Archery",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "description": "While wearing these bracers, you have Proficiency with the Longbow and Shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.",
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

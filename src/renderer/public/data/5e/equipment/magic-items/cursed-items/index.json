@@ -1,0 +1,76 @@
+[
+  {
+    "id": "armor-of-vulnerability",
+    "name": "Armor of Vulnerability",
+    "rarity": "Rare",
+    "curse": "Vulnerability to two of three damage types (Bludgeoning, Piercing, or Slashing)"
+  },
+  {
+    "id": "berserker-axe",
+    "name": "Berserker Axe",
+    "rarity": "Rare",
+    "path": "../rare/berserker-axe.json",
+    "curse": "When damaged in combat, DC 15 Wisdom save or go berserk"
+  },
+  {
+    "id": "demon-armor",
+    "name": "Demon Armor",
+    "rarity": "Very Rare",
+    "curse": "Can't doff the armor, disadvantage on attacks and saves against demons"
+  },
+  {
+    "id": "shield-of-missile-attraction",
+    "name": "Shield of Missile Attraction",
+    "rarity": "Rare",
+    "curse": "Ranged attacks against other targets within 10 feet are redirected to you"
+  },
+  {
+    "id": "sword-of-vengeance",
+    "name": "Sword of Vengeance",
+    "rarity": "Uncommon",
+    "path": "../uncommon/sword-of-vengeance.json",
+    "curse": "Must use this weapon in combat, can't voluntarily release it"
+  },
+  {
+    "id": "bag-of-devouring",
+    "name": "Bag of Devouring",
+    "rarity": "Very Rare",
+    "curse": "Interior is actually the gullet of an extradimensional creature"
+  },
+  {
+    "id": "cloak-of-poisonousness",
+    "name": "Cloak of Poisonousness",
+    "rarity": "Very Rare",
+    "curse": "Appears to be a Cloak of Protection; applying poison damage and Poisoned condition on don"
+  },
+  {
+    "id": "dust-of-sneezing-and-choking",
+    "name": "Dust of Sneezing and Choking",
+    "rarity": "Uncommon",
+    "curse": "Appears to be Dust of Disappearance; causes sneezing and Incapacitated condition"
+  },
+  {
+    "id": "javelin-of-backbiting",
+    "name": "Javelin of Backbiting",
+    "rarity": "Very Rare",
+    "curse": "Flies back to hit the wielder on a miss"
+  },
+  {
+    "id": "necklace-of-strangulation",
+    "name": "Necklace of Strangulation",
+    "rarity": "Rare",
+    "curse": "Appears to be a Necklace of Prayer Beads; strangles the wearer"
+  },
+  {
+    "id": "periapt-of-foul-rotting",
+    "name": "Periapt of Foul Rotting",
+    "rarity": "Rare",
+    "curse": "Appears to be a Periapt of Health; causes a wasting disease"
+  },
+  {
+    "id": "robe-of-vermin",
+    "name": "Robe of Vermin",
+    "rarity": "Very Rare",
+    "curse": "Appears to be a Robe of Useful Items; summons hostile vermin when patches are pulled"
+  }
+]

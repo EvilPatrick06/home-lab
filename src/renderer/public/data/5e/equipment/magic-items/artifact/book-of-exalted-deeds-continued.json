@@ -1,0 +1,13 @@
+{
+  "name": "Book of Exalted Deeds (Continued)",
+  "slug": "book-of-exalted-deeds-continued",
+  "type": "Wondrous Item",
+  "rarity": "Artifact (Requires Attunement by a Creature of Good Alignment)",
+  "attunement": true,
+  "description": "Benefits granted by the *Book of Exalted Deeds* last only as long as you strive to do good. If you fail to perform at least one act of kindness or generosity within the span of 10 days, or if you willingly perform an evil act, you lose all the benefits granted by the book.\n\n**Celestial Calm.** While attuned to the book, you have Immunity to the Charmed and Frightened conditions and Resistance to Psychic damage. These benefits become permanent after you spend the requisite amount of time reading and studying the book.\n\n**Divine Wisdom.** After you spend the requisite amount of time reading and studying the book, your Wisdom increases by 2, to a maximum of 24. You can't gain this benefit from the book more than once.\n\n**Enlightened Magic.** After you spend the requisite amount of time reading and studying the book, any spell slot you expend to cast a spell counts as a spell slot of one level higher.\n\n**Halo.** After you spend the requisite amount of time reading and studying the book, you gain a protective halo. This halo sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet. You can dismiss or manifest the halo as a Bonus Action. While present, the halo gives you Advantage on Charisma (Persuasion) checks. In addition, Fiends and Undead within the halo's Bright Light make attack rolls against you with Disadvantage.\n\n**Random Properties.** The *Book of Exalted Deeds* has the following random properties (see \"Artifacts\" in this chapter):\n\n- 2 minor beneficial properties\n- 2 major beneficial properties\n\n**Destroying the Book.** The *Book of Exalted Deeds* can't be destroyed. However, drowning the book in the River Styx removes all writing and imagery from its pages and renders the book powerless for 1d100 years.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "name": "Octopus",
+  "slug": "octopus",
+  "size": "Small",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "3",
+  "hpFormula": "1d6",
+  "speed": "5 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 4,
+    "dex": 15,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -3,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +2, Stealth +6",
+  "senses": "Darkvision 30 ft.; Passive Perception 12",
+  "languages": "None",
+  "cr": "0 (XP 10; PB +2)",
+  "traits": [
+    {
+      "name": "Compression",
+      "description": "The octopus can move through a space as narrow as 1 inch without expending extra movement to do so."
+    },
+    {
+      "name": "Water Breathing",
+      "description": "The octopus can breathe only underwater."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Tentacles",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 1 Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Ink Cloud (1/Day)",
+      "description": "*Trigger:* A creature ends its turn within 5 feet of the octopus while underwater. *Response:* The octopus releases ink that fills a 5-foot Cube centered on itself, and the octopus moves up to its Swim Speed. The Cube is Heavily Obscured for 1 minute or until a strong current or similar effect disperses the ink."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

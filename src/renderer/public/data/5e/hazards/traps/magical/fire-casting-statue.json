@@ -1,0 +1,19 @@
+{
+  "name": "Fire-Casting Statue",
+  "type": "magical",
+  "trigger": "A creature moves onto a pressure plate",
+  "duration": "Instantaneous, resets next turn",
+  "severity": "Level 5+",
+  "dc": 13,
+  "detectDC": null,
+  "disarmDC": null,
+  "damage": "11 (2d10) Fire",
+  "description": "Statue casts fire at the creature. DC 13 Dex save or 11 (2d10) Fire damage. Detect Magic reveals Evocation aura. Dispel Magic (DC 13) disables for 1 hour.",
+  "slug": "fire-casting-statue",
+  "category": "Trap",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Traps"
+  }
+}

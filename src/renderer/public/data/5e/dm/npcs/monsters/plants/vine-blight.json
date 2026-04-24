@@ -1,0 +1,162 @@
+{
+  "name": "Vine Blight",
+  "sizes": ["Medium"],
+  "creatureType": "Plant",
+  "alignment": "Neutral Evil",
+  "habitat": ["Forest", "Swamp"],
+  "treasure": ["None"],
+  "lore": "Vine blights are shambling masses of creeping vines animated by dark magic. Slow but powerful, they crush prey in their tendrils and can cause the surrounding vegetation to erupt in grasping roots and vines that entangle the unwary.",
+  "armorClass": {
+    "value": 12,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 26,
+    "dice": {
+      "count": 4,
+      "die": "d8",
+      "modifier": 8
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 1
+    }
+  ],
+  "conditionImmunities": ["Blinded", "Deafened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Common"],
+    "notes": "understands Common but can't speak"
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "While the blight remains motionless, it is indistinguishable from a tangle of vines."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Constrict",
+      "description": "Melee Attack Roll: +4, reach 10 ft. Hit: 9 (2d6 + 2) Bludgeoning damage. If the target is a Large or smaller creature, the target has the Grappled condition (escape DC 12). Until the grapple ends, the target has the Restrained condition, and the blight can't Constrict another target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the target is a Large or smaller creature, the target has the Grappled condition (escape DC 12). Until the grapple ends, the target has the Restrained condition, and the blight can't Constrict another target.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 12
+            },
+            {
+              "condition": "Restrained",
+              "duration": "Until the grapple ends"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Entangling Plants",
+      "description": "Grasping roots and vines sprout in a 15-foot Emanation originating from the blight. Each creature of the blight's choice in that area must succeed on a DC 12 Strength saving throw or have the Restrained condition until the end of the blight's next turn.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "STR",
+        "dc": 12,
+        "targets": "each creature of the blight's choice in that area",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "duration": "until the end of the blight's next turn"
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 15,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Restrained",
+          "duration": "until the end of the blight's next turn"
+        }
+      ]
+    }
+  ]
+}

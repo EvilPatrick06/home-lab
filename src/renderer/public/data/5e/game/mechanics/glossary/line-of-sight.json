@@ -1,0 +1,11 @@
+{
+  "name": "Line of Sight",
+  "slug": "line-of-sight",
+  "description": "To target something, you must have a clear path to it, so it can't be behind Total Cover.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

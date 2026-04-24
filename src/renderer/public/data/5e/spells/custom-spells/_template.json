@@ -1,0 +1,28 @@
+{
+  "id": "custom-spell-template",
+  "name": "Custom Spell Name",
+  "level": 1,
+  "school": "evocation",
+  "castingTime": "1 action",
+  "range": "60 feet",
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": ""
+  },
+  "duration": "Instantaneous",
+  "concentration": false,
+  "ritual": false,
+  "description": "",
+  "atHigherLevels": "",
+  "classes": [],
+  "damageType": "",
+  "damageAtSlotLevel": {},
+  "savingThrow": "",
+  "attackType": "",
+  "isHomebrew": true,
+  "source": {
+    "book": "Homebrew",
+    "author": ""
+  }
+}

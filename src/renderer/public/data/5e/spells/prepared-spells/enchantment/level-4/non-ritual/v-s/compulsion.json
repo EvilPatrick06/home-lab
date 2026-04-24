@@ -1,0 +1,55 @@
+{
+  "name": "Compulsion",
+  "level": 4,
+  "school": "Enchantment",
+  "classes": ["Bard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Each creature of your choice that you can see within range must succeed on a Wisdom saving throw or have the Charmed condition until the spell ends.\n\nFor the duration, you can take a Bonus Action to designate a direction that is horizontal to you. Each Charmed target must use as much of its movement as possible to move in that direction on its next turn, taking the safest route. After moving in this way, a target repeats the save, ending the spell on itself on a success.",
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "repeatSave": {
+      "timing": "custom",
+      "endsEffectOnSuccess": true,
+      "customTiming": "After moving in the designated direction on its next turn"
+    }
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Charmed",
+      "trigger": "onFailedSave",
+      "duration": "until the spell ends",
+      "savingThrowToEnd": {
+        "ability": "Wisdom",
+        "timing": "custom",
+        "customTiming": "After moving in the designated direction on its next turn"
+      }
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "BonusAction",
+    "description": "Designate a horizontal direction. Each Charmed target must use as much of its movement as possible to move in that direction on its next turn, taking the safest route. After moving in this way, a target repeats the save, ending the spell on itself on a success."
+  },
+  "tags": ["control", "movement", "charm"]
+}

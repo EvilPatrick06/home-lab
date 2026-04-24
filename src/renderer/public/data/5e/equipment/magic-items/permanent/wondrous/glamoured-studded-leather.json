@@ -1,0 +1,21 @@
+{
+  "name": "Studded Leather Armor",
+  "category": "Light",
+  "cost": {
+    "amount": 45,
+    "denomination": "GP"
+  },
+  "ac": {
+    "base": 12,
+    "addDexModifier": true,
+    "maxDexBonus": null,
+    "isShieldBonus": false
+  },
+  "strengthRequirement": null,
+  "stealthDisadvantage": false,
+  "weight": 13,
+  "donDoffTime": {
+    "donMinutes": 1,
+    "doffMinutes": 1
+  }
+}

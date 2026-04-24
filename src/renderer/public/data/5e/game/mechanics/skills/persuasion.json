@@ -1,0 +1,15 @@
+{
+  "id": "persuasion",
+  "name": "Persuasion",
+  "ability": "charisma",
+  "description": "When you attempt to influence someone or a group of people with tact, social graces, or good nature, the DM might ask you to make a Charisma (Persuasion) check. Typically, you use persuasion when acting in good faith, to foster friendships, make cordial requests, or exhibit proper etiquette.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Convince someone to help you",
+    "Negotiate a better deal or price",
+    "Inspire a crowd with a speech",
+    "Make a favorable first impression",
+    "Mediate a dispute between parties"
+  ]
+}

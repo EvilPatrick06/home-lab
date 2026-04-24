@@ -1,0 +1,512 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "elemental-plane-of-earth",
+      "name": "Elemental Plane of Earth",
+      "alternateNames": ["Plane of Earth"],
+      "category": "Inner Plane",
+      "subcategory": "Elemental Earth",
+      "alignments": [],
+      "philosophicalEssence": "Earth symbolizes stability, rigidity, stern resolve, and tradition. The plane's position opposite the Plane of Air in the ring of the Elemental Planes reflects its opposition to almost everything air represents.",
+      "emotionalInfluence": "Elemental Evil views earth as an implacable force of destruction, perfectly willing to crush venerable institutions and respected traditions in its advance. Cultists of Evil Earth crave the power to destroy the works of civilization with landslides, sinkholes, or mighty earthquakes, and they believe the earth thirsts for the blood of those who don't venerate it properly.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A chain of mountains rising higher than any mountain range on the Material Plane, honeycombed with vast caverns",
+        "breathableAtmosphere": false,
+        "atmosphereNotes": "No air surrounds the peaks of its highest mountains. Most visitors arrive by way of vast caverns that honeycomb the mountains. In the outer regions of the plane, little air can be found. At the innermost edges, where the plane is conceptually closest to the Material Plane, the four elements mingle as they do on the Material Plane.",
+        "temperature": {
+          "category": "variable",
+          "description": "Temperature varies by region. The Furnaces near the Para-elemental Plane of Magma are extremely hot with lava seeping through caverns and air reeking of sulfur. Other cavern regions are more temperate."
+        },
+        "hasSurface": true,
+        "dominantElement": "Earth",
+        "weatherPatterns": "No weather in the traditional sense. The plane is dominated by solid earth, stone, and caverns. Near the Para-elemental Plane of Magma, lava seeps through caverns. Near the Para-elemental Plane of Ooze, landslides erode hills into bottomless swamp."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "No specific time flow alteration is described for the Elemental Plane of Earth."
+      },
+      "hazards": [
+        {
+          "id": "earth-no-air-peaks",
+          "name": "Airless Mountain Peaks",
+          "description": "No air surrounds the peaks of the highest mountains on the Plane of Earth. Creatures that require air to breathe face suffocation at these extreme elevations.",
+          "category": "environmental",
+          "severity": "lethal",
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": ["Elemental", "Construct", "Undead"],
+          "immuneDamageTypes": [],
+          "immuneTraits": ["does not need to breathe"],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Earth"
+        },
+        {
+          "id": "earth-outer-regions-hostile",
+          "name": "Hostile Outer Regions",
+          "description": "As the Elemental Plane of Earth extends farther from the Material Plane, it becomes increasingly unstable and hostile. In the outer regions, the element of earth exists in its purest form: great expanses of solid earth. Any foreign substance is extremely rare; little air can be found in the outer reaches of the Plane of Earth. These areas are much less hospitable to travelers from the Material Plane than the border regions are.",
+          "category": "environmental",
+          "severity": "severe",
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": ["Elemental"],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Inner Planes"
+        },
+        {
+          "id": "earth-furnaces-lava",
+          "name": "Lava and Sulfur in the Furnaces",
+          "description": "The Furnaces are the mountains nearest the Para-elemental Plane of Magma. Lava seeps through their caverns, and the air reeks of sulfur.",
+          "category": "elemental",
+          "severity": "major",
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": ["Fire"],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Earth"
+        },
+        {
+          "id": "earth-mud-hills-landslides",
+          "name": "Mud Hills Landslides",
+          "description": "The Mud Hills abut the swampy Para-elemental Plane of Ooze. Landslides wear away the slopes of the hills, sending cascades of earth and stone into the bottomless swamp. The Plane of Earth constantly regenerates the land, pushing new hills up as the old ones erode to nothing.",
+          "category": "physical",
+          "severity": "moderate",
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Earth"
+        },
+        {
+          "id": "city-of-jewels-theft-alarm",
+          "name": "City of Jewels Anti-Theft Ward",
+          "description": "The City of Jewels is protected by a powerful spell that alerts the entire population if a visitor steals even a single stone.",
+          "category": "magical",
+          "severity": "major",
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Elemental Plane of Earth"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [
+        {
+          "id": "earth-ethereal-curtain",
+          "type": "natural",
+          "name": "Ethereal Curtain to Plane of Earth",
+          "destination": "Border Ethereal overlapping the Elemental Plane of Earth",
+          "destinationPlane": "Ethereal Plane",
+          "bidirectional": true,
+          "colorOrAppearance": "Chestnut"
+        },
+        {
+          "id": "earth-vortex-general",
+          "type": "vortex",
+          "name": "Elemental Vortices",
+          "destination": "Material Plane locations with strong earth features",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "Vortices join the Elemental Plane of Earth with very similar locations on the Material Plane, such as deep underground caverns or mountain interiors"
+          }
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "earth-to-magma",
+          "name": "Border with Para-elemental Plane of Magma",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Earth", "Para-elemental Plane of Magma"],
+          "description": "The Furnaces are the mountains nearest the Para-elemental Plane of Magma. Lava seeps through their caverns, and the air reeks of sulfur. The dao have great forges and smelting furnaces here to process ores and shape precious metals.",
+          "hazards": ["Lava", "Sulfurous air"],
+          "isOneWay": false
+        },
+        {
+          "id": "earth-to-ooze",
+          "name": "Border with Para-elemental Plane of Ooze",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Earth", "Para-elemental Plane of Ooze"],
+          "description": "The Mud Hills abut the swampy Para-elemental Plane of Ooze. Landslides wear away the slopes of the hills, sending cascades of earth and stone into the bottomless swamp.",
+          "hazards": ["Landslides", "Bottomless swamp"],
+          "isOneWay": false
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental", "Dao (Genie)", "Xorn", "Gargoyle", "Mephit", "Earth Elemental"],
+        "notableEntities": [
+          {
+            "name": "Elemental Princes of Evil",
+            "title": "Primordial beings of pure elemental fury",
+            "creatureType": "Elemental",
+            "description": "The outer regions of the Elemental Planes are the domains of the Elemental Princes of Evil—primordial beings of pure elemental fury."
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Dao",
+            "race": "Genie",
+            "description": "The dao take great pride in their wealth and send teams across the plane in search of new veins of ore and gemstones. They rule the City of Jewels and operate great forges and smelting furnaces in the Furnaces region.",
+            "location": "City of Jewels (Great Dismal Delve / Sevenfold Mazework)"
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [
+        {
+          "id": "city-of-jewels",
+          "name": "City of Jewels",
+          "type": "City",
+          "ruler": {
+            "name": "Dao",
+            "title": "Rulers of the City of Jewels",
+            "description": "The dao take great pride in their wealth and send teams across the plane in search of new veins of ore and gemstones."
+          },
+          "description": "The plane's largest cavern, called the Great Dismal Delve or the Sevenfold Mazework, is home to the City of Jewels—the capital city of the dao. Every building and significant object in the city is made from precious stones and metals, including the slender gemstone-inlaid spires that top most buildings. The city is protected by a powerful spell that alerts the entire population if a visitor steals even a single stone.",
+          "hazards": ["Anti-theft magical ward"]
+        },
+        {
+          "id": "furnaces",
+          "name": "The Furnaces",
+          "type": "Region",
+          "description": "The Furnaces are the mountains nearest the Para-elemental Plane of Magma. Lava seeps through their caverns, and the air reeks of sulfur. The dao have great forges and smelting furnaces here to process ores and shape precious metals.",
+          "hazards": ["Lava", "Sulfurous air"]
+        },
+        {
+          "id": "mud-hills",
+          "name": "Mud Hills",
+          "type": "Region",
+          "description": "The Mud Hills abut the swampy Para-elemental Plane of Ooze. Landslides wear away the slopes of the hills, sending cascades of earth and stone into the bottomless swamp. The Plane of Earth constantly regenerates the land, pushing new hills up as the old ones erode to nothing.",
+          "hazards": ["Landslides"]
+        }
+      ],
+      "adventureThemes": [
+        "Stability versus destruction",
+        "Elemental Evil cultists seeking power to destroy civilization with landslides, sinkholes, or earthquakes",
+        "Opposition to the ideals of the Plane of Air",
+        "Exploring vast cavern systems and mountain ranges",
+        "Dao wealth and politics",
+        "Confronting the implacable force of elemental earth"
+      ],
+      "adventureSituations": [],
+      "etherealCurtainColor": "Chestnut",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some portals function like doorways; others are locations that exist on multiple planes at once. Vortices join an Elemental Plane with a very similar location on the Material Plane.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting portal requirements (command, key item, random timing, situation, or time-based)",
+        "Possibly defeating a guardian"
+      ],
+      "associatedSpells": [],
+      "risks": ["Guardians", "Portal requirements may be difficult to meet", "Portals may not be open at all times"],
+      "destinations": ["Any plane connected by the specific portal"]
+    },
+    {
+      "id": "spells-planar-travel",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Ability to cast the appropriate spell", "Spell components"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in destination"],
+      "destinations": ["Any plane depending on the spell used"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

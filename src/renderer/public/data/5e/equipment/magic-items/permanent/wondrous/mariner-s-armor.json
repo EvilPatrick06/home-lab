@@ -1,0 +1,24 @@
+{
+  "name": "Mariner's Armor",
+  "itemType": "Armor",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "While wearing this armor, you have a Swim Speed equal to your Speed. In addition, if you start your turn underwater with 0 Hit Points, you immediately regain 1d4 Hit Points. The armor can't heal anyone again until the next dawn.\n\nThe armor is decorated with fish and shell motifs.",
+  "properties": [
+    {
+      "name": "Swim Speed",
+      "description": "Your Swim Speed is equal to your Speed."
+    },
+    {
+      "name": "Underwater Healing",
+      "description": "If you start your turn underwater with 0 Hit Points, you immediately regain 1d4 Hit Points."
+    }
+  ],
+  "weight": 0,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

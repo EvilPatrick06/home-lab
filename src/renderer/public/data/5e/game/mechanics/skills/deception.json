@@ -1,0 +1,15 @@
+{
+  "id": "deception",
+  "name": "Deception",
+  "ability": "charisma",
+  "description": "Your Charisma (Deception) check determines whether you can convincingly hide the truth, whether through verbal misdirection, disguise, or actions. This deception encompasses everything from misleading others through ambiguity to telling outright lies.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Fast-talk or con someone",
+    "Pass yourself off in a disguise",
+    "Mislead someone through ambiguous language",
+    "Tell a convincing lie",
+    "Feint in social situations to create a false impression"
+  ]
+}

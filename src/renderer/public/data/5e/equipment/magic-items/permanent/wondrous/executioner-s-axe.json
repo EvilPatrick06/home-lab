@@ -1,0 +1,17 @@
+{
+  "name": "Executioner's Axe",
+  "itemType": "Weapon",
+  "rarity": "Very Rare",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "You gain a +1 bonus to attack rolls and damage rolls made with this magic weapon.\n\nAny Humanoid you hit with the weapon takes an extra 2d6 Slashing damage, and you gain Temporary Hit Points equal to the extra damage dealt.",
+  "properties": null,
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024",
+  "damage": {
+    "count": 2,
+    "die": 6,
+    "type": "Slashing"
+  }
+}

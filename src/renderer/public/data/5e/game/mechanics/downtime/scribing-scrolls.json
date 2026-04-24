@@ -1,0 +1,24 @@
+{
+  "id": "scribing-scrolls",
+  "name": "Scribing Spell Scrolls",
+  "description": "With time and patience, a spellcaster can transfer a spell to a scroll, creating a Spell Scroll. The character must have the spell prepared or among their known spells, and must provide any material components required by the spell. The character must also have proficiency in the Arcana skill.",
+  "requirements": [
+    "The spell must be prepared or known by the character",
+    "The character must provide material components consumed by the spell",
+    "Proficiency in the Arcana skill",
+    "Appropriate writing materials (ink, quill, parchment)"
+  ],
+  "costByLevel": [
+    { "spellLevel": "Cantrip", "time": "1 day", "timeDays": 1, "cost": "15 GP", "costGP": 15 },
+    { "spellLevel": "1st", "time": "1 day", "timeDays": 1, "cost": "25 GP", "costGP": 25 },
+    { "spellLevel": "2nd", "time": "3 days", "timeDays": 3, "cost": "250 GP", "costGP": 250 },
+    { "spellLevel": "3rd", "time": "1 workweek", "timeDays": 5, "cost": "500 GP", "costGP": 500 },
+    { "spellLevel": "4th", "time": "2 workweeks", "timeDays": 10, "cost": "2,500 GP", "costGP": 2500 },
+    { "spellLevel": "5th", "time": "4 workweeks", "timeDays": 20, "cost": "5,000 GP", "costGP": 5000 },
+    { "spellLevel": "6th", "time": "8 workweeks", "timeDays": 40, "cost": "15,000 GP", "costGP": 15000 },
+    { "spellLevel": "7th", "time": "16 workweeks", "timeDays": 80, "cost": "25,000 GP", "costGP": 25000 },
+    { "spellLevel": "8th", "time": "32 workweeks", "timeDays": 160, "cost": "50,000 GP", "costGP": 50000 },
+    { "spellLevel": "9th", "time": "48 workweeks", "timeDays": 240, "cost": "250,000 GP", "costGP": 250000 }
+  ],
+  "notes": "If the scribing is interrupted, the attempt fails and the materials are wasted. A day of scribing requires 8 hours of work."
+}

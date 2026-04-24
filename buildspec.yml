@@ -1,0 +1,27 @@
+version: 0.2
+
+env:
+  variables:
+    ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+    CI: "true"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - npm ci --ignore-scripts
+  pre_build:
+    commands:
+      - npm run lint
+      - npx tsc --noEmit
+      - npx knip --no-exit-code || true
+      - npx madge --circular --extensions ts,tsx src/
+      - npm audit --audit-level=critical
+  build:
+    commands:
+      - npm test
+
+cache:
+  paths:
+    - "node_modules/**/*"

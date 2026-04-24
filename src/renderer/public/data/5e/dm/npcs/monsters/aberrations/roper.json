@@ -1,0 +1,67 @@
+{
+  "name": "Roper",
+  "slug": "roper",
+  "size": "Large",
+  "type": "Aberration",
+  "alignment": "Neutral Evil",
+  "ac": "20",
+  "initiative": "+5 (15)",
+  "hp": "93",
+  "hpFormula": "11d10 + 33",
+  "speed": "10 ft., Climb 20 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 8,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": -1,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +6, Stealth +5",
+  "senses": "Darkvision 60 ft.; Passive Perception 16",
+  "languages": "None",
+  "cr": "5 (XP 1,800; PB +3)",
+  "traits": [
+    {
+      "name": "Spider Climb",
+      "description": "The roper can climb difficult surfaces, including along ceilings, without needing to make an ability check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The roper makes two Tentacle attacks, uses Reel, and makes two Bite attacks."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 17 (3d8 + 4) Piercing damage."
+    },
+    {
+      "name": "Tentacle",
+      "description": "*Melee Attack Roll:* +7, reach 60 ft. *Hit:* The target has the Grappled condition (escape DC 14) from one of six tentacles, and the target has the Poisoned condition until the grapple ends."
+    },
+    {
+      "name": "Reel",
+      "description": "The roper pulls each creature Grappled by it up to 30 feet straight toward it."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Tentacled Subterranean Trapper*\n**Habitat:** Underdark; **Treasure:** Any\nCamouflaged as rock formations, ropers are aberrant ambushers that lurk in wait for smaller creatures. These bizarre subterranean hunters extend their rubbery tentacles to explore and prod their surroundings, often reaching beyond their fields of vision. Should they encounter prey, these limbs ensnare victims and drag them close to ropers' toothy maws. If these tentacles are severed, ropers rapidly grow replacements.\nRopers can move, albeit slowly. Crawling on the sticky cilia that cover their undersides, ropers can climb walls and suspend themselves from ceilings. These hunters often position themselves in unexpected or treacherous locations, using their surroundings to weaken their prey. Roll on or choose a result from the Roper Hazards table to inspire what dangers ropers employ when ambushing prey.\n\\*See the *Dungeon Master's Guide*.\n> \"Rule 9: Never trust a stalagmite.\" -- X the Mystic's Rules of Dungeon Survival",
+  "habitat": "Underdark",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

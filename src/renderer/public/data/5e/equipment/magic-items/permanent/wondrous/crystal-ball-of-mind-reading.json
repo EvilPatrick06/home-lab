@@ -1,0 +1,20 @@
+{
+  "name": "Crystal Ball of Mind Reading",
+  "cost": {
+    "amount": 50000,
+    "denomination": "GP"
+  },
+  "weight": 3,
+  "description": "A Crystal Ball of Mind Reading is a Wondrous Item (Legendary) that requires Attunement. You can use an action to cast the Scrying spell (save DC 17) while using the crystal ball as the spell's material component. While scrying with the crystal ball, you can cast Detect Thoughts (save DC 17) targeting creatures you can see within the spell's sensor. You don't need to concentrate on Detect Thoughts when cast this way to maintain it during its duration, but it ends if Scrying ends.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "dcFormula": "17"
+  },
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

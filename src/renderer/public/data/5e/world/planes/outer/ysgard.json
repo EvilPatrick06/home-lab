@@ -1,0 +1,11 @@
+{
+  "name": "Ysgard",
+  "slug": "ysgard",
+  "category": "outer",
+  "description": "**Ysgard** is a rugged realm of soaring mountains, deep fjords, and windswept battlefields, with summers that are long and hot and winters that are cold and unforgiving. Its continents float above oceans of volcanic rock, below which are enormous icy caverns that hold entire kingdoms of giants, humans, dwarves, gnomes, and other beings.\n\nHeroes come to Ysgard to test their mettle not only against the plane itself, but also against giants, dragons, and other mighty creatures across Ysgard's vast terrain.\n\nYsgard is the home of slain heroes who wage eternal battle on fields of glory. Any creature, other than a Construct or Undead, that is killed in combat while in Ysgard is restored to life at dawn the next day. The creature has all its Hit Points restored, and all conditions that affected it before its death are removed.\n\n#### Layers of Ysgard\n\n| Layer | Description |\n|---|---|\n| Ysgard | Immense rivers of floating earth grind together in eternal rumbling. |\n| Muspelheim | The ground smokes and burns beneath the earthbergs of the top layer. |\n| Nidavellir | Floating chunks of earth are closer together, giving the appearance of endless tunnels with rich mineral deposits. |\n\n#### Ysgard Adventures\n\nThe nature of Ysgard is glory earned through heroic deeds in battle. It's the euphoria of an athlete, the exhilaration of a summer storm, and the triumphant celebration of victory. Since those who die on the plane return to life to fight again the next day, Ysgard can overlook the horrors of war and focus entirely on the glory.\n\nAn adventure in Ysgard can be an opportunity for lighthearted combat without consequences, for characters to prove their mettle against truly epic foes and perhaps even against each other. Adventurers might find themselves on the **Plain of Ida** on the topmost layer of Ysgard, where daily festivals let warriors and athletes show off their bravery and skill. Or they might venture into the lower layers to face greater challenges—or secrets buried in the deep caverns of the plane.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 6",
+    "section": "Cosmology"
+  }
+}

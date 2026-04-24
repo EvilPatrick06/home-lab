@@ -1,0 +1,67 @@
+{
+  "name": "Ghast Gravecaller",
+  "slug": "ghast-gravecaller",
+  "size": "Medium",
+  "type": "Undead",
+  "alignment": "Chaotic Evil",
+  "ac": "16",
+  "initiative": "+3 (13)",
+  "hp": "97",
+  "hpFormula": "15d8 + 30",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 17,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 3,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Necrotic, Poison; Charmed, Exhaustion, Poisoned",
+  "senses": "Darkvision 120 ft.; Passive Perception 12",
+  "languages": "Abyssal, Common",
+  "cr": "6 (XP 2,300; PB +3)",
+  "traits": [
+    {
+      "name": "Stench",
+      "description": "*Constitution Saving Throw:* DC 13, any creature that starts its turn in a 5-foot *Emanation* originating from the ghast. *Failure:* The target has the *Poisoned* condition until the start of its next turn. *Success:* The target is immune to this ghast's Stench for 24 hours."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The ghast makes two Horrific Necrosis attacks. It can replace one attack with a Claw attack."
+    },
+    {
+      "name": "Claw",
+      "description": "*Melee Attack Roll:* +6, reach 5 ft. *Hit:* 13 (3d6 + 3) Slashing damage. If the target isn't an Undead, it has the *Paralyzed* condition until the end of its next turn."
+    },
+    {
+      "name": "Horrific Necrosis",
+      "description": "*Melee or Ranged Attack Roll:* +7, reach 5 ft. or range 120 ft. *Hit:* 15 (2d10 + 4) Necrotic damage, and the target has the *Frightened* condition until the end of its next turn."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The ghast casts one of the following spells, requiring no Material components and using Intelligence as the spellcasting ability:"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Tyrants among Corpses*\n**Habitat:** Swamp, Underdark, Urban; **Treasure:** Any\nGhasts are reeking, undying corpses closely related to ghouls. They hunger for the vices they enjoyed in life as much as they do for rotting flesh.\nGhasts frequently organize ghouls into packs to despoil crypts and steal the wealth within.\nGhast gravecallers wield fell magic and converse with corpses. They might pose as liches or vampires.",
+  "habitat": "Swamp, Underdark, Urban",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

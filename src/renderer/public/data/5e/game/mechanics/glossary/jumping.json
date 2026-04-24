@@ -1,0 +1,11 @@
+{
+  "name": "Jumping",
+  "slug": "jumping",
+  "description": "When you take the Jump action, you make a Strength (Athletics) check and cover a number of feet up to the check's total (Long Jump) or one-quarter that total (High Jump, minimum 1 foot). Each foot cleared on a jump costs a foot of movement. If you spend no movement before jumping, the distances are halved. If you land in Difficult Terrain, you must make a DC 10 Dexterity (Acrobatics) check or have the Prone condition.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

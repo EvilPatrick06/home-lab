@@ -1,0 +1,46 @@
+{
+  "name": "Fog Cloud",
+  "level": 1,
+  "school": "Conjuration",
+  "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You create a 20-foot-radius Sphere of fog centered on a point within range. The Sphere is Heavily Obscured. It lasts for the duration or until a strong wind (such as one created by Gust of Wind) disperses it.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 20
+    }
+  ],
+  "targetType": "point",
+  "obscurement": "Heavily",
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "radiusIncrease",
+        "feetPerLevel": 20,
+        "baseSpellLevel": 1,
+        "description": "The fog's radius increases by 20 feet for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["obscurement", "area_control", "wind_dispersible"]
+}

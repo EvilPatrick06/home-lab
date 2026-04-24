@@ -1,0 +1,37 @@
+{
+  "id": "round-durations",
+  "name": "Round Durations",
+  "description": "A round represents about 6 seconds in the game world. During a round, each participant in a battle takes a turn. The order of turns is determined at the beginning of combat by rolling Initiative.",
+  "roundDuration": {
+    "seconds": 6,
+    "description": "A round represents approximately 6 seconds of in-game time."
+  },
+  "turnStructure": {
+    "description": "On your turn, you can move a distance up to your Speed and take one Action. You can also take one Bonus Action and one free object interaction. You may take one Reaction per round (which might occur on someone else's turn).",
+    "components": [
+      {
+        "name": "Movement",
+        "description": "Move up to your Speed. Movement can be broken up before and after actions."
+      },
+      {
+        "name": "Action",
+        "description": "Take one Action: Attack, Cast a Spell, Dash, Disengage, Dodge, Help, Hide, Influence, Magic, Ready, Search, Study, or Utilize."
+      },
+      { "name": "Bonus Action", "description": "Take one Bonus Action if a feature or spell grants one." },
+      {
+        "name": "Reaction",
+        "description": "One Reaction per round, such as an Opportunity Attack. Resets at the start of your next turn."
+      },
+      {
+        "name": "Free Interaction",
+        "description": "Interact with one object or feature of the environment for free, such as drawing a weapon or opening a door."
+      }
+    ]
+  },
+  "timeConversions": {
+    "roundsPerMinute": 10,
+    "roundsPerHour": 600,
+    "minutesPerShortRest": 60,
+    "hoursPerLongRest": 8
+  }
+}

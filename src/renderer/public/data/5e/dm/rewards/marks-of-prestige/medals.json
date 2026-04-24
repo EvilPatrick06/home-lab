@@ -1,0 +1,60 @@
+{
+  "id": "medals",
+  "name": "Medals and Military Honors",
+  "description": "Military decorations awarded for valor, service, and exceptional achievement.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Marks of Prestige"
+  },
+  "medals": [
+    {
+      "id": "medal-of-valor",
+      "name": "Medal of Valor",
+      "description": "Awarded for conspicuous bravery in combat, particularly when the recipient's actions saved comrades or turned the tide of battle.",
+      "mechanicalEffects": [
+        "Military personnel start with a Friendly attitude toward you.",
+        "Advantage on Charisma (Persuasion) checks when rallying troops or requesting military aid."
+      ]
+    },
+    {
+      "id": "kings-cross",
+      "name": "King's Cross",
+      "description": "The highest military honor, awarded by the sovereign personally for extraordinary heroism beyond the call of duty.",
+      "mechanicalEffects": [
+        "All citizens of the awarding nation start with an Indifferent or better attitude.",
+        "Free lodging and meals in any military outpost.",
+        "You can request an audience with the monarch."
+      ]
+    },
+    {
+      "id": "defenders-shield",
+      "name": "Defender's Shield",
+      "description": "Awarded for successful defense of a city, fort, or strategic position against overwhelming odds.",
+      "mechanicalEffects": [
+        "Advantage on Charisma checks when dealing with the populace of the defended location.",
+        "You are recognized and honored by the local population.",
+        "You may call upon the local garrison for limited aid."
+      ]
+    },
+    {
+      "id": "star-of-service",
+      "name": "Star of Service",
+      "description": "Awarded for long and distinguished military service, typically 10 or more years.",
+      "mechanicalEffects": [
+        "Military pension of 2 gp per month.",
+        "Right to use military training grounds and armories.",
+        "Advantage on Intelligence (History) checks related to military campaigns and tactics."
+      ]
+    },
+    {
+      "id": "dragons-bane-commendation",
+      "name": "Dragon's Bane Commendation",
+      "description": "Awarded for slaying a dragon or similar legendary threat that endangered a community.",
+      "mechanicalEffects": [
+        "Your reputation precedes you; common folk treat you as Friendly.",
+        "Advantage on Charisma (Intimidation) checks against creatures of the same type as the one slain.",
+        "Bards may compose songs about your deed, granting you fame across the region."
+      ]
+    }
+  ]
+}

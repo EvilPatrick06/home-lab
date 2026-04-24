@@ -1,0 +1,64 @@
+{
+  "name": "Starry Wisp",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Bard", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You launch a mote of light at one creature or object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d8 Radiant damage, and until the end of your next turn, it emits Dim Light in a 10-foot radius and can't benefit from the Invisible condition.",
+  "targetCount": 1,
+  "targetType": "creatureOrObject",
+  "attackType": "RangedSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": "Radiant",
+      "applicationType": "onHit"
+    }
+  ],
+  "light": {
+    "dimRadiusFeet": 10
+  },
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 8,
+        "description": "The damage increases to 2d8 Radiant damage."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 8,
+        "description": "The damage increases to 3d8 Radiant damage."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 8,
+        "description": "The damage increases to 4d8 Radiant damage."
+      }
+    ]
+  },
+  "tags": ["cantrip", "attack", "radiant", "anti-invisibility", "light"]
+}

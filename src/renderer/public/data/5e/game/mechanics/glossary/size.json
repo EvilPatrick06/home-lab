@@ -1,0 +1,11 @@
+{
+  "name": "Size",
+  "slug": "size",
+  "description": "A creature belongs to a size category: Tiny, Small, Medium, Large, Huge, or Gargantuan.\n\n| Size | Space |\n|---|---|\n| Tiny | 2.5 by 2.5 ft. |\n| Small | 5 by 5 ft. |\n| Medium | 5 by 5 ft. |\n| Large | 10 by 10 ft. |\n| Huge | 15 by 15 ft. |\n| Gargantuan | 20 by 20 ft. or larger |",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

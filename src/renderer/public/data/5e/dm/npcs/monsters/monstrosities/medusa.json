@@ -1,0 +1,197 @@
+{
+  "name": "Medusa",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "alignment": "Lawful Evil",
+  "habitat": ["Desert", "Ruins"],
+  "treasure": ["Any"],
+  "lore": "Medusas are accursed creatures whose terrible gazes petrify any who meet their eyes. Once mortals, they were transformed by divine curses or dark bargains, and now they dwell in lonely ruins surrounded by the stone remnants of past victims. A medusa's serpentine hair hisses and strikes at those who draw near, and the venom of its bite courses through the blood of its prey. Some medusas attempt to carry on facsimiles of their former lives, decorating their lairs with petrified 'guests' posed as if at a grand gathering.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 127,
+    "dice": {
+      "count": 17,
+      "die": "d8",
+      "modifier": 51
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 5
+    },
+    {
+      "skill": "Insight",
+      "bonus": 4
+    },
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "gear": [
+    {
+      "name": "Shortbow",
+      "quantity": 1
+    },
+    {
+      "name": "Arrows",
+      "quantity": 20
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Petrifying Gaze",
+      "description": "When a creature that can see the medusa's eyes starts its turn within 30 feet of the medusa, the medusa can force it to make a DC 14 Constitution saving throw if the medusa isn't Incapacitated and can see the creature. If the saving throw fails by 5 or more, the creature has the Petrified condition. Otherwise, a creature that fails the save begins to turn to stone and has the Restrained condition. The Restrained creature must repeat the saving throw at the end of its next turn, becoming Petrified on a failure or ending the effect on a success. The petrification lasts until the creature is freed by the Greater Restoration spell or other magic.\n\nA creature that isn't Surprised can avert its eyes to avoid the saving throw at the start of its turn. If the creature does so, it can't see the medusa until the start of its next turn, when it can avert its eyes again. If the creature looks at the medusa in the meantime, it must immediately make the save.\n\nIf the medusa sees itself reflected on a polished surface within 30 feet of it and in an area of Bright Light, the medusa, due to its curse, is affected by its own gaze."
+    }
+  ],
+  "multiattack": {
+    "description": "The medusa makes three Snake Bite attacks. It can replace one attack with a use of Shortbow.",
+    "attacks": [
+      {
+        "actionName": "Snake Bite",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Snake Bite",
+        "replaceCount": 1,
+        "with": "Shortbow"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Snake Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 5 (1d6 + 2) Piercing damage plus 7 (2d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shortbow",
+      "description": "Ranged Attack Roll: +5, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage plus 7 (2d6) Poison damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 5,
+        "range": {
+          "normal": 80,
+          "long": 320
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

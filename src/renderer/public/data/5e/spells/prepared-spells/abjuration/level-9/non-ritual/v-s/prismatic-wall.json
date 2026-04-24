@@ -1,0 +1,205 @@
+{
+  "name": "Prismatic Wall",
+  "level": 9,
+  "school": "Abjuration",
+  "classes": ["Bard", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "A shimmering, multicolored plane of light forms a vertical opaque wall — up to 90 feet long, 30 feet high, and 1 inch thick — centered on a point within range. Alternatively, you shape the wall into a globe up to 30 feet in diameter centered on a point within range. The wall lasts for the duration. If you position the wall in a space occupied by a creature, the spell ends instantly without effect. The wall sheds Bright Light within 100 feet and Dim Light for an additional 100 feet. You and creatures you designate when you cast the spell can pass through and be near the wall without harm. If another creature that can see the wall moves within 20 feet of it or starts its turn there, the creature must succeed on a Constitution saving throw or have the Blinded condition for 1 minute. The wall consists of seven layers, each with a different color. When a creature reaches into or passes through the wall, it does so one layer at a time through all the layers. Each layer forces the creature to make a Dexterity saving throw or be affected by that layer's properties as described in the Prismatic Layers table. The wall, which has AC 10, can be destroyed one layer at a time, in order from red to violet, by means specific to each layer. Antimagic Field has no effect on the wall, and Dispel Magic can affect only the violet layer.",
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "areaOfEffect": [
+    {
+      "shape": "Wall",
+      "lengthFeet": 90,
+      "heightFeet": 30
+    },
+    {
+      "shape": "Globe",
+      "diameterFeet": 30
+    }
+  ],
+  "savingThrow": {
+    "ability": "Constitution",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "Blinded condition for 1 minute"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Blinded",
+      "trigger": "custom",
+      "duration": "1 minute"
+    }
+  ],
+  "createsWall": true,
+  "light": {
+    "brightRadiusFeet": 100,
+    "dimRadiusFeet": 100
+  },
+  "spellOptions": [
+    {
+      "name": "Red Layer",
+      "description": "Failed Save: 12d6 Fire damage. Successful Save: Half as much damage. Nonmagical ranged attacks can't pass through this layer, which is destroyed if it takes at least 25 Cold damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Fire",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Dexterity",
+        "halfDamageOnSuccess": true
+      }
+    },
+    {
+      "name": "Orange Layer",
+      "description": "Failed Save: 12d6 Acid damage. Successful Save: Half as much damage. Magical ranged attacks can't pass through this layer, which is destroyed by a strong wind (such as the one created by Gust of Wind).",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Acid",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Dexterity",
+        "halfDamageOnSuccess": true
+      }
+    },
+    {
+      "name": "Yellow Layer",
+      "description": "Failed Save: 12d6 Lightning damage. Successful Save: Half as much damage. The layer is destroyed if it takes at least 60 Force damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Lightning",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Dexterity",
+        "halfDamageOnSuccess": true
+      }
+    },
+    {
+      "name": "Green Layer",
+      "description": "Failed Save: 12d6 Poison damage. Successful Save: Half as much damage. A Passwall spell, or another spell of equal or greater level that can open a portal on a solid surface, destroys this layer.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Poison",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Dexterity",
+        "halfDamageOnSuccess": true
+      }
+    },
+    {
+      "name": "Blue Layer",
+      "description": "Failed Save: 12d6 Cold damage. Successful Save: Half as much damage. The layer is destroyed if it takes at least 25 Fire damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Cold",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Dexterity",
+        "halfDamageOnSuccess": true
+      }
+    },
+    {
+      "name": "Indigo Layer",
+      "description": "Failed Save: The target has the Restrained condition and makes a Constitution saving throw at the end of each of its turns. If it successfully saves three times, the condition ends. If it fails three times, it has the Petrified condition until it is freed by an effect like the Greater Restoration spell. The successes and failures needn't be consecutive; keep track of both until the target collects three of a kind. This layer is destroyed by Bright Light shed by the Daylight spell.",
+      "conditionsApplied": [
+        {
+          "condition": "Restrained",
+          "trigger": "onFailedSave",
+          "savingThrowToEnd": {
+            "ability": "Constitution",
+            "timing": "endOfTurn"
+          }
+        },
+        {
+          "condition": "Petrified",
+          "trigger": "custom",
+          "duration": "Until freed by Greater Restoration or similar magic"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Dexterity",
+        "noEffectOnSuccess": true,
+        "effectOnFailure": "Restrained condition with repeated Constitution saves; three failures result in the Petrified condition",
+        "repeatSave": {
+          "timing": "endOfTurn",
+          "endsEffectOnSuccess": false,
+          "threeSuccessesRequired": true,
+          "threeFailuresEffect": "Petrified condition until freed by Greater Restoration or similar magic"
+        }
+      }
+    },
+    {
+      "name": "Violet Layer",
+      "description": "Failed Save: The target has the Blinded condition and makes a Wisdom saving throw at the start of the caster's next turn. On a successful save, the condition ends. On a failed save, the condition ends, and the creature teleports to another plane of existence (DM's choice). This layer is destroyed by Dispel Magic.",
+      "conditionsApplied": [
+        {
+          "condition": "Blinded",
+          "trigger": "onFailedSave",
+          "savingThrowToEnd": {
+            "ability": "Wisdom",
+            "timing": "custom",
+            "customTiming": "Start of caster's next turn"
+          }
+        }
+      ],
+      "savingThrow": {
+        "ability": "Dexterity",
+        "noEffectOnSuccess": true,
+        "effectOnFailure": "Blinded condition; Wisdom save at start of caster's next turn; on failed save the creature is teleported to another plane of existence (DM's choice)"
+      }
+    }
+  ],
+  "tags": ["wall", "layered", "multicolor", "planar", "control"]
+}

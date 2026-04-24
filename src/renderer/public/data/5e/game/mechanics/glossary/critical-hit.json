@@ -1,0 +1,11 @@
+{
+  "name": "Critical Hit",
+  "slug": "critical-hit",
+  "description": "If you roll a 20 on the d20 for an attack roll, the attack hits regardless of any modifiers or the target's AC. This is called a Critical Hit. When you score a Critical Hit, you roll all of the attack's damage dice twice and add them together. Then add any relevant modifiers as normal.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Sap",
+  "slug": "sap",
+  "category": "Weapon Mastery",
+  "description": "If you hit a creature with this weapon, that creature has Disadvantage on its next attack roll before the start of your next turn.",
+  "mechanicalEffect": {
+    "trigger": "hit",
+    "type": "debuff",
+    "effect": "Disadvantage on next attack roll",
+    "duration": "Before start of your next turn"
+  },
+  "weaponsWithMastery": ["Flail", "Longsword", "Mace", "Morningstar"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapon Mastery"
+  }
+}

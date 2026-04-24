@@ -1,0 +1,27 @@
+{
+  "name": "Glaive",
+  "category": "Martial",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 20,
+    "denomination": "GP"
+  },
+  "damage": {
+    "count": 1,
+    "die": 10,
+    "type": "Slashing"
+  },
+  "weight": 6,
+  "properties": [
+    {
+      "property": "Heavy"
+    },
+    {
+      "property": "Reach"
+    },
+    {
+      "property": "Two-Handed"
+    }
+  ],
+  "mastery": "Graze"
+}

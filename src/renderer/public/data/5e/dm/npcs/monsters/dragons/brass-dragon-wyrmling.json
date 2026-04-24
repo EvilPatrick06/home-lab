@@ -1,0 +1,59 @@
+{
+  "name": "Brass Dragon Wyrmling",
+  "slug": "brass-dragon-wyrmling",
+  "size": "Medium",
+  "type": "Dragon",
+  "alignment": "Chaotic Good",
+  "ac": "15",
+  "initiative": "+2 (12)",
+  "hp": "22",
+  "hpFormula": "4d8 + 4",
+  "speed": "30 ft., Burrow 15 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 10,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": 2,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4, Stealth +2",
+  "immunities": "Fire",
+  "senses": "Blindsight 10 ft., Darkvision 60 ft.; Passive Perception 14",
+  "languages": "Draconic",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 7 (1d10 + 2) Slashing damage."
+    },
+    {
+      "name": "Fire Breath (Recharge 5--6)",
+      "description": "*Dexterity Saving Throw:* DC 11, each creature in a 20-foot-long, 5-foot-wide Line. *Failure:* 14 (4d6) Fire damage. *Success:* Half damage."
+    },
+    {
+      "name": "Sleep Breath",
+      "description": "*Constitution Saving Throw:* DC 11, each creature in a 15-foot Cone. *Failure:* The target has the Incapacitated condition until the end of its next turn, at which point it repeats the save. *Second Failure:* The target has the Unconscious condition for 1 minute. This effect ends for the target if it takes damage or a creature within 5 feet of it takes an action to wake it."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Dragon of Lore and Rapport*\n**Habitat:** Desert; **Treasure:** Arcana\nGregarious and outgoing, brass dragons relish sharing knowledge and stories. Although these metallic dragons favor arid lands, they cheerfully journey considerable distances to visit friendly creatures, pass on what they've learned, and collect news. Though good natured, brass dragons don't shirk from combat when necessary, thwarting foes with magical sleep and searing them with flame.\nBrass dragons favor warm climes, particularly steppes and rocky or sandy deserts, and they usually dwell near prominent crossroads or oases that regularly draw visitors. They enjoy adopting Humanoid forms, disguising themselves as traveling merchants, scholars, storytellers, or anyone else invested in others' stories.\nBrass dragons collect eclectic objects. While such items might seem like knickknacks, each is part of a story -- perhaps a nostalgic memento or evidence of a tale passed into myth. An old friend's hat and the crown of the last ruler of a forgotten dynasty could occupy the same shelf in a brass dragon's hoard.\nBrass dragon wyrmlings are relentlessly curious. These dragons eagerly engage approachable creatures and are quick to explore any place that has an interesting story. Once they hear tales of adventure, many are keen to start their own quests.\nYoung brass dragons travel extensively, often spending a few years in a region before circling back to their lair. Some work closely with other metallic dragons, carrying information between allies.\nAdult brass dragons know many secrets and have vast networks of contacts. These dragons share perspectives they've learned from across the world and passionately combat the lies of con artists and villains that lead people astray.\nAncient brass dragons create worlds-spanning networks. They combat forces of repression and misinformation, helping people learn from the mistakes of the past. Either personally or through webs of messengers, ancient brass dragons keep allies informed about challenges they can face together.\n> ### Brass Dragon Lairs\n>\n> Brass dragons usually dwell in secret caves and canyons near well-traveled routes.\n>\n> The area containing an adult or ancient brass dragon's lair is altered by its presence, creating the following effects:\n>\n> ***Mirages.*** While in its lair, the dragon can cast *Major Image*, requiring no Material components and using the same spellcasting ability as its Spellcasting action. When casting the spell this way, the spell's range is 1 mile, and the dragon doesn't need to see the spot where the illusion appears.\n>\n> ***Refreshing Water.*** Water within 1 mile of the lair is magically refreshing. A creature that drinks such water gains 2d4 Temporary Hit Points, and the dragon is immediately aware of the creature's presence.\n>\n> If the dragon dies or moves its lair elsewhere, these effects end immediately.",
+  "habitat": "Desert",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Dragons-Metallic",
+    "file": "Dragons-Metallic.md"
+  }
+}

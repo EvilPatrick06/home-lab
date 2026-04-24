@@ -1,0 +1,240 @@
+{
+  "name": "Rakshasa",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Urban"],
+  "treasure": ["Any"],
+  "lore": "Rakshasas are fiends that cloak themselves in the guises of mortals, infiltrating societies to amass wealth, power, and influence. Behind the pleasing exterior lies a cruel, calculating predator with backward-facing hands and the head of a beast—most often a tiger. Slain rakshasas inevitably reform on the Lower Planes and plot their revenge, making them recurring threats across lifetimes. They delight in corrupting others, using charm and deception to turn mortals against one another while savoring their victims' despair.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 150,
+    "dice": {
+      "count": 20,
+      "die": "d8",
+      "modifier": 60
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 8,
+    "score": 18
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 8
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 15,
+      "modifier": 2,
+      "save": 7
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 8
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 10
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 10
+    },
+    {
+      "skill": "Insight",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    }
+  ],
+  "vulnerabilities": ["Piercing from magic weapons wielded by good-aligned creatures"],
+  "damageImmunities": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "conditionImmunities": ["Charmed", "Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 60
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common", "Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "13",
+  "experiencePoints": 10000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Limited Magic Immunity",
+      "description": "The rakshasa can't be affected or detected by spells of 6th level or lower unless it wishes to be. It has Advantage on saving throws against all other spells and magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 18,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Disguise Self",
+              "level": 1
+            },
+            {
+              "name": "Mage Hand",
+              "level": 0
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Charm Person",
+              "level": 1
+            },
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Fly",
+              "level": 3
+            },
+            {
+              "name": "Suggestion",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dominate Person",
+              "level": 5
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            },
+            {
+              "name": "True Seeing",
+              "level": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The rakshasa makes two Claw attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 10 (2d6 + 3) Slashing damage plus 14 (4d6) Psychic damage. If the target is a creature, it is cursed. While cursed, the target gains no benefit from finishing a Short or Long Rest. The curse lasts until it is lifted by a Remove Curse spell or similar magic.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ],
+          "additionalEffects": "If the target is a creature, it is cursed. While cursed, the target gains no benefit from finishing a Short or Long Rest. The curse lasts until it is lifted by a Remove Curse spell or similar magic."
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The rakshasa casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 18):\n\nAt will: Detect Thoughts, Disguise Self, Mage Hand, Minor Illusion\n\n3/day each: Charm Person, Detect Magic, Fly, Suggestion\n\n1/day each: Dominate Person, Plane Shift (self only), True Seeing"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The rakshasa shape-shifts into a Medium or Small Humanoid or back to its true form. Its statistics, other than its size, are the same in each form. Any equipment it is wearing or carrying isn't transformed. It reverts to its true form if it dies."
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "name": "Umber Hulk",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Any"],
+  "lore": "An umber hulk is a hulking, beetle-like predator that tunnels through the earth with its massive claws and confounds prey with its terrible gaze. Umber hulks burrow through the Underdark, collapsing tunnels behind them and ambushing unwary travelers. Their alien eyes produce a bewildering effect that leaves victims stumbling and confused, easy pickings for the hulk's powerful mandibles.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 93,
+    "dice": {
+      "count": 11,
+      "die": "d10",
+      "modifier": 33
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Burrow",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      },
+      {
+        "type": "Tremorsense",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Umber Hulk"],
+    "notes": "understands Umber Hulk but can't speak"
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Tunneler",
+      "description": "The umber hulk can burrow through solid rock at half its Burrow Speed and leaves a 5-foot-wide, 8-foot-high tunnel in its wake."
+    }
+  ],
+  "multiattack": {
+    "description": "The umber hulk makes two Claw attacks and one Mandibles attack.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      },
+      {
+        "actionName": "Mandibles",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 14 (2d8 + 5) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Mandibles",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 16 (2d10 + 5) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Confusing Gaze",
+      "description": "The umber hulk targets one creature it can see within 30 feet of itself. The target must succeed on a DC 15 Charisma saving throw or the target can't take Reactions and rolls 1d8 to determine its behavior during its next turn. On a 1 to 4, the target does nothing. On a 5 or 6, the target takes no action or Bonus Action and uses all its movement to move in a randomly determined direction. On a 7 or 8, the target makes one melee attack against a randomly determined creature within its reach or does nothing if no creature is within reach. On a successful save, the target is immune to this umber hulk's Confusing Gaze for 24 hours.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CHA",
+        "dc": 15,
+        "targets": "one creature the umber hulk can see within 30 feet of itself",
+        "onFailure": {
+          "effects": "The target can't take Reactions and rolls 1d8 to determine its behavior during its next turn. On a 1 to 4, the target does nothing. On a 5 or 6, the target takes no action or Bonus Action and uses all its movement to move in a randomly determined direction. On a 7 or 8, the target makes one melee attack against a randomly determined creature within its reach or does nothing if no creature is within reach."
+        },
+        "onSuccess": {
+          "effects": "The target is immune to this umber hulk's Confusing Gaze for 24 hours."
+        }
+      }
+    }
+  ]
+}

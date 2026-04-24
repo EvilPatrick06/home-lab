@@ -1,0 +1,34 @@
+{
+  "id": "wild-magic-sorcery",
+  "name": "Wild Magic Sorcery",
+  "className": "Sorcerer",
+  "level": 3,
+  "description": "Unleash Chaotic Magic",
+  "features": [
+    {
+      "name": "Wild Magic Surge",
+      "level": 3,
+      "description": "Your spellcasting can unleash surges of untamed magic. Once per turn, you can roll 1d20 immediately after you cast a Sorcerer spell with a spell slot. If you roll a 20, roll on the Wild Magic Surge table to create a magical effect."
+    },
+    {
+      "name": "Tides of Chaos",
+      "level": 3,
+      "description": "You can manipulate chaos itself to give yourself Advantage on one D20 Test before you roll the d20. Once you do so, you must cast a Sorcerer spell with a spell slot or finish a Long Rest before you can use this feature again."
+    },
+    {
+      "name": "Bend Luck",
+      "level": 6,
+      "description": "You have the ability to twist fate using your wild magic. Immediately after another creature you can see rolls the d20 for a D20 Test, you can take a Reaction and spend 1 Sorcery Point to roll 1d4 and apply the number rolled as a bonus or penalty (your choice) to the d20 roll."
+    },
+    {
+      "name": "Controlled Chaos",
+      "level": 14,
+      "description": "You gain a modicum of control over the surges of your wild magic. Whenever you roll on the Wild Magic Surge table, you can roll twice and use either number."
+    },
+    {
+      "name": "Tamed Surge",
+      "level": 18,
+      "description": "Immediately after you cast a Sorcerer spell with a spell slot, you can create an effect of your choice from the Wild Magic Surge table instead of rolling on that table. You can choose any effect in the table except for the final row, and if the chosen effect involves a roll, you must make it."
+    }
+  ]
+}

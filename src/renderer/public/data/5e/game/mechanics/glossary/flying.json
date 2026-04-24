@@ -1,0 +1,11 @@
+{
+  "name": "Flying",
+  "slug": "flying",
+  "description": "If a flying creature has the Incapacitated or Prone condition or its Fly Speed is reduced to 0, the creature falls unless it can hover or is being held aloft by magic.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

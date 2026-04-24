@@ -1,0 +1,63 @@
+{
+  "name": "Satyr Revelmaster",
+  "slug": "satyr-revelmaster",
+  "size": "Medium",
+  "type": "Fey",
+  "alignment": "Chaotic Neutral",
+  "ac": "17",
+  "initiative": "+7 (17)",
+  "hp": "82",
+  "hpFormula": "15d8 + 15",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 12,
+    "dex": 18,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 7,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Acrobatics +7, Perception +5, Performance +9",
+  "senses": "Passive Perception 15",
+  "languages": "Common, Elvish, Sylvan",
+  "cr": "6 (XP 2,300; PB +3)",
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The satyr has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The satyr makes three Prance attacks."
+    },
+    {
+      "name": "Prance",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 13 (2d8 + 4) Bludgeoning damage, and the target has the Charmed condition until the start of the satyr's next turn."
+    },
+    {
+      "name": "Fey Melody (Recharge 4–6)",
+      "description": "The satyr conjures a charming or frightening song. *Wisdom Saving Throw:* DC 14, each enemy in a 60-foot Emanation originating from the satyr. *Failure:* The target is subjected to the song's effect:"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Horned and Hoofed Revelers*\n**Habitat:** Forest, Planar (Feywild); **Treasure:** Implements\nSatyrs embody the untamed joys of the wilderness. They indulge in sprees of merrymaking—eating, drinking, performing, fighting, and frolicking.\nSatyrs enjoy demonstrating their physicality through contests, evicting party poopers, and defending Fey realms.\nSatyr revelmasters use magical music to change the moods of other creatures. They do so to keep their celebrations exciting and to ward off foes.",
+  "habitat": "Forest, Planar (Feywild)",
+  "treasure": "Implements",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Fey",
+    "file": "Fey.md"
+  }
+}

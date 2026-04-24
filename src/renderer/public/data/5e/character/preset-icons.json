@@ -1,0 +1,20 @@
+[
+  { "id": "sword", "label": "Sword", "emoji": "\u2694\uFE0F" },
+  { "id": "shield", "label": "Shield", "emoji": "\uD83D\uDEE1\uFE0F" },
+  { "id": "bow", "label": "Bow", "emoji": "\uD83C\uDFF9" },
+  { "id": "staff", "label": "Staff", "emoji": "\uD83E\uDE84" },
+  { "id": "skull", "label": "Skull", "emoji": "\uD83D\uDC80" },
+  { "id": "crown", "label": "Crown", "emoji": "\uD83D\uDC51" },
+  { "id": "dragon", "label": "Dragon", "emoji": "\uD83D\uDC09" },
+  { "id": "fire", "label": "Fire", "emoji": "\uD83D\uDD25" },
+  { "id": "star", "label": "Star", "emoji": "\u2B50" },
+  { "id": "moon", "label": "Moon", "emoji": "\uD83C\uDF19" },
+  { "id": "gem", "label": "Gem", "emoji": "\uD83D\uDC8E" },
+  { "id": "wolf", "label": "Wolf", "emoji": "\uD83D\uDC3A" },
+  { "id": "eagle", "label": "Eagle", "emoji": "\uD83E\uDD85" },
+  { "id": "book", "label": "Book", "emoji": "\uD83D\uDCD6" },
+  { "id": "potion", "label": "Potion", "emoji": "\uD83E\uDDEA" },
+  { "id": "dagger", "label": "Dagger", "emoji": "\uD83D\uDDE1\uFE0F" },
+  { "id": "crystal", "label": "Crystal Ball", "emoji": "\uD83D\uDD2E" },
+  { "id": "helmet", "label": "Helmet", "emoji": "\uD83E\uDE96" }
+]

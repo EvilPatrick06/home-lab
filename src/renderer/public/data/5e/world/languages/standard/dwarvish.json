@@ -1,0 +1,13 @@
+{
+  "name": "Dwarvish",
+  "script": "Dwarvish",
+  "origin": "Dwarves",
+  "speakers": "Dwarves",
+  "slug": "dwarvish",
+  "category": "Standard",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

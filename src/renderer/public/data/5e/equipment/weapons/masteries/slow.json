@@ -1,0 +1,19 @@
+{
+  "name": "Slow",
+  "slug": "slow",
+  "category": "Weapon Mastery",
+  "description": "If you hit a creature with this weapon and deal damage to it, you can reduce its Speed by 10 feet until the start of your next turn. If the creature is hit more than once by weapons that have this property, the Speed reduction doesn't exceed 10 feet.",
+  "mechanicalEffect": {
+    "trigger": "hit",
+    "type": "speedReduction",
+    "reduction": 10,
+    "duration": "Until start of your next turn",
+    "stacking": false
+  },
+  "weaponsWithMastery": ["Club", "Javelin", "Light Crossbow", "Longbow", "Whip"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapon Mastery"
+  }
+}

@@ -1,0 +1,1549 @@
+{
+  "name": "Ranger",
+  "description": "Far from bustling cities, amid the trees of trackless forests and across wide plains, Rangers keep their unending watch in the wilderness. Rangers learn to track their quarry as a predator does, moving stealthily through the wilds and hiding themselves in brush and rubble. Thanks to their connection with nature, Rangers can also cast spells that harness primal powers of the wilderness. A Ranger's talents and magic are honed with deadly focus to protect the world from the ravages of monsters and tyrants.",
+  "coreTraits": {
+    "primaryAbility": ["Dexterity", "Wisdom"],
+    "hitPointDie": "D10",
+    "savingThrowProficiencies": ["Strength", "Dexterity"],
+    "skillProficiencies": {
+      "count": 3,
+      "from": [
+        "Animal Handling",
+        "Athletics",
+        "Insight",
+        "Investigation",
+        "Nature",
+        "Perception",
+        "Stealth",
+        "Survival"
+      ]
+    },
+    "weaponProficiencies": [
+      {
+        "category": "Simple"
+      },
+      {
+        "category": "Martial"
+      }
+    ],
+    "armorTraining": ["Light", "Medium", "Shields"],
+    "startingEquipment": [
+      {
+        "label": "A",
+        "items": [
+          "Studded Leather Armor",
+          "Scimitar",
+          "Shortsword",
+          "Longbow",
+          "20 Arrows",
+          "Quiver",
+          "Druidic Focus (sprig of mistletoe)",
+          "Explorer's Pack"
+        ],
+        "gp": 7
+      },
+      {
+        "label": "B",
+        "items": [],
+        "gp": 150
+      }
+    ]
+  },
+  "multiclassing": {
+    "hitPointDie": true,
+    "weaponProficiencies": [
+      {
+        "category": "Martial"
+      }
+    ],
+    "armorTraining": ["Light", "Medium", "Shields"],
+    "skillProficiencies": {
+      "count": 1,
+      "from": [
+        "Animal Handling",
+        "Athletics",
+        "Insight",
+        "Investigation",
+        "Nature",
+        "Perception",
+        "Stealth",
+        "Survival"
+      ]
+    },
+    "spellcastingNote": "See the multiclassing rules in chapter 2 to determine your available spell slots."
+  },
+  "spellcasting": {
+    "type": "half",
+    "ability": "Wisdom",
+    "focus": ["Druidic Focus"],
+    "ritualCasting": "none",
+    "cantripsKnown": false,
+    "preparedSpellsMechanic": "oneSwapOnLongRest",
+    "usesSpellbook": false,
+    "pactMagic": false,
+    "initialPreparedSpells": 2
+  },
+  "levelProgression": [
+    {
+      "level": 1,
+      "proficiencyBonus": 2,
+      "features": ["Spellcasting", "Favored Enemy", "Weapon Mastery"],
+      "preparedSpells": 2,
+      "favoredEnemy": 2,
+      "spellSlots": {
+        "slot1": 2,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 2,
+      "proficiencyBonus": 2,
+      "features": ["Deft Explorer", "Fighting Style"],
+      "preparedSpells": 3,
+      "favoredEnemy": 2,
+      "spellSlots": {
+        "slot1": 2,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 3,
+      "proficiencyBonus": 2,
+      "features": ["Ranger Subclass"],
+      "preparedSpells": 4,
+      "favoredEnemy": 2,
+      "spellSlots": {
+        "slot1": 3,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 4,
+      "proficiencyBonus": 2,
+      "features": ["Ability Score Improvement"],
+      "preparedSpells": 5,
+      "favoredEnemy": 2,
+      "spellSlots": {
+        "slot1": 3,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 5,
+      "proficiencyBonus": 3,
+      "features": ["Extra Attack"],
+      "preparedSpells": 6,
+      "favoredEnemy": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 2,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 6,
+      "proficiencyBonus": 3,
+      "features": ["Roving"],
+      "preparedSpells": 6,
+      "favoredEnemy": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 2,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 7,
+      "proficiencyBonus": 3,
+      "features": ["Subclass feature"],
+      "preparedSpells": 7,
+      "favoredEnemy": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 8,
+      "proficiencyBonus": 3,
+      "features": ["Ability Score Improvement"],
+      "preparedSpells": 7,
+      "favoredEnemy": 3,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 9,
+      "proficiencyBonus": 4,
+      "features": ["Expertise"],
+      "preparedSpells": 9,
+      "favoredEnemy": 4,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 2,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 10,
+      "proficiencyBonus": 4,
+      "features": ["Tireless"],
+      "preparedSpells": 9,
+      "favoredEnemy": 4,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 2,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 11,
+      "proficiencyBonus": 4,
+      "features": ["Subclass feature"],
+      "preparedSpells": 10,
+      "favoredEnemy": 4,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 12,
+      "proficiencyBonus": 4,
+      "features": ["Ability Score Improvement"],
+      "preparedSpells": 10,
+      "favoredEnemy": 4,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 13,
+      "proficiencyBonus": 5,
+      "features": ["Relentless Hunter"],
+      "preparedSpells": 11,
+      "favoredEnemy": 5,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 1,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 14,
+      "proficiencyBonus": 5,
+      "features": ["Nature's Veil"],
+      "preparedSpells": 11,
+      "favoredEnemy": 5,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 1,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 15,
+      "proficiencyBonus": 5,
+      "features": ["Subclass feature"],
+      "preparedSpells": 12,
+      "favoredEnemy": 5,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 2,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 16,
+      "proficiencyBonus": 5,
+      "features": ["Ability Score Improvement"],
+      "preparedSpells": 12,
+      "favoredEnemy": 5,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 2,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 17,
+      "proficiencyBonus": 6,
+      "features": ["Precise Hunter"],
+      "preparedSpells": 14,
+      "favoredEnemy": 6,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 1,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 18,
+      "proficiencyBonus": 6,
+      "features": ["Feral Senses"],
+      "preparedSpells": 14,
+      "favoredEnemy": 6,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 1,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 19,
+      "proficiencyBonus": 6,
+      "features": ["Epic Boon"],
+      "preparedSpells": 15,
+      "favoredEnemy": 6,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 20,
+      "proficiencyBonus": 6,
+      "features": ["Foe Slayer"],
+      "preparedSpells": 15,
+      "favoredEnemy": 6,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    }
+  ],
+  "classFeatures": [
+    {
+      "name": "Spellcasting",
+      "level": 1,
+      "description": "You have learned to channel the magical essence of nature to cast spells. Wisdom is your spellcasting ability for your Ranger spells. You can use a Druidic Focus as a Spellcasting Focus for your Ranger spells. You prepare the list of level 1+ spells that are available for you to cast. To start, choose two level 1 Ranger spells. The number of spells on your list increases as you gain Ranger levels, as shown in the Prepared Spells column of the Ranger Features table. Whenever you finish a Long Rest, you can replace one spell on your list with another Ranger spell for which you have spell slots."
+    },
+    {
+      "name": "Favored Enemy",
+      "level": 1,
+      "description": "You always have the Hunter's Mark spell prepared. You can cast it twice without expending a spell slot, and you regain all expended uses of this ability when you finish a Long Rest. The number of times you can cast the spell without a spell slot increases when you reach certain Ranger levels, as shown in the Favored Enemy column of the Ranger Features table.",
+      "grantsSpells": [
+        {
+          "spell": "Hunter's Mark",
+          "alwaysPrepared": true,
+          "freeUses": "see Favored Enemy column",
+          "freeUseRestType": "Long"
+        }
+      ],
+      "scalingValues": {
+        "freeHuntersMarkCasts": [
+          {
+            "level": 1,
+            "value": 2
+          },
+          {
+            "level": 5,
+            "value": 3
+          },
+          {
+            "level": 9,
+            "value": 4
+          },
+          {
+            "level": 13,
+            "value": 5
+          },
+          {
+            "level": 17,
+            "value": 6
+          }
+        ]
+      }
+    },
+    {
+      "name": "Weapon Mastery",
+      "level": 1,
+      "description": "Your training with weapons allows you to use the mastery properties of two kinds of weapons of your choice with which you have proficiency, such as Longbows and Shortswords. Whenever you finish a Long Rest, you can change the kinds of weapons you chose. For example, you could switch to using the mastery properties of Scimitars and Longswords."
+    },
+    {
+      "name": "Deft Explorer",
+      "level": 2,
+      "description": "Thanks to your travels, you gain the following benefits. Expertise: Choose one of your skill proficiencies with which you lack Expertise. You gain Expertise in that skill. Languages: You know two languages of your choice from the language tables in chapter 2.",
+      "grantsProficiencies": {
+        "expertise": {
+          "count": 1,
+          "from": "proficient"
+        },
+        "languages": {
+          "count": 2,
+          "from": "language tables in chapter 2"
+        }
+      }
+    },
+    {
+      "name": "Fighting Style",
+      "level": 2,
+      "description": "You gain a Fighting Style feat of your choice (see chapter 5). Instead of choosing one of those feats, you can choose the option below. Druidic Warrior: You learn two Druid cantrips of your choice (see the Druid class's section for a list of Druid spells). Guidance and Starry Wisp are recommended. The chosen cantrips count as Ranger spells for you, and Wisdom is your spellcasting ability for them. Whenever you gain a Ranger level, you can replace one of these cantrips with another Druid cantrip."
+    },
+    {
+      "name": "Ranger Subclass",
+      "level": 3,
+      "description": "You gain a Ranger subclass of your choice. The Beast Master, Fey Wanderer, Gloom Stalker, and Hunter subclasses are detailed after this class's description. A subclass is a specialization that grants you features at certain Ranger levels. For the rest of your career, you gain each of your subclass's features that are of your Ranger level or lower."
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 4,
+      "description": "You gain the Ability Score Improvement feat (see chapter 5) or another feat of your choice for which you qualify. You gain this feature again at Ranger levels 8, 12, and 16."
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 8,
+      "description": "You gain the Ability Score Improvement feat (see chapter 5) or another feat of your choice for which you qualify."
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 12,
+      "description": "You gain the Ability Score Improvement feat (see chapter 5) or another feat of your choice for which you qualify."
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 16,
+      "description": "You gain the Ability Score Improvement feat (see chapter 5) or another feat of your choice for which you qualify."
+    },
+    {
+      "name": "Extra Attack",
+      "level": 5,
+      "description": "You can attack twice instead of once whenever you take the Attack action on your turn."
+    },
+    {
+      "name": "Roving",
+      "level": 6,
+      "description": "Your Speed increases by 10 feet while you aren't wearing Heavy armor. You also have a Climb Speed and a Swim Speed equal to your Speed."
+    },
+    {
+      "name": "Expertise",
+      "level": 9,
+      "description": "Choose two of your skill proficiencies with which you lack Expertise. You gain Expertise in those skills.",
+      "grantsProficiencies": {
+        "expertise": {
+          "count": 2,
+          "from": "proficient"
+        }
+      }
+    },
+    {
+      "name": "Tireless",
+      "level": 10,
+      "description": "Primal forces now help fuel you on your journeys, granting you the following benefits. Temporary Hit Points: As a Magic action, you can give yourself a number of Temporary Hit Points equal to 1d8 plus your Wisdom modifier (minimum of 1). You can use this action a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. Decrease Exhaustion: Whenever you finish a Short Rest, your Exhaustion level, if any, decreases by 1.",
+      "activation": "MagicAction",
+      "usesPerRest": {
+        "uses": "Wisdom modifier (minimum of once)",
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Relentless Hunter",
+      "level": 13,
+      "description": "Taking damage can't break your Concentration on Hunter's Mark.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Nature's Veil",
+      "level": 14,
+      "description": "You invoke spirits of nature to magically hide yourself. As a Bonus Action, you can give yourself the Invisible condition until the end of your next turn. You can use this feature a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.",
+      "activation": "BonusAction",
+      "usesPerRest": {
+        "uses": "Wisdom modifier (minimum of once)",
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Precise Hunter",
+      "level": 17,
+      "description": "You have Advantage on attack rolls against the creature currently marked by your Hunter's Mark.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Feral Senses",
+      "level": 18,
+      "description": "Your connection to the forces of nature grants you Blindsight with a range of 30 feet.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Epic Boon",
+      "level": 19,
+      "description": "You gain an Epic Boon feat (see chapter 5) or another feat of your choice for which you qualify. Boon of Dimensional Travel is recommended."
+    },
+    {
+      "name": "Foe Slayer",
+      "level": 20,
+      "description": "The damage die of your Hunter's Mark is a d10 rather than a d6.",
+      "activation": "Passive"
+    }
+  ],
+  "subclassLabel": "Ranger Subclass",
+  "subclassFeatureLevels": [3, 7, 11, 15],
+  "subclasses": [
+    {
+      "name": "Beast Master",
+      "description": "A Beast Master forms a mystical bond with a special animal, drawing on primal magic and a deep connection to the natural world.",
+      "featureLevels": [3, 7, 11, 15],
+      "features": [
+        {
+          "name": "Primal Companion",
+          "level": 3,
+          "description": "You magically summon a primal beast, which draws strength from your bond with nature. Choose its stat block: Beast of the Land, Beast of the Sea, or Beast of the Sky. You also determine the kind of animal it is, choosing a kind appropriate for the stat block. Whatever beast you choose, it bears primal markings indicating its supernatural origin. The beast is Friendly to you and your allies and obeys your commands. It vanishes if you die. In combat, the beast acts during your turn. It can move and use its Reaction on its own, but the only action it takes is the Dodge action unless you take a Bonus Action to command it to take an action in its stat block or some other action. You can also sacrifice one of your attacks when you take the Attack action to command the beast to take the Beast's Strike action. If you have the Incapacitated condition, the beast acts on its own and isn't limited to the Dodge action. If the beast has died within the last hour, you can take a Magic action to touch it and expend a spell slot. The beast returns to life after 1 minute with all its Hit Points restored. Whenever you finish a Long Rest, you can summon a different primal beast, which appears in an unoccupied space within 5 feet of you.",
+          "activation": "BonusAction",
+          "companionStatBlocks": [
+            {
+              "name": "Beast of the Land",
+              "size": "Medium",
+              "creatureType": "Beast",
+              "alignment": "Neutral",
+              "acFormula": "13 + your Wisdom modifier",
+              "hpFormula": "5 + 5 × your Ranger level",
+              "speeds": {
+                "walk": 40,
+                "climb": 40
+              },
+              "abilityScores": {
+                "strength": 14,
+                "dexterity": 14,
+                "constitution": 15,
+                "intelligence": 8,
+                "wisdom": 14,
+                "charisma": 11
+              },
+              "senses": ["Darkvision 60 ft.", "Passive Perception 12"],
+              "languages": "Understands the languages you know",
+              "challengeRating": "None (XP 0)",
+              "proficiencyBonus": "equals your Proficiency Bonus",
+              "traits": [
+                {
+                  "name": "Primal Bond",
+                  "description": "Add your Proficiency Bonus to any ability check or saving throw the beast makes."
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Beast's Strike",
+                  "description": "Melee Attack Roll: Bonus equals your spell attack modifier, reach 5 ft. Hit: 1d8 + 2 + your Wisdom modifier Bludgeoning, Piercing, or Slashing damage (your choice when you summon the beast). If the beast moved at least 20 feet straight toward the target before the hit, the target takes an extra 1d6 damage of the same type, and the target has the Prone condition if it is a Large or smaller creature."
+                }
+              ]
+            },
+            {
+              "name": "Beast of the Sea",
+              "size": "Medium",
+              "creatureType": "Beast",
+              "alignment": "Neutral",
+              "acFormula": "13 + your Wisdom modifier",
+              "hpFormula": "5 + 5 × your Ranger level",
+              "speeds": {
+                "walk": 5,
+                "swim": 60
+              },
+              "abilityScores": {
+                "strength": 14,
+                "dexterity": 14,
+                "constitution": 15,
+                "intelligence": 8,
+                "wisdom": 14,
+                "charisma": 11
+              },
+              "senses": ["Darkvision 90 ft.", "Passive Perception 12"],
+              "languages": "Understands the languages you know",
+              "challengeRating": "None (XP 0)",
+              "proficiencyBonus": "equals your Proficiency Bonus",
+              "traits": [
+                {
+                  "name": "Amphibious",
+                  "description": "The beast can breathe air and water."
+                },
+                {
+                  "name": "Primal Bond",
+                  "description": "Add your Proficiency Bonus to any ability check or saving throw the beast makes."
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Beast's Strike",
+                  "description": "Melee Attack Roll: Bonus equals your spell attack modifier, reach 5 ft. Hit: 1d6 + 2 + your Wisdom modifier Bludgeoning or Piercing damage (your choice when you summon the beast), and the target has the Grappled condition (escape DC equals your spell save DC)."
+                }
+              ]
+            },
+            {
+              "name": "Beast of the Sky",
+              "size": "Small",
+              "creatureType": "Beast",
+              "alignment": "Neutral",
+              "acFormula": "13 + your Wisdom modifier",
+              "hpFormula": "4 + 4 × your Ranger level",
+              "speeds": {
+                "walk": 10,
+                "fly": 60
+              },
+              "abilityScores": {
+                "strength": 6,
+                "dexterity": 16,
+                "constitution": 13,
+                "intelligence": 8,
+                "wisdom": 14,
+                "charisma": 11
+              },
+              "senses": ["Darkvision 60 ft.", "Passive Perception 12"],
+              "languages": "Understands the languages you know",
+              "challengeRating": "None (XP 0)",
+              "proficiencyBonus": "equals your Proficiency Bonus",
+              "traits": [
+                {
+                  "name": "Flyby",
+                  "description": "The beast doesn't provoke Opportunity Attacks when it flies out of an enemy's reach."
+                },
+                {
+                  "name": "Primal Bond",
+                  "description": "Add your Proficiency Bonus to any ability check or saving throw the beast makes."
+                }
+              ],
+              "actions": [
+                {
+                  "name": "Beast's Strike",
+                  "description": "Melee Attack Roll: Bonus equals your spell attack modifier, reach 5 ft. Hit: 1d4 + 3 + your Wisdom modifier Slashing damage."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Exceptional Training",
+          "level": 7,
+          "description": "When you take a Bonus Action to command your Primal Companion beast to take an action, you can also command it to take the Dash, Disengage, Dodge, or Help action using its Bonus Action. In addition, whenever it hits with an attack roll and deals damage, it can deal your choice of Force damage or its normal damage type."
+        },
+        {
+          "name": "Bestial Fury",
+          "level": 11,
+          "description": "When you command your Primal Companion beast to take the Beast's Strike action, the beast can use it twice. In addition, the first time each turn it hits a creature under the effect of your Hunter's Mark spell, the beast deals extra Force damage equal to the bonus damage of that spell."
+        },
+        {
+          "name": "Share Spells",
+          "level": 15,
+          "description": "When you cast a spell targeting yourself, you can also affect your Primal Companion beast with the spell if the beast is within 30 feet of you."
+        }
+      ]
+    },
+    {
+      "name": "Fey Wanderer",
+      "description": "A fey mystique surrounds you, thanks to the boon of an archfey or a location in the Feywild that transformed you. However you gained fey magic, you are now a Fey Wanderer. Your joyful laughter brightens the hearts of the downtrodden, and your martial prowess strikes terror in your foes, for great is the mirth of the fey and dreadful is their fury.",
+      "featureLevels": [3, 7, 11, 15],
+      "features": [
+        {
+          "name": "Dreadful Strikes",
+          "level": 3,
+          "description": "You can augment your weapon strikes with mind-scarring magic drawn from the murky hollows of the Feywild. When you hit a creature with a weapon, you can deal an extra 1d4 Psychic damage to the target, which can take this extra damage only once per turn. The extra damage increases to 1d6 when you reach Ranger level 11.",
+          "scalingValues": {
+            "extraDamageDie": [
+              {
+                "level": 3,
+                "value": "1d4"
+              },
+              {
+                "level": 11,
+                "value": "1d6"
+              }
+            ]
+          },
+          "damageResistances": []
+        },
+        {
+          "name": "Fey Wanderer Spells",
+          "level": 3,
+          "description": "When you reach a Ranger level specified in the Fey Wanderer Spells table, you thereafter always have the listed spells prepared. You also possess a fey blessing, chosen from the Feywild Gifts table or determined randomly.",
+          "grantsSpells": [
+            {
+              "spell": "Charm Person",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Misty Step",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Summon Fey",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dimension Door",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Mislead",
+              "alwaysPrepared": true
+            }
+          ],
+          "randomTables": [
+            {
+              "name": "Feywild Gifts",
+              "die": "1d6",
+              "entries": [
+                {
+                  "roll": "1",
+                  "effect": "Illusory butterflies flutter around you while you take a Short or Long Rest."
+                },
+                {
+                  "roll": "2",
+                  "effect": "Flowers bloom from your hair each dawn."
+                },
+                {
+                  "roll": "3",
+                  "effect": "You faintly smell of cinnamon, lavender, nutmeg, or another comforting herb or spice."
+                },
+                {
+                  "roll": "4",
+                  "effect": "Your shadow dances while no one is looking directly at it."
+                },
+                {
+                  "roll": "5",
+                  "effect": "Horns or antlers sprout from your head."
+                },
+                {
+                  "roll": "6",
+                  "effect": "Your skin and hair change color each dawn."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Otherworldly Glamour",
+          "level": 3,
+          "description": "Whenever you make a Charisma check, you gain a bonus to the check equal to your Wisdom modifier (minimum of +1). You also gain proficiency in one of these skills of your choice: Deception, Performance, or Persuasion.",
+          "grantsProficiencies": {
+            "skillChoice": {
+              "count": 1,
+              "from": ["Deception", "Performance", "Persuasion"]
+            }
+          }
+        },
+        {
+          "name": "Beguiling Twist",
+          "level": 7,
+          "description": "The magic of the Feywild guards your mind. You have Advantage on saving throws to avoid or end the Charmed or Frightened condition. In addition, whenever you or a creature you can see within 120 feet of you succeeds on a saving throw to avoid or end the Charmed or Frightened condition, you can take a Reaction to force a different creature you can see within 120 feet of yourself to make a Wisdom save against your spell save DC. On a failed save, the target is Charmed or Frightened (your choice) for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+          "activation": "Reaction",
+          "savingThrow": {
+            "ability": "Wisdom",
+            "formula": "spell save DC"
+          }
+        },
+        {
+          "name": "Fey Reinforcements",
+          "level": 11,
+          "description": "You can cast Summon Fey without a Material component. You can also cast it once without a spell slot, and you regain the ability to cast it in this way when you finish a Long Rest. Whenever you start casting the spell, you can modify it so that it doesn't require Concentration. If you do so, the spell's duration becomes 1 minute for that casting.",
+          "grantsSpells": [
+            {
+              "spell": "Summon Fey",
+              "alwaysPrepared": true,
+              "freeUses": 1,
+              "freeUseRestType": "Long"
+            }
+          ]
+        },
+        {
+          "name": "Misty Wanderer",
+          "level": 15,
+          "description": "You can cast Misty Step without expending a spell slot. You can do so a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. In addition, whenever you cast Misty Step, you can bring along one willing creature you can see within 5 feet of yourself. That creature teleports to an unoccupied space of your choice within 5 feet of your destination space.",
+          "grantsSpells": [
+            {
+              "spell": "Misty Step",
+              "alwaysPrepared": true,
+              "freeUses": "Wisdom modifier (minimum of once)",
+              "freeUseRestType": "Long"
+            }
+          ]
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Fey Wanderer Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Charm Person"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Misty Step"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Summon Fey"]
+            },
+            {
+              "classLevel": 13,
+              "spells": ["Dimension Door"]
+            },
+            {
+              "classLevel": 17,
+              "spells": ["Mislead"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Gloom Stalker",
+      "description": "Gloom Stalkers are at home in the darkest places, wielding magic drawn from the Shadowfell to combat enemies that lurk in darkness.",
+      "featureLevels": [3, 7, 11, 15],
+      "features": [
+        {
+          "name": "Dread Ambusher",
+          "level": 3,
+          "description": "You have mastered the art of creating fearsome ambushes, granting you the following benefits. Ambusher's Leap: At the start of your first turn of each combat, your Speed increases by 10 feet until the end of that turn. Dreadful Strike: When you attack a creature and hit it with a weapon, you can deal an extra 2d6 Psychic damage. You can use this benefit only once per turn, you can use it a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. Initiative Bonus: When you roll Initiative, you can add your Wisdom modifier to the roll.",
+          "usesPerRest": {
+            "uses": "Wisdom modifier (minimum of once)",
+            "restType": "Long"
+          },
+          "options": [
+            {
+              "name": "Ambusher's Leap",
+              "description": "At the start of your first turn of each combat, your Speed increases by 10 feet until the end of that turn."
+            },
+            {
+              "name": "Dreadful Strike",
+              "description": "When you attack a creature and hit it with a weapon, you can deal an extra 2d6 Psychic damage. You can use this benefit only once per turn.",
+              "damageType": ["Psychic"]
+            },
+            {
+              "name": "Initiative Bonus",
+              "description": "When you roll Initiative, you can add your Wisdom modifier to the roll."
+            }
+          ]
+        },
+        {
+          "name": "Gloom Stalker Spells",
+          "level": 3,
+          "description": "When you reach a Ranger level specified in the Gloom Stalker Spells table, you thereafter always have the listed spells prepared.",
+          "grantsSpells": [
+            {
+              "spell": "Disguise Self",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Rope Trick",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Fear",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Greater Invisibility",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Seeming",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Umbral Sight",
+          "level": 3,
+          "description": "You gain Darkvision with a range of 60 feet. If you already have Darkvision when you gain this feature, its range increases by 60 feet. You are also adept at evading creatures that rely on Darkvision. While entirely in Darkness, you have the Invisible condition to any creature that relies on Darkvision to see you in that Darkness."
+        },
+        {
+          "name": "Iron Mind",
+          "level": 7,
+          "description": "You have honed your ability to resist mind-altering powers. You gain proficiency in Wisdom saving throws. If you already have this proficiency, you instead gain proficiency in Intelligence or Charisma saving throws (your choice).",
+          "grantsProficiencies": {
+            "savingThrows": ["Wisdom"]
+          }
+        },
+        {
+          "name": "Stalker's Flurry",
+          "level": 11,
+          "description": "The Psychic damage of your Dreadful Strike becomes 2d8. In addition, when you use the Dreadful Strike effect of your Dread Ambusher feature, you can cause one of the following additional effects.",
+          "replacesOrImproves": "Dread Ambusher",
+          "options": [
+            {
+              "name": "Sudden Strike",
+              "description": "You can make another attack with the same weapon against a different creature that is within 5 feet of the original target and that is within the weapon's range."
+            },
+            {
+              "name": "Mass Fear",
+              "description": "The target and each creature within 10 feet of it must make a Wisdom saving throw against your spell save DC. On a failed save, a creature has the Frightened condition until the start of your next turn.",
+              "savingThrow": {
+                "ability": "Wisdom",
+                "formula": "spell save DC"
+              },
+              "conditions": ["Frightened"]
+            }
+          ],
+          "scalingValues": {
+            "dreadfulStrikeDamage": [
+              {
+                "level": 3,
+                "value": "2d6"
+              },
+              {
+                "level": 11,
+                "value": "2d8"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Shadowy Dodge",
+          "level": 15,
+          "description": "When a creature makes an attack roll against you, you can take a Reaction to impose Disadvantage on that roll. Whether the attack hits or misses, you can then teleport up to 30 feet to an unoccupied space you can see.",
+          "activation": "Reaction"
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Gloom Stalker Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Disguise Self"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Rope Trick"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Fear"]
+            },
+            {
+              "classLevel": 13,
+              "spells": ["Greater Invisibility"]
+            },
+            {
+              "classLevel": 17,
+              "spells": ["Seeming"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hunter",
+      "description": "You stalk prey in the wilds and elsewhere, using your abilities as a Hunter to protect nature and people everywhere from forces that would destroy them.",
+      "featureLevels": [3, 7, 11, 15],
+      "features": [
+        {
+          "name": "Hunter's Lore",
+          "level": 3,
+          "description": "You can call on the forces of nature to reveal certain strengths and weaknesses of your prey. While a creature is marked by your Hunter's Mark, you know whether that creature has any Immunities, Resistances, or Vulnerabilities, and if the creature has any, you know what they are."
+        },
+        {
+          "name": "Hunter's Prey",
+          "level": 3,
+          "description": "You gain one of the following feature options of your choice. Whenever you finish a Short or Long Rest, you can replace the chosen option with the other one.",
+          "options": [
+            {
+              "name": "Colossus Slayer",
+              "description": "Your tenacity can wear down even the most resilient foes. When you hit a creature with a weapon, the weapon deals an extra 1d8 damage to the target if it's missing any of its Hit Points. You can deal this extra damage only once per turn."
+            },
+            {
+              "name": "Horde Breaker",
+              "description": "Once on each of your turns when you make an attack with a weapon, you can make another attack with the same weapon against a different creature that is within 5 feet of the original target, that is within the weapon's range, and that you haven't attacked this turn."
+            }
+          ]
+        },
+        {
+          "name": "Defensive Tactics",
+          "level": 7,
+          "description": "You gain one of the following feature options of your choice. Whenever you finish a Short or Long Rest, you can replace the chosen option with the other one.",
+          "options": [
+            {
+              "name": "Escape the Horde",
+              "description": "Opportunity Attacks have Disadvantage against you."
+            },
+            {
+              "name": "Multiattack Defense",
+              "description": "When a creature hits you with an attack roll, that creature has Disadvantage on all other attack rolls against you this turn."
+            }
+          ]
+        },
+        {
+          "name": "Superior Hunter's Prey",
+          "level": 11,
+          "description": "Once per turn when you deal damage to a creature marked by your Hunter's Mark, you can also deal that spell's extra damage to a different creature that you can see within 30 feet of the first creature."
+        },
+        {
+          "name": "Superior Hunter's Defense",
+          "level": 15,
+          "description": "When you take damage, you can take a Reaction to give yourself Resistance to that damage and any other damage of the same type until the end of the current turn.",
+          "activation": "Reaction"
+        }
+      ]
+    }
+  ],
+  "spellList": {
+    "level1": [
+      {
+        "name": "Alarm",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Animal Friendship",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Cure Wounds",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Detect Magic",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Detect Poison and Disease",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Ensnaring Strike",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Entangle",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fog Cloud",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Goodberry",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hail of Thorns",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hunter's Mark",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Jump",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Longstrider",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Speak with Animals",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      }
+    ],
+    "level2": [
+      {
+        "name": "Aid",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Animal Messenger",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Barkskin",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Beast Sense",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Cordon of Arrows",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Darkvision",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Enhance Ability",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Find Traps",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Gust of Wind",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Lesser Restoration",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Locate Animals or Plants",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Locate Object",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Magic Weapon",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Pass without Trace",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Protection from Poison",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Silence",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Spike Growth",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Summon Beast",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ],
+    "level3": [
+      {
+        "name": "Conjure Animals",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Conjure Barrage",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Daylight",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dispel Magic",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Elemental Weapon",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Lightning Arrow",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Meld into Stone",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Nondetection",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Plant Growth",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Protection from Energy",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Revivify",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Speak with Plants",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Summon Fey",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Water Breathing",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Water Walk",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Wind Wall",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level4": [
+      {
+        "name": "Conjure Woodland Beings",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dominate Beast",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Freedom of Movement",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Grasping Vine",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Locate Creature",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Stoneskin",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Elemental",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      }
+    ],
+    "level5": [
+      {
+        "name": "Commune with Nature",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Conjure Volley",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Greater Restoration",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Steel Wind Strike",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Swift Quiver",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Tree Stride",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ]
+  }
+}

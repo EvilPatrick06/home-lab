@@ -1,0 +1,13 @@
+{
+  "name": "Eye agate",
+  "slug": "eye-agate",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "circles of gray, white, brown, blue, or green",
+  "dieValue": "4",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

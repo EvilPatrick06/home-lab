@@ -1,0 +1,55 @@
+{
+  "name": "Minotaur Skeleton",
+  "slug": "minotaur-skeleton",
+  "size": "Large",
+  "type": "Undead",
+  "alignment": "Lawful Evil",
+  "ac": "12",
+  "initiative": "+0 (10)",
+  "hp": "45",
+  "hpFormula": "6d10 + 12",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 11,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 0,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison; Exhaustion, Poisoned",
+  "vulnerabilities": "Bludgeoning",
+  "senses": "Darkvision 60 ft.; Passive Perception 9",
+  "languages": "Understands Abyssal but can't speak",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Gore",
+      "description": "*Melee Attack Roll:* +6, reach 5 ft. *Hit:* 11 (2d6 + 4) Piercing damage. If the target is a Large or smaller creature and the skeleton moved 20+ feet straight toward it immediately before the hit, the target takes an extra 9 (2d8) Piercing damage and has the Prone condition."
+    },
+    {
+      "name": "Slam",
+      "description": "*Melee Attack Roll:* +6, reach 5 ft. *Hit:* 15 (2d10 + 4) Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Ossified Evil*\n**Habitat:** Planar (Shadowfell), Underdark, Urban; **Treasure:** None\nSkeletons rise at the summons of necromancers and foul spirits. Whether they're the remains of the ancient dead or fresh bones bound to morbid ambitions, they commit deathless work for whatever forces reanimated them, often serving as guardians, soldiers, or laborers. In rare cases, skeletons are reanimated but given no particular direction. Roll on or choose a result from the Skeleton Pantomimes table to inspire how undirected skeletons behave.\nSkeletons are reanimated Humanoid bones bearing the equipment they had in life. They have rudimentary faculties and greater agility than zombies and similar shambling corpses. While they aren't capable of creating plans of their own, they avoid obvious barriers and self-destructive situations.\nWarhorse skeletons are obedient, supernatural steeds bearing the rotted remains of the barding they wore in life. They're often ridden by the corpses of their former riders.\nMinotaur skeletons are the reanimated remains of minotaurs or the skeletons of multiple creatures merged into a minotaur-like shape. These hulking skeletons have greater speed and might than smaller skeletons. They menace the living with their horns and mighty greataxes.\nFlaming skeletons burn with unbridled necromantic energy. This magic grants them blazing attacks and greater awareness, which they use to command lesser Undead.",
+  "habitat": "Planar (Shadowfell), Underdark, Urban",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

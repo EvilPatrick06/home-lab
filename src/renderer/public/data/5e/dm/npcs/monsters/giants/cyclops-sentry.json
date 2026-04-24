@@ -1,0 +1,62 @@
+{
+  "name": "Cyclops Sentry",
+  "slug": "cyclops-sentry",
+  "size": "Huge",
+  "type": "Giant",
+  "alignment": "Chaotic Neutral",
+  "ac": "14",
+  "initiative": "+0 (10)",
+  "hp": "138",
+  "hpFormula": "12d12 + 60",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 22,
+    "dex": 11,
+    "con": 20,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 6,
+    "dex": 0,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 8",
+  "languages": "Giant",
+  "cr": "6 (XP 2,300; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The cyclops makes two attacks, using Greatclub or Rock in any combination."
+    },
+    {
+      "name": "Greatclub",
+      "description": "*Melee Attack Roll:* +9, reach 10 ft. *Hit:* 16 (3d6 + 6) Bludgeoning damage. If the target is a Huge or smaller creature, it has the Prone condition."
+    },
+    {
+      "name": "Rock",
+      "description": "*Ranged Attack Roll:* +9, range 30/120 ft. *Hit:* 22 (3d10 + 6) Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Limited Foresight (Recharge 6)",
+      "description": "*Trigger:* A creature the cyclops can see makes an attack roll against it. *Response:* The cyclops imposes Disadvantage on the roll, and the cyclops gains Advantage on attack rolls against the target until the end of the cyclops's next turn."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "*Monocular Servants of Destiny*\n**Habitat:** Coastal, Desert, Grassland, Hill, Mountain, Underdark; **Treasure:** Armaments\nCyclopes are gigantic, one-eyed descendants of the gods. Using their mystical vision, cyclopes can witness how future events are likely to occur.\nCyclops oracles gaze through history to learn hidden truths. Many share these secrets with those who aid them in correcting the mistakes of the past.\nMost cyclops sentries serve their divine progenitors and oppose those who would tamper with fate.",
+  "habitat": "Coastal, Desert, Grassland, Hill, Mountain, Underdark",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Giants",
+    "file": "Giants.md"
+  }
+}

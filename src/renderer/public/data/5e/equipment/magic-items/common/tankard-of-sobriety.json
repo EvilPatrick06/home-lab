@@ -1,0 +1,13 @@
+{
+  "name": "Tankard of Sobriety",
+  "slug": "tankard-of-sobriety",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "This tankard has a stern face sculpted into one side. You can drink ale, wine, or any other nonmagical alcoholic beverage poured into it without becoming inebriated. The tankard has no effect on magical liquids or harmful substances such as poison.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

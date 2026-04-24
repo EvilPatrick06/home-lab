@@ -1,0 +1,11 @@
+{
+  "name": "Hit Points (HP)",
+  "slug": "hit-points-hp",
+  "description": "Hit Points represent a combination of physical and mental durability, the will to live, and luck. Creatures with more Hit Points are harder to kill. A creature's current Hit Points can be any number from the creature's Hit Point maximum down to 0.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

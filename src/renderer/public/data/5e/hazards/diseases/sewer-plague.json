@@ -1,0 +1,24 @@
+{
+  "id": "sewer-plague",
+  "name": "Sewer Plague",
+  "type": "disease",
+  "savingThrow": {
+    "ability": "Constitution",
+    "dc": 11
+  },
+  "transmission": "Transmitted through contact with filth or creatures that carry the disease, such as rats and otyughs. Typically contracted through rat bites, wading through sewage, or consuming contaminated food or water.",
+  "incubation": "1d4 days",
+  "symptoms": "Fatigue, cramps, and increasing exhaustion. The infected creature sweats profusely and has difficulty keeping food down.",
+  "effects": [
+    {
+      "stage": "Infected",
+      "description": "The infected creature regains only half the normal number of hit points from spending Hit Dice and no hit points from finishing a long rest."
+    }
+  ],
+  "recovery": "At the end of each long rest, an infected creature must make a DC 11 Constitution saving throw. On a failed save, the creature gains one level of exhaustion. On a successful save, the creature's exhaustion level decreases by one level. If a successful saving throw reduces the infected creature's level of exhaustion below 1, the creature recovers from the disease.",
+  "cure": "A Lesser Restoration spell or similar magic cures the disease immediately.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Diseases"
+  }
+}

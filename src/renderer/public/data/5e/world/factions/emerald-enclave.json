@@ -1,0 +1,62 @@
+{
+  "id": "emerald-enclave",
+  "name": "Emerald Enclave",
+  "symbol": "A stag's head made of leaves",
+  "beliefs": "The Emerald Enclave is a far-reaching group of druids, rangers, and other wilderness folk who maintain the natural order while rooting out unnatural threats. They believe that the natural world must be preserved, though civilization and wilderness can coexist.",
+  "goals": [
+    "Restore and preserve the natural order",
+    "Destroy all that is unnatural (undead, aberrations, fiends)",
+    "Keep the elemental forces in check",
+    "Maintain the balance between civilization and nature"
+  ],
+  "ranks": [
+    {
+      "rank": 1,
+      "title": "Springwarden",
+      "renownRequired": 1,
+      "description": "Friend of the wild, pledged to the Enclave."
+    },
+    { "rank": 2, "title": "Summerstrider", "renownRequired": 3, "description": "Proven protector of the wilds." },
+    {
+      "rank": 3,
+      "title": "Autumnreaver",
+      "renownRequired": 10,
+      "description": "Experienced agent who handles serious threats."
+    },
+    {
+      "rank": 4,
+      "title": "Winterstalker",
+      "renownRequired": 25,
+      "description": "Senior member who commands respect among the wilds."
+    },
+    {
+      "rank": 5,
+      "title": "Master of the Wild",
+      "renownRequired": 50,
+      "description": "One of the guiding voices of the Enclave."
+    }
+  ],
+  "benefits": [
+    {
+      "rank": 1,
+      "benefit": "Safe passage through wilderness areas known to the Enclave. Animal messengers carry your reports."
+    },
+    {
+      "rank": 2,
+      "benefit": "An animal companion or guide provided for wilderness travel (functions as Ranger's animal companion for scouting purposes only)."
+    },
+    { "rank": 3, "benefit": "Can request a circle of 1d4 druids to aid in restoring a damaged natural area." },
+    {
+      "rank": 4,
+      "benefit": "Access to rare herbs and natural remedies (equivalent to Potions of Superior Healing, 1/adventure)."
+    },
+    {
+      "rank": 5,
+      "benefit": "Can call a gathering of the Enclave to address a major ecological or supernatural threat."
+    }
+  ],
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Factions"
+  }
+}

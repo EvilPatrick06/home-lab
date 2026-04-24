@@ -1,0 +1,11 @@
+{
+  "name": "Session",
+  "slug": "session",
+  "description": "A session is a single meeting of the D&D group.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

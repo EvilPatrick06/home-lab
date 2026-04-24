@@ -1,0 +1,201 @@
+{
+  "name": "Lizardfolk",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "alignment": "Neutral",
+  "habitat": ["Forest", "Swamp"],
+  "treasure": ["Individual"],
+  "lore": "Lizardfolk are reptilian humanoids who dwell in marshes, swamps, and similar wetlands. Pragmatic and driven by survival instincts, they view the world in terms of predator and prey. Lizardfolk feel little emotion compared with other folk, approaching most situations with cold, practical logic. They are skilled hunters and can hold their breath for long periods, making them formidable in their swampy territories.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor", "Shield"]
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 4,
+      "die": "d8",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Swim",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    },
+    {
+      "skill": "Survival",
+      "bonus": 3
+    }
+  ],
+  "gear": [
+    {
+      "name": "Javelin",
+      "quantity": 3
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Draconic"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Hold Breath",
+      "description": "The lizardfolk can hold its breath for 15 minutes."
+    }
+  ],
+  "multiattack": {
+    "description": "The lizardfolk makes one Bite attack and one Heavy Club or Javelin attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Heavy Club",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Heavy Club",
+        "replaceCount": 1,
+        "with": "Javelin"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Heavy Club",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Javelin",
+      "description": "Melee or Ranged Attack Roll: +4, reach 5 ft. or range 30/120 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 4,
+        "reach": 5,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

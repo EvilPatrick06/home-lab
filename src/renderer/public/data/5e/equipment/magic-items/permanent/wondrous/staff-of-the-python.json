@@ -1,0 +1,17 @@
+{
+  "name": "Staff of the Python",
+  "cost": {
+    "amount": 2000,
+    "denomination": "GP"
+  },
+  "weight": 4,
+  "description": "This staff can be used as a magic Quarterstaff that grants a +1 bonus to attack and damage rolls made with it. As a Magic action, you can throw the staff on the ground in an unoccupied space within 10 feet of you, causing it to become a Giant Constrictor Snake. The snake is under your control and shares your Initiative count, taking its turn immediately after yours. On your turn, you can mentally command the snake (no action required) if it is within 60 feet of you and you don't have the Incapacitated condition. You decide what action the snake takes and where it moves during its next turn, or you can issue it a general command, such as to attack your enemies or guard a location. If the snake is reduced to 0 Hit Points, it dies, reverts to the staff, and the staff then shatters and is destroyed. Otherwise, as a Bonus Action, you can recall the snake, causing it to revert to staff form. The staff requires Attunement by a Cleric, Druid, or Warlock.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

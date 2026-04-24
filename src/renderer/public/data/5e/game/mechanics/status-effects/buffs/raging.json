@@ -1,0 +1,46 @@
+{
+  "id": "raging",
+  "name": "Raging",
+  "source": "Barbarian Rage class feature",
+  "duration": "1 minute (10 rounds), or until ended early",
+  "description": "In battle, you fight with primal ferocity. On your turn, you can enter a Rage as a Bonus Action. While Raging, you gain several benefits if you aren't wearing Heavy Armor.",
+  "effects": [
+    { "type": "advantage", "target": "Strength checks and Strength saving throws", "value": "Advantage" },
+    {
+      "type": "bonus damage",
+      "target": "melee weapon attacks using Strength",
+      "value": "+2 (levels 1-8), +3 (levels 9-15), +4 (levels 16-20)"
+    },
+    {
+      "type": "resistance",
+      "target": "Bludgeoning, Piercing, and Slashing damage",
+      "value": "Resistance (half damage)"
+    }
+  ],
+  "rageDamageByLevel": [
+    { "levelRange": "1-8", "bonus": 2 },
+    { "levelRange": "9-15", "bonus": 3 },
+    { "levelRange": "16-20", "bonus": 4 }
+  ],
+  "endConditions": [
+    "1 minute has passed",
+    "You are knocked Unconscious",
+    "Your turn ends and you haven't attacked a creature or taken damage since your last turn",
+    "You end it as a Bonus Action",
+    "You don Heavy Armor"
+  ],
+  "restrictions": [
+    "Cannot cast spells or concentrate on spells while Raging",
+    "Must not be wearing Heavy Armor to gain benefits",
+    "Rage Damage bonus only applies to melee attacks using Strength"
+  ],
+  "ragesPerDay": [
+    { "level": 1, "rages": 2 },
+    { "level": 3, "rages": 3 },
+    { "level": 6, "rages": 4 },
+    { "level": 12, "rages": 5 },
+    { "level": 17, "rages": 6 },
+    { "level": 20, "rages": "Unlimited" }
+  ],
+  "notes": "The Rage ends early if your turn ends and you haven't attacked a hostile creature since your last turn or taken damage. Certain Barbarian subclasses add additional effects while Raging."
+}

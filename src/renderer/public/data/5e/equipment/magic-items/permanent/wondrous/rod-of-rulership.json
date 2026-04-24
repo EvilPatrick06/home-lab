@@ -1,0 +1,17 @@
+{
+  "name": "Arcane Focus (Rod)",
+  "cost": {
+    "amount": 10,
+    "denomination": "GP"
+  },
+  "weight": 2,
+  "description": "An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus. Note: 'Rod of Rulership' is a magic item detailed in the Dungeon Master's Guide and is not present in Chapter 6: Equipment of the 2024 Player's Handbook. This entry represents the nonmagical Arcane Focus (Rod), which is the only rod listed in the chapter.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

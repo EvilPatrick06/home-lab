@@ -1,0 +1,269 @@
+{
+  "name": "Arcanaloth",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Yugoloth"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar"],
+  "treasure": ["Arcana"],
+  "lore": "Arcanaloths are the cunning intermediaries and record-keepers of the yugoloth hierarchy. They broker contracts between fiendish factions and mortal supplicants, always ensuring that the fine print favors themselves. Arcanaloths hoard magical lore and delight in intellectual superiority, using their formidable arcane talents to manipulate and deceive. Beneath a veneer of civility lies a ruthless schemer whose ultimate allegiance is to its own self-interest.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 130,
+    "dice": {
+      "count": 20,
+      "die": "d8",
+      "modifier": 40
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 13
+    },
+    {
+      "skill": "Deception",
+      "bonus": 11
+    },
+    {
+      "skill": "Insight",
+      "bonus": 7
+    },
+    {
+      "skill": "Perception",
+      "bonus": 7
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 11
+    }
+  ],
+  "resistances": ["Cold and Lightning"],
+  "damageImmunities": ["Acid and Poison"],
+  "conditionImmunities": ["Charmed", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 17
+  },
+  "languages": {
+    "spoken": ["All"],
+    "telepathy": 120
+  },
+  "challengeRating": "12",
+  "experiencePoints": 8400,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The arcanaloth has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "INT",
+      "spellSaveDC": 17,
+      "spellAttackBonus": 9,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Alter Self",
+              "level": 2
+            },
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Disguise Self",
+              "level": 1
+            },
+            {
+              "name": "Mage Hand",
+              "level": 0
+            },
+            {
+              "name": "Mending",
+              "level": 0
+            },
+            {
+              "name": "Prestidigitation",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Counterspell",
+              "level": 3
+            },
+            {
+              "name": "Darkness",
+              "level": 2
+            },
+            {
+              "name": "Dimension Door",
+              "level": 4
+            },
+            {
+              "name": "Fireball",
+              "level": 3
+            },
+            {
+              "name": "Heat Metal",
+              "level": 2
+            },
+            {
+              "name": "Invisibility",
+              "level": 2
+            },
+            {
+              "name": "Suggestion",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Contact Other Plane",
+              "level": 5
+            },
+            {
+              "name": "Mind Blank",
+              "level": 8
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The arcanaloth makes three Arcane Blast attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Arcane Blast",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Arcane Blast",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Arcane Blast",
+      "description": "Melee or Ranged Attack Roll: +9, reach 5 ft. or range 120 ft. Hit: 27 (4d10 + 5) Force damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 9,
+        "reach": 5,
+        "range": {
+          "normal": 120,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 27,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The arcanaloth casts one of the following spells, requiring no Material components, using Intelligence as the spellcasting ability (spell save DC 17)."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Teleport",
+      "description": "The arcanaloth teleports, along with any equipment it is wearing or carrying, up to 60 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 60
+      }
+    }
+  ]
+}

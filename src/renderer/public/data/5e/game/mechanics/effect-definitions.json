@@ -1,0 +1,350 @@
+{
+  "magicItems": {
+    "+1 Weapon": {
+      "sourceId": "+1-weapon",
+      "sourceName": "+1 Weapon",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "attack_bonus", "value": 1, "condition": "attuned", "scope": "weapon" },
+        { "type": "damage_bonus", "value": 1, "condition": "attuned", "scope": "weapon" }
+      ]
+    },
+    "+2 Weapon": {
+      "sourceId": "+2-weapon",
+      "sourceName": "+2 Weapon",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "attack_bonus", "value": 2, "condition": "attuned", "scope": "weapon" },
+        { "type": "damage_bonus", "value": 2, "condition": "attuned", "scope": "weapon" }
+      ]
+    },
+    "+3 Weapon": {
+      "sourceId": "+3-weapon",
+      "sourceName": "+3 Weapon",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "attack_bonus", "value": 3, "condition": "attuned", "scope": "weapon" },
+        { "type": "damage_bonus", "value": 3, "condition": "attuned", "scope": "weapon" }
+      ]
+    },
+    "+1 Armor": {
+      "sourceId": "+1-armor",
+      "sourceName": "+1 Armor",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ac_bonus", "value": 1, "condition": "equipped" }]
+    },
+    "+2 Armor": {
+      "sourceId": "+2-armor",
+      "sourceName": "+2 Armor",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ac_bonus", "value": 2, "condition": "equipped" }]
+    },
+    "+3 Armor": {
+      "sourceId": "+3-armor",
+      "sourceName": "+3 Armor",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ac_bonus", "value": 3, "condition": "equipped" }]
+    },
+    "Cloak of Protection": {
+      "sourceId": "cloak-of-protection",
+      "sourceName": "Cloak of Protection",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "ac_bonus", "value": 1, "condition": "attuned" },
+        { "type": "save_bonus", "value": 1, "condition": "attuned", "scope": "all" }
+      ]
+    },
+    "Ring of Protection": {
+      "sourceId": "ring-of-protection",
+      "sourceName": "Ring of Protection",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "ac_bonus", "value": 1, "condition": "attuned" },
+        { "type": "save_bonus", "value": 1, "condition": "attuned", "scope": "all" }
+      ]
+    },
+    "Bracers of Defense": {
+      "sourceId": "bracers-of-defense",
+      "sourceName": "Bracers of Defense",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ac_bonus", "value": 2, "condition": "attuned" }]
+    },
+    "Adamantine Armor": {
+      "sourceId": "adamantine-armor",
+      "sourceName": "Adamantine Armor",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "crit_prevention", "condition": "equipped" }]
+    },
+    "Amulet of Health": {
+      "sourceId": "amulet-of-health",
+      "sourceName": "Amulet of Health",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ability_set", "value": 19, "stringValue": "constitution", "condition": "attuned" }]
+    },
+    "Headband of Intellect": {
+      "sourceId": "headband-of-intellect",
+      "sourceName": "Headband of Intellect",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ability_set", "value": 19, "stringValue": "intelligence", "condition": "attuned" }]
+    },
+    "Gauntlets of Ogre Power": {
+      "sourceId": "gauntlets-of-ogre-power",
+      "sourceName": "Gauntlets of Ogre Power",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ability_set", "value": 19, "stringValue": "strength", "condition": "attuned" }]
+    },
+    "Belt of Giant Strength (Hill)": {
+      "sourceId": "belt-hill-giant-strength",
+      "sourceName": "Belt of Hill Giant Strength",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ability_set", "value": 21, "stringValue": "strength", "condition": "attuned" }]
+    },
+    "Belt of Giant Strength (Frost)": {
+      "sourceId": "belt-frost-giant-strength",
+      "sourceName": "Belt of Frost Giant Strength",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ability_set", "value": 23, "stringValue": "strength", "condition": "attuned" }]
+    },
+    "Belt of Giant Strength (Fire)": {
+      "sourceId": "belt-fire-giant-strength",
+      "sourceName": "Belt of Fire Giant Strength",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ability_set", "value": 25, "stringValue": "strength", "condition": "attuned" }]
+    },
+    "Belt of Giant Strength (Cloud)": {
+      "sourceId": "belt-cloud-giant-strength",
+      "sourceName": "Belt of Cloud Giant Strength",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ability_set", "value": 27, "stringValue": "strength", "condition": "attuned" }]
+    },
+    "Belt of Giant Strength (Storm)": {
+      "sourceId": "belt-storm-giant-strength",
+      "sourceName": "Belt of Storm Giant Strength",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "ability_set", "value": 29, "stringValue": "strength", "condition": "attuned" }]
+    },
+    "All-Purpose Tool (+1)": {
+      "sourceId": "all-purpose-tool-1",
+      "sourceName": "All-Purpose Tool +1",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "spell_attack_bonus", "value": 1, "condition": "attuned" },
+        { "type": "spell_dc_bonus", "value": 1, "condition": "attuned" }
+      ]
+    },
+    "All-Purpose Tool (+2)": {
+      "sourceId": "all-purpose-tool-2",
+      "sourceName": "All-Purpose Tool +2",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "spell_attack_bonus", "value": 2, "condition": "attuned" },
+        { "type": "spell_dc_bonus", "value": 2, "condition": "attuned" }
+      ]
+    },
+    "Arcane Grimoire (+1)": {
+      "sourceId": "arcane-grimoire-1",
+      "sourceName": "Arcane Grimoire +1",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "spell_attack_bonus", "value": 1, "condition": "attuned" },
+        { "type": "spell_dc_bonus", "value": 1, "condition": "attuned" }
+      ]
+    },
+    "Amulet of the Devout (+1)": {
+      "sourceId": "amulet-devout-1",
+      "sourceName": "Amulet of the Devout +1",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "spell_attack_bonus", "value": 1, "condition": "attuned" },
+        { "type": "spell_dc_bonus", "value": 1, "condition": "attuned" }
+      ]
+    },
+    "Flame Tongue": {
+      "sourceId": "flame-tongue",
+      "sourceName": "Flame Tongue",
+      "sourceType": "magic-item",
+      "effects": [
+        { "type": "extra_damage_dice", "dice": "2d6", "stringValue": "fire", "condition": "attuned", "scope": "weapon" }
+      ]
+    },
+    "Armor of Resistance": {
+      "sourceId": "armor-of-resistance",
+      "sourceName": "Armor of Resistance",
+      "sourceType": "magic-item",
+      "effects": [{ "type": "resistance", "stringValue": "chosen", "condition": "attuned" }]
+    }
+  },
+  "feats": {
+    "Tough": {
+      "sourceId": "tough",
+      "sourceName": "Tough",
+      "sourceType": "feat",
+      "effects": [{ "type": "hp_per_level", "value": 2 }]
+    },
+    "Heavy Armor Master": {
+      "sourceId": "heavy-armor-master",
+      "sourceName": "Heavy Armor Master",
+      "sourceType": "feat",
+      "effects": [
+        {
+          "type": "damage_reduction",
+          "value": 3,
+          "condition": "wearing_heavy_armor",
+          "stringValue": "bludgeoning,piercing,slashing"
+        }
+      ]
+    },
+    "Alert": {
+      "sourceId": "alert",
+      "sourceName": "Alert",
+      "sourceType": "feat",
+      "effects": [{ "type": "initiative_bonus", "value": 100, "stringValue": "swap_lowest" }]
+    },
+    "Crossbow Expert": {
+      "sourceId": "crossbow-expert",
+      "sourceName": "Crossbow Expert",
+      "sourceType": "feat",
+      "effects": [
+        { "type": "ignore_loading", "scope": "crossbow" },
+        { "type": "no_ranged_melee_disadvantage", "scope": "ranged" }
+      ]
+    },
+    "Lucky": {
+      "sourceId": "lucky",
+      "sourceName": "Lucky",
+      "sourceType": "feat",
+      "effects": [{ "type": "luck_points", "value": 0 }]
+    },
+    "Savage Attacker": {
+      "sourceId": "savage-attacker",
+      "sourceName": "Savage Attacker",
+      "sourceType": "feat",
+      "effects": [{ "type": "reroll_damage_1s", "scope": "melee_weapon", "frequency": "per_turn" }]
+    },
+    "Dual Wielder": {
+      "sourceId": "dual-wielder",
+      "sourceName": "Dual Wielder",
+      "sourceType": "feat",
+      "effects": [{ "type": "ac_bonus", "value": 1, "condition": "wielding" }]
+    },
+    "Elemental Adept": {
+      "sourceId": "elemental-adept",
+      "sourceName": "Elemental Adept",
+      "sourceType": "feat",
+      "effects": [
+        { "type": "reroll_damage_1s", "scope": "spell" },
+        { "type": "resistance", "stringValue": "ignore_chosen" }
+      ]
+    },
+    "Crusher": {
+      "sourceId": "crusher",
+      "sourceName": "Crusher",
+      "sourceType": "feat",
+      "effects": [{ "type": "on_hit_effect", "stringValue": "push_5ft", "condition": "always", "scope": "weapon" }]
+    },
+    "Piercer": {
+      "sourceId": "piercer",
+      "sourceName": "Piercer",
+      "sourceType": "feat",
+      "effects": [
+        { "type": "on_crit_effect", "stringValue": "extra_damage_die", "condition": "always", "scope": "weapon" }
+      ]
+    },
+    "Slasher": {
+      "sourceId": "slasher",
+      "sourceName": "Slasher",
+      "sourceType": "feat",
+      "effects": [
+        { "type": "on_hit_effect", "stringValue": "reduce_speed_10", "condition": "always", "scope": "weapon" }
+      ]
+    },
+    "Charger": {
+      "sourceId": "charger",
+      "sourceName": "Charger",
+      "sourceType": "feat",
+      "effects": [{ "type": "on_hit_effect", "stringValue": "charge_1d8_or_push", "condition": "in_combat" }]
+    },
+    "Sentinel": {
+      "sourceId": "sentinel",
+      "sourceName": "Sentinel",
+      "sourceType": "feat",
+      "effects": [{ "type": "reaction_effect", "stringValue": "opportunity_attack_on_ally_hit" }]
+    },
+    "Durable": {
+      "sourceId": "durable",
+      "sourceName": "Durable",
+      "sourceType": "feat",
+      "effects": [{ "type": "advantage_on", "stringValue": "death_saves" }]
+    }
+  },
+  "fightingStyles": {
+    "Defense": {
+      "sourceId": "fs-defense",
+      "sourceName": "Defense",
+      "sourceType": "fighting-style",
+      "effects": [{ "type": "ac_bonus", "value": 1, "condition": "wearing_armor" }]
+    },
+    "Archery": {
+      "sourceId": "fs-archery",
+      "sourceName": "Archery",
+      "sourceType": "fighting-style",
+      "effects": [{ "type": "attack_bonus", "value": 2, "scope": "ranged_weapon" }]
+    },
+    "Dueling": {
+      "sourceId": "fs-dueling",
+      "sourceName": "Dueling",
+      "sourceType": "fighting-style",
+      "effects": [{ "type": "damage_bonus", "value": 2, "scope": "melee_weapon" }]
+    },
+    "Great Weapon Fighting": {
+      "sourceId": "fs-gwf",
+      "sourceName": "Great Weapon Fighting",
+      "sourceType": "fighting-style",
+      "effects": [{ "type": "reroll_damage_1s", "scope": "heavy_weapon" }]
+    },
+    "Two-Weapon Fighting": {
+      "sourceId": "fs-twf",
+      "sourceName": "Two-Weapon Fighting",
+      "sourceType": "fighting-style",
+      "effects": [{ "type": "damage_bonus", "value": 0, "stringValue": "add_ability_mod_offhand" }]
+    },
+    "Thrown Weapon Fighting": {
+      "sourceId": "fs-thrown",
+      "sourceName": "Thrown Weapon Fighting",
+      "sourceType": "fighting-style",
+      "effects": [{ "type": "damage_bonus", "value": 2, "scope": "thrown" }]
+    }
+  },
+  "consumables": {
+    "Potion of Healing": {
+      "sourceId": "potion-healing",
+      "sourceName": "Potion of Healing",
+      "sourceType": "consumable",
+      "effects": [{ "type": "heal", "dice": "2d4+2", "condition": "on_use" }]
+    },
+    "Potion of Greater Healing": {
+      "sourceId": "potion-greater-healing",
+      "sourceName": "Potion of Greater Healing",
+      "sourceType": "consumable",
+      "effects": [{ "type": "heal", "dice": "4d4+4", "condition": "on_use" }]
+    },
+    "Potion of Superior Healing": {
+      "sourceId": "potion-superior-healing",
+      "sourceName": "Potion of Superior Healing",
+      "sourceType": "consumable",
+      "effects": [{ "type": "heal", "dice": "8d4+8", "condition": "on_use" }]
+    },
+    "Potion of Supreme Healing": {
+      "sourceId": "potion-supreme-healing",
+      "sourceName": "Potion of Supreme Healing",
+      "sourceType": "consumable",
+      "effects": [{ "type": "heal", "dice": "10d4+20", "condition": "on_use" }]
+    },
+    "Potion of Heroism": {
+      "sourceId": "potion-heroism",
+      "sourceName": "Potion of Heroism",
+      "sourceType": "consumable",
+      "effects": [{ "type": "temp_hp", "value": 10, "condition": "on_use" }]
+    }
+  }
+}

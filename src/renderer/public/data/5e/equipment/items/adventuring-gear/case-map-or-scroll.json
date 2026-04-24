@@ -1,0 +1,13 @@
+{
+  "name": "Case, Map or Scroll",
+  "cost": "1 GP",
+  "weight": "1 lb.",
+  "description": "Holds up to 10 sheets of paper or 5 sheets of parchment.",
+  "slug": "case-map-or-scroll",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

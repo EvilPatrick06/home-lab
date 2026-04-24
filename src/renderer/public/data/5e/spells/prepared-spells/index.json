@@ -1,0 +1,4944 @@
+[
+  {
+    "id": "healing-word",
+    "name": "Healing Word",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/non-ritual/v/healing-word.json"
+  },
+  {
+    "id": "cure-wounds",
+    "name": "Cure Wounds",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/non-ritual/v-s/cure-wounds.json"
+  },
+  {
+    "id": "shield",
+    "name": "Shield",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/non-ritual/v-s/shield.json"
+  },
+  {
+    "id": "armor-of-agathys",
+    "name": "Armor of Agathys",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/non-ritual/v-s-m/armor-of-agathys.json"
+  },
+  {
+    "id": "mage-armor",
+    "name": "Mage Armor",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/non-ritual/v-s-m/mage-armor.json"
+  },
+  {
+    "id": "protection-from-evil-and-good",
+    "name": "Protection from Evil and Good",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Paladin", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/non-ritual/v-s-m/protection-from-evil-and-good.json"
+  },
+  {
+    "id": "sanctuary",
+    "name": "Sanctuary",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/non-ritual/v-s-m/sanctuary.json"
+  },
+  {
+    "id": "shield-of-faith",
+    "name": "Shield of Faith",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/non-ritual/v-s-m/shield-of-faith.json"
+  },
+  {
+    "id": "alarm",
+    "name": "Alarm",
+    "school": "Abjuration",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Ranger", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-1/ritual/v-s-m/alarm.json"
+  },
+  {
+    "id": "prayer-of-healing",
+    "name": "Prayer of Healing",
+    "school": "Abjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-2/non-ritual/v/prayer-of-healing.json"
+  },
+  {
+    "id": "arcane-vigor",
+    "name": "Arcane Vigor",
+    "school": "Abjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-2/non-ritual/v-s/arcane-vigor.json"
+  },
+  {
+    "id": "lesser-restoration",
+    "name": "Lesser Restoration",
+    "school": "Abjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-2/non-ritual/v-s/lesser-restoration.json"
+  },
+  {
+    "id": "protection-from-poison",
+    "name": "Protection from Poison",
+    "school": "Abjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Paladin", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-2/non-ritual/v-s/protection-from-poison.json"
+  },
+  {
+    "id": "aid",
+    "name": "Aid",
+    "school": "Abjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-2/non-ritual/v-s-m/aid.json"
+  },
+  {
+    "id": "arcane-lock",
+    "name": "Arcane Lock",
+    "school": "Abjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-2/non-ritual/v-s-m/arcane-lock.json"
+  },
+  {
+    "id": "pass-without-trace",
+    "name": "Pass without Trace",
+    "school": "Abjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-2/non-ritual/v-s-m/pass-without-trace.json"
+  },
+  {
+    "id": "warding-bond",
+    "name": "Warding Bond",
+    "school": "Abjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-2/non-ritual/v-s-m/warding-bond.json"
+  },
+  {
+    "id": "counterspell",
+    "name": "Counterspell",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/s/counterspell.json"
+  },
+  {
+    "id": "aura-of-vitality",
+    "name": "Aura of Vitality",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v/aura-of-vitality.json"
+  },
+  {
+    "id": "mass-healing-word",
+    "name": "Mass Healing Word",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v/mass-healing-word.json"
+  },
+  {
+    "id": "beacon-of-hope",
+    "name": "Beacon of Hope",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v-s/beacon-of-hope.json"
+  },
+  {
+    "id": "dispel-magic",
+    "name": "Dispel Magic",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v-s/dispel-magic.json"
+  },
+  {
+    "id": "protection-from-energy",
+    "name": "Protection from Energy",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v-s/protection-from-energy.json"
+  },
+  {
+    "id": "remove-curse",
+    "name": "Remove Curse",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v-s/remove-curse.json"
+  },
+  {
+    "id": "glyph-of-warding",
+    "name": "Glyph of Warding",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v-s-m/glyph-of-warding.json"
+  },
+  {
+    "id": "magic-circle",
+    "name": "Magic Circle",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v-s-m/magic-circle.json"
+  },
+  {
+    "id": "nondetection",
+    "name": "Nondetection",
+    "school": "Abjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Ranger", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-3/non-ritual/v-s-m/nondetection.json"
+  },
+  {
+    "id": "aura-of-life",
+    "name": "Aura of Life",
+    "school": "Abjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-4/non-ritual/v/aura-of-life.json"
+  },
+  {
+    "id": "aura-of-purity",
+    "name": "Aura of Purity",
+    "school": "Abjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-4/non-ritual/v/aura-of-purity.json"
+  },
+  {
+    "id": "death-ward",
+    "name": "Death Ward",
+    "school": "Abjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-4/non-ritual/v-s/death-ward.json"
+  },
+  {
+    "id": "banishment",
+    "name": "Banishment",
+    "school": "Abjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-4/non-ritual/v-s-m/banishment.json"
+  },
+  {
+    "id": "freedom-of-movement",
+    "name": "Freedom of Movement",
+    "school": "Abjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-4/non-ritual/v-s-m/freedom-of-movement.json"
+  },
+  {
+    "id": "mordenkainen-s-private-sanctum",
+    "name": "Mordenkainen's Private Sanctum",
+    "school": "Abjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-4/non-ritual/v-s-m/mordenkainen-s-private-sanctum.json"
+  },
+  {
+    "id": "otiluke-s-resilient-sphere",
+    "name": "Otiluke's Resilient Sphere",
+    "school": "Abjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-4/non-ritual/v-s-m/otiluke-s-resilient-sphere.json"
+  },
+  {
+    "id": "circle-of-power",
+    "name": "Circle of Power",
+    "school": "Abjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-5/non-ritual/v/circle-of-power.json"
+  },
+  {
+    "id": "antilife-shell",
+    "name": "Antilife Shell",
+    "school": "Abjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-5/non-ritual/v-s/antilife-shell.json"
+  },
+  {
+    "id": "mass-cure-wounds",
+    "name": "Mass Cure Wounds",
+    "school": "Abjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-5/non-ritual/v-s/mass-cure-wounds.json"
+  },
+  {
+    "id": "dispel-evil-and-good",
+    "name": "Dispel Evil and Good",
+    "school": "Abjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-5/non-ritual/v-s-m/dispel-evil-and-good.json"
+  },
+  {
+    "id": "greater-restoration",
+    "name": "Greater Restoration",
+    "school": "Abjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-5/non-ritual/v-s-m/greater-restoration.json"
+  },
+  {
+    "id": "hallow",
+    "name": "Hallow",
+    "school": "Abjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-5/non-ritual/v-s-m/hallow.json"
+  },
+  {
+    "id": "planar-binding",
+    "name": "Planar Binding",
+    "school": "Abjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-5/non-ritual/v-s-m/planar-binding.json"
+  },
+  {
+    "id": "heal",
+    "name": "Heal",
+    "school": "Abjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-6/non-ritual/v-s/heal.json"
+  },
+  {
+    "id": "contingency",
+    "name": "Contingency",
+    "school": "Abjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-6/non-ritual/v-s-m/contingency.json"
+  },
+  {
+    "id": "globe-of-invulnerability",
+    "name": "Globe of Invulnerability",
+    "school": "Abjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-6/non-ritual/v-s-m/globe-of-invulnerability.json"
+  },
+  {
+    "id": "guards-and-wards",
+    "name": "Guards and Wards",
+    "school": "Abjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-6/non-ritual/v-s-m/guards-and-wards.json"
+  },
+  {
+    "id": "forbiddance",
+    "name": "Forbiddance",
+    "school": "Abjuration",
+    "level": 6,
+    "ritual": true,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-6/ritual/v-s-m/forbiddance.json"
+  },
+  {
+    "id": "symbol",
+    "name": "Symbol",
+    "school": "Abjuration",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-7/non-ritual/v-s-m/symbol.json"
+  },
+  {
+    "id": "mind-blank",
+    "name": "Mind Blank",
+    "school": "Abjuration",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-8/non-ritual/v-s/mind-blank.json"
+  },
+  {
+    "id": "antimagic-field",
+    "name": "Antimagic Field",
+    "school": "Abjuration",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Cleric", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-8/non-ritual/v-s-m/antimagic-field.json"
+  },
+  {
+    "id": "holy-aura",
+    "name": "Holy Aura",
+    "school": "Abjuration",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-8/non-ritual/v-s-m/holy-aura.json"
+  },
+  {
+    "id": "mass-heal",
+    "name": "Mass Heal",
+    "school": "Abjuration",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-9/non-ritual/v-s/mass-heal.json"
+  },
+  {
+    "id": "prismatic-wall",
+    "name": "Prismatic Wall",
+    "school": "Abjuration",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/abjuration/level-9/non-ritual/v-s/prismatic-wall.json"
+  },
+  {
+    "id": "imprisonment",
+    "name": "Imprisonment",
+    "school": "Abjuration",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/abjuration/level-9/non-ritual/v-s-m/imprisonment.json"
+  },
+  {
+    "id": "ice-knife",
+    "name": "Ice Knife",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/non-ritual/s-m/ice-knife.json"
+  },
+  {
+    "id": "ensnaring-strike",
+    "name": "Ensnaring Strike",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/non-ritual/v/ensnaring-strike.json"
+  },
+  {
+    "id": "hail-of-thorns",
+    "name": "Hail of Thorns",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/non-ritual/v/hail-of-thorns.json"
+  },
+  {
+    "id": "arms-of-hadar",
+    "name": "Arms of Hadar",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/non-ritual/v-s/arms-of-hadar.json"
+  },
+  {
+    "id": "entangle",
+    "name": "Entangle",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/non-ritual/v-s/entangle.json"
+  },
+  {
+    "id": "fog-cloud",
+    "name": "Fog Cloud",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/non-ritual/v-s/fog-cloud.json"
+  },
+  {
+    "id": "goodberry",
+    "name": "Goodberry",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/non-ritual/v-s-m/goodberry.json"
+  },
+  {
+    "id": "grease",
+    "name": "Grease",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/non-ritual/v-s-m/grease.json"
+  },
+  {
+    "id": "find-familiar",
+    "name": "Find Familiar",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/ritual/v-s-m/find-familiar.json"
+  },
+  {
+    "id": "tenser-s-floating-disk",
+    "name": "Tenser's Floating Disk",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/ritual/v-s-m/tenser-s-floating-disk.json"
+  },
+  {
+    "id": "unseen-servant",
+    "name": "Unseen Servant",
+    "school": "Conjuration",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Bard", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-1/ritual/v-s-m/unseen-servant.json"
+  },
+  {
+    "id": "misty-step",
+    "name": "Misty Step",
+    "school": "Conjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-2/non-ritual/v/misty-step.json"
+  },
+  {
+    "id": "find-steed",
+    "name": "Find Steed",
+    "school": "Conjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-2/non-ritual/v-s/find-steed.json"
+  },
+  {
+    "id": "cloud-of-daggers",
+    "name": "Cloud of Daggers",
+    "school": "Conjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-2/non-ritual/v-s-m/cloud-of-daggers.json"
+  },
+  {
+    "id": "flaming-sphere",
+    "name": "Flaming Sphere",
+    "school": "Conjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-2/non-ritual/v-s-m/flaming-sphere.json"
+  },
+  {
+    "id": "summon-beast",
+    "name": "Summon Beast",
+    "school": "Conjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-2/non-ritual/v-s-m/summon-beast.json"
+  },
+  {
+    "id": "web",
+    "name": "Web",
+    "school": "Conjuration",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-2/non-ritual/v-s-m/web.json"
+  },
+  {
+    "id": "call-lightning",
+    "name": "Call Lightning",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s/call-lightning.json"
+  },
+  {
+    "id": "conjure-animals",
+    "name": "Conjure Animals",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s/conjure-animals.json"
+  },
+  {
+    "id": "create-food-and-water",
+    "name": "Create Food and Water",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s/create-food-and-water.json"
+  },
+  {
+    "id": "conjure-barrage",
+    "name": "Conjure Barrage",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s-m/conjure-barrage.json"
+  },
+  {
+    "id": "hunger-of-hadar",
+    "name": "Hunger of Hadar",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s-m/hunger-of-hadar.json"
+  },
+  {
+    "id": "sleet-storm",
+    "name": "Sleet Storm",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s-m/sleet-storm.json"
+  },
+  {
+    "id": "spirit-guardians",
+    "name": "Spirit Guardians",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s-m/spirit-guardians.json"
+  },
+  {
+    "id": "stinking-cloud",
+    "name": "Stinking Cloud",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s-m/stinking-cloud.json"
+  },
+  {
+    "id": "summon-fey",
+    "name": "Summon Fey",
+    "school": "Conjuration",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Druid", "Ranger", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-3/non-ritual/v-s-m/summon-fey.json"
+  },
+  {
+    "id": "dimension-door",
+    "name": "Dimension Door",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v/dimension-door.json"
+  },
+  {
+    "id": "guardian-of-faith",
+    "name": "Guardian of Faith",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v/guardian-of-faith.json"
+  },
+  {
+    "id": "conjure-minor-elementals",
+    "name": "Conjure Minor Elementals",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s/conjure-minor-elementals.json"
+  },
+  {
+    "id": "conjure-woodland-beings",
+    "name": "Conjure Woodland Beings",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s/conjure-woodland-beings.json"
+  },
+  {
+    "id": "giant-insect",
+    "name": "Giant Insect",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s/giant-insect.json"
+  },
+  {
+    "id": "grasping-vine",
+    "name": "Grasping Vine",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s/grasping-vine.json"
+  },
+  {
+    "id": "evard-s-black-tentacles",
+    "name": "Evard's Black Tentacles",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s-m/evard-s-black-tentacles.json"
+  },
+  {
+    "id": "leomund-s-secret-chest",
+    "name": "Leomund's Secret Chest",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s-m/leomund-s-secret-chest.json"
+  },
+  {
+    "id": "mordenkainen-s-faithful-hound",
+    "name": "Mordenkainen's Faithful Hound",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s-m/mordenkainen-s-faithful-hound.json"
+  },
+  {
+    "id": "summon-aberration",
+    "name": "Summon Aberration",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s-m/summon-aberration.json"
+  },
+  {
+    "id": "summon-construct",
+    "name": "Summon Construct",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s-m/summon-construct.json"
+  },
+  {
+    "id": "summon-elemental",
+    "name": "Summon Elemental",
+    "school": "Conjuration",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Ranger", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-4/non-ritual/v-s-m/summon-elemental.json"
+  },
+  {
+    "id": "steel-wind-strike",
+    "name": "Steel Wind Strike",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Ranger", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/s-m/steel-wind-strike.json"
+  },
+  {
+    "id": "banishing-smite",
+    "name": "Banishing Smite",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v/banishing-smite.json"
+  },
+  {
+    "id": "teleportation-circle",
+    "name": "Teleportation Circle",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v-m/teleportation-circle.json"
+  },
+  {
+    "id": "cloudkill",
+    "name": "Cloudkill",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v-s/cloudkill.json"
+  },
+  {
+    "id": "conjure-elemental",
+    "name": "Conjure Elemental",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v-s/conjure-elemental.json"
+  },
+  {
+    "id": "tree-stride",
+    "name": "Tree Stride",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v-s/tree-stride.json"
+  },
+  {
+    "id": "conjure-volley",
+    "name": "Conjure Volley",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v-s-m/conjure-volley.json"
+  },
+  {
+    "id": "insect-plague",
+    "name": "Insect Plague",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Sorcerer"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v-s-m/insect-plague.json"
+  },
+  {
+    "id": "summon-celestial",
+    "name": "Summon Celestial",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v-s-m/summon-celestial.json"
+  },
+  {
+    "id": "summon-dragon",
+    "name": "Summon Dragon",
+    "school": "Conjuration",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-5/non-ritual/v-s-m/summon-dragon.json"
+  },
+  {
+    "id": "word-of-recall",
+    "name": "Word of Recall",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v/word-of-recall.json"
+  },
+  {
+    "id": "arcane-gate",
+    "name": "Arcane Gate",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v-s/arcane-gate.json"
+  },
+  {
+    "id": "conjure-fey",
+    "name": "Conjure Fey",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v-s/conjure-fey.json"
+  },
+  {
+    "id": "planar-ally",
+    "name": "Planar Ally",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v-s/planar-ally.json"
+  },
+  {
+    "id": "transport-via-plants",
+    "name": "Transport via Plants",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v-s/transport-via-plants.json"
+  },
+  {
+    "id": "heroes--feast",
+    "name": "Heroes' Feast",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v-s-m/heroes--feast.json"
+  },
+  {
+    "id": "summon-fiend",
+    "name": "Summon Fiend",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v-s-m/summon-fiend.json"
+  },
+  {
+    "id": "tasha-s-bubbling-cauldron",
+    "name": "Tasha's Bubbling Cauldron",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v-s-m/tasha-s-bubbling-cauldron.json"
+  },
+  {
+    "id": "wall-of-thorns",
+    "name": "Wall of Thorns",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/non-ritual/v-s-m/wall-of-thorns.json"
+  },
+  {
+    "id": "drawmij-s-instant-summons",
+    "name": "Drawmij's Instant Summons",
+    "school": "Conjuration",
+    "level": 6,
+    "ritual": true,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-6/ritual/v-s-m/drawmij-s-instant-summons.json"
+  },
+  {
+    "id": "teleport",
+    "name": "Teleport",
+    "school": "Conjuration",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-7/non-ritual/v/teleport.json"
+  },
+  {
+    "id": "conjure-celestial",
+    "name": "Conjure Celestial",
+    "school": "Conjuration",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-7/non-ritual/v-s/conjure-celestial.json"
+  },
+  {
+    "id": "etherealness",
+    "name": "Etherealness",
+    "school": "Conjuration",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-7/non-ritual/v-s/etherealness.json"
+  },
+  {
+    "id": "mordenkainen-s-magnificent-mansion",
+    "name": "Mordenkainen's Magnificent Mansion",
+    "school": "Conjuration",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-7/non-ritual/v-s-m/mordenkainen-s-magnificent-mansion.json"
+  },
+  {
+    "id": "plane-shift",
+    "name": "Plane Shift",
+    "school": "Conjuration",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-7/non-ritual/v-s-m/plane-shift.json"
+  },
+  {
+    "id": "demiplane",
+    "name": "Demiplane",
+    "school": "Conjuration",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-8/non-ritual/s/demiplane.json"
+  },
+  {
+    "id": "incendiary-cloud",
+    "name": "Incendiary Cloud",
+    "school": "Conjuration",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-8/non-ritual/v-s/incendiary-cloud.json"
+  },
+  {
+    "id": "maze",
+    "name": "Maze",
+    "school": "Conjuration",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-8/non-ritual/v-s/maze.json"
+  },
+  {
+    "id": "tsunami",
+    "name": "Tsunami",
+    "school": "Conjuration",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-8/non-ritual/v-s/tsunami.json"
+  },
+  {
+    "id": "wish",
+    "name": "Wish",
+    "school": "Conjuration",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-9/non-ritual/v/wish.json"
+  },
+  {
+    "id": "storm-of-vengeance",
+    "name": "Storm of Vengeance",
+    "school": "Conjuration",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/conjuration/level-9/non-ritual/v-s/storm-of-vengeance.json"
+  },
+  {
+    "id": "gate",
+    "name": "Gate",
+    "school": "Conjuration",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Cleric", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/conjuration/level-9/non-ritual/v-s-m/gate.json"
+  },
+  {
+    "id": "hunter-s-mark",
+    "name": "Hunter's Mark",
+    "school": "Divination",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/divination/level-1/non-ritual/v/hunter-s-mark.json"
+  },
+  {
+    "id": "detect-evil-and-good",
+    "name": "Detect Evil and Good",
+    "school": "Divination",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/divination/level-1/non-ritual/v-s/detect-evil-and-good.json"
+  },
+  {
+    "id": "detect-magic",
+    "name": "Detect Magic",
+    "school": "Divination",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/divination/level-1/ritual/v-s/detect-magic.json"
+  },
+  {
+    "id": "speak-with-animals",
+    "name": "Speak with Animals",
+    "school": "Divination",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Bard", "Druid", "Ranger", "Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/divination/level-1/ritual/v-s/speak-with-animals.json"
+  },
+  {
+    "id": "comprehend-languages",
+    "name": "Comprehend Languages",
+    "school": "Divination",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-1/ritual/v-s-m/comprehend-languages.json"
+  },
+  {
+    "id": "detect-poison-and-disease",
+    "name": "Detect Poison and Disease",
+    "school": "Divination",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Cleric", "Druid", "Paladin", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-1/ritual/v-s-m/detect-poison-and-disease.json"
+  },
+  {
+    "id": "identify",
+    "name": "Identify",
+    "school": "Divination",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-1/ritual/v-s-m/identify.json"
+  },
+  {
+    "id": "mind-spike",
+    "name": "Mind Spike",
+    "school": "Divination",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/divination/level-2/non-ritual/s/mind-spike.json"
+  },
+  {
+    "id": "find-traps",
+    "name": "Find Traps",
+    "school": "Divination",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/divination/level-2/non-ritual/v-s/find-traps.json"
+  },
+  {
+    "id": "detect-thoughts",
+    "name": "Detect Thoughts",
+    "school": "Divination",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-2/non-ritual/v-s-m/detect-thoughts.json"
+  },
+  {
+    "id": "locate-object",
+    "name": "Locate Object",
+    "school": "Divination",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-2/non-ritual/v-s-m/locate-object.json"
+  },
+  {
+    "id": "see-invisibility",
+    "name": "See Invisibility",
+    "school": "Divination",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-2/non-ritual/v-s-m/see-invisibility.json"
+  },
+  {
+    "id": "beast-sense",
+    "name": "Beast Sense",
+    "school": "Divination",
+    "level": 2,
+    "ritual": true,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/divination/level-2/ritual/s/beast-sense.json"
+  },
+  {
+    "id": "augury",
+    "name": "Augury",
+    "school": "Divination",
+    "level": 2,
+    "ritual": true,
+    "classes": ["Cleric", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-2/ritual/v-s-m/augury.json"
+  },
+  {
+    "id": "locate-animals-or-plants",
+    "name": "Locate Animals or Plants",
+    "school": "Divination",
+    "level": 2,
+    "ritual": true,
+    "classes": ["Bard", "Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-2/ritual/v-s-m/locate-animals-or-plants.json"
+  },
+  {
+    "id": "tongues",
+    "name": "Tongues",
+    "school": "Divination",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-3/non-ritual/v-m/tongues.json"
+  },
+  {
+    "id": "clairvoyance",
+    "name": "Clairvoyance",
+    "school": "Divination",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-3/non-ritual/v-s-m/clairvoyance.json"
+  },
+  {
+    "id": "sending",
+    "name": "Sending",
+    "school": "Divination",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-3/non-ritual/v-s-m/sending.json"
+  },
+  {
+    "id": "arcane-eye",
+    "name": "Arcane Eye",
+    "school": "Divination",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-4/non-ritual/v-s-m/arcane-eye.json"
+  },
+  {
+    "id": "locate-creature",
+    "name": "Locate Creature",
+    "school": "Divination",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-4/non-ritual/v-s-m/locate-creature.json"
+  },
+  {
+    "id": "divination",
+    "name": "Divination",
+    "school": "Divination",
+    "level": 4,
+    "ritual": true,
+    "classes": ["Cleric", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-4/ritual/v-s-m/divination.json"
+  },
+  {
+    "id": "legend-lore",
+    "name": "Legend Lore",
+    "school": "Divination",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-5/non-ritual/v-s-m/legend-lore.json"
+  },
+  {
+    "id": "scrying",
+    "name": "Scrying",
+    "school": "Divination",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-5/non-ritual/v-s-m/scrying.json"
+  },
+  {
+    "id": "commune-with-nature",
+    "name": "Commune with Nature",
+    "school": "Divination",
+    "level": 5,
+    "ritual": true,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/divination/level-5/ritual/v-s/commune-with-nature.json"
+  },
+  {
+    "id": "commune",
+    "name": "Commune",
+    "school": "Divination",
+    "level": 5,
+    "ritual": true,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-5/ritual/v-s-m/commune.json"
+  },
+  {
+    "id": "rary-s-telepathic-bond",
+    "name": "Rary's Telepathic Bond",
+    "school": "Divination",
+    "level": 5,
+    "ritual": true,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-5/ritual/v-s-m/rary-s-telepathic-bond.json"
+  },
+  {
+    "id": "find-the-path",
+    "name": "Find the Path",
+    "school": "Divination",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-6/non-ritual/v-s-m/find-the-path.json"
+  },
+  {
+    "id": "true-seeing",
+    "name": "True Seeing",
+    "school": "Divination",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-6/non-ritual/v-s-m/true-seeing.json"
+  },
+  {
+    "id": "telepathy",
+    "name": "Telepathy",
+    "school": "Divination",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-8/non-ritual/v-s-m/telepathy.json"
+  },
+  {
+    "id": "foresight",
+    "name": "Foresight",
+    "school": "Divination",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/divination/level-9/non-ritual/v-s-m/foresight.json"
+  },
+  {
+    "id": "command",
+    "name": "Command",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v/command.json"
+  },
+  {
+    "id": "compelled-duel",
+    "name": "Compelled Duel",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v/compelled-duel.json"
+  },
+  {
+    "id": "dissonant-whispers",
+    "name": "Dissonant Whispers",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v/dissonant-whispers.json"
+  },
+  {
+    "id": "charm-person",
+    "name": "Charm Person",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v-s/charm-person.json"
+  },
+  {
+    "id": "heroism",
+    "name": "Heroism",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v-s/heroism.json"
+  },
+  {
+    "id": "animal-friendship",
+    "name": "Animal Friendship",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v-s-m/animal-friendship.json"
+  },
+  {
+    "id": "bane",
+    "name": "Bane",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v-s-m/bane.json"
+  },
+  {
+    "id": "bless",
+    "name": "Bless",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v-s-m/bless.json"
+  },
+  {
+    "id": "hex",
+    "name": "Hex",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v-s-m/hex.json"
+  },
+  {
+    "id": "sleep",
+    "name": "Sleep",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v-s-m/sleep.json"
+  },
+  {
+    "id": "tasha-s-hideous-laughter",
+    "name": "Tasha's Hideous Laughter",
+    "school": "Enchantment",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-1/non-ritual/v-s-m/tasha-s-hideous-laughter.json"
+  },
+  {
+    "id": "suggestion",
+    "name": "Suggestion",
+    "school": "Enchantment",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-2/non-ritual/v-m/suggestion.json"
+  },
+  {
+    "id": "calm-emotions",
+    "name": "Calm Emotions",
+    "school": "Enchantment",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-2/non-ritual/v-s/calm-emotions.json"
+  },
+  {
+    "id": "crown-of-madness",
+    "name": "Crown of Madness",
+    "school": "Enchantment",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-2/non-ritual/v-s/crown-of-madness.json"
+  },
+  {
+    "id": "enthrall",
+    "name": "Enthrall",
+    "school": "Enchantment",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-2/non-ritual/v-s/enthrall.json"
+  },
+  {
+    "id": "zone-of-truth",
+    "name": "Zone of Truth",
+    "school": "Enchantment",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-2/non-ritual/v-s/zone-of-truth.json"
+  },
+  {
+    "id": "hold-person",
+    "name": "Hold Person",
+    "school": "Enchantment",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-2/non-ritual/v-s-m/hold-person.json"
+  },
+  {
+    "id": "animal-messenger",
+    "name": "Animal Messenger",
+    "school": "Enchantment",
+    "level": 2,
+    "ritual": true,
+    "classes": ["Bard", "Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-2/ritual/v-s-m/animal-messenger.json"
+  },
+  {
+    "id": "staggering-smite",
+    "name": "Staggering Smite",
+    "school": "Enchantment",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-4/non-ritual/v/staggering-smite.json"
+  },
+  {
+    "id": "charm-monster",
+    "name": "Charm Monster",
+    "school": "Enchantment",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-4/non-ritual/v-s/charm-monster.json"
+  },
+  {
+    "id": "compulsion",
+    "name": "Compulsion",
+    "school": "Enchantment",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-4/non-ritual/v-s/compulsion.json"
+  },
+  {
+    "id": "dominate-beast",
+    "name": "Dominate Beast",
+    "school": "Enchantment",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Ranger", "Sorcerer"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-4/non-ritual/v-s/dominate-beast.json"
+  },
+  {
+    "id": "confusion",
+    "name": "Confusion",
+    "school": "Enchantment",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-4/non-ritual/v-s-m/confusion.json"
+  },
+  {
+    "id": "geas",
+    "name": "Geas",
+    "school": "Enchantment",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-5/non-ritual/v/geas.json"
+  },
+  {
+    "id": "dominate-person",
+    "name": "Dominate Person",
+    "school": "Enchantment",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-5/non-ritual/v-s/dominate-person.json"
+  },
+  {
+    "id": "modify-memory",
+    "name": "Modify Memory",
+    "school": "Enchantment",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-5/non-ritual/v-s/modify-memory.json"
+  },
+  {
+    "id": "synaptic-static",
+    "name": "Synaptic Static",
+    "school": "Enchantment",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-5/non-ritual/v-s/synaptic-static.json"
+  },
+  {
+    "id": "hold-monster",
+    "name": "Hold Monster",
+    "school": "Enchantment",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-5/non-ritual/v-s-m/hold-monster.json"
+  },
+  {
+    "id": "yolande-s-regal-presence",
+    "name": "Yolande's Regal Presence",
+    "school": "Enchantment",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-5/non-ritual/v-s-m/yolande-s-regal-presence.json"
+  },
+  {
+    "id": "otto-s-irresistible-dance",
+    "name": "Otto's Irresistible Dance",
+    "school": "Enchantment",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-6/non-ritual/v/otto-s-irresistible-dance.json"
+  },
+  {
+    "id": "mass-suggestion",
+    "name": "Mass Suggestion",
+    "school": "Enchantment",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-6/non-ritual/v-m/mass-suggestion.json"
+  },
+  {
+    "id": "power-word-fortify",
+    "name": "Power Word Fortify",
+    "school": "Enchantment",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-7/non-ritual/v/power-word-fortify.json"
+  },
+  {
+    "id": "glibness",
+    "name": "Glibness",
+    "school": "Enchantment",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Bard", "Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-8/non-ritual/v/glibness.json"
+  },
+  {
+    "id": "power-word-stun",
+    "name": "Power Word Stun",
+    "school": "Enchantment",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-8/non-ritual/v/power-word-stun.json"
+  },
+  {
+    "id": "dominate-monster",
+    "name": "Dominate Monster",
+    "school": "Enchantment",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-8/non-ritual/v-s/dominate-monster.json"
+  },
+  {
+    "id": "befuddlement",
+    "name": "Befuddlement",
+    "school": "Enchantment",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/enchantment/level-8/non-ritual/v-s-m/befuddlement.json"
+  },
+  {
+    "id": "power-word-heal",
+    "name": "Power Word Heal",
+    "school": "Enchantment",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Bard", "Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-9/non-ritual/v/power-word-heal.json"
+  },
+  {
+    "id": "power-word-kill",
+    "name": "Power Word Kill",
+    "school": "Enchantment",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/enchantment/level-9/non-ritual/v/power-word-kill.json"
+  },
+  {
+    "id": "divine-smite",
+    "name": "Divine Smite",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v/divine-smite.json"
+  },
+  {
+    "id": "faerie-fire",
+    "name": "Faerie Fire",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v/faerie-fire.json"
+  },
+  {
+    "id": "searing-smite",
+    "name": "Searing Smite",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v/searing-smite.json"
+  },
+  {
+    "id": "thunderous-smite",
+    "name": "Thunderous Smite",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v/thunderous-smite.json"
+  },
+  {
+    "id": "burning-hands",
+    "name": "Burning Hands",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v-s/burning-hands.json"
+  },
+  {
+    "id": "guiding-bolt",
+    "name": "Guiding Bolt",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v-s/guiding-bolt.json"
+  },
+  {
+    "id": "hellish-rebuke",
+    "name": "Hellish Rebuke",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v-s/hellish-rebuke.json"
+  },
+  {
+    "id": "magic-missile",
+    "name": "Magic Missile",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v-s/magic-missile.json"
+  },
+  {
+    "id": "thunderwave",
+    "name": "Thunderwave",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v-s/thunderwave.json"
+  },
+  {
+    "id": "chromatic-orb",
+    "name": "Chromatic Orb",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v-s-m/chromatic-orb.json"
+  },
+  {
+    "id": "witch-bolt",
+    "name": "Witch Bolt",
+    "school": "Evocation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-1/non-ritual/v-s-m/witch-bolt.json"
+  },
+  {
+    "id": "darkness",
+    "name": "Darkness",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-m/darkness.json"
+  },
+  {
+    "id": "scorching-ray",
+    "name": "Scorching Ray",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-s/scorching-ray.json"
+  },
+  {
+    "id": "spiritual-weapon",
+    "name": "Spiritual Weapon",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-s/spiritual-weapon.json"
+  },
+  {
+    "id": "continual-flame",
+    "name": "Continual Flame",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-s-m/continual-flame.json"
+  },
+  {
+    "id": "flame-blade",
+    "name": "Flame Blade",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-s-m/flame-blade.json"
+  },
+  {
+    "id": "gust-of-wind",
+    "name": "Gust of Wind",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-s-m/gust-of-wind.json"
+  },
+  {
+    "id": "melf-s-acid-arrow",
+    "name": "Melf's Acid Arrow",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-s-m/melf-s-acid-arrow.json"
+  },
+  {
+    "id": "moonbeam",
+    "name": "Moonbeam",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-s-m/moonbeam.json"
+  },
+  {
+    "id": "shatter",
+    "name": "Shatter",
+    "school": "Evocation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-2/non-ritual/v-s-m/shatter.json"
+  },
+  {
+    "id": "blinding-smite",
+    "name": "Blinding Smite",
+    "school": "Evocation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-3/non-ritual/v/blinding-smite.json"
+  },
+  {
+    "id": "crusader-s-mantle",
+    "name": "Crusader's Mantle",
+    "school": "Evocation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-3/non-ritual/v/crusader-s-mantle.json"
+  },
+  {
+    "id": "daylight",
+    "name": "Daylight",
+    "school": "Evocation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Paladin", "Ranger", "Sorcerer"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-3/non-ritual/v-s/daylight.json"
+  },
+  {
+    "id": "fireball",
+    "name": "Fireball",
+    "school": "Evocation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-3/non-ritual/v-s-m/fireball.json"
+  },
+  {
+    "id": "lightning-bolt",
+    "name": "Lightning Bolt",
+    "school": "Evocation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-3/non-ritual/v-s-m/lightning-bolt.json"
+  },
+  {
+    "id": "wind-wall",
+    "name": "Wind Wall",
+    "school": "Evocation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-3/non-ritual/v-s-m/wind-wall.json"
+  },
+  {
+    "id": "leomund-s-tiny-hut",
+    "name": "Leomund's Tiny Hut",
+    "school": "Evocation",
+    "level": 3,
+    "ritual": true,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-3/ritual/v-s-m/leomund-s-tiny-hut.json"
+  },
+  {
+    "id": "fount-of-moonlight",
+    "name": "Fount of Moonlight",
+    "school": "Evocation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-4/non-ritual/v-s/fount-of-moonlight.json"
+  },
+  {
+    "id": "fire-shield",
+    "name": "Fire Shield",
+    "school": "Evocation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-4/non-ritual/v-s-m/fire-shield.json"
+  },
+  {
+    "id": "ice-storm",
+    "name": "Ice Storm",
+    "school": "Evocation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-4/non-ritual/v-s-m/ice-storm.json"
+  },
+  {
+    "id": "vitriolic-sphere",
+    "name": "Vitriolic Sphere",
+    "school": "Evocation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-4/non-ritual/v-s-m/vitriolic-sphere.json"
+  },
+  {
+    "id": "wall-of-fire",
+    "name": "Wall of Fire",
+    "school": "Evocation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-4/non-ritual/v-s-m/wall-of-fire.json"
+  },
+  {
+    "id": "destructive-wave",
+    "name": "Destructive Wave",
+    "school": "Evocation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-5/non-ritual/v/destructive-wave.json"
+  },
+  {
+    "id": "bigby-s-hand",
+    "name": "Bigby's Hand",
+    "school": "Evocation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-5/non-ritual/v-s-m/bigby-s-hand.json"
+  },
+  {
+    "id": "cone-of-cold",
+    "name": "Cone of Cold",
+    "school": "Evocation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-5/non-ritual/v-s-m/cone-of-cold.json"
+  },
+  {
+    "id": "flame-strike",
+    "name": "Flame Strike",
+    "school": "Evocation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-5/non-ritual/v-s-m/flame-strike.json"
+  },
+  {
+    "id": "jallarzi-s-storm-of-radiance",
+    "name": "Jallarzi's Storm of Radiance",
+    "school": "Evocation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-5/non-ritual/v-s-m/jallarzi-s-storm-of-radiance.json"
+  },
+  {
+    "id": "wall-of-force",
+    "name": "Wall of Force",
+    "school": "Evocation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-5/non-ritual/v-s-m/wall-of-force.json"
+  },
+  {
+    "id": "wall-of-stone",
+    "name": "Wall of Stone",
+    "school": "Evocation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-5/non-ritual/v-s-m/wall-of-stone.json"
+  },
+  {
+    "id": "blade-barrier",
+    "name": "Blade Barrier",
+    "school": "Evocation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-6/non-ritual/v-s/blade-barrier.json"
+  },
+  {
+    "id": "chain-lightning",
+    "name": "Chain Lightning",
+    "school": "Evocation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-6/non-ritual/v-s-m/chain-lightning.json"
+  },
+  {
+    "id": "otiluke-s-freezing-sphere",
+    "name": "Otiluke's Freezing Sphere",
+    "school": "Evocation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-6/non-ritual/v-s-m/otiluke-s-freezing-sphere.json"
+  },
+  {
+    "id": "sunbeam",
+    "name": "Sunbeam",
+    "school": "Evocation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-6/non-ritual/v-s-m/sunbeam.json"
+  },
+  {
+    "id": "wall-of-ice",
+    "name": "Wall of Ice",
+    "school": "Evocation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-6/non-ritual/v-s-m/wall-of-ice.json"
+  },
+  {
+    "id": "divine-word",
+    "name": "Divine Word",
+    "school": "Evocation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-7/non-ritual/v/divine-word.json"
+  },
+  {
+    "id": "fire-storm",
+    "name": "Fire Storm",
+    "school": "Evocation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Sorcerer"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-7/non-ritual/v-s/fire-storm.json"
+  },
+  {
+    "id": "prismatic-spray",
+    "name": "Prismatic Spray",
+    "school": "Evocation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-7/non-ritual/v-s/prismatic-spray.json"
+  },
+  {
+    "id": "delayed-blast-fireball",
+    "name": "Delayed Blast Fireball",
+    "school": "Evocation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-7/non-ritual/v-s-m/delayed-blast-fireball.json"
+  },
+  {
+    "id": "forcecage",
+    "name": "Forcecage",
+    "school": "Evocation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-7/non-ritual/v-s-m/forcecage.json"
+  },
+  {
+    "id": "mordenkainen-s-sword",
+    "name": "Mordenkainen's Sword",
+    "school": "Evocation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-7/non-ritual/v-s-m/mordenkainen-s-sword.json"
+  },
+  {
+    "id": "sunburst",
+    "name": "Sunburst",
+    "school": "Evocation",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/evocation/level-8/non-ritual/v-s-m/sunburst.json"
+  },
+  {
+    "id": "meteor-swarm",
+    "name": "Meteor Swarm",
+    "school": "Evocation",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/evocation/level-9/non-ritual/v-s/meteor-swarm.json"
+  },
+  {
+    "id": "disguise-self",
+    "name": "Disguise Self",
+    "school": "Illusion",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-1/non-ritual/v-s/disguise-self.json"
+  },
+  {
+    "id": "color-spray",
+    "name": "Color Spray",
+    "school": "Illusion",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-1/non-ritual/v-s-m/color-spray.json"
+  },
+  {
+    "id": "silent-image",
+    "name": "Silent Image",
+    "school": "Illusion",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-1/non-ritual/v-s-m/silent-image.json"
+  },
+  {
+    "id": "illusory-script",
+    "name": "Illusory Script",
+    "school": "Illusion",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Bard", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-1/ritual/s-m/illusory-script.json"
+  },
+  {
+    "id": "blur",
+    "name": "Blur",
+    "school": "Illusion",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-2/non-ritual/v/blur.json"
+  },
+  {
+    "id": "mirror-image",
+    "name": "Mirror Image",
+    "school": "Illusion",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-2/non-ritual/v-s/mirror-image.json"
+  },
+  {
+    "id": "invisibility",
+    "name": "Invisibility",
+    "school": "Illusion",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-2/non-ritual/v-s-m/invisibility.json"
+  },
+  {
+    "id": "nystul-s-magic-aura",
+    "name": "Nystul's Magic Aura",
+    "school": "Illusion",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-2/non-ritual/v-s-m/nystul-s-magic-aura.json"
+  },
+  {
+    "id": "phantasmal-force",
+    "name": "Phantasmal Force",
+    "school": "Illusion",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-2/non-ritual/v-s-m/phantasmal-force.json"
+  },
+  {
+    "id": "silence",
+    "name": "Silence",
+    "school": "Illusion",
+    "level": 2,
+    "ritual": true,
+    "classes": ["Bard", "Cleric", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-2/ritual/v-s/silence.json"
+  },
+  {
+    "id": "magic-mouth",
+    "name": "Magic Mouth",
+    "school": "Illusion",
+    "level": 2,
+    "ritual": true,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-2/ritual/v-s-m/magic-mouth.json"
+  },
+  {
+    "id": "hypnotic-pattern",
+    "name": "Hypnotic Pattern",
+    "school": "Illusion",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-3/non-ritual/s-m/hypnotic-pattern.json"
+  },
+  {
+    "id": "fear",
+    "name": "Fear",
+    "school": "Illusion",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-3/non-ritual/v-s-m/fear.json"
+  },
+  {
+    "id": "major-image",
+    "name": "Major Image",
+    "school": "Illusion",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-3/non-ritual/v-s-m/major-image.json"
+  },
+  {
+    "id": "phantom-steed",
+    "name": "Phantom Steed",
+    "school": "Illusion",
+    "level": 3,
+    "ritual": true,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-3/ritual/v-s/phantom-steed.json"
+  },
+  {
+    "id": "greater-invisibility",
+    "name": "Greater Invisibility",
+    "school": "Illusion",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-4/non-ritual/v-s/greater-invisibility.json"
+  },
+  {
+    "id": "phantasmal-killer",
+    "name": "Phantasmal Killer",
+    "school": "Illusion",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-4/non-ritual/v-s/phantasmal-killer.json"
+  },
+  {
+    "id": "hallucinatory-terrain",
+    "name": "Hallucinatory Terrain",
+    "school": "Illusion",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-4/non-ritual/v-s-m/hallucinatory-terrain.json"
+  },
+  {
+    "id": "mislead",
+    "name": "Mislead",
+    "school": "Illusion",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-5/non-ritual/s/mislead.json"
+  },
+  {
+    "id": "seeming",
+    "name": "Seeming",
+    "school": "Illusion",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-5/non-ritual/v-s/seeming.json"
+  },
+  {
+    "id": "creation",
+    "name": "Creation",
+    "school": "Illusion",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-5/non-ritual/v-s-m/creation.json"
+  },
+  {
+    "id": "dream",
+    "name": "Dream",
+    "school": "Illusion",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-5/non-ritual/v-s-m/dream.json"
+  },
+  {
+    "id": "programmed-illusion",
+    "name": "Programmed Illusion",
+    "school": "Illusion",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-6/non-ritual/v-s-m/programmed-illusion.json"
+  },
+  {
+    "id": "mirage-arcane",
+    "name": "Mirage Arcane",
+    "school": "Illusion",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-7/non-ritual/v-s/mirage-arcane.json"
+  },
+  {
+    "id": "project-image",
+    "name": "Project Image",
+    "school": "Illusion",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-7/non-ritual/v-s-m/project-image.json"
+  },
+  {
+    "id": "simulacrum",
+    "name": "Simulacrum",
+    "school": "Illusion",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/illusion/level-7/non-ritual/v-s-m/simulacrum.json"
+  },
+  {
+    "id": "weird",
+    "name": "Weird",
+    "school": "Illusion",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/illusion/level-9/non-ritual/v-s/weird.json"
+  },
+  {
+    "id": "wrathful-smite",
+    "name": "Wrathful Smite",
+    "school": "Necromancy",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-1/non-ritual/v/wrathful-smite.json"
+  },
+  {
+    "id": "inflict-wounds",
+    "name": "Inflict Wounds",
+    "school": "Necromancy",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-1/non-ritual/v-s/inflict-wounds.json"
+  },
+  {
+    "id": "ray-of-sickness",
+    "name": "Ray of Sickness",
+    "school": "Necromancy",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-1/non-ritual/v-s/ray-of-sickness.json"
+  },
+  {
+    "id": "false-life",
+    "name": "False Life",
+    "school": "Necromancy",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-1/non-ritual/v-s-m/false-life.json"
+  },
+  {
+    "id": "ray-of-enfeeblement",
+    "name": "Ray of Enfeeblement",
+    "school": "Necromancy",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-2/non-ritual/v-s/ray-of-enfeeblement.json"
+  },
+  {
+    "id": "gentle-repose",
+    "name": "Gentle Repose",
+    "school": "Necromancy",
+    "level": 2,
+    "ritual": true,
+    "classes": ["Cleric", "Paladin", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-2/ritual/v-s-m/gentle-repose.json"
+  },
+  {
+    "id": "bestow-curse",
+    "name": "Bestow Curse",
+    "school": "Necromancy",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-3/non-ritual/v-s/bestow-curse.json"
+  },
+  {
+    "id": "vampiric-touch",
+    "name": "Vampiric Touch",
+    "school": "Necromancy",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-3/non-ritual/v-s/vampiric-touch.json"
+  },
+  {
+    "id": "animate-dead",
+    "name": "Animate Dead",
+    "school": "Necromancy",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-3/non-ritual/v-s-m/animate-dead.json"
+  },
+  {
+    "id": "revivify",
+    "name": "Revivify",
+    "school": "Necromancy",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Paladin", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-3/non-ritual/v-s-m/revivify.json"
+  },
+  {
+    "id": "speak-with-dead",
+    "name": "Speak with Dead",
+    "school": "Necromancy",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-3/non-ritual/v-s-m/speak-with-dead.json"
+  },
+  {
+    "id": "summon-undead",
+    "name": "Summon Undead",
+    "school": "Necromancy",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-3/non-ritual/v-s-m/summon-undead.json"
+  },
+  {
+    "id": "feign-death",
+    "name": "Feign Death",
+    "school": "Necromancy",
+    "level": 3,
+    "ritual": true,
+    "classes": ["Bard", "Cleric", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-3/ritual/v-s-m/feign-death.json"
+  },
+  {
+    "id": "blight",
+    "name": "Blight",
+    "school": "Necromancy",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-4/non-ritual/v-s/blight.json"
+  },
+  {
+    "id": "contagion",
+    "name": "Contagion",
+    "school": "Necromancy",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-5/non-ritual/v-s/contagion.json"
+  },
+  {
+    "id": "raise-dead",
+    "name": "Raise Dead",
+    "school": "Necromancy",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-5/non-ritual/v-s-m/raise-dead.json"
+  },
+  {
+    "id": "reincarnate",
+    "name": "Reincarnate",
+    "school": "Necromancy",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-5/non-ritual/v-s-m/reincarnate.json"
+  },
+  {
+    "id": "eyebite",
+    "name": "Eyebite",
+    "school": "Necromancy",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-6/non-ritual/v-s/eyebite.json"
+  },
+  {
+    "id": "harm",
+    "name": "Harm",
+    "school": "Necromancy",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-6/non-ritual/v-s/harm.json"
+  },
+  {
+    "id": "circle-of-death",
+    "name": "Circle of Death",
+    "school": "Necromancy",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-6/non-ritual/v-s-m/circle-of-death.json"
+  },
+  {
+    "id": "create-undead",
+    "name": "Create Undead",
+    "school": "Necromancy",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Cleric", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-6/non-ritual/v-s-m/create-undead.json"
+  },
+  {
+    "id": "magic-jar",
+    "name": "Magic Jar",
+    "school": "Necromancy",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-6/non-ritual/v-s-m/magic-jar.json"
+  },
+  {
+    "id": "finger-of-death",
+    "name": "Finger of Death",
+    "school": "Necromancy",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/necromancy/level-7/non-ritual/v-s/finger-of-death.json"
+  },
+  {
+    "id": "resurrection",
+    "name": "Resurrection",
+    "school": "Necromancy",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-7/non-ritual/v-s-m/resurrection.json"
+  },
+  {
+    "id": "clone",
+    "name": "Clone",
+    "school": "Necromancy",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-8/non-ritual/v-s-m/clone.json"
+  },
+  {
+    "id": "astral-projection",
+    "name": "Astral Projection",
+    "school": "Necromancy",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Cleric", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-9/non-ritual/v-s-m/astral-projection.json"
+  },
+  {
+    "id": "true-resurrection",
+    "name": "True Resurrection",
+    "school": "Necromancy",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/necromancy/level-9/non-ritual/v-s-m/true-resurrection.json"
+  },
+  {
+    "id": "feather-fall",
+    "name": "Feather Fall",
+    "school": "Transmutation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-1/non-ritual/v-m/feather-fall.json"
+  },
+  {
+    "id": "divine-favor",
+    "name": "Divine Favor",
+    "school": "Transmutation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-1/non-ritual/v-s/divine-favor.json"
+  },
+  {
+    "id": "expeditious-retreat",
+    "name": "Expeditious Retreat",
+    "school": "Transmutation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-1/non-ritual/v-s/expeditious-retreat.json"
+  },
+  {
+    "id": "create-or-destroy-water",
+    "name": "Create or Destroy Water",
+    "school": "Transmutation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-1/non-ritual/v-s-m/create-or-destroy-water.json"
+  },
+  {
+    "id": "jump",
+    "name": "Jump",
+    "school": "Transmutation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-1/non-ritual/v-s-m/jump.json"
+  },
+  {
+    "id": "longstrider",
+    "name": "Longstrider",
+    "school": "Transmutation",
+    "level": 1,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Ranger", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-1/non-ritual/v-s-m/longstrider.json"
+  },
+  {
+    "id": "purify-food-and-drink",
+    "name": "Purify Food and Drink",
+    "school": "Transmutation",
+    "level": 1,
+    "ritual": true,
+    "classes": ["Cleric", "Druid", "Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-1/ritual/v-s/purify-food-and-drink.json"
+  },
+  {
+    "id": "knock",
+    "name": "Knock",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v/knock.json"
+  },
+  {
+    "id": "shining-smite",
+    "name": "Shining Smite",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Paladin"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v/shining-smite.json"
+  },
+  {
+    "id": "alter-self",
+    "name": "Alter Self",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s/alter-self.json"
+  },
+  {
+    "id": "magic-weapon",
+    "name": "Magic Weapon",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Paladin", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s/magic-weapon.json"
+  },
+  {
+    "id": "barkskin",
+    "name": "Barkskin",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/barkskin.json"
+  },
+  {
+    "id": "cordon-of-arrows",
+    "name": "Cordon of Arrows",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/cordon-of-arrows.json"
+  },
+  {
+    "id": "darkvision",
+    "name": "Darkvision",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/darkvision.json"
+  },
+  {
+    "id": "dragon-s-breath",
+    "name": "Dragon's Breath",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/dragon-s-breath.json"
+  },
+  {
+    "id": "enhance-ability",
+    "name": "Enhance Ability",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/enhance-ability.json"
+  },
+  {
+    "id": "heat-metal",
+    "name": "Heat Metal",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Bard", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/heat-metal.json"
+  },
+  {
+    "id": "levitate",
+    "name": "Levitate",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/levitate.json"
+  },
+  {
+    "id": "rope-trick",
+    "name": "Rope Trick",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/rope-trick.json"
+  },
+  {
+    "id": "spider-climb",
+    "name": "Spider Climb",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/spider-climb.json"
+  },
+  {
+    "id": "spike-growth",
+    "name": "Spike Growth",
+    "school": "Transmutation",
+    "level": 2,
+    "ritual": false,
+    "classes": ["Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-2/non-ritual/v-s-m/spike-growth.json"
+  },
+  {
+    "id": "blink",
+    "name": "Blink",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s/blink.json"
+  },
+  {
+    "id": "elemental-weapon",
+    "name": "Elemental Weapon",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Druid", "Paladin", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s/elemental-weapon.json"
+  },
+  {
+    "id": "lightning-arrow",
+    "name": "Lightning Arrow",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s/lightning-arrow.json"
+  },
+  {
+    "id": "plant-growth",
+    "name": "Plant Growth",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s/plant-growth.json"
+  },
+  {
+    "id": "speak-with-plants",
+    "name": "Speak with Plants",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s/speak-with-plants.json"
+  },
+  {
+    "id": "fly",
+    "name": "Fly",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s-m/fly.json"
+  },
+  {
+    "id": "gaseous-form",
+    "name": "Gaseous Form",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s-m/gaseous-form.json"
+  },
+  {
+    "id": "haste",
+    "name": "Haste",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s-m/haste.json"
+  },
+  {
+    "id": "slow",
+    "name": "Slow",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/non-ritual/v-s-m/slow.json"
+  },
+  {
+    "id": "meld-into-stone",
+    "name": "Meld into Stone",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": true,
+    "classes": ["Cleric", "Druid", "Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/ritual/v-s/meld-into-stone.json"
+  },
+  {
+    "id": "water-breathing",
+    "name": "Water Breathing",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": true,
+    "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/ritual/v-s-m/water-breathing.json"
+  },
+  {
+    "id": "water-walk",
+    "name": "Water Walk",
+    "school": "Transmutation",
+    "level": 3,
+    "ritual": true,
+    "classes": ["Cleric", "Druid", "Ranger", "Sorcerer"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-3/ritual/v-s-m/water-walk.json"
+  },
+  {
+    "id": "fabricate",
+    "name": "Fabricate",
+    "school": "Transmutation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-4/non-ritual/v-s/fabricate.json"
+  },
+  {
+    "id": "control-water",
+    "name": "Control Water",
+    "school": "Transmutation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-4/non-ritual/v-s-m/control-water.json"
+  },
+  {
+    "id": "polymorph",
+    "name": "Polymorph",
+    "school": "Transmutation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Bard", "Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-4/non-ritual/v-s-m/polymorph.json"
+  },
+  {
+    "id": "stone-shape",
+    "name": "Stone Shape",
+    "school": "Transmutation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-4/non-ritual/v-s-m/stone-shape.json"
+  },
+  {
+    "id": "stoneskin",
+    "name": "Stoneskin",
+    "school": "Transmutation",
+    "level": 4,
+    "ritual": false,
+    "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-4/non-ritual/v-s-m/stoneskin.json"
+  },
+  {
+    "id": "animate-objects",
+    "name": "Animate Objects",
+    "school": "Transmutation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-5/non-ritual/v-s/animate-objects.json"
+  },
+  {
+    "id": "telekinesis",
+    "name": "Telekinesis",
+    "school": "Transmutation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-5/non-ritual/v-s/telekinesis.json"
+  },
+  {
+    "id": "awaken",
+    "name": "Awaken",
+    "school": "Transmutation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Bard", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-5/non-ritual/v-s-m/awaken.json"
+  },
+  {
+    "id": "passwall",
+    "name": "Passwall",
+    "school": "Transmutation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-5/non-ritual/v-s-m/passwall.json"
+  },
+  {
+    "id": "swift-quiver",
+    "name": "Swift Quiver",
+    "school": "Transmutation",
+    "level": 5,
+    "ritual": false,
+    "classes": ["Ranger"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-5/non-ritual/v-s-m/swift-quiver.json"
+  },
+  {
+    "id": "disintegrate",
+    "name": "Disintegrate",
+    "school": "Transmutation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-6/non-ritual/v-s-m/disintegrate.json"
+  },
+  {
+    "id": "flesh-to-stone",
+    "name": "Flesh to Stone",
+    "school": "Transmutation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-6/non-ritual/v-s-m/flesh-to-stone.json"
+  },
+  {
+    "id": "move-earth",
+    "name": "Move Earth",
+    "school": "Transmutation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-6/non-ritual/v-s-m/move-earth.json"
+  },
+  {
+    "id": "wind-walk",
+    "name": "Wind Walk",
+    "school": "Transmutation",
+    "level": 6,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-6/non-ritual/v-s-m/wind-walk.json"
+  },
+  {
+    "id": "regenerate",
+    "name": "Regenerate",
+    "school": "Transmutation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Bard", "Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-7/non-ritual/v-s-m/regenerate.json"
+  },
+  {
+    "id": "reverse-gravity",
+    "name": "Reverse Gravity",
+    "school": "Transmutation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-7/non-ritual/v-s-m/reverse-gravity.json"
+  },
+  {
+    "id": "sequester",
+    "name": "Sequester",
+    "school": "Transmutation",
+    "level": 7,
+    "ritual": false,
+    "classes": ["Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-7/non-ritual/v-s-m/sequester.json"
+  },
+  {
+    "id": "animal-shapes",
+    "name": "Animal Shapes",
+    "school": "Transmutation",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-8/non-ritual/v-s/animal-shapes.json"
+  },
+  {
+    "id": "control-weather",
+    "name": "Control Weather",
+    "school": "Transmutation",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-8/non-ritual/v-s-m/control-weather.json"
+  },
+  {
+    "id": "earthquake",
+    "name": "Earthquake",
+    "school": "Transmutation",
+    "level": 8,
+    "ritual": false,
+    "classes": ["Cleric", "Druid", "Sorcerer"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-8/non-ritual/v-s-m/earthquake.json"
+  },
+  {
+    "id": "time-stop",
+    "name": "Time Stop",
+    "school": "Transmutation",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/prepared-spells/transmutation/level-9/non-ritual/v/time-stop.json"
+  },
+  {
+    "id": "shapechange",
+    "name": "Shapechange",
+    "school": "Transmutation",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Druid", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-9/non-ritual/v-s-m/shapechange.json"
+  },
+  {
+    "id": "true-polymorph",
+    "name": "True Polymorph",
+    "school": "Transmutation",
+    "level": 9,
+    "ritual": false,
+    "classes": ["Bard", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/prepared-spells/transmutation/level-9/non-ritual/v-s-m/true-polymorph.json"
+  }
+]

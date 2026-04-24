@@ -1,0 +1,13 @@
+{
+  "name": "Orc",
+  "script": "Dwarvish",
+  "origin": "Orcs",
+  "speakers": "Orcs",
+  "slug": "orc",
+  "category": "Standard",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

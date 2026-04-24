@@ -1,0 +1,199 @@
+{
+  "name": "Barlgura",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Abyss"],
+  "treasure": ["None"],
+  "lore": "Barlguras are hulking, ape-like demons that roam the Abyss in packs, leaping from crag to crag and ambushing prey with savage cunning. When summoned to the Material Plane, they revel in destruction and use their innate magic to disguise themselves or vanish from sight before pouncing on unsuspecting victims.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 68,
+    "dice": {
+      "count": 8,
+      "die": "d10",
+      "modifier": 24
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Climb",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 5
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 120
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Demonic Restoration",
+      "description": "If the barlgura is killed outside the Abyss, it revives in the Abyss in 1d10 days and regains all its Hit Points. Only a Wish spell can prevent this revival."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The barlgura has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Running Leap",
+      "description": "The barlgura's Long Jump is up to 40 feet and its High Jump is up to 20 feet when it has a running start of at least 10 feet."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "WIS",
+      "spellSaveDC": 13,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Disguise Self",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            },
+            {
+              "name": "Phantasmal Force",
+              "level": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The barlgura makes two Rend attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Rend",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Rend",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 11 (2d6 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The barlgura casts one of the following spells, requiring no Material components, using Wisdom as the spellcasting ability (spell save DC 13):\n\nAt will: Disguise Self\n\n2/day each: Invisibility (self only), Phantasmal Force"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Aggressive Leap",
+      "description": "The barlgura moves up to its Speed toward a hostile creature it can see without provoking Opportunity Attacks."
+    }
+  ]
+}

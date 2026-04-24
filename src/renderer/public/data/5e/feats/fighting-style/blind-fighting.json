@@ -1,0 +1,14 @@
+{
+  "name": "Blind Fighting",
+  "category": "Fighting Style",
+  "prerequisites": {
+    "features": ["Fighting Style Feature"]
+  },
+  "benefits": [
+    {
+      "name": "Blindsight",
+      "description": "You have Blindsight with a range of 10 feet."
+    }
+  ],
+  "source": "PHB 2024"
+}

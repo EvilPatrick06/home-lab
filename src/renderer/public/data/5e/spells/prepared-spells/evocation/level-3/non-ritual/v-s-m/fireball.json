@@ -1,0 +1,62 @@
+{
+  "name": "Fireball",
+  "level": 3,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 150,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a ball of bat guano and sulfur",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A bright streak flashes from you to a point you choose within range and then blossoms with a low roar into a fiery explosion. Each creature in a 20-foot-radius Sphere centered on that point makes a Dexterity saving throw, taking 8d6 Fire damage on a failed save or half as much damage on a successful one. Flammable objects in the area that aren't being worn or carried start burning.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 20
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 8,
+        "diceValue": 6
+      },
+      "type": "Fire",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 3,
+        "description": "The damage increases by 1d6 for each spell slot level above 3."
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Stable",
+  "slug": "stable",
+  "description": "A creature is Stable if it has 0 Hit Points but isn't required to make Death Saving Throws.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,432 @@
+{
+  "name": "Adult Black Dragon",
+  "sizes": ["Huge"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Chromatic"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Swamp"],
+  "treasure": ["Any"],
+  "lore": "Black dragons are the most sadistic and cruel of the chromatic dragons. They delight in the suffering of others and revel in the decay and ruin of once-thriving places. Preferring to lurk in fetid swamps and crumbling ruins, these acid-breathing tyrants lord over their domains with vicious cunning and malice. They are patient hunters that delight in tormenting prey before delivering a killing blow, and they hold grudges for centuries.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 195,
+    "dice": {
+      "count": 17,
+      "die": "d12",
+      "modifier": 85
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 7,
+    "score": 17
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 23,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 7
+    },
+    "CON": {
+      "score": 21,
+      "modifier": 5,
+      "save": 10
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 6
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 8
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 11
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "damageImmunities": ["Acid"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 21
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "14",
+  "experiencePoints": 11500,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The dragon can breathe air and water."
+    },
+    {
+      "name": "Legendary Resistance",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes one Bite attack and two Claw attacks. It can replace one attack with a use of Frightful Presence.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Frightful Presence"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +11, reach 10 ft. Hit: 17 (2d10 + 6) Piercing damage plus 4 (1d8) Acid damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 11,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +11, reach 5 ft. Hit: 13 (2d6 + 6) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 11,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 6
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the dragon's choice that is within 120 feet of the dragon and aware of it must succeed on a DC 16 Wisdom saving throw or have the Frightened condition for 1 minute. A creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to this dragon's Frightful Presence for the next 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 16,
+        "targets": "each creature of the dragon's choice within 120 feet that is aware of it",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 16,
+                "targets": "the Frightened creature",
+                "onSuccess": {
+                  "effects": "The condition ends on that creature, and it is immune to this dragon's Frightful Presence for 24 hours."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature is immune to this dragon's Frightful Presence for the next 24 hours."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "1 minute"
+        }
+      ]
+    },
+    {
+      "name": "Acid Breath",
+      "description": "The dragon exhales acid in a 60-foot-long, 5-foot-wide Line. Each creature in that area must make a DC 18 Dexterity saving throw, taking 54 (12d8) Acid damage on a failed save, or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 18,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 54,
+              "dice": {
+                "count": 12,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Line",
+        "size": 60,
+        "width": 5
+      }
+    }
+  ],
+  "bonusActions": [],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Tail Attack",
+        "description": "Melee Attack Roll: +11, reach 15 ft. Hit: 15 (2d8 + 6) Bludgeoning damage.",
+        "cost": 1,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 11,
+          "reach": 15,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 15,
+                "dice": {
+                  "count": 2,
+                  "die": "d8",
+                  "modifier": 6
+                },
+                "type": "Bludgeoning"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Darkness",
+        "description": "The dragon magically casts Darkness, requiring no spell components or Concentration. The dragon can see through this Darkness. The spell ends early if the dragon uses this legendary action again or dies.",
+        "cost": 1
+      },
+      {
+        "name": "Wing Attack",
+        "description": "Each creature within 15 feet of the dragon must succeed on a DC 19 Dexterity saving throw or take 13 (2d6 + 6) Bludgeoning damage and have the Prone condition. The dragon can then Fly up to half its Fly Speed without provoking Opportunity Attacks.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 19,
+          "targets": "each creature within 15 feet of the dragon",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 13,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 6
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": false
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 15,
+          "centered": true
+        },
+        "conditions": [
+          {
+            "condition": "Prone"
+          }
+        ]
+      }
+    ]
+  },
+  "lair": {
+    "description": "Black dragons dwell in dismal swamps, crumbling ruins, and fetid marshlands. The lair reeks of acid and decay, and the terrain around it is corrupted by the dragon's vile presence. Pools of acid, quicksand, and treacherous waterways make approach perilous.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Grasping Muck",
+        "description": "Pools of water and mud that the dragon can see within 120 feet of it surge outward. Each creature on the ground within 20 feet of such a pool must succeed on a DC 15 Strength saving throw or be pulled up to 20 feet toward the pool's center and have the Prone condition.",
+        "savingThrow": {
+          "ability": "STR",
+          "dc": 15,
+          "targets": "each creature on the ground within 20 feet of a pool",
+          "onFailure": {
+            "effects": "The creature is pulled up to 20 feet toward the pool's center.",
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          }
+        },
+        "conditions": [
+          {
+            "condition": "Prone"
+          }
+        ]
+      },
+      {
+        "name": "Acid Seep",
+        "description": "A 5-foot-radius pool of acid appears at a point on the ground that the dragon can see within 120 feet of it. Any creature that starts its turn in the pool takes 10 (3d6) Acid damage. The pool lasts until the dragon uses this lair action again or dies.",
+        "damage": [
+          {
+            "average": 10,
+            "dice": {
+              "count": 3,
+              "die": "d6",
+              "modifier": 0
+            },
+            "type": "Acid"
+          }
+        ],
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 5
+        }
+      },
+      {
+        "name": "Swarm of Insects",
+        "description": "A cloud of biting insects fills a 20-foot-radius Sphere centered on a point the dragon chooses within 120 feet of it. The cloud lightly obscures the area and lasts until the dragon uses this lair action again or dies. Any creature that starts its turn in the cloud must make a DC 15 Constitution saving throw, taking 5 (2d4) Piercing damage on a failed save, or half as much damage on a successful one.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 15,
+          "targets": "each creature that starts its turn in the cloud",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 5,
+                "dice": {
+                  "count": 2,
+                  "die": "d4",
+                  "modifier": 0
+                },
+                "type": "Piercing"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Water sources within 6 miles of the lair are supernaturally fouled. Enemies of the dragon that drink such water regurgitate it within minutes.",
+        "radius": 6,
+        "endCondition": "If the dragon dies, the water returns to normal over 1d10 days."
+      },
+      {
+        "description": "Fog lightly obscures the land within 6 miles of the lair.",
+        "radius": 6,
+        "endCondition": "If the dragon dies, the fog dissipates within 1 day."
+      },
+      {
+        "description": "The land within 6 miles of the lair takes twice as long to traverse, since the plants grow thick and twisted, and the swamps are bytes of murky water.",
+        "radius": 6,
+        "endCondition": "If the dragon dies, the vegetation returns to normal within 1d10 days."
+      }
+    ]
+  }
+}

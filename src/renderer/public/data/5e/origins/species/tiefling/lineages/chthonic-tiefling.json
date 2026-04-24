@@ -1,0 +1,14 @@
+{
+  "id": "chthonic-tiefling",
+  "name": "Chthonic Tiefling",
+  "species": "tiefling",
+  "fiendishLegacy": "chthonic",
+  "description": "Lineage traces to the underworld. Resistance to necrotic damage.",
+  "traits": [
+    {
+      "name": "Chthonic Legacy",
+      "description": "Chill Touch cantrip; False Life at 3rd; Ray of Enfeeblement at 5th. Charisma spellcasting."
+    }
+  ],
+  "source": "PHB 2024"
+}

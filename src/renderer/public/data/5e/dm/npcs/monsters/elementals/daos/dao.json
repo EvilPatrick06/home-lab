@@ -1,0 +1,251 @@
+{
+  "name": "Dao",
+  "sizes": ["Large"],
+  "creatureType": "Elemental",
+  "descriptiveTags": ["Genie"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar (Elemental Plane of Earth)", "Underdark"],
+  "treasure": ["Any"],
+  "lore": "Dao are earth genies who dwell on the Elemental Plane of Earth, where they carve great labyrinthine fortresses from stone and precious minerals. Greedy and tyrannical, dao prize gems and enslaved laborers above all else. They are physically powerful and can move through earth and stone as easily as a fish swims through water.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 187,
+    "dice": {
+      "count": 15,
+      "die": "d10",
+      "modifier": 105
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Burrow",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 15
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 23,
+      "modifier": 6,
+      "save": 10
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 5
+    },
+    "CON": {
+      "score": 24,
+      "modifier": 7,
+      "save": 7
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 5
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 5
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 6
+    }
+  },
+  "skills": [
+    {
+      "skill": "Athletics",
+      "bonus": 10
+    },
+    {
+      "skill": "Perception",
+      "bonus": 5
+    }
+  ],
+  "conditionImmunities": ["Petrified"],
+  "gear": [
+    {
+      "name": "Maul",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      },
+      {
+        "type": "Tremorsense",
+        "range": 60
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Common", "Terran"]
+  },
+  "challengeRating": "11",
+  "experiencePoints": 7200,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Earth Glide",
+      "description": "The dao can burrow through nonmagical, unworked earth and stone. While doing so, the dao doesn't disturb the material it moves through."
+    },
+    {
+      "name": "Elemental Restoration",
+      "description": "If the dao dies outside the Elemental Plane of Earth, its body dissolves into gemstones, and the dao re-forms on the Elemental Plane of Earth, regaining all its Hit Points.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      }
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 14,
+      "spellAttackBonus": 6,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Stone Shape",
+              "level": 4
+            },
+            {
+              "name": "Tongues",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Passwall",
+              "level": 5
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self plus willing creatures only"
+            },
+            {
+              "name": "Wall of Stone",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The dao makes three Maul attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Maul",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Maul",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Maul",
+      "description": "Melee Attack Roll: +10, reach 5 ft. Hit: 20 (4d6 + 6) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 20,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The dao casts one of the following spells, requiring no Material components. Spellcasting Ability: CHA (spell save DC 14, spell attack +6). At will: Detect Magic, Stone Shape, Tongues. 3/day each: Passwall, Plane Shift (self plus willing creatures only), Wall of Stone."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Crushing Grasp",
+      "description": "The dao targets one creature it can see within 60 feet of itself. The target must make a DC 19 Strength saving throw. On a failed save, the target takes 14 (4d6) Bludgeoning damage and has the Restrained condition until the start of the dao's next turn. On a successful save, the target takes half damage only.",
+      "savingThrow": {
+        "ability": "STR",
+        "dc": 19,
+        "targets": "one creature the dao can see within 60 feet",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "duration": "until the start of the dao's next turn"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ]
+}

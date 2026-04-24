@@ -1,0 +1,17 @@
+{
+  "name": "Bowl of Commanding Water Elementals",
+  "cost": {
+    "amount": 8000,
+    "denomination": "GP"
+  },
+  "weight": 3,
+  "description": "While this bowl is filled with water, you can take a Magic action to speak the bowl's command word and summon a water elemental, as if you had cast the Conjure Elemental spell. The bowl can't be used again until the next dawn. The bowl is about 1 foot in diameter and half as deep, weighing 3 pounds, and holds about 3 gallons of water.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "None",
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": "Holds about 3 gallons of water"
+}

@@ -1,0 +1,482 @@
+{
+  "name": "Adult Blue Dragon",
+  "sizes": ["Huge"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Chromatic"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Coastal", "Desert"],
+  "treasure": ["Arcana"],
+  "lore": "Blue dragons are vain, territorial predators that haunt coastlines and deserts, lording over their domains from lairs hidden beneath the sand. Masters of deception and illusion, they delight in manipulating lesser creatures and amassing hoards of gemstones and magical curiosities. Their thunderous lightning breath can be heard for miles, and the crackle of static in the air is often the only warning before a blue dragon strikes from below the dunes.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 225,
+    "dice": {
+      "count": 18,
+      "die": "d12",
+      "modifier": 108
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Burrow",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 15
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 25,
+      "modifier": 7,
+      "save": 7
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 5
+    },
+    "CON": {
+      "score": 23,
+      "modifier": 6,
+      "save": 11
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 7
+    },
+    "CHA": {
+      "score": 19,
+      "modifier": 4,
+      "save": 9
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 12
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "damageImmunities": ["Lightning"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 22
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "16",
+  "experiencePoints": 15000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 17,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Arcane Eye",
+              "level": 4
+            },
+            {
+              "name": "Create Food and Water",
+              "level": 3
+            },
+            {
+              "name": "Major Image",
+              "level": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes one Bite attack and two Claw attacks. It can replace one attack with a use of Frightful Presence or Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Frightful Presence"
+      },
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +12, reach 10 ft. Hit: 18 (2d10 + 7) Piercing damage plus 5 (1d10) Lightning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 12,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 18,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 7
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +12, reach 5 ft. Hit: 14 (2d6 + 7) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 12,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 7
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +12, reach 15 ft. Hit: 16 (2d8 + 7) Bludgeoning damage. If the target is a Huge or smaller creature, it has the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 12,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 7
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the target is a Huge or smaller creature, it has the Prone condition.",
+          "conditions": [
+            {
+              "condition": "Prone",
+              "duration": "until the creature stands up"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the dragon's choice within 120 feet of it must succeed on a DC 17 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature repeats the save at the end of each of its turns, ending the effect on itself on a success. A creature that succeeds on the save is immune to this dragon's Frightful Presence for 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 17,
+        "targets": "each creature of the dragon's choice within 120 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 17,
+                "targets": "the Frightened creature",
+                "onSuccess": {
+                  "effects": "The condition ends on the creature."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "1 minute"
+        }
+      ]
+    },
+    {
+      "name": "Lightning Breath",
+      "description": "The dragon exhales lightning in a 90-foot-long, 5-foot-wide Line. Each creature in that area makes a DC 19 Dexterity saving throw, taking 66 (12d10) Lightning damage on a failed save or half damage only on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 19,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 66,
+              "dice": {
+                "count": 12,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Line",
+        "size": 90,
+        "width": 5
+      }
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Tail Attack",
+        "description": "The dragon makes one Tail attack.",
+        "cost": 1
+      },
+      {
+        "name": "Wing Attack",
+        "description": "The dragon beats its wings. Each creature within 10 feet of the dragon must succeed on a DC 20 Dexterity saving throw or take 14 (2d6 + 7) Bludgeoning damage and have the Prone condition. The dragon can then Fly up to half its Fly Speed.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 20,
+          "targets": "each creature within 10 feet of the dragon",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 14,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 7
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 10,
+          "centered": true
+        }
+      }
+    ]
+  },
+  "lair": {
+    "description": "Blue dragons lair in vast underground caverns beneath desert sands or coastal cliffs. Their lairs are often labyrinthine complexes carved by the dragon's burrowing, filled with the electric hum of residual lightning and decorated with the dragon's prized treasures — particularly gemstones and objects of arcane significance.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Thunderclap",
+        "description": "A thunderclap originates at a point the dragon can see within 120 feet of it. Each creature in a 20-foot-radius Sphere centered on that point must make a DC 17 Constitution saving throw, taking 16 (3d10) Thunder damage on a failed save or half damage only on a successful one.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 17,
+          "targets": "each creature in a 20-foot-radius Sphere",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 16,
+                "dice": {
+                  "count": 3,
+                  "die": "d10",
+                  "modifier": 0
+                },
+                "type": "Thunder"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      },
+      {
+        "name": "Sand Tomb",
+        "description": "The dragon causes sand and earth to surge around a creature it can see within 120 feet of it. The target must succeed on a DC 17 Dexterity saving throw or have the Restrained condition until initiative count 20 on the next round. A Restrained creature can use its action to make a DC 17 Strength (Athletics) check, freeing itself on a success.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 17,
+          "targets": "one creature the dragon can see within 120 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Restrained",
+                "duration": "until initiative count 20 on the next round",
+                "escapeDC": 17
+              }
+            ]
+          }
+        },
+        "conditions": [
+          {
+            "condition": "Restrained",
+            "duration": "until initiative count 20 on the next round",
+            "escapeDC": 17
+          }
+        ]
+      },
+      {
+        "name": "Arc Lightning",
+        "description": "Lightning arcs from the dragon to up to three creatures the dragon can see within 120 feet of it. Each target must make a DC 17 Dexterity saving throw, taking 10 (3d6) Lightning damage on a failed save or half damage only on a successful one.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 17,
+          "targets": "up to three creatures the dragon can see within 120 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 10,
+                "dice": {
+                  "count": 3,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Lightning"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Thunderstorms are common within 6 miles of the lair, and dust devils whip across the landscape.",
+        "radius": 6,
+        "endCondition": "If the dragon dies, the thunderstorms abate over 1d10 days."
+      },
+      {
+        "description": "Hidden sinkholes form in and around the dragon's lair. A sinkhole can be spotted from a safe distance with a successful DC 20 Wisdom (Perception) check.",
+        "radius": 1,
+        "endCondition": "If the dragon dies, the sinkholes remain but no new ones form."
+      },
+      {
+        "description": "Water sources within 1 mile of the lair are supernaturally fouled. Enemies of the dragon that drink such water regurgitate it within minutes.",
+        "radius": 1,
+        "endCondition": "If the dragon dies, the water returns to normal over 1d10 days."
+      }
+    ]
+  }
+}

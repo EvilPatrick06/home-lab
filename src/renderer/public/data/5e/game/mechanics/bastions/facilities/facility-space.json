@@ -1,0 +1,15 @@
+{
+  "name": "Facility Space",
+  "slug": "facility-space",
+  "type": "",
+  "level": "",
+  "space": "",
+  "hirelings": "",
+  "order": "",
+  "description": "The amount of space in a basic or special facility determines its maximum area in 5-foot squares, as shown in the Facility Space table. A player can configure the squares of a facility as they please on their Bastion's map. The squares can be stacked so that a facility's area is distributed over multiple levels or stories.\n\n#### Facility Space\n\n| Space | Maximum Area |\n|---|---|\n| Cramped | 4 squares |\n| Roomy | 16 squares |\n| Vast | 36 squares |\n\n## Basic Facilities\n\nA character's Bastion starts with two free basic facilities, which the character's player chooses from the Basic Facilities list below. One of the chosen facilities is Cramped, and the other is Roomy (see the Facility Space table). A Bastion can have more than one of each basic facility.\n\n#### Basic Facilities\n\n| | | |\n|---|---|---|\n| Bedroom | Dining Room | Parlor |\n| Courtyard | Kitchen | Storage |\n\nA basic facility comes with nonmagical furnishings and decor appropriate for that facility.\n\nBasic facilities don't have any game effects, but they can inspire roleplaying opportunities and enhance a Bastion's verisimilitude. A Bastion with a kitchen is functionally the same as one without, but the former gives you and your players a fun setting to start game sessions, have in-character discussions, or introduce new NPCs.\n\nA character can add new basic facilities or enlarge existing ones by spending money and time, as discussed in the sections that follow. Any number of basic facilities can be added or enlarged at the same time. A character doesn't need to be in their Bastion while basic facilities are being added or enlarged.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

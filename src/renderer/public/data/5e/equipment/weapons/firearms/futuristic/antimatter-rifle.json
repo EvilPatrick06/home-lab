@@ -1,0 +1,23 @@
+{
+  "name": "Antimatter Rifle",
+  "slug": "antimatter-rifle",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Futuristic",
+  "damage": "6d8",
+  "damageType": "Necrotic",
+  "properties": ["Ammunition", "Reload (2)", "Two-Handed"],
+  "weight": "10 lb.",
+  "cost": "—",
+  "range": {
+    "normal": 120,
+    "long": 360
+  },
+  "ammunitionType": "Energy Cell",
+  "reloadCapacity": 2,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

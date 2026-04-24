@@ -1,0 +1,11 @@
+{
+  "name": "Ranged Attack",
+  "slug": "ranged-attack",
+  "description": "A ranged attack is an attack made against a target at a distance using a ranged weapon or spell. You have Disadvantage on a ranged attack roll if you are within 5 feet of a Hostile creature that can see you and doesn't have the Incapacitated condition.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

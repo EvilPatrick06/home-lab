@@ -1,0 +1,11 @@
+{
+  "name": "Advantage",
+  "slug": "advantage",
+  "description": "If you have Advantage on a D20 Test, roll two d20s and use the higher roll. A roll can't benefit from more than one source of Advantage, and Advantage and Disadvantage on the same roll cancel each other, regardless of the number of each.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

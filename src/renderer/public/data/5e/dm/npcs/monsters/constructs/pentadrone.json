@@ -1,0 +1,177 @@
+{
+  "name": "Pentadrone",
+  "sizes": ["Large"],
+  "creatureType": "Construct",
+  "descriptiveTags": ["Modron"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Planar (Mechanus)"],
+  "treasure": ["None"],
+  "lore": "Pentadrones are five-sided, starfish-shaped modrons that serve as law enforcement and minor administrators in the modron hierarchy. They can process five tasks simultaneously, making them formidable overseers. Pentadrones communicate directly with the higher-ranking hierarch modrons and relay commands to the quadrones beneath them. In combat, a pentadrone can exhale a cloud of paralysis gas from its central orifice, immobilizing foes while its five arms batter them into submission.",
+  "armorClass": {
+    "value": 16,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 68,
+    "dice": {
+      "count": 8,
+      "die": "d10",
+      "modifier": 24
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Modron"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Axiomatic Mind",
+      "description": "The modron can't be compelled to act in a manner contrary to its nature or its instructions."
+    },
+    {
+      "name": "Disintegration",
+      "description": "If the modron dies, its body disintegrates into dust, leaving behind anything it was carrying."
+    }
+  ],
+  "multiattack": {
+    "description": "The pentadrone makes five Arm attacks.",
+    "attacks": [
+      {
+        "actionName": "Arm",
+        "count": 5
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Arm",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 5 (1d4 + 3) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Paralysis Gas",
+      "description": "The pentadrone exhales gas in a 30-foot Cone. Each creature in that area must succeed on a DC 13 Constitution saving throw or have the Paralyzed condition for 1 minute. A Paralyzed creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 13,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Paralyzed",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 13,
+                "targets": "the Paralyzed creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 30
+      },
+      "conditions": [
+        {
+          "condition": "Paralyzed",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 13,
+            "targets": "the Paralyzed creature at the end of each of its turns",
+            "onSuccess": {
+              "effects": "The effect ends on the creature."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

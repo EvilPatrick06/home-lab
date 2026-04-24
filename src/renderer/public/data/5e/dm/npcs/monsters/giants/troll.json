@@ -1,0 +1,157 @@
+{
+  "name": "Troll",
+  "sizes": ["Large"],
+  "creatureType": "Giant",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Arctic", "Forest", "Hill", "Mountain", "Swamp", "Underdark"],
+  "treasure": ["Individual"],
+  "lore": "Trolls are ravenous, regenerating horrors that haunt dark forests, icy mountains, and fetid swamps. Their rubbery green hide knits back together almost instantly, regrowing severed limbs and closing grievous wounds within moments. Only acid and fire can arrest a troll's legendary regeneration and put the creature down for good. Driven by an insatiable hunger, trolls devour anything they can catch, and their crude intelligence is just enough to make them cunning ambush predators.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 84,
+    "dice": {
+      "count": 8,
+      "die": "d10",
+      "modifier": 40
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Giant"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Keen Smell",
+      "description": "The troll has Advantage on Wisdom (Perception) checks that rely on smell."
+    },
+    {
+      "name": "Regeneration",
+      "description": "The troll regains 10 Hit Points at the start of each of its turns. If the troll takes Acid or Fire damage, this trait doesn't function at the start of the troll's next turn. The troll dies only if it starts its turn with 0 Hit Points and doesn't regenerate."
+    }
+  ],
+  "multiattack": {
+    "description": "The troll makes one Bite attack and two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 7 (1d6 + 4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 11 (2d6 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [],
+  "reactions": []
+}

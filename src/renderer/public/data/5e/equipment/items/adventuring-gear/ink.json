@@ -1,0 +1,13 @@
+{
+  "name": "Ink",
+  "cost": "10 GP",
+  "weight": "—",
+  "description": "1-ounce bottle provides enough ink to write about 500 pages.",
+  "slug": "ink",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

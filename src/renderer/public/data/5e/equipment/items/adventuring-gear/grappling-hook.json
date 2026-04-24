@@ -1,0 +1,13 @@
+{
+  "name": "Grappling Hook",
+  "cost": "2 GP",
+  "weight": "4 lb.",
+  "description": "As Utilize action, throw at a catch within 50 feet. DC 13 Acrobatics to catch. Tie a Rope to climb.",
+  "slug": "grappling-hook",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

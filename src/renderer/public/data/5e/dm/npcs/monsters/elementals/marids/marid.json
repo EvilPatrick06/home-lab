@@ -1,0 +1,281 @@
+{
+  "name": "Marid",
+  "sizes": ["Large"],
+  "creatureType": "Elemental",
+  "descriptiveTags": ["Genie"],
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Coastal", "Underwater"],
+  "treasure": ["Any"],
+  "lore": "Marids are genies native to the Elemental Plane of Water. Boastful and proud, they consider themselves the most powerful of all genies. A marid's domain may include underwater palaces of coral and pearl, and its court is filled with sycophants drawn from across the planes. Marids are fickle rulers, demanding tribute and adoration from all who enter their waters. They can grant wishes to mortals, though such boons often come with unexpected twists.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 229,
+    "dice": {
+      "count": 17,
+      "die": "d10",
+      "modifier": 136
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    },
+    {
+      "type": "Swim",
+      "distance": 90
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 26,
+      "modifier": 8,
+      "save": 8
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    }
+  },
+  "resistances": ["Acid, Cold, and Lightning"],
+  "damageImmunities": [],
+  "conditionImmunities": ["Poisoned"],
+  "gear": [
+    {
+      "name": "Trident",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 30
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Aquan", "Common"]
+  },
+  "challengeRating": "11",
+  "experiencePoints": 7200,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The marid can breathe air and water."
+    },
+    {
+      "name": "Elemental Restoration",
+      "description": "If the marid dies, it returns to the Elemental Plane of Water, leaving behind anything it was wearing or carrying. It can't be revived except by a Wish spell. If the marid has at least 1 Hit Point, it regains 25 Hit Points at the start of each of its turns."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 17,
+      "spellAttackBonus": 9,
+      "componentOverrides": {
+        "ignoresMaterial": true,
+        "ignoresMaterialWithCost": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Create or Destroy Water",
+              "level": 1
+            },
+            {
+              "name": "Detect Evil and Good",
+              "level": 1
+            },
+            {
+              "name": "Detect Magic",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Control Water",
+              "level": 4
+            },
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            },
+            {
+              "name": "Tongues",
+              "level": 3
+            },
+            {
+              "name": "Water Breathing",
+              "level": 3
+            },
+            {
+              "name": "Water Walk",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Conjure Elemental",
+              "level": 5,
+              "restriction": "Water Elemental only"
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The marid makes three Trident attacks. It can replace one of those attacks with a use of Spellcasting or Water Jet.",
+    "attacks": [
+      {
+        "actionName": "Trident",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Trident",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      },
+      {
+        "replace": "Trident",
+        "replaceCount": 1,
+        "with": "Water Jet"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Trident",
+      "description": "Melee or Ranged Attack Roll: +10, reach 5 ft. or range 20/60 ft. Hit: 13 (2d6 + 6) Piercing damage plus 7 (2d6) Cold damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 10,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 6
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Water Jet",
+      "description": "The marid magically shoots water in a 60-foot-long, 5-foot-wide Line. Each creature in that area must make a DC 17 Dexterity saving throw. On a failed save, a creature takes 21 (6d6) Bludgeoning damage and has the Prone condition. On a successful save, a creature takes half damage only.",
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 17,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 21,
+              "dice": {
+                "count": 6,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Prone"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Line",
+        "size": 60,
+        "width": 5
+      }
+    }
+  ],
+  "bonusActions": [],
+  "reactions": []
+}

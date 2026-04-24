@@ -1,0 +1,22 @@
+{
+  "name": "Pistol",
+  "slug": "pistol",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Renaissance",
+  "damage": "1d10",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Loading"],
+  "weight": "3 lb.",
+  "cost": "250 GP",
+  "range": {
+    "normal": 30,
+    "long": 90
+  },
+  "ammunitionType": "Bullet",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

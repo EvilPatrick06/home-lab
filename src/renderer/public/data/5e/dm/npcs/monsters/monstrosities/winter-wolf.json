@@ -1,0 +1,163 @@
+{
+  "name": "Winter Wolf",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Neutral Evil",
+  "habitat": ["Arctic", "Forest", "Hill", "Mountain"],
+  "treasure": ["None"],
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 75,
+    "dice": {
+      "count": 10,
+      "die": "d10",
+      "modifier": 20
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "damageImmunities": ["Cold"],
+  "senses": {
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Common", "Giant", "Winter Wolf"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The wolf has Advantage on an attack roll against a creature if at least one of the wolf's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    },
+    {
+      "name": "Snow Camouflage",
+      "description": "The wolf has Advantage on Dexterity (Stealth) checks made to hide in snowy terrain."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 11 (2d6 + 4) Piercing damage. If the target is a creature, it must succeed on a DC 12 Strength saving throw or have the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "STR",
+            "dc": 12,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Prone"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Cold Breath",
+      "description": "The wolf exhales a blast of freezing wind in a 15-foot Cone. Each creature in that area must make a DC 12 Dexterity saving throw, taking 18 (4d8) Cold damage on a failed save or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 12,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 18,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 15
+      }
+    }
+  ]
+}

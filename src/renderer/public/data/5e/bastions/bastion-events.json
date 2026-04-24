@@ -1,0 +1,258 @@
+{
+  "allIsWellFlavors": [
+    { "roll": 1, "flavor": "Accident reports are way down." },
+    { "roll": 2, "flavor": "The leak in the roof has been fixed." },
+    { "roll": 3, "flavor": "No vermin infestations to report." },
+    { "roll": 4, "flavor": "You-Know-Who lost their spectacles again." },
+    { "roll": 5, "flavor": "One of your hirelings adopted a stray dog." },
+    { "roll": 6, "flavor": "You received a lovely letter from a friend." },
+    { "roll": 7, "flavor": "Some practical joker has been putting rotten eggs in people's boots." },
+    { "roll": 8, "flavor": "Someone thought they saw a ghost." }
+  ],
+  "guestTable": [
+    {
+      "roll": 1,
+      "guestType": "Renowned Individual",
+      "description": "The guest is an individual of great renown who stays for 7 days. At the end of their stay, the guest gives you a letter of recommendation."
+    },
+    {
+      "roll": 2,
+      "guestType": "Sanctuary Seeker",
+      "description": "The guest requests sanctuary while avoiding persecution for their beliefs or crimes. They depart 7 days later, but not before offering you a gift of 1d6 × 100 GP."
+    },
+    {
+      "roll": 3,
+      "guestType": "Mercenary",
+      "description": "The guest is a mercenary, giving you one additional Bastion Defender. The guest doesn't require a facility to house them, and they stay until you send them away or they're killed."
+    },
+    {
+      "roll": 4,
+      "guestType": "Friendly Monster",
+      "description": "The guest is a Friendly monster, such as a brass dragon or a treant. If your Bastion is attacked while this monster is your guest, it defends your Bastion, and you lose no Bastion Defenders. The monster leaves after it defends your Bastion once or when you send it away."
+    }
+  ],
+  "treasureTable": [
+    { "min": 1, "max": 40, "category": "art-25gp", "description": "Roll on the 25 GP Art Objects table." },
+    { "min": 41, "max": 63, "category": "art-250gp", "description": "Roll on the 250 GP Art Objects table." },
+    { "min": 64, "max": 73, "category": "art-750gp", "description": "Roll on the 750 GP Art Objects table." },
+    { "min": 74, "max": 75, "category": "art-2500gp", "description": "Roll on the 2,500 GP Art Objects table." },
+    {
+      "min": 76,
+      "max": 90,
+      "category": "magic-common",
+      "description": "Roll on a Common Magic Items table of your choice (Arcana, Armaments, Implements, or Relics)."
+    },
+    {
+      "min": 91,
+      "max": 98,
+      "category": "magic-uncommon",
+      "description": "Roll on an Uncommon Magic Items table of your choice (Arcana, Armaments, Implements, or Relics)."
+    },
+    {
+      "min": 99,
+      "max": 100,
+      "category": "magic-rare",
+      "description": "Roll on a Rare Magic Items table of your choice (Arcana, Armaments, Implements, or Relics)."
+    }
+  ],
+  "eventsTable": [
+    { "min": 1, "max": 50, "eventType": "all-is-well", "label": "All Is Well" },
+    { "min": 51, "max": 55, "eventType": "attack", "label": "Attack" },
+    { "min": 56, "max": 58, "eventType": "criminal-hireling", "label": "Criminal Hireling" },
+    { "min": 59, "max": 63, "eventType": "extraordinary-opportunity", "label": "Extraordinary Opportunity" },
+    { "min": 64, "max": 72, "eventType": "friendly-visitors", "label": "Friendly Visitors" },
+    { "min": 73, "max": 76, "eventType": "guest", "label": "Guest" },
+    { "min": 77, "max": 79, "eventType": "lost-hirelings", "label": "Lost Hirelings" },
+    { "min": 80, "max": 83, "eventType": "magical-discovery", "label": "Magical Discovery" },
+    { "min": 84, "max": 91, "eventType": "refugees", "label": "Refugees" },
+    { "min": 92, "max": 98, "eventType": "request-for-aid", "label": "Request for Aid" },
+    { "min": 99, "max": 100, "eventType": "treasure", "label": "Treasure" }
+  ],
+  "gamingHallWinnings": [
+    { "min": 1, "max": 50, "diceCount": 1, "description": "The house takes in 1d6 × 10 GP." },
+    { "min": 51, "max": 85, "diceCount": 2, "description": "The house takes in 2d6 × 10 GP." },
+    { "min": 86, "max": 95, "diceCount": 4, "description": "The house takes in 4d6 × 10 GP." },
+    { "min": 96, "max": 100, "diceCount": 10, "description": "The house takes in 10d6 × 10 GP." }
+  ],
+  "menagerieCreatures": [
+    { "name": "Ape", "creatureType": "Beast", "size": "medium", "cost": 500, "cr": "1/2" },
+    { "name": "Black Bear", "creatureType": "Beast", "size": "medium", "cost": 500, "cr": "1/2" },
+    { "name": "Brown Bear", "creatureType": "Beast", "size": "large", "cost": 1000, "cr": "1" },
+    { "name": "Constrictor Snake", "creatureType": "Beast", "size": "large", "cost": 250, "cr": "1/4" },
+    { "name": "Crocodile", "creatureType": "Beast", "size": "large", "cost": 500, "cr": "1/2" },
+    { "name": "Dire Wolf", "creatureType": "Beast", "size": "large", "cost": 1000, "cr": "1" },
+    { "name": "Giant Vulture", "creatureType": "Beast", "size": "large", "cost": 1000, "cr": "1" },
+    { "name": "Hyena", "creatureType": "Beast", "size": "medium", "cost": 50, "cr": "0" },
+    { "name": "Jackal", "creatureType": "Beast", "size": "small", "cost": 50, "cr": "0" },
+    { "name": "Lion", "creatureType": "Beast", "size": "large", "cost": 1000, "cr": "1" },
+    { "name": "Owlbear", "creatureType": "Monstrosity", "size": "large", "cost": 3500, "cr": "3" },
+    { "name": "Panther", "creatureType": "Beast", "size": "medium", "cost": 250, "cr": "1/4" },
+    { "name": "Tiger", "creatureType": "Beast", "size": "large", "cost": 1000, "cr": "1" }
+  ],
+  "creatureCostsByCr": [
+    { "cr": "0", "cost": 50 },
+    { "cr": "1/8", "cost": 50 },
+    { "cr": "1/4", "cost": 250 },
+    { "cr": "1/2", "cost": 500 },
+    { "cr": "1", "cost": 1000 },
+    { "cr": "2", "cost": 2000 },
+    { "cr": "3", "cost": 3500 }
+  ],
+  "expertTrainers": [
+    {
+      "type": "battle",
+      "name": "Battle Expert",
+      "empowerEffect": "When you take damage from an attack made with an Unarmed Strike or a weapon, you can take a Reaction to reduce this damage by 1d4.",
+      "description": "A veteran warrior who drills defenders and visitors in combat tactics, formations, and battlefield awareness."
+    },
+    {
+      "type": "skills",
+      "name": "Skills Expert",
+      "empowerEffect": "You gain proficiency in one of the following skills of your choice: Acrobatics, Athletics, Performance, Sleight of Hand, or Stealth.",
+      "description": "A versatile instructor who coaches students in acrobatics, athletics, stealth, performance, and sleight of hand."
+    },
+    {
+      "type": "tools",
+      "name": "Tools Expert",
+      "empowerEffect": "You gain proficiency with one tool of your choice.",
+      "description": "A master artisan who teaches the finer points of craftsmanship, from smithing and carpentry to alchemy and calligraphy."
+    },
+    {
+      "type": "unarmed-combat",
+      "name": "Unarmed Combat Expert",
+      "empowerEffect": "When you hit with your Unarmed Strike and deal damage, the attack deals an extra 1d4 Bludgeoning damage.",
+      "description": "A martial arts master who teaches striking, grappling, and defensive techniques for unarmed fighting."
+    },
+    {
+      "type": "weapon",
+      "name": "Weapon Expert",
+      "empowerEffect": "Choose a kind of Simple or Martial weapon, such as Spear or Longbow. If you aren't proficient with the weapon, you gain proficiency with it. If you already have proficiency with the weapon, you can use its mastery property.",
+      "description": "An arms instructor specializing in swordsmanship, archery, polearms, and other weapon disciplines."
+    }
+  ],
+  "pubSpecials": [
+    {
+      "name": "Dragonfire Ale",
+      "description": "A fiery red ale brewed with fire pepper extract. Smoke curls from the mug.",
+      "effect": "A creature that drinks this gains resistance to Fire damage for 1 hour."
+    },
+    {
+      "name": "Fey Nectar Mead",
+      "description": "A shimmering golden mead said to be made from honey gathered in the Feywild.",
+      "effect": "A creature that drinks this has advantage on Charisma (Persuasion) checks for 1 hour."
+    },
+    {
+      "name": "Shadowdark Stout",
+      "description": "An impossibly dark beer that seems to absorb light. Served in an opaque tankard.",
+      "effect": "A creature that drinks this gains Darkvision (60 ft.) for 8 hours, or extends existing Darkvision by 30 ft."
+    },
+    {
+      "name": "Healer's Herbal Tonic",
+      "description": "A warm, soothing brew of medicinal herbs and honey with a hint of mint.",
+      "effect": "A creature that drinks this regains 2d4 + 2 Hit Points and is cured of one minor ailment (headache, nausea, etc.)."
+    },
+    {
+      "name": "Giant's Grog",
+      "description": "A thick, foamy brew served in an oversized stein. Even a sip makes you feel ten feet tall.",
+      "effect": "A creature that drinks this has advantage on Strength checks for 1 hour and gains 1d4 Temporary Hit Points."
+    }
+  ],
+  "sampleGuilds": [
+    {
+      "guildType": "Adventurers' Guild",
+      "description": "A guild for adventurers seeking quests, companions, and shared resources. Members post job boards and split bounties."
+    },
+    {
+      "guildType": "Merchants' Guild",
+      "description": "A trade guild that negotiates bulk rates, protects caravans, and maintains trade routes. Members enjoy discounted goods."
+    },
+    {
+      "guildType": "Crafters' Guild",
+      "description": "A guild of artisans and crafters who share techniques, tools, and apprentices. Members can use shared workshops."
+    },
+    {
+      "guildType": "Thieves' Guild",
+      "description": "A secretive guild of rogues and information brokers. Members gain access to fences, safe houses, and underworld contacts."
+    },
+    {
+      "guildType": "Mages' Guild",
+      "description": "An arcane society for sharing magical knowledge, spell research, and component sourcing. Members can copy spells at reduced cost."
+    },
+    {
+      "guildType": "Mercenary Company",
+      "description": "A guild of soldiers-for-hire providing security, escorts, and military contracts. Members can recruit trained fighters."
+    }
+  ],
+  "emeraldEnclaveCreatures": [
+    { "creatureType": "Awakened Shrub", "examples": "Awakened Shrub", "cr": "0" },
+    { "creatureType": "Awakened Tree", "examples": "Awakened Tree", "cr": "2" },
+    { "creatureType": "Blink Dog", "examples": "Blink Dog", "cr": "1/4" },
+    { "creatureType": "Dryad", "examples": "Dryad", "cr": "1" },
+    { "creatureType": "Giant Elk", "examples": "Giant Elk", "cr": "2" },
+    { "creatureType": "Pixie", "examples": "Pixie", "cr": "1/4" },
+    { "creatureType": "Satyr", "examples": "Satyr", "cr": "1/2" },
+    { "creatureType": "Sprite", "examples": "Sprite", "cr": "1/4" },
+    { "creatureType": "Treant", "examples": "Treant (grove guardian)", "cr": "9" },
+    { "creatureType": "Unicorn", "examples": "Unicorn", "cr": "5" },
+    { "creatureType": "Will-o'-Wisp", "examples": "Will-o'-Wisp (tamed, guides lost travelers)", "cr": "2" },
+    { "creatureType": "Wood Woad", "examples": "Wood Woad", "cr": "5" }
+  ],
+  "forgeConstructs": [
+    {
+      "name": "Homunculus Servant",
+      "cr": "0",
+      "timeDays": 7,
+      "costGP": 100,
+      "description": "A tiny mechanical helper that can perform simple tasks and deliver messages."
+    },
+    {
+      "name": "Iron Defender",
+      "cr": "1",
+      "timeDays": 14,
+      "costGP": 500,
+      "description": "A loyal mechanical hound that serves as a guard and combatant."
+    },
+    {
+      "name": "Steel Defender",
+      "cr": "1",
+      "timeDays": 14,
+      "costGP": 750,
+      "description": "An advanced mechanical guardian with enhanced combat capabilities."
+    },
+    {
+      "name": "Bronze Scout",
+      "cr": "1",
+      "timeDays": 14,
+      "costGP": 500,
+      "description": "A small, agile construct designed for reconnaissance and scouting missions."
+    },
+    {
+      "name": "Iron Cobra",
+      "cr": "4",
+      "timeDays": 30,
+      "costGP": 2000,
+      "description": "A serpentine construct capable of delivering venomous strikes and guarding passages."
+    },
+    {
+      "name": "Stone Defender",
+      "cr": "4",
+      "timeDays": 30,
+      "costGP": 2500,
+      "description": "A hulking stone guardian with exceptional durability and crushing strength."
+    },
+    {
+      "name": "Shield Guardian",
+      "cr": "7",
+      "timeDays": 60,
+      "costGP": 10000,
+      "description": "A powerful construct bound to an amulet, capable of absorbing damage for its master."
+    },
+    {
+      "name": "Iron Golem",
+      "cr": "16",
+      "timeDays": 120,
+      "costGP": 50000,
+      "description": "The pinnacle of construct creation. A massive iron automaton of devastating power."
+    }
+  ]
+}

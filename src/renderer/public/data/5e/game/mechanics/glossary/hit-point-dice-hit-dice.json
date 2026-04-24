@@ -1,0 +1,11 @@
+{
+  "name": "Hit Point Dice (Hit Dice)",
+  "slug": "hit-point-dice-hit-dice",
+  "description": "A character's Hit Dice are determined by class. Roll your Hit Die + your Constitution modifier to determine how many Hit Points you regain when you spend a Hit Die during a Short Rest.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

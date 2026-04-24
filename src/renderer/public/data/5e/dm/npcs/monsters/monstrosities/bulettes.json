@@ -1,0 +1,173 @@
+{
+  "name": "Bulette",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Grassland", "Hill", "Mountain"],
+  "treasure": ["None"],
+  "lore": "Also known as a \"land shark,\" the bulette is a terrifying burrowing predator that moves through the earth as easily as a fish through water. It bursts from the ground to ambush prey, devouring anything it can catch with its massive, tooth-filled maw. Bulettes are feared wherever they roam, as few creatures can withstand the fury of their leaping attacks.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 94,
+    "dice": {
+      "count": 9,
+      "die": "d10",
+      "modifier": 45
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Burrow",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 21,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      },
+      {
+        "type": "Tremorsense",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {},
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Standing Leap",
+      "description": "The bulette's Long Jump is up to 30 feet and its High Jump is up to 15 feet, with or without a running start."
+    }
+  ],
+  "multiattack": {
+    "description": "The bulette makes two Bite attacks.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 30 (4d12 + 4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 30,
+              "dice": {
+                "count": 4,
+                "die": "d12",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Deadly Leap",
+      "description": "The bulette leaps up to 30 feet to an unoccupied space it can see, and each creature within 10 feet of the space where it lands must make a DC 16 Dexterity saving throw. On a failed save, a creature takes 14 (3d6 + 4) Bludgeoning damage and 14 (3d6 + 4) Slashing damage and has the Prone condition. On a successful save, a creature takes half damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 16,
+        "targets": "each creature within 10 feet of the space where the bulette lands",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Prone"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 10,
+        "centered": true
+      }
+    }
+  ]
+}

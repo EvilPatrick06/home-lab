@@ -1,0 +1,151 @@
+{
+  "id": "norse-pantheon",
+  "name": "Norse Pantheon",
+  "description": "Where the land plummets from the snowy hills into the icy fjords below, where the longboats draw up on to the beach, where the glaciers flow forward and retreat with every fall and spring — this is the land of the Vikings, the home of the Norse pantheon. Their powers reflect the need these warriors had for strong leadership and decisive action. Thus, they see their deities in every bend of a river, hear them in the crash of thunder and the booming of glaciers, and smell them in the smoke of a burning longhouse.",
+  "deities": [
+    {
+      "name": "Odin",
+      "title": "God of Knowledge and War",
+      "alignment": "Neutral Good",
+      "domains": ["Knowledge", "War"],
+      "symbol": "Watching blue eye"
+    },
+    {
+      "name": "Aegir",
+      "title": "God of the Sea and Storms",
+      "alignment": "Neutral Evil",
+      "domains": ["Tempest"],
+      "symbol": "Rough ocean waves"
+    },
+    {
+      "name": "Balder",
+      "title": "God of Beauty and Poetry",
+      "alignment": "Neutral Good",
+      "domains": ["Life", "Light"],
+      "symbol": "Gem-encrusted silver chalice"
+    },
+    {
+      "name": "Forseti",
+      "title": "God of Justice and Law",
+      "alignment": "Neutral",
+      "domains": ["Light"],
+      "symbol": "Head of a bearded man"
+    },
+    {
+      "name": "Frey",
+      "title": "God of Fertility and the Sun",
+      "alignment": "Neutral Good",
+      "domains": ["Life", "Light"],
+      "symbol": "Ice-blue greatsword"
+    },
+    {
+      "name": "Freya",
+      "title": "Goddess of Fertility and Love",
+      "alignment": "Neutral Good",
+      "domains": ["Life"],
+      "symbol": "Falcon"
+    },
+    {
+      "name": "Frigga",
+      "title": "Goddess of Birth and Fertility",
+      "alignment": "Neutral",
+      "domains": ["Life", "Light"],
+      "symbol": "Cat"
+    },
+    {
+      "name": "Heimdall",
+      "title": "God of Watchfulness and Loyalty",
+      "alignment": "Lawful Good",
+      "domains": ["Knowledge", "Light"],
+      "symbol": "Curling musical horn"
+    },
+    {
+      "name": "Hel",
+      "title": "Goddess of the Underworld",
+      "alignment": "Neutral Evil",
+      "domains": ["Death"],
+      "symbol": "Woman's face, rotting on one side"
+    },
+    {
+      "name": "Hermod",
+      "title": "God of Luck",
+      "alignment": "Chaotic Neutral",
+      "domains": ["Trickery"],
+      "symbol": "Winged scroll"
+    },
+    {
+      "name": "Loki",
+      "title": "God of Thieves and Trickery",
+      "alignment": "Chaotic Evil",
+      "domains": ["Trickery"],
+      "symbol": "Flame"
+    },
+    {
+      "name": "Njord",
+      "title": "God of Sea and Wind",
+      "alignment": "Neutral Good",
+      "domains": ["Nature", "Tempest"],
+      "symbol": "Gold coin"
+    },
+    {
+      "name": "Odur",
+      "title": "God of Light and the Sun",
+      "alignment": "Chaotic Good",
+      "domains": ["Light"],
+      "symbol": "Solar disk"
+    },
+    {
+      "name": "Sif",
+      "title": "Goddess of War",
+      "alignment": "Chaotic Good",
+      "domains": ["War"],
+      "symbol": "Upraised sword"
+    },
+    {
+      "name": "Skadi",
+      "title": "God of Earth and Mountains",
+      "alignment": "Neutral",
+      "domains": ["Nature"],
+      "symbol": "Mountain peak"
+    },
+    {
+      "name": "Surtur",
+      "title": "God of Fire Giants and War",
+      "alignment": "Lawful Evil",
+      "domains": ["War"],
+      "symbol": "Flaming sword"
+    },
+    {
+      "name": "Thor",
+      "title": "God of Storms and Thunder",
+      "alignment": "Chaotic Good",
+      "domains": ["Tempest", "War"],
+      "symbol": "Hammer"
+    },
+    {
+      "name": "Thrym",
+      "title": "God of Frost Giants and Cold",
+      "alignment": "Chaotic Evil",
+      "domains": ["War"],
+      "symbol": "White double-bladed axe"
+    },
+    {
+      "name": "Tyr",
+      "title": "God of Courage and Strategy",
+      "alignment": "Lawful Neutral",
+      "domains": ["Knowledge", "War"],
+      "symbol": "Sword"
+    },
+    {
+      "name": "Uller",
+      "title": "God of Hunting and Winter",
+      "alignment": "Chaotic Neutral",
+      "domains": ["Nature"],
+      "symbol": "Longbow"
+    }
+  ],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "section": "Appendix B: Gods of the Multiverse"
+  }
+}

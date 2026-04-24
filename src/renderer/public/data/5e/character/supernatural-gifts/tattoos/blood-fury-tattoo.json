@@ -1,0 +1,30 @@
+{
+  "id": "blood-fury-tattoo",
+  "name": "Blood Fury Tattoo",
+  "rarity": "Legendary",
+  "attunement": true,
+  "description": "This tattoo evokes fury in its form and colors. The tattoo has 10 charges, and it regains all expended charges daily at dawn. Bloodthirsty Strike: When you hit a creature with a weapon attack, you can expend 1 charge to deal an extra 4d6 Necrotic damage. Sanguine Recall: When you kill a creature, you can expend 1 charge to regain Hit Points equal to the Necrotic damage you dealt with the Bloodthirsty Strike feature.",
+  "properties": {
+    "type": "Magical Tattoo",
+    "needleRequired": "Legendary",
+    "bodyLocation": "Any",
+    "charges": 10,
+    "rechargeAt": "Dawn"
+  },
+  "effects": [
+    {
+      "name": "Bloodthirsty Strike",
+      "description": "On hit with a weapon attack, expend 1 charge to deal an extra 4d6 Necrotic damage.",
+      "activation": "OnHit",
+      "chargesUsed": 1,
+      "extraDamage": "4d6 Necrotic"
+    },
+    {
+      "name": "Sanguine Recall",
+      "description": "When you kill a creature, expend 1 charge to regain HP equal to the Necrotic damage dealt by Bloodthirsty Strike.",
+      "activation": "OnKill",
+      "chargesUsed": 1
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

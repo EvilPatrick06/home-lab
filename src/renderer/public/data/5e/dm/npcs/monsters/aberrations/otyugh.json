@@ -1,0 +1,165 @@
+{
+  "name": "Otyugh",
+  "sizes": ["Large"],
+  "creatureType": "Aberration",
+  "alignment": "Neutral",
+  "habitat": ["Sewer", "Underdark"],
+  "treasure": ["None"],
+  "lore": "Otyughs are grotesque aberrations that lurk in refuse heaps, sewers, and other places filled with waste and decay. They consume organic waste and carrion, sometimes forming a symbiotic relationship with creatures that produce such refuse. Despite their repulsive appearance, otyughs are intelligent enough to bargain with other creatures, offering to clean up waste in exchange for fresh meat. They communicate through limited telepathy, projecting images and simple ideas into the minds of nearby creatures.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 114,
+    "dice": {
+      "count": 12,
+      "die": "d10",
+      "modifier": 48
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Otyugh"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Limited Telepathy",
+      "description": "The otyugh can magically transmit simple messages and images to any creature within 120 feet of it that can understand a language. This form of telepathy doesn't allow the receiving creature to telepathically respond."
+    }
+  ],
+  "multiattack": {
+    "description": "The otyugh makes one Bite attack and two Tentacle attacks.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Tentacle",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 12 (2d8 + 3) Piercing damage. If the target is a creature, it must succeed on a DC 15 Constitution saving throw or have the Poisoned condition until the start of the otyugh's next turn.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 15,
+            "targets": "the target if it is a creature",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "until the start of the otyugh's next turn"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Tentacle",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 7 (1d8 + 3) Bludgeoning damage. If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 14). The otyugh has two tentacles, each of which can grapple one creature.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 14
+            }
+          ],
+          "additionalEffects": "If the target is a Medium or smaller creature, it has the Grappled condition. The otyugh has two tentacles, each of which can grapple one creature."
+        }
+      }
+    }
+  ]
+}

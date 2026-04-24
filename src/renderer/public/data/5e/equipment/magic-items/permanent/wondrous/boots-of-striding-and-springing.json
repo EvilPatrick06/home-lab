@@ -1,0 +1,17 @@
+{
+  "name": "Boots of Striding and Springing",
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "A paired magic item mentioned as an example in the Magic Items section. Items that come in pairs — such as boots, bracers, gauntlets, and gloves — impart their benefits only if both items of the pair are worn. For example, a character wearing a Boot of Striding and Springing on one foot and a Boot of Elvenkind on the other foot gains no benefit from either. Full properties are detailed in the Dungeon Master's Guide.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Cloak of Protection",
+  "cost": {
+    "amount": 200,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "You gain a +1 bonus to AC and saving throws while you wear this cloak. This magic item requires Attunement. Detailed in the Dungeon Master's Guide; not listed in the Player's Handbook equipment chapter.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

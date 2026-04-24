@@ -1,0 +1,12 @@
+{
+  "name": "Quicksand Pit",
+  "severity": "Level 1+",
+  "description": "10-foot-deep pit of quicksand. DC 10 Dex save to avoid when stepping on it. Creature sinks 1d4+1 feet. DC 11 Str (Athletics) to escape; failure means sinking another 1d4 feet. Fully submerged creature suffocates.",
+  "slug": "quicksand-pit",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

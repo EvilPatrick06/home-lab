@@ -1,0 +1,17 @@
+{
+  "name": "Splint Armor",
+  "slug": "splint-armor",
+  "category": "Heavy",
+  "ac": "17",
+  "strength": "Str 15",
+  "stealthDisadvantage": true,
+  "weight": "60 lb.",
+  "cost": "200 GP",
+  "donTime": "10 Minutes",
+  "doffTime": "5 Minutes",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

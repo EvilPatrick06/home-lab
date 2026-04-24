@@ -1,0 +1,60 @@
+{
+  "name": "Protection from Evil and Good",
+  "level": 1,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Druid", "Paladin", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a flask of Holy Water worth 25+ GP, which the spell consumes",
+      "cost": 25,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "Until the spell ends, one willing creature you touch is protected against creatures that are Aberrations, Celestials, Elementals, Fey, Fiends, or Undead. The protection grants several benefits. Creatures of those types have Disadvantage on attack rolls against the target. The target also can't be possessed by or gain the Charmed or Frightened conditions from them. If the target is already possessed, Charmed, or Frightened by such a creature, the target has Advantage on any new saving throw against the relevant effect.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "targetCreatureTypes": ["Aberration", "Celestial", "Elemental", "Fey", "Fiend", "Undead"],
+  "disadvantagesImposed": [
+    {
+      "on": "attackRollsAgainstTarget",
+      "condition": "attacker is an Aberration, Celestial, Elemental, Fey, Fiend, or Undead"
+    }
+  ],
+  "advantagesGranted": [
+    {
+      "on": "savingThrows",
+      "condition": "against being possessed, Charmed, or Frightened by an Aberration, Celestial, Elemental, Fey, Fiend, or Undead when target is already affected by such a creature"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Charmed",
+      "trigger": "custom",
+      "duration": "Prevented from Aberrations, Celestials, Elementals, Fey, Fiends, or Undead for the spell's duration"
+    },
+    {
+      "condition": "Frightened",
+      "trigger": "custom",
+      "duration": "Prevented from Aberrations, Celestials, Elementals, Fey, Fiends, or Undead for the spell's duration"
+    }
+  ],
+  "tags": ["protection", "warding", "anti-creature-type", "prevents-possession", "prevents-charm", "prevents-frighten"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Charmed",
+  "slug": "charmed",
+  "description": "A Charmed creature can't attack the charmer or target the charmer with harmful abilities or magical effects. The charmer has Advantage on any ability check to interact socially with the creature.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

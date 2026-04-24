@@ -1,0 +1,159 @@
+{
+  "name": "Red Slaad",
+  "sizes": ["Large"],
+  "creatureType": "Aberration",
+  "descriptiveTags": ["Slaad"],
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Planar (Limbo)"],
+  "treasure": ["Individual"],
+  "lore": "Red slaadi are batrachian brutes of pure chaos, spawned in the roiling maelstrom of Limbo. They reproduce by implanting eggs beneath the skin of Humanoid hosts with their vicious claws. If left untreated, the egg hatches into a slaad tadpole that devours the host from within, continuing the slaadi's chaotic cycle of propagation.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 93,
+    "dice": {
+      "count": 11,
+      "die": "d10",
+      "modifier": 33
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {
+    "spoken": ["Slaad"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The slaad has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Regeneration",
+      "description": "The slaad regains 10 Hit Points at the start of each of its turns if it has at least 1 Hit Point."
+    }
+  ],
+  "multiattack": {
+    "description": "The slaad makes one Bite attack and one Claw attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 7 (1d8 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 8 (1d10 + 3) Slashing damage. If the target is a Humanoid, it must succeed on a DC 14 Constitution saving throw or have a Slaad Egg implanted beneath its skin. A Remove Curse spell or similar magic ends the infestation. Otherwise, the egg hatches in 2d12 hours, and a Slaad Tadpole emerges, killing the host in the process.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ],
+          "additionalEffects": "If the target is a Humanoid, it must succeed on a DC 14 Constitution saving throw or have a Slaad Egg implanted beneath its skin. A Remove Curse spell or similar magic ends the infestation. Otherwise, the egg hatches in 2d12 hours, and a Slaad Tadpole emerges, killing the host in the process.",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 14,
+            "targets": "the target (Humanoids only)",
+            "onFailure": {
+              "effects": "A Slaad Egg is implanted beneath the target's skin. A Remove Curse spell or similar magic ends the infestation. Otherwise, the egg hatches in 2d12 hours, and a Slaad Tadpole emerges, killing the host in the process."
+            }
+          }
+        }
+      }
+    }
+  ]
+}

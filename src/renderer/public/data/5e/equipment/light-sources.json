@@ -1,0 +1,11 @@
+{
+  "torch": { "label": "Torch", "durationSeconds": 3600, "brightRadius": 20, "dimRadius": 40 },
+  "lantern-hooded": { "label": "Lantern (Hooded)", "durationSeconds": 21600, "brightRadius": 30, "dimRadius": 60 },
+  "lantern-bullseye": { "label": "Lantern (Bullseye)", "durationSeconds": 21600, "brightRadius": 60, "dimRadius": 120 },
+  "candle": { "label": "Candle", "durationSeconds": 3600, "brightRadius": 5, "dimRadius": 10 },
+  "light-cantrip": { "label": "Light (Cantrip)", "durationSeconds": 3600, "brightRadius": 20, "dimRadius": 40 },
+  "continual-flame": { "label": "Continual Flame", "durationSeconds": null, "brightRadius": 20, "dimRadius": 40 },
+  "daylight-spell": { "label": "Daylight (Spell)", "durationSeconds": 3600, "brightRadius": 60, "dimRadius": 120 },
+  "lamp": { "label": "Lamp", "durationSeconds": 21600, "brightRadius": 15, "dimRadius": 45 },
+  "dancing-lights": { "label": "Dancing Lights", "durationSeconds": 60, "brightRadius": 10, "dimRadius": 10 }
+}

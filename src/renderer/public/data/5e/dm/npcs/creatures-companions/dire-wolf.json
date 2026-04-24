@@ -1,0 +1,44 @@
+{
+  "name": "Dire Wolf",
+  "slug": "dire-wolf",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 14,
+  "hp": 37,
+  "hpFormula": "5d10 + 10",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 17,
+    "dex": 15,
+    "con": 15,
+    "int": 3,
+    "wis": 12,
+    "cha": 7
+  },
+  "skills": "Perception +3, Stealth +4",
+  "senses": "Passive Perception 13",
+  "languages": "—",
+  "cr": "1",
+  "xp": "200 XP",
+  "traits": [
+    {
+      "name": "Keen Hearing and Smell",
+      "description": "Advantage on Wisdom (Perception) checks that rely on hearing or smell."
+    },
+    {
+      "name": "Pack Tactics",
+      "description": "Advantage on attack rolls against a creature if at least one of the wolf's allies is within 5 ft. of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 10 (2d6 + 3) Piercing. If the target is a creature, it must succeed on a DC 13 Strength saving throw or have the Prone condition."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

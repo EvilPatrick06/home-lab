@@ -1,0 +1,30 @@
+{
+  "id": "selune",
+  "name": "Selune",
+  "title": "Goddess of the Moon",
+  "alignment": "Chaotic Good",
+  "domains": ["Knowledge", "Life"],
+  "symbol": "Pair of eyes surrounded by seven stars",
+  "description": "Selune, Our Lady of Silver, is the goddess of the moon, stars, navigation, and good lycanthropes. She is the eternal enemy of Shar, the goddess of darkness. Selune's light guides travelers through the night and protects them from the terrors of darkness. She is kind, maternal, and protective, welcoming all who seek refuge under the moonlight. Her followers include navigators, those who travel by night, and the cursed lycanthropes who struggle to control their affliction.",
+  "piety": {
+    "thresholds": [
+      { "score": 3, "benefit": "You gain darkvision out to 60 feet, or extend existing darkvision by 30 feet." },
+      {
+        "score": 10,
+        "benefit": "You can cast Moonbeam once without expending a spell slot. You regain this ability after a long rest."
+      },
+      {
+        "score": 25,
+        "benefit": "You have advantage on Wisdom (Survival) checks made to navigate, and you cannot be lost by nonmagical means."
+      },
+      {
+        "score": 50,
+        "benefit": "Under moonlight, you gain resistance to necrotic damage and have advantage on saving throws against curses."
+      }
+    ]
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Deities of the Multiverse"
+  }
+}

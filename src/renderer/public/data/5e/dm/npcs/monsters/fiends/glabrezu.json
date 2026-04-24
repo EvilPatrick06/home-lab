@@ -1,0 +1,231 @@
+{
+  "name": "Glabrezu",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Abyss)"],
+  "treasure": ["Any"],
+  "lore": "Glabrezus are towering, four-armed demons known as tempters. Unlike many of their brutish kin, glabrezus prefer to corrupt mortals through guile rather than violence, offering to fulfill a mortal's deepest desires and twisting those wishes to serve demonic ends. A glabrezu's true form is that of a hulking fiend with massive pincers and a bestial visage, but it uses its magical powers to deceive and manipulate. When negotiation fails, a glabrezu is more than capable of rending its enemies apart.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 157,
+    "dice": {
+      "count": 15,
+      "die": "d10",
+      "modifier": 75
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 21,
+      "modifier": 5,
+      "save": 9
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "WIS": {
+      "score": 17,
+      "modifier": 3,
+      "save": 7
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 7
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 120
+  },
+  "challengeRating": "9",
+  "experiencePoints": 5000,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The glabrezu has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "INT",
+      "spellSaveDC": 16,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Darkness",
+              "level": 2
+            },
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Confusion",
+              "level": 4
+            },
+            {
+              "name": "Fly",
+              "level": 3
+            },
+            {
+              "name": "Power Word Stun",
+              "level": 8
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The glabrezu makes two Pincer attacks and two Fist attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Pincer",
+        "count": 2
+      },
+      {
+        "actionName": "Fist",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Fist",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      },
+      {
+        "replace": "Pincer",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Pincer",
+      "description": "Melee Attack Roll: +9, reach 10 ft. Hit: 16 (2d10 + 5) Bludgeoning damage, and if the target is a Medium or smaller creature, the target has the Grappled condition (escape DC 17). The glabrezu has two pincers, each of which can grapple one target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 17). The glabrezu has two pincers, each of which can grapple one target.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 17
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Fist",
+      "description": "Melee Attack Roll: +9, reach 5 ft. Hit: 10 (2d4 + 5) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 5
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The glabrezu casts one of the following spells, requiring no Material components (spell save DC 16):\n\nAt will: Darkness, Detect Magic, Dispel Magic\n\n1/day each: Confusion, Fly, Power Word Stun"
+    }
+  ]
+}

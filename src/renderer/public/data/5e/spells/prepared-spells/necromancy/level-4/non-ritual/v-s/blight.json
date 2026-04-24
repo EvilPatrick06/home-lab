@@ -1,0 +1,55 @@
+{
+  "name": "Blight",
+  "level": 4,
+  "school": "Necromancy",
+  "classes": ["Druid", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A creature that you can see within range makes a Constitution saving throw, taking 8d8 Necrotic damage on a failed save or half as much damage on a successful one. A Plant creature automatically fails the save.\n\nAlternatively, target a nonmagical plant that isn't a creature, such as a tree or shrub. It doesn't make a save; it simply withers and dies.",
+  "targetType": "creatureOrObject",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Constitution",
+    "halfDamageOnSuccess": true,
+    "autoFailCondition": "Target is a Plant creature"
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 8,
+        "diceValue": 8
+      },
+      "type": "Necrotic",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 4,
+        "description": "The damage increases by 1d8 for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["damage", "necrotic", "anti-plant"]
+}

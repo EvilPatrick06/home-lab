@@ -1,0 +1,211 @@
+{
+  "name": "Spectator",
+  "sizes": ["Medium"],
+  "creatureType": "Aberration",
+  "descriptiveTags": ["Beholder"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["Arcana"],
+  "lore": "A spectator is a lesser beholder-kin summoned from the Far Realm to guard a location or treasure for 101 years. Faithful to its charge, a spectator rarely strays from its post. Unlike true beholders, spectators aren't inherently hostile and can sometimes be reasoned with, though they attack any creature that threatens whatever they've been tasked to protect.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 39,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 30,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 4
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    }
+  ],
+  "conditionImmunities": ["Prone"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Deep Speech", "Undercommon"],
+    "telepathy": 120
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Antimagic Eye Cone",
+      "description": "The area within a 30-foot Cone originating from the spectator is an Antimagic Field. At the start of each of the spectator's turns, the spectator decides which way the Cone faces and whether the Cone is active."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Eye Rays",
+      "description": "The spectator shoots up to two of the following eye rays at one or two targets it can see within 90 feet of itself, choosing a different ray for each target:\n\nConfusion Ray. Wisdom Saving Throw: DC 13. Failure: The target has the Incapacitated condition and moves in a random direction on its turns until the start of the spectator's next turn. Success: None.\n\nFear Ray. Wisdom Saving Throw: DC 13. Failure: The target has the Frightened condition until the start of the spectator's next turn. Success: None.\n\nParalyzing Ray. Constitution Saving Throw: DC 13. Failure: The target has the Paralyzed condition until the start of the spectator's next turn. Success: None.\n\nWounding Ray. Constitution Saving Throw: DC 13. Failure: 16 (3d10) Necrotic damage. Success: Half damage only."
+    },
+    {
+      "name": "Confusion Ray",
+      "description": "Wisdom Saving Throw: DC 13. Failure: The target has the Incapacitated condition and moves in a random direction on its turns until the start of the spectator's next turn. Success: None.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 13,
+        "targets": "one target within 90 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Incapacitated",
+              "duration": "until the start of the spectator's next turn"
+            }
+          ],
+          "effects": "The target moves in a random direction on its turns."
+        }
+      }
+    },
+    {
+      "name": "Fear Ray",
+      "description": "Wisdom Saving Throw: DC 13. Failure: The target has the Frightened condition until the start of the spectator's next turn. Success: None.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 13,
+        "targets": "one target within 90 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "until the start of the spectator's next turn"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Paralyzing Ray",
+      "description": "Constitution Saving Throw: DC 13. Failure: The target has the Paralyzed condition until the start of the spectator's next turn. Success: None.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 13,
+        "targets": "one target within 90 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Paralyzed",
+              "duration": "until the start of the spectator's next turn"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Wounding Ray",
+      "description": "Constitution Saving Throw: DC 13. Failure: 16 (3d10) Necrotic damage. Success: Half damage only.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 13,
+        "targets": "one target within 90 feet",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 3,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Spell Reflection",
+      "description": "The spell has no effect on the spectator. Instead, the spell targets the caster, using the spell's save DC and attack bonus.",
+      "trigger": "The spectator succeeds on a saving throw against a spell that targets only the spectator, with no other targets."
+    }
+  ]
+}

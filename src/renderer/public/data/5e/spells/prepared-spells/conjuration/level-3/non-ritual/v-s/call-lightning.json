@@ -1,0 +1,80 @@
+{
+  "name": "Call Lightning",
+  "level": 3,
+  "school": "Conjuration",
+  "classes": ["Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "A storm cloud appears at a point within range that you can see above yourself. It takes the shape of a Cylinder that is 10 feet tall with a 60-foot radius. When you cast the spell, choose a point you can see under the cloud. A lightning bolt shoots from the cloud to that point. Each creature within 5 feet of that point makes a Dexterity saving throw, taking 3d10 Lightning damage on a failed save or half as much damage on a successful one. Until the spell ends, you can take a Magic action to call down lightning in that way again, targeting the same point or a different one. If you're outdoors in a storm when you cast this spell, the spell gives you control over that storm instead of creating a new one. Under such conditions, the spell's damage increases by 1d10.",
+  "areaOfEffect": [
+    {
+      "shape": "Cylinder",
+      "radiusFeet": 60,
+      "heightFeet": 10
+    },
+    {
+      "shape": "Sphere",
+      "radiusFeet": 5
+    }
+  ],
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 10
+      },
+      "type": "Lightning",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "You can take a Magic action to call down lightning again, targeting the same point or a different one under the cloud. Each creature within 5 feet of that point makes a Dexterity saving throw, taking 3d10 Lightning damage on a failed save or half as much damage on a successful one.",
+    "damage": {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 10
+      },
+      "type": "Lightning",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 10,
+        "baseSpellLevel": 3,
+        "description": "The damage increases by 1d10 for each spell slot level above 3."
+      }
+    ]
+  },
+  "tags": ["concentration", "outdoor-storm-bonus", "repeatable-damage", "cloud"]
+}

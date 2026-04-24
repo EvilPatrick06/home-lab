@@ -1,0 +1,13 @@
+{
+  "name": "Pole",
+  "cost": "5 CP",
+  "weight": "7 lb.",
+  "description": "10 feet long. Touch things up to 10 feet away. Advantage on Athletics checks for High/Long Jump (vaulting).",
+  "slug": "pole",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

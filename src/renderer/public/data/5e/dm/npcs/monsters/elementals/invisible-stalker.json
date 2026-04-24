@@ -1,0 +1,153 @@
+{
+  "name": "Invisible Stalker",
+  "sizes": ["Medium"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "lore": "An invisible stalker is an air elemental summoned from the Elemental Plane of Air and bound to perform a task for its summoner. It relentlessly pursues its quarry, for its only desire is to complete its mission and return to its home plane. When it has no quarry, an invisible stalker lurks near its summoner, unseen and unsettling.",
+  "armorClass": {
+    "value": 14
+  },
+  "hitPoints": {
+    "average": 104,
+    "dice": {
+      "count": 16,
+      "die": "d8",
+      "modifier": 32
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    },
+    {
+      "type": "Fly",
+      "distance": 50,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 8
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 10
+    }
+  ],
+  "resistances": ["Bludgeoning, Piercing, and Slashing"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": [
+    "Exhaustion",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Restrained",
+    "Unconscious"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Auran"],
+    "understood": ["Common"]
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Air Form",
+      "description": "The stalker can enter a hostile creature's space and stop there. It can move through a space as narrow as 1 inch wide without squeezing."
+    },
+    {
+      "name": "Faultless Tracker",
+      "description": "If the stalker is given a quarry by its summoner, the stalker knows the direction and distance to the quarry as long as the two of them are on the same plane of existence. The stalker also knows the location of its summoner."
+    },
+    {
+      "name": "Invisibility",
+      "description": "The stalker has the Invisible condition."
+    }
+  ],
+  "multiattack": {
+    "description": "The stalker makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 13 (2d8 + 4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

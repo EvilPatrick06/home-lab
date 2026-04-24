@@ -1,0 +1,13 @@
+{
+  "name": "Black sapphire",
+  "slug": "black-sapphire",
+  "value": "5,000 GP",
+  "category": "Gemstone",
+  "description": "lustrous black with glowing highlights",
+  "dieValue": "1",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

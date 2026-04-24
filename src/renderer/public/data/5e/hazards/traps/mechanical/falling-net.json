@@ -1,0 +1,19 @@
+{
+  "name": "Falling Net",
+  "type": "mechanical",
+  "trigger": "A creature crosses a trip wire",
+  "duration": "Instantaneous",
+  "severity": "Level 1+",
+  "dc": 11,
+  "detectDC": 11,
+  "disarmDC": 11,
+  "damage": "None",
+  "description": "A net falls on the creature. Restrained condition. DC 10 Strength to escape. Net: AC 10, 20 HP. Can be set with Thieves Tools and components.",
+  "slug": "falling-net",
+  "category": "Trap",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Traps"
+  }
+}

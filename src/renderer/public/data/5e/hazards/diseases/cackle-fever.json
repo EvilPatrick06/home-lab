@@ -1,0 +1,24 @@
+{
+  "id": "cackle-fever",
+  "name": "Cackle Fever",
+  "type": "disease",
+  "savingThrow": {
+    "ability": "Constitution",
+    "dc": 13
+  },
+  "transmission": "Contact with an infected creature or exposure to contaminated food/water. Any humanoid that starts its turn within 10 feet of an infected creature in the throes of mad laughter must succeed on a DC 10 Constitution saving throw or also become infected.",
+  "incubation": "1d4 hours",
+  "symptoms": "Fever and disorientation, escalating to uncontrollable fits of mad laughter. The infected creature has difficulty concentrating and communicating coherently.",
+  "effects": [
+    {
+      "stage": "Infected",
+      "description": "Any event that causes the infected creature great stress (entering combat, taking damage, experiencing fear, having a nightmare) forces the creature to make a DC 13 Constitution saving throw. On a failed save, the creature takes 5 (1d10) psychic damage and is Incapacitated with mad laughter for 1 minute. The creature can repeat the saving throw at the end of each of its turns, ending the mad laughter and the Incapacitated condition on a success."
+    }
+  ],
+  "recovery": "At the end of each long rest, an infected creature can make a DC 13 Constitution saving throw. On a successful save, the DC for this saving throw and for the saving throw to avoid an episode of mad laughter drops by 1d6. When the DC drops to 0, the creature recovers from the disease.",
+  "cure": "A Lesser Restoration spell or similar magic cures the disease immediately.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Diseases"
+  }
+}

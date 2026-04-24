@@ -1,0 +1,40 @@
+{
+  "name": "Resurrection",
+  "level": 7,
+  "school": "Necromancy",
+  "classes": ["Bard", "Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "hours",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a diamond worth 1,000+ GP, which the spell consumes",
+      "cost": 1000,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "With a touch, you revive a dead creature that has been dead for no more than a century, didn't die of old age, and wasn't Undead when it died.\n\nThe creature returns to life with all its Hit Points. This spell also neutralizes any poisons that affected the creature at the time of death. This spell closes all mortal wounds and restores any missing body parts.\n\nComing back from the dead is an ordeal. The target takes a -4 penalty to D20 Tests. Every time the target finishes a Long Rest, the penalty is reduced by 1 until it becomes 0.\n\nCasting this spell to revive a creature that has been dead for 365 days or longer taxes you. Until you finish a Long Rest, you can't cast spells again, and you have Disadvantage on D20 Tests.",
+  "targetType": "corpse",
+  "targetCount": 1,
+  "resurrection": {
+    "maxDeadTime": "100 years",
+    "hpRestored": "all",
+    "penalty": "-4 penalty to D20 Tests, reduced by 1 after each Long Rest until it becomes 0",
+    "restrictions": "Creature must not have died of old age and must not have been Undead when it died. Reviving a creature dead for 365 days or longer taxes the caster: until finishing a Long Rest, the caster can't cast spells and has Disadvantage on D20 Tests."
+  },
+  "tags": ["resurrection", "healing", "revival", "restores_body_parts", "neutralizes_poison"]
+}

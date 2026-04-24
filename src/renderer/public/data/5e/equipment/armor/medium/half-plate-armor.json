@@ -1,0 +1,17 @@
+{
+  "name": "Half Plate Armor",
+  "slug": "half-plate-armor",
+  "category": "Medium",
+  "ac": "15 + Dex modifier (max 2)",
+  "strength": null,
+  "stealthDisadvantage": true,
+  "weight": "40 lb.",
+  "cost": "750 GP",
+  "donTime": "5 Minutes",
+  "doffTime": "1 Minute",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

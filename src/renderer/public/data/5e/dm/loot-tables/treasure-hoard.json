@@ -1,0 +1,670 @@
+{
+  "id": "treasure-hoard",
+  "name": "Treasure Hoard",
+  "description": "When a treasure hoard is found, use the table for the appropriate CR range. Roll once for coins, then roll d100 for gems, art objects, and magic items.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Treasure Tables"
+  },
+  "tables": [
+    {
+      "crRange": "0-4",
+      "label": "Treasure Hoard: CR 0-4",
+      "coins": "6d6 x 100 CP, 3d6 x 100 SP, 2d6 x 10 GP",
+      "rolls": [
+        { "d100Min": 1, "d100Max": 6, "gems": null, "artObjects": null, "magicItems": null },
+        { "d100Min": 7, "d100Max": 16, "gems": "2d6 10 gp gems", "artObjects": null, "magicItems": null },
+        { "d100Min": 17, "d100Max": 26, "gems": null, "artObjects": "2d4 25 gp art objects", "magicItems": null },
+        { "d100Min": 27, "d100Max": 36, "gems": "2d6 50 gp gems", "artObjects": null, "magicItems": null },
+        {
+          "d100Min": 37,
+          "d100Max": 44,
+          "gems": "2d6 10 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table A"
+        },
+        {
+          "d100Min": 45,
+          "d100Max": 52,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table A"
+        },
+        {
+          "d100Min": 53,
+          "d100Max": 60,
+          "gems": "2d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table A"
+        },
+        {
+          "d100Min": 61,
+          "d100Max": 65,
+          "gems": "2d6 10 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 66,
+          "d100Max": 70,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 71,
+          "d100Max": 75,
+          "gems": "2d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 76,
+          "d100Max": 78,
+          "gems": "2d6 10 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 79,
+          "d100Max": 80,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 81,
+          "d100Max": 85,
+          "gems": "2d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 86,
+          "d100Max": 92,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table F"
+        },
+        {
+          "d100Min": 93,
+          "d100Max": 97,
+          "gems": "2d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table F"
+        },
+        {
+          "d100Min": 98,
+          "d100Max": 99,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll once on Magic Item Table G"
+        },
+        {
+          "d100Min": 100,
+          "d100Max": 100,
+          "gems": "2d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table G"
+        }
+      ]
+    },
+    {
+      "crRange": "5-10",
+      "label": "Treasure Hoard: CR 5-10",
+      "coins": "2d6 x 100 CP, 2d6 x 1000 SP, 6d6 x 100 GP, 3d6 x 10 PP",
+      "rolls": [
+        { "d100Min": 1, "d100Max": 4, "gems": null, "artObjects": null, "magicItems": null },
+        { "d100Min": 5, "d100Max": 10, "gems": null, "artObjects": "2d4 25 gp art objects", "magicItems": null },
+        { "d100Min": 11, "d100Max": 16, "gems": "3d6 50 gp gems", "artObjects": null, "magicItems": null },
+        { "d100Min": 17, "d100Max": 22, "gems": null, "artObjects": "3d6 100 gp art objects", "magicItems": null },
+        { "d100Min": 23, "d100Max": 28, "gems": "3d6 100 gp gems", "artObjects": null, "magicItems": null },
+        {
+          "d100Min": 29,
+          "d100Max": 32,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table A"
+        },
+        {
+          "d100Min": 33,
+          "d100Max": 36,
+          "gems": "3d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table A"
+        },
+        {
+          "d100Min": 37,
+          "d100Max": 40,
+          "gems": null,
+          "artObjects": "3d6 100 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table A"
+        },
+        {
+          "d100Min": 41,
+          "d100Max": 44,
+          "gems": "3d6 100 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table A"
+        },
+        {
+          "d100Min": 45,
+          "d100Max": 49,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 50,
+          "d100Max": 54,
+          "gems": "3d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 55,
+          "d100Max": 59,
+          "gems": null,
+          "artObjects": "3d6 100 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 60,
+          "d100Max": 63,
+          "gems": "3d6 100 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 64,
+          "d100Max": 66,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 67,
+          "d100Max": 69,
+          "gems": "3d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 70,
+          "d100Max": 72,
+          "gems": null,
+          "artObjects": "3d6 100 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 73,
+          "d100Max": 74,
+          "gems": "3d6 100 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 75,
+          "d100Max": 76,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll once on Magic Item Table D"
+        },
+        {
+          "d100Min": 77,
+          "d100Max": 78,
+          "gems": "3d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table D"
+        },
+        {
+          "d100Min": 79,
+          "d100Max": 80,
+          "gems": null,
+          "artObjects": "3d6 100 gp art objects",
+          "magicItems": "Roll once on Magic Item Table D"
+        },
+        {
+          "d100Min": 81,
+          "d100Max": 85,
+          "gems": "3d6 100 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table D"
+        },
+        {
+          "d100Min": 86,
+          "d100Max": 88,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table F"
+        },
+        {
+          "d100Min": 89,
+          "d100Max": 91,
+          "gems": "3d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table F"
+        },
+        {
+          "d100Min": 92,
+          "d100Max": 94,
+          "gems": null,
+          "artObjects": "3d6 100 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table F"
+        },
+        {
+          "d100Min": 95,
+          "d100Max": 96,
+          "gems": "3d6 100 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 97,
+          "d100Max": 98,
+          "gems": null,
+          "artObjects": "2d4 25 gp art objects",
+          "magicItems": "Roll once on Magic Item Table H"
+        },
+        {
+          "d100Min": 99,
+          "d100Max": 99,
+          "gems": "3d6 50 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table H"
+        },
+        {
+          "d100Min": 100,
+          "d100Max": 100,
+          "gems": "3d6 100 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table I"
+        }
+      ]
+    },
+    {
+      "crRange": "11-16",
+      "label": "Treasure Hoard: CR 11-16",
+      "coins": "4d6 x 1000 SP, 1d6 x 1000 GP, 2d6 x 100 PP",
+      "rolls": [
+        { "d100Min": 1, "d100Max": 3, "gems": null, "artObjects": null, "magicItems": null },
+        { "d100Min": 4, "d100Max": 6, "gems": null, "artObjects": "2d4 250 gp art objects", "magicItems": null },
+        { "d100Min": 7, "d100Max": 9, "gems": null, "artObjects": "2d4 750 gp art objects", "magicItems": null },
+        { "d100Min": 10, "d100Max": 12, "gems": "3d6 500 gp gems", "artObjects": null, "magicItems": null },
+        { "d100Min": 13, "d100Max": 15, "gems": "3d6 1000 gp gems", "artObjects": null, "magicItems": null },
+        {
+          "d100Min": 16,
+          "d100Max": 19,
+          "gems": null,
+          "artObjects": "2d4 250 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table A, 1d6 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 20,
+          "d100Max": 23,
+          "gems": null,
+          "artObjects": "2d4 750 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table A, 1d6 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 24,
+          "d100Max": 26,
+          "gems": "3d6 500 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table A, 1d6 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 27,
+          "d100Max": 29,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table A, 1d6 times on Magic Item Table B"
+        },
+        {
+          "d100Min": 30,
+          "d100Max": 35,
+          "gems": null,
+          "artObjects": "2d4 250 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 36,
+          "d100Max": 40,
+          "gems": null,
+          "artObjects": "2d4 750 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 41,
+          "d100Max": 45,
+          "gems": "3d6 500 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 46,
+          "d100Max": 50,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 51,
+          "d100Max": 54,
+          "gems": null,
+          "artObjects": "2d4 250 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table D"
+        },
+        {
+          "d100Min": 55,
+          "d100Max": 58,
+          "gems": null,
+          "artObjects": "2d4 750 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table D"
+        },
+        {
+          "d100Min": 59,
+          "d100Max": 62,
+          "gems": "3d6 500 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table D"
+        },
+        {
+          "d100Min": 63,
+          "d100Max": 66,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table D"
+        },
+        {
+          "d100Min": 67,
+          "d100Max": 68,
+          "gems": null,
+          "artObjects": "2d4 250 gp art objects",
+          "magicItems": "Roll once on Magic Item Table E"
+        },
+        {
+          "d100Min": 69,
+          "d100Max": 70,
+          "gems": null,
+          "artObjects": "2d4 750 gp art objects",
+          "magicItems": "Roll once on Magic Item Table E"
+        },
+        {
+          "d100Min": 71,
+          "d100Max": 72,
+          "gems": "3d6 500 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table E"
+        },
+        {
+          "d100Min": 73,
+          "d100Max": 74,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table E"
+        },
+        {
+          "d100Min": 75,
+          "d100Max": 76,
+          "gems": null,
+          "artObjects": "2d4 250 gp art objects",
+          "magicItems": "Roll once on Magic Item Table F, 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 77,
+          "d100Max": 78,
+          "gems": null,
+          "artObjects": "2d4 750 gp art objects",
+          "magicItems": "Roll once on Magic Item Table F, 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 79,
+          "d100Max": 80,
+          "gems": "3d6 500 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table F, 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 81,
+          "d100Max": 82,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table F, 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 83,
+          "d100Max": 85,
+          "gems": null,
+          "artObjects": "2d4 250 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table H"
+        },
+        {
+          "d100Min": 86,
+          "d100Max": 88,
+          "gems": null,
+          "artObjects": "2d4 750 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table H"
+        },
+        {
+          "d100Min": 89,
+          "d100Max": 90,
+          "gems": "3d6 500 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table H"
+        },
+        {
+          "d100Min": 91,
+          "d100Max": 92,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table H"
+        },
+        {
+          "d100Min": 93,
+          "d100Max": 94,
+          "gems": null,
+          "artObjects": "2d4 250 gp art objects",
+          "magicItems": "Roll once on Magic Item Table I"
+        },
+        {
+          "d100Min": 95,
+          "d100Max": 96,
+          "gems": null,
+          "artObjects": "2d4 750 gp art objects",
+          "magicItems": "Roll once on Magic Item Table I"
+        },
+        {
+          "d100Min": 97,
+          "d100Max": 98,
+          "gems": "3d6 500 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table I"
+        },
+        {
+          "d100Min": 99,
+          "d100Max": 100,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll once on Magic Item Table I"
+        }
+      ]
+    },
+    {
+      "crRange": "17+",
+      "label": "Treasure Hoard: CR 17+",
+      "coins": "12d6 x 1000 GP, 8d6 x 1000 PP",
+      "rolls": [
+        { "d100Min": 1, "d100Max": 2, "gems": null, "artObjects": null, "magicItems": null },
+        {
+          "d100Min": 3,
+          "d100Max": 5,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d8 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 6,
+          "d100Max": 8,
+          "gems": null,
+          "artObjects": "1d10 2500 gp art objects",
+          "magicItems": "Roll 1d8 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 9,
+          "d100Max": 11,
+          "gems": null,
+          "artObjects": "1d4 7500 gp art objects",
+          "magicItems": "Roll 1d8 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 12,
+          "d100Max": 14,
+          "gems": "3d6 5000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d8 times on Magic Item Table C"
+        },
+        {
+          "d100Min": 15,
+          "d100Max": 22,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table D"
+        },
+        {
+          "d100Min": 23,
+          "d100Max": 30,
+          "gems": null,
+          "artObjects": "1d10 2500 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table D"
+        },
+        {
+          "d100Min": 31,
+          "d100Max": 38,
+          "gems": null,
+          "artObjects": "1d4 7500 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table D"
+        },
+        {
+          "d100Min": 39,
+          "d100Max": 46,
+          "gems": "3d6 5000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table D"
+        },
+        {
+          "d100Min": 47,
+          "d100Max": 52,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table E"
+        },
+        {
+          "d100Min": 53,
+          "d100Max": 58,
+          "gems": null,
+          "artObjects": "1d10 2500 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table E"
+        },
+        {
+          "d100Min": 59,
+          "d100Max": 63,
+          "gems": null,
+          "artObjects": "1d4 7500 gp art objects",
+          "magicItems": "Roll 1d6 times on Magic Item Table E"
+        },
+        {
+          "d100Min": 64,
+          "d100Max": 68,
+          "gems": "3d6 5000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d6 times on Magic Item Table E"
+        },
+        {
+          "d100Min": 69,
+          "d100Max": 69,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 70,
+          "d100Max": 70,
+          "gems": null,
+          "artObjects": "1d10 2500 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 71,
+          "d100Max": 71,
+          "gems": null,
+          "artObjects": "1d4 7500 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 72,
+          "d100Max": 72,
+          "gems": "3d6 5000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table G"
+        },
+        {
+          "d100Min": 73,
+          "d100Max": 80,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table H"
+        },
+        {
+          "d100Min": 81,
+          "d100Max": 85,
+          "gems": null,
+          "artObjects": "1d10 2500 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table H"
+        },
+        {
+          "d100Min": 86,
+          "d100Max": 90,
+          "gems": null,
+          "artObjects": "1d4 7500 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table H"
+        },
+        {
+          "d100Min": 91,
+          "d100Max": 95,
+          "gems": "3d6 5000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table H"
+        },
+        {
+          "d100Min": 96,
+          "d100Max": 96,
+          "gems": "3d6 1000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table I"
+        },
+        {
+          "d100Min": 97,
+          "d100Max": 97,
+          "gems": null,
+          "artObjects": "1d10 2500 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table I"
+        },
+        {
+          "d100Min": 98,
+          "d100Max": 98,
+          "gems": null,
+          "artObjects": "1d4 7500 gp art objects",
+          "magicItems": "Roll 1d4 times on Magic Item Table I"
+        },
+        {
+          "d100Min": 99,
+          "d100Max": 100,
+          "gems": "3d6 5000 gp gems",
+          "artObjects": null,
+          "magicItems": "Roll 1d4 times on Magic Item Table I"
+        }
+      ]
+    }
+  ]
+}

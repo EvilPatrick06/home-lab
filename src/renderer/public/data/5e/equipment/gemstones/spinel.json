@@ -1,0 +1,13 @@
+{
+  "name": "Spinel",
+  "slug": "spinel",
+  "value": "100 GP",
+  "category": "Gemstone",
+  "description": "red, red-brown, or deep green",
+  "dieValue": "9",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

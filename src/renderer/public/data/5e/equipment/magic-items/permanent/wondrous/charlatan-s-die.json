@@ -1,0 +1,20 @@
+{
+  "name": "Charlatan's Die",
+  "itemType": "Wondrous Item",
+  "rarity": "Common",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "Whenever you roll this six-sided die, you can control which number it rolls.",
+  "properties": null,
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "charges": null,
+  "rechargeRate": null,
+  "rechargeAmount": null,
+  "spells": null,
+  "damage": null,
+  "source": "DMG 2024"
+}

@@ -1,0 +1,57 @@
+{
+  "name": "Summon Fey",
+  "level": 3,
+  "school": "Conjuration",
+  "classes": ["Druid", "Ranger", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a gilded flower worth 300+ GP",
+      "cost": 300,
+      "currency": "GP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You call forth a Fey spirit. It manifests in an unoccupied space that you can see within range and uses the Fey Spirit stat block. When you cast the spell, choose a mood: Fuming, Mirthful, or Tricksy. The creature resembles a Fey creature of your choice marked by the chosen mood, which determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends. The creature is an ally to you and your allies. In combat, the creature shares your Initiative count, but it takes its turn immediately after yours. It obeys your verbal commands (no action required by you). If you don't issue any, it takes the Dodge action and uses its movement to avoid danger.",
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "summonsCreature": {
+    "statBlockName": "Fey Spirit",
+    "creatureType": "Fey",
+    "variantChoices": ["Fuming", "Mirthful", "Tricksy"],
+    "scalesWithSpellLevel": true,
+    "baseHP": 30,
+    "hpPerLevelAbove": 10,
+    "baseAC": 12,
+    "acPerSpellLevel": true,
+    "attacksEqualHalfSpellLevel": true,
+    "description": "Small Fey, Neutral. AC 12 + spell level. HP 30 + 10 per spell level above 3. Speed 30 ft., Fly 30 ft. STR 13 (+1), DEX 16 (+3), CON 14 (+2), INT 14 (+2), WIS 11 (+0), CHA 16 (+3). Immunities: Charmed. Senses: Darkvision 60 ft., Passive Perception 10. Languages: Sylvan, understands the languages you know. CR None (XP 0; PB equals your Proficiency Bonus). Multiattack: makes a number of Fey Blade attacks equal to half the spell's level (round down). Fey Blade: Melee Attack Roll, bonus equals your spell attack modifier, reach 5 ft. Hit: 2d6 + 3 + the spell's level Force damage. Bonus Action — Fey Step: teleports up to 30 ft to an unoccupied space it can see, then one effect based on mood. Fuming: Advantage on next attack roll before end of this turn. Mirthful: Wisdom save (your spell save DC), one creature within 10 ft; on failure, Charmed by you and the spirit for 1 minute or until target takes any damage. Tricksy: fills a 10-foot Cube within 5 ft with magical Darkness until end of its next turn."
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "custom",
+        "baseSpellLevel": 3,
+        "description": "Use the spell slot's level for the spell's level in the stat block. AC becomes 12 + spell slot level. HP increases by 10 for each spell slot level above 3. Fey Blade damage becomes 2d6 + 3 + spell slot level Force damage. Number of Fey Blade attacks equals half the spell slot level (round down)."
+      }
+    ]
+  },
+  "tags": ["summoning", "fey", "concentration", "combat", "scaling"]
+}

@@ -1,0 +1,60 @@
+{
+  "name": "Arms of Hadar",
+  "level": 1,
+  "school": "Conjuration",
+  "classes": ["Warlock"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Invoking Hadar, you cause tendrils to erupt from yourself. Each creature in a 10-foot Emanation originating from you makes a Strength saving throw. On a failed save, a target takes 2d6 Necrotic damage and can't take Reactions until the start of its next turn. On a successful save, a target takes half as much damage only.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 10,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Strength",
+    "halfDamageOnSuccess": true,
+    "effectOnFailure": "Target takes 2d6 Necrotic damage and can't take Reactions until the start of its next turn.",
+    "effectOnSuccess": "Half as much damage only."
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 6
+      },
+      "type": "Necrotic",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 1,
+        "description": "The damage increases by 1d6 for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["damage", "area-of-effect", "reaction-denial"]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Chest",
+  "cost": "5 GP",
+  "weight": "25 lb.",
+  "description": "Holds up to 12 cubic feet of contents.",
+  "slug": "chest",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

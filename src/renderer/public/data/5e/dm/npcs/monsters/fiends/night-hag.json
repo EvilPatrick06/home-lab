@@ -1,0 +1,238 @@
+{
+  "name": "Night Hag",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Hag"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar"],
+  "treasure": ["Arcana"],
+  "lore": "Night hags are fiends that haunt the dreams of mortals, feeding on their fear and corrupting their souls. They dwell on the Lower Planes—particularly the Gray Waste of Hades—and slip between the Ethereal and Material Planes to torment sleeping victims. A night hag carries a heartstone and a soul bag, collecting the souls of those who perish under the weight of her nightmares. Night hags sometimes form covens with other hags and broker captured souls as currency among the fiendish powers.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 112,
+    "dice": {
+      "count": 15,
+      "die": "d8",
+      "modifier": 45
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 5
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 6
+    },
+    {
+      "skill": "Insight",
+      "bonus": 5
+    },
+    {
+      "skill": "Perception",
+      "bonus": 5
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "resistances": ["Cold and Fire"],
+  "conditionImmunities": ["Charmed"],
+  "gear": [
+    {
+      "name": "Heartstone",
+      "quantity": 1
+    },
+    {
+      "name": "Soul Bag",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common", "Infernal"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The hag has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 14,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Disguise Self",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            },
+            {
+              "name": "Ray of Enfeeblement",
+              "level": 2
+            },
+            {
+              "name": "Sleep",
+              "level": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The hag makes two Claw attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 13 (2d8 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The hag casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 14):\n\nAt will: Detect Magic, Disguise Self\n\n2/day each: Plane Shift (self only), Ray of Enfeeblement, Sleep"
+    },
+    {
+      "name": "Nightmare Haunting",
+      "description": "While on the Ethereal Plane, the hag touches a sleeping Humanoid on the Material Plane. The target must succeed on a DC 14 Wisdom saving throw or take 11 (2d10) Psychic damage and gain no benefit from the rest. If the target dies from this attack, the hag captures the target's soul in its Soul Bag.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 14,
+        "targets": "the sleeping Humanoid touched",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ],
+          "effects": "The target gains no benefit from the rest. If the target dies from this attack, the hag captures the target's soul in its Soul Bag."
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Etherealness",
+      "description": "The hag casts Etherealness on itself, requiring no spell components and using Charisma as the spellcasting ability. The spell ends at the start of the hag's next turn."
+    }
+  ]
+}

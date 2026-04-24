@@ -1,0 +1,13 @@
+{
+  "name": "Star sapphire",
+  "slug": "star-sapphire",
+  "value": "1,000 GP",
+  "category": "Gemstone",
+  "description": "blue sapphire with white star-shaped center",
+  "dieValue": "7",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

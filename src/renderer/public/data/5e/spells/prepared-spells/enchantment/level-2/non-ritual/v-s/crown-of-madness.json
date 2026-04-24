@@ -1,0 +1,56 @@
+{
+  "name": "Crown of Madness",
+  "level": 2,
+  "school": "Enchantment",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "One creature you can see within range must succeed on a Wisdom saving throw or have the Charmed condition for the duration. The creature succeeds automatically if it isn't Humanoid. A spectral crown appears on the Charmed target's head, and it must use its action before moving on each of its turns to make a melee attack against a creature other than itself that you mentally choose. The target can act normally on its turn if you choose no creature or if no creature is within its reach. The target repeats the save at the end of each of its turns, ending the spell on itself on a success. On your later turns, you must take the Magic action to maintain control of the target, or the spell ends.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "targetCreatureTypes": ["Humanoid"],
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "autoSucceedCondition": "Target isn't Humanoid",
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Charmed",
+      "trigger": "onFailedSave",
+      "duration": "for the spell's duration",
+      "savingThrowToEnd": {
+        "ability": "Wisdom",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "You must take the Magic action to maintain control of the target, or the spell ends."
+  },
+  "tags": ["control", "mind", "charm"]
+}

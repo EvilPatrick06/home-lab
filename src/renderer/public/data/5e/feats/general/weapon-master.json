@@ -1,0 +1,24 @@
+{
+  "name": "Weapon Master",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength", "Dexterity"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Mastery Property",
+      "description": "Your training with weapons allows you to use the mastery property of one kind of Simple or Martial weapon of your choice, provided you have proficiency with it. Whenever you finish a Long Rest, you can change the kind of weapon to another eligible kind."
+    }
+  ],
+  "source": "PHB 2024"
+}

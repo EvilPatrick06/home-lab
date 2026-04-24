@@ -1,0 +1,13 @@
+{
+  "name": "Pouch",
+  "cost": "5 SP",
+  "weight": "1 lb.",
+  "description": "Holds up to 6 pounds within one-fifth of a cubic foot.",
+  "slug": "pouch",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,667 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "mechanus",
+      "name": "Mechanus",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Neutral Plane",
+      "alignments": ["Lawful Neutral"],
+      "philosophicalEssence": "Mechanus is where perfectly regimented order reigns supreme. Law is reflected in a realm of gigantic clockwork gears, interlocked and turning according to their measure. The cogs seem to be engaged in a calculation so vast that no deity can fathom its purpose. Some theories hold that they are the clockwork of time throughout the cosmos—that time itself would stop if the gears ceased their turning. Other theories propose that the cogs uphold the basic rules and order of the cosmos.",
+      "emotionalInfluence": "Those who spend time on Mechanus and other lawful planes might feel their ties of loyalty to each other growing stronger. Individual consciousness is subordinated to the search for perfect order, and 'I' is ultimately subsumed into 'we.'",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "multiple_surfaces",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Gigantic interlocking clockwork gears. Each turning cog has its own force of gravity pulling toward its center, with structures built on the faces of the cogs. Some of the cogs are like small islands, while others are hundreds of miles across.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Not specifically described; atmosphere assumed breathable. The plane consists of equal measures of light and dark, and equal proportions of heat and cold.",
+        "temperature": {
+          "category": "temperate",
+          "description": "Equal proportions of heat and cold. The plane maintains a perfectly balanced temperature."
+        },
+        "hasSurface": true,
+        "dominantElement": "None; perfect balance of all elements reflecting absolute order",
+        "weatherPatterns": "Not described; the plane's nature suggests perfectly ordered conditions with no chaotic weather."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "No special time flow rules are described for Mechanus. Time is assumed to flow normally."
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "mechanus-loyalty-influence",
+          "name": "Lawful Alignment Influence",
+          "description": "Those who spend time on Mechanus and other lawful planes might feel their ties of loyalty to each other growing stronger. Mechanus embodies absolute order, and it influences those who spend time here. Individual consciousness is subordinated to the search for perfect order, and 'I' is ultimately subsumed into 'we.'",
+          "mechanicalEffect": "Best handled as DM suggestions and then roleplayed by the players. The DM might award Heroic Inspiration to characters who bring these characteristics to life in their characters. Visitors to lawful planes might feel loyalty growing stronger.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Ties of loyalty to each other grow stronger. Individual consciousness is subordinated to the search for perfect order.",
+          "removalMethods": ["Leaving the plane", "DM discretion"],
+          "sourceReference": "Chapter 6: Cosmology - Alignment and the Outer Planes"
+        },
+        {
+          "id": "mechanus-order-absorption",
+          "name": "Absolute Order Influence",
+          "description": "Mechanus embodies absolute order. An adventure on Mechanus might lead characters to examine their individual egos in the light of the adventuring party. It might challenge a character to set aside personal goals for the benefit of the group (or the greater cause of cosmic law), or alternatively it might encourage characters to assert their own individual identities, distinct from the party and possessing their own goals and needs.",
+          "mechanicalEffect": "Narrative and roleplay effect. The DM may award Heroic Inspiration to players who embody the plane's ethos.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Individual consciousness subordinated to the search for perfect order.",
+          "removalMethods": ["Leaving the plane"],
+          "sourceReference": "Chapter 6: Cosmology - Mechanus Adventures"
+        }
+      ],
+      "portals": [
+        {
+          "id": "mechanus-automata-gate",
+          "type": "gate_town",
+          "name": "Automata Gate",
+          "destination": "Automata",
+          "destinationPlane": "Outlands",
+          "bidirectional": true,
+          "requirement": {
+            "type": "none",
+            "description": "Gate-town of Automata in the Outlands contains a portal leading to Mechanus."
+          }
+        },
+        {
+          "id": "mechanus-astral-color-pool",
+          "type": "color_pool",
+          "name": "Astral Color Pool to Mechanus",
+          "destination": "Mechanus",
+          "destinationPlane": "Mechanus",
+          "bidirectional": true,
+          "colorOrAppearance": "Diamond blue",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          }
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Construct"],
+        "notableEntities": [
+          {
+            "name": "Primus",
+            "title": "Overlord of the Modrons",
+            "creatureType": "Construct",
+            "description": "The godlike creator of the modrons whose realm is called Regulus. Said to have created the Spawning Stone in Limbo that absorbs chaotic energy and makes it possible to shape enclaves of order in Limbo.",
+            "rulesLocation": "Mechanus - Regulus"
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Modrons",
+            "race": "Construct",
+            "description": "Modrons are Constructs that inhabit Mechanus and maintain its intricate clockworks. They are the primary inhabitants of Mechanus.",
+            "location": "Throughout Mechanus, centered on Regulus"
+          }
+        ]
+      },
+      "specialRules": [],
+      "planarDissonance": {
+        "applies": false,
+        "affectedCreatureTypes": [],
+        "description": "Mechanus is Lawful Neutral, neither an Upper Plane nor a Lower Plane. Planar Dissonance as described in the rules applies to Celestials visiting Lower Planes and Fiends visiting Upper Planes. Since Mechanus is a Neutral Plane, standard Planar Dissonance does not apply here."
+      },
+      "domainsOrRegions": [
+        {
+          "id": "regulus",
+          "name": "Regulus",
+          "type": "Realm",
+          "ruler": {
+            "name": "Primus",
+            "title": "Overlord of the Modrons",
+            "description": "A godlike being that created the modrons and rules Regulus."
+          },
+          "description": "The realm of Primus, creator and overlord of the modrons, located on Mechanus.",
+          "hazards": []
+        },
+        {
+          "id": "menausus",
+          "name": "Menausus",
+          "type": "Realm",
+          "description": "A former layer of Arcadia that is now part of Mechanus. The military forces of Arcadia's layer of Buxenus gather to reclaim this lost layer.",
+          "hazards": []
+        }
+      ],
+      "adventureThemes": [
+        "Examining individual egos in the light of the adventuring party",
+        "Setting aside personal goals for the benefit of the group or the greater cause of cosmic law",
+        "Asserting individual identities distinct from the party",
+        "Confronting absolute order and the subordination of individual consciousness",
+        "Exploring the tension between individual freedom and rigid cosmic order"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Diamond blue",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Acheron section notes that the tiny shards of Ocanthus are gradually assembled and organized, perhaps under the influence of nearby Mechanus, into the perfect cubes of Avalas."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Arcadia section notes that Arcadia's layer of Buxenus contains military forces gathering to reclaim the lost layer of Menausus—now part of Mechanus."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Limbo section notes the Spawning Stone, said to have been created by Primus, the overlord of the modrons."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Outlands section notes the gate-town of Automata contains a gate to Mechanus, and that it is much easier for a slaad to wreak havoc in Automata than for even a horde of slaadi to accomplish anything in Mechanus itself."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "infinite-staircase",
+      "name": "The Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": ["Multiple planes of existence"],
+      "description": "An extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down. The staircase changes appearance as it climbs and descends. It includes ramps, hovering platforms, and clockwork conveyor belts along its endless construction.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Walking", "Climbing"]
+    },
+    {
+      "id": "river-styx",
+      "name": "The River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of multiple Lower Planes.",
+      "hazards": ["Memory loss from contact with waters"],
+      "isOneWay": false,
+      "navigableBy": ["Sinister ferries", "Ships"]
+    },
+    {
+      "id": "river-oceanus",
+      "name": "The River Oceanus",
+      "type": "river",
+      "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+      "description": "The water of the Oceanus is sweet and fragrant, as befits its headwaters in the Blessed Fields of Elysium. It flows through each of Elysium's layers, passes through the top layer of the Beastlands, and streams across the top layer of Arborea.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Trading vessels", "Boats"]
+    },
+    {
+      "id": "yggdrasil",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Material Plane"],
+      "description": "A cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, most of its massive trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Climbing", "Expert guides"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some function like doorways, others are locations that exist on multiple planes at once or flicker from one plane to another.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting portal requirements (command, key item, random timing, situation, or time-based)"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portal guardians", "Requirements may be difficult to discover or fulfill"],
+      "destinations": ["Any plane, depending on the specific portal"]
+    },
+    {
+      "id": "spell-travel",
+      "name": "Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Ability to cast the appropriate spell", "Spell components"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in destination"],
+      "destinations": ["Any plane, depending on spell used"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 subtracted from D20 Tests. The effect stacks cumulatively.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature",
+        "exhaustionLevels": 0,
+        "exhaustionIsRemovable": true
+      },
+      "onSuccess": {
+        "description": "The creature is unaffected for this Long Rest period.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryTrigger": "Finishing a Long Rest on a plane that isn't opposed to the creature's nature",
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 1,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.4,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

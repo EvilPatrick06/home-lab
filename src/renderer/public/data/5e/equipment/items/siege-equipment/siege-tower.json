@@ -1,0 +1,15 @@
+{
+  "name": "Siege Tower",
+  "ac": 15,
+  "hp": 200,
+  "attack": "N/A",
+  "damage": "N/A",
+  "description": "Mobile tower providing cover. Huge object. Speed 15 ft. when pushed by its crew. Creatures inside have Total Cover.",
+  "slug": "siege-tower",
+  "category": "Siege Equipment",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

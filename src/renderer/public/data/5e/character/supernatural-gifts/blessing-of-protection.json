@@ -1,0 +1,11 @@
+{
+  "name": "Blessing of Protection",
+  "type": "Blessing",
+  "description": "You gain a +1 bonus to AC and saving throws.",
+  "slug": "blessing-of-protection",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

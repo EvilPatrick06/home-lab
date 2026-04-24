@@ -1,0 +1,88 @@
+{
+  "name": "Hex",
+  "level": 1,
+  "school": "Enchantment",
+  "classes": ["Warlock"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "the petrified eye of a newt",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You place a curse on a creature that you can see within range. Until the spell ends, you deal an extra 1d6 Necrotic damage to the target whenever you hit it with an attack roll. Also, choose one ability when you cast the spell. The target has Disadvantage on ability checks made with the chosen ability. If the target drops to 0 Hit Points before this spell ends, you can take a Bonus Action on a later turn to curse a new creature.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Necrotic",
+      "applicationType": "onHit"
+    }
+  ],
+  "disadvantagesImposed": [
+    {
+      "on": "abilityChecks",
+      "condition": "Choose one ability when you cast the spell; target has Disadvantage on ability checks made with the chosen ability"
+    }
+  ],
+  "higherLevelCasting": {
+    "overrides": [
+      {
+        "minSlotLevel": 2,
+        "maxSlotLevel": 2,
+        "description": "Your Concentration can last up to 4 hours.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": true,
+          "amount": 4,
+          "unit": "hours"
+        }
+      },
+      {
+        "minSlotLevel": 3,
+        "maxSlotLevel": 4,
+        "description": "Your Concentration can last up to 8 hours.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": true,
+          "amount": 8,
+          "unit": "hours"
+        }
+      },
+      {
+        "minSlotLevel": 5,
+        "maxSlotLevel": 9,
+        "description": "Your Concentration can last up to 24 hours.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": true,
+          "amount": 24,
+          "unit": "hours"
+        }
+      }
+    ]
+  },
+  "tags": ["curse", "bonus-action-retarget", "extra-damage", "ability-check-debuff"]
+}

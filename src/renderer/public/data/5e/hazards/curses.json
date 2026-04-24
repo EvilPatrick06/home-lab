@@ -1,0 +1,77 @@
+[
+  {
+    "id": "demonic-possession",
+    "name": "Demonic Possession",
+    "type": "environmental",
+    "effect": "A creature targeted by Demonic Possession must succeed on a DC 15 Charisma saving throw or be possessed. Whenever the possessed creature rolls a 1 on a D20 Test, the demonic entity takes control and determines the creature's behavior. At the end of each of the possessed creature's later turns, it makes a DC 15 Charisma saving throw, regaining control on a success. After finishing a Long Rest, the creature makes a DC 15 Charisma saving throw, ending the effect on a success.",
+    "removal": "Dispel Evil and Good spell or any magic that removes a curse.",
+    "saveDC": 15,
+    "saveAbility": "CHA",
+    "description": "Demonic Possession arises from the chaos and evil of the Abyss. It commonly besets creatures that interact with demonic objects or linger in desecrated locations where demonic spirits await victims.",
+    "source": "DMG 2024"
+  },
+  {
+    "id": "curse-of-vulnerability",
+    "name": "Curse of Vulnerability",
+    "type": "personal",
+    "effect": "The cursed creature has Vulnerability to one damage type chosen by the DM (commonly the type associated with the curse's origin).",
+    "removal": "Remove Curse spell, or fulfilling a specific quest or condition set by the DM.",
+    "description": "The creature's defenses weaken against a specific type of harm, making it take double damage from that source."
+  },
+  {
+    "id": "curse-of-the-beast",
+    "name": "Curse of the Beast",
+    "type": "personal",
+    "effect": "Under certain conditions (full moon, taking damage, etc.), the cursed creature must succeed on a DC 15 Wisdom saving throw or transform into a beast for 1 hour. While transformed, the creature attacks the nearest creature on each turn.",
+    "removal": "Remove Curse spell, or killing the creature that originally bestowed the curse.",
+    "description": "The creature periodically transforms into a bestial form, losing control of its actions."
+  },
+  {
+    "id": "curse-of-silence",
+    "name": "Curse of Silence",
+    "type": "personal",
+    "effect": "The cursed creature can't speak or produce vocal sounds. This prevents casting spells with Verbal components.",
+    "removal": "Remove Curse spell, or a specific ritual involving rare components (DM's choice).",
+    "description": "The creature is rendered permanently mute, unable to speak, sing, or produce any vocal sound."
+  },
+  {
+    "id": "curse-of-ill-fortune",
+    "name": "Curse of Ill Fortune",
+    "type": "personal",
+    "effect": "Once per day (DM's discretion), when the cursed creature rolls a natural 20 on a D20 Test, the roll becomes a natural 1 instead.",
+    "removal": "Remove Curse spell, or performing a specific good deed chosen by the DM.",
+    "description": "Fortune turns against the creature at the worst possible moments."
+  },
+  {
+    "id": "cursed-weapon",
+    "name": "Cursed Weapon",
+    "type": "item",
+    "effect": "Once attuned, the creature is unwilling to part with the weapon and has Disadvantage on attack rolls made with any other weapon. The curse can impose additional effects such as dealing 1d6 Necrotic damage to the wielder on a critical miss.",
+    "removal": "Remove Curse spell breaks attunement. The item remains cursed for future users.",
+    "description": "A weapon that binds itself to its wielder and punishes them for using other armaments."
+  },
+  {
+    "id": "cursed-armor",
+    "name": "Cursed Armor",
+    "type": "item",
+    "effect": "Once worn, the armor can't be removed without a Remove Curse spell. While wearing it, the creature has Vulnerability to one damage type (e.g., Fire, Cold), or the armor imposes a -2 penalty to AC instead of its normal bonus.",
+    "removal": "Remove Curse spell allows the armor to be removed. The item remains cursed.",
+    "description": "Armor that can't be removed and imposes a hidden penalty on its wearer."
+  },
+  {
+    "id": "haunted-location",
+    "name": "Haunted Location",
+    "type": "location",
+    "effect": "Creatures that take a Long Rest in the location gain no benefit from the rest and must succeed on a DC 13 Wisdom saving throw or be Frightened for 1 hour after waking. While in the location, creatures hear whispers and feel a sense of dread.",
+    "removal": "Casting Hallow on the location, destroying or putting to rest the spirit source, or performing a specific cleansing ritual.",
+    "description": "A cursed area haunted by restless spirits that prevent rest and fill visitors with dread."
+  },
+  {
+    "id": "blighted-land",
+    "name": "Blighted Land",
+    "type": "location",
+    "effect": "Plants in the area are withered and dead. Food and water in the area spoil within 1 hour. Healing magic is halved. Creatures that take a Long Rest in the area must succeed on a DC 15 Constitution saving throw or gain 1 level of Exhaustion.",
+    "removal": "Casting Hallow, restoring the natural order through a quest, or defeating the source of the blight.",
+    "description": "A cursed region where nature has died and healing is weakened."
+  }
+]

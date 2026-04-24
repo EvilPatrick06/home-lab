@@ -1,0 +1,46 @@
+{
+  "name": "Heal",
+  "level": 6,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Choose a creature that you can see within range. Positive energy washes through the target, restoring 70 Hit Points. This spell also ends the Blinded, Deafened, and Poisoned conditions on the target.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "healing": [
+    {
+      "flat": 70,
+      "applicationType": "onCast"
+    }
+  ],
+  "conditionsRemoved": ["Blinded", "Deafened", "Poisoned"],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "flatHealingIncrease",
+        "flatPerLevel": 10,
+        "baseSpellLevel": 6,
+        "description": "The healing increases by 10 for each spell slot level above 6."
+      }
+    ]
+  },
+  "tags": ["healing", "condition-removal"]
+}

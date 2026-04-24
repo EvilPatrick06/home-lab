@@ -1,0 +1,413 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. Darkness is a fundamental illumination category that creates Heavily Obscured areas, affecting vision and combat across all planes of existence. It is one of three categories of illumination (Bright Light, Dim Light, Darkness) that govern visibility throughout the multiverse.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell. Darkness is experienced outdoors at night (even most moonlit nights), within the confines of unlit dungeons, or in areas of magical Darkness.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Environments with Pervasive Darkness",
+        "description": "Several planes feature darkness as a defining environmental characteristic, including the Shadowfell (black vault sky with neither sun nor stars), the Negative Plane (lightless void without end), Pandemonium (no natural light, wind extinguishes nonmagical flames), and specific layers like Krangath in Gehenna (silence and darkness) and Phlegethon in Pandemonium (tunnel walls absorb light).",
+        "memberPlanes": ["Shadowfell", "Negative Plane", "Pandemonium", "Gehenna"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "darkness-environment",
+      "name": "Darkness",
+      "alternateNames": ["Heavily Obscured Area", "Magical Darkness"],
+      "category": "Special",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "philosophicalEssence": "Darkness is the absence of light, creating a Heavily Obscured area where vision is completely blocked. It is one of three illumination categories fundamental to the rules of vision and light.",
+      "emotionalInfluence": "Darkness imposes the Blinded condition on creatures trying to see within it, creating vulnerability and tactical disadvantage.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": false,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Darkness is an illumination state, not an atmosphere. It can exist in any breathable or non-breathable environment.",
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "Darkness has no effect on the flow of time."
+      },
+      "hazards": [
+        {
+          "id": "darkness-heavily-obscured",
+          "name": "Darkness (Heavily Obscured Area)",
+          "description": "Darkness creates a Heavily Obscured area. Characters face Darkness outdoors at night (even most moonlit nights), within the confines of an unlit dungeon, or in an area of magical Darkness. A Heavily Obscured area—such as an area with Darkness, heavy fog, or dense foliage—is opaque. You have the Blinded condition when trying to see something there.",
+          "category": "environmental",
+          "severity": "moderate",
+          "lightLevelModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "withDarkvision": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": false,
+              "obscuresVision": true
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": -100
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": ["Blindsight", "Truesight"],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 1: Playing the Game, Vision and Light; Appendix C: Rules Glossary"
+        },
+        {
+          "id": "blinded-condition-from-darkness",
+          "name": "Blinded Condition (from Darkness)",
+          "description": "A Blinded creature can't see and automatically fails any ability check that requires sight. Attack rolls against the creature have Advantage, and the creature's attack rolls have Disadvantage. This condition applies to any creature trying to see something in Darkness (a Heavily Obscured area) unless the creature has a special sense such as Darkvision, Blindsight, or Truesight.",
+          "category": "environmental",
+          "severity": "moderate",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": ["Blindsight", "Darkvision", "Truesight", "Tremorsense"],
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary, Blinded condition"
+        },
+        {
+          "id": "unseen-attacker-in-darkness",
+          "name": "Unseen Attackers and Targets in Darkness",
+          "description": "When you make an attack roll against a target you can't see, you have Disadvantage on the roll. This is true whether you're guessing the target's location or targeting a creature you can hear but not see. If the target isn't in the location you targeted, you miss. When a creature can't see you, you have Advantage on attack rolls against it. If you are hidden when you make an attack roll, you give away your location when the attack hits or misses.",
+          "category": "environmental",
+          "severity": "moderate",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 1: Playing the Game, Unseen Attackers and Targets"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "darkness-illumination-category",
+          "name": "Darkness Illumination Category",
+          "description": "Darkness is one of three categories of illumination. Bright Light lets most creatures see normally. Dim Light, also called shadows, creates a Lightly Obscured area (Disadvantage on Wisdom (Perception) checks that rely on sight). Darkness creates a Heavily Obscured area (Blinded condition when trying to see something there).",
+          "mechanicalEffect": "Creatures in Darkness have the Blinded condition when trying to see something there. A Blinded creature can't see and automatically fails any ability check that requires sight. Attack rolls against the creature have Advantage, and the creature's attack rolls have Disadvantage.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "withDarkvision": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": false,
+              "obscuresVision": true
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": -100
+          },
+          "removalMethods": [
+            "Torch or lantern providing Bright Light",
+            "Spells that create light",
+            "Darkvision (treats Darkness as Dim Light within range)",
+            "Blindsight (sees without relying on sight)",
+            "Truesight (pierces Darkness including magical Darkness)"
+          ],
+          "sourceReference": "Chapter 1: Playing the Game, Vision and Light; Appendix C: Rules Glossary, Light"
+        },
+        {
+          "id": "darkvision-in-darkness",
+          "name": "Darkvision Special Sense in Darkness",
+          "description": "If you have Darkvision, you can see in Dim Light within a specified range as if it were Bright Light and in Darkness within that range as if it were Dim Light. You discern colors in that Darkness only as shades of gray. Darkvision effectively converts Darkness from a Heavily Obscured area to a Lightly Obscured area for the creature with Darkvision, within its specified range.",
+          "mechanicalEffect": "Within Darkvision range, Darkness is treated as Dim Light (Lightly Obscured). The creature has Disadvantage on Wisdom (Perception) checks that rely on sight instead of the full Blinded condition. Colors appear only as shades of gray.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "withDarkvision": 60,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": false,
+              "obscuresVision": true
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Shades of gray only when using Darkvision in Darkness",
+            "illuminationModifierPercent": -100
+          },
+          "removalMethods": [],
+          "sourceReference": "Appendix C: Rules Glossary, Darkvision"
+        },
+        {
+          "id": "blindsight-in-darkness",
+          "name": "Blindsight Special Sense in Darkness",
+          "description": "If you have Blindsight, you can see within a specific range without relying on physical sight. Within that range, you can see anything that isn't behind Total Cover, even if you have the Blinded condition or are in Darkness. Moreover, in that range you can see something that has the Invisible condition.",
+          "mechanicalEffect": "Blindsight completely negates the effects of Darkness within the specified range. The creature can see normally without relying on light.",
+          "isOptional": false,
+          "removalMethods": [],
+          "sourceReference": "Appendix C: Rules Glossary, Blindsight"
+        },
+        {
+          "id": "truesight-in-darkness",
+          "name": "Truesight Special Sense in Darkness",
+          "description": "If you have Truesight, your vision is enhanced within a specified range. In that range, your vision pierces through Darkness (including magical Darkness), Illusions, invisibility, and transmutations. You also see into the Ethereal Plane within that range.",
+          "mechanicalEffect": "Truesight completely negates both normal Darkness and magical Darkness within the specified range. This is the only standard special sense that explicitly pierces magical Darkness.",
+          "isOptional": false,
+          "removalMethods": [],
+          "sourceReference": "Appendix C: Rules Glossary, Truesight"
+        },
+        {
+          "id": "magical-darkness",
+          "name": "Magical Darkness",
+          "description": "Magical Darkness is a specific form of Darkness created by spells or magical effects. It is explicitly called out as a source of Darkness alongside outdoor nighttime conditions and unlit dungeons. Truesight can pierce magical Darkness, distinguishing it from normal Darkness which Darkvision can mitigate.",
+          "mechanicalEffect": "Magical Darkness creates a Heavily Obscured area identical to normal Darkness. However, magical Darkness may suppress Darkvision depending on the specific spell creating it. Truesight explicitly pierces magical Darkness.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "magical_darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "withDarkvision": 0,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": true,
+              "obscuresVision": true,
+              "absorbsLight": true
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": -100
+          },
+          "removalMethods": ["Truesight", "Specific spells that counter magical darkness"],
+          "sourceReference": "Chapter 1: Playing the Game; Appendix C: Rules Glossary, Truesight"
+        },
+        {
+          "id": "dim-light-to-darkness-boundary",
+          "name": "Dim Light as Darkness Boundary",
+          "description": "Dim Light, also called shadows, creates a Lightly Obscured area. An area of Dim Light is usually a boundary between Bright Light and surrounding Darkness. The soft light of twilight and dawn also counts as Dim Light. A full moon might bathe the land in Dim Light.",
+          "mechanicalEffect": "Dim Light creates a Lightly Obscured area where creatures have Disadvantage on Wisdom (Perception) checks that rely on sight. Dim Light typically exists at the boundary between light sources and Darkness.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": "Boundary between Bright Light and Darkness; twilight; dawn; full moon",
+            "visibilityRange": {
+              "standard": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {},
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": -50
+          },
+          "removalMethods": ["Additional light sources to upgrade to Bright Light"],
+          "sourceReference": "Chapter 1: Playing the Game, Vision and Light"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "none",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "darkness-heavily-obscured-rule",
+          "name": "Darkness Creates Heavily Obscured Area",
+          "description": "Darkness creates a Heavily Obscured area. A Heavily Obscured area—such as an area with Darkness, heavy fog, or dense foliage—is opaque. You have the Blinded condition when trying to see something there.",
+          "mechanicalEffect": "Any creature in Darkness has the Blinded condition when trying to see something in Darkness. Blinded: can't see, automatically fails any ability check that requires sight, attack rolls against the creature have Advantage, creature's attack rolls have Disadvantage.",
+          "affectsSpellcasting": true,
+          "spellcastingRestrictions": {
+            "blockedSpells": [],
+            "exemptSpells": [],
+            "modifiedSpells": [
+              {
+                "spell": "Any spell requiring sight of target",
+                "modification": "Cannot target creatures or locations you cannot see in Darkness unless you have a special sense that pierces Darkness"
+              }
+            ]
+          }
+        },
+        {
+          "id": "darkness-common-sources",
+          "name": "Common Sources of Darkness",
+          "description": "Characters face Darkness outdoors at night (even most moonlit nights), within the confines of an unlit dungeon, or in an area of magical Darkness.",
+          "mechanicalEffect": "Darkness occurs in three primary situations: (1) outdoors at night, including most moonlit nights; (2) inside unlit dungeons or enclosed spaces without light sources; (3) areas affected by magical Darkness effects from spells or magical abilities."
+        },
+        {
+          "id": "shadow-crossings-require-darkness",
+          "name": "Shadow Crossings Manifest Only in Darkness",
+          "description": "Shadow crossings are locations where the veil between the Material Plane and the Shadowfell is so thin that creatures can pass from one plane to the other. They manifest only in darkness, closing as soon as they feel light's kiss.",
+          "mechanicalEffect": "Shadow crossings to the Shadowfell function only in Darkness. Introducing light to a shadow crossing causes it to close immediately. This creates a direct mechanical interaction between the Darkness illumination state and planar travel."
+        },
+        {
+          "id": "pandemonium-extinguishes-flames",
+          "name": "Pandemonium Wind Extinguishes Light Sources",
+          "description": "Pandemonium is cold, noisy, and dark, with no natural light. Wind quickly extinguishes nonmagical open flames such as torches and campfires, forcing Darkness conditions throughout the plane.",
+          "mechanicalEffect": "On Pandemonium, nonmagical open flames (torches, campfires) are quickly extinguished by wind, making it extremely difficult to maintain light sources and creating persistent Darkness conditions throughout the plane."
+        },
+        {
+          "id": "phlegethon-absorbs-light",
+          "name": "Phlegethon Tunnel Walls Absorb Light",
+          "description": "In Phlegethon, the third layer of Pandemonium, tunnel walls absorb light, creating an environment where even magical light sources may be diminished.",
+          "mechanicalEffect": "Tunnel walls in Phlegethon absorb light, creating enhanced Darkness conditions that may affect even magical light sources."
+        }
+      ],
+      "adventureThemes": [
+        "Navigating without sight",
+        "Exploiting or overcoming the Blinded condition",
+        "Stealth and ambush in total darkness",
+        "Dependence on special senses like Darkvision and Blindsight",
+        "Shadow crossings that require darkness to function",
+        "Planes with persistent darkness conditions"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game - Vision and Light section defines Darkness as one of three illumination categories, establishes Heavily Obscured rules, and defines special senses that interact with Darkness."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary - Defines Blinded condition, Darkvision, Blindsight, Truesight, Heavily Obscured, Lightly Obscured, and Light categories including Darkness."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 6: Cosmology - Multiple planes feature Darkness as a defining environmental characteristic including the Shadowfell, Negative Plane, Pandemonium, and Gehenna."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "shadow-crossing-darkness",
+      "name": "Shadow Crossings (Require Darkness)",
+      "type": "natural_crossing",
+      "description": "Shadow crossings are locations where the veil between the Material Plane and the Shadowfell is so thin that creatures can pass from one plane to the other. A blot of shadow in the corner of a dusty crypt might be a shadow crossing, as might an open grave. Shadow crossings form in gloomy places where spirits or the stench of death lingers, such as battlefields, graveyards, and tombs. They manifest only in darkness, closing as soon as they feel light's kiss.",
+      "requirements": [
+        "Darkness must be present at the crossing location",
+        "Light causes the crossing to close immediately"
+      ],
+      "associatedSpells": [],
+      "risks": [
+        "Entry into the Shadowfell with its Despair mechanic",
+        "Potential for Shadowfell Despair (DC 10 Wisdom saving throw)"
+      ],
+      "destinations": ["Shadowfell"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

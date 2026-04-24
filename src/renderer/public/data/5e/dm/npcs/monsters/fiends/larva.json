@@ -1,0 +1,49 @@
+{
+  "name": "Larva",
+  "slug": "larva",
+  "size": "Medium",
+  "type": "Fiend",
+  "alignment": "Neutral Evil",
+  "ac": "9",
+  "initiative": "−1 (9)",
+  "hp": "9",
+  "hpFormula": "2d8",
+  "speed": "20 ft.",
+  "abilityScores": {
+    "str": 9,
+    "dex": 9,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -1,
+    "dex": -1,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Darkvision 60 ft.; Passive Perception 10",
+  "languages": "Understands Common plus one other language but can't speak",
+  "cr": "0 (XP 10; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +1, reach 5 ft. *Hit:* 1 (1d4 − 1) Necrotic damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Fitting Fates for Depraved Souls*\n**Habitat:** Planar (Lower Planes); **Treasure:** None\nSouls condemned to the Lower Planes often become larvae--repulsive, maggot-like creatures with twisted features evocative of those they possessed in life. These pathetic creatures are nearly helpless and struggle to escape the attention of the more powerful inhabitants of the Lower Planes. Many Fiends view larvae as delicacies to be consumed, while evil magic-users find larvae useful for depraved rituals. Night hags frequently collect and herd larvae, trading them to nefarious parties across the multiverse.\nLarvae that survive on the Lower Planes long enough can eventually transform into other sorts of lesser Fiends.\nLarvae have disjointed, painful memories of their past lives. Most desperately avoid other creatures.",
+  "habitat": "Planar (Lower Planes)",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Fiends",
+    "file": "Fiends.md"
+  }
+}

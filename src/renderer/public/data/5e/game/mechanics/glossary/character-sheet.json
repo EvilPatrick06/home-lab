@@ -1,0 +1,11 @@
+{
+  "name": "Character Sheet",
+  "slug": "character-sheet",
+  "description": "A character sheet is the document on which you track your character's information.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

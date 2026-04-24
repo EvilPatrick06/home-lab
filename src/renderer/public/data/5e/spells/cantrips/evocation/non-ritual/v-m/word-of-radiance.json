@@ -1,0 +1,73 @@
+{
+  "name": "Word of Radiance",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false,
+    "material": {
+      "description": "a sunburst token",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Burning radiance erupts from you in a 5-foot Emanation. Each creature of your choice that you can see in it must succeed on a Constitution saving throw or take 1d6 Radiant damage.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 5,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Constitution",
+    "noDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Radiant",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 6,
+        "description": "The damage increases to 2d6."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 6,
+        "description": "The damage increases to 3d6."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 6,
+        "description": "The damage increases to 4d6."
+      }
+    ]
+  },
+  "tags": ["cantrip", "damage", "radiant", "aoe"]
+}

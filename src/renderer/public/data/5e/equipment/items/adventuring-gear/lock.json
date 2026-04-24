@@ -1,0 +1,13 @@
+{
+  "name": "Lock",
+  "cost": "10 GP",
+  "weight": "1 lb.",
+  "description": "Comes with a key. Without key, DC 15 Dexterity (Sleight of Hand) with Thieves' Tools to pick.",
+  "slug": "lock",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

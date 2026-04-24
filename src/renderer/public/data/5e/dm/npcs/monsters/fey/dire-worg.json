@@ -1,0 +1,68 @@
+{
+  "name": "Dire Worg",
+  "slug": "dire-worg",
+  "size": "Huge",
+  "type": "Fey",
+  "alignment": "Neutral Evil",
+  "ac": "16",
+  "initiative": "+2 (12)",
+  "hp": "147",
+  "hpFormula": "14d12 + 56",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 22,
+    "dex": 14,
+    "con": 18,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 6,
+    "dex": 6,
+    "con": 4,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +11",
+  "senses": "Darkvision 120 ft.; Passive Perception 21",
+  "languages": "Goblin, Sylvan, Worg",
+  "cr": "10 (XP 5,900; PB +4)",
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The worg has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The worg makes three Bite attacks."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +10, reach 5 ft. *Hit:* 15 (2d8 + 6) Piercing damage plus 7 (2d6) Poison damage, and the target has the Poisoned condition until the start of the worg's next turn. While Poisoned, the target can't regain Hit Points."
+    },
+    {
+      "name": "Dreadful Howl (Recharge 5−6)",
+      "description": "*Wisdom Saving Throw:* DC 16, each creature within 30 feet that isn't a worg. *Failure:* 36 (8d8) Psychic damage, and the target has the Frightened condition until the start of the worg's next turn. *Success:* Half damage only."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Warp Step",
+      "description": "The worg teleports, along with a willing creature of its choice within 5 feet of it, up to 30 feet to an unoccupied space it can see."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Malicious Lupine Ravagers*\n**Habitat:** Forest, Grassland, Hill, Planar (Feywild); **Treasure:** None\nSometimes mistaken at first for giant wolves, worgs are vicious hunters. These sapient predators can speak and often taunt their prey, enjoying the taste of fear in their meals.\nPacks of worgs roam harsh frontiers and cursed lands. They sometimes conspire with goblinoids and gnolls and might serve them as mounts.",
+  "habitat": "Forest, Grassland, Hill, Planar (Feywild)",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

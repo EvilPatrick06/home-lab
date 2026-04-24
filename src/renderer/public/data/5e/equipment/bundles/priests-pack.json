@@ -1,0 +1,13 @@
+{
+  "name": "Priest's Pack",
+  "cost": "33 GP",
+  "weight": "29 lb.",
+  "contents": "Backpack, Blanket, Holy Water, Lamp, 7 days of Rations, Robe, Tinderbox",
+  "slug": "priests-pack",
+  "category": "Equipment Bundle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

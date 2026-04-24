@@ -1,0 +1,682 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Plane of Ash",
+          "Plane of Ice",
+          "Plane of Magma",
+          "Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "feywild",
+      "name": "Feywild",
+      "alternateNames": ["Plane of Faerie"],
+      "category": "Material Realm",
+      "subcategory": "Feywild",
+      "alignments": [],
+      "philosophicalEssence": "A land of soft lights and wonder, a place of music and magic. The plane responds to unfettered emotion: flowers turn and tremble in the presence of a heated argument, grass withers under the feet of one who seethes with malice, and birds chirp merrily in the presence of those who are joyous and squawk angrily at those who are dour.",
+      "emotionalInfluence": "The plane responds to unfettered emotion. Its geography, flora, and fauna physically react to the emotions of creatures present.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "sentient_responsive",
+        "shape": "Parallel dimension occupying the same cosmological space as the Material Plane",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Breathable; the plane mirrors the Material Plane but is more marvelous, magical, vibrant, and colorful.",
+        "temperature": {
+          "category": "variable",
+          "description": "Variable, mirroring Material Plane counterparts but often more vivid. Domains of Delight may have perpetual seasons (e.g., Summer Court is wrapped in perpetual summer warmth, Gloaming Court is a realm of twilight and autumn)."
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Variable; the plane's weather and environment shift with the emotional states of powerful inhabitants, particularly archfey rulers of Domains of Delight."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "variable",
+        "ratioToMaterialPlane": "variable",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "warpTable": [
+          {
+            "diceRangeLow": 1,
+            "diceRangeHigh": 2,
+            "result": "Days become minutes",
+            "effectDescription": "Each day spent in the Feywild corresponds to only minutes passing elsewhere in the multiverse."
+          },
+          {
+            "diceRangeLow": 3,
+            "diceRangeHigh": 6,
+            "result": "Days become hours",
+            "effectDescription": "Each day spent in the Feywild corresponds to only hours passing elsewhere in the multiverse."
+          },
+          {
+            "diceRangeLow": 7,
+            "diceRangeHigh": 13,
+            "result": "No change",
+            "effectDescription": "Time passes normally relative to the multiverse."
+          },
+          {
+            "diceRangeLow": 14,
+            "diceRangeHigh": 17,
+            "result": "Days become weeks",
+            "effectDescription": "Each day spent in the Feywild corresponds to weeks passing elsewhere in the multiverse."
+          },
+          {
+            "diceRangeLow": 18,
+            "diceRangeHigh": 19,
+            "result": "Days become months",
+            "effectDescription": "Each day spent in the Feywild corresponds to months passing elsewhere in the multiverse."
+          },
+          {
+            "diceRangeLow": 20,
+            "diceRangeHigh": 20,
+            "result": "Days become years",
+            "effectDescription": "Each day spent in the Feywild corresponds to years passing elsewhere in the multiverse."
+          }
+        ],
+        "warpDie": 20,
+        "description": "While time seems to pass normally in the Feywild, characters might spend a day there and realize, upon leaving the plane, that less or more time has elapsed everywhere else in the multiverse. Whenever a creature or group of creatures leaves the Feywild after spending at least 1 day on that plane, the DM can choose a time change or roll on the Feywild Time Warp table. A Wish spell can be used to remove the effect on up to ten creatures. Some powerful Fey have the ability to grant such wishes and might do so if the beneficiaries agree to subject themselves to a Geas spell and complete a quest after the Wish spell is cast."
+      },
+      "hazards": [
+        {
+          "id": "feywild-memory-loss",
+          "name": "Feywild Memory Loss",
+          "description": "A creature that leaves the Feywild makes a DC 10 Wisdom saving throw. Fey creatures automatically succeed on the saving throw, as do creatures that have the Fey Ancestry trait, such as elves. On a failed save, the creature remembers nothing from its time spent in the Feywild. On a successful save, the creature's memories remain intact but are a little hazy. Any spell that can end a curse can restore the creature's lost memories.",
+          "category": "magical",
+          "severity": "moderate",
+          "savingThrowToTraverse": {
+            "ability": "Wisdom",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "on_exit",
+            "triggerDescription": "When a creature leaves the Feywild",
+            "onFailure": {
+              "description": "The creature remembers nothing from its time spent in the Feywild.",
+              "customCondition": "Memory Loss",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "duration": "Permanent until cured",
+              "cumulative": false
+            },
+            "onSuccess": {
+              "description": "The creature's memories remain intact but are a little hazy.",
+              "endsEffect": true,
+              "partialEffect": "Memories are intact but slightly hazy."
+            },
+            "autoSuccessCreatureTypes": ["Fey"],
+            "autoSuccessTraits": ["Fey Ancestry"],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": ["Any spell that can end a curse can restore the creature's lost memories"],
+            "failureProbabilityAtDC": {
+              "dc": 10,
+              "noModifierFailChance": 0.45,
+              "commonModifierRange": {
+                "low": 0,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.45,
+              "failChanceAtHighMod": 0.2
+            }
+          },
+          "immuneCreatureTypes": ["Fey"],
+          "immuneDamageTypes": [],
+          "immuneTraits": ["Fey Ancestry"],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Feywild - Feywild Magic"
+        },
+        {
+          "id": "feywild-time-warp",
+          "name": "Feywild Time Warp",
+          "description": "While time seems to pass normally in the Feywild, characters might spend a day there and realize, upon leaving the plane, that less or more time has elapsed everywhere else in the multiverse. Whenever a creature or group of creatures leaves the Feywild after spending at least 1 day on that plane, the DM can choose a time change or roll on the Feywild Time Warp table. A Wish spell can be used to remove the effect on up to ten creatures.",
+          "category": "temporal",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "locationTableRoll": {
+            "die": 20,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 2,
+                "effect": "Days become minutes",
+                "description": "Each day spent in the Feywild corresponds to only minutes passing elsewhere in the multiverse. Time effectively compressed for those outside the Feywild."
+              },
+              {
+                "rangeLow": 3,
+                "rangeHigh": 6,
+                "effect": "Days become hours",
+                "description": "Each day spent in the Feywild corresponds to only hours passing elsewhere in the multiverse."
+              },
+              {
+                "rangeLow": 7,
+                "rangeHigh": 13,
+                "effect": "No change",
+                "description": "Time passes normally relative to the multiverse."
+              },
+              {
+                "rangeLow": 14,
+                "rangeHigh": 17,
+                "effect": "Days become weeks",
+                "description": "Each day spent in the Feywild corresponds to weeks passing elsewhere in the multiverse."
+              },
+              {
+                "rangeLow": 18,
+                "rangeHigh": 19,
+                "effect": "Days become months",
+                "description": "Each day spent in the Feywild corresponds to months passing elsewhere in the multiverse."
+              },
+              {
+                "rangeLow": 20,
+                "rangeHigh": 20,
+                "effect": "Days become years",
+                "description": "Each day spent in the Feywild corresponds to years passing elsewhere in the multiverse."
+              }
+            ]
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Feywild - Feywild Magic"
+        },
+        {
+          "id": "feywild-mutable-geography",
+          "name": "Mutable Geography and Distance",
+          "description": "Time and distance in the Feywild are mutable, as is the plane's geography. Roads are uncommon, and the ones that exist change as frequently as the land around themselves. Feywild natives are accustomed to the plane's mutability, but it can be terribly disorienting to visitors.",
+          "category": "planar_trait",
+          "severity": "minor",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Feywild"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "feywild-emotional-responsiveness",
+          "name": "Emotional Responsiveness",
+          "description": "The Feywild responds to unfettered emotion: flowers turn and tremble in the presence of a heated argument, grass withers under the feet of one who seethes with malice, and birds chirp merrily in the presence of those who are joyous and squawk angrily at those who are dour.",
+          "mechanicalEffect": "The plane's flora and fauna physically react to the emotions of creatures present. This is a narrative and environmental effect with no specific mechanical penalty but can alert inhabitants to visitors' emotional states.",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "The plane gives physical expression to powerful emotion and excels at metaphor. Characters may find cherished memories or deep regrets stolen and embodied in physical objects like figurines or lockets. A mischievous sprite might steal a character's laughter, robbing them of the ability to laugh until the sprite is found and the laughter—a bouquet of lovely flowers—reclaimed.",
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Feywild"
+        }
+      ],
+      "portals": [
+        {
+          "id": "feywild-fey-crossings",
+          "type": "fey_crossing",
+          "name": "Fey Crossings",
+          "destination": "Material Plane",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "Most fey crossings open infrequently. A crossing might open only during a full moon, on the dawn of a particular day, or for someone carrying a certain type of item. A fey crossing can be closed permanently if the land on either side is dramatically altered—for example, if a castle is built over the clearing on the Material Plane.",
+            "situationCondition": "Varies: full moon, dawn of a particular day, carrying a certain type of item, or other specific conditions."
+          },
+          "colorOrAppearance": "Places of mystery and beauty on the Material Plane that have a near-perfect mirror in the Feywild. A traveler passes through by entering a clearing, wading into a pool, passing into a circle of mushrooms, or crawling under the trunk of a tree.",
+          "isDetectable": true
+        },
+        {
+          "id": "feywild-ethereal-curtain",
+          "type": "ethereal_curtain",
+          "name": "Ethereal Curtain to Feywild",
+          "destination": "Feywild (Border Ethereal)",
+          "destinationPlane": "Feywild",
+          "bidirectional": true,
+          "colorOrAppearance": "Opalescent",
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "uncommon",
+      "planarConnections": [
+        {
+          "id": "feywild-ethereal-border",
+          "name": "Border Ethereal Overlap",
+          "type": "other",
+          "connectedPlanes": ["Ethereal Plane", "Feywild"],
+          "description": "The Ethereal Plane's Border Ethereal overlaps the Feywild. Every location on the Feywild has a corresponding location on the Ethereal Plane. Visibility in the Border Ethereal is usually limited to 60 feet. Passing through an opalescent ethereal curtain in the Deep Ethereal leads to the Border Ethereal connected to the Feywild.",
+          "hazards": [],
+          "isOneWay": false
+        },
+        {
+          "id": "feywild-material-parallel",
+          "name": "Material Plane Parallel",
+          "type": "other",
+          "connectedPlanes": ["Material Plane", "Feywild"],
+          "description": "The Feywild exists in parallel to the Material Plane as an alternate dimension that occupies the same cosmological space. When moving from the Material Plane to the Feywild, travelers usually find themselves in a location similar to the one they left, but more marvelous and magical. Passage between the Material Plane and the Feywild is sometimes effortless, even accidental.",
+          "hazards": [],
+          "isOneWay": false
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fey"],
+        "notableEntities": [
+          {
+            "name": "Yarnspinner",
+            "title": "Archfey of Fablerise",
+            "creatureType": "Fey",
+            "description": "A story-spinning spider archfey who loves reading stories to the animals that occupy his domain of Fablerise, a rambling thicket of twisted roots, thorny vines, and sinuous creepers.",
+            "rulesLocation": "Chapter 6: Cosmology - Feywild - Domains of Delight"
+          },
+          {
+            "name": "Queen of Air and Darkness",
+            "title": "Ruler of the Gloaming Court",
+            "creatureType": "Fey",
+            "description": "Rules the Gloaming Court, a realm of twilight, fireflies, cobwebs, and autumn leaves. The Fey of the Gloaming Court shun formalized etiquette and rituals, instead prizing behavior that is intuitive and instinctual.",
+            "rulesLocation": "Chapter 6: Cosmology - Feywild - Domains of Delight"
+          },
+          {
+            "name": "Zybilna",
+            "title": "Archfey of Prismeer",
+            "creatureType": "Fey",
+            "description": "Archfey who rules the large domain of Prismeer encompassing Hither (a vast swamp), Thither (an ancient forest), and Yon (a stormy, mountainous landscape). Resides in the Palace of Heart's Desire. On some worlds regarded as a fairy godmother granting wishes for the lost, forsaken, or betrayed.",
+            "rulesLocation": "Chapter 6: Cosmology - Feywild - Domains of Delight"
+          },
+          {
+            "name": "Queen Titania",
+            "title": "Ruler of the Summer Court",
+            "creatureType": "Fey",
+            "description": "Archfey who rules the Summer Court, the most settled and pastoral domain in the Feywild. Wrapped in the warmth of a perpetual summer day with fluttering butterflies and colorful flowers, the court mimics courtly life with elaborate ceremony and ritualized etiquette.",
+            "rulesLocation": "Chapter 6: Cosmology - Feywild - Domains of Delight"
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Summer Court",
+            "description": "The most settled and pastoral domain in the Feywild. Residents wear elegant clothing and value elaborate ceremony and ritualized etiquette. The Fey are quick to shun those who flout the Summer Court's baroque rules.",
+            "location": "Summer Court domain"
+          },
+          {
+            "name": "Gloaming Court",
+            "description": "A realm of twilight, fireflies, cobwebs, and autumn leaves accompanied by the music of hooting owls and croaking frogs. The Fey shun formalized etiquette and rituals, instead prizing behavior that is intuitive and instinctual.",
+            "location": "Gloaming Court domain"
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "feywild-memory-loss-rule",
+          "name": "Memory Loss",
+          "description": "A creature that leaves the Feywild makes a DC 10 Wisdom saving throw. Fey creatures automatically succeed on the saving throw, as do creatures that have the Fey Ancestry trait, such as elves. On a failed save, the creature remembers nothing from its time spent in the Feywild. On a successful save, the creature's memories remain intact but are a little hazy. Any spell that can end a curse can restore the creature's lost memories.",
+          "mechanicalEffect": "DC 10 Wisdom saving throw upon leaving the Feywild. Failure: complete memory loss of time in Feywild. Success: memories intact but hazy. Fey creatures and creatures with Fey Ancestry auto-succeed. Any curse-removing spell restores lost memories.",
+          "savingThrow": {
+            "ability": "Wisdom",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "on_exit",
+            "triggerDescription": "When a creature leaves the Feywild",
+            "onFailure": {
+              "description": "The creature remembers nothing from its time spent in the Feywild.",
+              "customCondition": "Memory Loss",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "duration": "Permanent until cured by a curse-removing spell",
+              "cumulative": false
+            },
+            "onSuccess": {
+              "description": "The creature's memories remain intact but are a little hazy.",
+              "endsEffect": true,
+              "partialEffect": "Memories intact but hazy"
+            },
+            "autoSuccessCreatureTypes": ["Fey"],
+            "autoSuccessTraits": ["Fey Ancestry"],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": ["Any spell that can end a curse"]
+          },
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "feywild-time-warp-rule",
+          "name": "Time Warp",
+          "description": "While time seems to pass normally in the Feywild, characters might spend a day there and realize, upon leaving the plane, that less or more time has elapsed everywhere else in the multiverse. Whenever a creature or group of creatures leaves the Feywild after spending at least 1 day on that plane, the DM can choose a time change that works best for the campaign, if any, or roll on the Feywild Time Warp table (d20). A Wish spell can be used to remove the effect on up to ten creatures. Some powerful Fey have the ability to grant such wishes and might do so if the beneficiaries agree to subject themselves to a Geas spell and complete a quest after the Wish spell is cast.",
+          "mechanicalEffect": "Roll d20 on leaving after 1+ days: 1-2 days become minutes, 3-6 days become hours, 7-13 no change, 14-17 days become weeks, 18-19 days become months, 20 days become years. Wish spell removes the effect on up to 10 creatures. Powerful Fey may grant such wishes in exchange for a Geas-bound quest.",
+          "affectsSpellcasting": false,
+          "spellcastingRestrictions": {
+            "blockedSpells": [],
+            "exemptSpells": ["Wish"],
+            "modifiedSpells": [
+              {
+                "spell": "Wish",
+                "modification": "Can be used to remove the time warp effect on up to ten creatures."
+              },
+              {
+                "spell": "Geas",
+                "modification": "Powerful Fey may require subjects to accept a Geas spell and complete a quest as payment for granting a Wish to remove the time warp effect."
+              }
+            ]
+          }
+        },
+        {
+          "id": "feywild-mutable-geography-rule",
+          "name": "Mutable Time, Distance, and Geography",
+          "description": "Time and distance in the Feywild are mutable, as is the plane's geography. Roads are uncommon, and the ones that exist change as frequently as the land around themselves. Feywild natives are accustomed to the plane's mutability, but it can be terribly disorienting to visitors.",
+          "mechanicalEffect": "Distance and geography are not fixed. Roads change frequently. Navigation is unreliable for non-native visitors. The plane's sentient-responsive morphic nature means terrain can shift based on the emotions and desires of powerful inhabitants.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "feywild-emotional-environment-rule",
+          "name": "Emotionally Responsive Environment",
+          "description": "The plane responds to unfettered emotion: flowers turn and tremble in the presence of a heated argument, grass withers under the feet of one who seethes with malice, and birds chirp merrily in the presence of those who are joyous and squawk angrily at those who are dour.",
+          "mechanicalEffect": "The environment physically manifests the emotions of creatures present. This can reveal emotional states to observers and may interact with narrative elements (stolen memories embodied as objects, stolen laughter becoming flowers, etc.).",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [
+        {
+          "id": "fablerise",
+          "name": "Fablerise",
+          "type": "Domain of Delight",
+          "ruler": {
+            "name": "Yarnspinner",
+            "title": "Archfey",
+            "description": "A story-spinning spider archfey who loves reading stories to the animals that occupy his domain."
+          },
+          "description": "A rambling thicket of twisted roots, thorny vines, and sinuous creepers. This vegetation weaves together to form long tunnels, grand hallways, and enormous domes. Yarnspinner loves reading stories to the animals that occupy his domain.",
+          "hazards": []
+        },
+        {
+          "id": "gloaming-court",
+          "name": "Gloaming Court",
+          "type": "Domain of Delight",
+          "ruler": {
+            "name": "Queen of Air and Darkness",
+            "title": "Archfey"
+          },
+          "description": "A realm of twilight, fireflies, cobwebs, and autumn leaves accompanied by the music of hooting owls and croaking frogs. The Fey of the Gloaming Court shun the formalized etiquette and rituals of the Summer Court, instead prizing behavior that is intuitive and instinctual.",
+          "hazards": []
+        },
+        {
+          "id": "prismeer",
+          "name": "Prismeer",
+          "type": "Domain of Delight",
+          "ruler": {
+            "name": "Zybilna",
+            "title": "Archfey",
+            "description": "On some worlds regarded as a fairy godmother granting wishes for the lost, forsaken, or betrayed. Sometimes her wishes bring happiness, other times despair."
+          },
+          "description": "A large domain encompassing a vast swamp called Hither; an ancient forest named Thither; and a stormy, mountainous landscape called Yon. Zybilna resides in the Palace of Heart's Desire, situated where the three portions of her realm meet. The palace is fabled as a destination for anyone seeking their heart's desire.",
+          "hazards": []
+        },
+        {
+          "id": "summer-court",
+          "name": "Summer Court",
+          "type": "Domain of Delight",
+          "ruler": {
+            "name": "Queen Titania",
+            "title": "Archfey"
+          },
+          "description": "The most settled and pastoral domain in the Feywild. Wrapped in the warmth of a perpetual summer day, with fluttering butterflies and a riot of colorful flowers, the lands of the Summer Court mimic the trappings of courtly life. The residents wear elegant clothing and value elaborate ceremony and ritualized etiquette, and the Fey are quick to shun those who flout the Summer Court's baroque rules.",
+          "hazards": []
+        }
+      ],
+      "adventureThemes": [
+        "Stolen memories and emotions embodied as physical objects",
+        "Metaphorical and symbolic challenges",
+        "Navigating mutable geography and unreliable time",
+        "Interactions with archfey and their capricious rules",
+        "Fey bargains and the consequences of wishes",
+        "Children kidnapped by Fey creatures returning years later without aging",
+        "Accidental planar travel through fey crossings"
+      ],
+      "adventureSituations": [
+        {
+          "diceValue": 2,
+          "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed."
+        }
+      ],
+      "etherealCurtainColor": "Opalescent",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "The Wild Beyond the Witchlight",
+          "description": "Prismeer domain of Zybilna is detailed in this adventure."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "fey-crossing-travel",
+      "name": "Fey Crossings",
+      "type": "natural_crossing",
+      "description": "Fey crossings are places of mystery and beauty on the Material Plane that have a near-perfect mirror in the Feywild, creating a portal where the two planes touch. A traveler passes through a fey crossing by entering a clearing, wading into a pool, passing into a circle of mushrooms, or crawling under the trunk of a tree. To the traveler, it seems like simply moving into the Feywild. To an observer, the traveler is there one moment and gone the next.",
+      "requirements": [
+        "Most fey crossings open infrequently",
+        "A crossing might open only during a full moon, on the dawn of a particular day, or for someone carrying a certain type of item",
+        "A fey crossing can be closed permanently if the land on either side is dramatically altered"
+      ],
+      "associatedSpells": [],
+      "risks": [
+        "Memory Loss upon leaving the Feywild (DC 10 Wisdom save)",
+        "Time Warp (d20 table) upon leaving after 1+ days",
+        "Disorienting mutable geography"
+      ],
+      "destinations": ["Feywild"]
+    },
+    {
+      "id": "portal-travel-feywild",
+      "name": "Planar Portals to Feywild",
+      "type": "portal",
+      "description": "Portals leading to the Feywild can take the form of doorways, fog-shrouded passages, circles of standing stones, or locations that exist on multiple planes. Most have requirements (command words, key items, time constraints, situational conditions, or randomness) and may have guardians.",
+      "requirements": ["Varies by portal: command word, key item, time, situation, or random"],
+      "associatedSpells": ["Gate", "Plane Shift"],
+      "risks": [
+        "Memory Loss upon leaving the Feywild (DC 10 Wisdom save)",
+        "Time Warp (d20 table) upon leaving after 1+ days"
+      ],
+      "destinations": ["Feywild"]
+    },
+    {
+      "id": "spell-travel-feywild",
+      "name": "Spells",
+      "type": "spell",
+      "description": "Spells such as Gate and Plane Shift can directly transport adventurers to the Feywild. Etherealness allows adventurers to enter the Border Ethereal which overlaps the Feywild.",
+      "requirements": ["Appropriate spell slot", "Material components as specified by spell"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness"],
+      "risks": [
+        "Memory Loss upon leaving the Feywild (DC 10 Wisdom save)",
+        "Time Warp (d20 table) upon leaving after 1+ days"
+      ],
+      "destinations": ["Feywild"]
+    },
+    {
+      "id": "ethereal-curtain-feywild",
+      "name": "Ethereal Curtain (Opalescent)",
+      "type": "natural_crossing",
+      "description": "In the Deep Ethereal, an opalescent curtain of vaporous color leads to the Border Ethereal connected to the Feywild.",
+      "requirements": ["Must reach the Deep Ethereal first, typically via Plane Shift, Gate, or a magical portal"],
+      "associatedSpells": ["Plane Shift", "Gate"],
+      "risks": [
+        "Ether cyclones in the Deep Ethereal",
+        "Memory Loss upon leaving the Feywild (DC 10 Wisdom save)",
+        "Time Warp (d20 table)"
+      ],
+      "destinations": ["Feywild"]
+    },
+    {
+      "id": "material-plane-world-travel-via-feywild",
+      "name": "The Great Journey via Feywild",
+      "type": "planar_pathway",
+      "description": "It is possible to travel between worlds of the Material Plane through the Feywild, though such routes are less charted and no less perilous than other methods.",
+      "requirements": ["Knowledge of Feywild routes between Material Plane worlds"],
+      "associatedSpells": [],
+      "risks": [
+        "Memory Loss upon leaving the Feywild (DC 10 Wisdom save)",
+        "Time Warp (d20 table)",
+        "Mutable geography makes navigation unreliable",
+        "Encounters with Fey creatures"
+      ],
+      "destinations": ["Material Plane (various worlds)"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

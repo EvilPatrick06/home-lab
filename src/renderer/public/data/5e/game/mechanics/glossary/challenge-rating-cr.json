@@ -1,0 +1,11 @@
+{
+  "name": "Challenge Rating (CR)",
+  "slug": "challenge-rating-cr",
+  "description": "Challenge Rating is a way of measuring the difficulty of a monster. A monster's CR tells the DM how many characters of a certain level the monster is expected to challenge.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

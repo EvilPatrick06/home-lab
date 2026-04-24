@@ -1,0 +1,60 @@
+{
+  "gaming set": {
+    "label": "Gaming Set",
+    "variants": [
+      "Gaming Set (Dice)",
+      "Gaming Set (Dragonchess)",
+      "Gaming Set (Playing Cards)",
+      "Gaming Set (Three-Dragon Ante)"
+    ]
+  },
+  "arcane focus": {
+    "label": "Arcane Focus",
+    "variants": [
+      "Arcane Focus (Crystal)",
+      "Arcane Focus (Orb)",
+      "Arcane Focus (Rod)",
+      "Arcane Focus (Staff)",
+      "Arcane Focus (Wand)"
+    ]
+  },
+  "druidic focus": {
+    "label": "Druidic Focus",
+    "variants": [
+      "Druidic Focus (Sprig of Mistletoe)",
+      "Druidic Focus (Totem)",
+      "Druidic Focus (Wooden Staff)",
+      "Druidic Focus (Yew Wand)"
+    ]
+  },
+  "holy symbol": {
+    "label": "Holy Symbol",
+    "variants": ["Holy Symbol (Amulet)", "Holy Symbol (Emblem)", "Holy Symbol (Reliquary)"]
+  },
+  "musical instrument": {
+    "label": "Musical Instrument",
+    "variants": ["Bagpipes", "Drum", "Dulcimer", "Flute", "Horn", "Lute", "Lyre", "Pan Flute", "Shawm", "Viol"]
+  },
+  "artisan's tools": {
+    "label": "Artisan's Tools",
+    "variants": [
+      "Alchemist's Supplies",
+      "Brewer's Supplies",
+      "Calligrapher's Supplies",
+      "Carpenter's Tools",
+      "Cartographer's Tools",
+      "Cobbler's Tools",
+      "Cook's Utensils",
+      "Glassblower's Tools",
+      "Jeweler's Tools",
+      "Leatherworker's Tools",
+      "Mason's Tools",
+      "Painter's Supplies",
+      "Potter's Tools",
+      "Smith's Tools",
+      "Tinker's Tools",
+      "Weaver's Tools",
+      "Woodcarver's Tools"
+    ]
+  }
+}

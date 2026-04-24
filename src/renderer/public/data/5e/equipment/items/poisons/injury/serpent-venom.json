@@ -1,0 +1,20 @@
+{
+  "name": "Serpent Venom",
+  "slug": "serpent-venom",
+  "category": "Poison",
+  "type": "Injury",
+  "cost": "200 GP",
+  "weight": "—",
+  "description": "A creature subjected to this poison must succeed on a DC 11 Constitution saving throw, taking 10 (3d6) Poison damage on a failed save, or half as much on a successful one.",
+  "saveDC": 11,
+  "saveAbility": "Constitution",
+  "damage": "3d6",
+  "damageType": "Poison",
+  "averageDamage": 10,
+  "halfDamageOnSave": true,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poisons"
+  }
+}

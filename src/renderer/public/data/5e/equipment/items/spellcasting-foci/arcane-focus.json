@@ -1,0 +1,50 @@
+{
+  "name": "Arcane Focus",
+  "slug": "arcane-focus",
+  "category": "Spellcasting Focus",
+  "type": "Arcane",
+  "description": "An Arcane Focus is a special item designed to channel the power of arcane spells. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.",
+  "variants": [
+    {
+      "name": "Crystal",
+      "slug": "arcane-focus-crystal",
+      "cost": "10 GP",
+      "weight": "1 lb.",
+      "description": "A small crystal orb or gem used to focus arcane energy."
+    },
+    {
+      "name": "Orb",
+      "slug": "arcane-focus-orb",
+      "cost": "20 GP",
+      "weight": "3 lb.",
+      "description": "A polished glass or crystal sphere used as a focus for arcane spells."
+    },
+    {
+      "name": "Rod",
+      "slug": "arcane-focus-rod",
+      "cost": "10 GP",
+      "weight": "2 lb.",
+      "description": "A short metal or wood shaft used to focus arcane spells."
+    },
+    {
+      "name": "Staff",
+      "slug": "arcane-focus-staff",
+      "cost": "5 GP",
+      "weight": "4 lb.",
+      "description": "A full-length staff crafted from wood or metal, used as a focus for arcane spells."
+    },
+    {
+      "name": "Wand",
+      "slug": "arcane-focus-wand",
+      "cost": "10 GP",
+      "weight": "1 lb.",
+      "description": "A slender wooden or metal rod used to focus arcane spells."
+    }
+  ],
+  "usableBy": ["Sorcerer", "Warlock", "Wizard"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

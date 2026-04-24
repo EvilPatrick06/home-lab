@@ -1,0 +1,6 @@
+{
+  "id": "vex",
+  "name": "Vex",
+  "description": "If you hit a creature with a weapon that has the Vex property, you have Advantage on your next attack roll against that creature before the end of your next turn.",
+  "mechanicalEffect": "On hit, gain Advantage on your next attack roll against the same creature before the end of your next turn."
+}

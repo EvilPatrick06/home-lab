@@ -1,0 +1,11 @@
+{
+  "name": "Passive Perception",
+  "slug": "passive-perception",
+  "description": "Passive Perception = 10 + the creature's Wisdom (Perception) modifier. Advantage adds 5; Disadvantage subtracts 5.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

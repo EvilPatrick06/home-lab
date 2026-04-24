@@ -1,0 +1,11 @@
+{
+  "name": "Difficulty Class (DC)",
+  "slug": "difficulty-class-dc",
+  "description": "A Difficulty Class is the target number for an ability check or saving throw. It represents the difficulty of a task.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

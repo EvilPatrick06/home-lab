@@ -1,0 +1,12 @@
+{
+  "name": "Spellguard Shield",
+  "itemType": "Armor",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "While holding this Shield, you have Advantage on saving throws against spells and other magical effects, and spell attack rolls have Disadvantage against you.",
+  "properties": null,
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

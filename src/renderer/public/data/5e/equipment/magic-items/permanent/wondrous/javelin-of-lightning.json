@@ -1,0 +1,25 @@
+{
+  "name": "Javelin",
+  "category": "Simple",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 5,
+    "denomination": "SP"
+  },
+  "damage": {
+    "count": 1,
+    "die": 6,
+    "type": "Piercing"
+  },
+  "weight": 2,
+  "properties": [
+    {
+      "property": "Thrown",
+      "range": {
+        "normal": 30,
+        "long": 120
+      }
+    }
+  ],
+  "mastery": "Slow"
+}

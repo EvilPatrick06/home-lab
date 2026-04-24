@@ -1,0 +1,50 @@
+{
+  "name": "Crawling Claw",
+  "slug": "crawling-claw",
+  "size": "Tiny",
+  "type": "Undead",
+  "alignment": "Neutral Evil",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "2",
+  "hpFormula": "1d4",
+  "speed": "20 ft., Climb 20 ft.",
+  "abilityScores": {
+    "str": 13,
+    "dex": 14,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Necrotic, Poison; Charmed, Exhaustion, Frightened, Incapacitated, Poisoned",
+  "senses": "Blindsight 30 ft.; Passive Perception 10",
+  "languages": "Understands Common but can't speak",
+  "cr": "0 (XP 10; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 2 Necrotic damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Severed Appendages with Malicious Will*\n**Habitat:** Any; **Treasure:** None\nCrawling claws are severed hands that move and act of their own murderous accord. These deathless appendages can spring to life from the severed limbs of killers and villains, and sinister magic-users might animate crawling claws as foul servants. Crawling claws appear in a variety of forms, from decaying human hands to the fresh appendages of animals or monsters.\nLone crawling claws can continue killing sprees they perpetrated in life. Some recklessly attack the living, while others pursue specific victims. In rare cases, a crawling claw wreaks mayhem while the rest of its body still lives, with the original creature potentially unaware of its severed hand's crimes.\nSwarms of crawling claws are typically animated by depraved necromancers. Occasionally, these grotesque swarms arise from mass graves or after tragedies, refusing to let their murderers escape their grasp.\n> *Is it possible for any creature, any living being, to be inherently evil? Such an assertion may itself facilitate the committing of evil acts. By defining a person as evil, we give them free rein to behave as they will, absolving them from the wickedness of their words and the evil of their hands.*\n>\n> -- Ansolm Haas, *The Isolation of Evil*",
+  "habitat": "Any",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

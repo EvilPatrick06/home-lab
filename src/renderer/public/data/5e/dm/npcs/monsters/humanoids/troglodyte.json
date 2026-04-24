@@ -1,0 +1,149 @@
+{
+  "name": "Troglodyte",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "Troglodytes are reptilian humanoids that dwell in the lightless depths of the Underdark. They exude a horrible stench that sickens other creatures, and they are fiercely territorial, attacking intruders on sight. Troglodytes worship demon lords and other dark powers, offering gruesome sacrifices to win their favor.",
+  "armorClass": {
+    "value": 11,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 13,
+    "dice": {
+      "count": 2,
+      "die": "d8",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Troglodyte"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Stench",
+      "description": "Any creature (other than a Troglodyte) that starts its turn within 5 feet of the troglodyte must succeed on a DC 12 Constitution saving throw or have the Poisoned condition until the start of the creature's next turn. On a successful save, the creature is immune to the Stench of all Troglodytes for 1 hour."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the troglodyte has Disadvantage on attack rolls and on Wisdom (Perception) checks that rely on sight."
+    }
+  ],
+  "multiattack": {
+    "description": "The troglodyte makes one Bite attack and one Claw attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

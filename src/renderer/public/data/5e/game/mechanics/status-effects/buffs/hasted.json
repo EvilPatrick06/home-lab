@@ -1,0 +1,24 @@
+{
+  "id": "hasted",
+  "name": "Hasted",
+  "source": "Haste (3rd-level Transmutation spell)",
+  "duration": "Up to 1 minute (Concentration)",
+  "description": "Choose a willing creature that you can see within range. Until the spell ends, the target's speed is doubled, it gains a +2 bonus to AC, it has Advantage on Dexterity saving throws, and it gains an additional action on each of its turns.",
+  "effects": [
+    { "type": "speed", "target": "all movement speeds", "value": "doubled" },
+    { "type": "bonus", "target": "AC", "value": "+2" },
+    { "type": "advantage", "target": "Dexterity saving throws", "value": "Advantage" },
+    { "type": "extra action", "target": "actions per turn", "value": "One additional action (limited options)" }
+  ],
+  "extraActionOptions": ["Attack (one weapon attack only)", "Dash", "Disengage", "Hide", "Utilize"],
+  "endConditions": [
+    "The spell's duration expires (1 minute)",
+    "The caster loses Concentration",
+    "The caster is incapacitated or dies"
+  ],
+  "lethargyEffect": {
+    "description": "When the spell ends, the target can't move or take actions until after its next turn, as a wave of lethargy sweeps over it.",
+    "duration": "Until end of the target's next turn after the spell ends"
+  },
+  "notes": "The extra action is limited to the listed options -- it cannot be used to cast a spell or use a feature that requires a full action. The lethargy at the end is a significant drawback if Concentration is broken mid-combat."
+}

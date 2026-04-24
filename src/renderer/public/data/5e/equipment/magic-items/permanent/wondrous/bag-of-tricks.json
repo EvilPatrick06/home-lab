@@ -1,0 +1,121 @@
+{
+  "name": "Bag of Tricks",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "This bag made from gray, rust, or tan cloth appears empty. Reaching inside the bag, however, reveals the presence of a small, fuzzy object.\n\nYou can take a Magic action to pull the fuzzy object from the bag and throw it up to 20 feet. When the object lands, it transforms into a creature you determine by rolling on the table that corresponds to the bag's color. See the *Monster Manual* for the creature's stat block. The creature vanishes at the next dawn or when it is reduced to 0 Hit Points.\n\nThe creature is Friendly to you and your allies, and it acts immediately after you on your Initiative count. You can take a Bonus Action to command how the creature moves and what action it takes on its next turn, such as attacking an enemy. In the absence of such orders, the creature acts in a fashion appropriate to its nature.\n\nOnce three fuzzy objects have been pulled from the bag, the bag can't be used again until the next dawn.",
+  "properties": [
+    {
+      "type": "Color Table",
+      "gray": [
+        {
+          "roll": 1,
+          "creature": "Weasel"
+        },
+        {
+          "roll": 2,
+          "creature": "Giant Rat"
+        },
+        {
+          "roll": 3,
+          "creature": "Badger"
+        },
+        {
+          "roll": 4,
+          "creature": "Boar"
+        },
+        {
+          "roll": 5,
+          "creature": "Panther"
+        },
+        {
+          "roll": 6,
+          "creature": "Giant Badger"
+        },
+        {
+          "roll": 7,
+          "creature": "Dire Wolf"
+        },
+        {
+          "roll": 8,
+          "creature": "Giant Elk"
+        }
+      ],
+      "rust": [
+        {
+          "roll": 1,
+          "creature": "Rat"
+        },
+        {
+          "roll": 2,
+          "creature": "Owl"
+        },
+        {
+          "roll": 3,
+          "creature": "Mastiff"
+        },
+        {
+          "roll": 4,
+          "creature": "Goat"
+        },
+        {
+          "roll": 5,
+          "creature": "Giant Goat"
+        },
+        {
+          "roll": 6,
+          "creature": "Giant Boar"
+        },
+        {
+          "roll": 7,
+          "creature": "Lion"
+        },
+        {
+          "roll": 8,
+          "creature": "Brown Bear"
+        }
+      ],
+      "tan": [
+        {
+          "roll": 1,
+          "creature": "Jackal"
+        },
+        {
+          "roll": 2,
+          "creature": "Ape"
+        },
+        {
+          "roll": 3,
+          "creature": "Baboon"
+        },
+        {
+          "roll": 4,
+          "creature": "Axe Beak"
+        },
+        {
+          "roll": 5,
+          "creature": "Black Bear"
+        },
+        {
+          "roll": 6,
+          "creature": "Giant Weasel"
+        },
+        {
+          "roll": 7,
+          "creature": "Giant Hyena"
+        },
+        {
+          "roll": 8,
+          "creature": "Tiger"
+        }
+      ]
+    }
+  ],
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

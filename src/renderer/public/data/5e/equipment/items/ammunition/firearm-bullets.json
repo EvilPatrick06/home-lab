@@ -1,0 +1,15 @@
+{
+  "name": "Bullets (10)",
+  "slug": "firearm-bullets",
+  "category": "Ammunition",
+  "cost": "3 GP",
+  "weight": "2 lb.",
+  "quantity": 10,
+  "description": "Ammunition for Renaissance firearms (Pistol and Musket). Bullets cannot be recovered after use.",
+  "compatibleWeapons": ["Pistol", "Musket"],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "name": "Nothic",
+  "sizes": ["Medium"],
+  "creatureType": "Aberration",
+  "alignment": "Neutral Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Arcana"],
+  "lore": "A nothic is a wretched creature cursed with baleful magical insight. Once a wizard or other spellcaster who delved too deeply into arcane knowledge, a nothic is warped by the magic it sought to master. Its single, enormous eye can rot flesh with a glance. Nothics lurk in dark places—ruins, dungeons, and the Underdark—spying on others and hoarding secrets. They are paranoid and territorial but can be bargained with if offered knowledge or magical lore.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 58,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 3
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 2
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 3
+    },
+    {
+      "skill": "Insight",
+      "bonus": 4
+    },
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Undercommon"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The nothic has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The nothic makes two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Slashing damage plus 3 (1d6) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rotting Gaze",
+      "description": "The nothic targets one creature it can see within 60 feet of itself. Wisdom Saving Throw: DC 12. Failure: 10 (3d6) Necrotic damage. Success: Half damage only.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 12,
+        "targets": "one creature the nothic can see within 60 feet of itself",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Weird Insight",
+      "description": "The nothic targets one creature it can see within 30 feet of itself. The nothic makes an Intelligence (Arcana) check contested by the target's Charisma (Deception) check. If the nothic wins, it magically learns one fact or secret about the target. The DM determines what information is revealed."
+    }
+  ]
+}

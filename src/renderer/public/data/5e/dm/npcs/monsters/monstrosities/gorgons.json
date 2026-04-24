@@ -1,0 +1,200 @@
+{
+  "name": "Gorgon",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Hill", "Mountain", "Underdark"],
+  "treasure": ["None"],
+  "lore": "A gorgon is a bull-like monstrosity covered in gleaming iron plates. These ill-tempered creatures charge any intruder on sight, trampling and goring foes before breathing a cone of petrifying gas that turns flesh to stone. Some believe gorgons were created by a wrathful deity as instruments of punishment, while others hold they arose from magical experiments gone awry. Whatever their origin, gorgons now roam wild across hills, mountains, and subterranean caverns, leaving petrified victims in their wake.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 114,
+    "dice": {
+      "count": 12,
+      "die": "d10",
+      "modifier": 48
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "conditionImmunities": ["Petrified"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {},
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Trampling Charge",
+      "description": "If the gorgon moves at least 20 feet straight toward a creature and then hits it with a Gore attack on the same turn, that target must succeed on a DC 16 Strength saving throw or have the Prone condition. If the target has the Prone condition, the gorgon can make one Hooves attack against it as a Bonus Action."
+    }
+  ],
+  "multiattack": {
+    "description": "The gorgon makes two attacks: one Gore attack and one Hooves attack.",
+    "attacks": [
+      {
+        "actionName": "Gore",
+        "count": 1
+      },
+      {
+        "actionName": "Hooves",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Gore",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 18 (2d12 + 5) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 18,
+              "dice": {
+                "count": 2,
+                "die": "d12",
+                "modifier": 5
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hooves",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 16 (2d10 + 5) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Petrifying Breath",
+      "description": "The gorgon exhales petrifying gas in a 30-foot Cone. Each creature in that area must make a DC 15 Constitution saving throw. On a failed save, the target begins turning to stone and has the Restrained condition. The Restrained creature must repeat the saving throw at the end of its next turn, becoming Petrified on a failure or ending the effect on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 15,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "duration": "until end of target's next turn",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 15,
+                "onFailure": {
+                  "conditions": [
+                    {
+                      "condition": "Petrified"
+                    }
+                  ]
+                },
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ],
+          "effects": "The target begins turning to stone."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 30
+      },
+      "conditions": [
+        {
+          "condition": "Restrained",
+          "duration": "until end of target's next turn"
+        },
+        {
+          "condition": "Petrified"
+        }
+      ]
+    }
+  ]
+}

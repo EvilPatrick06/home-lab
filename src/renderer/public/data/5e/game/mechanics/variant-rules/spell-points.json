@@ -1,0 +1,55 @@
+{
+  "id": "spell-points",
+  "name": "Spell Points",
+  "source": "PHB 2024",
+  "category": "variant-rule",
+  "description": "This variant replaces the standard spell slot system with a pool of Spell Points. Instead of expending a spell slot, a caster expends Spell Points based on the spell's level. All Spell Points are regained after a Long Rest. Spells of 6th level or higher are each limited to one casting per Long Rest.",
+  "mechanics": {
+    "replaces": "Standard spell slot system for classes with the Spellcasting feature",
+    "costPerSpellLevel": {
+      "1st": 2,
+      "2nd": 3,
+      "3rd": 5,
+      "4th": 6,
+      "5th": 7,
+      "6th": 9,
+      "7th": 10,
+      "8th": 11,
+      "9th": 13
+    },
+    "spellPointMaximumByLevel": {
+      "1": 4,
+      "2": 6,
+      "3": 14,
+      "4": 17,
+      "5": 27,
+      "6": 32,
+      "7": 38,
+      "8": 44,
+      "9": 57,
+      "10": 64,
+      "11": 73,
+      "12": 73,
+      "13": 83,
+      "14": 83,
+      "15": 94,
+      "16": 94,
+      "17": 107,
+      "18": 114,
+      "19": 123,
+      "20": 133
+    },
+    "cantrips": "Cantrips do not require Spell Points and function as normal at-will abilities",
+    "highLevelRestriction": "A character can cast a spell of 6th level or higher only once per Long Rest for each such spell level. For example, one 6th-level and one 7th-level spell are allowed, but two 6th-level spells are not.",
+    "upcasting": "To cast a spell at a higher level, pay the Spell Point cost of the higher level. For example, casting a 1st-level spell at 3rd level costs 5 Spell Points.",
+    "recovery": "All spent Spell Points and high-level casting restrictions are restored after a Long Rest",
+    "multiclassing": "Multiclass characters use their combined spellcaster level to determine their Spell Point maximum"
+  },
+  "interactions": [
+    "Pact Magic (Warlock) is a separate feature from Spellcasting and retains its own spell slots even when this variant is in use",
+    "Sorcerer's Font of Magic should be adapted by the DM to convert between sorcery points and Spell Points at the listed costs",
+    "Wizard's Arcane Recovery should be adapted to restore an equivalent number of Spell Points rather than spell slot levels",
+    "Short Rests do not restore Spell Points unless another feature specifically grants Spell Point recovery",
+    "This system provides much greater flexibility for low-level spells at the cost of fewer high-level castings compared to standard slots"
+  ]
+}

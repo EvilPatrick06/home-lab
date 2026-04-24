@@ -1,0 +1,60 @@
+{
+  "name": "Sorcerous Burst",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Sorcerer"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You cast sorcerous energy at one creature or object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d8 damage of a type you choose: Acid, Cold, Fire, Lightning, Poison, Psychic, or Thunder. If you roll an 8 on a d8 for this spell, you can roll another d8, and add it to the damage. When you cast this spell, the maximum number of these d8s you can add to the spell's damage equals your spellcasting ability modifier.",
+  "targetType": "creatureOrObject",
+  "attackType": "RangedSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": ["Acid", "Cold", "Fire", "Lightning", "Poison", "Psychic", "Thunder"],
+      "applicationType": "onHit"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 8,
+        "description": "The damage increases to 2d8."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 8,
+        "description": "The damage increases to 3d8."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 8,
+        "description": "The damage increases to 4d8."
+      }
+    ]
+  },
+  "tags": ["exploding-dice", "damage-type-choice"]
+}

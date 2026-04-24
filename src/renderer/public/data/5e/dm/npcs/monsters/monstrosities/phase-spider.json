@@ -1,0 +1,151 @@
+{
+  "name": "Phase Spider",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Forest", "Grassland", "Hill", "Underdark"],
+  "treasure": ["None"],
+  "lore": "Phase spiders are large, predatory spiders capable of shifting between the Material Plane and the Ethereal Plane. They use this ability to ambush prey, phasing into existence to deliver a venomous bite before retreating to the Ethereal Plane to avoid retaliation. Their lairs are often draped in webs that span both planes.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 32,
+    "dice": {
+      "count": 5,
+      "die": "d10",
+      "modifier": 5
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {},
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Ethereal Sight",
+      "description": "The phase spider can see 60 feet into the Ethereal Plane when it is on the Material Plane and vice versa."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The phase spider can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    },
+    {
+      "name": "Web Walker",
+      "description": "The phase spider ignores movement restrictions caused by webs."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d10 + 2) Piercing damage plus 18 (4d8) Poison damage. If the Poison damage reduces the target to 0 Hit Points, the target has the Stable condition but also has the Poisoned condition for 1 hour, and while Poisoned in this way, the target also has the Paralyzed condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 18,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ],
+          "additionalEffects": "If the Poison damage reduces the target to 0 Hit Points, the target has the Stable condition but also has the Poisoned condition for 1 hour, and while Poisoned in this way, the target also has the Paralyzed condition.",
+          "conditions": [
+            {
+              "condition": "Poisoned",
+              "duration": "1 hour"
+            },
+            {
+              "condition": "Paralyzed",
+              "duration": "While Poisoned by this attack"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Ethereal Jaunt",
+      "description": "The phase spider magically shifts from the Material Plane to the Ethereal Plane, or vice versa."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Fireball Fungus",
+  "severity": "Level 5+",
+  "description": "These glowing fungi fill a 20-foot square. When disturbed, they release spores that explode. DC 15 Dex save or take 22 (4d10) Fire damage.",
+  "slug": "fireball-fungus",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

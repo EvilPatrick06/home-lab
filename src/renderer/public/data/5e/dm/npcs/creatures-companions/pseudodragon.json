@@ -1,0 +1,52 @@
+{
+  "name": "Pseudodragon",
+  "slug": "pseudodragon",
+  "size": "Tiny",
+  "type": "Dragon",
+  "alignment": "Neutral Good",
+  "ac": 13,
+  "hp": 7,
+  "hpFormula": "2d4 + 2",
+  "speed": "15 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 6,
+    "dex": 15,
+    "con": 13,
+    "int": 10,
+    "wis": 12,
+    "cha": 10
+  },
+  "skills": "Perception +3, Stealth +4",
+  "senses": "Blindsight 10 ft., Darkvision 60 ft., Passive Perception 13",
+  "languages": "understands Common and Draconic but can't speak",
+  "cr": "1/4",
+  "xp": "50 XP",
+  "traits": [
+    {
+      "name": "Keen Senses",
+      "description": "Advantage on Wisdom (Perception) checks."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Limited Telepathy",
+      "description": "Can magically communicate simple ideas, emotions, and images telepathically with any creature within 100 ft. of it that can understand a language."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +4, reach 5 ft. *Hit:* 4 (1d4 + 2) Piercing."
+    },
+    {
+      "name": "Sting",
+      "description": "*Melee:* +4, reach 5 ft. *Hit:* 4 (1d4 + 2) Piercing plus the target must succeed on a DC 11 Constitution saving throw or have the Poisoned condition for 1 hour. If the target fails the save by 5 or more, the target has the Poisoned and Unconscious conditions for the same duration."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

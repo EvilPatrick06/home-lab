@@ -1,0 +1,57 @@
+{
+  "name": "Dragonborn",
+  "slug": "dragonborn",
+  "creatureType": "Humanoid",
+  "size": "Medium (about 5–7 feet tall)",
+  "speed": "30 feet",
+  "lore": "The ancestors of dragonborn hatched from the eggs of chromatic and metallic dragons. One story holds that these eggs were blessed by the dragon gods Bahamut and Tiamat, who wanted to populate the multiverse with people created in their image. Another story claims that dragons created the first dragonborn without the gods' blessings. Whatever their origin, dragonborn have made homes for themselves on the Material Plane.\n\nDragonborn look like wingless, bipedal dragons — scaly, bright-eyed, and thick-boned with horns on their heads — and their coloration and other features are reminiscent of their draconic ancestors.",
+  "traits": [
+    {
+      "name": "Draconic Ancestry",
+      "description": "Your lineage stems from a dragon progenitor. Choose the kind of dragon from the Draconic Ancestors table. Your choice affects your Breath Weapon and Damage Resistance traits as well as your appearance."
+    },
+    {
+      "name": "Breath Weapon",
+      "description": "When you take the Attack action on your turn, you can replace one of your attacks with an exhalation of magical energy in either a 15-foot Cone or a 30-foot Line that is 5 feet wide (choose the shape each time). Each creature in that area must make a Dexterity saving throw (DC 8 plus your Constitution modifier and Proficiency Bonus). On a failed save, a creature takes 1d10 damage of the type determined by your Draconic Ancestry trait. On a successful save, a creature takes half as much damage. This damage increases by 1d10 when you reach character levels 5 (2d10), 11 (3d10), and 17 (4d10)."
+    },
+    {
+      "name": "Damage Resistance",
+      "description": "You have Resistance to the damage type determined by your Draconic Ancestry trait."
+    },
+    {
+      "name": "Darkvision",
+      "description": "You have Darkvision with a range of 60 feet."
+    },
+    {
+      "name": "Draconic Flight",
+      "description": "When you reach character level 5, you can channel draconic magic to give yourself temporary flight. As a Bonus Action, you sprout spectral wings on your back that last for 10 minutes or until you retract the wings (no action required) or have the Incapacitated condition. During that time, you have a Fly Speed equal to your Speed. Your wings appear to be made of the same energy as your Breath Weapon. Once you use this trait, you can't use it again until you finish a Long Rest."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 4",
+    "section": "Species"
+  },
+  "lineageTable": [
+    {
+      "lineage": "Black",
+      "values": ["Acid", "Gold", "Fire"]
+    },
+    {
+      "lineage": "Blue",
+      "values": ["Lightning", "Green", "Poison"]
+    },
+    {
+      "lineage": "Brass",
+      "values": ["Fire", "Red", "Fire"]
+    },
+    {
+      "lineage": "Bronze",
+      "values": ["Lightning", "Silver", "Cold"]
+    },
+    {
+      "lineage": "Copper",
+      "values": ["Acid", "White", "Cold"]
+    }
+  ]
+}

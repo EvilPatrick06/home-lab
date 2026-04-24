@@ -1,0 +1,17 @@
+{
+  "name": "Tankard of Sobriety",
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "weight": 1,
+  "description": "This tankard has a stern face etched into it. You can drink any amount of alcohol from this tankard without becoming inebriated. The beverage still tastes the same.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

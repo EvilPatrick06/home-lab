@@ -1,0 +1,11 @@
+{
+  "name": "Influence",
+  "slug": "influence",
+  "description": "The Influence action lets you use a Charisma check (Deception, Intimidation, Performance, or Persuasion) or Wisdom (Animal Handling) check to shift a creature's attitude.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

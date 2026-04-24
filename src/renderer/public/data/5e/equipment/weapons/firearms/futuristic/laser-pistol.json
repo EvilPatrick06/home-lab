@@ -1,0 +1,23 @@
+{
+  "name": "Laser Pistol",
+  "slug": "laser-pistol",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Futuristic",
+  "damage": "3d6",
+  "damageType": "Radiant",
+  "properties": ["Ammunition", "Reload (50)"],
+  "weight": "2 lb.",
+  "cost": "—",
+  "range": {
+    "normal": 40,
+    "long": 120
+  },
+  "ammunitionType": "Energy Cell",
+  "reloadCapacity": 50,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

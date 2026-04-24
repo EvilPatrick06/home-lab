@@ -1,0 +1,11 @@
+{
+  "name": "Damage Threshold",
+  "slug": "damage-threshold",
+  "description": "A creature or object has Immunity to all damage unless it takes an amount of damage from a single attack or effect equal to or greater than its damage threshold, in which case it takes that damage.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

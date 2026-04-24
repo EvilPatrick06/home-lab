@@ -1,0 +1,48 @@
+{
+  "name": "Spider",
+  "slug": "spider",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 12,
+  "hp": 1,
+  "hpFormula": "1d4 - 1",
+  "speed": "20 ft., Climb 20 ft.",
+  "abilityScores": {
+    "str": 2,
+    "dex": 14,
+    "con": 8,
+    "int": 1,
+    "wis": 10,
+    "cha": 2
+  },
+  "skills": "Stealth +4",
+  "senses": "Darkvision 30 ft., Passive Perception 10",
+  "languages": "—",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [
+    {
+      "name": "Spider Climb",
+      "description": "Can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    },
+    {
+      "name": "Web Sense",
+      "description": "While in contact with a web, the spider knows the exact location of any other creature in contact with the same web."
+    },
+    {
+      "name": "Web Walker",
+      "description": "Ignores movement restrictions caused by webbing."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +4, reach 5 ft. *Hit:* 1 Piercing plus the target must succeed on a DC 9 Constitution saving throw or take 2 (1d4) Poison damage."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

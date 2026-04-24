@@ -1,0 +1,11 @@
+{
+  "name": "Melee Attack",
+  "slug": "melee-attack",
+  "description": "A melee attack is an attack made against a target within reach (usually 5 ft.). It can be a melee weapon attack or a melee spell attack.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

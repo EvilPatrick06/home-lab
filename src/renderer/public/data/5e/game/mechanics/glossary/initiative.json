@@ -1,0 +1,11 @@
+{
+  "name": "Initiative",
+  "slug": "initiative",
+  "description": "Initiative determines the order of turns during combat. When combat starts, every participant makes a Dexterity check to determine their place in the Initiative order. The DM makes one roll for an entire group of identical creatures.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

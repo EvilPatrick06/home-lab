@@ -1,0 +1,13 @@
+{
+  "name": "Peridot",
+  "slug": "peridot",
+  "value": "500 GP",
+  "category": "Gemstone",
+  "description": "rich olive green",
+  "dieValue": "5",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

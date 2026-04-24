@@ -1,0 +1,25 @@
+{
+  "name": "Medium Armor Master",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "features": ["Medium Armor Training"]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength", "Dexterity"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Dexterous Wearer",
+      "description": "While you're wearing Medium armor, you can add 3, rather than 2, to your AC if you have a Dexterity score of 16 or higher."
+    }
+  ],
+  "source": "PHB 2024"
+}

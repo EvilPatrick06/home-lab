@@ -1,0 +1,13 @@
+{
+  "name": "Boots of Levitation",
+  "itemType": "Wondrous Item",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "description": "While you wear these boots, you can use an action to cast the *Levitate* spell on yourself at will.",
+  "weight": 0,
+  "cost": {
+    "amount": 500,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

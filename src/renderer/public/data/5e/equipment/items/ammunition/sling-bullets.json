@@ -1,0 +1,15 @@
+{
+  "name": "Sling Bullets (20)",
+  "slug": "sling-bullets",
+  "category": "Ammunition",
+  "cost": "4 CP",
+  "weight": "1.5 lb.",
+  "quantity": 20,
+  "description": "Ammunition for Slings. After a battle, you can spend 1 minute to recover half your expended ammunition.",
+  "compatibleWeapons": ["Sling"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

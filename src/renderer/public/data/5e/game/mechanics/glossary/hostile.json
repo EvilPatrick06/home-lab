@@ -1,0 +1,11 @@
+{
+  "name": "Hostile",
+  "slug": "hostile",
+  "description": "A Hostile creature views you as a foe.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

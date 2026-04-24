@@ -1,0 +1,22 @@
+{
+  "id": "lifewell-tattoo",
+  "name": "Lifewell Tattoo",
+  "rarity": "Very Rare",
+  "attunement": true,
+  "description": "This tattoo comprises high-contrast geometric patterns that represent the rhythm of life. While this tattoo is on your skin, you have Resistance to Necrotic damage. When you would be reduced to 0 Hit Points, you drop to 1 Hit Point instead. Once this benefit triggers, it can't trigger again until the next dawn.",
+  "properties": {
+    "type": "Magical Tattoo",
+    "needleRequired": "Very Rare or higher",
+    "bodyLocation": "Any"
+  },
+  "effects": [
+    { "name": "Necrotic Resistance", "description": "Resistance to Necrotic damage.", "activation": "Passive" },
+    {
+      "name": "Death Ward",
+      "description": "When reduced to 0 HP, drop to 1 HP instead. Recharges at dawn.",
+      "activation": "Passive",
+      "usesPerDay": 1
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

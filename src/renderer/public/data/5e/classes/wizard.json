@@ -1,0 +1,2431 @@
+{
+  "name": "Wizard",
+  "description": "Wizards are defined by their exhaustive study of magic's inner workings. They cast spells of explosive fire, arcing lightning, subtle deception, and spectacular transformations. Their magic conjures monsters from other planes of existence, glimpses the future, or forms protective barriers. Their mightiest spells change one substance into another, call meteors from the sky, or open portals to other worlds. Most Wizards share a scholarly approach to magic. They examine the theoretical underpinnings of magic, particularly the categorization of spells into schools of magic.",
+  "coreTraits": {
+    "primaryAbility": ["Intelligence"],
+    "hitPointDie": "D6",
+    "savingThrowProficiencies": ["Intelligence", "Wisdom"],
+    "skillProficiencies": {
+      "count": 2,
+      "from": ["Arcana", "History", "Insight", "Investigation", "Medicine", "Nature", "Religion"]
+    },
+    "weaponProficiencies": [
+      {
+        "category": "Simple"
+      }
+    ],
+    "armorTraining": [],
+    "startingEquipment": [
+      {
+        "label": "A",
+        "items": ["2 Daggers", "Arcane Focus (Quarterstaff)", "Robe", "Spellbook", "Scholar's Pack"],
+        "gp": 5
+      },
+      {
+        "label": "B",
+        "items": [],
+        "gp": 55
+      }
+    ]
+  },
+  "multiclassing": {
+    "hitPointDie": true,
+    "spellcastingNote": "See the multiclassing rules in chapter 2 to determine your available spell slots."
+  },
+  "spellcasting": {
+    "type": "full",
+    "ability": "Intelligence",
+    "focus": ["Arcane Focus", "Spellbook"],
+    "ritualCasting": "fromSpellbook",
+    "cantripsKnown": true,
+    "preparedSpellsMechanic": "fromSpellbookOnLongRest",
+    "usesSpellbook": true,
+    "spellbookConfig": {
+      "initialSpellCount": 6,
+      "spellsGainedPerLevel": 2,
+      "copyingCostPerLevelGP": 50,
+      "copyingTimePerLevel": "2 hours"
+    },
+    "pactMagic": false,
+    "initialCantrips": 3,
+    "initialPreparedSpells": 4
+  },
+  "levelProgression": [
+    {
+      "level": 1,
+      "proficiencyBonus": 2,
+      "features": ["Spellcasting", "Ritual Adept", "Arcane Recovery"],
+      "cantrips": 3,
+      "preparedSpells": 4,
+      "spellSlots": {
+        "slot1": 2,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 2,
+      "proficiencyBonus": 2,
+      "features": ["Scholar"],
+      "cantrips": 3,
+      "preparedSpells": 5,
+      "spellSlots": {
+        "slot1": 3,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 3,
+      "proficiencyBonus": 2,
+      "features": ["Wizard Subclass"],
+      "cantrips": 3,
+      "preparedSpells": 6,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 2,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 4,
+      "proficiencyBonus": 2,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 4,
+      "preparedSpells": 7,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 5,
+      "proficiencyBonus": 3,
+      "features": ["Memorize Spell"],
+      "cantrips": 4,
+      "preparedSpells": 9,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 2,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 6,
+      "proficiencyBonus": 3,
+      "features": ["Subclass feature"],
+      "cantrips": 4,
+      "preparedSpells": 10,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 7,
+      "proficiencyBonus": 3,
+      "features": [],
+      "cantrips": 4,
+      "preparedSpells": 11,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 1,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 8,
+      "proficiencyBonus": 3,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 4,
+      "preparedSpells": 12,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 2,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 9,
+      "proficiencyBonus": 4,
+      "features": [],
+      "cantrips": 4,
+      "preparedSpells": 14,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 1,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 10,
+      "proficiencyBonus": 4,
+      "features": ["Subclass feature"],
+      "cantrips": 5,
+      "preparedSpells": 15,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 11,
+      "proficiencyBonus": 4,
+      "features": [],
+      "cantrips": 5,
+      "preparedSpells": 16,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 12,
+      "proficiencyBonus": 4,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 5,
+      "preparedSpells": 16,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 13,
+      "proficiencyBonus": 5,
+      "features": [],
+      "cantrips": 5,
+      "preparedSpells": 17,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 14,
+      "proficiencyBonus": 5,
+      "features": ["Subclass feature"],
+      "cantrips": 5,
+      "preparedSpells": 18,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 15,
+      "proficiencyBonus": 5,
+      "features": [],
+      "cantrips": 5,
+      "preparedSpells": 19,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 16,
+      "proficiencyBonus": 5,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 5,
+      "preparedSpells": 21,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 17,
+      "proficiencyBonus": 6,
+      "features": [],
+      "cantrips": 5,
+      "preparedSpells": 22,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 18,
+      "proficiencyBonus": 6,
+      "features": ["Spell Mastery"],
+      "cantrips": 5,
+      "preparedSpells": 23,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 19,
+      "proficiencyBonus": 6,
+      "features": ["Epic Boon"],
+      "cantrips": 5,
+      "preparedSpells": 24,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 2,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 20,
+      "proficiencyBonus": 6,
+      "features": ["Signature Spells"],
+      "cantrips": 5,
+      "preparedSpells": 25,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 2,
+        "slot7": 2,
+        "slot8": 1,
+        "slot9": 1
+      }
+    }
+  ],
+  "classFeatures": [
+    {
+      "name": "Spellcasting",
+      "level": 1,
+      "description": "As a student of arcane magic, you have learned to cast spells. You know three Wizard cantrips of your choice. Your wizardly apprenticeship culminated in the creation of a unique book: your spellbook. It is a Tiny object that weighs 3 pounds, contains 100 pages, and can be read only by you or someone casting Identify. The book contains the level 1+ spells you know. It starts with six level 1 Wizard spells of your choice. Whenever you gain a Wizard level after 1, add two Wizard spells of your choice to your spellbook. Each of these spells must be of a level for which you have spell slots. You prepare the list of level 1+ spells that are available for you to cast with this feature. To do so, choose four spells from your spellbook. Whenever you finish a Long Rest, you can change your list of prepared spells, replacing any of the spells there with spells from your spellbook. Intelligence is your spellcasting ability for your Wizard spells. You can use an Arcane Focus or your spellbook as a Spellcasting Focus for your Wizard spells. When you reach Wizard levels 4 and 10, you learn another cantrip of your choice from the Wizard spell list.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Ritual Adept",
+      "level": 1,
+      "description": "You can cast any spell as a Ritual if that spell has the Ritual tag and the spell is in your spellbook. You needn't have the spell prepared, but you must read from the book to cast a spell in this way.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Arcane Recovery",
+      "level": 1,
+      "description": "You can regain some of your magical energy by studying your spellbook. When you finish a Short Rest, you can choose expended spell slots to recover. The spell slots can have a combined level equal to no more than half your Wizard level (round up), and none of the slots can be level 6 or higher. For example, if you're a level 4 Wizard, you can recover up to two levels' worth of spell slots, regaining either one level 2 spell slot or two level 1 spell slots. Once you use this feature, you can't do so again until you finish a Long Rest.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Scholar",
+      "level": 2,
+      "description": "While studying magic, you also specialized in another field of study. Choose one of the following skills in which you have proficiency: Arcana, History, Investigation, Medicine, Nature, or Religion. You have Expertise in the chosen skill.",
+      "activation": "Passive",
+      "grantsProficiencies": {
+        "expertise": {
+          "count": 1,
+          "from": ["Arcana", "History", "Investigation", "Medicine", "Nature", "Religion"]
+        }
+      }
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 4,
+      "description": "You gain the Ability Score Improvement feat or another feat of your choice for which you qualify. You gain this feature again at Wizard levels 8, 12, and 16.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Memorize Spell",
+      "level": 5,
+      "description": "Whenever you finish a Short Rest, you can study your spellbook and replace one of the level 1+ Wizard spells you have prepared for your Spellcasting feature with another level 1+ spell from the book.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Spell Mastery",
+      "level": 18,
+      "description": "You have achieved such mastery over certain spells that you can cast them at will. Choose a level 1 and a level 2 spell in your spellbook that have a casting time of an action. You always have those spells prepared, and you can cast them at their lowest level without expending a spell slot. To cast either spell at a higher level, you must expend a spell slot. Whenever you finish a Long Rest, you can study your spellbook and replace one of those spells with an eligible spell of the same level from the book.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Epic Boon",
+      "level": 19,
+      "description": "You gain an Epic Boon feat or another feat of your choice for which you qualify. Boon of Spell Recall is recommended.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Signature Spells",
+      "level": 20,
+      "description": "Choose two level 3 spells in your spellbook as your signature spells. You always have these spells prepared, and you can cast each of them once at level 3 without expending a spell slot. When you do so, you can't cast them in this way again until you finish a Short or Long Rest. To cast either spell at a higher level, you must expend a spell slot.",
+      "activation": "Passive",
+      "usesPerRest": {
+        "uses": "1 per signature spell",
+        "restType": "ShortOrLong"
+      }
+    }
+  ],
+  "subclassLabel": "Wizard Subclass",
+  "subclassFeatureLevels": [3, 6, 10, 14],
+  "subclasses": [
+    {
+      "name": "Abjurer",
+      "description": "Your study of magic is focused on spells that block, banish, or protect — ending harmful effects, banishing evil influences, and protecting the weak. Abjurers are sought when baleful spirits require exorcism, when locations must be guarded against magical spying, and when portals to other planes of existence must be closed.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Abjuration Savant",
+          "level": 3,
+          "description": "Choose two Wizard spells from the Abjuration school, each of which must be no higher than level 2, and add them to your spellbook for free. In addition, whenever you gain access to a new level of spell slots in this class, you can add one Wizard spell from the Abjuration school to your spellbook for free. The chosen spell must be of a level for which you have spell slots.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Arcane Ward",
+          "level": 3,
+          "description": "You can weave magic around yourself for protection. When you cast an Abjuration spell with a spell slot, you can simultaneously use a strand of the spell's magic to create a magical ward on yourself that lasts until you finish a Long Rest. The ward has a Hit Point maximum equal to twice your Wizard level plus your Intelligence modifier. Whenever you take damage, the ward takes the damage instead, and if you have any Resistances or Vulnerabilities, apply them before reducing the ward's Hit Points. If the damage reduces the ward to 0 Hit Points, you take any remaining damage. While the ward has 0 Hit Points, it can't absorb damage, but its magic remains. Whenever you cast an Abjuration spell with a spell slot, the ward regains a number of Hit Points equal to twice the level of the spell slot. Alternatively, as a Bonus Action, you can expend a spell slot, and the ward regains a number of Hit Points equal to twice the level of the spell slot expended. Once you create the ward, you can't create it again until you finish a Long Rest.",
+          "activation": "Passive",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long"
+          },
+          "scalingValues": {
+            "wardHPMax": [
+              {
+                "level": 3,
+                "value": "(Wizard level x 2) + Intelligence modifier"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Projected Ward",
+          "level": 6,
+          "description": "When a creature that you can see within 30 feet of yourself takes damage, you can take a Reaction to cause your Arcane Ward to absorb that damage. If this damage reduces the ward to 0 Hit Points, the warded creature takes any remaining damage. If that creature has any Resistances or Vulnerabilities, apply them before reducing the ward's Hit Points.",
+          "activation": "Reaction"
+        },
+        {
+          "name": "Spell Breaker",
+          "level": 10,
+          "description": "You always have the Counterspell and Dispel Magic spells prepared. In addition, you can cast Dispel Magic as a Bonus Action, and you can add your Proficiency Bonus to its ability check. When you cast either spell with a spell slot, that slot isn't expended if the spell fails to stop a spell.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Counterspell",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dispel Magic",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Spell Resistance",
+          "level": 14,
+          "description": "You have Advantage on saving throws against spells, and you have Resistance to the damage of spells.",
+          "activation": "Passive"
+        }
+      ]
+    },
+    {
+      "name": "Diviner",
+      "description": "The counsel of a Diviner is sought by those who want a clearer understanding of the past, present, and future. As a Diviner, you strive to part the veils of space, time, and consciousness. You work to master spells of discernment, remote viewing, supernatural knowledge, and foresight.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Divination Savant",
+          "level": 3,
+          "description": "Choose two Wizard spells from the Divination school, each of which must be no higher than level 2, and add them to your spellbook for free. In addition, whenever you gain access to a new level of spell slots in this class, you can add one Wizard spell from the Divination school to your spellbook for free. The chosen spell must be of a level for which you have spell slots.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Portent",
+          "level": 3,
+          "description": "Glimpses of the future begin to press on your awareness. Whenever you finish a Long Rest, roll two d20s and record the numbers rolled. You can replace any D20 Test made by you or a creature that you can see with one of these foretelling rolls. You must choose to do so before the roll, and you can replace a roll in this way only once per turn. Each foretelling roll can be used only once. When you finish a Long Rest, you lose any unused foretelling rolls.",
+          "activation": "Special",
+          "scalingValues": {
+            "foretellingDice": [
+              {
+                "level": 3,
+                "value": 2
+              },
+              {
+                "level": 14,
+                "value": 3
+              }
+            ]
+          }
+        },
+        {
+          "name": "Expert Divination",
+          "level": 6,
+          "description": "Casting Divination spells comes so easily to you that it expends only a fraction of your spellcasting efforts. When you cast a Divination spell using a level 2+ spell slot, you regain one expended spell slot. The slot you regain must be of a level lower than the slot you expended and can't be higher than level 5.",
+          "activation": "Passive"
+        },
+        {
+          "name": "The Third Eye",
+          "level": 10,
+          "description": "You can increase your powers of perception. As a Bonus Action, choose one of the following benefits, which lasts until you start a Short or Long Rest. You can't use this feature again until you finish a Short or Long Rest.",
+          "activation": "BonusAction",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "ShortOrLong"
+          },
+          "options": [
+            {
+              "name": "Darkvision",
+              "description": "You gain Darkvision with a range of 120 feet."
+            },
+            {
+              "name": "Greater Comprehension",
+              "description": "You can read any language."
+            },
+            {
+              "name": "See Invisibility",
+              "description": "You can cast See Invisibility without expending a spell slot."
+            }
+          ]
+        },
+        {
+          "name": "Greater Portent",
+          "level": 14,
+          "description": "The visions in your dreams intensify and paint a more accurate picture in your mind of what is to come. Roll three d20s for your Portent feature rather than two.",
+          "activation": "Passive",
+          "replacesOrImproves": "Portent"
+        }
+      ]
+    },
+    {
+      "name": "Evoker",
+      "description": "Your studies focus on magic that creates powerful elemental effects such as bitter cold, searing flame, rolling thunder, crackling lightning, and burning acid. Some Evokers find employment in military forces, serving as artillery to blast armies from afar. Others use their power to protect others, while some seek their own gain.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Evocation Savant",
+          "level": 3,
+          "description": "Choose two Wizard spells from the Evocation school, each of which must be no higher than level 2, and add them to your spellbook for free. In addition, whenever you gain access to a new level of spell slots in this class, you can add one Wizard spell from the Evocation school to your spellbook for free. The chosen spell must be of a level for which you have spell slots.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Potent Cantrip",
+          "level": 3,
+          "description": "Your damaging cantrips affect even creatures that avoid the brunt of the effect. When you cast a cantrip at a creature and you miss with the attack roll or the target succeeds on a saving throw against the cantrip, the target takes half the cantrip's damage (if any) but suffers no additional effect from the cantrip.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Sculpt Spells",
+          "level": 6,
+          "description": "You can create pockets of relative safety within the effects of your evocations. When you cast an Evocation spell that affects other creatures that you can see, you can choose a number of them equal to 1 plus the spell's level. The chosen creatures automatically succeed on their saving throws against the spell, and they take no damage if they would normally take half damage on a successful save.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Empowered Evocation",
+          "level": 10,
+          "description": "Whenever you cast a Wizard spell from the Evocation school, you can add your Intelligence modifier to one damage roll of that spell.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Overchannel",
+          "level": 14,
+          "description": "You can increase the power of your spells. When you cast a Wizard spell with a spell slot of levels 1–5 that deals damage, you can deal maximum damage with that spell on the turn you cast it. The first time you do so, you suffer no adverse effect. If you use this feature again before you finish a Long Rest, you take 2d12 Necrotic damage for each level of the spell slot immediately after you cast it. This damage ignores Resistance and Immunity. Each time you use this feature again before finishing a Long Rest, the Necrotic damage per spell level increases by 1d12.",
+          "activation": "Special"
+        }
+      ]
+    },
+    {
+      "name": "Illusionist",
+      "description": "You specialize in magic that dazzles the senses and tricks the mind, and the illusions you craft make the impossible seem real.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Illusion Savant",
+          "level": 3,
+          "description": "Choose two Wizard spells from the Illusion school, each of which must be no higher than level 2, and add them to your spellbook for free. In addition, whenever you gain access to a new level of spell slots in this class, you can add one Wizard spell from the Illusion school to your spellbook for free. The chosen spell must be of a level for which you have spell slots.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Improved Illusions",
+          "level": 3,
+          "description": "You can cast Illusion spells without providing Verbal components, and if an Illusion spell you cast has a range of 10+ feet, the range increases by 60 feet. You also know the Minor Illusion cantrip. If you already know it, you learn a different Wizard cantrip of your choice. The cantrip doesn't count against your number of cantrips known. You can create both a sound and an image with a single casting of Minor Illusion, and you can cast it as a Bonus Action.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Minor Illusion",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Phantasmal Creatures",
+          "level": 6,
+          "description": "You always have the Summon Beast and Summon Fey spells prepared. Whenever you cast either spell, you can change its school to Illusion, which causes the summoned creature to appear spectral. You can cast the Illusion version of each spell without expending a spell slot, but casting it without a slot halves the creature's Hit Points. Once you cast either spell without a spell slot, you must finish a Long Rest before you can cast the spell in that way again.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Summon Beast",
+              "alwaysPrepared": true,
+              "freeUses": 1,
+              "freeUseRestType": "Long"
+            },
+            {
+              "spell": "Summon Fey",
+              "alwaysPrepared": true,
+              "freeUses": 1,
+              "freeUseRestType": "Long"
+            }
+          ]
+        },
+        {
+          "name": "Illusory Self",
+          "level": 10,
+          "description": "When a creature hits you with an attack roll, you can take a Reaction to interpose an illusory duplicate of yourself between the attacker and yourself. The attack automatically misses you, then the illusion dissipates. Once you use this feature, you can't use it again until you finish a Short or Long Rest. You can also restore your use of it by expending a level 2+ spell slot (no action required).",
+          "activation": "Reaction",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "ShortOrLong",
+            "rechargeAlternative": "Expend a level 2+ spell slot (no action required)"
+          }
+        },
+        {
+          "name": "Illusory Reality",
+          "level": 14,
+          "description": "You have learned to weave shadow magic into your illusions to give them a semi-reality. When you cast an Illusion spell with a spell slot, you can choose one inanimate, nonmagical object that is part of the illusion and make that object real. You can do this on your turn as a Bonus Action while the spell is ongoing. The object remains real for 1 minute, during which it can't deal damage or give any conditions. For example, you can create an illusion of a bridge over a chasm and then make it real and cross it.",
+          "activation": "BonusAction"
+        }
+      ]
+    }
+  ],
+  "spellList": {
+    "cantrips": [
+      {
+        "name": "Acid Splash",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Blade Ward",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Chill Touch",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dancing Lights",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Elementalism",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fire Bolt",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Friends",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mage Hand",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mending",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Message",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mind Sliver",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Minor Illusion",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Poison Spray",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Prestidigitation",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Ray of Frost",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Shocking Grasp",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Thunderclap",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Toll the Dead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "True Strike",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level1": [
+      {
+        "name": "Alarm",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Burning Hands",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Charm Person",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Chromatic Orb",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Color Spray",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Comprehend Languages",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Detect Magic",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Disguise Self",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Expeditious Retreat",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "False Life",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Feather Fall",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Find Familiar",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Fog Cloud",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Grease",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Ice Knife",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Identify",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Illusory Script",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Jump",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Longstrider",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mage Armor",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Magic Missile",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Protection from Evil and Good",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Ray of Sickness",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Shield",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Silent Image",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Sleep",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Tasha's Hideous Laughter",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Tenser's Floating Disk",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Thunderwave",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Unseen Servant",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Witch Bolt",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level2": [
+      {
+        "name": "Alter Self",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Arcane Lock",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Arcane Vigor",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Augury",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Blindness/Deafness",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Blur",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Cloud of Daggers",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Continual Flame",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Crown of Madness",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Darkness",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Darkvision",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Detect Thoughts",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dragon's Breath",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Enhance Ability",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Enlarge/Reduce",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Flaming Sphere",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Gentle Repose",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Gust of Wind",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hold Person",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Invisibility",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Knock",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Levitate",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Locate Object",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Magic Mouth",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Magic Weapon",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Melf's Acid Arrow",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mind Spike",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mirror Image",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Misty Step",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Nystul's Magic Aura",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Phantasmal Force",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Ray of Enfeeblement",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Rope Trick",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Scorching Ray",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "See Invisibility",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Shatter",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Spider Climb",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Suggestion",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Web",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level3": [
+      {
+        "name": "Animate Dead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Bestow Curse",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Blink",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Clairvoyance",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Counterspell",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dispel Magic",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fear",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Feign Death",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Fireball",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fly",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Gaseous Form",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Glyph of Warding",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Haste",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hypnotic Pattern",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Leomund's Tiny Hut",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Lightning Bolt",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Magic Circle",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Major Image",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Nondetection",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Phantom Steed",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Protection from Energy",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Remove Curse",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Sending",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Sleet Storm",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Slow",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Speak with Dead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Stinking Cloud",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Summon Fey",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Undead",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Tongues",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Vampiric Touch",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Water Breathing",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      }
+    ],
+    "level4": [
+      {
+        "name": "Arcane Eye",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Banishment",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Blight",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Charm Monster",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Confusion",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Conjure Minor Elementals",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Control Water",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dimension Door",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Divination",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Evard's Black Tentacles",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fabricate",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Fire Shield",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Greater Invisibility",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hallucinatory Terrain",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Ice Storm",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Leomund's Secret Chest",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Locate Creature",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mordenkainen's Faithful Hound",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mordenkainen's Private Sanctum",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Otiluke's Resilient Sphere",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Phantasmal Killer",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Polymorph",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Stone Shape",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Stoneskin",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Aberration",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Construct",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Elemental",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Vitriolic Sphere",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Wall of Fire",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level5": [
+      {
+        "name": "Animate Objects",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Bigby's Hand",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Circle of Power",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Cloudkill",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Cone of Cold",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Conjure Elemental",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Contact Other Plane",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Creation",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dominate Person",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dream",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Geas",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Hold Monster",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Jallarzi's Storm of Radiance",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Legend Lore",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Mislead",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Modify Memory",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Passwall",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Planar Binding",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Rary's Telepathic Bond",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": false
+      },
+      {
+        "name": "Scrying",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Seeming",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Steel Wind Strike",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Dragon",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Synaptic Static",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Telekinesis",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Teleportation Circle",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Wall of Force",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Wall of Stone",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Yolande's Regal Presence",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level6": [
+      {
+        "name": "Arcane Gate",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Chain Lightning",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Circle of Death",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Contingency",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Create Undead",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Disintegrate",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Drawmij's Instant Summons",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Eyebite",
+        "school": "Necromancy",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Flesh to Stone",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Globe of Invulnerability",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Guards and Wards",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Magic Jar",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Mass Suggestion",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Move Earth",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Otiluke's Freezing Sphere",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Otto's Irresistible Dance",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Programmed Illusion",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Fiend",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Sunbeam",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Tasha's Bubbling Cauldron",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "True Seeing",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Wall of Ice",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level7": [
+      {
+        "name": "Delayed Blast Fireball",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Etherealness",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Finger of Death",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Forcecage",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Mirage Arcane",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mordenkainen's Magnificent Mansion",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Mordenkainen's Sword",
+        "school": "Evocation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Plane Shift",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Prismatic Spray",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Project Image",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Reverse Gravity",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Sequester",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Simulacrum",
+        "school": "Illusion",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Symbol",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Teleport",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level8": [
+      {
+        "name": "Antimagic Field",
+        "school": "Abjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Antipathy/Sympathy",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Befuddlement",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Clone",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Control Weather",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Demiplane",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Dominate Monster",
+        "school": "Enchantment",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Incendiary Cloud",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Maze",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Mind Blank",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Power Word Stun",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Sunburst",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Telepathy",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ],
+    "level9": [
+      {
+        "name": "Astral Projection",
+        "school": "Necromancy",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Foresight",
+        "school": "Divination",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Gate",
+        "school": "Conjuration",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Imprisonment",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Meteor Swarm",
+        "school": "Evocation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Power Word Kill",
+        "school": "Enchantment",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Prismatic Wall",
+        "school": "Abjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Shapechange",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": true
+      },
+      {
+        "name": "Time Stop",
+        "school": "Transmutation",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "True Polymorph",
+        "school": "Transmutation",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Weird",
+        "school": "Illusion",
+        "concentration": true,
+        "ritual": false,
+        "materialComponent": false
+      },
+      {
+        "name": "Wish",
+        "school": "Conjuration",
+        "concentration": false,
+        "ritual": false,
+        "materialComponent": false
+      }
+    ]
+  }
+}

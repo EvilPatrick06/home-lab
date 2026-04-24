@@ -1,0 +1,13 @@
+{
+  "name": "Cast-Off Armor",
+  "slug": "cast-off-armor",
+  "type": "Armor (Any Light",
+  "rarity": "Medium, or Heavy), Common",
+  "attunement": false,
+  "description": "You can doff this armor as a Magic action.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

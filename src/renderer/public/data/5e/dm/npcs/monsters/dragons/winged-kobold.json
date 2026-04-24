@@ -1,0 +1,62 @@
+{
+  "name": "Winged Kobold",
+  "slug": "winged-kobold",
+  "size": "Small",
+  "type": "Dragon",
+  "alignment": "Neutral",
+  "ac": "15",
+  "initiative": "+3 (13)",
+  "hp": "10",
+  "hpFormula": "4d6 − 4",
+  "speed": "30 ft., Fly 30 ft.",
+  "abilityScores": {
+    "str": 7,
+    "dex": 16,
+    "con": 9,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -2,
+    "dex": 3,
+    "con": -1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Darkvision 60 ft.; Passive Perception 8",
+  "languages": "Common, Draconic",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The kobold has Advantage on an attack roll against a creature if at least one of the kobold's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the kobold has Disadvantage on ability checks and attack rolls."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Dragon-Tooth Blade",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Piercing damage."
+    },
+    {
+      "name": "Chromatic Spittle",
+      "description": "*Ranged Attack Roll:* +5, range 30 ft. *Hit:* 6 (1d6 + 3) damage of a type chosen by the kobold: Acid, Cold, Fire, Lightning, or Poison."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Tricksters and Servants to Chromatic Dragons*\n**Habitat:** Arctic, Coastal, Desert, Forest, Hill, Mountain, Swamp, Underdark, Urban; **Treasure:** Armaments\nCowardly cousins to chromatic dragons, kobolds serve draconic overlords as warriors and servants. These scrappy menaces mimic the behaviors of their dragon masters. Though their small stature and recklessness make kobolds poor imitators of dragons, what they lack in ferocity they make up for in zeal and ingenuity. They are especially adept at creating traps and setting ambushes.\nKobolds' scales resemble those of chromatic dragons that live near their warrens. Rarely, kobolds possess features evocative of metallic dragons or other dragon-like creatures.\nKobold warriors use hit-and-run tactics to raid their enemies and defend their homes. To avoid danger, they frequently employ haphazard traps.\nSome kobolds are born with wings. Called urds by others of their kind, these kobolds are thought to be blessed by a dragon or Tiamat, the Dragon Queen. Despite their favored status, winged kobolds are as cowardly as their brethren and use their flight mostly to keep out of reach of their foes.",
+  "habitat": "Arctic, Coastal, Desert, Forest, Hill, Mountain, Swamp, Underdark, Urban",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

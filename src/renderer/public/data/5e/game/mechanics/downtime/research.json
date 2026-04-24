@@ -1,0 +1,22 @@
+{
+  "id": "research",
+  "name": "Research",
+  "description": "Researching lore allows a character to delve into archives, libraries, or consult sages to learn information about a topic.",
+  "costPerDay": "50 GP",
+  "costPerDayGP": 50,
+  "minimumDuration": "1 workweek (5 days)",
+  "requirements": [
+    "Access to a library, university, sage, or similar source of knowledge",
+    "At least 1 workweek of dedicated study",
+    "50 GP per day to cover materials, access fees, and related expenses"
+  ],
+  "resolution": "For each workweek of research, the character makes an Intelligence check with a bonus equal to the number of workweeks spent. The DM sets the DC based on the obscurity of the information.",
+  "dcGuidelines": {
+    "commonKnowledge": 10,
+    "uncommonKnowledge": 15,
+    "rareKnowledge": 20,
+    "legendaryOrLostKnowledge": 25,
+    "secretOrHiddenKnowledge": 30
+  },
+  "notes": "On a success, the character learns a piece of lore -- a bit of truth about a topic. On a failure, the character fails to uncover new information. The DM might reveal misleading or incomplete information on certain failures."
+}

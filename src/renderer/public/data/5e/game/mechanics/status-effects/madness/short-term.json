@@ -1,0 +1,53 @@
+{
+  "id": "short-term-madness",
+  "name": "Short-Term Madness",
+  "description": "Short-term madness lasts 1d10 minutes. A Greater Restoration spell or other magic that removes a curse can end short-term madness.",
+  "duration": "1d10 minutes",
+  "durationDice": "1d10",
+  "durationUnit": "minutes",
+  "curedBy": ["Greater Restoration", "Calm Emotions (suppresses for duration)", "Any effect that removes a curse"],
+  "table": [
+    {
+      "rollMin": 1,
+      "rollMax": 20,
+      "effect": "The character retreats into their mind and becomes Paralyzed. The effect ends if the character takes any damage."
+    },
+    {
+      "rollMin": 21,
+      "rollMax": 30,
+      "effect": "The character becomes Incapacitated and spends the duration screaming, laughing, or weeping."
+    },
+    {
+      "rollMin": 31,
+      "rollMax": 40,
+      "effect": "The character becomes Frightened and must use their action and movement each round to flee from the source of the fear."
+    },
+    {
+      "rollMin": 41,
+      "rollMax": 50,
+      "effect": "The character begins babbling and is incapable of normal speech or spellcasting."
+    },
+    {
+      "rollMin": 51,
+      "rollMax": 60,
+      "effect": "The character must use their action each round to attack the nearest creature."
+    },
+    {
+      "rollMin": 61,
+      "rollMax": 70,
+      "effect": "The character experiences vivid hallucinations and has Disadvantage on ability checks."
+    },
+    {
+      "rollMin": 71,
+      "rollMax": 75,
+      "effect": "The character does whatever anyone tells them to do that isn't obviously self-destructive."
+    },
+    {
+      "rollMin": 76,
+      "rollMax": 80,
+      "effect": "The character experiences an overpowering urge to eat something strange such as dirt, slime, or offal."
+    },
+    { "rollMin": 81, "rollMax": 90, "effect": "The character is Stunned." },
+    { "rollMin": 91, "rollMax": 100, "effect": "The character falls Unconscious." }
+  ]
+}

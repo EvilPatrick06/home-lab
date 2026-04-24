@@ -1,0 +1,73 @@
+{
+  "id": "lands",
+  "name": "Land Grants",
+  "description": "Grants of territory, strongholds, or estates awarded to characters for outstanding deeds.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Marks of Prestige"
+  },
+  "grants": [
+    {
+      "id": "small-estate",
+      "name": "Small Estate",
+      "description": "A farmstead or cottage with surrounding land, suitable for a family or small retinue.",
+      "income": "5 gp per month",
+      "features": ["Farmland (up to 100 acres)", "Cottage or farmhouse", "Barn or small stable"],
+      "responsibilities": ["Maintain the property", "Pay any owed taxes to the local lord"]
+    },
+    {
+      "id": "tower",
+      "name": "Tower",
+      "description": "A fortified tower, often on the edge of civilization. Serves as a watchtower or wizard's retreat.",
+      "income": "10 gp per month",
+      "features": ["Fortified stone tower (3-5 stories)", "Small surrounding grounds", "Can house up to 12 occupants"],
+      "responsibilities": ["Defend the surrounding area", "Report threats to the local authority"]
+    },
+    {
+      "id": "keep",
+      "name": "Keep",
+      "description": "A modest fortification with walls and a garrison, suitable for defending a strategic location.",
+      "income": "25 gp per month",
+      "features": ["Stone keep with curtain wall", "Barracks for 20 soldiers", "Stables", "Storehouse"],
+      "responsibilities": [
+        "Maintain a garrison of at least 10 guards",
+        "Protect the local populace",
+        "Provide military support to your liege"
+      ]
+    },
+    {
+      "id": "castle",
+      "name": "Castle",
+      "description": "A full castle with multiple towers, a great hall, and surrounding village.",
+      "income": "100 gp per month",
+      "features": [
+        "Castle with great hall, towers, and inner bailey",
+        "Surrounding village of 200-500 people",
+        "Garrison capacity of 100 soldiers",
+        "Stables, smithy, chapel"
+      ],
+      "responsibilities": [
+        "Govern the surrounding populace",
+        "Administer justice",
+        "Maintain roads and defenses",
+        "Raise levies in wartime"
+      ]
+    },
+    {
+      "id": "wilderness-territory",
+      "name": "Wilderness Territory",
+      "description": "A grant of unclaimed wilderness to tame and settle as you see fit.",
+      "income": "0 gp initially; up to 50 gp per month once developed",
+      "features": [
+        "Large tract of wilderness (several square miles)",
+        "Freedom to build and develop as desired",
+        "Right to tax any settlers who arrive"
+      ],
+      "responsibilities": [
+        "Clear the land of monsters and hazards",
+        "Establish law and order",
+        "Develop infrastructure"
+      ]
+    }
+  ]
+}

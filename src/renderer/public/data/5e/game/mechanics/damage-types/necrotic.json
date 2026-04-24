@@ -1,0 +1,13 @@
+{
+  "id": "necrotic",
+  "name": "Necrotic",
+  "description": "Necrotic damage, dealt by certain undead and spells such as Chill Touch, withers matter and even the soul. Necrotic energy drains life force from living things.",
+  "commonSources": [
+    "Chill Touch cantrip",
+    "Blight spell",
+    "Inflict Wounds spell",
+    "Wraith life drain",
+    "Shadow attacks"
+  ],
+  "resistanceNotes": "Many undead are immune to Necrotic damage. Some Necrotic effects reduce a target's hit point maximum, which can only be restored by specific magic."
+}

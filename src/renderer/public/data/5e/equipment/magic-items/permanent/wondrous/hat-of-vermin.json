@@ -1,0 +1,17 @@
+{
+  "name": "Hat of Vermin",
+  "cost": {
+    "amount": 1,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "This hat has 3 charges. While holding the hat, you can take a Magic action to expend 1 of its charges and pull a bat, a frog, or a rat out of the hat. The pulled creature is ordinary, appears in your hand, and is not under your control. It vanishes after 1 hour or when it drops to 0 Hit Points. The hat regains 1d3 expended charges daily at dawn.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

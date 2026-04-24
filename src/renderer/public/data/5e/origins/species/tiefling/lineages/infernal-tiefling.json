@@ -1,0 +1,14 @@
+{
+  "id": "infernal-tiefling",
+  "name": "Infernal Tiefling",
+  "species": "tiefling",
+  "fiendishLegacy": "infernal",
+  "description": "Lineage traces to the Nine Hells. Resistance to fire damage.",
+  "traits": [
+    {
+      "name": "Infernal Legacy",
+      "description": "Fire Bolt cantrip; Hellish Rebuke at 3rd; Darkness at 5th. Charisma spellcasting."
+    }
+  ],
+  "source": "PHB 2024"
+}

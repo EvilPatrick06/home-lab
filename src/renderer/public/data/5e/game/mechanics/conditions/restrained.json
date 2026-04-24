@@ -1,0 +1,11 @@
+{
+  "name": "Restrained",
+  "slug": "restrained",
+  "description": "A Restrained creature's Speed is 0 and can't increase. Attack rolls against the creature have Advantage. The creature's attack rolls have Disadvantage. The creature has Disadvantage on Dexterity saving throws.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

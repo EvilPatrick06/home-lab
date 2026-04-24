@@ -1,0 +1,10 @@
+{
+  "name": "Castle Ravenloft",
+  "slug": "castle-ravenloft",
+  "description": "Castle Ravenloft *(RAY-ven-loft)* is the heart of the domain of **Barovia** and the home of the vampire **Strahd von Zarovich**. *Ravenloft* is also one of the most famous dungeon adventures in the history of the D&D game, providing a horror-themed experience that inspired the creation of the Ravenloft setting and the adventure *Curse of Strahd*.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Appendix A",
+    "section": "Lore Glossary"
+  }
+}

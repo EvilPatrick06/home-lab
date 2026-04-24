@@ -1,0 +1,11 @@
+{
+  "name": "Attack Roll",
+  "slug": "attack-roll",
+  "description": "An attack roll is a D20 Test that represents making an attack. Attack rolls are made against a target's AC.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

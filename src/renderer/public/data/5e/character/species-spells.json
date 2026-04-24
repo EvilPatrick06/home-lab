@@ -1,0 +1,248 @@
+{
+  "light": {
+    "name": "Light",
+    "level": 0,
+    "description": "You touch one object. Until the spell ends, the object sheds bright light in a 20-foot radius and dim light for an additional 20 feet.",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "duration": "1 hour",
+    "components": "V, M",
+    "school": "Evocation"
+  },
+  "thaumaturgy": {
+    "name": "Thaumaturgy",
+    "level": 0,
+    "description": "You manifest a minor wonder within range. You create one of the following effects: your voice booms, flames flicker, you cause tremors, create an instant sound, or open/slam a door or window.",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "duration": "Up to 1 minute",
+    "components": "V",
+    "school": "Transmutation"
+  },
+  "druidcraft": {
+    "name": "Druidcraft",
+    "level": 0,
+    "description": "Whispering to the spirits of nature, you create one of the following effects: a tiny harmless sensory effect that predicts weather, instantly make a flower blossom or seed pod open, create a harmless sensory effect (sound, image, smell), or instantly light or snuff out a candle/torch/campfire.",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "duration": "Instantaneous",
+    "components": "V, S",
+    "school": "Transmutation"
+  },
+  "dancing-lights": {
+    "name": "Dancing Lights",
+    "level": 0,
+    "description": "You create up to four torch-sized lights within range. Each light sheds dim light in a 10-foot radius. You can combine them into one glowing humanoid form of Medium size. As a bonus action, you can move the lights up to 60 feet.",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "duration": "Concentration, up to 1 minute",
+    "components": "V, S, M",
+    "school": "Evocation"
+  },
+  "produce-flame": {
+    "name": "Produce Flame",
+    "level": 0,
+    "description": "A flickering flame appears in your hand. It sheds bright light in a 10-foot radius and dim light for an additional 10 feet. You can hurl the flame at a creature within 30 feet, making a ranged spell attack for 1d8 fire damage.",
+    "castingTime": "1 action",
+    "range": "Self",
+    "duration": "10 minutes",
+    "components": "V, S",
+    "school": "Conjuration"
+  },
+  "mage-hand": {
+    "name": "Mage Hand",
+    "level": 0,
+    "description": "A spectral, floating hand appears at a point you choose within range. The hand can manipulate objects, open unlocked doors, stow or retrieve items, or pour out vials. It can't attack, activate magic items, or carry more than 10 pounds.",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "duration": "1 minute",
+    "components": "V, S",
+    "school": "Conjuration"
+  },
+  "hellish-rebuke": {
+    "name": "Hellish Rebuke",
+    "level": 1,
+    "description": "You point your finger at the creature that damaged you, and it is momentarily surrounded by hellish flames. The creature must make a Dexterity saving throw, taking 2d10 fire damage on a failed save, or half as much on a successful one.",
+    "castingTime": "1 reaction (when damaged by a creature within 60 feet)",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "components": "V, S",
+    "school": "Evocation"
+  },
+  "darkness": {
+    "name": "Darkness",
+    "level": 2,
+    "description": "Magical darkness spreads from a point you choose within range to fill a 15-foot-radius sphere. Darkvision can't see through it. Non-magical light can't illuminate it. Dispels or is dispelled by light spells of 2nd level or higher.",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "components": "V, M",
+    "school": "Evocation"
+  },
+  "faerie-fire": {
+    "name": "Faerie Fire",
+    "level": 1,
+    "description": "Each object in a 20-foot cube within range is outlined in blue, green, or violet light. Any creature in the area when the spell is cast must make a Dexterity saving throw or be outlined. An affected creature or object sheds dim light in a 10-foot radius. Attacks against affected creatures have advantage. They can't benefit from being invisible.",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 minute",
+    "components": "V",
+    "school": "Evocation"
+  },
+  "prestidigitation": {
+    "name": "Prestidigitation",
+    "level": 0,
+    "description": "This spell is a minor magical trick that novice spellcasters use for practice. You create a small sensory effect, light or snuff a small flame, clean or soil an object, chill/warm/flavor 1 cubic foot of nonliving material, make a small mark or symbol appear, or create a trinket or illusory image that fits in your hand.",
+    "castingTime": "1 action",
+    "range": "10 feet",
+    "duration": "Up to 1 hour",
+    "components": "V, S",
+    "school": "Transmutation"
+  },
+  "fire-bolt": {
+    "name": "Fire Bolt",
+    "level": 0,
+    "description": "You hurl a mote of fire at a creature or object within range. Make a ranged spell attack. On a hit, the target takes 1d10 fire damage. A flammable object hit by this spell ignites if it isn't being worn or carried.",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "duration": "Instantaneous",
+    "components": "V, S",
+    "school": "Evocation"
+  },
+  "minor-illusion": {
+    "name": "Minor Illusion",
+    "level": 0,
+    "description": "You create a sound or an image of an object within range that lasts for the duration. The illusion also ends if you dismiss it or cast this spell again. If you create an image, it must fit within a 5-foot cube and can't create sound, light, smell, or other sensory effects.",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "duration": "1 minute",
+    "components": "S, M",
+    "school": "Illusion"
+  },
+  "mending": {
+    "name": "Mending",
+    "level": 0,
+    "description": "This spell repairs a single break or tear in an object you touch, such as a broken chain link, two halves of a broken key, a torn cloak, or a leaking wineskin. As long as the break or tear is no larger than 1 foot in any dimension, you mend it, leaving no trace of the former damage.",
+    "castingTime": "1 minute",
+    "range": "Touch",
+    "duration": "Instantaneous",
+    "components": "V, S, M",
+    "school": "Transmutation"
+  },
+  "poison-spray": {
+    "name": "Poison Spray",
+    "level": 0,
+    "description": "You extend your hand toward a creature you can see within range and project a puff of noxious gas. The creature must succeed on a Constitution saving throw or take 1d12 poison damage.",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "duration": "Instantaneous",
+    "components": "V, S",
+    "school": "Conjuration"
+  },
+  "chill-touch": {
+    "name": "Chill Touch",
+    "level": 0,
+    "description": "You create a ghostly, skeletal hand in the space of a creature within range. Make a ranged spell attack against the creature. On a hit, the target takes 1d8 necrotic damage, and it can't regain hit points until the start of your next turn. If the target is undead, it also has disadvantage on attack rolls against you until the end of your next turn.",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "duration": "1 round",
+    "components": "V, S",
+    "school": "Necromancy"
+  },
+  "detect-magic": {
+    "name": "Detect Magic",
+    "level": 1,
+    "description": "For the duration, you sense the presence of magic within 30 feet of you. If you sense magic in this way, you can use your action to see a faint aura around any visible creature or object in the area that bears magic, and you learn its school of magic, if any.",
+    "castingTime": "1 action",
+    "range": "Self",
+    "duration": "Concentration, up to 10 minutes",
+    "components": "V, S",
+    "school": "Divination",
+    "concentration": true,
+    "ritual": true
+  },
+  "misty-step": {
+    "name": "Misty Step",
+    "level": 2,
+    "description": "Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space that you can see.",
+    "castingTime": "1 bonus action",
+    "range": "Self",
+    "duration": "Instantaneous",
+    "components": "V",
+    "school": "Conjuration"
+  },
+  "longstrider": {
+    "name": "Longstrider",
+    "level": 1,
+    "description": "You touch a creature. The target's speed increases by 10 feet until the spell ends.",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "duration": "1 hour",
+    "components": "V, S, M",
+    "school": "Transmutation"
+  },
+  "pass-without-trace": {
+    "name": "Pass without Trace",
+    "level": 2,
+    "description": "A veil of shadows and silence radiates from you, masking you and your companions from detection. For the duration, each creature you choose within 30 feet of you has a +10 bonus to Dexterity (Stealth) checks and can't be tracked except by magical means.",
+    "castingTime": "1 action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 hour",
+    "components": "V, S, M",
+    "school": "Abjuration",
+    "concentration": true
+  },
+  "ray-of-sickness": {
+    "name": "Ray of Sickness",
+    "level": 1,
+    "description": "A ray of sickening greenish energy lashes out toward a creature within range. Make a ranged spell attack. On a hit, the target takes 2d8 poison damage and must make a Constitution saving throw or be poisoned until the end of your next turn.",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "components": "V, S",
+    "school": "Necromancy"
+  },
+  "false-life": {
+    "name": "False Life",
+    "level": 1,
+    "description": "Bolstering yourself with a necromantic facsimile of life, you gain 1d4 + 4 temporary hit points for the duration.",
+    "castingTime": "1 action",
+    "range": "Self",
+    "duration": "1 hour",
+    "components": "V, S, M",
+    "school": "Necromancy"
+  },
+  "hold-person": {
+    "name": "Hold Person",
+    "level": 2,
+    "description": "Choose a humanoid that you can see within range. The target must succeed on a Wisdom saving throw or be paralyzed for the duration. At the end of each of its turns, the target can make another Wisdom saving throw. On a success, the spell ends on the target.",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 minute",
+    "components": "V, S, M",
+    "school": "Enchantment",
+    "concentration": true
+  },
+  "ray-of-enfeeblement": {
+    "name": "Ray of Enfeeblement",
+    "level": 2,
+    "description": "A black beam of enervating energy springs from your finger toward a creature within range. Make a ranged spell attack. On a hit, the target deals only half damage with weapon attacks that use Strength until the spell ends.",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 minute",
+    "components": "V, S",
+    "school": "Necromancy",
+    "concentration": true
+  },
+  "speak-with-animals": {
+    "name": "Speak with Animals",
+    "level": 1,
+    "description": "You gain the ability to comprehend and verbally communicate with beasts for the duration. The knowledge and awareness of many beasts is limited by their intelligence, but at minimum, beasts can give you information about nearby locations and monsters, including whatever they can perceive or have perceived within the past day.",
+    "castingTime": "1 action",
+    "range": "Self",
+    "duration": "10 minutes",
+    "components": "V, S",
+    "school": "Divination",
+    "ritual": true
+  }
+}

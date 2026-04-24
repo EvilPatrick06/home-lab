@@ -1,0 +1,13 @@
+{
+  "name": "Pipe of Smoke Monsters",
+  "slug": "pipe-of-smoke-monsters",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "While smoking this pipe, you can take a Magic action to exhale a puff of smoke that takes the form of a creature, such as a dragon, a flumph, or a slaad. The form must be small enough to fit in a 1-foot cube and loses its shape after a few seconds, becoming an ordinary puff of smoke.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

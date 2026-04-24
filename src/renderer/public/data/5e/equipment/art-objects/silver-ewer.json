@@ -1,0 +1,13 @@
+{
+  "name": "Silver ewer",
+  "slug": "silver-ewer",
+  "value": "25 GP",
+  "category": "Art Object",
+  "description": "",
+  "dieValue": "1",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

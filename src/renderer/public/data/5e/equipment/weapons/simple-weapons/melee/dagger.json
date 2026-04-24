@@ -1,0 +1,21 @@
+{
+  "name": "Dagger",
+  "slug": "dagger",
+  "category": "Simple",
+  "type": "Melee",
+  "damage": "1d4",
+  "damageType": "Piercing",
+  "properties": ["Finesse", "Light", "Thrown"],
+  "mastery": "Nick",
+  "weight": "1 lb.",
+  "cost": "2 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 20,
+    "long": 60
+  }
+}

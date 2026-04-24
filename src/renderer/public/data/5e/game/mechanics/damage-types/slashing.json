@@ -1,0 +1,7 @@
+{
+  "id": "slashing",
+  "name": "Slashing",
+  "description": "Swords, axes, and monsters' claws deal Slashing damage. This is one of the three physical damage types, representing cutting and chopping attacks.",
+  "commonSources": ["Longswords and greatswords", "Battleaxes and greataxes", "Scimitars", "Claw attacks", "Whips"],
+  "resistanceNotes": "Many creatures resist nonmagical Slashing damage. Were-creatures are immune to nonmagical, non-silvered Slashing damage. Some plant creatures are vulnerable to Slashing."
+}

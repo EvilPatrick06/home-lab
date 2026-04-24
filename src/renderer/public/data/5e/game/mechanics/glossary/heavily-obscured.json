@@ -1,0 +1,11 @@
+{
+  "name": "Heavily Obscured",
+  "slug": "heavily-obscured",
+  "description": "You have the Blinded condition while trying to see something in a Heavily Obscured area. A Heavily Obscured area — such as Darkness, thick fog, or dense foliage — blocks vision entirely.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

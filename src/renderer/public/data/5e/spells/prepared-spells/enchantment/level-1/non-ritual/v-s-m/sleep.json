@@ -1,0 +1,62 @@
+{
+  "name": "Sleep",
+  "level": 1,
+  "school": "Enchantment",
+  "classes": ["Bard", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a pinch of sand or rose petals",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Each creature of your choice in a 5-foot-radius Sphere centered on a point within range must succeed on a Wisdom saving throw or have the Incapacitated condition until the end of its next turn, at which point it must repeat the save. If the target fails the second save, the target has the Unconscious condition for the duration. The spell ends on a target if it takes damage or someone within 5 feet of it takes an action to shake it out of the spell's effect. Creatures that don't sleep, such as elves, or that have Immunity to the Exhaustion condition automatically succeed on saves against this spell.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 5
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "Target has the Incapacitated condition until the end of its next turn, then must repeat the save. On a second failure, the target has the Unconscious condition for the duration. The spell ends on a target if it takes damage or someone within 5 feet takes an action to shake it awake.",
+    "repeatSave": {
+      "timing": "custom",
+      "customTiming": "End of the target's next turn after failing the initial save; a second failure escalates to Unconscious for the duration",
+      "endsEffectOnSuccess": true
+    },
+    "autoSucceedCondition": "Creatures that don't sleep, such as elves, or that have Immunity to the Exhaustion condition"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Incapacitated",
+      "trigger": "onFailedSave",
+      "duration": "until the end of the target's next turn"
+    },
+    {
+      "condition": "Unconscious",
+      "trigger": "onFailedSave",
+      "duration": "for the spell's duration; ends if target takes damage or someone within 5 feet takes an action to shake it awake"
+    }
+  ],
+  "tags": ["control", "debuff"]
+}

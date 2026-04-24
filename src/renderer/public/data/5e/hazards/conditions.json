@@ -1,0 +1,352 @@
+[
+  {
+    "id": "blinded",
+    "name": "Blinded",
+    "type": "condition",
+    "description": "Can't See. You can't see and automatically fail any ability check that requires sight. Attacks Affected. Attack rolls against you have Advantage, and your attack rolls have Disadvantage.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "charmed",
+    "name": "Charmed",
+    "type": "condition",
+    "description": "Can't Harm the Charmer. You can't attack the charmer or target the charmer with harmful abilities or magical effects. Social Advantage. The charmer has Advantage on any ability check to interact socially with you.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "deafened",
+    "name": "Deafened",
+    "type": "condition",
+    "description": "Can't Hear. You can't hear and automatically fail any ability check that requires hearing.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "exhaustion",
+    "name": "Exhaustion",
+    "type": "condition",
+    "description": "Cumulative levels. Each level: -2 to all D20 Tests (ability checks, attack rolls, saving throws) and -5 ft. to Speed. You die if your Exhaustion level reaches 6. Finishing a Long Rest removes 1 Exhaustion level.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": true,
+    "maxValue": 6
+  },
+  {
+    "id": "frightened",
+    "name": "Frightened",
+    "type": "condition",
+    "description": "Ability Checks and Attack Rolls Affected. You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight. Can't Approach. You can't willingly move closer to the source of fear.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "grappled",
+    "name": "Grappled",
+    "type": "condition",
+    "description": "Speed 0. Your Speed is 0 and can't increase. The condition ends if the grappler has the Incapacitated condition or if the distance between you and the grappler exceeds the grapple's range.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "incapacitated",
+    "name": "Incapacitated",
+    "type": "condition",
+    "description": "Inactive. You can't take actions or Reactions.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "invisible",
+    "name": "Invisible",
+    "type": "condition",
+    "description": "Unseen. You are impossible to see without the aid of magic or a special sense. You are Heavily Obscured. Your location can be detected by any noise you make or any tracks you leave. Attacks Affected. Attack rolls against you have Disadvantage, and your attack rolls have Advantage.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "paralyzed",
+    "name": "Paralyzed",
+    "type": "condition",
+    "description": "Incapacitated. You have the Incapacitated condition. Can't Move or Speak. You can't move or speak. Saving Throws Affected. You automatically fail Strength and Dexterity saving throws. Attacks Affected. Attack rolls against you have Advantage. Automatic Critical Hits. Any attack that hits you is a Critical Hit if the attacker is within 5 feet of you.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "petrified",
+    "name": "Petrified",
+    "type": "condition",
+    "description": "Transformed into Inanimate Substance. You are transformed, along with any nonmagical objects you are wearing and carrying, into a solid inanimate substance (usually stone). You can't move, speak, or be aware of your surroundings. Your weight increases by a factor of ten, and you cease aging. Incapacitated. You have the Incapacitated condition. Attacks Affected. Attack rolls against you have Advantage. Saving Throws Affected. You automatically fail Strength and Dexterity saving throws. Resist Damage. You have Resistance to all damage. Poison Immunity. You have Immunity to the Poisoned condition and Poison damage, although a poison already in your system is suspended, not neutralized.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "poisoned",
+    "name": "Poisoned",
+    "type": "condition",
+    "description": "Ability Checks and Attack Rolls Affected. You have Disadvantage on attack rolls and ability checks.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "prone",
+    "name": "Prone",
+    "type": "condition",
+    "description": "Crawl. While Prone, your only movement option is to crawl (every 1 foot of movement costs 1 extra foot), unless you stand up. If your Speed is 0, you can't right yourself. Standing Up. Standing up costs an amount of movement equal to half your Speed (round down). Attacks Affected. You have Disadvantage on attack rolls. An attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "restrained",
+    "name": "Restrained",
+    "type": "condition",
+    "description": "Speed 0. Your Speed is 0 and can't increase. Attacks Affected. Attack rolls against you have Advantage, and your attack rolls have Disadvantage. Saving Throws Affected. You have Disadvantage on Dexterity saving throws.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "stunned",
+    "name": "Stunned",
+    "type": "condition",
+    "description": "Incapacitated. You have the Incapacitated condition. Can't Move. You can't move and can speak only falteringly. Saving Throws Affected. You automatically fail Strength and Dexterity saving throws. Attacks Affected. Attack rolls against you have Advantage.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "unconscious",
+    "name": "Unconscious",
+    "type": "condition",
+    "description": "Inert. You have the Incapacitated and Prone conditions, and you drop whatever you're holding. You can't move or speak. Unaware. You're unaware of your surroundings. Attacks Affected. Attack rolls against you have Advantage. Saving Throws Affected. You automatically fail Strength and Dexterity saving throws. Automatic Critical Hits. Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "bloodied",
+    "name": "Bloodied",
+    "type": "condition",
+    "description": "A creature is Bloodied while it has half its Hit Points or fewer remaining. This condition has no effects on its own but other effects may reference it.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "burning",
+    "name": "Burning",
+    "type": "condition",
+    "description": "1d4 Fire damage at the start of each of your turns. Use an action to extinguish (go Prone and roll on the ground). Also extinguished by dousing or submerging in water.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "blessed",
+    "name": "Blessed",
+    "type": "buff",
+    "description": "Whenever you make an attack roll or saving throw, you add 1d4 to the roll. Concentration, up to 1 minute (Bless spell, 1st level).",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "hasted",
+    "name": "Hasted",
+    "type": "buff",
+    "description": "Speed doubled, +2 bonus to AC, advantage on Dexterity saving throws, and an additional action each turn (Attack [one only], Dash, Disengage, Hide, or Utilize). When the spell ends, you can't move or take actions until after your next turn. Concentration, up to 1 minute (Haste, 3rd level).",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "shield-of-faith",
+    "name": "Shield of Faith",
+    "type": "buff",
+    "description": "+2 bonus to AC from a shimmering magical field. Concentration, up to 10 minutes (Shield of Faith, 1st level).",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "bardic-inspiration",
+    "name": "Bardic Inspiration",
+    "type": "buff",
+    "description": "You have a Bardic Inspiration die (d6/d8/d10/d12 based on bard level). Once within the next hour, when you fail a D20 Test, you can roll the die and add the number rolled to the d20, potentially turning the failure into a success. The die is expended when rolled.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": true,
+    "maxValue": 12
+  },
+  {
+    "id": "enlarged",
+    "name": "Enlarged",
+    "type": "buff",
+    "description": "Size doubles in all dimensions, weight multiplied by 8. Advantage on Strength checks and Strength saving throws. Weapon attacks deal +1d4 damage. Concentration, up to 1 minute (Enlarge/Reduce, 2nd level).",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "raging",
+    "name": "Raging",
+    "type": "buff",
+    "description": "Resistance to Bludgeoning, Piercing, and Slashing damage. Bonus damage on Strength-based attacks (+2/+3/+4 based on Barbarian level). Advantage on Strength checks and Strength saving throws. Can't maintain Concentration or cast spells. Lasts until end of your next turn; extend by attacking an enemy, forcing a save, or using a Bonus Action. Max 10 minutes. Ends early if wearing Heavy armor or Incapacitated.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "concentrating",
+    "name": "Concentrating",
+    "type": "buff",
+    "description": "Maintaining concentration on a spell. Only one concentration spell at a time. When you take damage, make a Constitution saving throw (DC 10 or half damage, whichever is higher) or lose the spell. Also lost if incapacitated or killed.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "heroism",
+    "name": "Heroism",
+    "type": "buff",
+    "description": "The creature is immune to being frightened and gains temporary hit points equal to the spellcasting ability modifier at the start of each of its turns. Concentration, up to 1 minute (Heroism, 1st level).",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "mage-armor",
+    "name": "Mage Armor",
+    "type": "buff",
+    "description": "Target's base AC becomes 13 + Dexterity modifier for 8 hours. Doesn't work with other armor.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "aid",
+    "name": "Aid",
+    "type": "buff",
+    "description": "Increases hit point maximum and current hit points by 5 for 8 hours. Upcast: +5 per level above 2nd.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "protection-from-evil-and-good",
+    "name": "Protection from Evil and Good",
+    "type": "buff",
+    "description": "Aberrations, celestials, elementals, fey, fiends, and undead have disadvantage on attacks against you. You can't be charmed, frightened, or possessed by them.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "guidance",
+    "name": "Guidance",
+    "type": "buff",
+    "description": "You touch one willing creature and choose one skill. Until the spell ends, the creature adds 1d4 to any ability check using that skill. Concentration, up to 1 minute (Guidance cantrip).",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "resistance",
+    "name": "Resistance",
+    "type": "buff",
+    "description": "You touch one willing creature and choose a damage type. Once before the spell ends, when the creature takes damage of that type, the damage is reduced by 1d4 + your spellcasting ability modifier. Concentration, up to 1 minute (Resistance cantrip).",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "sanctuary",
+    "name": "Sanctuary",
+    "type": "buff",
+    "description": "Creatures must make a Wisdom save to target the warded creature. Ends if the warded creature attacks or casts a harmful spell.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "hex",
+    "name": "Hex",
+    "type": "buff",
+    "description": "Deal an extra 1d6 necrotic damage to the hexed target. The target has disadvantage on one chosen ability check.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "hunters-mark",
+    "name": "Hunter's Mark",
+    "type": "buff",
+    "description": "Deal an extra 1d6 damage to the marked target. You have advantage on Perception and Survival checks to find it.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "death-ward",
+    "name": "Death Ward",
+    "type": "buff",
+    "description": "The first time the target drops to 0 HP, it drops to 1 HP instead. Also negates instant-death effects. Lasts 8 hours.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  },
+  {
+    "id": "freedom-of-movement",
+    "name": "Freedom of Movement",
+    "type": "buff",
+    "description": "Target's movement is unaffected by difficult terrain, and spells/effects can't reduce speed or cause paralysis/restraint.",
+    "source": "phb2024",
+    "system": "dnd5e",
+    "hasValue": false,
+    "maxValue": null
+  }
+]

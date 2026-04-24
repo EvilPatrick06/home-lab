@@ -1,0 +1,14 @@
+{
+  "name": "Sylvan Talon",
+  "itemType": "Weapon",
+  "rarity": "Common",
+  "requiresAttunement": true,
+  "attunementRequirements": "Attunement by a creature",
+  "description": "While this weapon is on your person, you understand the nonwritten communication of all Fey, and they understand yours.\n\n**Secret Message.** As a Magic action, you can use the weapon to cast *Message*. Once this property is used, it can't be used again until the next dawn.",
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Hunting Trap",
+  "cost": "5 GP",
+  "weight": "25 lb.",
+  "description": "Set as Utilize action. DC 13 Dex save or 1d4 Piercing and Speed 0. DC 13 Athletics to free. Each failed attempt deals 1 Piercing.",
+  "slug": "hunting-trap",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

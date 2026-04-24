@@ -1,0 +1,21 @@
+{
+  "name": "Improvised Weapon",
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "If you use an object—such as a table leg, frying pan, or bottle—as a makeshift weapon, it is treated as a Simple Melee weapon that deals 1d4 damage of a type the DM deems appropriate to the object. If the object resembles an existing weapon, the DM may rule it functions as that weapon and uses that weapon's rules. No Proficiency Bonus is added to the attack roll unless the wielder has a feature granting proficiency. When you throw an improvised weapon, it has a normal range of 20 feet and a long range of 60 feet. An improvised weapon has no mastery property.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": "Attack",
+  "savingThrow": null,
+  "damage": {
+    "count": 1,
+    "die": 4,
+    "type": "Bludgeoning"
+  },
+  "lightProperties": null,
+  "capacityDescription": null
+}

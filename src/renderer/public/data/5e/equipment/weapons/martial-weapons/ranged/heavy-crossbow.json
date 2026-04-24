@@ -1,0 +1,22 @@
+{
+  "name": "Heavy Crossbow",
+  "slug": "heavy-crossbow",
+  "category": "Martial",
+  "type": "Ranged",
+  "damage": "1d10",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Heavy", "Loading", "Two-Handed"],
+  "mastery": "Push",
+  "weight": "18 lb.",
+  "cost": "50 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 100,
+    "long": 400
+  },
+  "ammunitionType": "Bolt"
+}

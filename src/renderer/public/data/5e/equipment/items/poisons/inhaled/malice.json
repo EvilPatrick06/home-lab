@@ -1,0 +1,19 @@
+{
+  "name": "Malice",
+  "slug": "malice",
+  "category": "Poison",
+  "type": "Inhaled",
+  "cost": "250 GP",
+  "weight": "—",
+  "description": "A creature subjected to this poison must succeed on a DC 15 Constitution saving throw or have the Poisoned condition for 1 hour. The Poisoned creature has the Blinded condition.",
+  "saveDC": 15,
+  "saveAbility": "Constitution",
+  "effect": "Poisoned",
+  "additionalEffect": "Blinded while Poisoned",
+  "duration": "1 hour",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poisons"
+  }
+}

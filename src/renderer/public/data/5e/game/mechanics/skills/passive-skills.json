@@ -1,0 +1,186 @@
+{
+  "id": "a83d5c1e-7f42-4b9a-8e13-6d2a1f0c9b74",
+  "name": "Passive Skills",
+  "slug": "passive-skills",
+  "category": "GeneralRule",
+  "subcategory": "Ability Checks",
+  "tags": ["passive-check", "passive-perception", "ability-check", "no-roll", "detection", "observation"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Rules Glossary",
+    "section": "Passive Perception"
+  },
+  "gameEdition": "2024",
+  "description": "A Passive Skill score represents the result of an Ability Check that is made without rolling a d20. It reflects a creature's baseline, always-on competency in a given skill or ability. The game refers to a Passive Skill score as a passive check. The formula is: 10 + all modifiers that normally apply to the check. If the creature has Advantage on the check, add 5. If the creature has Disadvantage on the check, subtract 5. The most common passive check is Passive Perception, which the DM uses to determine whether a creature notices something without actively searching.",
+  "shortDescription": "A passive check equals 10 + all applicable modifiers, replacing the d20 roll. Add 5 for Advantage, subtract 5 for Disadvantage.",
+  "rulesAsWritten": "A passive check is a special kind of ability check that doesn't involve any die rolls. Such a check can represent the average result for a task done repeatedly or can be used when the DM wants to secretly determine whether the characters succeed at something without rolling dice. Here's how to determine a character's total for a passive check: 10 + all modifiers that normally apply to the check. If the character has Advantage on the check, add 5. If the character has Disadvantage, subtract 5.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Invisible",
+      "relationship": "CausedBy",
+      "isAutomatic": false,
+      "note": "Invisible creatures are heavily obscured, requiring Passive Perception checks from observers to detect them."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "b1e4f6a2-3c58-4d91-b0f7-8e9a2c3d4e5f",
+      "order": 0,
+      "name": "Calculate Passive Score Base",
+      "description": "A passive check score is calculated as 10 + all modifiers that normally apply to the ability check (ability modifier, proficiency bonus if proficient, and any other relevant bonuses or penalties).",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Whenever the DM calls for a passive check or uses a creature's passive score to resolve a situation"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Passive Score = 10 + Ability Modifier + Proficiency Bonus (if proficient) + any other applicable bonuses or penalties. The value 10 replaces the d20 roll.",
+          "mechanicalNote": "This is a static calculation, not a die roll. The base of 10 represents the average result of a d20."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c2f5a7b3-4d69-4e02-c1a8-9fab3d4e5f60",
+      "order": 1,
+      "name": "Advantage Modifier on Passive Check",
+      "description": "If the creature has Advantage on the ability check, add 5 to the passive score.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "The creature has Advantage on the corresponding ability check"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "d3a6b8c4-5e7a-4f13-d2b9-0abc4e5f6a71",
+            "target": "AbilityCheck",
+            "operation": "Add",
+            "value": 5,
+            "scope": {
+              "customScope": "Applies to passive score when the creature has Advantage on the corresponding ability check"
+            },
+            "perLevelScaling": false,
+            "note": "Advantage on a passive check translates to a +5 bonus instead of rolling a second d20."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e4b7c9d5-6f8b-4a24-e3ca-1bcd5f6a7b82",
+      "order": 2,
+      "name": "Disadvantage Modifier on Passive Check",
+      "description": "If the creature has Disadvantage on the ability check, subtract 5 from the passive score.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "The creature has Disadvantage on the corresponding ability check"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "f5c8d0e6-7a9c-4b35-f4db-2cde6a7b8c93",
+            "target": "AbilityCheck",
+            "operation": "Subtract",
+            "value": 5,
+            "scope": {
+              "customScope": "Applies to passive score when the creature has Disadvantage on the corresponding ability check"
+            },
+            "perLevelScaling": false,
+            "note": "Disadvantage on a passive check translates to a -5 penalty instead of rolling a second d20."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a6d9e1f7-8b0d-4c46-a5ec-3def7b8c9d04",
+      "order": 3,
+      "name": "DM Determines When Passive Checks Apply",
+      "description": "The DM decides when a passive check is appropriate, such as for tasks done repeatedly (e.g., searching for secret doors while exploring) or when the DM wants to secretly determine success or failure without prompting a roll.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "DM determines that a passive check is more appropriate than an active roll"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The DM compares the creature's passive score against the relevant DC. If the passive score meets or exceeds the DC, the check succeeds. Otherwise, it fails.",
+          "mechanicalNote": "Most commonly used for Passive Perception vs. Stealth (Dexterity) checks to determine if a creature notices something hidden."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Multiple bonuses or penalties that apply to the underlying ability check also apply to the passive score. Advantage and Disadvantage do not stack; if both apply simultaneously they cancel out, resulting in neither the +5 nor the -5 adjustment."
+  },
+  "dmNotes": "Passive Perception is the most commonly referenced passive skill and is used as the DC that a hiding creature's Dexterity (Stealth) check must meet or beat. DMs should also consider passive scores for other skills when appropriate—such as Passive Insight to detect lies or Passive Investigation to notice clues. A passive check represents a creature's baseline awareness and should not replace active checks when a player declares an intentional action.",
+  "commonRulings": [
+    {
+      "question": "Can a passive check score be lower than the result of an active check?",
+      "ruling": "Yes. A passive score is a static value representing average performance. An active roll could be higher or lower than the passive score. The DM decides which applies in a given situation.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does Passive Perception always apply to detect hidden creatures?",
+      "ruling": "When a creature is hiding, the DM typically compares its Dexterity (Stealth) check result against the Passive Perception of other creatures to determine if the hidden creature is detected. An active Wisdom (Perception) check can be used if a creature specifically uses its Action to search.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can Advantage and Disadvantage both apply to a passive check simultaneously?",
+      "ruling": "If a creature has both Advantage and Disadvantage on an ability check, they cancel out regardless of how many sources of each exist. The passive score is calculated without the +5 or -5 adjustment.",
+      "isOfficial": true
+    },
+    {
+      "question": "What skills can have passive scores?",
+      "ruling": "Any ability check can have a passive score. The most common is Passive Perception (Wisdom), but Passive Insight (Wisdom) and Passive Investigation (Intelligence) are also frequently referenced.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-08-15T00:00:00Z",
+  "updatedAt": "2024-08-15T00:00:00Z",
+  "version": "1.0.0"
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Aarakocra Skirmisher",
+  "slug": "aarakocra-skirmisher",
+  "size": "Medium",
+  "type": "Elemental",
+  "alignment": "Neutral",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "11",
+  "hpFormula": "2d8 + 2",
+  "speed": "20 ft., Fly 50 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 14,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 2,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +5",
+  "senses": "Passive Perception 15",
+  "languages": "Aarakocra, Primordial (Auran)",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Talons",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 4 (1d4 + 2) Slashing damage, or 9 (3d4 + 2) Slashing damage if the aarakocra moved 30+ feet straight toward the target immediately before the hit."
+    },
+    {
+      "name": "Wind Javelin",
+      "description": "*Melee or Ranged Attack Roll:* +4, reach 5 ft. or range 30/120 ft. *Hit:* 5 (1d6 + 2) Piercing damage plus 2 (1d4) Thunder damage. *Hit or Miss:* The javelin magically returns to the aarakocra's hand immediately after a ranged attack."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Primal Spirits and Creatures of the Inner Planes*\n*Winged Guardians of the Sky*\n**Habitat:** Mountain, Planar (Elemental Plane of Air); **Treasure:** Implements, Individual\nAarakocra are birdlike folk who soar the skies of countless worlds and the endless expanses of the Elemental Plane of Air. They often resemble avians common to the lands where they dwell; some resemble hawks or condors, while others appear similar to hummingbirds or archaeopteryxes. In many lands, aarakocra tell of their ancient heroics resisting the wicked Queen of Chaos alongside the mysterious Wind Dukes of Aaqa.\nAarakocra aeromancers control magical winds from the endless storms of the Elemental Plane of Air.\nAarakocra skirmishers are adept at fighting aerial foes amid the clouds. They often attack land-bound threats with diving strikes from above.",
+  "habitat": "Mountain, Planar (Elemental Plane of Air)",
+  "treasure": "Implements, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Elementals",
+    "file": "Elementals.md"
+  }
+}

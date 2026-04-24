@@ -1,0 +1,13 @@
+{
+  "name": "Ring of Telekinesis",
+  "slug": "ring-of-telekinesis",
+  "type": "Ring",
+  "rarity": "Very Rare",
+  "attunement": true,
+  "description": "While wearing this ring, you can cast *Telekinesis* from it.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Bloodied",
+  "slug": "bloodied",
+  "description": "A creature is Bloodied while it has half its Hit Points or fewer remaining.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

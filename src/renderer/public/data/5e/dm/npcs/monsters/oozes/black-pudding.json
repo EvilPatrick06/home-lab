@@ -1,0 +1,141 @@
+{
+  "name": "Black Pudding",
+  "sizes": ["Large"],
+  "creatureType": "Ooze",
+  "alignment": "Unaligned",
+  "habitat": ["Underground"],
+  "treasure": ["None"],
+  "lore": "A black pudding is a mindless, amorphous blob of inky darkness that devours all organic matter it encounters. It oozes through dungeon passages, squeezing through cracks and dissolving flesh, wood, and metal with its corrosive form. Black puddings split when struck by lightning or slashing attacks, creating smaller copies of themselves that continue their relentless consumption.",
+  "armorClass": {
+    "value": 7,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 85,
+    "dice": {
+      "count": 10,
+      "die": "d10",
+      "modifier": 30
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Climb",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": -3,
+    "score": 7
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "damageImmunities": ["Acid, Cold, Lightning, and Slashing"],
+  "conditionImmunities": ["Blinded", "Charmed", "Deafened", "Exhaustion", "Frightened", "Prone"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amorphous",
+      "description": "The pudding can move through a space as narrow as 1 inch without squeezing."
+    },
+    {
+      "name": "Corrosive Form",
+      "description": "A creature that touches the pudding or hits it with a melee attack while within 5 feet of it takes 4 (1d8) Acid damage. Any nonmagical weapon made of metal or wood that hits the pudding corrodes. After dealing damage, the weapon takes a permanent and cumulative −1 penalty to damage rolls. If its penalty drops to −5, the weapon is destroyed. Nonmagical ammunition made of metal or wood that hits the pudding is destroyed after dealing damage. The pudding can eat through 2-inch-thick, nonmagical wood or metal in 1 round."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The pudding can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Bludgeoning damage plus 18 (4d8) Acid damage. In addition, nonmagical armor worn by the target is partly dissolved and takes a permanent and cumulative −1 penalty to the AC it offers. Armor reduced to an AC of 10 is destroyed.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 18,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ],
+          "additionalEffects": "Nonmagical armor worn by the target is partly dissolved and takes a permanent and cumulative −1 penalty to the AC it offers. Armor reduced to an AC of 10 is destroyed."
+        }
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Split",
+      "description": "The pudding splits into two puddings, each with half the original's Hit Points (round down). Each new pudding is one size smaller than the original.",
+      "trigger": "The pudding is Medium or larger and is subjected to Lightning or Slashing damage."
+    }
+  ]
+}

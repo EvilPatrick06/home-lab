@@ -1,0 +1,26 @@
+{
+  "id": "shadowfell-brand-tattoo",
+  "name": "Shadowfell Brand Tattoo",
+  "rarity": "Rare",
+  "attunement": true,
+  "description": "This tattoo is dark in appearance, depicting gloomy images of shadowy creatures. It has the following properties. Shadow Essence: You gain Darkvision with a range of 60 feet. If you already have Darkvision, its range increases by 60 feet. Shadowy Defense: When you take damage, you can take a Reaction to become insubstantial for a moment, halving the damage you take. Then the tattoo vanishes from your skin; it reappears on your skin at the next dawn.",
+  "properties": {
+    "type": "Magical Tattoo",
+    "needleRequired": "Rare or higher",
+    "bodyLocation": "Any"
+  },
+  "effects": [
+    {
+      "name": "Shadow Essence",
+      "description": "Gain Darkvision 60 ft. If you already have Darkvision, its range increases by 60 feet.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Shadowy Defense",
+      "description": "As a Reaction when taking damage, halve the damage. The tattoo then vanishes until the next dawn.",
+      "activation": "Reaction",
+      "usesPerDay": 1
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

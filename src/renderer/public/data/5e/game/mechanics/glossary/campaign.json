@@ -1,0 +1,11 @@
+{
+  "name": "Campaign",
+  "slug": "campaign",
+  "description": "A campaign is a series of adventures that form an even bigger, overarching story.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "species": {
+    "aasimar": {
+      "resources": [
+        {
+          "id": "species-healing-hands",
+          "name": "Healing Hands",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 1, "max": 1 }]
+        },
+        {
+          "id": "species-celestial-revelation",
+          "name": "Celestial Revelation",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 3, "max": 1 }]
+        }
+      ]
+    },
+    "dragonborn": {
+      "resources": [
+        {
+          "id": "species-breath-weapon",
+          "name": "Breath Weapon",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+        },
+        {
+          "id": "species-draconic-flight",
+          "name": "Draconic Flight",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 5, "max": 1 }]
+        }
+      ]
+    },
+    "dwarf": {
+      "resources": [
+        {
+          "id": "species-stonecunning",
+          "name": "Stonecunning",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+        }
+      ]
+    },
+    "goliath": {
+      "resources": [
+        {
+          "id": "species-large-form",
+          "name": "Large Form",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 5, "max": 1 }]
+        }
+      ],
+      "heritages": {
+        "cloud-goliath": [
+          {
+            "id": "species-clouds-jaunt",
+            "name": "Cloud's Jaunt",
+            "shortRestRestore": 0,
+            "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+          }
+        ],
+        "fire-goliath": [
+          {
+            "id": "species-fires-burn",
+            "name": "Fire's Burn",
+            "shortRestRestore": 0,
+            "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+          }
+        ],
+        "frost-goliath": [
+          {
+            "id": "species-frosts-chill",
+            "name": "Frost's Chill",
+            "shortRestRestore": 0,
+            "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+          }
+        ],
+        "hill-goliath": [
+          {
+            "id": "species-hills-tumble",
+            "name": "Hill's Tumble",
+            "shortRestRestore": 0,
+            "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+          }
+        ],
+        "stone-goliath": [
+          {
+            "id": "species-stones-endurance",
+            "name": "Stone's Endurance",
+            "shortRestRestore": 0,
+            "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+          }
+        ],
+        "storm-goliath": [
+          {
+            "id": "species-storms-thunder",
+            "name": "Storm's Thunder",
+            "shortRestRestore": 0,
+            "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+          }
+        ]
+      }
+    },
+    "orc": {
+      "resources": [
+        {
+          "id": "species-adrenaline-rush",
+          "name": "Adrenaline Rush",
+          "shortRestRestore": "all",
+          "scaling": [{ "minLevel": 1, "maxFormula": "profBonus" }]
+        },
+        {
+          "id": "species-relentless-endurance",
+          "name": "Relentless Endurance",
+          "shortRestRestore": 0,
+          "scaling": [{ "minLevel": 1, "max": 1 }]
+        }
+      ]
+    }
+  }
+}

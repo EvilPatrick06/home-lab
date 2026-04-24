@@ -1,0 +1,72 @@
+{
+  "name": "Ice Knife",
+  "level": 1,
+  "school": "Conjuration",
+  "classes": ["Druid", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": false,
+    "somatic": true,
+    "material": {
+      "description": "a drop of water or a piece of ice",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You create a shard of ice and fling it at one creature within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 Piercing damage. Hit or miss, the shard then explodes. The target and each creature within 5 feet of it must succeed on a Dexterity saving throw or take 2d6 Cold damage.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "attackType": "RangedSpellAttack",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noDamageOnSuccess": true
+  },
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 5
+    }
+  ],
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 10
+      },
+      "type": "Piercing",
+      "applicationType": "onHit"
+    },
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 6
+      },
+      "type": "Cold",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 1,
+        "description": "The Cold damage increases by 1d6 for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["attack", "ranged-spell-attack", "explosion", "area-damage", "cold", "piercing"]
+}

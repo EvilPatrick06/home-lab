@@ -1,0 +1,17 @@
+{
+  "name": "Lock",
+  "cost": {
+    "amount": 10,
+    "denomination": "GP"
+  },
+  "weight": 1,
+  "description": "A Lock comes with a key. Without the key, a creature can use Thieves' Tools to pick this Lock with a successful DC 15 Dexterity (Sleight of Hand) check.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

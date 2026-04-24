@@ -1,0 +1,68 @@
+{
+  "name": "Blinding Smite",
+  "level": 3,
+  "school": "Evocation",
+  "classes": ["Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false,
+    "trigger": "immediately after hitting a creature with a Melee weapon or an Unarmed Strike"
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "The target hit by the strike takes an extra 3d8 Radiant damage from the attack, and the target has the Blinded condition until the spell ends. At the end of each of its turns, the Blinded target makes a Constitution saving throw, ending the spell on itself on a success.",
+  "targetType": "creature",
+  "attackType": "MeleeSpellAttack",
+  "savingThrow": {
+    "ability": "Constitution",
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 8
+      },
+      "type": "Radiant",
+      "applicationType": "onHit"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Blinded",
+      "trigger": "onHit",
+      "duration": "until the spell ends",
+      "savingThrowToEnd": {
+        "ability": "Constitution",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 3,
+        "description": "The extra damage increases by 1d8 for each spell slot level above 3."
+      }
+    ]
+  },
+  "tags": ["smite", "radiant", "blinding", "paladin"]
+}

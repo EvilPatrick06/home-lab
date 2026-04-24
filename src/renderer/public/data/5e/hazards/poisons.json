@@ -1,0 +1,167 @@
+[
+  {
+    "id": "assassins-blood",
+    "name": "Assassin's Blood",
+    "type": "ingested",
+    "rarity": "uncommon",
+    "cost": "150 gp",
+    "saveDC": 10,
+    "effect": "The creature must make a DC 10 Constitution saving throw. On a failure, it takes 1d12 Poison damage and is Poisoned for 24 hours. On a success, it takes half damage and isn't Poisoned.",
+    "duration": "24 hours",
+    "description": "A creature subjected to this poison must make a DC 10 Constitution saving throw. On a failed save, the creature takes 1d12 Poison damage and is Poisoned for 24 hours."
+  },
+  {
+    "id": "burnt-othur-fumes",
+    "name": "Burnt Othur Fumes",
+    "type": "inhaled",
+    "rarity": "rare",
+    "cost": "500 gp",
+    "saveDC": 13,
+    "effect": "The creature must succeed on a DC 13 Constitution saving throw or take 3d6 Poison damage. The creature must repeat the save at the start of each of its turns. On each successive failure, it takes 1d6 Poison damage. After three successful saves, the poison ends.",
+    "duration": "Until 3 successful saves",
+    "description": "A creature that inhales these acrid fumes must make repeated Constitution saves as the poison works through its system."
+  },
+  {
+    "id": "carrion-crawler-mucus",
+    "name": "Carrion Crawler Mucus",
+    "type": "contact",
+    "rarity": "uncommon",
+    "cost": "200 gp",
+    "saveDC": 13,
+    "effect": "The creature must succeed on a DC 13 Constitution saving throw or be Poisoned for 1 minute. The Poisoned creature is also Paralyzed. The creature repeats the save at the end of each of its turns, ending both effects on a success.",
+    "duration": "1 minute",
+    "description": "Harvested from dead carrion crawlers, this thick mucus can paralyze on contact."
+  },
+  {
+    "id": "essence-of-ether",
+    "name": "Essence of Ether",
+    "type": "inhaled",
+    "rarity": "rare",
+    "cost": "300 gp",
+    "saveDC": 15,
+    "effect": "The creature must succeed on a DC 15 Constitution saving throw or become Poisoned for 8 hours. The Poisoned creature is Unconscious. It wakes if it takes damage or another creature uses an action to shake it awake.",
+    "duration": "8 hours",
+    "description": "A clear distillate that renders creatures unconscious when inhaled."
+  },
+  {
+    "id": "malice",
+    "name": "Malice",
+    "type": "inhaled",
+    "rarity": "uncommon",
+    "cost": "250 gp",
+    "saveDC": 15,
+    "effect": "The creature must succeed on a DC 15 Constitution saving throw or become Poisoned for 1 hour. The Poisoned creature is also Blinded.",
+    "duration": "1 hour",
+    "description": "A powdery substance favored by drow, this poison blinds those who inhale it."
+  },
+  {
+    "id": "midnight-tears",
+    "name": "Midnight Tears",
+    "type": "ingested",
+    "rarity": "very rare",
+    "cost": "1500 gp",
+    "saveDC": 17,
+    "effect": "A creature that ingests this poison suffers no effect until the stroke of midnight. Any effect that ends the Poisoned condition neutralizes this poison. If the poison hasn't been neutralized before midnight, the creature makes a DC 17 Constitution saving throw, taking 31 (9d6) Poison damage on a failed save or half as much damage on a successful one.",
+    "duration": "Delayed until midnight",
+    "description": "This tasteless, odorless poison takes effect at midnight, making it the favored tool of patient assassins."
+  },
+  {
+    "id": "oil-of-taggit",
+    "name": "Oil of Taggit",
+    "type": "contact",
+    "rarity": "uncommon",
+    "cost": "400 gp",
+    "saveDC": 13,
+    "effect": "The creature must succeed on a DC 13 Constitution saving throw or become Poisoned for 24 hours. The Poisoned creature is Unconscious. It wakes if it takes damage.",
+    "duration": "24 hours",
+    "description": "A clear, slightly sticky oil that renders creatures unconscious on contact."
+  },
+  {
+    "id": "pale-tincture",
+    "name": "Pale Tincture",
+    "type": "ingested",
+    "rarity": "rare",
+    "cost": "250 gp",
+    "saveDC": 16,
+    "effect": "The creature must succeed on a DC 16 Constitution saving throw or take 3 (1d6) Poison damage and have the Poisoned condition. The Poisoned creature repeats the save every 24 hours, taking 3 (1d6) Poison damage on a failed save. The damage the poison deals can't be healed by any means while the creature remains Poisoned. After seven successful saves against the poison, the creature is no longer Poisoned.",
+    "duration": "Until 7 successful saves",
+    "description": "A slow-acting poison that gradually weakens the victim over days."
+  },
+  {
+    "id": "purple-worm-poison",
+    "name": "Purple Worm Poison",
+    "type": "injury",
+    "rarity": "very rare",
+    "cost": "2000 gp",
+    "saveDC": 21,
+    "duration": "Instantaneous",
+    "effect": "The creature must make a DC 21 Constitution saving throw, taking 35 (10d6) Poison damage on a failure or half on a success.",
+    "description": "Harvested from a dead or incapacitated purple worm, this virulent poison is among the deadliest known."
+  },
+  {
+    "id": "serpent-venom",
+    "name": "Serpent Venom",
+    "type": "injury",
+    "rarity": "uncommon",
+    "cost": "200 gp",
+    "saveDC": 11,
+    "duration": "Instantaneous",
+    "effect": "The creature must succeed on a DC 11 Constitution saving throw, taking 10 (3d6) Poison damage on a failed save or half as much damage on a successful one.",
+    "description": "Venom harvested from a poisonous serpent, typically applied to weapons."
+  },
+  {
+    "id": "torpor",
+    "name": "Torpor",
+    "type": "ingested",
+    "rarity": "rare",
+    "cost": "600 gp",
+    "saveDC": 15,
+    "effect": "The creature must succeed on a DC 15 Constitution saving throw or become Poisoned for 4d6 hours. The Poisoned creature's Speed is halved.",
+    "duration": "4d6 hours",
+    "description": "A thick, syrupy substance that induces a deep stupor in those who consume it."
+  },
+  {
+    "id": "truth-serum",
+    "name": "Truth Serum",
+    "type": "ingested",
+    "rarity": "uncommon",
+    "cost": "150 gp",
+    "saveDC": 11,
+    "effect": "The creature must succeed on a DC 11 Constitution saving throw or become Poisoned for 1 hour. The Poisoned creature can't knowingly speak a lie, as if under the effect of a Zone of Truth spell.",
+    "duration": "1 hour",
+    "description": "A colorless, odorless liquid that compels the drinker to speak only the truth."
+  },
+  {
+    "id": "wyvern-poison",
+    "name": "Wyvern Poison",
+    "type": "injury",
+    "rarity": "very rare",
+    "cost": "1200 gp",
+    "saveDC": 14,
+    "duration": "Instantaneous",
+    "effect": "The creature must make a DC 14 Constitution saving throw, taking 24 (7d6) Poison damage on a failure or half on a success.",
+    "description": "Harvested from the stinger of a wyvern, this potent poison is deadly but difficult to obtain."
+  },
+  {
+    "id": "lolths-sting",
+    "name": "Lolth's Sting",
+    "type": "injury",
+    "rarity": "uncommon",
+    "cost": "200 gp",
+    "saveDC": 13,
+    "duration": "1 hour",
+    "effect": "The creature must succeed on a DC 13 Constitution saving throw or have the Poisoned condition for 1 hour. If the creature fails the save by 5 or more, the creature also has the Unconscious condition while Poisoned in this way. The creature wakes up if it takes damage or if another creature takes an action to shake it awake.",
+    "description": "This poison is typically made only by the drow, and only in a place far from sunlight."
+  },
+  {
+    "id": "basic-poison",
+    "name": "Basic Poison",
+    "type": "injury",
+    "rarity": "common",
+    "cost": "100 gp",
+    "saveDC": 10,
+    "effect": "A creature hit by a weapon coated in basic poison must succeed on a DC 10 Constitution saving throw or take 1d4 Poison damage. The poison retains potency for 1 minute or until a hit is scored.",
+    "duration": "1 minute or until a hit",
+    "description": "The simplest form of weapon poison, available from most alchemists and poisoners."
+  }
+]

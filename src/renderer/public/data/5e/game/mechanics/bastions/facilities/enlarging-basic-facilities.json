@@ -1,0 +1,15 @@
+{
+  "name": "Enlarging Basic Facilities",
+  "slug": "enlarging-basic-facilities",
+  "type": "",
+  "level": "",
+  "space": "",
+  "hirelings": "",
+  "order": "",
+  "description": "There is no in-game benefit to enlarging a basic facility, but a character might enlarge a facility for cosmetic reasons or to increase the Bastion's size.\n\nA character can spend money and time to increase the space of a basic facility in their Bastion by one category, as shown on the table below.\n\n| Space Increase | Cost | Time Required |\n|---|---|---|\n| Cramped to Roomy | 500 GP | 25 days |\n| Roomy to Vast | 2,000 GP | 80 days |\n\n## Special Facilities\n\nSpecial facilities are Bastion locations where certain activities yield game benefits. A character's Bastion initially has two special facilities of the character's choice for which they qualify. Each special facility can be chosen only once unless its description says otherwise.\n\nUnlike basic facilities, special facilities can't be bought; a character gains them through level advancement. At level 9, a character gains two additional special facilities of their choice for which they qualify; they gain one additional facility at level 13 and another at level 17. The Special Facility Acquisition table shows the total number of special facilities in a character's Bastion. Each new special facility immediately becomes part of the character's Bastion when the character reaches the level.\n\nEach time a character gains a level, that character can replace one of their Bastion's special facilities with another for which the character qualifies.\n\n#### Special Facility Acquisition\n\n| Level | Special Facilities | Level | Special Facilities |\n|---|---|---|---|\n| 5 | 2 | 13 | 5 |\n| 9 | 4 | 17 | 6 |",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

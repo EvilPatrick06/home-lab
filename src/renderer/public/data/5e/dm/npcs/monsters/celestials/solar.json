@@ -1,0 +1,434 @@
+{
+  "name": "Solar",
+  "sizes": ["Large"],
+  "creatureType": "Celestial",
+  "descriptiveTags": ["Angel"],
+  "alignment": "Lawful Good",
+  "habitat": ["Upper Planes"],
+  "treasure": ["Relics"],
+  "lore": "Solars are the mightiest of angels, serving as champions of the gods across the Upper Planes. Formed of divine radiance, these awe-inspiring beings wield blazing weapons and possess the power to raise the dead. A solar may be dispatched to smite great evils, guard sacred sites, or deliver divine pronouncements. Its arrival heralds the direct attention of the gods themselves, and its wrath is as terrible as a star's fury.",
+  "armorClass": {
+    "value": 21,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 243,
+    "dice": {
+      "count": 18,
+      "die": "d10",
+      "modifier": 144
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    },
+    {
+      "type": "Fly",
+      "distance": 150
+    }
+  ],
+  "initiative": {
+    "modifier": 6,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 26,
+      "modifier": 8,
+      "save": 15
+    },
+    "DEX": {
+      "score": 22,
+      "modifier": 6,
+      "save": 13
+    },
+    "CON": {
+      "score": 26,
+      "modifier": 8,
+      "save": 15
+    },
+    "INT": {
+      "score": 25,
+      "modifier": 7,
+      "save": 14
+    },
+    "WIS": {
+      "score": 25,
+      "modifier": 7,
+      "save": 14
+    },
+    "CHA": {
+      "score": 30,
+      "modifier": 10,
+      "save": 17
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 14
+    }
+  ],
+  "resistances": ["Radiant", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Necrotic and Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Poisoned"],
+  "gear": [
+    {
+      "name": "Greatsword",
+      "quantity": 1
+    },
+    {
+      "name": "Longbow",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 24
+  },
+  "languages": {
+    "spoken": ["All"],
+    "telepathy": 120
+  },
+  "challengeRating": "21",
+  "experiencePoints": 33000,
+  "proficiencyBonus": 7,
+  "traits": [
+    {
+      "name": "Divine Awareness",
+      "description": "The solar knows if it hears a lie."
+    },
+    {
+      "name": "Legendary Resistance",
+      "description": "If the solar fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The solar has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 25,
+      "spellAttackBonus": 17,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Evil and Good",
+              "level": 1
+            },
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Blade Barrier",
+              "level": 6
+            },
+            {
+              "name": "Dispel Evil and Good",
+              "level": 5
+            },
+            {
+              "name": "Resurrection",
+              "level": 7
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Commune",
+              "level": 5
+            },
+            {
+              "name": "Holy Aura",
+              "level": 8
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The solar makes two attacks, using Holy Greatsword, Slaying Longbow, or a combination of them. It can replace one of these attacks with Healing Touch.",
+    "attacks": [
+      {
+        "actionName": "Holy Greatsword",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Holy Greatsword",
+        "replaceCount": 2,
+        "with": "Slaying Longbow"
+      },
+      {
+        "replace": "Holy Greatsword",
+        "replaceCount": 1,
+        "with": "Healing Touch"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Holy Greatsword",
+      "description": "Melee Attack Roll: +15, reach 5 ft. Hit: 22 (4d6 + 8) Slashing damage plus 27 (6d8) Radiant damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 15,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 8
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 27,
+              "dice": {
+                "count": 6,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Radiant"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Slaying Longbow",
+      "description": "Ranged Attack Roll: +13, range 150/600 ft. Hit: 15 (2d8 + 6) Piercing damage plus 27 (6d8) Radiant damage. If the target is a creature that has 100 Hit Points or fewer after taking this damage, it must succeed on a DC 15 Constitution saving throw or die.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 13,
+        "range": {
+          "normal": 150,
+          "long": 600
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 6
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 27,
+              "dice": {
+                "count": 6,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Radiant"
+            }
+          ],
+          "additionalEffects": "If the target is a creature that has 100 Hit Points or fewer after taking this damage, it must succeed on a DC 15 Constitution saving throw or die.",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 15,
+            "targets": "the target if it has 100 Hit Points or fewer after taking this damage",
+            "onFailure": {
+              "effects": "The target dies."
+            },
+            "onSuccess": {
+              "effects": "The target does not die from this effect."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Searing Burst",
+      "description": "Each creature of the solar's choice within a 10-foot Emanation originating from the solar must make a DC 25 Constitution saving throw, taking 35 (10d6) Radiant damage plus 35 (10d6) Fire damage on a failed save, or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 25,
+        "targets": "each creature of the solar's choice within the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 35,
+              "dice": {
+                "count": 10,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Radiant"
+            },
+            {
+              "average": 35,
+              "dice": {
+                "count": 10,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 10,
+        "centered": true
+      }
+    },
+    {
+      "name": "Healing Touch",
+      "description": "The solar touches another creature and restores 40 (8d8 + 4) Hit Points to it and ends one of the following conditions on it: Blinded, Deafened, or Poisoned.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 4
+      },
+      "healing": {
+        "average": 40,
+        "dice": {
+          "count": 8,
+          "die": "d8",
+          "modifier": 4
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Radiant Teleport",
+      "description": "The solar teleports, along with any equipment it is wearing or carrying, up to 120 feet to an unoccupied space it can see. Each creature within 10 feet of the space the solar left must succeed on a DC 25 Constitution saving throw or have the Blinded condition until the end of its next turn.",
+      "teleport": {
+        "distance": 120,
+        "notes": "Each creature within 10 feet of the space the solar left must succeed on a DC 25 Constitution saving throw or have the Blinded condition until the end of its next turn."
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 25,
+        "targets": "each creature within 10 feet of the space the solar left",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Blinded",
+              "duration": "until the end of its next turn"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Holy Greatsword",
+        "description": "The solar makes one Holy Greatsword attack.",
+        "cost": 1,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 15,
+          "reach": 5,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 22,
+                "dice": {
+                  "count": 4,
+                  "die": "d6",
+                  "modifier": 8
+                },
+                "type": "Slashing"
+              },
+              {
+                "average": 27,
+                "dice": {
+                  "count": 6,
+                  "die": "d8",
+                  "modifier": 0
+                },
+                "type": "Radiant"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Blinding Gaze",
+        "description": "The solar turns its gaze toward one creature it can see within 30 feet of itself. The target must succeed on a DC 25 Constitution saving throw or have the Blinded condition until the end of the solar's next turn.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 25,
+          "targets": "one creature the solar can see within 30 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Blinded",
+                "duration": "until the end of the solar's next turn"
+              }
+            ]
+          }
+        },
+        "conditions": [
+          {
+            "condition": "Blinded",
+            "duration": "until the end of the solar's next turn"
+          }
+        ]
+      },
+      {
+        "name": "Searing Burst",
+        "description": "The solar uses Searing Burst, if available.",
+        "cost": 3
+      }
+    ]
+  }
+}

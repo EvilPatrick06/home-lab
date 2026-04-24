@@ -1,0 +1,11 @@
+{
+  "name": "1 lb. of gold",
+  "slug": "1-lb-of-gold",
+  "cost": "50 GP",
+  "category": "Trade Good",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

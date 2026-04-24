@@ -1,0 +1,13 @@
+{
+  "name": "Scarab of Protection",
+  "slug": "scarab-of-protection",
+  "type": "Wondrous Item",
+  "rarity": "Legendary",
+  "attunement": true,
+  "description": "This beetle-shaped medallion provides three benefits while it is on your person.\n\n**Defense.** You gain a +1 bonus to Armor Class.\n\n**Preservation.** The scarab has 12 charges. If you fail a saving throw against a Necromancy spell or a harmful effect originating from an Undead, you can take a Reaction to expend 1 charge and turn the failed save into a successful one. The scarab crumbles into powder and is destroyed when its last charge is expended.\n\n**Spell Resistance.** You have Advantage on saving throws against spells.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

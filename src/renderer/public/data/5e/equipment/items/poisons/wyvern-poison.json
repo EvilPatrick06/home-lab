@@ -1,0 +1,16 @@
+{
+  "name": "Wyvern Poison",
+  "cost": "1,200 GP",
+  "type": "Injury",
+  "dc": 15,
+  "damage": "7d6 Poison",
+  "effect": "Half damage on success",
+  "description": "A creature subjected to this poison must make a DC 15 Constitution saving throw, taking 24 (7d6) Poison damage on a failed save, or half as much damage on a successful one.",
+  "slug": "wyvern-poison",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

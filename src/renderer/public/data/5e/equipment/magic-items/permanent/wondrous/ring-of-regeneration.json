@@ -1,0 +1,11 @@
+{
+  "name": "Ring of Regeneration",
+  "itemType": "Ring",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": ["Requires Attunement"],
+  "description": "While wearing this ring, you regain 1d6 Hit Points every 10 minutes if you have at least 1 Hit Point. If you lose a body part, the ring causes the missing part to regrow and return to full functionality after 1d6 + 1 days if you have at least 1 Hit Point the whole time.",
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

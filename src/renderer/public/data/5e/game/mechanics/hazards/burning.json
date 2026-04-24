@@ -1,0 +1,245 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels with the material realms at the center. Burning is a universal hazard defined in the rules glossary, applicable across all planes. Underwater environments on any plane grant Resistance to Fire damage.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "The Material Plane and its echoes (Feywild, Shadowfell). Burning applies as a standard hazard on these planes.",
+        "memberPlanes": ["Material Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes and Para-elemental Planes. The Elemental Plane of Fire and Para-elemental Plane of Ash feature extensive fire hazards relevant to Burning.",
+        "memberPlanes": [
+          "Elemental Plane of Fire",
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "material-plane",
+      "name": "Material Plane",
+      "alternateNames": [],
+      "category": "Material Realm",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [
+        {
+          "id": "burning",
+          "name": "Burning",
+          "description": "Burning is listed as a core hazard in the 2024 Player's Handbook (Chapter 1: Playing the Game, under Hazards). It is defined in the rules glossary. A burning creature or object takes 1d4 Fire damage at the start of each of its turns. As an action, a creature can extinguish fire on itself by giving itself the Prone condition and rolling on the ground. The fire also goes out if it is doused, submerged, or suffocated. Underwater combat rules state that anything underwater has Resistance to Fire damage, which halves Burning damage while submerged.",
+          "category": "elemental",
+          "severity": "moderate",
+          "damagePerTurn": {
+            "dice": {
+              "count": 1,
+              "die": 4,
+              "modifier": 0,
+              "expression": "1d4",
+              "averageResult": 2.5
+            },
+            "damageType": "Fire",
+            "averageDamagePerTurn": 2.5,
+            "frequency": "per_round",
+            "frequencyDescription": "At the start of each of the burning creature's turns",
+            "triggerCondition": "Creature or object is currently on fire (has the Burning hazard active)",
+            "resistanceFactor": 0.5,
+            "immunityNegates": {
+              "damageTypeImmunity": "Fire"
+            },
+            "cumulativeDamageModel": {
+              "escalates": false
+            },
+            "effectiveRoundsToIncapacitate": {
+              "averageHPAssumption": 11,
+              "estimatedRounds": 5
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": ["Fire"],
+          "immuneTraits": ["Fire Immunity"],
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "interactionCheck": {
+            "id": "burning-extinguish-self",
+            "name": "Extinguish Fire on Self",
+            "description": "As an action, a burning creature can extinguish fire on itself by giving itself the Prone condition and rolling on the ground. No ability check is required; the action and accepting the Prone condition are sufficient. Alternatively, fire goes out if doused with water, submerged, or suffocated.",
+            "checkType": "ability_check",
+            "ability": "Dexterity",
+            "baseDC": 0,
+            "actionCost": "action",
+            "onSuccess": {
+              "description": "The fire on the creature is extinguished. The Burning hazard ends for the creature. The creature gains the Prone condition as part of this action.",
+              "endsEffect": true
+            },
+            "onFailure": {
+              "description": "Not applicable; extinguishing fire on self by taking an action and dropping Prone automatically succeeds.",
+              "noEffect": true
+            },
+            "repeatable": true,
+            "requiresConcentration": false,
+            "endsOnConcentrationBreak": false
+          },
+          "narrativeWeight": "mechanical",
+          "sourceReference": "Chapter 1: Playing the Game (Hazards section); Rules Glossary (Burning entry)"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "underwater-fire-resistance",
+          "name": "Underwater Fire Resistance",
+          "description": "Anything underwater has Resistance to Fire damage. This directly affects the Burning hazard, halving its 1d4 Fire damage while the burning creature or object is submerged. This rule is found in the Underwater Combat section.",
+          "mechanicalEffect": "Fire damage is halved (Resistance) for anything underwater, reducing average Burning damage from 2.5 to 1.25 per round (rounded down to 1 on each individual roll of 1d4 halved).",
+          "isOptional": false,
+          "damagePerTurn": {
+            "dice": {
+              "count": 1,
+              "die": 4,
+              "modifier": 0,
+              "expression": "1d4",
+              "averageResult": 2.5
+            },
+            "damageType": "Fire",
+            "averageDamagePerTurn": 1.25,
+            "frequency": "per_round",
+            "frequencyDescription": "At the start of each turn while burning and underwater; damage is halved due to Fire Resistance",
+            "triggerCondition": "Creature is burning while underwater",
+            "resistanceFactor": 0.5
+          },
+          "duration": "While underwater",
+          "removalMethods": [
+            "Leaving underwater environment removes the Resistance benefit",
+            "Being submerged itself can extinguish the Burning hazard entirely"
+          ],
+          "sourceReference": "Chapter 1: Playing the Game, Combat, Underwater Combat, Fire Resistance"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Humanoid"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Burning hazard is listed in Chapter 1 under Hazards and defined in the Rules Glossary (Appendix C)."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Underwater Fire Resistance rule is in Chapter 1 under Combat > Underwater Combat."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Fire damage type defined as 'Flames and extreme heat' in the Damage Types table of the Rules Glossary."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Resistance rules: damage of that type is halved (round down). Multiple instances do not stack. Applied after bonuses/penalties but before Vulnerability."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

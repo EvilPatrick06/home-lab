@@ -1,0 +1,15 @@
+{
+  "id": "athletics",
+  "name": "Athletics",
+  "ability": "strength",
+  "description": "Your Strength (Athletics) check covers difficult situations you encounter while climbing, jumping, or swimming. Examples include trying to climb a sheer or slippery cliff, avoiding hazards while scaling a wall, or clinging to a surface while something is trying to knock you off.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Climb a steep or slippery surface",
+    "Make a difficult jump across a gap or to a height",
+    "Swim in treacherous currents or rough water",
+    "Grapple or shove a creature (contest vs Athletics or Acrobatics)",
+    "Resist being pushed or pulled against your will"
+  ]
+}

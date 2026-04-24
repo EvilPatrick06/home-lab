@@ -1,0 +1,138 @@
+{
+  "name": "Needle Blight",
+  "sizes": ["Medium"],
+  "creatureType": "Plant",
+  "alignment": "Neutral Evil",
+  "habitat": ["Forest", "Swamp"],
+  "treasure": ["None"],
+  "lore": "Needle blights are thorny plant creatures that resemble dead evergreen shrubs. They serve dark forces and attack in groups, hurling volleys of sharp needles at their prey before closing to rend with thorn-laden claws.",
+  "armorClass": {
+    "value": 12,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 11,
+    "dice": {
+      "count": 2,
+      "die": "d8",
+      "modifier": 2
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 4,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    }
+  },
+  "conditionImmunities": ["Blinded", "Deafened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 9
+  },
+  "languages": {
+    "understood": ["Common"],
+    "notes": "understands Common but can't speak"
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "While the blight remains motionless, it is indistinguishable from a dead evergreen shrub."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 6 (2d4 + 1) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Needles",
+      "description": "Ranged Attack Roll: +3, range 30/60 ft. Hit: 8 (2d6 + 1) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 3,
+        "range": {
+          "normal": 30,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

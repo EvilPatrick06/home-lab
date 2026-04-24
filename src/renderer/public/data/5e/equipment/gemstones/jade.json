@@ -1,0 +1,13 @@
+{
+  "name": "Jade",
+  "slug": "jade",
+  "value": "100 GP",
+  "category": "Gemstone",
+  "description": "light green, deep green, or white",
+  "dieValue": "6",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

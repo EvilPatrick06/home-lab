@@ -1,0 +1,148 @@
+{
+  "tables": {
+    "carousing-lower": [
+      {
+        "min": 1,
+        "max": 1,
+        "result": "You are jailed for 1d4 days at the end of the downtime period on charges of disorderly conduct and disturbing the peace."
+      },
+      {
+        "min": 2,
+        "max": 2,
+        "result": "You regain consciousness in a strange place with no memory of how you got there, and you have been robbed of 3d6 x 5 GP."
+      },
+      {
+        "min": 3,
+        "max": 3,
+        "result": "You made an enemy. This person, business, or organization is now hostile to you. The DM determines the offended party."
+      },
+      {
+        "min": 4,
+        "max": 4,
+        "result": "You are caught up in a whirlwind romance. Roll a d20. On a 1-5, it ends badly; the other person now has a hostile attitude toward you. On a 6-10 the romance fizzles. On 11-20 the romance is ongoing."
+      },
+      {
+        "min": 5,
+        "max": 5,
+        "result": "You have earned a gambling debt of 1d6 x 10 GP to an NPC who is not happy about nonpayment."
+      },
+      {
+        "min": 6,
+        "max": 6,
+        "result": "You earned a reputation for rowdiness. Locals are wary of you; Charisma checks with them have disadvantage for 1d6 days."
+      },
+      {
+        "min": 7,
+        "max": 7,
+        "result": "You accidentally insulted a guild master, noble's servant, or similar important figure."
+      },
+      { "min": 8, "max": 8, "result": "No complication. You had a great time!" }
+    ],
+    "carousing-upper": [
+      { "min": 1, "max": 1, "result": "You are jailed for 1d4 days on trumped-up charges during the downtime period." },
+      { "min": 2, "max": 2, "result": "You accidentally insulted a noble. The noble demands an apology or a duel." },
+      {
+        "min": 3,
+        "max": 3,
+        "result": "You made an enemy among the upper class. The DM determines the offended party."
+      },
+      {
+        "min": 4,
+        "max": 4,
+        "result": "A whirlwind romance with a noble complicates matters. Roll a d20. On a 1-5, their family opposes you. On 6-10, the romance cools. On 11-20, it flourishes."
+      },
+      {
+        "min": 5,
+        "max": 5,
+        "result": "You were challenged to a high-stakes game by a noble. You owe 1d6 x 50 GP or a favor."
+      },
+      {
+        "min": 6,
+        "max": 6,
+        "result": "You've been invited to an exclusive event, but a rival plans to embarrass you there."
+      },
+      {
+        "min": 7,
+        "max": 7,
+        "result": "A political scandal erupts connected to your socializing. You're implicated in a rumor."
+      },
+      { "min": 8, "max": 8, "result": "No complication. You made an excellent impression." }
+    ],
+    "crime": [
+      { "min": 1, "max": 1, "result": "A bounty equal to your earnings is put on your head." },
+      { "min": 2, "max": 2, "result": "An associate betrays you. Details are up to the DM." },
+      {
+        "min": 3,
+        "max": 3,
+        "result": "You left evidence that could lead to your arrest. The authorities are investigating."
+      },
+      {
+        "min": 4,
+        "max": 4,
+        "result": "You stole from someone with powerful connections. That person sends agents after you."
+      },
+      {
+        "min": 5,
+        "max": 5,
+        "result": "A rival criminal gang becomes aware of your activities and marks you as a target."
+      },
+      { "min": 6, "max": 6, "result": "You picked up a cursed item during the heist. It's among your loot." },
+      { "min": 7, "max": 7, "result": "A witness saw your face. They might talk unless dealt with." },
+      { "min": 8, "max": 8, "result": "No complication. It was the perfect crime." }
+    ],
+    "pit-fighting": [
+      { "min": 1, "max": 1, "result": "An opponent swears revenge against you." },
+      { "min": 2, "max": 2, "result": "A crime boss approaches you with a request to throw your next fight." },
+      {
+        "min": 3,
+        "max": 3,
+        "result": "You were injured during a bout. You take 2d6 damage that can't be healed by magic."
+      },
+      {
+        "min": 4,
+        "max": 4,
+        "result": "A noble or wealthy merchant takes notice of you and wants you to fight on their behalf — for better or worse."
+      },
+      { "min": 5, "max": 5, "result": "You unknowingly defeated a local champion; their fans are hostile toward you." },
+      { "min": 6, "max": 6, "result": "Accusations of cheating are leveled against you, whether true or not." },
+      {
+        "min": 7,
+        "max": 7,
+        "result": "You attracted the attention of a talent scout for gladiatorial games in a distant city."
+      },
+      { "min": 8, "max": 8, "result": "No complication. Your victories were clean." }
+    ],
+    "religious-service": [
+      { "min": 1, "max": 1, "result": "You have offended a priest through ignorance of ceremony or doctrine." },
+      { "min": 2, "max": 2, "result": "A rival within the temple seeks to undermine your standing." },
+      { "min": 3, "max": 3, "result": "You discover the temple is involved in questionable activities." },
+      {
+        "min": 4,
+        "max": 4,
+        "result": "A zealous member of the faith demands you undertake a quest to prove your devotion."
+      },
+      { "min": 5, "max": 5, "result": "You accidentally revealed a temple secret to an outsider." },
+      {
+        "min": 6,
+        "max": 6,
+        "result": "The temple asks you to make a significant donation (1d6 x 10 GP) to prove your faith."
+      },
+      { "min": 7, "max": 7, "result": "A congregation member falsely accuses you of heresy." },
+      { "min": 8, "max": 8, "result": "No complication. Your service was exemplary." }
+    ],
+    "general": [
+      { "min": 1, "max": 1, "result": "You unknowingly offend a guild master, attracting unwanted attention." },
+      { "min": 2, "max": 2, "result": "A rival adventurer spreads rumors about you, damaging your reputation." },
+      {
+        "min": 3,
+        "max": 3,
+        "result": "You attract the attention of a local thieves' guild, who wants a cut of your action."
+      },
+      { "min": 4, "max": 4, "result": "A mysterious stranger approaches you with a dubious proposition." },
+      { "min": 5, "max": 5, "result": "You witness a crime. The criminals know you saw them." },
+      { "min": 6, "max": 6, "result": "An old rival or enemy learns of your location and begins making plans." },
+      { "min": 7, "max": 7, "result": "A merchant accuses you of passing counterfeit coins, whether true or not." },
+      { "min": 8, "max": 8, "result": "No complication." }
+    ]
+  }
+}

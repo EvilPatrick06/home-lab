@@ -1,0 +1,71 @@
+{
+  "name": "Eyebite",
+  "level": 6,
+  "school": "Necromancy",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "For the duration, your eyes become an inky void. One creature of your choice within 60 feet of you that you can see must succeed on a Wisdom saving throw or be affected by one of the following effects of your choice for the duration. On each of your turns until the spell ends, you can take a Magic action to target another creature but can't target a creature again if it has succeeded on a save against this casting of the spell. Asleep: The target has the Unconscious condition. It wakes up if it takes any damage or if another creature takes an action to shake it awake. Panicked: The target has the Frightened condition. On each of its turns, the Frightened target must take the Dash action and move away from you by the safest and shortest route available. If the target moves to a space at least 60 feet away from you where it can't see you, this effect ends. Sickened: The target has the Poisoned condition.",
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true
+  },
+  "spellOptions": [
+    {
+      "name": "Asleep",
+      "description": "The target has the Unconscious condition. It wakes up if it takes any damage or if another creature takes an action to shake it awake.",
+      "conditionsApplied": [
+        {
+          "condition": "Unconscious",
+          "trigger": "onFailedSave",
+          "duration": "For the spell's duration or until the target takes damage or another creature uses an action to shake it awake"
+        }
+      ]
+    },
+    {
+      "name": "Panicked",
+      "description": "The target has the Frightened condition. On each of its turns, the Frightened target must take the Dash action and move away from you by the safest and shortest route available. If the target moves to a space at least 60 feet away from you where it can't see you, this effect ends.",
+      "conditionsApplied": [
+        {
+          "condition": "Frightened",
+          "trigger": "onFailedSave",
+          "duration": "For the spell's duration or until the target moves to a space at least 60 feet away from the caster where it can't see the caster"
+        }
+      ]
+    },
+    {
+      "name": "Sickened",
+      "description": "The target has the Poisoned condition.",
+      "conditionsApplied": [
+        {
+          "condition": "Poisoned",
+          "trigger": "onFailedSave",
+          "duration": "For the spell's duration"
+        }
+      ]
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "On each of your turns until the spell ends, you can take a Magic action to target another creature within 60 feet that you can see. The new target must succeed on a Wisdom saving throw or be affected by one of the three effects of your choice. You can't target a creature again if it has succeeded on a save against this casting of the spell."
+  },
+  "tags": ["debuff", "control", "multi-target", "option-choice"]
+}

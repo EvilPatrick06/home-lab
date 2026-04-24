@@ -1,0 +1,53 @@
+{
+  "name": "Sleet Storm",
+  "level": 3,
+  "school": "Conjuration",
+  "classes": ["Druid", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 150,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a miniature umbrella",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Until the spell ends, sleet falls in a 40-foot-tall, 20-foot-radius Cylinder centered on a point you choose within range. The area is Heavily Obscured, and exposed flames in the area are doused. Ground in the Cylinder is Difficult Terrain. When a creature enters the Cylinder for the first time on a turn or starts its turn there, it must succeed on a Dexterity saving throw or have the Prone condition and lose Concentration.",
+  "areaOfEffect": [
+    {
+      "shape": "Cylinder",
+      "radiusFeet": 20,
+      "heightFeet": 40
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The creature has the Prone condition and loses Concentration"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Prone",
+      "trigger": "onFailedSave"
+    }
+  ],
+  "obscurement": "Heavily",
+  "createsDifficultTerrain": true,
+  "tags": ["control", "extinguishes-flames", "concentration-breaker"]
+}

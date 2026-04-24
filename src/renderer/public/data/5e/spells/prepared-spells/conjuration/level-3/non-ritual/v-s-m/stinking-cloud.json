@@ -1,0 +1,52 @@
+{
+  "name": "Stinking Cloud",
+  "level": 3,
+  "school": "Conjuration",
+  "classes": ["Bard", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a rotten egg",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You create a 20-foot-radius Sphere of yellow, nauseating gas centered on a point within range. The cloud is Heavily Obscured. The cloud lingers in the air for the duration or until a strong wind (such as the one created by Gust of Wind) disperses it. Each creature that starts its turn in the Sphere must succeed on a Constitution saving throw or have the Poisoned condition until the end of the current turn. While Poisoned in this way, the creature can't take an action or a Bonus Action.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 20
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Constitution",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The creature has the Poisoned condition until the end of the current turn. While Poisoned in this way, the creature can't take an action or a Bonus Action."
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Poisoned",
+      "trigger": "onFailedSave",
+      "duration": "until the end of the current turn"
+    }
+  ],
+  "obscurement": "Heavily",
+  "tags": ["control", "area", "gas", "dispersible", "cloud"]
+}

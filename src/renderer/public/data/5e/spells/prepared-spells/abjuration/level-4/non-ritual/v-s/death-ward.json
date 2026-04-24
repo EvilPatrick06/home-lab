@@ -1,0 +1,38 @@
+{
+  "name": "Death Ward",
+  "level": 4,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "You touch a creature and grant it a measure of protection from death. The first time the target would drop to 0 Hit Points before the spell ends, the target instead drops to 1 Hit Point, and the spell ends. If the spell is still in effect when the target is subjected to an effect that would kill it instantly without dealing damage, that effect is negated against the target, and the spell ends.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "mustSeeTarget": false,
+  "targetMustBeWilling": false,
+  "hpThresholdEffects": [
+    {
+      "minHP": 0,
+      "maxHP": 0,
+      "effect": "The first time the target would drop to 0 Hit Points, it instead drops to 1 Hit Point and the spell ends.",
+      "kills": false
+    }
+  ],
+  "tags": ["protection", "death-prevention", "buff"]
+}

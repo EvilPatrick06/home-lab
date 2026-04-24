@@ -1,0 +1,36 @@
+{
+  "id": "facing",
+  "name": "Facing",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "Each creature has a facing direction that determines its front, sides, and rear arcs. Attacks from behind a creature's facing gain Advantage. This rule adds tactical depth to positioning in grid-based combat.",
+  "mechanics": {
+    "requiresGrid": true,
+    "facingArcs": {
+      "front": {
+        "width": "3 squares (the square directly ahead and the two squares flanking it diagonally)",
+        "effect": "No special benefit or penalty for attackers"
+      },
+      "sides": {
+        "width": "The squares to the left and right that are not in the front or rear arcs",
+        "effect": "No special benefit or penalty for attackers"
+      },
+      "rear": {
+        "width": "The 3 squares directly behind the creature (opposite the front arc)",
+        "effect": "Attacks from the rear arc have Advantage"
+      }
+    },
+    "changingFacing": "A creature can change its facing direction at any point during its move at no additional movement cost. A creature can also use its Reaction to change its facing direction when any creature it can see moves.",
+    "shields": "When using this variant, a shield's AC bonus applies only against attacks from the front and side arcs, not from the rear arc.",
+    "limitations": [
+      "Facing is tracked only on a grid; this rule is not used in theater-of-the-mind combat",
+      "Creatures with All-Around Vision or similar traits are immune to rear-arc Advantage"
+    ]
+  },
+  "interactions": [
+    "When combined with the flanking variant rule, facing can make positioning even more powerful; DMs may choose to use one or the other, not both",
+    "Rogues benefit significantly since rear attacks grant Advantage, enabling Sneak Attack more easily",
+    "Shield-users must be more careful about rear attacks since the shield bonus does not apply from the rear",
+    "Reactions to change facing add strategic cost since the creature cannot use its Reaction for opportunity attacks or other features that turn"
+  ]
+}

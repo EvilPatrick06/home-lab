@@ -1,0 +1,13 @@
+{
+  "name": "Spikes, Iron",
+  "cost": "1 GP",
+  "weight": "5 lb.",
+  "description": "Bundle of 10. As Utilize action, hammer into wood/earth/similar to jam doors or tie Rope/Chain.",
+  "slug": "spikes-iron",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

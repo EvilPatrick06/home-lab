@@ -1,0 +1,41 @@
+{
+  "id": "veteran",
+  "name": "Veteran",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Alignment",
+  "ac": 17,
+  "acSource": "splint armor",
+  "hp": 58,
+  "hpFormula": "9d8 + 18",
+  "speed": "30 ft.",
+  "stats": { "str": 16, "dex": 13, "con": 14, "int": 10, "wis": 11, "cha": 10 },
+  "skills": "Athletics +5, Perception +2",
+  "senses": "Passive Perception 12",
+  "languages": "Any one language (usually Common)",
+  "cr": "3",
+  "xp": "700 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The veteran makes two longsword attacks. If it has a shortsword drawn, it can also make a shortsword attack."
+    },
+    {
+      "name": "Longsword",
+      "description": "*Melee Weapon Attack:* +5 to hit, reach 5 ft., one target. *Hit:* 7 (1d8 + 3) slashing damage, or 8 (1d10 + 3) slashing damage if used with two hands."
+    },
+    {
+      "name": "Shortsword",
+      "description": "*Melee Weapon Attack:* +5 to hit, reach 5 ft., one target. *Hit:* 6 (1d6 + 3) piercing damage."
+    },
+    {
+      "name": "Heavy Crossbow",
+      "description": "*Ranged Weapon Attack:* +3 to hit, range 100/400 ft., one target. *Hit:* 6 (1d10 + 1) piercing damage."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

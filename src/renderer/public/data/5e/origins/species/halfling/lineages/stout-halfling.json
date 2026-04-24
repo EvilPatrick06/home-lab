@@ -1,0 +1,11 @@
+{
+  "id": "stout-halfling",
+  "name": "Stout Halfling",
+  "species": "halfling",
+  "description": "Hardier than average with poison resistance.",
+  "traits": [
+    { "name": "Stout Resilience", "description": "Advantage on saves vs poison and resistance to poison damage." }
+  ],
+  "abilityScoreIncrease": { "constitution": 1 },
+  "source": "PHB 2024"
+}

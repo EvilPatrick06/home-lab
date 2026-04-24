@@ -1,0 +1,72 @@
+{
+  "name": "Creation",
+  "level": 5,
+  "school": "Illusion",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "minutes",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a paintbrush",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "special": "Depends on material created: Vegetable matter (24 hours), Stone or crystal (12 hours), Precious metals (1 hour), Gems (10 minutes), Adamantine or mithral (1 minute). If composed of multiple materials, use the shortest duration."
+  },
+  "description": "You pull wisps of shadow material from the Shadowfell to create an object within range. It is either an object of vegetable matter (soft goods, rope, wood, and the like) or mineral matter (stone, crystal, metal, and the like). The object must be no larger than a 5-foot Cube, and the object must be of a form and material that you have seen. The spell's duration depends on the object's material. If the object is composed of multiple materials, use the shortest duration. Using any object created by this spell as another spell's Material component causes the other spell to fail. Materials: Vegetable matter (24 hours), Stone or crystal (12 hours), Precious metals (1 hour), Gems (10 minutes), Adamantine or mithral (1 minute).",
+  "targetType": "point",
+  "areaOfEffect": [
+    {
+      "shape": "Cube",
+      "sizeFeet": 5
+    }
+  ],
+  "spellOptions": [
+    {
+      "name": "Vegetable Matter",
+      "description": "Soft goods, rope, wood, and the like. Duration: 24 hours."
+    },
+    {
+      "name": "Stone or Crystal",
+      "description": "Stone or crystal objects. Duration: 12 hours."
+    },
+    {
+      "name": "Precious Metals",
+      "description": "Objects made of precious metals. Duration: 1 hour."
+    },
+    {
+      "name": "Gems",
+      "description": "Objects made of gems. Duration: 10 minutes."
+    },
+    {
+      "name": "Adamantine or Mithral",
+      "description": "Objects made of adamantine or mithral. Duration: 1 minute."
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "cubeSizeIncrease",
+        "feetPerLevel": 5,
+        "baseSpellLevel": 5,
+        "description": "The Cube increases by 5 feet for each spell slot level above 5."
+      }
+    ]
+  },
+  "tags": ["creation", "object", "utility", "Shadowfell"]
+}

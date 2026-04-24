@@ -1,0 +1,66 @@
+{
+  "name": "Sunburst",
+  "level": 8,
+  "school": "Evocation",
+  "classes": ["Cleric", "Druid", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 150,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a piece of sunstone",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Brilliant sunlight flashes in a 60-foot-radius Sphere centered on a point you choose within range. Each creature in the Sphere makes a Constitution saving throw. On a failed save, a creature takes 12d6 Radiant damage and has the Blinded condition for 1 minute. On a successful save, it takes half as much damage only.\n\nA creature Blinded by this spell makes another Constitution saving throw at the end of each of its turns, ending the effect on itself on a success.\n\nThis spell dispels Darkness in its area that was created by any spell.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 60
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Constitution",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 12,
+        "diceValue": 6
+      },
+      "type": "Radiant",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Blinded",
+      "trigger": "onFailedSave",
+      "duration": "1 minute",
+      "savingThrowToEnd": {
+        "ability": "Constitution",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "countersOrDispels": {
+    "description": "This spell dispels Darkness in its area that was created by any spell."
+  },
+  "tags": ["damage", "radiant", "blinded", "dispel-darkness", "sunlight"]
+}

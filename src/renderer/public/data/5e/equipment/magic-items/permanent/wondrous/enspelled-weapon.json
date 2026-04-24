@@ -1,0 +1,17 @@
+{
+  "name": "Enspelled Weapon",
+  "itemType": "Weapon",
+  "rarity": "Rarity Varies",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "Bound into this weapon is a spell of level 8 or lower. The spell is determined when the weapon is created and must belong to the Conjuration, Divination, Evocation, Necromancy, or Transmutation school of magic. The weapon has 6 charges and regains 1d6 expended charges daily at dawn. While holding the weapon, you can expend 1 charge to cast its spell.",
+  "properties": null,
+  "weight": null,
+  "cost": null,
+  "charges": 6,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d6",
+  "spells": null,
+  "damage": null,
+  "source": "DMG 2024"
+}

@@ -1,0 +1,56 @@
+{
+  "name": "Lemure",
+  "slug": "lemure",
+  "size": "Medium",
+  "type": "Fiend",
+  "alignment": "Lawful Evil",
+  "ac": "9",
+  "initiative": "−3 (7)",
+  "hp": "9",
+  "hpFormula": "2d8",
+  "speed": "20 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 5,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": -3,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Fire, Poison; Charmed, Frightened, Poisoned",
+  "resistances": "Cold",
+  "senses": "Darkvision 120 ft. (unimpeded by magical Darkness); Passive Perception 10",
+  "languages": "Understands Infernal but can't speak",
+  "cr": "0 (XP 10; PB +2)",
+  "traits": [
+    {
+      "name": "Hellish Restoration",
+      "description": "If the lemure dies in the Nine Hells, it revives with all its Hit Points in 1d10 days unless it is killed by a creature under the effects of a *Bless* spell or its remains are sprinkled with Holy Water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Vile Slime",
+      "description": "*Melee Attack Roll:* +2, reach 5 ft. *Hit:* 2 (1d4) Poison damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Devils of Agony and Despair*\n**Habitat:** Planar (Nine Hells); **Treasure:** None\nThe least of all devils, lemures arise from wicked souls, their mortal memories scoured away. Only vague limbs and anguished features jut from these slurries of infernal proto-matter.\nLemures torment weaker creatures, but in the Nine Hells, few such beings exist. To avoid greater suffering, they obey the orders of more powerful devils.\nWhen devils drive hosts of lemures into close proximity or when lemures compress into a single mass, a swarm forms and adopts a unified mind.",
+  "habitat": "Planar (Nine Hells)",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Devils",
+    "file": "Devils.md"
+  }
+}

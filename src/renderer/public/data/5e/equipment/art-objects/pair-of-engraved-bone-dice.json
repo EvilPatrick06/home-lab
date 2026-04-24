@@ -1,0 +1,13 @@
+{
+  "name": "Pair of engraved bone dice",
+  "slug": "pair-of-engraved-bone-dice",
+  "value": "25 GP",
+  "category": "Art Object",
+  "description": "",
+  "dieValue": "7",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

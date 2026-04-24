@@ -1,0 +1,214 @@
+{
+  "name": "Chuul",
+  "sizes": ["Large"],
+  "creatureType": "Aberration",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Coastal", "Swamp", "Underdark"],
+  "treasure": ["Arcana"],
+  "armorClass": {
+    "value": 16,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 93,
+    "dice": {
+      "count": 11,
+      "die": "d10",
+      "modifier": 33
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Swim",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 8
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "understood": ["Deep Speech"],
+    "notes": "understands Deep Speech but can't speak"
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The chuul can breathe air and water."
+    },
+    {
+      "name": "Sense Magic",
+      "description": "The chuul senses magic within 120 feet of itself. It can take a Magic action to cast Detect Magic, requiring no spell components."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Sense Magic",
+      "ability": "WIS",
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The chuul makes two Pincer attacks. It can replace one of these attacks with a use of Tentacles.",
+    "attacks": [
+      {
+        "actionName": "Pincer",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Pincer",
+        "replaceCount": 1,
+        "with": "Tentacles"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Pincer",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 11 (2d6 + 4) Bludgeoning damage, and the target is Grappled (escape DC 14). The chuul has two pincers, each of which can grapple one target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "The chuul has two pincers, each of which can grapple one target.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 14
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tentacles",
+      "description": "One creature Grappled by the chuul must succeed on a DC 13 Constitution saving throw or have the Poisoned condition for 1 minute. Until this condition ends, the target also has the Paralyzed condition. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 13,
+        "targets": "one creature Grappled by the chuul",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Poisoned",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 13,
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            },
+            {
+              "condition": "Paralyzed",
+              "duration": "until the Poisoned condition ends"
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Poisoned",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 13,
+            "onSuccess": {
+              "effects": "The effect ends on the target."
+            }
+          }
+        },
+        {
+          "condition": "Paralyzed",
+          "duration": "until the Poisoned condition ends"
+        }
+      ]
+    }
+  ]
+}

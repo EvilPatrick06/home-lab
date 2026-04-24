@@ -1,0 +1,15 @@
+{
+  "name": "Gaming Set (Dice)",
+  "slug": "dice",
+  "category": "Gaming Set",
+  "cost": "1 SP",
+  "weight": "—",
+  "ability": "Wisdom",
+  "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+  "craft": "",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

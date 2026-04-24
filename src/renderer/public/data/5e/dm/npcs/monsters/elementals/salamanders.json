@@ -1,0 +1,187 @@
+{
+  "name": "Salamander",
+  "sizes": ["Large"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar"],
+  "treasure": ["Armaments"],
+  "lore": "Salamanders are serpentine fire elementals native to the Elemental Plane of Fire. With humanoid torsos and long, sinuous tails wreathed in flame, they are fierce warriors and masterful weaponsmiths. Many serve efreet as soldiers and laborers, though free salamanders form their own martial societies in the scorching depths of their home plane.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 90,
+    "dice": {
+      "count": 12,
+      "die": "d10",
+      "modifier": 24
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "vulnerabilities": ["Cold"],
+  "damageImmunities": ["Fire"],
+  "gear": [
+    {
+      "name": "Spear",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Ignan"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Heated Body",
+      "description": "A creature that touches the salamander or hits it with a melee attack while within 5 feet of it takes 7 (2d6) Fire damage."
+    },
+    {
+      "name": "Heated Weapons",
+      "description": "When the salamander hits with a metal melee weapon, the weapon deals an extra 3 (1d6) Fire damage (included in the attack)."
+    }
+  ],
+  "multiattack": {
+    "description": "The salamander makes one Spear attack and one Tail attack.",
+    "attacks": [
+      {
+        "actionName": "Spear",
+        "count": 1
+      },
+      {
+        "actionName": "Tail",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Spear",
+      "description": "Melee or Ranged Attack Roll: +7, reach 5 ft. or range 20/60 ft. Hit: 11 (2d6 + 4) Piercing damage plus 3 (1d6) Fire damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 7,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire",
+              "notes": "From Heated Weapons"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +7, reach 10 ft. Hit: 11 (2d6 + 4) Bludgeoning damage plus 7 (2d6) Fire damage, and the target has the Grappled condition (escape DC 15). Until this grapple ends, the target takes 7 (2d6) Fire damage at the start of each of its turns, and the salamander can't make Tail attacks against other targets.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ],
+          "additionalEffects": "Until this grapple ends, the target takes 7 (2d6) Fire damage at the start of each of its turns, and the salamander can't make Tail attacks against other targets.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 15
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

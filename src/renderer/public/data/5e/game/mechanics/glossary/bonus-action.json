@@ -1,0 +1,11 @@
+{
+  "name": "Bonus Action",
+  "slug": "bonus-action",
+  "description": "On your turn, you can take one Bonus Action if a spell, feature, or other rule allows it. You choose when to take a Bonus Action during your turn unless the Bonus Action's timing is specified.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

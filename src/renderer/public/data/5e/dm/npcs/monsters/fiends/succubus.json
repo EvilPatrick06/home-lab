@@ -1,0 +1,226 @@
+{
+  "name": "Succubus",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar", "Urban"],
+  "treasure": ["Any"],
+  "lore": "Succubi are fiends that slip between the Lower Planes and the mortal world to corrupt souls. They adopt enticing forms, beguile the unsuspecting, and drain the life force of those they seduce. A succubus feeds on desire, exploiting emotion to bend mortals toward ruin, and its kiss can reduce even the heartiest warrior to a lifeless husk.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 66,
+    "dice": {
+      "count": 12,
+      "die": "d8",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 9
+    },
+    {
+      "skill": "Insight",
+      "bonus": 5
+    },
+    {
+      "skill": "Perception",
+      "bonus": 5
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 9
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Cold, Fire, Lightning, and Poison"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common", "Infernal"],
+    "telepathy": 60
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Telepathic Bond",
+      "description": "The succubus ignores the range restriction on its Telepathy when communicating with a creature it has Charmed. The two don't even need to be on the same plane of existence."
+    }
+  ],
+  "multiattack": {
+    "description": "The succubus makes two Claw attacks. It can replace one attack with Draining Kiss.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Draining Kiss"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Slashing damage plus 7 (2d6) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Draining Kiss",
+      "description": "Constitution Saving Throw: DC 15, one willing creature, or a creature that is Charmed, Grappled, or Incapacitated by the succubus, within 5 feet. Failure: 32 (5d10 + 5) Psychic damage, and the target's Hit Point maximum is reduced by an amount equal to the Psychic damage taken. This reduction lasts until the target finishes a Long Rest. The target dies if its Hit Point maximum is reduced to 0. Success: Half damage only.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 15,
+        "targets": "one willing creature, or a creature that is Charmed, Grappled, or Incapacitated by the succubus, within 5 feet",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 32,
+              "dice": {
+                "count": 5,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Psychic"
+            }
+          ],
+          "effects": "The target's Hit Point maximum is reduced by an amount equal to the Psychic damage taken. This reduction lasts until the target finishes a Long Rest. The target dies if its Hit Point maximum is reduced to 0."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    },
+    {
+      "name": "Charm",
+      "description": "Wisdom Saving Throw: DC 15, one Humanoid the succubus can see within 30 feet. Failure: The target is magically Charmed for 24 hours and regards the succubus as a trusted friend to be heeded and protected. The Charmed target obeys the succubus's verbal or telepathic commands. If the target suffers any harm or receives a suicidal command, it repeats the save, ending the effect on itself on a success. Success: The target is immune to this succubus's Charm for 24 hours. The succubus can have only one target Charmed at a time. If it Charms another, the effect on the previous target ends.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 15,
+        "targets": "one Humanoid the succubus can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "24 hours"
+            }
+          ],
+          "effects": "The Charmed target regards the succubus as a trusted friend to be heeded and protected and obeys the succubus's verbal or telepathic commands. If the target suffers any harm or receives a suicidal command, it repeats the save, ending the effect on itself on a success."
+        },
+        "onSuccess": {
+          "effects": "The target is immune to this succubus's Charm for 24 hours."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Charmed",
+          "duration": "24 hours"
+        }
+      ]
+    },
+    {
+      "name": "Etherealness",
+      "description": "The succubus magically enters the Ethereal Plane from the Material Plane, or vice versa."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The succubus polymorphs into a Small or Medium Humanoid or back into its true form. Other than its size, its statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed. It reverts to its true form if it dies."
+    }
+  ]
+}

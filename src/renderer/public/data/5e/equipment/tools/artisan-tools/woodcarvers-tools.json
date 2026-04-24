@@ -1,0 +1,15 @@
+{
+  "name": "Woodcarver's Tools",
+  "cost": "1 GP",
+  "weight": "5 lb.",
+  "ability": "Dexterity",
+  "utilize": "Carve a pattern in wood (DC 10)",
+  "craft": "Club, Greatclub, Quarterstaff, Ranged weapons (except Pistol, Musket, and Sling), Arcane Focus, Arrows, Bolts, Druidic Focus, Ink Pen, Needles",
+  "slug": "woodcarvers-tools",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

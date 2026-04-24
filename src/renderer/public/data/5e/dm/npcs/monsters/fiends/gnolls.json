@@ -1,0 +1,152 @@
+{
+  "name": "Gnoll",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Gnoll"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Desert", "Forest", "Grassland", "Hill"],
+  "treasure": ["Individual"],
+  "lore": "Gnolls are fiendish hyena-headed marauders spawned through the influence of the demon lord Yeenoghu. Driven by an insatiable hunger, gnolls rove in packs across the wilderness, slaughtering and devouring any creatures they encounter. Their laughter echoes across battlefields as they revel in carnage, leaving nothing but gnawed bones and ruined settlements in their wake.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Hide Armor", "Shield"]
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 5,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "gear": [
+    {
+      "name": "Hide Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    },
+    {
+      "name": "Spear",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Gnoll"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Rampage",
+      "description": "When the gnoll reduces a creature to 0 Hit Points on its turn, the gnoll can take a Bonus Action to move up to half its Speed and make a Bite attack."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spear",
+      "description": "Melee or Ranged Attack Roll: +4, reach 5 ft. or range 20/60 ft. Hit: 5 (1d6 + 2) Piercing damage, or 6 (1d8 + 2) Piercing damage if used with two hands in melee.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 4,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "Or 6 (1d8 + 2) Piercing damage if used with two hands in melee."
+        }
+      }
+    }
+  ]
+}

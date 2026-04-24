@@ -1,0 +1,96 @@
+{
+  "name": "Jallarzi's Storm of Radiance",
+  "level": 5,
+  "school": "Evocation",
+  "classes": ["Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a pinch of phosphorus",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You unleash a storm of flashing light and raging thunder in a 10-foot-radius, 40-foot-high Cylinder centered on a point you can see within range. While in this area, creatures have the Blinded and Deafened conditions, and they can't cast spells with a Verbal component. When the storm appears, each creature in it makes a Constitution saving throw, taking 2d10 Radiant damage and 2d10 Thunder damage on a failed save or half as much damage on a successful one. A creature also makes this save when it enters the spell's area for the first time on a turn or ends its turn there. A creature makes this save only once per turn.",
+  "areaOfEffect": [
+    {
+      "shape": "Cylinder",
+      "radiusFeet": 10,
+      "heightFeet": 40
+    }
+  ],
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Constitution",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 10
+      },
+      "type": "Radiant",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    },
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 10
+      },
+      "type": "Thunder",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Blinded",
+      "trigger": "whileInArea",
+      "duration": "While in the area for the spell's duration"
+    },
+    {
+      "condition": "Deafened",
+      "trigger": "whileInArea",
+      "duration": "While in the area for the spell's duration"
+    }
+  ],
+  "preventsSpellcasting": true,
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 10,
+        "baseSpellLevel": 5,
+        "description": "The Radiant damage increases by 1d10 for each spell slot level above 5."
+      },
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 10,
+        "baseSpellLevel": 5,
+        "description": "The Thunder damage increases by 1d10 for each spell slot level above 5."
+      }
+    ]
+  },
+  "tags": ["area-damage", "control", "radiant", "thunder", "blinded", "deafened", "anti-spellcasting", "repeating-save"]
+}

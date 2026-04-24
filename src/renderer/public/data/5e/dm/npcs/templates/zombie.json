@@ -1,0 +1,119 @@
+{
+  "name": "Zombie",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Neutral Evil",
+  "habitat": ["Dungeon", "Planar", "Ruins", "Urban"],
+  "treasure": ["None"],
+  "lore": "A zombie is an animated corpse brought to life through dark magic. Compelled by necromantic energy, it shambles forward mindlessly, craving the living. Zombies are among the most common undead, created by foul spells or arising in places steeped in necrotic energy.",
+  "armorClass": {
+    "value": 8
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 3,
+      "die": "d8",
+      "modifier": 9
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": -2,
+    "score": 8
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "damageImmunities": [
+    {
+      "damageTypes": ["Poison"]
+    }
+  ],
+  "conditionImmunities": [
+    {
+      "condition": "Poisoned"
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {
+    "understood": ["The languages it knew in life"],
+    "notes": "Understands the languages it knew in life but can't speak"
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Undead Fortitude",
+      "description": "If damage reduces the zombie to 0 Hit Points, it makes a Constitution saving throw with a DC of 5 + the damage taken, unless the damage is Radiant or from a Critical Hit. On a successful save, the zombie drops to 1 Hit Point instead."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 4 (1d6 + 1) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 1
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

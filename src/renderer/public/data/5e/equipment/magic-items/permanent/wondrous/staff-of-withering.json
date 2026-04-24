@@ -1,0 +1,25 @@
+{
+  "name": "Staff of Withering",
+  "cost": {
+    "amount": 4000,
+    "denomination": "GP"
+  },
+  "weight": 4,
+  "description": "This staff has 3 charges and regains 1d3 expended charges daily at dawn. It can be wielded as a magic Quarterstaff. On a hit, you can expend 1 charge to deal an extra 2d10 Necrotic damage to the target. The target must then succeed on a DC 15 Constitution saving throw or have Disadvantage for 1 hour on any ability check or saving throw that uses Strength or Constitution. Requires Attunement by a Cleric, Druid, or Warlock.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Attack",
+  "savingThrow": {
+    "ability": "Constitution",
+    "dcFormula": "15"
+  },
+  "damage": {
+    "count": 1,
+    "die": 6,
+    "type": "Bludgeoning",
+    "fixedValue": 0
+  },
+  "lightProperties": null,
+  "capacityDescription": null
+}

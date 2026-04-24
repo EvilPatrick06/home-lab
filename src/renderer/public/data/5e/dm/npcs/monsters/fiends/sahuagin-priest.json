@@ -1,0 +1,77 @@
+{
+  "name": "Sahuagin Priest",
+  "slug": "sahuagin-priest",
+  "size": "Medium",
+  "type": "Fiend",
+  "alignment": "Lawful Evil",
+  "ac": "12",
+  "initiative": "+0 (10)",
+  "hp": "38",
+  "hpFormula": "7d8 + 7",
+  "speed": "30 ft., Swim 40 ft.",
+  "abilityScores": {
+    "str": 13,
+    "dex": 11,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 0,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +6, Religion +3",
+  "resistances": "Acid, Cold",
+  "senses": "Darkvision 120 ft.; Passive Perception 16",
+  "languages": "Sahuagin",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [
+    {
+      "name": "Blood Frenzy",
+      "description": "The sahuagin has Advantage on attack rolls against any creature that doesn't have all its Hit Points."
+    },
+    {
+      "name": "Limited Amphibiousness",
+      "description": "The sahuagin can breathe air and water, but it must be submerged at least once every 4 hours to avoid suffocating outside water."
+    },
+    {
+      "name": "Shark Telepathy",
+      "description": "The sahuagin can magically control sharks within 120 feet of itself, using a special telepathy."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The sahuagin makes two Spectral Jaws attacks."
+    },
+    {
+      "name": "Spectral Jaws",
+      "description": "*Melee or Ranged Attack Roll:* +4, reach 5 ft. or range 120 ft. *Hit:* 11 (2d8 + 2) Force damage."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The sahuagin casts one of the following spells, requiring no Material components and using Wisdom as the spellcasting ability (spell save DC 12):"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Fiendish Aid (2/Day)",
+      "description": "The sahuagin casts *Bless* or *Healing Word*, using the same spellcasting ability as Spellcasting."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Ravagers from Beneath the Waves*\n**Habitat:** Coastal, Underwater; **Treasure:** Any\nSahuagin are fiendish terrors that prey on creatures above and below the water. Called \"sea devils\" by residents of coastal communities, sahuagin are ruthless raiders. They ransack ships, fishing villages, and undersea communities to slake their bloodthirst, claim treasure, and make sacrifices to their vicious deity -- the sharklike god Sekolah.\nSahuagin constantly war on any peoples living near their territory. Merfolk and other aquatic folk bear the brunt of these attacks, but sahuagin also hunt air-breathers who sail over or swim through the waters the sea devils claim. Sahuagin often attack alongside sharks, which they can telepathically command.\nSahuagin warriors are vicious combatants that savage their foes with webbed claws. Once sahuagin draw blood, they usually attack until either they or their foe is slain.\nSahuagin priests serve the will of Sekolah or other fiendish masters. They direct and support other sahuagin, and they consider every combatant that falls in battle -- whether enemy or ally -- a sacrifice to their fierce deities.\n> \"When a sahuagin comes at you, it doesn't seem to be living until it bites you. Then the thing's black eyes turn red as hellfire and the waves foam crimson. Then comes the screaming.\" -- Tiguran Maremrynd, *A Survivor's Memoir*\nDuring times of great conflict, Sekolah blesses particularly ruthless sahuagin warriors with increased size and an additional pair of arms, transforming them into sahuagin barons. These boons elevate the recipients' status among their kind, and they become champions or leaders. Sahuagin barons' blood is infused with profane magic capable of searing their enemies and making these foes irresistible targets for other Fiends.",
+  "habitat": "Coastal, Underwater",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

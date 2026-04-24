@@ -1,0 +1,68 @@
+{
+  "name": "Thunderclap",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Bard", "Druid", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": false,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Each creature in a 5-foot Emanation originating from you must succeed on a Constitution saving throw or take 1d6 Thunder damage. The spell's thunderous sound can be heard up to 100 feet away.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 5,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Constitution",
+    "noEffectOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Thunder",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 6,
+        "description": "The damage increases to 2d6."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 6,
+        "description": "The damage increases to 3d6."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 6,
+        "description": "The damage increases to 4d6."
+      }
+    ]
+  },
+  "tags": ["cantrip", "damage", "aoe"]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "False Life",
+  "level": 1,
+  "school": "Necromancy",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a drop of alcohol",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You gain 2d4 + 4 Temporary Hit Points.",
+  "targetType": "self",
+  "temporaryHitPoints": {
+    "dice": {
+      "diceCount": 2,
+      "diceValue": 4,
+      "fixedBonus": 4
+    }
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "flatTempHPIncrease",
+        "flatPerLevel": 5,
+        "baseSpellLevel": 1,
+        "description": "You gain 5 additional Temporary Hit Points for each spell slot level above 1."
+      }
+    ]
+  }
+}

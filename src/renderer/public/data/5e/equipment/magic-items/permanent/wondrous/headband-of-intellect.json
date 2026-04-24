@@ -1,0 +1,15 @@
+{
+  "name": "Headband of Intellect",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "Your Intelligence is 19 while you wear this headband. It has no effect on you if your Intelligence is 19 or higher without it.",
+  "properties": [],
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

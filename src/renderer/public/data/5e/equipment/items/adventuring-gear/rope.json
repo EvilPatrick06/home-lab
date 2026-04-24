@@ -1,0 +1,13 @@
+{
+  "name": "Rope",
+  "cost": "1 GP",
+  "weight": "5 lb.",
+  "description": "DC 10 Sleight of Hand to tie knot. Burst: DC 20 Athletics. Can bind Grappled/Incapacitated/Restrained creatures (escape: DC 15 Acrobatics).",
+  "slug": "rope",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "name": "Empyrean Iota",
+  "slug": "empyrean-iota",
+  "size": "Medium",
+  "type": "Celestial or Fiend",
+  "alignment": "Neutral",
+  "ac": "13",
+  "initiative": "+2 (12)",
+  "hp": "22",
+  "hpFormula": "5d8",
+  "speed": "5 ft., Fly 30 ft. (hover)",
+  "abilityScores": {
+    "str": 1,
+    "dex": 14,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -5,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "History +4, Insight +5, Perception +5",
+  "immunities": "Prone",
+  "resistances": "Bludgeoning, Piercing, Slashing",
+  "senses": "Truesight 30 ft.; Passive Perception 15",
+  "languages": "All",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Incorporeal Movement",
+      "description": "The empyrean can move through other creatures and objects as if they were Difficult Terrain. It takes 5 (1d10) Force damage if it ends its turn inside an object."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The empyrean has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Otherworldly Strike",
+      "description": "*Melee or Ranged Attack Roll:* +5, reach 5 ft. or range 30 ft. *Hit:* 7 (1d8 + 3) Necrotic or Radiant damage (empyrean's choice)."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The empyrean casts one of the following spells, requiring no Material components and using Wisdom as the spellcasting ability:"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Healing Word (1/Day)",
+      "description": "The empyrean casts *Healing Word*, using the same spellcasting ability as Spellcasting."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Scions of the Gods*\n**Habitat:** Any; **Treasure:** Relics\nEmpyreans are the spawn of deities. While not gods themselves, they possess divine influence and powers related to their divine parents. Some empyreans are near-demigods with fantastic might and the power to reshape mortal lives. Others are little more than divine thoughts or moments of immortal attention made manifest. Whether empyreans are idealized beings or vestiges of divinity, their appearances are influenced by their creators. Roll on or choose a result from the Empyrean Influences table to inspire what aspects of an empyrean's heritage manifest in its physical form.\n> \"One day I might be the god of storms--mind countless followers, answer prayers, change whole worlds--but, until then, I do what I please.\" -- Kopoha, Scion of Storms\nEmpyrean iotas are the thoughts, memories, or indirect attentions of deities personified and given a measure of autonomy. Resembling floating glyphs, motes of color, icons of divinity, or stranger shapes, these beings are messengers of the gods and aides to those gods' servants. Iotas have their own knowledge and personalities, though they might know little more than the realms and wishes of their creators.\nInheritors of divine might, empyreans are idealized, human-shaped beings of godly power. These beings might have relationships with their creators akin to those of parents and their children, royalty and their servants, inventors and their creations, or other bonds. Empyreans' existences are fundamentally influenced by their patrons and their connection to the heavenly deities of the Upper Planes or the fiendish deities of the Lower Planes. Nevertheless, empyreans have free will.\nCelestial empyreans are typically noble beings who quest to prove themselves worthy of their divine pedigree. Many work in the service of their parents or support those gods' causes and champions.\nFiendish empyreans are usually dreadful, self-serving villains who seek to claim their parents' power. Some forge unholy armies or rule over hidden realms in mockery of true gods, while others might seek to escape their accursed families.",
+  "habitat": "Any",
+  "treasure": "Relics",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Celestials",
+    "file": "Celestials.md"
+  }
+}

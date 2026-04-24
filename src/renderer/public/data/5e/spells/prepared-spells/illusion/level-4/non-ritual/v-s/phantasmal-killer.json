@@ -1,0 +1,82 @@
+{
+  "name": "Phantasmal Killer",
+  "level": 4,
+  "school": "Illusion",
+  "classes": ["Bard", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You tap into the nightmares of a creature you can see within range and create an illusion of its deepest fears, visible only to that creature. The target makes a Wisdom saving throw. On a failed save, the target takes 4d10 Psychic damage and has Disadvantage on ability checks and attack rolls for the duration. On a successful save, the target takes half as much damage, and the spell ends. For the duration, the target makes a Wisdom saving throw at the end of each of its turns. On a failed save, it takes the Psychic damage again. On a successful save, the spell ends.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "halfDamageOnSuccess": true,
+    "effectOnFailure": "Target takes 4d10 Psychic damage and has Disadvantage on ability checks and attack rolls for the duration",
+    "effectOnSuccess": "Half damage and the spell ends",
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 10
+      },
+      "type": "Psychic",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    },
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 10
+      },
+      "type": "Psychic",
+      "applicationType": "recurring",
+      "condition": "On failed Wisdom saving throw at end of target's turn"
+    }
+  ],
+  "disadvantagesImposed": [
+    {
+      "on": "attackRolls",
+      "condition": "On failed initial saving throw, for the duration"
+    },
+    {
+      "on": "abilityChecks",
+      "condition": "On failed initial saving throw, for the duration"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 10,
+        "baseSpellLevel": 4,
+        "description": "The damage increases by 1d10 for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["psychic", "fear", "illusion", "single-target", "concentration", "save-or-suck"]
+}

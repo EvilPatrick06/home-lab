@@ -1,0 +1,18 @@
+{
+  "name": "Longsword",
+  "slug": "longsword",
+  "category": "Martial",
+  "type": "Melee",
+  "damage": "1d8",
+  "damageType": "Slashing",
+  "properties": ["Versatile"],
+  "mastery": "Sap",
+  "weight": "3 lb.",
+  "cost": "15 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "versatileDamage": "1d10"
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Scorpion",
+  "slug": "scorpion",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 11,
+  "hp": 1,
+  "hpFormula": "1d4 - 1",
+  "speed": "10 ft.",
+  "abilityScores": {
+    "str": 2,
+    "dex": 11,
+    "con": 8,
+    "int": 1,
+    "wis": 8,
+    "cha": 2
+  },
+  "senses": "Blindsight 10 ft., Passive Perception 9",
+  "languages": "—",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Sting",
+      "description": "*Melee:* +2, reach 5 ft. *Hit:* 1 Piercing plus 4 (1d8) Poison damage. The target must make a DC 9 Constitution saving throw, taking the Poison damage on a failed save, or half as much on a success."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

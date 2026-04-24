@@ -1,0 +1,12 @@
+{
+  "id": "forest-gnome",
+  "name": "Forest Gnome",
+  "species": "gnome",
+  "description": "Natural illusionists who communicate with small beasts.",
+  "traits": [
+    { "name": "Natural Illusionist", "description": "You know Minor Illusion. Intelligence is spellcasting ability." },
+    { "name": "Speak with Small Beasts", "description": "Communicate simple ideas with Small or smaller beasts." }
+  ],
+  "abilityScoreIncrease": { "dexterity": 1 },
+  "source": "PHB 2024"
+}

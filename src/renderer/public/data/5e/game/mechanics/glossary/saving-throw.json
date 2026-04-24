@@ -1,0 +1,11 @@
+{
+  "name": "Saving Throw",
+  "slug": "saving-throw",
+  "description": "A saving throw — also called a save — is a D20 Test that represents an attempt to resist or avoid a threat. You don't normally decide to make a saving throw; you are forced to make one because your character or monster is at risk of harm.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "id": "d7e3c1a2-5f8b-4e9d-b1a3-7c6d2e4f8a01",
+  "name": "Ysgard - Resurrection in Battle",
+  "slug": "ysgard-resurrection-in-battle",
+  "category": "VariantRule",
+  "subcategory": "Planar Properties",
+  "tags": ["ysgard", "outer-planes", "resurrection", "combat", "planar-property", "death"],
+  "source": {
+    "book": "Dungeon Master's Guide",
+    "chapter": "Chapter 6: Cosmology",
+    "section": "Ysgard"
+  },
+  "gameEdition": "2024",
+  "description": "Ysgard is the home of slain heroes who wage eternal battle on fields of glory. Any creature, other than a Construct or Undead, that is killed in combat while in Ysgard is restored to life at dawn the next day. The creature has all its Hit Points restored, and all conditions that affected it before its death are removed.",
+  "shortDescription": "Creatures killed in combat on Ysgard (except Constructs and Undead) are restored to life at dawn with full HP and all conditions removed.",
+  "flavorText": "Heroes come to Ysgard to test their mettle not only against the plane itself, but also against giants, dragons, and other mighty creatures across Ysgard's vast terrain.",
+  "rulesAsWritten": "Any creature, other than a Construct or Undead, that is killed in combat while in Ysgard is restored to life at dawn the next day. The creature has all its Hit Points restored, and all conditions that affected it before its death are removed.",
+  "isVariantRule": true,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "order": 0,
+      "name": "Resurrection Trigger - Death in Combat",
+      "description": "When any creature other than a Construct or Undead is killed in combat while on the plane of Ysgard, the resurrection in battle effect is triggered.",
+      "trigger": {
+        "event": "OnDeath",
+        "condition": "Creature is killed in combat while on the plane of Ysgard, and the creature's type is not Construct or Undead"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature is restored to life at dawn the next day after being killed in combat on Ysgard.",
+          "mechanicalNote": "This automatic resurrection occurs at dawn the following day. It does not require any action, spell, or component. The creature type must not be Construct or Undead."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "order": 1,
+      "name": "Full Hit Point Restoration",
+      "description": "Upon being restored to life at dawn, the creature has all its Hit Points restored to its Hit Point maximum.",
+      "trigger": {
+        "event": "OnHealingReceived",
+        "condition": "Creature is restored to life by Ysgard's resurrection in battle effect at dawn"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature has all its Hit Points restored to its Hit Point maximum upon resurrection.",
+          "mechanicalNote": "All Hit Points are restored. This is not healing but a restoration to full HP as part of the resurrection effect."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 2,
+      "name": "Condition Removal on Resurrection",
+      "description": "All conditions that affected the creature before its death are removed upon restoration to life.",
+      "trigger": {
+        "event": "OnConditionRemoved",
+        "condition": "Creature is restored to life by Ysgard's resurrection in battle effect at dawn"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "All conditions that affected the creature before its death are removed when it is restored to life.",
+          "mechanicalNote": "This removes all conditions — including Exhaustion levels — that were present on the creature at the time of death. This occurs simultaneously with the restoration to life at dawn."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "method": "Other",
+      "description": "The resurrection in battle effect is an inherent property of the plane of Ysgard. It applies automatically whenever a qualifying creature is killed in combat on the plane. The effect ceases to apply if the creature leaves the plane of Ysgard or if the creature is a Construct or Undead.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Each death in combat on Ysgard triggers a separate restoration at the following dawn. The effect is a property of the plane and applies each time a qualifying creature is killed in combat."
+  },
+  "dmNotes": "This planar property makes Ysgard ideal for lighthearted combat encounters without permanent consequences. Since those who die on the plane return to life to fight again the next day, Ysgard can overlook the horrors of war and focus entirely on the glory. Adventurers might find themselves on the Plain of Ida on the topmost layer of Ysgard, where daily festivals let warriors and athletes show off their bravery and skill. Note that the resurrection requires the death to occur specifically in combat — deaths from other causes (such as hazards, traps, or non-combat situations) are not explicitly covered by this rule. Constructs and Undead are excluded from this effect.",
+  "commonRulings": [
+    {
+      "question": "Does the Ysgard resurrection effect apply to creatures killed outside of combat, such as by environmental hazards or execution?",
+      "ruling": "The rules text specifies 'killed in combat,' so deaths that occur outside combat encounters (such as from traps, environmental hazards, or execution of prisoners) would not trigger the automatic resurrection. The DM may adjudicate edge cases.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can a creature choose not to be resurrected by Ysgard's effect?",
+      "ruling": "The rules text does not mention any option to refuse the resurrection. As written, the effect is automatic for qualifying creatures killed in combat on the plane.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does the resurrection restore spell slots, class features, or other resources?",
+      "ruling": "The rules text states that the creature has all its Hit Points restored and all conditions removed. It does not mention restoring spell slots or other class resources. DMs should adjudicate whether additional resources are restored.",
+      "isOfficial": false
+    },
+    {
+      "question": "What happens if a Construct or Undead creature is killed in combat on Ysgard?",
+      "ruling": "Constructs and Undead are explicitly excluded from the resurrection in battle effect. They do not return to life at dawn.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

@@ -1,0 +1,150 @@
+{
+  "name": "Grick",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "alignment": "Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "Gricks are rubbery, worm-like monstrosities that dwell in caves, mines, and other dark, rocky environments. They blend seamlessly with stone, lying in wait to ambush prey with their writhing tentacles and snapping beaks. Gricks are drawn to areas frequented by other creatures, where they can feed on the unwary.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 27,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "resistances": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Stone Camouflage",
+      "description": "The grick has Advantage on Dexterity (Stealth) checks made to hide in rocky terrain."
+    }
+  ],
+  "multiattack": {
+    "description": "The grick makes one Beak attack and one Tentacles attack.",
+    "attacks": [
+      {
+        "actionName": "Beak",
+        "count": 1
+      },
+      {
+        "actionName": "Tentacles",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Beak",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tentacles",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 7 (2d4 + 2) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

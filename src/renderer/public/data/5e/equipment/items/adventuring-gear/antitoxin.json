@@ -1,0 +1,13 @@
+{
+  "name": "Antitoxin",
+  "cost": "50 GP",
+  "weight": "—",
+  "description": "As a Bonus Action, drink to gain Advantage on saving throws to avoid or end the Poisoned condition for 1 hour.",
+  "slug": "antitoxin",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

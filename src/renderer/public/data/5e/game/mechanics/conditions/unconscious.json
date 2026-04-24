@@ -1,0 +1,11 @@
+{
+  "name": "Unconscious",
+  "slug": "unconscious",
+  "description": "An Unconscious creature has the Incapacitated condition. The creature can't move or speak and is unaware of its surroundings. The creature drops whatever it's holding and has the Prone condition. The creature automatically fails Strength and Dexterity saving throws. Attack rolls against the creature have Advantage. Any attack that hits the creature is a Critical Hit if the attacker is within 5 feet.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

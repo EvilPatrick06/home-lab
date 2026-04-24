@@ -1,0 +1,13 @@
+{
+  "name": "Net",
+  "cost": "1 GP",
+  "weight": "3 lb.",
+  "description": "Replace an attack to throw at creature within 15 feet. DC 8 + Dex mod + Prof Bonus Dex save or Restrained. AC 10, 5 HP to destroy.",
+  "slug": "net",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

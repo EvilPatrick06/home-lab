@@ -1,0 +1,36 @@
+{
+  "name": "Dwarven Thrower",
+  "itemType": "Weapon",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "This magic Warhammer was crafted by dwarven smiths. It has a +2 bonus to attack and damage rolls. In addition, when you throw the hammer, it magically returns to your hand immediately after the attack.",
+  "properties": [
+    {
+      "property": "Thrown",
+      "range": {
+        "normal": 20,
+        "long": 60
+      }
+    },
+    {
+      "property": "Versatile",
+      "twoHandedDamage": {
+        "count": 1,
+        "die": 8
+      }
+    }
+  ],
+  "weight": 2,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "damage": {
+    "count": 1,
+    "die": 8,
+    "type": "Bludgeoning",
+    "fixedValue": null
+  },
+  "source": "DMG 2024"
+}

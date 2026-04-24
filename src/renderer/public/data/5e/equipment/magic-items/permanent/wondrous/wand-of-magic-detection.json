@@ -1,0 +1,17 @@
+{
+  "name": "Wand of Magic Detection",
+  "cost": {
+    "amount": 200,
+    "denomination": "GP"
+  },
+  "weight": 1,
+  "description": "This wand has 3 charges. While holding it, you can expend 1 charge as an action to cast the Detect Magic spell from it. The wand regains 1d3 expended charges daily at dawn.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

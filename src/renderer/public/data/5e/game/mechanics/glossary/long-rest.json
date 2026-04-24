@@ -1,0 +1,11 @@
+{
+  "name": "Long Rest",
+  "slug": "long-rest",
+  "description": "A Long Rest is a period of extended downtime — at least 8 hours — during which you sleep for at least 6 hours and perform no more than 2 hours of light activity. You can't benefit from more than one Long Rest in a 24-hour period. At the end of a Long Rest, you regain all lost Hit Points and spent Hit Point Dice (up to a number equal to half your total Hit Dice, minimum of one die).",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

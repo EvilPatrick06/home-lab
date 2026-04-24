@@ -1,0 +1,24 @@
+{
+  "name": "Moderately Armored",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength", "Dexterity"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Armor Training",
+      "description": "You gain training with Medium armor."
+    }
+  ],
+  "source": "PHB 2024"
+}

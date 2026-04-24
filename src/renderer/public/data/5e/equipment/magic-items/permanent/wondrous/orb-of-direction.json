@@ -1,0 +1,17 @@
+{
+  "name": "Orb of Direction",
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "While holding this orb, you can use an action to determine which way is north. This property functions only on the Material Plane.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

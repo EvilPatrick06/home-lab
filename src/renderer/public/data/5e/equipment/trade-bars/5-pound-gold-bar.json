@@ -1,0 +1,12 @@
+{
+  "name": "5-pound gold bar",
+  "slug": "5-pound-gold-bar",
+  "value": "250 GP",
+  "dimensions": "5 in. long x 2 in. wide x 3/4 in. thick",
+  "category": "Trade Bar",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

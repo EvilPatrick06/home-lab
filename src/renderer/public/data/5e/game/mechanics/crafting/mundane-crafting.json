@@ -1,0 +1,49 @@
+{
+  "id": "mundane-crafting",
+  "name": "Crafting Mundane Items",
+  "description": "A character who has proficiency with the appropriate artisan's tools can craft nonmagical items. The character must have access to raw materials worth half the item's selling cost. For every day of downtime spent crafting, the character can craft items worth a total of 5 GP. If something to be crafted has a cost greater than 5 GP, the character makes progress each day in 5 GP increments until the total cost is reached. Multiple characters can combine their efforts to craft a single item, provided they all have proficiency with the requisite tools. Each character contributes 5 GP worth of effort per day.",
+  "requirements": [
+    "Proficiency with the relevant artisan's tools",
+    "Raw materials worth half the item's selling cost",
+    "Access to a suitable workspace"
+  ],
+  "progressPerDay": {
+    "gpPerDay": 5,
+    "hoursPerDay": 8,
+    "note": "Multiple proficient characters can combine efforts, each adding 5 GP per day"
+  },
+  "toolRequirements": [
+    { "tool": "Smith's Tools", "items": ["Metal weapons", "Metal armor", "Metal hardware", "Nails", "Chains"] },
+    { "tool": "Leatherworker's Tools", "items": ["Leather armor", "Boots", "Belts", "Bags", "Saddlebags"] },
+    { "tool": "Carpenter's Tools", "items": ["Wooden shields", "Wooden furniture", "Carts", "Ladders", "Poles"] },
+    { "tool": "Weaver's Tools", "items": ["Cloth", "Robes", "Cloaks", "Rope", "Nets", "Tents"] },
+    { "tool": "Cobbler's Tools", "items": ["Shoes", "Boots", "Sandals"] },
+    { "tool": "Tinker's Tools", "items": ["Small mechanical devices", "Clockwork toys", "Music boxes"] },
+    { "tool": "Jeweler's Tools", "items": ["Rings", "Necklaces", "Bracelets", "Gemstone settings"] },
+    { "tool": "Glassblower's Tools", "items": ["Glass bottles", "Vials", "Lenses", "Glass ornaments"] },
+    { "tool": "Potter's Tools", "items": ["Pots", "Jugs", "Ceramic containers", "Bricks"] },
+    { "tool": "Woodcarver's Tools", "items": ["Arrows", "Bolts", "Wooden handles", "Carved figurines", "Staffs"] },
+    { "tool": "Mason's Tools", "items": ["Stone walls", "Stone buildings", "Stone monuments"] },
+    { "tool": "Calligrapher's Supplies", "items": ["Maps", "Scrolls (non-magical)", "Documents", "Invitations"] },
+    { "tool": "Painter's Supplies", "items": ["Paintings", "Murals", "Portraits", "Signs"] },
+    { "tool": "Cook's Utensils", "items": ["Prepared meals", "Rations", "Preserved food"] },
+    { "tool": "Brewer's Supplies", "items": ["Ale", "Beer", "Mead", "Wine"] },
+    { "tool": "Alchemist's Supplies", "items": ["Alchemist's Fire", "Acid vials", "Antitoxin", "Perfume"] },
+    { "tool": "Herbalism Kit", "items": ["Healing potions", "Antitoxin", "Herbal remedies"] }
+  ],
+  "exampleCosts": [
+    { "item": "Arrow (20)", "cost": "1 GP", "time": "Less than 1 day" },
+    { "item": "Dagger", "cost": "2 GP", "time": "Less than 1 day" },
+    { "item": "Shortbow", "cost": "25 GP", "time": "5 days" },
+    { "item": "Longsword", "cost": "15 GP", "time": "3 days" },
+    { "item": "Chain Mail", "cost": "75 GP", "time": "15 days" },
+    { "item": "Plate Armor", "cost": "1,500 GP", "time": "300 days" },
+    { "item": "Shield", "cost": "10 GP", "time": "2 days" },
+    { "item": "Explorer's Pack", "cost": "10 GP", "time": "2 days" }
+  ],
+  "notes": "A character needs to spend 8 hours per day crafting. Days do not need to be consecutive. Raw materials cost half the item's selling price. The DM may require an ability check for particularly complex items.",
+  "source": {
+    "book": "2024 Player's Handbook",
+    "section": "Chapter 8: Adventuring"
+  }
+}

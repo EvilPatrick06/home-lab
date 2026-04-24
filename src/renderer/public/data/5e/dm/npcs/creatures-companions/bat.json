@@ -1,0 +1,39 @@
+{
+  "name": "Bat",
+  "slug": "bat",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 12,
+  "hp": 1,
+  "hpFormula": "1d4 - 1",
+  "speed": "5 ft., Fly 30 ft.",
+  "abilityScores": {
+    "str": 2,
+    "dex": 15,
+    "con": 8,
+    "int": 2,
+    "wis": 12,
+    "cha": 4
+  },
+  "senses": "Blindsight 60 ft., Passive Perception 11",
+  "languages": "—",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [
+    {
+      "name": "Echolocation",
+      "description": "Can't use Blindsight while Deafened."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +0, reach 5 ft. *Hit:* 1 Piercing."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

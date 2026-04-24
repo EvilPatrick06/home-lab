@@ -1,0 +1,13 @@
+{
+  "name": "Poison, Basic",
+  "cost": "100 GP",
+  "weight": "—",
+  "description": "As Bonus Action, coat one weapon or up to 3 ammunition. Extra 1d4 Poison damage for 1 minute or until damage dealt.",
+  "slug": "poison-basic",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

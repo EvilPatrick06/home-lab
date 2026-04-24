@@ -1,0 +1,37 @@
+{
+  "name": "Counterspell",
+  "level": 3,
+  "school": "Abjuration",
+  "classes": ["Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Reaction",
+    "ritual": false,
+    "trigger": "when you see a creature within 60 feet of yourself casting a spell with Verbal, Somatic, or Material components"
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": false,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You attempt to interrupt a creature in the process of casting a spell. The creature makes a Constitution saving throw. On a failed save, the spell dissipates with no effect, and the action, Bonus Action, or Reaction used to cast it is wasted. If that spell was cast with a spell slot, the slot isn't expended.",
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Constitution",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The target's spell dissipates with no effect, and the action, Bonus Action, or Reaction used to cast it is wasted. If the spell was cast with a spell slot, the slot isn't expended."
+  },
+  "countersOrDispels": {
+    "description": "On a failed Constitution saving throw by the target, the spell being cast dissipates with no effect. The action, Bonus Action, or Reaction used to cast it is wasted. If cast with a spell slot, the slot isn't expended."
+  },
+  "tags": ["counter", "interrupt"]
+}

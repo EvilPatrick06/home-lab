@@ -1,0 +1,38 @@
+{
+  "name": "Belt Of Giant Strength",
+  "itemType": "Wondrous Item",
+  "rarity": "Rarity Varies",
+  "requiresAttunement": true,
+  "attunementRequirements": "While wearing this belt, your Strength changes to a score granted by the belt. The type of giant determines the score (see the table below). The item has no effect on you if your Strength without the belt is equal to or greater than the belt's score.",
+  "description": "While wearing this belt, your Strength changes to a score granted by the belt. The type of giant determines the score (see the table below). The item has no effect on you if your Strength without the belt is equal to or greater than the belt's score.",
+  "properties": [
+    {
+      "name": "Belt of Giant Strength (hill)",
+      "strength": 21,
+      "rarity": "Rare"
+    },
+    {
+      "name": "Belt of Giant Strength (frost or stone)",
+      "strength": 23,
+      "rarity": "Very Rare"
+    },
+    {
+      "name": "Belt of Giant Strength (fire)",
+      "strength": 25,
+      "rarity": "Very Rare"
+    },
+    {
+      "name": "Belt of Giant Strength (cloud)",
+      "strength": 27,
+      "rarity": "Legendary"
+    },
+    {
+      "name": "Belt of Giant Strength (storm)",
+      "strength": 29,
+      "rarity": "Legendary"
+    }
+  ],
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

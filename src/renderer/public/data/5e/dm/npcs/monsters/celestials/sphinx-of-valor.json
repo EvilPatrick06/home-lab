@@ -1,0 +1,318 @@
+{
+  "name": "Sphinx of Valor",
+  "sizes": ["Large"],
+  "creatureType": "Celestial",
+  "descriptiveTags": ["Sphinx"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Desert", "Planar"],
+  "treasure": ["Arcana", "Relics"],
+  "lore": "A sphinx of valor is a mighty leonine celestial that guards sacred sites and tests the courage and righteousness of those who approach. Created by gods to serve as guardians and judges, sphinxes of valor combine devastating physical might with potent divine magic. They pose challenges to mortals, rewarding the worthy and punishing the craven.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 199,
+    "dice": {
+      "count": 19,
+      "die": "d10",
+      "modifier": 95
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 9
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 10
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 11
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 9
+    },
+    {
+      "skill": "Perception",
+      "bonus": 10
+    },
+    {
+      "skill": "Religion",
+      "bonus": 9
+    }
+  ],
+  "damageImmunities": ["Psychic"],
+  "conditionImmunities": ["Charmed", "Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 20
+  },
+  "languages": {
+    "spoken": ["Celestial", "Common"]
+  },
+  "challengeRating": "17",
+  "experiencePoints": 18000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Inscrutable",
+      "description": "No creature can use an ability check or magic to determine the sphinx's emotions or truthfulness. Wisdom (Insight) checks made to determine the sphinx's intentions or sincerity have Disadvantage."
+    },
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the sphinx fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The sphinx has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 19,
+      "spellAttackBonus": 11,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Prestidigitation",
+              "level": 0
+            },
+            {
+              "name": "Thaumaturgy",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Tongues",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Greater Restoration",
+              "level": 5
+            },
+            {
+              "name": "Heroes' Feast",
+              "level": 6
+            },
+            {
+              "name": "Raise Dead",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The sphinx makes two Rend attacks. It can replace one attack with a use of Roar (if available).",
+    "attacks": [
+      {
+        "actionName": "Rend",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Rend",
+        "replaceCount": 1,
+        "with": "Roar"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "Melee Attack Roll: +12, reach 5 ft. Hit: 17 (2d10 + 6) Slashing damage plus 14 (4d6) Radiant damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 12,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Radiant"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Roar",
+      "description": "The sphinx emits a magical roar. Each creature of the sphinx's choice within a 120-foot Emanation originating from the sphinx must succeed on a DC 19 Wisdom saving throw or take 44 (8d10) Thunder damage and have the Frightened condition for 1 minute. On a successful save, a creature takes half damage only. A Frightened creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 19,
+        "targets": "each creature of the sphinx's choice within a 120-foot Emanation",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 44,
+              "dice": {
+                "count": 8,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Thunder"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 19,
+                "targets": "the Frightened creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 120,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "WIS",
+            "dc": 19,
+            "targets": "the Frightened creature",
+            "onSuccess": {
+              "effects": "The effect ends on the creature."
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Teleport",
+      "description": "The sphinx teleports, along with any equipment it is wearing or carrying, up to 120 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 120
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Arcane Burst",
+        "description": "The sphinx uses Spellcasting, or the sphinx makes one Rend attack that deals an extra 7 (2d6) Force damage on a hit.",
+        "cost": 1
+      },
+      {
+        "name": "Mighty Roar",
+        "description": "The sphinx uses Roar, if available.",
+        "cost": 2
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "intimidation",
+  "name": "Intimidation",
+  "ability": "charisma",
+  "description": "When you attempt to influence someone through overt threats, hostile actions, or physical violence, the DM might ask you to make a Charisma (Intimidation) check. Examples include trying to pry information out of a prisoner, convincing street thugs to back down from a confrontation, or using the edge of a broken bottle to convince a sneering vizier to reconsider a decision.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Coerce someone into providing information",
+    "Frighten someone into backing down",
+    "Make a hostile creature think twice about attacking",
+    "Demand compliance through implied or overt threat",
+    "Break a prisoner's will to resist questioning"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Owlbear",
+  "slug": "owlbear",
+  "size": "Large",
+  "type": "Monstrosity",
+  "alignment": "Unaligned",
+  "ac": "13",
+  "initiative": "+1 (11)",
+  "hp": "59",
+  "hpFormula": "7d10 + 21",
+  "speed": "40 ft., Climb 40 ft.",
+  "abilityScores": {
+    "str": 20,
+    "dex": 12,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 5,
+    "dex": 1,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +5",
+  "senses": "Darkvision 60 ft.; Passive Perception 15",
+  "languages": "None",
+  "cr": "3 (XP 700; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The owlbear makes two Rend attacks."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 14 (2d8 + 5) Slashing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Magically Perfected Predators*\n**Habitat:** Forest; **Treasure:** None\nCreated long ago by misguided mages, owlbears combine keen avian eyes, thick feathers, and a tearing beak with a mighty bearlike frame. Despite their magical origins, owlbears have propagated and spread to wildernesses across the multiverse.\nOwlbears dwell in distinctive dens. Roll on or choose a result from the Owlbear Den Features table to inspire an owlbear den's noteworthy traits.\nOwlbears are tenacious hunters that might track prey over miles and rarely give up their hunts.",
+  "habitat": "Forest",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

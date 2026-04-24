@@ -1,0 +1,234 @@
+{
+  "name": "Planetar",
+  "sizes": ["Large"],
+  "creatureType": "Celestial",
+  "descriptiveTags": ["Angel"],
+  "alignment": "Lawful Good",
+  "habitat": ["Planar"],
+  "treasure": ["Relics"],
+  "lore": "Planetars are mighty angels that serve as warriors and champions of the Upper Planes. They carry out the will of their deities with unwavering devotion, wielding greatswords imbued with divine radiance. A planetar's mere presence can fill mortal hearts with awe, and their healing touch can mend wounds and cure afflictions.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 250,
+    "dice": {
+      "count": 20,
+      "die": "d10",
+      "modifier": 140
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 120
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 15
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 24,
+      "modifier": 7,
+      "save": 7
+    },
+    "DEX": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "CON": {
+      "score": 24,
+      "modifier": 7,
+      "save": 12
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "WIS": {
+      "score": 22,
+      "modifier": 6,
+      "save": 11
+    },
+    "CHA": {
+      "score": 25,
+      "modifier": 7,
+      "save": 12
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 11
+    }
+  ],
+  "resistances": ["Radiant"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened"],
+  "gear": [
+    {
+      "name": "Greatsword",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 21
+  },
+  "languages": {
+    "spoken": ["All"],
+    "telepathy": 120
+  },
+  "challengeRating": "16",
+  "experiencePoints": 15000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Divine Awareness",
+      "description": "The planetar knows when it hears a lie."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The planetar has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 20,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Evil and Good",
+              "level": 1
+            },
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dispel Evil and Good",
+              "level": 5
+            },
+            {
+              "name": "Flame Strike",
+              "level": 5
+            },
+            {
+              "name": "Revivify",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Commune",
+              "level": 5
+            },
+            {
+              "name": "Raise Dead",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The planetar makes three Greatsword attacks. It can replace one attack with a use of Healing Touch.",
+    "attacks": [
+      {
+        "actionName": "Greatsword",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greatsword",
+        "replaceCount": 1,
+        "with": "Healing Touch"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greatsword",
+      "description": "Melee Attack Roll: +12, reach 10 ft. Hit: 14 (2d6 + 7) Slashing damage plus 22 (5d8) Radiant damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 12,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 7
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 22,
+              "dice": {
+                "count": 5,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Radiant"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Healing Touch",
+      "description": "The planetar touches another creature. The target regains 30 (6d8 + 3) Hit Points and is freed from any curse, disease, poison, Blinded condition, or Deafened condition.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 4
+      },
+      "healing": {
+        "average": 30,
+        "dice": {
+          "count": 6,
+          "die": "d8",
+          "modifier": 3
+        }
+      }
+    }
+  ]
+}

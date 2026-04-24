@@ -1,0 +1,11 @@
+{
+  "name": "The Great Wheel",
+  "slug": "the-great-wheel",
+  "category": "other",
+  "description": "The default D&D cosmology includes more than two dozen planes, detailed in this chapter. The most common understanding of these planes visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around and behind (or above or below) that one, arranged according to alignment, with the Outlands linking them all.\n\nSince the primary way of traveling from plane to plane is through magical portals, the spatial relationship between different planes is largely theoretical. No being in the multiverse can look down and see the planes arranged like a diagram in a book. No mortal can verify whether Mount Celestia is sandwiched between Bytopia and Arcadia; rather, this theoretical positioning is based on the philosophical shading among the three planes and the relative importance they give to law and good.\n\n> #### Other Configurations\n>\n> For your campaign, you can use a different model of the planes. Here are several examples:\n>\n> - Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)\n> - Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below\n> - A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane, where all four elements churn in chaos; an Overheaven, where good deities and Celestials dwell; and an Underworld, where evil deities and Fiends reside\n> - Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 6",
+    "section": "Cosmology"
+  }
+}

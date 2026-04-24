@@ -1,0 +1,266 @@
+{
+  "name": "Pit Fiend",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["The Nine Hells"],
+  "treasure": ["Armaments"],
+  "lore": "Pit fiends are the most powerful of the greater devils, serving as generals and enforcers of the Nine Hells. These towering, winged monstrosities combine immense physical power with cunning intellect and potent spellcasting, commanding legions of lesser devils in the Blood War and in service to the archdevils. A pit fiend's fearsome presence alone can break the will of mortals, and its poisonous bite can doom even the hardiest heroes.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 300,
+    "dice": {
+      "count": 24,
+      "die": "d10",
+      "modifier": 168
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 8,
+    "score": 18
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 26,
+      "modifier": 8,
+      "save": 8
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 8
+    },
+    "CON": {
+      "score": 24,
+      "modifier": 7,
+      "save": 13
+    },
+    "INT": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 10
+    },
+    "CHA": {
+      "score": 24,
+      "modifier": 7,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Intimidation",
+      "bonus": 13
+    },
+    {
+      "skill": "Perception",
+      "bonus": 10
+    }
+  ],
+  "resistances": ["Cold"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 20
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "20",
+  "experiencePoints": 25000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Aura of Fear",
+      "description": "Each creature of the pit fiend's choice that starts its turn within 20 feet of the pit fiend must succeed on a DC 21 Wisdom saving throw or have the Frightened condition until the start of the creature's next turn. On a successful save, the creature is immune to this pit fiend's Aura of Fear for 24 hours."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The pit fiend has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 21,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Fireball",
+              "level": 3
+            },
+            {
+              "name": "Hold Monster",
+              "level": 5
+            },
+            {
+              "name": "Wall of Fire",
+              "level": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The pit fiend makes one Bite attack and two Mace attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Mace",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      },
+      {
+        "replace": "Mace",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +14, reach 5 ft. Hit: 22 (4d6 + 8) Piercing damage plus 14 (4d6) Poison damage. If the target is a creature, it must succeed on a DC 21 Constitution saving throw or have the Poisoned condition. While Poisoned in this way, the target can't regain Hit Points. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 8
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 21,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "until the target succeeds on the save",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 21,
+                    "targets": "the target",
+                    "onSuccess": {
+                      "effects": "The effect ends on the target."
+                    }
+                  }
+                }
+              ],
+              "effects": "While Poisoned in this way, the target can't regain Hit Points. The target repeats the save at the end of each of its turns, ending the effect on itself on a success."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Mace",
+      "description": "Melee Attack Roll: +14, reach 10 ft. Hit: 15 (2d6 + 8) Bludgeoning damage plus 10 (3d6) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 8
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Deathless Agility",
+      "description": "The pit fiend takes the Dash or Disengage action."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Blessing of Valhalla",
+  "type": "Blessing",
+  "description": "The blessing has 3 charges. As a Magic action, you can expend 1 charge to cast Conjure Animals (as 3rd-level spell). A charge is also expended if you die; you return to life at the start of your next turn with full HP.",
+  "slug": "blessing-of-valhalla",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

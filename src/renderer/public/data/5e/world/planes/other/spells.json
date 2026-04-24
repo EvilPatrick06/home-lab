@@ -1,0 +1,11 @@
+{
+  "name": "Spells",
+  "slug": "spells",
+  "category": "other",
+  "description": "A number of spells allow direct or indirect access to different planes of existence. *Gate* and *Plane Shift* can directly transport adventurers to any other plane, with different degrees of precision. *Etherealness* allows adventurers to enter the Ethereal Plane. And *Astral Projection* lets adventurers project themselves into the Astral Plane and from there travel to the Outer Planes.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 6",
+    "section": "Cosmology"
+  }
+}

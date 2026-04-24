@@ -1,0 +1,11 @@
+{
+  "name": "Ring of Evasion",
+  "itemType": "Ring",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "description": "This ring has 3 charges, and it regains 1d3 expended charges daily at dawn. When you fail a Dexterity saving throw while wearing this ring, you can take a Reaction to expend 1 charge to succeed on that save instead.",
+  "charges": 3,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d3",
+  "source": "DMG 2024"
+}

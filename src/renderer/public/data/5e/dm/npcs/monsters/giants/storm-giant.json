@@ -1,0 +1,280 @@
+{
+  "name": "Storm Giant",
+  "sizes": ["Huge"],
+  "creatureType": "Giant",
+  "alignment": "Chaotic Good",
+  "habitat": ["Coastal", "Underwater"],
+  "treasure": ["Arcana"],
+  "armorClass": {
+    "value": 16,
+    "sources": ["Scale Mail"]
+  },
+  "hitPoints": {
+    "average": 230,
+    "dice": {
+      "count": 20,
+      "die": "d12",
+      "modifier": 100
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    },
+    {
+      "type": "Swim",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 29,
+      "modifier": 9,
+      "save": 14
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 10
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 9
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 9
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 8
+    },
+    {
+      "skill": "Athletics",
+      "bonus": 14
+    },
+    {
+      "skill": "History",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 9
+    }
+  ],
+  "resistances": ["Cold"],
+  "damageImmunities": ["Lightning and Thunder"],
+  "gear": [
+    {
+      "name": "Scale Mail",
+      "quantity": 1
+    },
+    {
+      "name": "Greatsword",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 19
+  },
+  "languages": {
+    "spoken": ["Common", "Giant"]
+  },
+  "challengeRating": "13",
+  "experiencePoints": 10000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The giant can breathe air and water."
+    },
+    {
+      "name": "Legendary Resistance",
+      "description": "If the giant fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      }
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 17,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Levitate",
+              "level": 2,
+              "restriction": "self only"
+            },
+            {
+              "name": "Thaumaturgy",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Control Weather",
+              "level": 8
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The giant makes three Greatsword or Thunderbolt attacks.",
+    "attacks": [
+      {
+        "actionName": "Greatsword",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greatsword",
+        "replaceCount": 3,
+        "with": "Thunderbolt"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greatsword",
+      "description": "Melee Attack Roll: +14, reach 10 ft. Hit: 30 (6d6 + 9) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 30,
+              "dice": {
+                "count": 6,
+                "die": "d6",
+                "modifier": 9
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Thunderbolt",
+      "description": "Ranged Attack Roll: +9, range 500 ft. Hit: 22 (4d8 + 4) Thunder damage. If the target is a creature, it must succeed on a DC 17 Strength saving throw or have the Prone condition.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 9,
+        "range": {
+          "normal": 500,
+          "long": 500
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Thunder"
+            }
+          ],
+          "savingThrow": {
+            "ability": "STR",
+            "dc": 17,
+            "targets": "the target (if it is a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Prone"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Thunderstrike",
+      "description": "The giant hurls a magical lightning bolt at a point it can see within 500 feet of itself. Each creature in a 10-foot-radius, 40-foot-high Cylinder centered on that point makes a DC 17 Dexterity saving throw, taking 54 (12d8) Lightning damage on a failed save or half damage only on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 17,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 54,
+              "dice": {
+                "count": 12,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cylinder",
+        "size": 10,
+        "height": 40
+      }
+    }
+  ]
+}

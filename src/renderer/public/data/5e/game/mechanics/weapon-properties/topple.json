@@ -1,0 +1,6 @@
+{
+  "id": "topple",
+  "name": "Topple",
+  "description": "If you hit a creature with a weapon that has the Topple property, you can force the creature to make a Constitution saving throw (DC 8 + your ability modifier used for the attack roll + your Proficiency Bonus). On a failed save, the creature has the Prone condition.",
+  "mechanicalEffect": "On hit, force target to make Constitution save (DC 8 + attack ability mod + proficiency bonus) or be knocked Prone."
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Speed",
+  "slug": "speed",
+  "description": "Every creature has a Speed, which is the distance in feet that the creature can walk in 1 turn. Special movement types: Climb Speed, Fly Speed, Swim Speed, and Burrow Speed.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

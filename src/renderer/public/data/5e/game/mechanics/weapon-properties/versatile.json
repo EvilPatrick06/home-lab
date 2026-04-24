@@ -1,0 +1,6 @@
+{
+  "id": "versatile",
+  "name": "Versatile",
+  "description": "A Versatile weapon can be used with one or two hands. A damage value in parentheses appears with the property -- the damage when the weapon is used with two hands to make a melee attack.",
+  "mechanicalEffect": "Can be wielded with one or two hands. Deals more damage when used with two hands (damage value listed in parentheses)."
+}

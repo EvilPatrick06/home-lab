@@ -1,0 +1,34 @@
+{
+  "name": "Observant",
+  "category": "General",
+  "prerequisites": {
+    "abilityScores": [
+      {
+        "abilities": ["Intelligence", "Wisdom"],
+        "minimum": 13
+      }
+    ],
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Intelligence", "Wisdom"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Keen Observer",
+      "description": "Choose one of the following skills: Insight, Investigation, or Perception. If you lack proficiency with the chosen skill, you gain proficiency in it, and if you already have proficiency in it, you gain Expertise in it."
+    },
+    {
+      "name": "Quick Search",
+      "description": "You can take the Search action as a Bonus Action."
+    }
+  ],
+  "source": "PHB 2024"
+}

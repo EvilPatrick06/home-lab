@@ -1,0 +1,92 @@
+{
+  "name": "Lich",
+  "slug": "lich",
+  "size": "Medium",
+  "type": "Undead",
+  "alignment": "Neutral Evil",
+  "ac": "20",
+  "initiative": "+17 (27)",
+  "hp": "315",
+  "hpFormula": "42d8 + 126",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 11,
+    "dex": 16,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 10,
+    "con": 10,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Arcana +19, History +12, Insight +9, Perception +9",
+  "immunities": "Necrotic, Poison; Charmed, Exhaustion, Frightened, Paralyzed, Poisoned",
+  "resistances": "Cold, Lightning",
+  "gear": "Component Pouch",
+  "senses": "Truesight 120 ft.; Passive Perception 19",
+  "languages": "All",
+  "cr": "21 (XP 33,000, or 41,000 in lair; PB +7)",
+  "traits": [
+    {
+      "name": "Legendary Resistance (4/Day, or 5/Day in Lair)",
+      "description": "If the lich fails a saving throw, it can choose to succeed instead."
+    },
+    {
+      "name": "Spirit Jar",
+      "description": "If destroyed, the lich reforms in 1d10 days if it has a spirit jar, reviving with all its Hit Points. The new body appears in an unoccupied space within the lich's lair."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The lich makes three attacks, using Eldritch Burst or Paralyzing Touch in any combination."
+    },
+    {
+      "name": "Eldritch Burst",
+      "description": "*Melee or Ranged Attack Roll:* +12, reach 5 ft. or range 120 ft. *Hit:* 31 (4d12 + 5) Force damage."
+    },
+    {
+      "name": "Paralyzing Touch",
+      "description": "*Melee Attack Roll:* +12, reach 5 ft. *Hit:* 15 (3d6 + 5) Cold damage, and the target has the *Paralyzed* condition until the start of the lich's next turn."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The lich casts one of the following spells, using Intelligence as the spellcasting ability (spell save DC 20):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Protective Magic",
+      "description": "The lich casts *Counterspell* or *Shield* in response to the spell's trigger, using the same spellcasting ability as Spellcasting."
+    }
+  ],
+  "legendaryActions": [
+    {
+      "name": "Deathly Teleport",
+      "description": "The lich teleports up to 60 feet to an unoccupied space it can see, and each creature within 10 feet of the space it left takes 11 (2d10) Necrotic damage."
+    },
+    {
+      "name": "Disrupt Life",
+      "description": "*Constitution Saving Throw:* DC 20, each creature that isn't an Undead in a 20-foot *Emanation* originating from the lich. *Failure:* 31 (9d6) Necrotic damage. *Success:* Half damage. *Failure or Success:* The lich can't take this action again until the start of its next turn."
+    },
+    {
+      "name": "Frightening Gaze",
+      "description": "The lich casts *Fear*, using the same spellcasting ability as Spellcasting. The lich can't take this action again until the start of its next turn."
+    }
+  ],
+  "lore": "*Deathless Master of Magic*\n**Habitat:** Any; **Treasure:** Arcana\nSome nefarious magic-users carry out forbidden necromantic rituals that sever their souls from their bodies to turn themselves into liches, masters of magic and undeath. With their souls preserved in hidden relics, liches puppet their own corpses as they pursue ambitions free from mortal bonds.\nLiches possess exceptional cunning and magical prowess, and they use their unnatural immortality to pursue arcane secrets few could grasp in a single life. Uncanny agendas lead them to plumb the secrets of life, the multiverse, godhood, and less fathomable topics. Careless of mortal lives or desires, liches go to any lengths to achieve their goals.\nA lich's age and origin influences its form. Older liches appear as little more than brittle skeletons clad in the rotten finery of forgotten empires, while younger liches more closely resemble living creatures and are clad in contemporary garb. Many cloak themselves in illusions of their idealized mortal forms.\nAlthough liches don't fear death, they're not free from the ravages of time. Over ages, some liches lose their connection to time and the physical world, degenerating into demiliches.\nThe process of becoming a lich is involved, dangerous, and unique to each would-be lich. If the rite succeeds, the lich's soul is bound to a spirit jar, a specially prepared magical repository. This relic anchors the lich's spirit to the world and preserves it should the lich's body be destroyed. A lich can be slain only if its spirit jar is ruined. As such, a lich goes to great lengths to hide and protect its spirit jar.\nSpirit jars are typically small, well-made objects that were meaningful to a lich in life. Roll on or choose a result from the Lich Spirit Jar table to inspire where a lich hides its soul.\nLiches create secluded libraries of magical lore and arcane laboratories hidden within extraplanar bastions, fortresses with cursed reputations, or other such deadly sanctuaries.\nThe region containing a lich's lair is warped by its presence, creating the following effects:\n**All-Seeing.** While in its lair, the lich can cast *Clairvoyance*, requiring no spell components and using the same spellcasting ability as its Spellcasting action.\n**Inevitable Siphon.** Whenever a Humanoid dies within 1 mile of the lair, its soul is immediately consumed by the lich. A Humanoid whose soul is consumed in this way can be brought back to life only by a *True Resurrection* or *Wish* spell.\nIf the lich is destroyed or moves its lair elsewhere, these effects end immediately. These effects resume if the lich gains a new body (see its Undead Restoration trait).\n> *Ambition can become an addiction of the mind and spirit. It builds beyond a driving flame into an insidious inferno that burns a mage hollow until only the desire for more magical power remains.*\n>\n> -- Rudolph van Richten, *Van Richten's Guide to Liches*",
+  "habitat": "Any",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

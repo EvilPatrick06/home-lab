@@ -1,0 +1,253 @@
+{
+  "id": "a3e7c1d4-5f8b-4e2a-9c6d-1b3f5a7e9d2c",
+  "name": "Restrained",
+  "slug": "restrained",
+  "category": "Condition",
+  "subcategory": "Movement Impairment",
+  "tags": ["condition", "movement", "combat", "debuff"],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Rules Glossary",
+    "section": "Conditions"
+  },
+  "gameEdition": "2024",
+  "description": "While a creature has the Restrained condition, it experiences the following effects: its Speed is 0 and can't change; Attack Rolls against it have Advantage; it has Disadvantage on Attack Rolls; and it has Disadvantage on Dexterity Saving Throws.",
+  "shortDescription": "Speed is 0; attacks against have Advantage; Disadvantage on Attack Rolls and DEX saves.",
+  "rulesAsWritten": "Speed 0 and Can't Change. The creature's Speed is 0 and can't benefit from any bonus to its Speed.\n\nAttacks Affected. Attack rolls against the creature have Advantage, and the creature's attack rolls have Disadvantage.\n\nDexterity Saves Affected. The creature has Disadvantage on Dexterity saving throws.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [
+    {
+      "id": "d4a1e8c3-7b2f-4d5e-8a9c-6f1b3e5d7a2c",
+      "target": "AllSpeeds",
+      "operation": "Set",
+      "value": 0,
+      "perLevelScaling": false,
+      "note": "Speed is 0 and can't benefit from any bonus to Speed"
+    }
+  ],
+  "advantageGrants": [
+    {
+      "id": "b7c2d9e4-3a5f-4c8b-9d1e-2f6a4b8c0d3e",
+      "rollType": "AttackRoll",
+      "scope": {
+        "targetRelationship": "Enemy"
+      },
+      "grantedTo": "Attacker",
+      "condition": "Attack roll is made against the Restrained creature",
+      "note": "Attack rolls against the creature have Advantage"
+    }
+  ],
+  "disadvantageImposes": [
+    {
+      "id": "e5f3a1b7-9c4d-4e6f-8b2a-0d7c5e9f1a3b",
+      "rollType": "AttackRoll",
+      "imposedOn": "Self",
+      "condition": "The Restrained creature makes an attack roll",
+      "note": "The creature's attack rolls have Disadvantage"
+    },
+    {
+      "id": "c8d6b2e4-1f7a-4a3c-9e5b-3a8d0f2c6e4a",
+      "rollType": "SavingThrow",
+      "scope": {
+        "abilityScores": ["DEX"]
+      },
+      "imposedOn": "Self",
+      "condition": "The Restrained creature makes a Dexterity saving throw",
+      "note": "The creature has Disadvantage on Dexterity saving throws"
+    }
+  ],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Grappled",
+      "relationship": "ImpliedBy",
+      "isAutomatic": false,
+      "note": "Some effects that impose the Grappled condition also impose Restrained"
+    },
+    {
+      "conditionName": "Paralyzed",
+      "relationship": "SupersededBy",
+      "isAutomatic": false,
+      "note": "Paralyzed includes Incapacitated and additional penalties that overlap with Restrained effects"
+    },
+    {
+      "conditionName": "Petrified",
+      "relationship": "SupersededBy",
+      "isAutomatic": false,
+      "note": "Petrified imposes similar attack and save penalties along with additional immunities"
+    },
+    {
+      "conditionName": "Stunned",
+      "relationship": "OftenCombined",
+      "isAutomatic": false,
+      "note": "Stunned and Restrained can overlap; Stunned includes Incapacitated"
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "f1a9b3c5-7d2e-4f8a-6b4c-0e5d9a1f3b7c",
+      "order": 0,
+      "name": "Set Speed to Zero",
+      "description": "The creature's Speed becomes 0 and it can't benefit from any bonus to its Speed while Restrained.",
+      "trigger": {
+        "event": "OnApply"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "a2b4c6d8-0e1f-4a3b-5c7d-9e1f2a3b4c5d",
+            "target": "AllSpeeds",
+            "operation": "Set",
+            "value": 0,
+            "perLevelScaling": false,
+            "note": "Speed is 0; can't benefit from bonuses to Speed"
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a6c8d2e4-5f7b-4a1c-9d3e-0b2f4a6c8d1e",
+      "order": 1,
+      "name": "Advantage on Incoming Attacks",
+      "description": "Attack rolls against the Restrained creature have Advantage.",
+      "trigger": {
+        "event": "OnAttackRollReceived"
+      },
+      "effects": [
+        {
+          "effectType": "AdvantageGrant",
+          "grant": {
+            "id": "d3e5f7a9-1b2c-4d4e-6f8a-0b1c2d3e4f5a",
+            "rollType": "AttackRoll",
+            "grantedTo": "Attacker",
+            "note": "Attack rolls against the Restrained creature have Advantage"
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b4d6e8f0-2a3c-4b5d-7e9f-1a2b3c4d5e6f",
+      "order": 2,
+      "name": "Disadvantage on Outgoing Attacks",
+      "description": "The Restrained creature has Disadvantage on its attack rolls.",
+      "trigger": {
+        "event": "OnAttackRollMade"
+      },
+      "effects": [
+        {
+          "effectType": "DisadvantageImposition",
+          "imposition": {
+            "id": "e7f9a1b3-4c5d-4e6f-8a0b-2c3d4e5f6a7b",
+            "rollType": "AttackRoll",
+            "imposedOn": "Self",
+            "note": "Restrained creature's attack rolls have Disadvantage"
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c5e7f9a1-3b4d-4c6e-8f0a-2b3c5d7e9f1a",
+      "order": 3,
+      "name": "Disadvantage on Dexterity Saves",
+      "description": "The Restrained creature has Disadvantage on Dexterity saving throws.",
+      "trigger": {
+        "event": "OnSavingThrowMade",
+        "scope": {
+          "abilityScores": ["DEX"]
+        }
+      },
+      "effects": [
+        {
+          "effectType": "DisadvantageImposition",
+          "imposition": {
+            "id": "f8a0b2c4-5d6e-4f7a-9b1c-3d4e5f6a7b8c",
+            "rollType": "SavingThrow",
+            "scope": {
+              "abilityScores": ["DEX"]
+            },
+            "imposedOn": "Self",
+            "note": "Restrained creature has Disadvantage on Dexterity saving throws"
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilRemoved",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "method": "Other",
+      "description": "The Restrained condition ends when the effect or source imposing it is removed (e.g., escaping a grapple, ending a spell, or being freed from restraints).",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "b2c3d4e5-6f7a-4b8c-9d0e-1f2a3b4c5d6e",
+      "method": "SpellEffect",
+      "description": "A spell such as Freedom of Movement can allow a creature to ignore the Restrained condition.",
+      "automaticAfterDuration": false,
+      "spellsOrEffects": ["Freedom of Movement"]
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Multiple sources of Restrained do not compound the effect; however, each source must be individually resolved to fully remove the condition."
+  },
+  "dmNotes": "Restrained is typically imposed by spells (e.g., Entangle, Web), monster abilities (e.g., a giant spider's webbing), or physical restraints (e.g., manacles, nets). Unlike Grappled, the Restrained condition imposes Disadvantage on attack rolls and DEX saves in addition to setting Speed to 0.",
+  "commonRulings": [
+    {
+      "question": "Can a Restrained creature still take actions normally aside from movement?",
+      "ruling": "Yes. Restrained only reduces Speed to 0 and imposes Advantage/Disadvantage penalties. The creature can still take Actions, Bonus Actions, and Reactions, as well as cast spells (unless a separate restriction applies).",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Restrained prevent teleportation?",
+      "ruling": "No, unless the specific effect imposing the Restrained condition also prevents teleportation. Teleportation does not use Speed, so setting Speed to 0 does not inherently block it.",
+      "isOfficial": true
+    },
+    {
+      "question": "If a creature is both Restrained and has Advantage on its attack rolls from another source, do they cancel out?",
+      "ruling": "Yes. Per the rules, if you have both Advantage and Disadvantage on the same roll regardless of the number of sources, they cancel out and you roll normally.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-09-20T00:00:00Z",
+  "updatedAt": "2024-09-20T00:00:00Z",
+  "version": "1.0.0"
+}

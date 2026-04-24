@@ -1,0 +1,49 @@
+{
+  "name": "Mass Healing Word",
+  "level": 3,
+  "school": "Abjuration",
+  "classes": ["Bard", "Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Up to six creatures of your choice that you can see within range regain Hit Points equal to 2d4 plus your spellcasting ability modifier.",
+  "targetCount": 6,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "healing": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 4
+      },
+      "addCasterMod": true,
+      "applicationType": "onCast"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "healingIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 4,
+        "baseSpellLevel": 3,
+        "description": "The healing increases by 1d4 for each spell slot level above 3."
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Ring of Feather Falling",
+  "slug": "ring-of-feather-falling",
+  "type": "Ring",
+  "rarity": "Rare",
+  "attunement": true,
+  "description": "When you fall while wearing this ring, you descend 60 feet per round and take no damage from falling.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

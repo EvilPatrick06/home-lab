@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>BMO</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/static/css/tailwind.css">
+  <script defer src="/static/js/socket.io.min.js"></script>
+  <script defer src="/static/js/alpine.min.js"></script>
+  <link rel="stylesheet" href="/static/css/bmo.css">
+</head>
+<body class="bg-surface-dark text-text select-none flex flex-col h-screen" x-data="bmo()" x-init="init()">
+
+  <!-- Top Bar -->
+  <header class="h-[60px] shrink-0 bg-surface flex items-center justify-between px-4 text-base border-b border-surface-light z-10 relative"
+          @click="tab = 'calendar'">
+    <div class="flex items-center gap-3">
+      <span x-text="clock" class="font-mono text-accent-light text-lg"></span>
+      <span x-text="dateStr" class="text-text-muted text-sm"></span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span x-show="weather.temperature !== null" class="text-text-muted text-sm">
+        <span x-text="weather.temperature + '°F'"></span>
+        <span x-text="weatherIcon(weather.icon)" class="ml-1 text-base"></span>
+      </span>
+      <!-- Notification bell -->
+      <div class="relative" @click.stop="showNotifications = !showNotifications; unreadNotifications = 0; ideCompletedJobCount = 0">
+        <span class="text-text-muted cursor-pointer text-lg">&#x1F514;</span>
+        <span x-show="unreadNotifications > 0 || ideCompletedJobCount > 0"
+              class="absolute -top-1 -right-1 bg-accent text-surface-dark text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+              x-text="unreadNotifications + ideCompletedJobCount"></span>
+        <!-- Notification History Dropdown -->
+        <div x-show="showNotifications" @click.away="showNotifications = false"
+             class="absolute top-10 right-0 w-72 bg-surface border border-surface-light rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
+          <template x-for="(n, i) in notificationHistory" :key="i">
+            <div class="px-3 py-2.5 border-b border-surface-light last:border-0 text-sm">
+              <span x-text="n.text"></span>
+              <span class="text-text-dim ml-1" x-text="n.time"></span>
+            </div>
+          </template>
+          <div x-show="notificationHistory.length === 0" class="px-3 py-4 text-sm text-text-dim text-center">No notifications</div>
+        </div>
+      </div>
+      <span class="w-2.5 h-2.5 rounded-full" :class="statusColor"></span>
+    </div>
+  </header>
+
+  <!-- Content Area -->
+  <main class="flex-1 overflow-hidden min-h-0 relative">
+
+    <!-- Ambient/Idle Mode Overlay -->
+    <div x-show="ambientActive" @click="exitAmbient()" @touchstart="exitAmbient()"
+         class="absolute inset-0 z-50 bg-surface-dark flex items-center justify-center cursor-pointer"
+         x-transition:enter="transition ease-out duration-500"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100">
+      <!-- Clock mode -->
+      <div x-show="ambientMode === 'clock'" class="text-center">
+        <div class="text-6xl font-mono text-accent-light mb-2" x-text="clock"></div>
+        <div class="text-lg text-text-muted" x-text="fullDateStr"></div>
+        <div x-show="weather.temperature !== null" class="mt-4 text-text-dim">
+          <span x-text="weather.temperature + '°F'"></span>
+          <span x-text="weatherIcon(weather.icon)" class="ml-2"></span>
+          <span x-text="weather.description" class="ml-2"></span>
+        </div>
+      </div>
+      <!-- Now Playing mode -->
+      <div x-show="ambientMode === 'now_playing'" class="text-center max-w-md px-6">
+        <img :src="musicState.song?.thumbnail" class="w-48 h-48 rounded-xl object-cover mx-auto mb-4 shadow-2xl" x-show="musicState.song?.thumbnail" referrerpolicy="no-referrer">
+        <div class="text-xl font-medium truncate" x-text="musicState.song?.title"></div>
+        <div class="text-sm text-text-muted mt-1" x-text="musicState.song?.artist"></div>
+        <div class="text-xs text-text-dim mt-4" x-text="clock"></div>
+      </div>
+      <!-- BMO Face mode (procedural canvas animation) -->
+      <div x-show="ambientMode === 'bmo_face'" class="text-center">
+        <canvas id="bmo-face-canvas" class="mx-auto" style="image-rendering: pixelated;" width="320" height="240"></canvas>
+        <div class="text-xs text-text-dim mt-4" x-text="clock"></div>
+      </div>
+    </div>
+
+    <!-- Alert Toast -->
+    <div x-show="alertToast" x-transition
+         class="absolute top-2 left-2 right-2 z-40 bg-surface border rounded-xl px-4 py-3 shadow-xl"
+         :class="alertToast?.priority === 'critical' ? 'border-red-500 bg-red-900/30' : alertToast?.priority === 'high' ? 'border-accent border-accent' : 'border-surface-light'">
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium" :class="alertToast?.priority === 'critical' ? 'text-red-400' : 'text-accent'" x-text="alertToast?.title"></div>
+          <div class="text-sm text-text-muted mt-0.5 truncate" x-text="alertToast?.body"></div>
+        </div>
+        <button @click="dismissAlertToast()" class="text-text-dim hover:text-text text-sm shrink-0">&times;</button>
+      </div>
+    </div>
+
+    <!-- Home Tab — Dashboard -->
+    <div x-show="tab === 'home'"
+         :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
+         class="h-full overflow-y-auto p-3 space-y-2">
+      <!-- Clock row + status -->
+      <div class="flex items-baseline justify-between">
+        <div class="flex items-baseline gap-3">
+          <span class="text-3xl font-mono text-accent-light" x-text="clock"></span>
+          <span class="text-sm text-text-muted" x-text="fullDateStr"></span>
+        </div>
+        <span class="text-sm pr-16" :class="statusTextColor" x-text="statusText"></span>
+      </div>
+      <!-- Weather card -->
+      <div x-show="weather.temperature !== null" class="bg-surface-light rounded-xl px-3 py-2">
+        <div class="flex items-center gap-2">
+          <span x-text="weatherIcon(weather.icon)" class="text-2xl"></span>
+          <div>
+            <div class="text-lg font-medium">
+              <span x-text="weather.temperature + '°F'"></span>
+              <span class="text-base text-text-muted ml-1" x-text="weather.description"></span>
+            </div>
+            <div x-show="weatherSuggestion" class="text-sm text-accent" x-text="weatherSuggestion"></div>
+          </div>
+        </div>
+        <!-- 3-day forecast -->
+        <div x-show="weather.forecast && weather.forecast.length" class="flex gap-2 mt-2 justify-center">
+          <template x-for="(day, i) in (weather.forecast || [])" :key="i">
+            <div class="flex flex-col items-center text-sm text-text-muted">
+              <span x-text="new Date(day.date + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short'})"></span>
+              <span x-text="weatherIcon(day.icon)"></span>
+              <span><span class="text-text" x-text="day.high + '°'"></span> <span x-text="day.low + '°'"></span></span>
+            </div>
+          </template>
+        </div>
+      </div>
+      <!-- Next Events card -->
+      <div x-show="calEvents.length > 0" class="bg-surface-light rounded-xl px-3 py-2">
+        <div class="text-xs text-text-dim uppercase tracking-wider mb-1">Upcoming</div>
+        <template x-for="(event, i) in calEvents.slice(0, 3)" :key="event.id || i">
+          <div class="flex items-center gap-2 py-0.5 cursor-pointer" @click="tab = 'calendar'">
+            <div class="w-1 h-6 bg-accent rounded-full shrink-0"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium truncate" x-text="event.summary"></div>
+              <div class="text-xs text-text-muted truncate" x-text="event.start"></div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <!-- Now Playing card -->
+      <div x-show="musicState.song" class="bg-surface-light rounded-xl px-3 py-2 flex items-center gap-2 cursor-pointer" @click="tab = 'music'">
+        <img :src="musicState.song?.thumbnail" class="w-10 h-10 rounded object-cover shrink-0" x-show="musicState.song?.thumbnail" referrerpolicy="no-referrer">
+        <div class="flex-1 min-w-0">
+          <div class="text-xs text-text-dim uppercase tracking-wider">Now Playing</div>
+          <div class="text-sm font-medium truncate" x-text="musicState.song?.title"></div>
+          <div class="text-xs text-text-muted truncate" x-text="musicState.song?.artist"></div>
+        </div>
+        <button @click.stop="musicCmd('pause')" class="w-8 h-8 flex items-center justify-center rounded-full bg-accent text-surface-dark shrink-0">
+          <template x-if="musicState.is_playing">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/>
+            </svg>
+          </template>
+          <template x-if="!musicState.is_playing">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21"/></svg>
+          </template>
+        </button>
+      </div>
+      <!-- Lists widget -->
+      <div class="bg-surface-light rounded-xl px-3 py-2">
+        <div class="flex items-center justify-between mb-1">
+          <div class="text-xs text-text-dim uppercase tracking-wider">Lists</div>
+          <div class="flex items-center gap-1">
+            <template x-for="(lst, name) in lists" :key="name">
+              <button @click="activeList = name" class="px-2 py-0.5 rounded text-xs"
+                      :class="activeList === name ? 'bg-accent text-surface-dark' : 'text-text-dim hover:text-text'"
+                      x-text="lst.name || name"></button>
+            </template>
+          </div>
+        </div>
+        <template x-if="activeList && lists[activeList]">
+          <div>
+            <form @submit.prevent="addListItem(activeList)" class="flex gap-1 mb-1">
+              <input x-model="newListItemText" type="text" placeholder="Add item..."
+                     class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+              <button type="submit" class="bg-accent text-surface-dark px-3 py-1.5 rounded text-sm font-medium">+</button>
+            </form>
+            <div class="max-h-24 overflow-y-auto space-y-0.5">
+              <template x-for="item in (lists[activeList]?.items || [])" :key="item.id">
+                <div class="flex items-center gap-1.5 group">
+                  <button @click="checkListItem(activeList, item.id, !item.done)" class="w-5 h-5 shrink-0 rounded border flex items-center justify-center text-xs"
+                          :class="item.done ? 'bg-accent border-accent text-surface-dark' : 'border-text-dim'">
+                    <span x-show="item.done">&#10003;</span>
+                  </button>
+                  <span class="flex-1 text-sm truncate" :class="item.done ? 'line-through text-text-dim' : ''" x-text="item.text"></span>
+                  <button @click="removeListItem(activeList, item.id)" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 px-1">&times;</button>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+        <div x-show="Object.keys(lists).length === 0" class="text-sm text-text-dim text-center py-2">No lists yet. Say "add milk to shopping list"</div>
+      </div>
+      <!-- Notes widget -->
+      <div class="bg-surface-light rounded-xl px-3 py-2">
+        <div class="text-xs text-text-dim uppercase tracking-wider mb-1">Notes</div>
+        <form @submit.prevent="addNote()" class="flex gap-1 mb-1">
+          <input x-model="newNoteText" type="text" placeholder="Add a note..."
+                 class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+          <button type="submit" class="bg-accent text-surface-dark px-3 py-1.5 rounded text-sm font-medium">+</button>
+        </form>
+        <div class="max-h-24 overflow-y-auto space-y-0.5">
+          <template x-for="note in notes" :key="note.id">
+            <div class="flex items-center gap-1.5 group">
+              <button @click="toggleNote(note)" class="w-5 h-5 shrink-0 rounded border flex items-center justify-center text-xs"
+                      :class="note.done ? 'bg-accent border-accent text-surface-dark' : 'border-text-dim'">
+                <span x-show="note.done">&#10003;</span>
+              </button>
+              <span class="flex-1 text-sm truncate" :class="note.done ? 'line-through text-text-dim' : ''" x-text="note.text"></span>
+              <button @click="deleteNote(note.id)" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 px-1">&times;</button>
+            </div>
+          </template>
+        </div>
+      </div>
+      <!-- Active timers badge -->
+      <div x-show="activeTimerCount > 0" @click="tab = 'timers'"
+           class="bg-surface-light rounded-xl px-3 py-2 flex items-center gap-2 cursor-pointer hover:bg-accent/10 transition-colors">
+        <span class="text-lg">&#x23F1;</span>
+        <span class="text-sm text-text-muted" x-text="activeTimerCount + ' timer' + (activeTimerCount !== 1 ? 's' : '') + ' running'"></span>
+      </div>
+    </div>
+
+    <!-- Chat Tab -->
+    <div x-show="tab === 'chat'"
+         :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
+         class="h-full flex flex-col">
+
+      <!-- Agent indicator bar -->
+      <div x-show="agentUsed && agentUsed !== 'conversation'" class="px-3 py-1 bg-surface-light/50 border-b border-surface-light flex items-center gap-2 text-xs text-text-dim">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+        <span x-text="agentDisplayName || agentUsed"></span>
+      </div>
+
+      <!-- Plan mode panel (collapsible, shows above chat when in plan mode) -->
+      <div x-show="planMode" class="border-b border-accent-dim bg-surface-dark/60">
+        <!-- Plan status bar -->
+        <div class="px-3 py-1.5 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-accent"
+                  x-text="planStatus === 'exploring' ? 'Exploring...' : planStatus === 'designing' ? 'Designing...' : planStatus === 'review' ? 'Plan Ready' : planStatus === 'executing' ? 'Executing...' : 'Plan Mode'"></span>
+            <span x-show="planStatus === 'executing'" class="text-xs text-text-dim"
+                  x-text="planCurrentStep + '/' + planTotalSteps"></span>
+          </div>
+          <div x-show="planStatus === 'review'" class="flex gap-1">
+            <button @click="approvePlan()" class="px-3 py-1 rounded text-sm bg-green-600 text-white hover:bg-green-500">Approve</button>
+            <button @click="rejectPlan()" class="px-3 py-1 rounded text-sm bg-red-600/80 text-white hover:bg-red-500">Cancel</button>
+          </div>
+        </div>
+        <!-- Plan steps (collapsed by default, expandable) -->
+        <div x-show="planSteps.length > 0" class="px-3 pb-2 space-y-0.5 max-h-32 overflow-y-auto">
+          <template x-for="step in planSteps" :key="step.num">
+            <div class="flex items-center gap-1.5 text-xs" :class="step.status === 'done' ? 'text-green-400' : step.status === 'running' ? 'text-accent' : step.status === 'failed' ? 'text-red-400' : 'text-text-dim'">
+              <span x-text="step.status === 'done' ? '\u2713' : step.status === 'running' ? '\u25B6' : step.status === 'failed' ? '\u2717' : '\u25CB'"></span>
+              <span x-text="step.num + '. ' + step.desc" class="truncate"></span>
+              <span class="text-[10px] opacity-60" x-text="step.agent"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-3 space-y-2" id="chatScroll" x-ref="chatScroll">
+        <template x-for="(msg, i) in messages" :key="i">
+          <div :class="msg.role === 'user' ? 'flex justify-end' : (msg.role === 'progress' ? 'flex justify-center' : 'flex justify-start')">
+            <div class="rounded-xl px-3 py-2 text-base select-text"
+                 :class="msg.role === 'user' ? 'max-w-[75%] bg-accent text-surface-dark' : (msg.role === 'progress' ? (msg.failed ? 'text-xs text-red-400 italic' : 'text-xs text-text-dim italic') : (msg.isRecap ? 'max-w-[75%] bg-accent-dim/30 text-accent-light italic border border-accent-dim' : (msg.incomplete ? 'max-w-[75%] bg-surface-light text-text border border-amber-500/40' : 'max-w-[75%] bg-surface-light text-text')))">
+              <div x-show="msg.speaker && msg.role === 'user'" class="text-xs opacity-70 mb-0.5" x-text="msg.speaker"></div>
+              <div class="select-text" x-text="msg.text"></div>
+            </div>
+          </div>
+        </template>
+        <div x-show="status === 'thinking' || status === 'yapping' || status === 'code_done' || status === 'code_incomplete'" class="flex justify-start">
+          <div class="rounded-xl px-3 py-2 text-base" :class="status === 'code_incomplete' ? 'bg-amber-900/30 text-amber-400' : (status === 'code_done' ? 'bg-green-900/30 text-green-400' : 'bg-surface-light text-text-muted')"
+               x-text="status === 'code_incomplete' ? 'Response may be incomplete — try again to continue' : (status === 'code_done' ? 'Code Agent finished ✓' : (status === 'yapping' ? 'BMO is yapping!' : 'BMO is thinking!'))"></div>
+        </div>
+      </div>
+      <!-- Player Selector (D&D mode) -->
+      <div x-show="players.length > 0" class="px-2 pt-1 border-t border-surface-light flex items-center gap-1 overflow-x-auto">
+        <span class="text-xs text-text-dim shrink-0">Speaking as:</span>
+        <template x-for="p in players" :key="p">
+          <button @click="activePlayer = p"
+                  class="px-3 py-1 rounded-full text-sm font-medium transition-colors shrink-0"
+                  :class="activePlayer === p ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted hover:bg-surface'">
+            <span x-text="p"></span>
+          </button>
+        </template>
+      </div>
+      <!-- Agent/Model picker (Phase 7, collapsible) -->
+      <div class="px-2 pt-1 border-t border-surface-light">
+        <button @click="showAgentPicker = !showAgentPicker" class="text-xs text-text-dim hover:text-accent flex items-center gap-1">
+          ⚙ <span x-text="(selectedAgent && selectedAgent !== 'auto' ? selectedAgent : '') + (selectedModel && selectedModel !== 'auto' ? (selectedAgent && selectedAgent !== 'auto' ? ' · ' : '') + selectedModel : '') || 'Auto'"></span>
+        </button>
+        <div x-show="showAgentPicker" class="py-1.5 space-y-1.5">
+          <!-- Agent pills -->
+          <div class="flex flex-wrap gap-1">
+            <template x-for="a in ['auto', 'conversation', 'code', 'dnd_dm', 'plan', 'research', 'music', 'smart_home', 'timer', 'calendar', 'weather', 'design', 'review', 'docs', 'test', 'security', 'deploy', 'monitoring', 'cleanup', 'learning', 'list', 'alert', 'routine']" :key="a">
+              <button @click="selectedAgent = a" class="px-3 py-1 rounded-full text-xs font-medium"
+                      :class="selectedAgent === a ? 'bg-accent text-surface-dark' : 'bg-surface text-text-muted'" x-text="({'auto':'Auto','dnd_dm':'D&D DM','smart_home':'Smart Home'})[a] || a.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase())"></button>
+            </template>
+          </div>
+          <!-- Model pills -->
+          <div class="flex gap-1">
+            <template x-for="m in ['auto', 'flash', 'pro', 'opus', 'local']" :key="m">
+              <button @click="selectedModel = m" class="px-3 py-1 rounded text-xs font-medium"
+                      :class="selectedModel === m ? 'bg-accent text-surface-dark' : 'bg-surface text-text-muted'" x-text="m === 'auto' ? 'Auto' : m.charAt(0).toUpperCase() + m.slice(1)"></button>
+            </template>
+          </div>
+        </div>
+      </div>
+      <form @submit.prevent="sendChat()" class="p-2 border-t border-surface-light flex gap-2"
+            :class="players.length > 0 ? 'pt-1' : ''">
+        <input x-model="chatInput" type="text" :placeholder="activePlayer ? (activePlayer + ': What do you do?') : statusText"
+               class="flex-1 bg-surface-light rounded-lg px-4 py-2.5 text-base text-text outline-none focus:ring-1 focus:ring-accent">
+        <button type="button" @click="showCameraOverlay = true; visionResult = ''"
+                class="bg-surface-light hover:bg-accent/20 text-text-muted px-4 py-2.5 rounded-lg text-base">&#x1F4F7;</button>
+        <button type="submit" class="bg-accent hover:bg-accent-light text-surface-dark px-5 py-2.5 rounded-lg text-base font-medium">Send</button>
+      </form>
+    </div>
+
+    <!-- Music Tab -->
+    <div x-show="tab === 'music'"
+         :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
+         class="h-full flex flex-col p-3 gap-2">
+      <!-- Search -->
+      <form @submit.prevent="searchMusic()" class="flex gap-2">
+        <input x-model="musicQuery" @input="searchMusicDebounced()" @focus="onMusicSearchFocus()" @blur="musicSearchFocused = false" type="text"
+               :placeholder="searchMode === 'playlists' ? 'Search playlists...' : 'Search songs...'"
+               class="flex-1 bg-surface-light rounded-lg px-4 py-2.5 text-base text-text outline-none focus:ring-1 focus:ring-accent">
+        <button type="submit" class="bg-accent text-surface-dark px-4 py-2.5 rounded-lg text-base">Search</button>
+      </form>
+      <!-- Search mode toggle -->
+      <div class="flex gap-1 self-center bg-surface rounded-lg p-0.5">
+        <button @click="setSearchMode('songs')" class="px-4 py-1 rounded text-sm font-medium transition-colors"
+                :class="searchMode === 'songs' ? 'bg-accent text-surface-dark' : 'text-text-muted'">Songs</button>
+        <button @click="setSearchMode('playlists')" class="px-4 py-1 rounded text-sm font-medium transition-colors"
+                :class="searchMode === 'playlists' ? 'bg-accent text-surface-dark' : 'text-text-muted'">Playlists</button>
+      </div>
+
+      <!-- Main content area (relative for overlay) -->
+      <div class="flex-1 relative min-h-0">
+
+      <!-- Search Results / Recent suggestions (overlay) -->
+      <div x-show="musicResults.length > 0 || playlistResults.length > 0 || (musicSearchFocused && !musicQuery.trim() && musicHistory.length > 0)" class="absolute inset-0 z-10 bg-surface-dark flex flex-col">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-base font-medium text-text-muted" x-text="playlistResults.length > 0 ? 'Playlists' : musicResults.length > 0 ? 'Search Results' : 'Recently Played'"></h3>
+          <button @click="musicResults = []; playlistResults = []; musicSearchFocused = false" class="text-sm text-text-dim hover:text-text">Close</button>
+        </div>
+        <div class="flex-1 overflow-y-auto space-y-1 min-h-0">
+          <!-- Playlist search results -->
+          <template x-for="(pl, i) in playlistResults" :key="'pl'+i">
+            <div @click="fetchPlaylist(pl.browseId)" class="w-full flex items-center gap-2 p-2 rounded-lg bg-surface-light hover:bg-accent/20 cursor-pointer group">
+              <img :src="pl.thumbnail" class="w-10 h-10 rounded object-cover shrink-0" x-show="pl.thumbnail" referrerpolicy="no-referrer">
+              <div class="flex-1 min-w-0">
+                <div class="text-base truncate" x-text="pl.title"></div>
+                <div class="text-sm text-text-muted truncate" x-text="pl.author"></div>
+              </div>
+              <span class="text-sm text-text-dim shrink-0" x-text="pl.itemCount ? pl.itemCount + ' tracks' : ''"></span>
+            </div>
+          </template>
+          <!-- Song search results -->
+          <template x-for="(song, i) in musicResults" :key="i">
+            <div class="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-accent/20 group"
+                 :class="musicState.song?.videoId === song.videoId ? 'bg-accent/10 border border-accent/30' : 'bg-surface-light'">
+              <div class="relative w-10 h-10 shrink-0">
+                <img :src="song.thumbnail" class="w-10 h-10 rounded object-cover" x-show="song.thumbnail" referrerpolicy="no-referrer">
+                <!-- Playing animation overlay for current song -->
+                <div x-show="musicState.song?.videoId === song.videoId && musicState.is_playing"
+                     @click="musicCmd('pause')"
+                     class="absolute inset-0 flex items-center justify-center bg-black/60 rounded cursor-pointer">
+                  <div class="flex items-end gap-[3px] h-4">
+                    <span class="w-[3px] bg-accent rounded-full animate-[eq1_0.6s_ease-in-out_infinite]"></span>
+                    <span class="w-[3px] bg-accent rounded-full animate-[eq2_0.7s_ease-in-out_infinite]"></span>
+                    <span class="w-[3px] bg-accent rounded-full animate-[eq3_0.5s_ease-in-out_infinite]"></span>
+                  </div>
+                </div>
+                <!-- Paused overlay for current song -->
+                <div x-show="musicState.song?.videoId === song.videoId && !musicState.is_playing"
+                     @click="musicCmd('pause')"
+                     class="absolute inset-0 flex items-center justify-center bg-black/60 rounded cursor-pointer">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white" class="opacity-80"><polygon points="6 3 21 12 6 21"/></svg>
+                </div>
+                <!-- Play hover for non-current songs -->
+                <button x-show="musicState.song?.videoId !== song.videoId" @click="playSongInline(song)"
+                        class="absolute inset-0 flex items-center justify-center bg-black/50 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="6 3 21 12 6 21"/></svg>
+                </button>
+              </div>
+              <div class="flex-1 min-w-0 cursor-pointer" @click="playSong(song)">
+                <div class="text-base truncate" :class="musicState.song?.videoId === song.videoId ? 'text-accent' : ''" x-text="song.title"></div>
+                <div class="text-sm text-text-muted truncate" x-text="song.artist"></div>
+                <div x-show="song.album" class="flex items-center gap-1 mt-0.5 min-w-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-text-dim shrink-0">
+                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <button x-show="song.albumId" @click.stop="fetchAlbum(song.albumId); albumView = null; musicResults = []; musicSearchFocused = false"
+                          class="text-sm text-accent/70 hover:text-accent truncate" x-text="song.album"></button>
+                  <span x-show="!song.albumId" class="text-sm text-text-dim truncate" x-text="song.album"></span>
+                </div>
+              </div>
+              <span class="text-sm text-text-dim mr-1" x-text="song.duration"></span>
+              <!-- Add to queue button -->
+              <button @click.stop="addToQueue(song)"
+                      class="w-7 h-7 shrink-0 flex items-center justify-center rounded-full text-text-dim hover:text-accent hover:bg-accent/20 transition-colors"
+                      title="Add to queue">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </button>
+              <!-- Pause button for current song, play for others -->
+              <button x-show="musicState.song?.videoId === song.videoId && musicState.is_playing"
+                      @click="musicCmd('pause')"
+                      class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110 transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/>
+                </svg>
+              </button>
+              <button x-show="musicState.song?.videoId === song.videoId && !musicState.is_playing"
+                      @click="musicCmd('pause')"
+                      class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110 transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21"/></svg>
+              </button>
+              <button x-show="musicState.song?.videoId !== song.videoId"
+                      @click="playSongInline(song)"
+                      class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110 transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21"/></svg>
+              </button>
+            </div>
+          </template>
+          <!-- Recent suggestions when search is empty -->
+          <template x-if="musicResults.length === 0">
+            <template x-for="(entry, i) in musicHistory" :key="'h'+i">
+              <div class="w-full flex items-center gap-2 p-2 rounded-lg bg-surface-light hover:bg-accent/20 group">
+                <div class="relative w-10 h-10 shrink-0">
+                  <img :src="entry.song.thumbnail" class="w-10 h-10 rounded object-cover" x-show="entry.song.thumbnail" referrerpolicy="no-referrer">
+                  <button @click="playSongInline(entry.song)"
+                          class="absolute inset-0 flex items-center justify-center bg-black/50 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="6 3 21 12 6 21"/></svg>
+                  </button>
+                </div>
+                <div class="flex-1 min-w-0 cursor-pointer" @click="playSong(entry.song)">
+                  <div class="text-base truncate" x-text="entry.song.title"></div>
+                  <div class="text-sm text-text-muted truncate" x-text="entry.song.artist"></div>
+                </div>
+                <span class="text-sm text-text-dim mr-1" x-text="entry.song.duration"></span>
+                <button @click.stop="addToQueue(entry.song)"
+                        class="w-7 h-7 shrink-0 flex items-center justify-center rounded-full text-text-dim hover:text-accent hover:bg-accent/20 transition-colors"
+                        title="Add to queue">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
+                <button @click="playSongInline(entry.song)"
+                        class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110 transition-all">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21"/></svg>
+                </button>
+              </div>
+            </template>
+          </template>
+        </div>
+        <!-- Mini player bar (shown when a song is playing) -->
+        <div x-show="musicState.song" @click="musicResults = []; playlistResults = []"
+             class="shrink-0 flex items-center gap-2 p-2 mt-1 rounded-lg bg-surface-light border border-white/10 cursor-pointer">
+          <img :src="musicState.song?.thumbnail" class="w-9 h-9 rounded object-cover" x-show="musicState.song?.thumbnail" referrerpolicy="no-referrer">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium truncate" x-text="musicState.song?.title"></div>
+            <div class="text-xs text-text-muted truncate" x-text="musicState.song?.artist"></div>
+          </div>
+          <button @click.stop="musicCmd('previous')" class="w-7 h-7 flex items-center justify-center rounded-full text-text-muted hover:text-text hover:bg-white/10">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="3" y="5" width="3" height="14" rx="0.5"/><polygon points="21 5 9 12 21 19"/>
+            </svg>
+          </button>
+          <button @click.stop="musicCmd('pause')"
+                  class="w-9 h-9 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110">
+            <template x-if="musicState.is_playing">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/>
+              </svg>
+            </template>
+            <template x-if="!musicState.is_playing">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="6 3 21 12 6 21"/>
+              </svg>
+            </template>
+          </button>
+          <button @click.stop="musicCmd('next')" class="w-7 h-7 flex items-center justify-center rounded-full text-text-muted hover:text-text hover:bg-white/10">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="3 5 15 12 3 19"/><rect x="18" y="5" width="3" height="14" rx="0.5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- History View (overlay on top of everything) -->
+      <div x-show="showHistory" class="absolute inset-0 z-10 bg-surface-dark flex flex-col">
+        <div class="flex items-center justify-between mb-1 shrink-0">
+          <h3 class="text-base font-medium text-text-muted">Recently Played</h3>
+          <button @click="showHistory = false" class="text-sm text-text-dim hover:text-text">Close</button>
+        </div>
+        <div class="flex-1 overflow-y-auto space-y-1 min-h-0">
+          <template x-if="musicHistory.length === 0">
+            <p class="text-sm text-text-dim text-center py-6">No songs played yet</p>
+          </template>
+          <template x-for="(entry, i) in musicHistory" :key="i">
+            <div class="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-accent/20 group"
+                 :class="musicState.song?.videoId === entry.song.videoId ? 'bg-accent/10 border border-accent/30' : 'bg-surface-light'">
+              <div class="relative w-10 h-10 shrink-0">
+                <img :src="entry.song.thumbnail" class="w-10 h-10 rounded object-cover" x-show="entry.song.thumbnail" referrerpolicy="no-referrer">
+                <div x-show="musicState.song?.videoId === entry.song.videoId && musicState.is_playing"
+                     @click="musicCmd('pause')"
+                     class="absolute inset-0 flex items-center justify-center bg-black/60 rounded cursor-pointer">
+                  <div class="flex items-end gap-[3px] h-4">
+                    <span class="w-[3px] bg-accent rounded-full animate-[eq1_0.6s_ease-in-out_infinite]"></span>
+                    <span class="w-[3px] bg-accent rounded-full animate-[eq2_0.7s_ease-in-out_infinite]"></span>
+                    <span class="w-[3px] bg-accent rounded-full animate-[eq3_0.5s_ease-in-out_infinite]"></span>
+                  </div>
+                </div>
+                <div x-show="musicState.song?.videoId === entry.song.videoId && !musicState.is_playing"
+                     @click="musicCmd('pause')"
+                     class="absolute inset-0 flex items-center justify-center bg-black/60 rounded cursor-pointer">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white" class="opacity-80"><polygon points="6 3 21 12 6 21"/></svg>
+                </div>
+                <button x-show="musicState.song?.videoId !== entry.song.videoId" @click="playSongInline(entry.song)"
+                        class="absolute inset-0 flex items-center justify-center bg-black/50 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="6 3 21 12 6 21"/></svg>
+                </button>
+              </div>
+              <div class="flex-1 min-w-0 cursor-pointer" @click="playSong(entry.song)">
+                <div class="text-base truncate" :class="musicState.song?.videoId === entry.song.videoId ? 'text-accent' : ''" x-text="entry.song.title"></div>
+                <div class="text-sm text-text-muted truncate" x-text="entry.song.artist"></div>
+              </div>
+              <span class="text-sm text-text-dim mr-1" x-text="entry.song.duration"></span>
+              <button @click.stop="addToQueue(entry.song)"
+                      class="w-7 h-7 shrink-0 flex items-center justify-center rounded-full text-text-dim hover:text-accent hover:bg-accent/20 transition-colors"
+                      title="Add to queue">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </button>
+              <button x-show="musicState.song?.videoId === entry.song.videoId && musicState.is_playing"
+                      @click="musicCmd('pause')"
+                      class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110 transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/>
+                </svg>
+              </button>
+              <button x-show="musicState.song?.videoId === entry.song.videoId && !musicState.is_playing"
+                      @click="musicCmd('pause')"
+                      class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110 transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21"/></svg>
+              </button>
+              <button x-show="musicState.song?.videoId !== entry.song.videoId"
+                      @click="playSongInline(entry.song)"
+                      class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110 transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21"/></svg>
+              </button>
+            </div>
+          </template>
+        </div>
+        <!-- Mini player bar -->
+        <div x-show="musicState.song" @click="showHistory = false"
+             class="shrink-0 flex items-center gap-2 p-2 mt-1 rounded-lg bg-surface-light border border-white/10 cursor-pointer">
+          <img :src="musicState.song?.thumbnail" class="w-9 h-9 rounded object-cover" x-show="musicState.song?.thumbnail" referrerpolicy="no-referrer">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium truncate" x-text="musicState.song?.title"></div>
+            <div class="text-xs text-text-muted truncate" x-text="musicState.song?.artist"></div>
+          </div>
+          <button @click.stop="musicCmd('previous')" class="w-7 h-7 flex items-center justify-center rounded-full text-text-muted hover:text-text hover:bg-white/10">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="3" y="5" width="3" height="14" rx="0.5"/><polygon points="21 5 9 12 21 19"/>
+            </svg>
+          </button>
+          <button @click.stop="musicCmd('pause')"
+                  class="w-9 h-9 flex items-center justify-center rounded-full bg-accent text-surface-dark hover:brightness-110">
+            <template x-if="musicState.is_playing">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/>
+              </svg>
+            </template>
+            <template x-if="!musicState.is_playing">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="6 3 21 12 6 21"/>
+              </svg>
+            </template>
+          </button>
+          <button @click.stop="musicCmd('next')" class="w-7 h-7 flex items-center justify-center rounded-full text-text-muted hover:text-text hover:bg-white/10">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="3 5 15 12 3 19"/><rect x="18" y="5" width="3" height="14" rx="0.5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Queue Overlay -->
+      <div x-show="showQueue" class="absolute inset-0 z-20 bg-surface-dark flex flex-col">
+        <div class="flex items-center justify-between mb-1 shrink-0">
+          <h3 class="text-base font-medium text-text-muted">Queue (<span x-text="(musicState.queue || []).length"></span> songs)</h3>
+          <button @click="showQueue = false" class="text-sm text-text-dim hover:text-text">Close</button>
+        </div>
+        <div class="flex-1 overflow-y-auto space-y-0.5 min-h-0">
+          <template x-if="(musicState.queue || []).length === 0">
+            <p class="text-sm text-text-dim text-center py-6">Queue is empty -- search for songs to add</p>
+          </template>
+          <template x-for="(qSong, qi) in (musicState.queue || [])" :key="'q'+qi">
+            <div class="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg group"
+                 :class="qi === musicState.queue_index ? 'bg-accent/15 border border-accent/30' : 'bg-surface-light hover:bg-accent/10'">
+              <span class="text-xs text-text-dim w-4 text-right shrink-0" x-text="qi + 1"></span>
+              <img :src="qSong.thumbnail" class="w-9 h-9 rounded object-cover shrink-0" x-show="qSong.thumbnail" referrerpolicy="no-referrer">
+              <div class="flex-1 min-w-0 cursor-pointer" @click="playSong(qSong)">
+                <div class="text-sm truncate" :class="qi === musicState.queue_index ? 'text-accent font-medium' : ''" x-text="qSong.title"></div>
+                <div class="text-xs text-text-muted truncate" x-text="qSong.artist"></div>
+              </div>
+              <span class="text-xs text-text-dim shrink-0" x-text="qSong.duration"></span>
+              <button x-show="qi !== musicState.queue_index" @click.stop="removeFromQueue(qi)"
+                      class="w-6 h-6 shrink-0 flex items-center justify-center rounded-full text-text-dim hover:text-red-400 hover:bg-red-900/30 opacity-0 group-hover:opacity-100 transition-all"
+                      title="Remove from queue">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+              <!-- Equalizer icon for currently playing -->
+              <div x-show="qi === musicState.queue_index && musicState.is_playing" class="flex items-end gap-[2px] h-3 shrink-0 w-6 justify-center">
+                <span class="w-[2px] bg-accent rounded-full animate-[eq1_0.6s_ease-in-out_infinite]" style="height:8px"></span>
+                <span class="w-[2px] bg-accent rounded-full animate-[eq2_0.7s_ease-in-out_infinite]" style="height:12px"></span>
+                <span class="w-[2px] bg-accent rounded-full animate-[eq3_0.5s_ease-in-out_infinite]" style="height:6px"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Lyrics Overlay -->
+      <div x-show="showLyrics" class="absolute inset-0 z-[18] bg-surface-dark flex flex-col">
+        <div class="flex items-center justify-between mb-1 shrink-0 px-1">
+          <h3 class="text-base font-medium text-text-muted">Lyrics</h3>
+          <button @click="showLyrics = false" class="text-sm text-text-dim hover:text-text">Close</button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-2 min-h-0">
+          <div x-show="lyricsLoading" class="text-sm text-text-muted text-center py-6 animate-pulse">Loading lyrics...</div>
+          <pre x-show="!lyricsLoading" class="text-base text-text whitespace-pre-wrap font-sans leading-relaxed" x-text="currentLyrics"></pre>
+          <div x-show="lyricsSource" class="text-xs text-text-dim mt-2" x-text="'Source: ' + lyricsSource"></div>
+        </div>
+      </div>
+
+      <!-- Album/Playlist View Overlay -->
+      <div x-show="albumView" class="absolute inset-0 z-[15] bg-surface-dark flex flex-col">
+        <!-- Album header -->
+        <div class="flex items-center gap-3 p-2 shrink-0">
+          <img :src="albumView?.thumbnail" class="w-16 h-16 rounded-lg object-cover shadow-lg shrink-0" x-show="albumView?.thumbnail" referrerpolicy="no-referrer">
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-base truncate" x-text="albumView?.title"></div>
+            <div class="text-sm text-text-muted truncate" x-text="(albumView?.artist || '') + (albumView?.year ? ' \u2022 ' + albumView.year : '') + (albumView?.trackCount ? ' \u2022 ' + albumView.trackCount + ' tracks' : '')"></div>
+            <button @click="addAlbumToQueue()" class="mt-1 text-xs bg-accent/20 text-accent hover:bg-accent/30 px-3 py-1 rounded transition-colors">
+              Add All to Queue
+            </button>
+          </div>
+        </div>
+        <div class="border-t border-surface-light mx-2"></div>
+        <!-- Tracklist -->
+        <div class="flex-1 overflow-y-auto px-2 py-1 space-y-0.5 min-h-0">
+          <template x-for="(track, ti) in (albumView?.tracks || [])" :key="'at'+ti">
+            <div class="flex items-center gap-2 px-1.5 py-1 rounded-lg group hover:bg-accent/10"
+                 :class="musicState.song?.videoId === track.videoId ? 'bg-accent/15' : ''">
+              <!-- Track number or equalizer -->
+              <div class="w-5 text-center shrink-0">
+                <span x-show="musicState.song?.videoId !== track.videoId || !musicState.is_playing"
+                      class="text-xs" :class="musicState.song?.videoId === track.videoId ? 'text-accent font-bold' : 'text-text-dim'" x-text="ti + 1"></span>
+                <div x-show="musicState.song?.videoId === track.videoId && musicState.is_playing" class="flex items-end gap-[2px] h-3 justify-center">
+                  <span class="w-[2px] bg-accent rounded-full animate-[eq1_0.6s_ease-in-out_infinite]" style="height:6px"></span>
+                  <span class="w-[2px] bg-accent rounded-full animate-[eq2_0.7s_ease-in-out_infinite]" style="height:10px"></span>
+                  <span class="w-[2px] bg-accent rounded-full animate-[eq3_0.5s_ease-in-out_infinite]" style="height:5px"></span>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm truncate" :class="musicState.song?.videoId === track.videoId ? 'text-accent font-medium' : ''" x-text="track.title"></div>
+              </div>
+              <span class="text-xs text-text-dim shrink-0" x-text="track.duration"></span>
+              <!-- Add to queue -->
+              <button @click.stop="addToQueue(track)"
+                      class="w-6 h-6 shrink-0 flex items-center justify-center rounded-full text-text-dim hover:text-accent hover:bg-accent/20 opacity-0 group-hover:opacity-100 transition-all"
+                      title="Add to queue">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </button>
+              <!-- Play -->
+              <button @click.stop="playSongFromAlbum(track)"
+                      class="w-6 h-6 shrink-0 flex items-center justify-center rounded-full text-text-dim hover:text-accent hover:bg-accent/20 opacity-0 group-hover:opacity-100 transition-all"
+                      title="Play">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21"/></svg>
+              </button>
+            </div>
+          </template>
+        </div>
+        <div class="border-t border-surface-light mx-2"></div>
+        <!-- Back button -->
+        <button @click="albumView = null" class="shrink-0 flex items-center justify-center gap-1 py-2 text-sm text-text-muted hover:text-accent transition-colors">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back to Now Playing
+        </button>
+      </div>
+
+      <!-- Idle state — recently played + most played cards -->
+      <div x-show="!musicState.song" class="h-full overflow-y-auto">
+        <!-- Recently Played -->
+        <template x-if="musicHistory.length > 0">
+          <div class="mb-2">
+            <h3 class="text-sm font-medium text-text-dim uppercase tracking-wide mb-1.5">Recently Played</h3>
+            <div class="grid grid-cols-4 gap-1.5">
+              <template x-for="(entry, i) in musicHistory.slice(0, 4)" :key="'rp'+i">
+                <button @click="playSongInline(entry.song)" class="group flex flex-col gap-1 p-1.5 rounded-lg bg-surface-light hover:bg-accent/20 transition-colors">
+                  <div class="relative w-full h-[72px]">
+                    <img :src="entry.song.thumbnail" class="w-full h-full rounded object-cover" referrerpolicy="no-referrer">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><polygon points="6 3 21 12 6 21"/></svg>
+                    </div>
+                  </div>
+                  <div class="w-full text-xs truncate" x-text="entry.song.title"></div>
+                  <div class="w-full text-xs text-text-dim truncate -mt-0.5" x-text="entry.song.artist"></div>
+                </button>
+              </template>
+            </div>
+          </div>
+        </template>
+        <!-- Most Played -->
+        <template x-if="musicMostPlayed.length > 0">
+          <div class="mb-2">
+            <h3 class="text-sm font-medium text-text-dim uppercase tracking-wide mb-1.5">Most Played</h3>
+            <div class="grid grid-cols-4 gap-1.5">
+              <template x-for="(song, i) in musicMostPlayed.slice(0, 4)" :key="'mp'+i">
+                <button @click="playSongInline(song)" class="group flex flex-col gap-1 p-1.5 rounded-lg bg-surface-light hover:bg-accent/20 transition-colors">
+                  <div class="relative w-full h-[72px]">
+                    <img :src="song.thumbnail" class="w-full h-full rounded object-cover" referrerpolicy="no-referrer">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><polygon points="6 3 21 12 6 21"/></svg>
+                    </div>
+                  </div>
+                  <div class="w-full text-xs truncate" x-text="song.title"></div>
+                  <div class="w-full text-xs text-text-dim truncate -mt-0.5" x-text="song.artist"></div>
+                </button>
+              </template>
+            </div>
+          </div>
+        </template>
+        <!-- View History button -->
+        <template x-if="musicHistory.length > 0">
+          <button @click="showHistory = true; fetchMusicHistory()"
+                  class="w-full mt-2 flex items-center justify-center gap-1.5 bg-surface-light hover:bg-accent/20 text-text-muted hover:text-accent rounded-lg px-3 py-2 text-sm transition-colors">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            View All History
+          </button>
+        </template>
+        <!-- Empty state -->
+        <template x-if="musicMostPlayed.length === 0 && musicHistory.length === 0">
+          <div class="h-full flex items-center justify-center">
+            <p class="text-sm text-text-dim">Search for a song to get started</p>
+          </div>
+        </template>
+      </div>
+
+      <!-- Now Playing -->
+      <div x-show="musicState.song" class="now-playing h-full flex items-stretch gap-4 px-3 py-2">
+        <!-- Left: Album art fills full height -->
+        <img :src="musicState.song?.thumbnail" class="np-art h-full aspect-square rounded-2xl object-cover shadow-xl shrink-0" x-show="musicState.song?.thumbnail" referrerpolicy="no-referrer">
+        <!-- Right: Song info + progress + controls — stretch to fill -->
+        <div class="flex-1 flex flex-col justify-between min-w-0 py-1">
+          <!-- Title & artist -->
+          <div>
+            <div class="font-bold text-2xl leading-tight truncate" x-text="musicState.song?.title"></div>
+            <div class="text-lg text-text-muted truncate mt-1" x-text="musicState.song?.artist"></div>
+            <button x-show="musicState.song?.albumId" @click="fetchAlbum(musicState.song.albumId)"
+                    class="text-base text-accent/70 hover:text-accent transition-colors truncate mt-0.5" x-text="musicState.song?.album || 'View Album'"></button>
+          </div>
+          <!-- Progress bar -->
+          <div class="w-full">
+            <div class="bg-surface-light rounded-full h-3 cursor-pointer" @click="seekMusic($event)">
+              <div class="bg-accent rounded-full h-3" :style="'width:' + musicProgress + '%'"></div>
+            </div>
+            <div class="flex justify-between text-base text-text-dim mt-1">
+              <span x-text="formatTime(musicState.position)"></span>
+              <span x-text="formatTime(musicState.duration)"></span>
+            </div>
+          </div>
+          <!-- Transport controls -->
+          <div class="flex items-center gap-2">
+            <button @click="musicCmd('shuffle')" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                    :class="musicState.shuffle ? 'text-accent' : 'text-text-dim'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+                <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+                <line x1="4" y1="4" x2="9" y2="9"/>
+              </svg>
+            </button>
+            <button @click="musicCmd('previous')" class="w-12 h-12 flex items-center justify-center rounded-full text-text-muted hover:text-text hover:bg-white/10 transition-colors">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="5" width="3" height="14" rx="0.5"/><polygon points="21 5 9 12 21 19"/>
+              </svg>
+            </button>
+            <button @click="musicCmd('pause')"
+                    class="w-16 h-16 rounded-full bg-accent text-surface-dark flex items-center justify-center hover:brightness-110 transition-all">
+              <template x-if="musicState.is_playing">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/>
+                </svg>
+              </template>
+              <template x-if="!musicState.is_playing">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="6 3 21 12 6 21"/>
+                </svg>
+              </template>
+            </button>
+            <button @click="musicCmd('next')" class="w-12 h-12 flex items-center justify-center rounded-full text-text-muted hover:text-text hover:bg-white/10 transition-colors">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="3 5 15 12 3 19"/><rect x="18" y="5" width="3" height="14" rx="0.5"/>
+              </svg>
+            </button>
+            <button @click="musicCmd('repeat')" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors relative"
+                    :class="musicState.repeat !== 'off' ? 'text-accent' : 'text-text-dim'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+              </svg>
+              <span x-show="musicState.repeat === 'one'" class="absolute -top-0.5 -right-0.5 text-xs font-bold text-accent">1</span>
+            </button>
+            <button @click="musicCmd('autoplay')" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                    :class="musicState.autoplay ? 'text-accent' : 'text-text-dim'"
+                    title="Autoplay related songs when queue ends">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16" fill="currentColor" stroke="none"/>
+              </svg>
+            </button>
+            <div class="flex-1"></div>
+            <button @click="showHistory = true; fetchMusicHistory()"
+                    class="flex items-center gap-1.5 bg-surface-light text-text-muted text-base rounded-lg px-4 py-2.5 hover:bg-white/10 transition-colors">
+              History
+            </button>
+            <button @click="fetchLyrics()"
+                    class="flex items-center gap-1.5 bg-surface-light text-text-muted text-base rounded-lg px-4 py-2.5 hover:bg-white/10 transition-colors">
+              Lyrics
+            </button>
+            <button @click="showQueue = true"
+                    class="flex items-center gap-1.5 bg-surface-light text-text-muted text-base rounded-lg px-4 py-2.5 hover:bg-white/10 transition-colors relative">
+              Queue
+              <span x-show="musicState.queue_length > 1"
+                    class="absolute -top-1.5 -right-1.5 bg-accent text-surface-dark text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                    x-text="musicState.queue_length"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      </div><!-- /relative container -->
+    </div>
+    <!-- IDE Tab — navigates to full-screen IDE page -->
+    <div x-show="tab === 'ide'" x-init="$watch('tab', v => { if(v === 'ide') window.location.href = '/ide'; })"
+         class="h-full flex flex-col items-center justify-center">
+      <p class="text-text-muted">Redirecting to IDE...</p>
+    </div>
+
+    <!-- Calendar Tab -->
+    <div x-show="tab === 'calendar'"
+         :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
+         class="h-full flex flex-col p-3">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-lg font-medium text-accent">Calendar</h2>
+        <div class="flex gap-1">
+          <button @click="calDays=1" class="px-3 py-1 rounded text-sm"
+                  :class="calDays===1 ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'">Day</button>
+          <button @click="calDays=7" class="px-3 py-1 rounded text-sm"
+                  :class="calDays===7 ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'">Week</button>
+          <button @click="showEventForm = !showEventForm" class="px-3 py-1 rounded text-sm bg-accent text-surface-dark">+ Add</button>
+        </div>
+      </div>
+      <!-- Offline banner -->
+      <div x-show="calOffline" x-transition class="bg-amber-900/40 border border-amber-600/30 rounded-lg px-3 py-1.5 mb-1 text-sm text-amber-300 text-center">
+        Offline &mdash; changes will sync when connected
+        <button @click="startCalendarAuth()" class="ml-2 px-3 py-1 bg-accent/80 hover:bg-accent text-black rounded text-sm font-semibold">
+          Authorize Calendar
+        </button>
+      </div>
+
+      <!-- Calendar Auth Modal -->
+      <div x-show="calAuthUrl" x-transition class="bg-surface-light rounded-lg p-3 mb-1 space-y-2 text-sm">
+        <p class="text-text-muted">1. Click the link below to authorize BMO with Google Calendar:</p>
+        <a :href="calAuthUrl" target="_blank" class="block text-accent underline break-all text-xs" x-text="calAuthUrl"></a>
+        <p class="text-amber-400">2. After clicking "Allow", the page will say "refused to connect" — that's normal!</p>
+        <p class="text-text-muted">3. Copy the <b>entire URL</b> from the address bar (starts with http://localhost?code=...) and paste it below:</p>
+        <div class="flex gap-1">
+          <input x-model="calAuthCode" type="text" placeholder="Paste full URL from address bar"
+                 class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+          <button @click="submitCalendarAuth()" class="px-3 py-1.5 bg-accent hover:bg-accent/80 text-black rounded text-sm font-semibold">Submit</button>
+        </div>
+      </div>
+
+      <!-- Add Event Form -->
+      <div x-show="showEventForm" x-transition class="bg-surface-light rounded-lg p-2 mb-1 space-y-1 overflow-y-auto max-h-[290px]">
+        <input x-model="newEvent.summary" type="text" placeholder="Event title"
+               class="w-full bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        <div class="flex gap-2 items-center">
+          <label class="flex items-center gap-1 text-sm text-text-muted cursor-pointer shrink-0">
+            <input type="checkbox" x-model="newEvent.allDay" class="accent-accent w-3.5 h-3.5"> All day
+          </label>
+          <input x-model="newEvent.date" type="date"
+                 class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        </div>
+        <div x-show="!newEvent.allDay" class="flex gap-2">
+          <input x-model="newEvent.startTime" type="time"
+                 class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+          <select x-model="newEvent.durationHrs" class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none">
+            <option value="0.25">15 min</option><option value="0.5">30 min</option><option value="0.75">45 min</option>
+            <option value="1" selected>1 hour</option><option value="1.5">1.5 hrs</option><option value="2">2 hours</option>
+            <option value="3">3 hours</option><option value="4">4 hours</option><option value="8">8 hours</option>
+          </select>
+        </div>
+        <input x-model="newEvent.location" type="text" placeholder="Add location" id="newEventLocation"
+               x-init="$watch('showEventForm', v => { if(v) $nextTick(() => initPlacesAutocomplete('newEventLocation', loc => newEvent.location = loc)) })"
+               class="w-full bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        <input x-model="newEvent.description" type="text" placeholder="Description (optional)"
+               class="w-full bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        <div class="flex flex-wrap gap-1">
+          <template x-for="opt in [{v:'none',l:'None'},{v:'daily',l:'Daily'},{v:'weekly',l:'Weekly'},{v:'monthly',l:'Monthly'},{v:'yearly',l:'Yearly'},{v:'weekdays',l:'M-F'},{v:'custom',l:'Custom'}]" :key="opt.v">
+            <button @click="newEvent.repeatMode = opt.v" type="button" class="px-3 py-1 rounded text-sm"
+                    :class="newEvent.repeatMode === opt.v ? 'bg-accent text-surface-dark' : 'bg-surface text-text-muted'"
+                    x-text="opt.l"></button>
+          </template>
+        </div>
+        <div x-show="newEvent.repeatMode === 'custom'" class="bg-surface rounded p-2 space-y-1.5">
+          <div class="flex gap-1.5 items-center">
+            <span class="text-xs text-text-muted shrink-0">Every</span>
+            <input x-model.number="newEvent.customInterval" type="number" min="1" max="99"
+                   class="w-12 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none text-center">
+            <select x-model="newEvent.customFreq" class="flex-1 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none">
+              <option value="DAILY">day(s)</option><option value="WEEKLY">week(s)</option>
+              <option value="MONTHLY">month(s)</option><option value="YEARLY">year(s)</option>
+            </select>
+          </div>
+          <div x-show="newEvent.customFreq === 'WEEKLY'" class="flex gap-1 justify-center">
+            <template x-for="d in ['MO','TU','WE','TH','FR','SA','SU']" :key="d">
+              <button @click="toggleDay(newEvent, d)" type="button"
+                      class="w-7 h-7 rounded-full text-xs font-medium"
+                      :class="newEvent.customDays.includes(d) ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'"
+                      x-text="d.charAt(0)"></button>
+            </template>
+          </div>
+          <div class="flex gap-1.5 items-center">
+            <span class="text-xs text-text-muted shrink-0">Ends</span>
+            <select x-model="newEvent.customEnd" class="flex-1 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none">
+              <option value="never">Never</option><option value="date">On date</option><option value="count">After #</option>
+            </select>
+            <input x-show="newEvent.customEnd === 'date'" x-model="newEvent.customEndDate" type="date"
+                   class="flex-1 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none">
+            <input x-show="newEvent.customEnd === 'count'" x-model.number="newEvent.customCount" type="number" min="1" max="999"
+                   class="w-14 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none text-center" placeholder="#">
+          </div>
+        </div>
+        <div class="flex gap-2 justify-end pt-0.5">
+          <button @click="showEventForm = false" class="px-4 py-1 rounded text-sm bg-surface text-text-muted">Cancel</button>
+          <button @click="createCalEvent()" class="px-4 py-1 rounded text-sm bg-accent text-surface-dark font-medium">Create</button>
+        </div>
+      </div>
+
+      <!-- Edit Event Form -->
+      <div x-show="editingEvent" x-transition class="bg-surface-light rounded-lg p-2 mb-1 space-y-1 border border-accent/30 overflow-y-auto max-h-[290px]">
+        <div class="text-sm text-accent font-medium">Edit Event</div>
+        <input x-model="editEvent.summary" type="text" placeholder="Event title"
+               class="w-full bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        <div class="flex gap-2 items-center">
+          <label class="flex items-center gap-1 text-sm text-text-muted cursor-pointer shrink-0">
+            <input type="checkbox" x-model="editEvent.allDay" class="accent-accent w-3.5 h-3.5"> All day
+          </label>
+          <input x-model="editEvent.date" type="date"
+                 class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        </div>
+        <div x-show="!editEvent.allDay" class="flex gap-2">
+          <input x-model="editEvent.startTime" type="time"
+                 class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+          <input x-model="editEvent.endTime" type="time"
+                 class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        </div>
+        <input x-model="editEvent.location" type="text" placeholder="Add location" id="editEventLocation"
+               x-init="$watch('editingEvent', v => { if(v) $nextTick(() => initPlacesAutocomplete('editEventLocation', loc => editEvent.location = loc)) })"
+               class="w-full bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        <input x-model="editEvent.description" type="text" placeholder="Description (optional)"
+               class="w-full bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        <div class="flex flex-wrap gap-1">
+          <template x-for="opt in [{v:'none',l:'None'},{v:'daily',l:'Daily'},{v:'weekly',l:'Weekly'},{v:'monthly',l:'Monthly'},{v:'yearly',l:'Yearly'},{v:'weekdays',l:'M-F'},{v:'custom',l:'Custom'}]" :key="opt.v">
+            <button @click="editEvent.repeatMode = opt.v" type="button" class="px-3 py-1 rounded text-sm"
+                    :class="editEvent.repeatMode === opt.v ? 'bg-accent text-surface-dark' : 'bg-surface text-text-muted'"
+                    x-text="opt.l"></button>
+          </template>
+        </div>
+        <div x-show="editEvent.repeatMode === 'custom'" class="bg-surface rounded p-2 space-y-1.5">
+          <div class="flex gap-1.5 items-center">
+            <span class="text-xs text-text-muted shrink-0">Every</span>
+            <input x-model.number="editEvent.customInterval" type="number" min="1" max="99"
+                   class="w-12 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none text-center">
+            <select x-model="editEvent.customFreq" class="flex-1 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none">
+              <option value="DAILY">day(s)</option><option value="WEEKLY">week(s)</option>
+              <option value="MONTHLY">month(s)</option><option value="YEARLY">year(s)</option>
+            </select>
+          </div>
+          <div x-show="editEvent.customFreq === 'WEEKLY'" class="flex gap-1 justify-center">
+            <template x-for="d in ['MO','TU','WE','TH','FR','SA','SU']" :key="d">
+              <button @click="toggleDay(editEvent, d)" type="button"
+                      class="w-7 h-7 rounded-full text-xs font-medium"
+                      :class="editEvent.customDays.includes(d) ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'"
+                      x-text="d.charAt(0)"></button>
+            </template>
+          </div>
+          <div class="flex gap-1.5 items-center">
+            <span class="text-xs text-text-muted shrink-0">Ends</span>
+            <select x-model="editEvent.customEnd" class="flex-1 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none">
+              <option value="never">Never</option><option value="date">On date</option><option value="count">After #</option>
+            </select>
+            <input x-show="editEvent.customEnd === 'date'" x-model="editEvent.customEndDate" type="date"
+                   class="flex-1 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none">
+            <input x-show="editEvent.customEnd === 'count'" x-model.number="editEvent.customCount" type="number" min="1" max="999"
+                   class="w-14 bg-surface-light rounded px-1.5 py-0.5 text-xs text-text outline-none text-center" placeholder="#">
+          </div>
+        </div>
+        <div class="flex gap-2 justify-end pt-0.5">
+          <button @click="editingEvent = null" class="px-4 py-1 rounded text-sm bg-surface text-text-muted">Cancel</button>
+          <button @click="updateCalEvent()" class="px-4 py-1 rounded text-sm bg-accent text-surface-dark font-medium">Save</button>
+        </div>
+      </div>
+
+      <!-- Event List -->
+      <div class="flex-1 overflow-y-auto space-y-1.5">
+        <template x-for="(event, i) in getFilteredCalEvents()" :key="event.id || i">
+          <div @click="startEditEvent(event)" class="bg-surface-light rounded-lg px-3 py-2 border-l-3 border-accent group cursor-pointer hover:bg-surface-light/80">
+            <div class="flex justify-between items-start">
+              <div class="font-medium text-base" x-text="event.summary"></div>
+              <div class="flex items-center gap-1">
+                <span x-show="event.recurring || (event.recurrence && event.recurrence.length > 0)" class="text-sm text-text-dim">&#x1F501;</span>
+                <span x-show="event.all_day" class="text-sm text-accent bg-accent/10 px-1.5 rounded">All Day</span>
+                <button @click.stop="deleteCalEvent(event.id)" class="text-sm text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity px-1">Del</button>
+              </div>
+            </div>
+            <div class="text-sm text-text-muted mt-0.5" x-text="event.start + (event.end && !event.all_day ? ' — ' + event.end : '')"></div>
+            <div x-show="event.location" class="text-sm text-text-dim mt-0.5" x-text="event.location"></div>
+          </div>
+        </template>
+        <div x-show="getFilteredCalEvents().length === 0 && calDays === 1" class="text-center text-text-muted py-8">It looks like you are free today 🎉</div>
+        <div x-show="getFilteredCalEvents().length === 0 && calDays !== 1" class="text-center text-text-muted py-8">No events</div>
+      </div>
+    </div>
+
+    <!-- TV Remote Tab -->
+    <div x-show="tab === 'tv'"
+         :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
+         class="h-full overflow-y-auto px-3 py-1 relative">
+      <div class="my-auto flex flex-col items-center gap-2">
+      <!-- Now Playing Status -->
+      <div x-show="tvCurrentApp" class="text-center text-base text-text-muted shrink-0 leading-tight">
+        <span class="text-accent font-medium" x-text="tvAppDisplayName(tvCurrentApp)"></span>
+        <span x-show="tvMediaTitle" class="text-text"> — <span x-text="tvMediaTitle"></span></span>
+        <span x-show="tvMediaArtist" class="text-text-dim"> · <span x-text="tvMediaArtist"></span></span>
+        <span x-show="tvVolumeLevel >= 0" class="ml-2 text-text-dim">Vol: <span x-text="tvVolumeLevel"></span></span>
+      </div>
+      <!-- App Launcher Row -->
+      <div class="flex gap-4 justify-center shrink-0">
+        <button @click="tvLaunch('youtube')" class="w-24 h-16 rounded-xl hover:brightness-125 flex items-center justify-center overflow-hidden" title="YouTube">
+          <img src="/static/img/YouTube.png" class="w-20 h-14 object-contain">
+        </button>
+        <button @click="tvLaunch('netflix')" class="w-24 h-16 rounded-xl hover:brightness-125 flex items-center justify-center overflow-hidden" title="Netflix">
+          <img src="/static/img/Netflix.png" class="w-20 h-14 object-contain">
+        </button>
+        <button @click="tvLaunch('crunchyroll')" class="w-24 h-16 rounded-xl hover:brightness-125 flex items-center justify-center overflow-hidden" title="Crunchyroll">
+          <img src="/static/img/Crunchyroll.png" class="w-20 h-14 object-contain">
+        </button>
+        <button @click="tvLaunch('twitch')" class="w-24 h-16 rounded-xl hover:brightness-125 flex items-center justify-center overflow-hidden" title="Twitch">
+          <img src="/static/img/Twitch.png" class="w-20 h-14 object-contain">
+        </button>
+        <button @click="tvLaunch('prime')" class="w-24 h-16 rounded-xl hover:brightness-125 flex items-center justify-center overflow-hidden" title="Prime Video">
+          <img src="/static/img/PrimeVIdeo.png" class="w-20 h-14 object-contain">
+        </button>
+        <button @click="tvLaunch('plex')" class="w-24 h-16 rounded-xl hover:brightness-125 flex items-center justify-center overflow-hidden" title="Plex">
+          <img src="/static/img/Plex.png" class="w-20 h-14 object-contain">
+        </button>
+      </div>
+      <!-- Main controls: centered group -->
+      <div class="tv-controls flex items-center justify-center gap-4 shrink-0">
+        <!-- D-Pad -->
+        <div class="grid grid-cols-3 gap-1" style="width:220px">
+          <div></div>
+          <button @click="tvKey('up')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="4 15 12 6 20 15"/></svg></button>
+          <div></div>
+          <button @click="tvKey('left')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="15 4 6 12 15 20"/></svg></button>
+          <button @click="tvKey('select')" class="h-[52px] rounded-lg bg-accent hover:bg-accent-light flex items-center justify-center text-lg font-bold text-surface-dark active:brightness-90">OK</button>
+          <button @click="tvKey('right')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="9 4 18 12 9 20"/></svg></button>
+          <div></div>
+          <button @click="tvKey('down')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="4 9 12 18 20 9"/></svg></button>
+          <div></div>
+        </div>
+        <!-- Media + Volume -->
+        <div class="grid grid-cols-3 gap-1" style="width:220px">
+          <button @click="tvKey('rewind')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="5" width="3" height="14"/><polygon points="20 5 9 12 20 19"/></svg></button>
+          <button @click="tvKey('play_pause')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg></button>
+          <button @click="tvKey('forward')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="4 5 15 12 4 19"/><rect x="19" y="5" width="3" height="14"/></svg></button>
+          <button @click="tvVolume('mute')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19" fill="currentColor"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></button>
+          <button @click="tvVolume('down')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19" fill="currentColor"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+          <button @click="tvVolume('up')" class="h-[52px] rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center text-text-muted active:bg-accent/30"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19" fill="currentColor"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+        </div>
+      </div>
+      <!-- Bottom: Nav buttons + auto-skip -->
+      <div class="flex gap-1.5 shrink-0 w-full max-w-xl">
+        <button @click="tvKey('back')" class="flex-1 h-10 rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center gap-1 text-text-muted text-base active:bg-accent/30">&#x2190; Back</button>
+        <button @click="tvPower()" class="flex-1 h-10 rounded-lg bg-surface-light hover:bg-red-900/30 flex items-center justify-center gap-1 text-text-muted text-base active:bg-red-900/50">&#x26A1; Power</button>
+        <button @click="tvKey('home')" class="flex-1 h-10 rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center gap-1 text-text-muted text-base active:bg-accent/30">&#x1F3E0; Home</button>
+        <button @click="tvKey('settings')" class="flex-1 h-10 rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center gap-1 text-text-muted text-base active:bg-accent/30">&#x2699;&#xFE0F; Settings</button>
+        <button @click="tvInput()" class="flex-1 h-10 rounded-lg bg-surface-light hover:bg-accent/20 flex items-center justify-center gap-1 text-text-muted text-base active:bg-accent/30">&#x1F4FA; HDMI 1</button>
+        <div class="flex items-center gap-1.5 shrink-0 pl-1">
+          <span class="text-xs text-text-dim">Skip</span>
+          <button @click="tvToggleAutoSkip()" class="w-10 h-5 rounded-full transition-colors relative flex-shrink-0"
+                  :class="tvAutoSkip ? 'bg-accent' : 'bg-surface-light'">
+            <span class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200"
+                  :class="tvAutoSkip ? 'translate-x-5' : 'translate-x-0'"></span>
+          </button>
+        </div>
+      </div>
+      </div><!-- /my-auto centering wrapper -->
+      <!-- Pairing overlay -->
+      <div x-show="!tvConnected" class="absolute inset-0 bg-surface-dark/95 z-10 flex flex-col items-center justify-center gap-3 p-4">
+        <div class="text-4xl">&#x1F4FA;</div>
+        <template x-if="!tvPairing">
+          <div class="text-center">
+            <div class="text-base text-text-muted mb-3" x-text="tvNeedsPairing ? 'TV needs to be paired' : 'TV not connected'"></div>
+            <button @click="tvStartPairing()" class="bg-accent hover:bg-accent-light text-surface-dark px-8 py-3 rounded-lg text-base font-medium">
+              Pair with TV
+            </button>
+          </div>
+        </template>
+        <template x-if="tvPairing">
+          <div class="text-center space-y-3">
+            <div class="text-base text-text-muted">Enter the PIN shown on your TV</div>
+            <input x-model="tvPairPin" type="text" maxlength="6" placeholder="PIN"
+                   class="w-40 bg-surface-light rounded-lg px-4 py-3 text-2xl text-text font-mono text-center outline-none focus:ring-2 focus:ring-accent tracking-widest">
+            <div class="flex gap-2 justify-center">
+              <button @click="tvPairing = false" class="bg-surface-light text-text-muted px-5 py-2.5 rounded-lg text-base">Cancel</button>
+              <button @click="tvFinishPairing()" class="bg-accent hover:bg-accent-light text-surface-dark px-5 py-2.5 rounded-lg text-base font-medium">Connect</button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Timers Tab -->
+    <div x-show="tab === 'timers'"
+         :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
+         class="h-full flex flex-col p-3 gap-2">
+      <!-- Tab toggle: Timer / Alarm -->
+      <div class="flex gap-1 self-center bg-surface rounded-lg p-0.5">
+        <button @click="timerMode = 'timer'" class="px-5 py-1.5 rounded text-sm font-medium transition-colors"
+                :class="timerMode === 'timer' ? 'bg-accent text-surface-dark' : 'text-text-muted'">Timer</button>
+        <button @click="timerMode = 'alarm'" class="px-5 py-1.5 rounded text-sm font-medium transition-colors"
+                :class="timerMode === 'alarm' ? 'bg-accent text-surface-dark' : 'text-text-muted'">Alarm</button>
+      </div>
+
+      <!-- Timer Creation -->
+      <div x-show="timerMode === 'timer'" class="space-y-2">
+        <!-- Quick presets -->
+        <div class="flex gap-1.5 justify-center">
+          <template x-for="p in [{s:30,l:'30s'},{s:60,l:'1m'},{s:180,l:'3m'},{s:300,l:'5m'},{s:600,l:'10m'},{s:900,l:'15m'},{s:1800,l:'30m'},{s:3600,l:'1h'}]" :key="p.s">
+            <button @click="newTimerSec = p.s; createTimerRaw()"
+                    class="w-12 h-12 rounded-full bg-surface-light hover:bg-accent/20 text-sm font-medium text-text-muted hover:text-accent transition-colors"
+                    x-text="p.l"></button>
+          </template>
+        </div>
+        <!-- Custom timer -->
+        <div class="flex gap-2 items-center">
+          <input x-model.number="newTimerMin" type="number" min="0" max="999" placeholder="0" @focus="$event.target.select()"
+                 class="w-14 bg-surface-light rounded-lg px-2 py-2 text-base text-text outline-none text-center focus:ring-1 focus:ring-accent">
+          <span class="text-sm text-text-dim">min</span>
+          <input x-model.number="newTimerSec" type="number" min="0" max="59" placeholder="0" @focus="$event.target.select()"
+                 class="w-14 bg-surface-light rounded-lg px-2 py-2 text-base text-text outline-none text-center focus:ring-1 focus:ring-accent">
+          <span class="text-sm text-text-dim">sec</span>
+          <input x-model="newTimerLabel" type="text" placeholder="Label"
+                 class="flex-1 bg-surface-light rounded-lg px-3 py-2 text-base text-text outline-none focus:ring-1 focus:ring-accent">
+          <button @click="createTimer()" class="bg-accent text-surface-dark px-5 py-2 rounded-lg text-base font-medium">Start</button>
+        </div>
+      </div>
+
+      <!-- Alarm Creation -->
+      <div x-show="timerMode === 'alarm'" class="space-y-2">
+        <div class="flex gap-2 items-center justify-center">
+          <div class="flex items-center bg-surface-light rounded-lg px-2 py-1.5 gap-1">
+            <input x-model.number="alarmHour" type="number" min="1" max="12" @focus="$event.target.select()"
+                   class="w-10 bg-surface rounded px-1 py-1 text-lg text-text font-mono outline-none text-center">
+            <span class="text-lg text-text-muted font-mono">:</span>
+            <input x-model.number="alarmMin" type="number" min="0" max="59" @focus="$event.target.select()"
+                   class="w-10 bg-surface rounded px-1 py-1 text-lg text-text font-mono outline-none text-center">
+            <div class="flex flex-col ml-1 gap-0.5">
+              <button @click="alarmAmPm = 'AM'" type="button" class="px-1.5 py-0 rounded text-xs font-medium leading-tight"
+                      :class="alarmAmPm === 'AM' ? 'bg-accent text-surface-dark' : 'text-text-dim'">AM</button>
+              <button @click="alarmAmPm = 'PM'" type="button" class="px-1.5 py-0 rounded text-xs font-medium leading-tight"
+                      :class="alarmAmPm === 'PM' ? 'bg-accent text-surface-dark' : 'text-text-dim'">PM</button>
+            </div>
+          </div>
+          <input x-model="alarmLabel" type="text" placeholder="Label (optional)"
+                 class="flex-1 bg-surface-light rounded-lg px-3 py-2 text-base text-text outline-none focus:ring-1 focus:ring-accent">
+          <button @click="createAlarmFromTime()" class="bg-accent text-surface-dark px-5 py-2 rounded-lg text-base font-medium">Set</button>
+        </div>
+        <!-- Tag selector -->
+        <div class="flex items-center justify-center gap-2">
+          <span class="text-xs text-text-dim">Type:</span>
+          <button @click="alarmTag = 'reminder'" class="px-3 py-1 rounded text-sm"
+                  :class="alarmTag === 'reminder' ? 'bg-accent text-surface-dark' : 'text-text-muted'">&#x1F514; Reminder</button>
+          <button @click="alarmTag = 'wake-up'" class="px-3 py-1 rounded text-sm"
+                  :class="alarmTag === 'wake-up' ? 'bg-accent text-surface-dark' : 'text-text-muted'">&#x2600;&#xFE0F; Wake Up</button>
+          <button @click="alarmTag = 'timer'" class="px-3 py-1 rounded text-sm"
+                  :class="alarmTag === 'timer' ? 'bg-accent text-surface-dark' : 'text-text-muted'">&#x23F1; Beep</button>
+        </div>
+        <!-- Schedule button -->
+        <div class="flex items-center justify-center">
+          <button @click="schedHour = 0; schedMin = 0; schedAmPm = 'AM'; schedLabel = ''; schedDate = ''; schedRepeat = 'none'; schedRepeatDays = []; showAlarmSchedule = true" type="button"
+                  class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium bg-surface-light text-text-muted hover:text-accent hover:bg-accent/10 transition-colors">
+            <span>&#128197;</span>
+            <span>Schedule</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Timers & Alarms -->
+      <div class="flex-1 overflow-y-auto space-y-1.5 mt-1">
+        <template x-for="(item, i) in timerItems" :key="item.id">
+          <div class="bg-surface-light rounded-xl px-4 py-2.5 flex items-center gap-3">
+            <!-- Icon -->
+            <div class="text-xl" x-text="item.type === 'timer' ? '\u23F1' : alarmTagIcon(item)"></div>
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="text-sm text-text-muted truncate" x-text="item.label"></div>
+              <div class="text-3xl font-mono leading-tight"
+                   :class="item.remaining <= 10 ? 'text-red-400 animate-pulse' : item.remaining <= 60 ? 'text-amber-400' : 'text-accent'"
+                   x-text="formatCountdown(item.remaining)"></div>
+            </div>
+            <!-- Target time, date & repeat for alarms -->
+            <div x-show="item.target_time" class="text-right shrink-0">
+              <div class="text-sm text-text-dim" x-text="item.target_time"></div>
+              <div x-show="item.target_date" class="text-xs text-text-muted" x-text="item.target_date"></div>
+              <div x-show="item.repeat && item.repeat !== 'none'" class="text-xs text-accent" x-text="alarmRepeatLabel(item)"></div>
+              <div x-show="item.tag && item.tag !== 'reminder'" class="text-xs text-text-muted" x-text="item.tag === 'wake-up' ? '\u2600\uFE0F Wake Up' : item.tag"></div>
+            </div>
+            <!-- Actions -->
+            <div class="flex gap-1.5 shrink-0">
+              <button x-show="item.type === 'timer'" @click="pauseTimer(item.id)"
+                      class="text-xs px-2.5 py-1 rounded-lg transition-colors"
+                      :class="item.paused ? 'bg-accent/20 text-accent' : 'bg-surface text-text-muted'"
+                      x-text="item.paused ? '&#9654;' : '&#10074;&#10074;'"></button>
+              <button x-show="item.type === 'alarm' && item.fired" @click="snoozeAlarm(item.id)"
+                      class="text-xs bg-accent text-surface-dark px-2.5 py-1 rounded-lg">+5m</button>
+              <button @click="cancelTimer(item)"
+                      class="text-xs bg-red-900/30 text-red-400 hover:bg-red-900/50 px-2.5 py-1 rounded-lg transition-colors">&times;</button>
+            </div>
+          </div>
+        </template>
+        <div x-show="timerItems.length === 0" class="flex flex-col items-center justify-center py-10 text-text-dim">
+          <div class="text-3xl mb-2" x-text="timerMode === 'timer' ? '\u23F1' : '\u23F0'"></div>
+          <div class="text-base" x-text="timerMode === 'timer' ? 'No active timers' : 'No alarms set'"></div>
+          <div class="text-sm mt-1 text-text-dim" x-text="timerMode === 'timer' ? 'Tap a preset or set a custom time' : 'Pick a time above'"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ CONTROLS TAB ═══════ -->
+    <div x-show="tab === 'controls'" x-init="$watch('tab', v => { if (v === 'controls') fetchControlsData(); })"
+         :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
+         class="h-full flex flex-col p-3 gap-3 overflow-y-auto">
+
+      <!-- System Status -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-base font-bold cursor-pointer" @click="showStatusDetail = true; fetchDetailedStatus()">📊 System Status</h3>
+          <button @click="refreshStatus()" class="text-sm text-accent">Refresh</button>
+        </div>
+        <template x-if="systemStatus">
+          <div @click="showStatusDetail = true; fetchDetailedStatus()" class="cursor-pointer">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 rounded-full" :class="systemStatus.overall === 'healthy' ? 'bg-green-500' : systemStatus.overall === 'warning' ? 'bg-amber-500' : 'bg-red-500'"></span>
+              <span class="text-sm font-medium capitalize" x-text="systemStatus.overall"></span>
+              <span x-show="conversationActive" class="text-sm text-blue-400 ml-auto">🎙️ Conversation Active</span>
+            </div>
+            <p class="text-sm text-text-muted leading-relaxed" x-text="systemStatus.summary"></p>
+            <p class="text-xs text-accent mt-1">Tap for detailed view →</p>
+          </div>
+        </template>
+        <p x-show="!systemStatus" class="text-sm text-text-dim">Loading...</p>
+      </div>
+
+
+
+      <!-- LED Controls -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <h3 class="text-base font-bold mb-2">💡 RGB Lights</h3>
+        <template x-if="ledState">
+          <div>
+            <div class="flex flex-wrap gap-2 mb-2">
+              <template x-for="m in ['off', 'static', 'breathing', 'rainbow', 'chase']" :key="m">
+                <button @click="setLedMode(m)" class="px-3 py-1.5 rounded text-sm capitalize"
+                        :class="ledState.mode === m ? 'bg-accent text-surface-dark' : 'bg-surface text-text-muted'" x-text="m"></button>
+              </template>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <label class="text-sm text-text-muted">Color:</label>
+              <input type="color" x-model="ledColorHex" @change="setLedColor()" class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent">
+              <div class="w-6 h-6 rounded-full border border-surface" :style="`background: ${ledColorHex}`"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-text-muted">Brightness:</label>
+              <input type="range" min="0" max="100" :value="ledState.brightness" @change="setLedBrightness($event.target.value)"
+                     class="flex-1 accent-accent">
+              <span class="text-sm text-text-muted w-8 text-right" x-text="ledState.brightness + '%'"></span>
+            </div>
+          </div>
+        </template>
+        <p x-show="!ledState" class="text-sm text-text-dim text-center py-2">Loading...</p>
+      </div>
+
+      <!-- Volume Controls -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <h3 class="text-base font-bold mb-2">🔊 Volume</h3>
+        <template x-if="volumeLevels">
+          <div>
+            <template x-for="cat in ['system', 'music', 'voice', 'effects', 'notifications', 'alarms']" :key="cat">
+              <div class="flex items-center gap-2 mb-1.5" :class="cat === 'system' ? 'pb-1.5 mb-2 border-b border-surface' : ''">
+                <label class="text-sm text-text-muted w-20 capitalize" x-text="cat === 'system' ? '🔈 master' : cat"></label>
+                <input type="range" min="0" :max="cat === 'system' ? 150 : 100" x-model.number="volumeLevels[cat]"
+                       @input="setVolume(cat, $event.target.value)"
+                       class="flex-1 accent-accent">
+                <input type="number" min="0" :max="cat === 'system' ? 150 : 100"
+                       x-model.number="volumeLevels[cat]"
+                       @change="setVolume(cat, $event.target.value)"
+                       class="w-10 text-xs text-text-muted text-right bg-transparent border border-surface rounded px-1 py-0.5 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]">
+              </div>
+            </template>
+          </div>
+        </template>
+        <p x-show="!volumeLevels" class="text-sm text-text-dim text-center py-2">Loading...</p>
+      </div>
+
+      <!-- Scene Modes -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-base font-bold">🎬 Scene Modes</h3>
+          <button @click="openSceneEditor(null)" class="text-sm text-accent">+ New</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <template x-for="s in scenes" :key="s.name">
+            <div class="relative group">
+              <button @click="s.active ? deactivateScene() : activateScene(s.name)"
+                      class="w-full px-3 py-2 rounded text-sm font-medium transition-colors"
+                      :class="s.active ? 'bg-accent text-surface-dark ring-1 ring-accent' : 'bg-surface text-text-muted hover:bg-surface-light'"
+                      x-text="s.label"></button>
+              <button x-show="!s.is_builtin" @click.stop="openSceneEditor(s)"
+                      class="absolute top-1 right-1 w-5 h-5 rounded-full bg-surface-dark/60 text-text-dim hover:text-accent flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Edit scene">&#9998;</button>
+            </div>
+          </template>
+        </div>
+        <p x-show="scenes.length === 0" class="text-sm text-text-dim text-center py-2">No scenes available</p>
+        <!-- Scene Editor Form -->
+        <div x-show="sceneEditing !== null" x-transition class="mt-2 bg-surface rounded-lg p-2 space-y-1.5 border border-accent/30">
+          <div class="text-sm text-accent font-medium" x-text="sceneEditing === 'new' ? 'Create Scene' : 'Edit Scene'"></div>
+          <input x-model="sceneForm.label" type="text" placeholder="Scene name"
+                 class="w-full bg-surface-light rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+          <!-- LED section -->
+          <div class="text-xs text-text-dim uppercase tracking-wider pt-1">LEDs</div>
+          <div class="flex flex-wrap gap-1">
+            <label class="flex items-center gap-1 text-[10px] text-text-muted cursor-pointer">
+              <input type="checkbox" x-model="sceneForm.rgb_off" class="accent-accent w-3 h-3"> Off
+            </label>
+            <select x-model="sceneForm.rgb_mode" class="bg-surface-light rounded px-1.5 py-0.5 text-[10px] text-text outline-none flex-1">
+              <option value="">No mode</option>
+              <option value="static">Static</option>
+              <option value="breathing">Breathing</option>
+              <option value="rainbow">Rainbow</option>
+              <option value="chase">Chase</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-[10px] text-text-dim w-16">Color:</label>
+            <input type="color" :value="sceneForm.rgb_color ? '#' + sceneForm.rgb_color.map(c => c.toString(16).padStart(2,'0')).join('') : '#000000'"
+                   @change="const h=$event.target.value.replace('#',''); sceneForm.rgb_color = [parseInt(h.substring(0,2),16), parseInt(h.substring(2,4),16), parseInt(h.substring(4,6),16)]"
+                   class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent">
+            <label class="text-[10px] text-text-dim ml-2">Brightness:</label>
+            <input type="range" min="0" max="255" x-model.number="sceneForm.rgb_brightness" class="flex-1 accent-accent">
+          </div>
+          <!-- TV section -->
+          <div class="text-xs text-text-dim uppercase tracking-wider pt-1">TV</div>
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center gap-1 text-[10px] text-text-muted cursor-pointer">
+              <input type="checkbox" x-model="sceneForm.tv_on" class="accent-accent w-3 h-3"> On
+            </label>
+            <label class="flex items-center gap-1 text-[10px] text-text-muted cursor-pointer">
+              <input type="checkbox" x-model="sceneForm.tv_off" class="accent-accent w-3 h-3"> Off
+            </label>
+            <select x-model="sceneForm.tv_app" class="bg-surface-light rounded px-1.5 py-0.5 text-[10px] text-text outline-none flex-1">
+              <option value="">No app</option>
+              <option value="youtube">YouTube</option>
+              <option value="netflix">Netflix</option>
+              <option value="crunchyroll">Crunchyroll</option>
+              <option value="twitch">Twitch</option>
+              <option value="prime">Prime Video</option>
+              <option value="plex">Plex</option>
+            </select>
+          </div>
+          <!-- Music section -->
+          <div class="text-xs text-text-dim uppercase tracking-wider pt-1">Music</div>
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center gap-1 text-[10px] text-text-muted cursor-pointer">
+              <input type="checkbox" x-model="sceneForm.music_stop" class="accent-accent w-3 h-3"> Stop
+            </label>
+            <input x-model="sceneForm.music_playlist" type="text" placeholder="Playlist search query"
+                   class="flex-1 bg-surface-light rounded px-2 py-0.5 text-[10px] text-text outline-none focus:ring-1 focus:ring-accent">
+          </div>
+          <!-- Actions -->
+          <div class="flex gap-2 justify-end pt-1">
+            <button x-show="sceneEditing !== 'new'" @click="deleteScene(sceneEditing)"
+                    class="px-3 py-1 rounded text-xs bg-red-900/20 text-red-400 hover:bg-red-900/30 mr-auto">Delete</button>
+            <button @click="sceneEditing = null" class="px-4 py-1 rounded text-sm bg-surface-light text-text-muted">Cancel</button>
+            <button @click="saveScene()" class="px-4 py-1 rounded text-sm bg-accent text-surface-dark font-medium">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio Routing -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-base font-bold">&#x1F50A; Audio Routing</h3>
+          <div class="flex gap-2">
+            <button @click="fetchAudioRouting(); fetchAudioDevices(); fetchMusicDevices()" class="text-sm text-accent">Refresh</button>
+          </div>
+        </div>
+        <p class="text-xs text-text-dim mb-2">Route each function to a different audio device</p>
+        <!-- Per-function routing rows -->
+        <div class="space-y-1.5 mb-2">
+          <template x-for="func in ['music', 'voice', 'effects', 'notifications']" :key="'ar-'+func">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-text-muted w-20 capitalize" x-text="func"></span>
+              <select @change="setFunctionOutput(func, $event.target.value)"
+                      x-effect="$el.value = audioRouting[func]?.id || (audioDevices.find(d=>d.is_default)?.pw_id) || (audioDevices.find(d=>d.is_default)?.id) || ''"
+                      class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+                <template x-for="d in audioDevices" :key="'ar-opt-'+func+'-'+(d.pw_id||d.id)">
+                  <option :value="d.pw_id || d.id"
+                          x-text="d.description || d.name"></option>
+                </template>
+              </select>
+            </div>
+          </template>
+        </div>
+        <!-- Route All button -->
+        <button @click="if(audioDevices.length) { const id = audioDevices.find(d=>d.is_default)?.pw_id || audioDevices[0]?.pw_id || audioDevices[0]?.id; if(id) setFunctionOutput('all', id); }"
+                class="w-full text-center px-3 py-1.5 rounded text-sm bg-surface text-accent hover:bg-accent/20 transition-colors mb-2">
+          Route All to Default
+        </button>
+
+        <!-- Bluetooth -->
+        <div class="border-t border-surface pt-2 mt-2">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-sm text-text-muted">Bluetooth</span>
+            <button @click="btScan()" :disabled="btScanning"
+                    class="text-sm px-3 py-1 rounded bg-surface text-accent disabled:opacity-50"
+                    x-text="btScanning ? 'Scanning...' : '&#x1F50D; Scan'"></button>
+          </div>
+          <div class="space-y-1">
+            <template x-for="bt in btDevices" :key="bt.address">
+              <div class="flex items-center gap-2 bg-surface rounded px-2 py-1.5">
+                <span class="text-sm flex-1 truncate" x-text="bt.name || bt.address"></span>
+                <button @click="btPair(bt.address)" class="text-xs text-accent">Pair</button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-base font-bold">&#x1F514; Notifications</h3>
+          <div class="flex gap-2 items-center">
+            <button @click="clearKdeNotifications()" class="text-sm text-text-dim">Clear</button>
+            <!-- Master enable/disable toggle -->
+            <button @click="toggleNotifications()" class="w-10 h-5 rounded-full transition-colors relative"
+                    :class="notifSettings.enabled ? 'bg-green-500' : 'bg-red-500/50'">
+              <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                    :class="notifSettings.enabled ? 'translate-x-5' : 'translate-x-0.5'"></span>
+            </button>
+          </div>
+        </div>
+        <!-- Device list -->
+        <div class="mb-2">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs text-text-dim uppercase tracking-wider">Devices</span>
+            <button @click="refreshNotifDevices()" class="text-xs text-accent">Refresh</button>
+          </div>
+          <div class="space-y-0.5">
+            <template x-for="(info, devId) in (notifSettings.devices || {})" :key="devId">
+              <div class="flex items-center gap-1.5 bg-surface rounded px-2 py-1">
+                <span class="w-1.5 h-1.5 rounded-full" :class="info.reachable ? 'bg-green-500' : 'bg-red-500'"></span>
+                <span class="text-sm flex-1 truncate" x-text="info.name || devId"></span>
+                <span class="text-xs text-text-dim" x-text="info.reachable ? 'Online' : 'Offline'"></span>
+              </div>
+            </template>
+            <div x-show="!notifSettings.devices || Object.keys(notifSettings.devices).length === 0" class="text-xs text-text-dim text-center py-1">No devices found</div>
+          </div>
+        </div>
+        <!-- Blocklist editor -->
+        <div class="mb-2">
+          <div class="text-xs text-text-dim uppercase tracking-wider mb-1">Blocklist</div>
+          <div class="flex gap-1 mb-1">
+            <input x-model="blocklistInput" type="text" placeholder="App package name..."
+                   class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+            <button @click="addToBlocklist()" class="bg-accent text-surface-dark px-3 py-1.5 rounded text-sm font-medium">Add</button>
+          </div>
+          <div class="space-y-0.5 max-h-20 overflow-y-auto">
+            <template x-for="(app, i) in (notifSettings.blocklist || [])" :key="'bl-'+i">
+              <div class="flex items-center gap-1 bg-surface rounded px-2 py-0.5">
+                <span class="text-sm flex-1 truncate" x-text="app"></span>
+                <button @click="removeFromBlocklist(app)" class="text-sm text-red-400 px-1">&times;</button>
+              </div>
+            </template>
+          </div>
+        </div>
+        <!-- Notification history -->
+        <div x-show="kdeNotifications.length === 0" class="text-sm text-text-dim text-center py-2">No recent notifications</div>
+        <div class="max-h-48 overflow-y-auto space-y-1">
+          <template x-for="n in kdeNotifications.slice(0, 20)" :key="n.id">
+            <div class="bg-surface rounded px-2 py-1.5 flex items-start gap-2">
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium truncate" x-text="n.title || n.app"></div>
+                <div class="text-xs text-text-muted truncate" x-text="n.body"></div>
+                <div class="text-xs text-text-dim" x-text="n.device + ' · ' + new Date(n.timestamp * 1000).toLocaleTimeString()"></div>
+              </div>
+              <button @click="replyToNotification(n)" class="text-xs text-accent shrink-0">Reply</button>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- BMO Voice Output (Laptop / Browser) -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-base font-bold">&#x1F5E3; BMO Voice Output</h3>
+        </div>
+        <p class="text-xs text-text-dim mb-2">Route BMO speech to laptop speakers (requires browser permission)</p>
+        <div class="space-y-1.5">
+          <button @click="setTtsOutput('pi')"
+                  class="w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 transition-colors"
+                  :class="ttsOutput === 'pi' ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-surface text-text-muted hover:bg-surface-light'">
+            <span class="text-sm">&#x1F50A;</span>
+            <span>Pi Speakers (default)</span>
+          </button>
+          <template x-for="d in laptopAudioDevices" :key="'tts-lap-' + d.deviceId">
+            <button @click="setTtsOutput('browser', null, d.deviceId)"
+                    class="w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 transition-colors"
+                    :class="ttsOutput === 'browser' && ttsLaptopDevice === d.deviceId ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-surface text-text-muted hover:bg-surface-light'">
+              <span>&#x1F4BB;</span>
+              <span class="flex-1 truncate" x-text="d.label + ' (Laptop)'"></span>
+            </button>
+          </template>
+          <button x-show="laptopAudioDevices.length === 0" @click="enumerateLaptopDevices()"
+                  class="w-full text-left px-3 py-2 rounded text-sm bg-surface text-accent hover:bg-surface-light">
+            &#x1F504; Load laptop audio devices
+          </button>
+        </div>
+      </div>
+
+      <!-- Microphone Input -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-base font-bold">🎤 Microphone Input</h3>
+          <button @click="fetchMicInputs()" class="text-sm text-accent">Refresh</button>
+        </div>
+        <p class="text-xs text-text-dim mb-2">Which mic BMO listens on -- Pi sources, Bluetooth, or laptop</p>
+        <div class="space-y-1.5">
+          <!-- Pi sources -->
+          <template x-for="d in micInputs" :key="'mic-' + (d.pw_id || d.id)">
+            <button @click="setMicInput(d.pw_id || d.id)"
+                    class="w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 transition-colors"
+                    :class="d.is_default ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-surface text-text-muted hover:bg-surface-light'">
+              <span x-text="d.is_default ? '🎤' : '🎙️'" class="text-sm"></span>
+              <span class="flex-1 truncate" x-text="(d.description || d.name) + ' (Pi)'"></span>
+            </button>
+          </template>
+          <!-- Laptop mic devices -->
+          <template x-for="d in laptopMicDevices" :key="'mic-lap-' + d.deviceId">
+            <button class="w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 bg-surface text-text-muted hover:bg-surface-light">
+              <span>💻</span>
+              <span class="flex-1 truncate" x-text="d.label + ' (Laptop)'"></span>
+              <span class="text-xs text-text-dim">Stream N/A</span>
+            </button>
+          </template>
+          <div x-show="micInputs.length === 0 && laptopMicDevices.length === 0" class="text-sm text-text-dim text-center py-2">No mic sources found</div>
+        </div>
+        <!-- Bluetooth for mic -->
+        <div class="border-t border-surface pt-2 mt-2">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-sm text-text-muted">Bluetooth Mics</span>
+            <button @click="btScan()" :disabled="btScanning"
+                    class="text-sm px-3 py-1 rounded bg-surface text-accent disabled:opacity-50"
+                    x-text="btScanning ? 'Scanning...' : '🔍 Scan'"></button>
+          </div>
+          <div class="space-y-1">
+            <template x-for="bt in btDevices" :key="'mic-bt-' + bt.address">
+              <div class="flex items-center gap-2 bg-surface rounded px-2 py-1.5">
+                <span class="text-sm flex-1 truncate" x-text="bt.name || bt.address"></span>
+                <button @click="btPair(bt.address)" class="text-xs text-accent">Pair</button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Smart Home Devices -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-base font-bold">🏠 Smart Home</h3>
+          <button @click="fetchSmartDevices()" class="text-sm text-accent">Refresh</button>
+        </div>
+        <div x-show="smartDevices.length === 0" class="text-sm text-text-dim text-center py-2">No devices found</div>
+        <div class="space-y-1.5">
+          <template x-for="dev in smartDevices" :key="dev.name">
+            <div class="bg-surface rounded-lg overflow-hidden">
+              <!-- Device row (click to expand) -->
+              <div @click="smartDeviceExpanded === dev.name ? smartDeviceExpanded = null : smartDeviceExpanded = dev.name"
+                   class="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent/10">
+                <span class="w-2 h-2 rounded-full shrink-0" :class="dev.status === 'idle' ? 'bg-text-dim' : 'bg-green-500'"></span>
+                <span class="text-sm font-medium flex-1 truncate" x-text="dev.name"></span>
+                <span class="text-xs text-text-dim" x-text="dev.app || dev.status || 'idle'"></span>
+              </div>
+              <!-- Expanded controls -->
+              <div x-show="smartDeviceExpanded === dev.name" class="px-3 pb-2 space-y-2 border-t border-surface-light">
+                <!-- Play/Pause/Stop row -->
+                <div class="flex gap-1.5 pt-2">
+                  <button @click="smartDeviceAction(dev.name, 'play')" class="flex-1 py-1.5 rounded text-sm bg-surface-light hover:bg-accent/20 text-text-muted">&#9654; Play</button>
+                  <button @click="smartDeviceAction(dev.name, 'pause')" class="flex-1 py-1.5 rounded text-sm bg-surface-light hover:bg-accent/20 text-text-muted">&#9208; Pause</button>
+                  <button @click="smartDeviceAction(dev.name, 'stop')" class="flex-1 py-1.5 rounded text-sm bg-surface-light hover:bg-accent/20 text-text-muted">&#9209; Stop</button>
+                </div>
+                <!-- Volume + Mute -->
+                <div class="flex items-center gap-2">
+                  <label class="text-xs text-text-dim w-10">Vol:</label>
+                  <input type="range" min="0" max="100" :value="dev.volume || 50"
+                         @change="smartDeviceVolume(dev.name, $event.target.value)"
+                         class="flex-1 accent-accent">
+                  <button @click="smartDeviceAction(dev.name, 'mute', {muted: true})" class="text-[10px] text-text-dim hover:text-accent">🔇</button>
+                </div>
+                <!-- Quit app -->
+                <button @click="smartDeviceAction(dev.name, 'quit')" class="w-full py-1 rounded text-xs bg-red-900/20 text-red-400 hover:bg-red-900/30">Quit App</button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Voice Settings (Phase 6) -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <h3 class="text-base font-bold mb-2">🎙️ Voice Settings</h3>
+        <div class="space-y-3">
+          <!-- Wake word toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-text-muted">Wake Word</span>
+            <button @click="toggleWakeWord()" class="px-3 py-1 rounded text-sm font-medium"
+                    :class="voiceSettings.wake_enabled ? 'bg-green-600 text-white' : 'bg-surface text-text-dim'"
+                    x-text="voiceSettings.wake_enabled ? 'ON' : 'OFF'"></button>
+          </div>
+          <!-- Sensitivity slider (inverse of silence_threshold) -->
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-text-muted w-20">Sensitivity</label>
+            <input type="range" min="100" max="2000" :value="2100 - (voiceSettings.silence_threshold || 600)"
+                   @change="updateVoiceSetting('silence_threshold', 2100 - parseInt($event.target.value))"
+                   class="flex-1 accent-accent">
+            <span class="text-[10px] text-text-dim w-12 text-right" x-text="voiceSettings.silence_threshold || 600"></span>
+          </div>
+          <!-- VAD sensitivity -->
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-text-muted w-20">VAD</label>
+            <input type="range" min="10" max="30" :value="(voiceSettings.vad_sensitivity || 1.8) * 10"
+                   @change="updateVoiceSetting('vad_sensitivity', parseInt($event.target.value) / 10)"
+                   class="flex-1 accent-accent">
+            <span class="text-[10px] text-text-dim w-12 text-right" x-text="(voiceSettings.vad_sensitivity || 1.8).toFixed(1)"></span>
+          </div>
+          <!-- TTS Provider -->
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-text-muted w-20">TTS</label>
+            <div class="flex gap-1 flex-1">
+              <template x-for="p in ['auto', 'piper_bmo', 'fish', 'edge', 'local']" :key="p">
+                <button @click="updateVoiceSetting('tts_provider', p)" class="flex-1 py-1 rounded text-[10px] capitalize"
+                        :class="(voiceSettings.tts_provider || 'auto') === p ? 'bg-accent text-surface-dark' : 'bg-surface text-text-muted'" x-text="p === 'piper_bmo' ? 'BMO' : p"></button>
+              </template>
+            </div>
+          </div>
+          <!-- STT Provider -->
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-text-muted w-20">STT</label>
+            <div class="flex gap-1 flex-1">
+              <template x-for="p in ['auto', 'local', 'groq']" :key="p">
+                <button @click="updateVoiceSetting('stt_provider', p)" class="flex-1 py-1 rounded text-[10px] capitalize"
+                        :class="(voiceSettings.stt_provider || 'auto') === p ? 'bg-accent text-surface-dark' : 'bg-surface text-text-muted'" x-text="p"></button>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browser Permissions (hidden when already granted) -->
+      <div x-show="!browserMicGranted" class="bg-surface-light rounded-lg p-3">
+        <h3 class="text-base font-bold mb-2">🔐 Browser Permissions</h3>
+        <p class="text-xs text-text-dim mb-2">Grant browser access to laptop mic/audio. Requires Chrome flag:</p>
+        <div class="flex items-center gap-1 mb-2">
+          <code class="text-accent text-xs bg-surface px-2 py-1 rounded flex-1 truncate">chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>
+          <button @click="(() => { const t='chrome://flags/#unsafely-treat-insecure-origin-as-secure'; const el=document.createElement('textarea'); el.value=t; el.style.position='fixed'; el.style.left='-9999px'; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); showNotification('Copied to clipboard!', 'success'); })()"
+                  class="text-xs px-2 py-1 rounded bg-surface text-accent hover:bg-surface-light shrink-0">📋 Copy</button>
+        </div>
+        <p class="text-xs text-text-dim mb-2">Copy the flag URL above → paste in Chrome address bar → add <code class="text-accent">http://10.10.20.242:5000</code> → Enable → Relaunch</p>
+        <button @click="requestBrowserMicPermission()"
+                class="w-full text-left px-3 py-2 rounded text-sm bg-surface text-accent hover:bg-surface-light flex items-center gap-2">
+          <span>🎤</span> <span x-text="browserMicGranted ? '✅ Microphone access granted' : 'Grant Microphone Access'"></span>
+        </button>
+      </div>
+
+        <!-- Routines -->
+        <div class="bg-surface-light rounded-xl p-3">
+          <div class="text-sm text-text-dim uppercase tracking-wider mb-2">Routines</div>
+          <div class="space-y-1.5">
+            <template x-for="routine in routines" :key="routine.id">
+              <div class="flex items-center justify-between gap-2 text-sm">
+                <span class="flex-1 truncate" :class="routine.enabled ? 'text-text' : 'text-text-dim'" x-text="routine.name"></span>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button @click="triggerRoutine(routine.id)" class="px-3 py-1 rounded bg-accent/20 text-accent text-xs hover:bg-accent/30">Run</button>
+                  <button @click="toggleRoutine(routine.id, !routine.enabled)" class="w-8 h-4 rounded-full relative transition-colors"
+                          :class="routine.enabled ? 'bg-accent' : 'bg-surface'">
+                    <span class="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform"
+                          :class="routine.enabled ? 'translate-x-4' : 'translate-x-0.5'"></span>
+                  </button>
+                </div>
+              </div>
+            </template>
+            <div x-show="routines.length === 0" class="text-sm text-text-dim text-center py-1">No routines configured</div>
+          </div>
+        </div>
+
+    </div>
+  </main>
+
+  <!-- Now-Playing Mini Bar (global, shown on non-music tabs when music is playing) -->
+  <div x-show="musicState.song && tab !== 'music'" x-transition
+       class="h-14 shrink-0 bg-surface border-t border-surface-light flex items-center gap-3 px-3 z-10">
+    <img :src="musicState.song?.thumbnail" class="w-10 h-10 rounded object-cover" x-show="musicState.song?.thumbnail" referrerpolicy="no-referrer">
+    <div class="flex-1 min-w-0 cursor-pointer" @click="tab = 'music'">
+      <div class="text-sm font-medium truncate" x-text="musicState.song?.title"></div>
+      <div class="text-xs text-text-muted truncate" x-text="musicState.song?.artist"></div>
+    </div>
+    <button @click="musicCmd('previous')" class="w-8 h-8 flex items-center justify-center text-text-muted">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="3" y="5" width="3" height="14" rx="0.5"/><polygon points="21 5 9 12 21 19"/>
+      </svg>
+    </button>
+    <button @click="musicCmd('pause')" class="w-10 h-10 flex items-center justify-center rounded-full bg-accent text-surface-dark">
+      <template x-if="musicState.is_playing">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/>
+        </svg>
+      </template>
+      <template x-if="!musicState.is_playing">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21"/></svg>
+      </template>
+    </button>
+    <button @click="musicCmd('next')" class="w-8 h-8 flex items-center justify-center text-text-muted">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <polygon points="3 5 15 12 3 19"/><rect x="18" y="5" width="3" height="14" rx="0.5"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Bottom Tab Bar -->
+  <nav class="h-[60px] shrink-0 bg-surface border-t border-surface-light flex overflow-x-auto z-10 relative">
+    <template x-for="t in tabs" :key="t.id">
+      <button @click="if(t.id === 'ide') { window.location.href = '/ide'; return; } tab = t.id" class="flex-1 min-w-[70px] flex flex-col items-center justify-center gap-0.5 transition-colors"
+              :class="tab === t.id ? 'text-accent' : 'text-text-dim'">
+        <span class="text-2xl" x-text="t.icon"></span>
+        <span class="text-[11px] font-medium" x-text="t.label"></span>
+      </button>
+    </template>
+  </nav>
+
+  <!-- Notification Banner -->
+  <div x-show="notification && !alertFired" x-transition
+       class="fixed top-0 left-0 right-0 bg-accent text-surface-dark px-4 py-2 text-sm text-center z-50 cursor-pointer"
+       @click="notification = null" x-text="notification">
+  </div>
+
+  <!-- Camera Overlay (accessed from chat) -->
+  <div x-cloak x-show="showCameraOverlay" x-transition style="display:none"
+       class="fixed inset-0 bg-surface-dark z-40 flex flex-col">
+    <div class="flex-1 bg-black flex items-center justify-center relative overflow-hidden min-h-0">
+      <img :src="showCameraOverlay ? '/api/camera/stream' : ''" class="w-full h-full object-contain" x-show="cameraActive" @error="cameraActive=false">
+      <div x-show="!cameraActive" class="text-text-muted">Camera offline</div>
+      <div x-show="visionResult" class="absolute bottom-0 left-0 right-0 bg-surface-dark/80 p-3 text-sm max-h-[40%] overflow-y-auto break-words whitespace-pre-wrap" x-text="visionResult"></div>
+    </div>
+    <div class="flex gap-2 p-2 justify-center border-t border-surface-light shrink-0">
+      <button @click="cameraSnap()" class="bg-surface-light hover:bg-accent/20 px-4 py-2 rounded-lg text-sm">Snap</button>
+      <button @click="cameraDescribe()" class="bg-surface-light hover:bg-accent/20 px-4 py-2 rounded-lg text-sm">Describe</button>
+      <button @click="toggleMotion()" class="px-4 py-2 rounded-lg text-sm"
+              :class="motionEnabled ? 'bg-accent text-surface-dark' : 'bg-surface-light'">Motion</button>
+      <button @click="showCameraOverlay = false; visionResult = ''" class="bg-accent hover:bg-accent-light text-surface-dark px-4 py-2 rounded-lg text-sm font-medium">Back to Chat</button>
+    </div>
+  </div>
+
+  <!-- Alarm Schedule Overlay -->
+  <div x-cloak x-show="showAlarmSchedule" x-transition style="display:none"
+       class="fixed inset-0 bg-surface-dark z-40 flex flex-col"
+       x-effect="if (showAlarmSchedule) initAlarmCal()">
+    <!-- Header -->
+    <div class="h-10 shrink-0 flex items-center justify-between px-4 border-b border-surface-light">
+      <button @click="showAlarmSchedule = false" class="text-text-muted hover:text-text text-sm">Cancel</button>
+      <span class="text-sm font-medium text-accent">Schedule Alarm</span>
+      <button @click="showAlarmSchedule = false; createScheduledAlarm()" class="text-accent hover:text-accent-light text-sm font-medium">Set</button>
+    </div>
+
+    <!-- Content — two-column layout for 800x480 -->
+    <div class="flex-1 flex min-h-0">
+
+      <!-- Left: Calendar -->
+      <div class="w-1/2 border-r border-surface-light p-3 flex flex-col gap-2 overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <button @click="alarmCalPrev()" type="button" class="w-7 h-7 rounded-full bg-surface-light text-text-muted hover:text-accent flex items-center justify-center text-sm">&lt;</button>
+          <span class="text-xs font-medium text-text" x-text="alarmCalTitle()"></span>
+          <button @click="alarmCalNext()" type="button" class="w-7 h-7 rounded-full bg-surface-light text-text-muted hover:text-accent flex items-center justify-center text-sm">&gt;</button>
+        </div>
+        <!-- Day headers -->
+        <div class="grid grid-cols-7 gap-0.5 text-center">
+          <template x-for="(h, hi) in ['S','M','T','W','T','F','S']" :key="hi">
+            <div class="text-xs text-text-dim py-0.5" x-text="h"></div>
+          </template>
+        </div>
+        <!-- Day grid -->
+        <div class="grid grid-cols-7 gap-0.5">
+          <template x-for="cell in alarmCalCells()" :key="cell.key">
+            <button @click="cell.day ? pickAlarmDate(cell.iso) : null" type="button"
+                    class="h-8 rounded text-xs font-medium flex items-center justify-center transition-colors"
+                    :class="cell.day
+                      ? (schedDate === cell.iso
+                        ? 'bg-accent text-surface-dark'
+                        : cell.today
+                          ? 'bg-accent/20 text-accent'
+                          : cell.past
+                            ? 'text-text-dim/40'
+                            : 'text-text-muted hover:bg-surface-light')
+                      : ''"
+                    x-text="cell.day || ''"></button>
+          </template>
+        </div>
+        <!-- Quick picks -->
+        <div class="flex gap-1 mt-auto">
+          <button @click="pickAlarmDate(todayISO())" type="button" class="flex-1 py-1.5 rounded text-xs font-medium text-center transition-colors"
+                  :class="schedDate === todayISO() ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'">Today</button>
+          <button @click="pickAlarmDate(tomorrowISO())" type="button" class="flex-1 py-1.5 rounded text-xs font-medium text-center transition-colors"
+                  :class="schedDate === tomorrowISO() ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'">Tomorrow</button>
+        </div>
+      </div>
+
+      <!-- Right: Time, Label, Repeat + Summary -->
+      <div class="w-1/2 p-3 flex flex-col gap-3 overflow-y-auto">
+        <!-- Time -->
+        <div class="flex items-center justify-center gap-1">
+          <input x-model.number="schedHour" type="number" min="1" max="12" @focus="$event.target.select()"
+                 class="w-9 bg-surface-light rounded px-1 py-1 text-lg text-text font-mono outline-none text-center">
+          <span class="text-lg text-text-muted font-mono">:</span>
+          <input x-model.number="schedMin" type="number" min="0" max="59" @focus="$event.target.select()"
+                 class="w-9 bg-surface-light rounded px-1 py-1 text-lg text-text font-mono outline-none text-center">
+          <div class="flex flex-col ml-1 gap-0.5">
+            <button @click="schedAmPm = 'AM'" type="button" class="px-1.5 py-0 rounded text-xs font-medium leading-tight"
+                    :class="schedAmPm === 'AM' ? 'bg-accent text-surface-dark' : 'text-text-dim'">AM</button>
+            <button @click="schedAmPm = 'PM'" type="button" class="px-1.5 py-0 rounded text-xs font-medium leading-tight"
+                    :class="schedAmPm === 'PM' ? 'bg-accent text-surface-dark' : 'text-text-dim'">PM</button>
+          </div>
+        </div>
+        <!-- Label -->
+        <input x-model="schedLabel" type="text" placeholder="Label (optional)"
+               class="w-full bg-surface-light rounded-lg px-3 py-2 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
+        <!-- Repeat -->
+        <div class="space-y-1.5">
+          <div class="text-xs font-medium text-text-muted uppercase tracking-wider">Repeat</div>
+          <div class="grid grid-cols-2 gap-1">
+            <template x-for="opt in [{v:'none',l:'Once'},{v:'daily',l:'Daily'},{v:'weekdays',l:'Weekdays'},{v:'weekends',l:'Weekends'}]" :key="opt.v">
+              <button @click="schedRepeat = opt.v" type="button"
+                      class="py-2 rounded-lg text-sm font-medium text-center transition-colors"
+                      :class="schedRepeat === opt.v ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'"
+                      x-text="opt.l"></button>
+            </template>
+          </div>
+          <button @click="schedRepeat = 'custom'" type="button"
+                  class="w-full py-2 rounded-lg text-sm font-medium text-center transition-colors"
+                  :class="schedRepeat === 'custom' ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'">Custom Days</button>
+        </div>
+
+        <!-- Custom Days -->
+        <div x-show="schedRepeat === 'custom'" x-transition class="space-y-1.5">
+          <div class="flex gap-1 justify-center">
+            <template x-for="d in [{v:'SU',l:'S'},{v:'MO',l:'M'},{v:'TU',l:'T'},{v:'WE',l:'W'},{v:'TH',l:'T'},{v:'FR',l:'F'},{v:'SA',l:'S'}]" :key="d.v">
+              <button @click="toggleAlarmDay(d.v)" type="button"
+                      class="w-9 h-9 rounded-full text-xs font-medium transition-colors flex items-center justify-center"
+                      :class="schedRepeatDays.includes(d.v) ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted hover:bg-accent/20'"
+                      x-text="d.l"></button>
+            </template>
+          </div>
+          <div x-show="schedRepeatDays.length > 0" class="text-center text-xs text-text-dim"
+               x-text="schedRepeatDays.map(d => ({SU:'Sun',MO:'Mon',TU:'Tue',WE:'Wed',TH:'Thu',FR:'Fri',SA:'Sat'}[d])).join(', ')"></div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-surface rounded-xl p-2.5 text-center mt-auto">
+          <div class="text-xs text-text-dim mb-0.5">Alarm fires</div>
+          <div class="text-sm text-accent font-medium" x-text="alarmScheduleDescription()"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Timer/Alarm Alert Overlay -->
+  <div x-cloak x-show="alertFired" x-transition
+       class="fixed inset-0 bg-surface-dark/95 z-50 flex flex-col items-center justify-center gap-6">
+    <div class="text-5xl" x-text="alertFired?.type === 'alarm' ? '\u23F0' : '\u23F1'"></div>
+    <div class="text-2xl font-medium text-accent animate-pulse" x-text="alertFired?.label"></div>
+    <div class="text-sm text-text-muted">Time's up!</div>
+    <div class="flex flex-wrap gap-2 justify-center mt-2">
+      <template x-for="p in [{s:30,l:'30s'},{s:60,l:'1m'},{s:180,l:'3m'},{s:300,l:'5m'},{s:600,l:'10m'},{s:900,l:'15m'},{s:1800,l:'30m'},{s:3600,l:'1h'}]" :key="p.s">
+        <button @click="snoozeAlert(p.s)"
+                class="w-12 h-12 rounded-full bg-surface-light text-text text-xs font-medium hover:bg-accent/20 hover:text-accent transition-colors"
+                x-text="'+' + p.l"></button>
+      </template>
+    </div>
+    <button @click="dismissAlert()"
+            class="px-8 py-3 rounded-xl bg-accent text-surface-dark text-sm font-medium hover:bg-accent-light transition-colors mt-2">
+      Dismiss
+    </button>
+  </div>
+
+  <!-- ═══════ FULL-SCREEN SYSTEM STATUS PAGE ═══════ -->
+  <div x-show="showStatusDetail" x-cloak
+       style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:#0a0a0a;"
+       class="flex flex-col overflow-hidden"
+       @keydown.escape.window="showStatusDetail = false">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 bg-surface-dark border-b border-surface shrink-0">
+      <button @click="showStatusDetail = false" class="flex items-center gap-2 text-accent text-xl font-medium">
+        ← Back
+      </button>
+      <h2 class="text-3xl font-bold">📊 System Status</h2>
+      <div class="flex items-center gap-3">
+        <button @click="navigator.clipboard.writeText($refs.statusText.innerText).then(() => { copiedStatus = true; setTimeout(() => copiedStatus = false, 2000) })"
+                class="px-4 py-2 rounded-lg bg-surface text-lg text-text-muted hover:bg-accent/20">
+          <span x-show="!copiedStatus">📋 Copy All</span>
+          <span x-show="copiedStatus" class="text-green-400">✓ Copied</span>
+        </button>
+        <button @click="fetchDetailedStatus()" class="px-4 py-2 rounded-lg bg-surface text-lg text-accent">↻</button>
+        <button @click="restartAll()" class="px-4 py-2 rounded-lg bg-red-900/40 text-lg text-red-400">🔄 Restart All</button>
+      </div>
+    </div>
+    <!-- Status Content -->
+    <div class="flex-1 overflow-y-auto p-5" x-ref="statusText">
+      <template x-if="!detailedStatus">
+        <p class="text-text-dim text-center mt-8 text-xl">Loading detailed status...</p>
+      </template>
+      <template x-if="detailedStatus">
+        <div class="space-y-5 font-mono max-w-4xl mx-auto" style="zoom:2;">
+          <!-- Overall -->
+          <div class="bg-surface-light rounded-lg p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="w-5 h-5 rounded-full" :class="detailedStatus.overall === 'healthy' ? 'bg-green-500' : detailedStatus.overall === 'warning' ? 'bg-amber-500' : 'bg-red-500'"></span>
+              <span class="text-2xl font-bold uppercase" x-text="'OVERALL: ' + detailedStatus.overall"></span>
+            </div>
+            <p class="text-text-muted text-base" x-show="detailedStatus.pi_uptime">🖥️ Pi Uptime: <span class="text-green-400 font-bold" x-text="formatPiUptime(detailedStatus.pi_uptime)"></span></p>
+            <template x-if="detailedStatus.down_services.length > 0">
+              <p class="text-red-400 mt-1 text-base">DOWN: <span x-text="detailedStatus.down_services.join(', ')"></span></p>
+            </template>
+            <template x-if="detailedStatus.degraded_services.length > 0">
+              <p class="text-amber-400 mt-1 text-base">DEGRADED: <span x-text="detailedStatus.degraded_services.join(', ')"></span></p>
+            </template>
+          </div>
+
+          <!-- Pi Hardware -->
+          <div class="bg-surface-light rounded-lg p-5">
+            <h3 class="text-xl font-bold mb-3 text-accent">⚙️ Hardware</h3>
+            <template x-if="detailedStatus.pi_stats">
+              <div class="grid grid-cols-2 gap-3 text-base mb-3">
+                <div>🌡️ CPU Temp: <span :class="(detailedStatus.pi_stats.cpu_temp || 0) > 70 ? 'text-red-400' : 'text-green-400'" x-text="(detailedStatus.pi_stats.cpu_temp || '?') + '°C'"></span></div>
+                <div>💻 CPU: <span :class="(detailedStatus.pi_stats.cpu_percent || 0) > 80 ? 'text-amber-400' : 'text-green-400'" x-text="(detailedStatus.pi_stats.cpu_percent || '?') + '%'"></span></div>
+                <div>🧠 RAM: <span :class="(detailedStatus.pi_stats.ram_percent || 0) > 80 ? 'text-amber-400' : 'text-green-400'" x-text="(detailedStatus.pi_stats.ram_percent || '?') + '%'"></span></div>
+                <div>💾 Disk: <span :class="(detailedStatus.pi_stats.disk_percent || 0) > 85 ? 'text-amber-400' : 'text-green-400'" x-text="(detailedStatus.pi_stats.disk_percent || '?') + '%'"></span></div>
+              </div>
+            </template>
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.startsWith('pi_') || k === 'internet')" :key="name">
+              <div class="flex items-center gap-2 py-1 text-base">
+                <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
+                <span class="text-text-muted w-36 shrink-0" x-text="name"></span>
+                <span :class="info.status === 'up' ? 'text-green-400' : info.status === 'degraded' ? 'text-amber-400' : 'text-red-400'" x-text="info.message || info.status"></span>
+              </div>
+            </template>
+          </div>
+
+          <!-- Systemd Services -->
+          <div class="bg-surface-light rounded-lg p-5">
+            <h3 class="text-lg font-bold mb-3 text-accent">⚙️ Services</h3>
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.startsWith('svc_'))" :key="name">
+              <div class="mb-3">
+                <div class="flex items-center gap-2 text-base">
+                  <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
+                  <span class="text-text-muted w-44 shrink-0" x-text="name.replace('svc_', '')"></span>
+                  <span class="uppercase w-16 shrink-0 font-bold" :class="info.status === 'up' ? 'text-green-400' : info.status === 'down' ? 'text-red-400' : 'text-amber-400'" x-text="info.status"></span>
+                  <span class="text-text-dim flex-1" x-text="info.message"></span>
+                  <button @click="restartService(name.replace('svc_', '').replace('_', '-'))" class="px-3 py-1.5 rounded bg-surface text-base text-accent hover:bg-accent/20 shrink-0">🔄</button>
+                </div>
+                <div x-show="info.started_at" class="ml-8 text-base text-text-dim mt-0.5">
+                  ⏱️ Started: <span x-text="formatTimestamp(info.started_at)"></span>
+                  · Up: <span class="text-green-400" x-text="formatUptime(info.started_at, detailedStatus.server_time)"></span>
+                </div>
+                <template x-if="info.recent_errors && info.recent_errors.length > 0">
+                  <div class="ml-8 mt-1">
+                    <template x-for="(err, i) in info.recent_errors" :key="i">
+                      <div class="text-base text-red-400/80 truncate" x-text="'⚠ ' + err"></div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <!-- Docker Containers -->
+          <div class="bg-surface-light rounded-lg p-5">
+            <h3 class="text-lg font-bold mb-3 text-accent">🐳 Docker Containers</h3>
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.startsWith('docker_'))" :key="name">
+              <div class="mb-3">
+                <div class="flex items-center gap-2 text-base">
+                  <span class="w-3 h-3 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
+                  <span class="text-text-muted w-44 shrink-0" x-text="name.replace('docker_', '')"></span>
+                  <span class="uppercase w-16 shrink-0 font-bold" :class="info.status === 'up' ? 'text-green-400' : info.status === 'down' ? 'text-red-400' : 'text-amber-400'" x-text="info.status"></span>
+                  <span class="text-text-dim flex-1" x-text="info.message"></span>
+                  <button @click="restartService(name.replace('docker_', ''))" class="px-3 py-1.5 rounded bg-surface text-base text-accent hover:bg-accent/20 shrink-0">🔄</button>
+                </div>
+                <div x-show="info.started_at" class="ml-8 text-base text-text-dim mt-0.5">
+                  ⏱️ Started: <span x-text="formatTimestamp(info.started_at)"></span>
+                  · Up: <span class="text-green-400" x-text="formatUptime(info.started_at, detailedStatus.server_time)"></span>
+                </div>
+                <template x-if="info.recent_errors && info.recent_errors.length > 0">
+                  <div class="ml-8 mt-1">
+                    <template x-for="(err, i) in info.recent_errors" :key="i">
+                      <div class="text-base text-red-400/80 truncate" x-text="'⚠ ' + err"></div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <!-- Cloud APIs & Local Services -->
+          <div class="bg-surface-light rounded-lg p-5">
+            <h3 class="text-lg font-bold mb-3 text-accent">☁️ APIs & Local Services</h3>
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.endsWith('_api') || k === 'ollama_local' || k === 'peerjs' || k === 'pihole' || k.startsWith('pihole_') || k === 'google_calendar' || k === 'cloudflared' || k === 'rclone')" :key="name">
+              <div class="mb-3">
+                <div class="flex items-center gap-2 text-base">
+                  <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
+                  <span class="text-text-muted w-44 shrink-0" x-text="name"></span>
+                  <span class="uppercase w-16 shrink-0 font-bold" :class="info.status === 'up' ? 'text-green-400' : info.status === 'down' ? 'text-red-400' : 'text-amber-400'" x-text="info.status"></span>
+                  <span class="text-text-dim" x-text="info.response_time ? info.message + ' (' + info.response_time + 's)' : info.message"></span>
+                </div>
+                <template x-if="info.recent_errors && info.recent_errors.length > 0">
+                  <div class="ml-8 mt-1">
+                    <template x-for="(err, i) in info.recent_errors" :key="i">
+                      <div class="text-sm text-red-400/80 truncate" x-text="'⚠ ' + err"></div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <!-- Network -->
+          <div class="bg-surface-light rounded-lg p-5">
+            <h3 class="text-lg font-bold mb-3 text-accent">📡 Network</h3>
+            <template x-for="[name, info] in Object.entries(detailedStatus.services).filter(([k]) => k.startsWith('net_') || k.startsWith('port_'))" :key="name">
+              <div class="flex items-center gap-2 py-1 text-base">
+                <span class="w-4 h-4 rounded-full shrink-0" :class="info.status === 'up' ? 'bg-green-500' : info.status === 'degraded' ? 'bg-amber-500' : info.status === 'down' ? 'bg-red-500' : 'bg-gray-500'"></span>
+                <span class="text-text-muted w-44 shrink-0" x-text="name"></span>
+                <span :class="info.status === 'up' ? 'text-green-400' : info.status === 'down' ? 'text-red-400' : 'text-amber-400'" x-text="info.message || info.status"></span>
+              </div>
+            </template>
+          </div>
+
+          <!-- Timestamp -->
+          <p class="text-base text-text-dim text-center py-2">Check interval: <span x-text="detailedStatus.check_interval + 's'"></span> | Source: /api/health/full</p>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <script src="/static/js/bmo.js"></script>
+</body>
+</html>

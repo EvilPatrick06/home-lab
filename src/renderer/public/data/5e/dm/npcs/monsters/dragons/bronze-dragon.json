@@ -1,0 +1,434 @@
+{
+  "name": "Adult Bronze Dragon",
+  "sizes": ["Huge"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Metallic"],
+  "alignment": "Lawful Good",
+  "habitat": ["Coastal"],
+  "treasure": ["Any"],
+  "lore": "Bronze dragons are coastal dwellers renowned for their sense of justice and their fascination with warfare. They frequently observe battles from a distance, sometimes shapeshifting into Humanoid form to walk among soldiers and study military strategy. Among the most interventionist of metallic dragons, bronze dragons willingly take up arms against tyranny, evil navies, and marauding sea creatures. Their lairs are found along rocky coastlines, within sea caves, or amid the ruins of sunken ships.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 212,
+    "dice": {
+      "count": 17,
+      "die": "d12",
+      "modifier": 102
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 25,
+      "modifier": 7,
+      "save": 7
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 5
+    },
+    "CON": {
+      "score": 23,
+      "modifier": 6,
+      "save": 11
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 7
+    },
+    "CHA": {
+      "score": 19,
+      "modifier": 4,
+      "save": 9
+    }
+  },
+  "skills": [
+    {
+      "skill": "Insight",
+      "bonus": 7
+    },
+    {
+      "skill": "Perception",
+      "bonus": 12
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "damageImmunities": ["Lightning"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 22
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "15",
+  "experiencePoints": 13000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The dragon can breathe air and water."
+    },
+    {
+      "name": "Legendary Resistance",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes one Bite attack and two Claw attacks. It can replace one attack with a use of Frightful Presence or, if available, Breath Weapon.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Frightful Presence"
+      },
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Breath Weapon"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +12, reach 10 ft. Hit: 18 (2d10 + 7) Piercing damage plus 5 (1d10) Lightning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 12,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 18,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 7
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +12, reach 5 ft. Hit: 14 (2d6 + 7) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 12,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 7
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the dragon's choice within 120 feet of it must succeed on a DC 17 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature repeats the save at the end of each of its turns, ending the effect on itself on a success. If a creature's save is successful or the effect ends for it, the creature has Immunity to this dragon's Frightful Presence for the next 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 17,
+        "targets": "each creature of the dragon's choice within 120 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 17,
+                "targets": "the Frightened creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Breath Weapon",
+      "description": "The dragon uses one of the following options. Lightning Breath: The dragon exhales lightning in a 90-foot-long, 5-foot-wide Line. Each creature in that area must make a DC 19 Dexterity saving throw, taking 66 (12d10) Lightning damage on a failed save, or half as much damage on a successful one. Repulsion Breath: The dragon exhales repulsion energy in a 30-foot Cone. Each creature in that area must succeed on a DC 19 Strength saving throw or be pushed up to 60 feet away from the dragon.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 19,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 66,
+              "dice": {
+                "count": 12,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Line",
+        "size": 90,
+        "width": 5
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The dragon magically transforms into a Humanoid or Beast that has a CR no higher than its own, or back into its true form (which is a Dragon). The dragon reverts to its true form if it drops to 0 Hit Points. In the new form, the dragon retains its Hit Points, ability to speak, proficiencies, Legendary Resistance, and Intelligence, Wisdom, and Charisma scores, as well as this Bonus Action. Its statistics and capabilities are otherwise replaced by those of the new form, except any Legendary Actions of that form."
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Claw",
+        "description": "The dragon makes one Claw attack.",
+        "cost": 1
+      },
+      {
+        "name": "Tail Attack",
+        "description": "Melee Attack Roll: +12, reach 15 ft. Hit: 16 (2d8 + 7) Bludgeoning damage. If the target is a Huge or smaller creature, it has the Prone condition.",
+        "cost": 2,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 12,
+          "reach": 15,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 16,
+                "dice": {
+                  "count": 2,
+                  "die": "d8",
+                  "modifier": 7
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone",
+                "duration": "instant"
+              }
+            ],
+            "additionalEffects": "If the target is a Huge or smaller creature, it has the Prone condition."
+          }
+        }
+      },
+      {
+        "name": "Wing Attack",
+        "description": "Each creature within 10 feet of the dragon must succeed on a DC 20 Dexterity saving throw or take 14 (2d6 + 7) Bludgeoning damage and have the Prone condition. The dragon can then Fly up to half its Fly Speed without provoking Opportunity Attacks.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 20,
+          "targets": "each creature within 10 feet of the dragon",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 14,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 7
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 10,
+          "centered": true
+        }
+      }
+    ]
+  },
+  "lair": {
+    "description": "A bronze dragon's lair is typically a coastal cave, grotto, or sunken ruin accessible from both land and sea. The lair is often partially submerged, with tunnels that open beneath the waves, and filled with treasures salvaged from shipwrecks.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Fog",
+        "description": "The lair fills with fog in a 20-foot-radius Sphere centered on a point the dragon can see within 120 feet of it. The Sphere is Heavily Obscured. The fog lasts until initiative count 20 on the next round.",
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      },
+      {
+        "name": "Sea Surge",
+        "description": "A wave of water crashes through the lair. Each creature the dragon can see within 120 feet of it must succeed on a DC 15 Strength saving throw or take 10 (3d6) Bludgeoning damage and be pushed up to 15 feet away from the dragon and have the Prone condition.",
+        "savingThrow": {
+          "ability": "STR",
+          "dc": 15,
+          "targets": "each creature the dragon can see within 120 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 10,
+                "dice": {
+                  "count": 3,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ],
+            "effects": "The creature is pushed up to 15 feet away from the dragon."
+          }
+        }
+      },
+      {
+        "name": "Thunder",
+        "description": "A thunderclap originates at a point the dragon can see within 120 feet of it. Each creature within a 20-foot-radius Sphere centered on that point must succeed on a DC 15 Constitution saving throw or take 10 (3d6) Thunder damage and have the Deafened condition until the end of its next turn.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 15,
+          "targets": "each creature within a 20-foot-radius Sphere centered on that point",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 10,
+                "dice": {
+                  "count": 3,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Thunder"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Deafened",
+                "duration": "until the end of its next turn"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Fog lightly obscures the land and sea within 6 miles of the lair.",
+        "radius": 6,
+        "endCondition": "The dragon dies or moves its lair."
+      },
+      {
+        "description": "Water sources within 1 mile of the lair are supernaturally clean and free of disease.",
+        "radius": 1,
+        "endCondition": "The dragon dies or moves its lair."
+      },
+      {
+        "description": "Sea creatures within 6 miles of the lair are unnaturally calm and nonhostile toward the dragon and its allies.",
+        "radius": 6,
+        "endCondition": "The dragon dies or moves its lair."
+      }
+    ]
+  }
+}

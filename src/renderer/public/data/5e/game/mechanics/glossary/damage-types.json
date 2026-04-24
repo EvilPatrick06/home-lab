@@ -1,0 +1,11 @@
+{
+  "name": "Damage Types",
+  "slug": "damage-types",
+  "description": "| Type | Description |\n|---|---|\n| Acid | Corrosive acids |\n| Bludgeoning | Blunt force |\n| Cold | Freezing cold |\n| Fire | Flames and extreme heat |\n| Force | Pure magical energy |\n| Lightning | Electrical energy |\n| Necrotic | Life-draining energy |\n| Piercing | Puncturing and impaling |\n| Poison | Toxins and venom |\n| Psychic | Mental energy |\n| Radiant | Holy and divine energy |\n| Slashing | Cuts and lacerations |\n| Thunder | Concussive sound |\n**Damage Threshold.** A creature or object has Immunity to all damage unless it takes an amount of damage from a single attack or effect equal to or greater than its damage threshold, in which case it takes that damage.\n**Darkvision.** If you have Darkvision, you can see in Dim Light within a specified range as if it were Bright Light and in Darkness within that range as if it were Dim Light. You discern colors in that Darkness only as shades of gray.\n**Dead.** A creature is dead if it has 0 Hit Points and has not been stabilized. Death can be reversed by certain spells, like *Revivify*.\n**Death Saving Throw.** When you start your turn with 0 Hit Points, you make a special saving throw called a Death Saving Throw. Roll a d20. On a 10 or higher, you succeed. Otherwise, you fail. Three successes: you become Stable. Three failures: you die. Rolling a 1 counts as two failures. Rolling a 20 means you regain 1 HP. Damage at 0 HP causes a failed Death Saving Throw (or two if from a Critical Hit).\n**Dehydration.** A creature requires an amount of water per day based on its size. A creature that drinks less than half the required water must succeed on a DC 15 Constitution saving throw or gain 1 Exhaustion level at the end of the day. A creature with access to even less water automatically gains 1 Exhaustion level.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

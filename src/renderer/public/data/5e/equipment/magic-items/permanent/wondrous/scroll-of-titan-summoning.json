@@ -1,0 +1,26 @@
+{
+  "name": "Scroll of Titan Summoning",
+  "itemType": "Scroll",
+  "rarity": "Legendary",
+  "requiresAttunement": false,
+  "description": "When you take a Magic action to read this scroll, a particular titan named in the scroll appears in an unoccupied space on the ground or in water that you can see within 1 mile of yourself. The DM picks a suitable titan or determines it randomly by rolling on the table below (see the *Monster Manual* for the creature's stat block).\n\nThe titan is Hostile toward all other creatures and disappears when it drops to 0 Hit Points. If the titan is summoned into a space that isn't large enough to contain it, the summoning fails, and the scroll is wasted.",
+  "properties": [
+    {
+      "titan": [
+        "Animal Lord",
+        "Blob of Annihilation",
+        "Colossus",
+        "Elemental Cataclysm",
+        "Empyrean",
+        "Kraken",
+        "Tarrasque"
+      ]
+    }
+  ],
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

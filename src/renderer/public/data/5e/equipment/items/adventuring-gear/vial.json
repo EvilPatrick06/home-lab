@@ -1,0 +1,13 @@
+{
+  "name": "Vial",
+  "cost": "1 GP",
+  "weight": "—",
+  "description": "Holds up to 4 ounces.",
+  "slug": "vial",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

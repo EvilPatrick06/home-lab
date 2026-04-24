@@ -1,0 +1,35 @@
+{
+  "id": "hireling-skilled",
+  "name": "Skilled Hireling",
+  "dailyCost": "2 gp",
+  "description": "A skilled hireling has proficiency in a specific tool or skill, such as a scribe, navigator, healer, or craftsperson. They perform their trade competently but are not combatants and will flee from danger unless given strong reason to stay.",
+  "capabilities": [
+    "Proficient in one tool or skill",
+    "Can perform skilled labor (crafting, scribing, translating, navigating)",
+    "Will not engage in combat",
+    "Follows reasonable instructions within their area of expertise"
+  ],
+  "examples": [
+    {
+      "role": "Scribe",
+      "skill": "Calligrapher's Supplies",
+      "description": "Copies documents, takes notes, translates languages"
+    },
+    {
+      "role": "Navigator",
+      "skill": "Navigator's Tools",
+      "description": "Guides sea or overland travel, reads maps and charts"
+    },
+    {
+      "role": "Healer",
+      "skill": "Medicine",
+      "description": "Stabilizes the dying, treats diseases and injuries with mundane methods"
+    },
+    { "role": "Smith", "skill": "Smith's Tools", "description": "Repairs metal equipment, crafts simple metal goods" },
+    {
+      "role": "Cook",
+      "skill": "Cook's Utensils",
+      "description": "Prepares meals that can provide a bonus during short rests"
+    }
+  ]
+}

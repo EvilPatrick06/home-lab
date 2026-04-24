@@ -1,0 +1,131 @@
+{
+  "id": "d4a2c1e8-7f3b-4e9a-b5d1-6c8e0f2a3b47",
+  "name": "Bloodied",
+  "slug": "bloodied",
+  "category": "GeneralRule",
+  "subcategory": "Status Conditions",
+  "tags": ["hit-points", "status", "combat", "threshold", "trigger"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "Damage and Healing / Hit Points"
+  },
+  "gameEdition": "2024",
+  "description": "A creature is Bloodied while it has half its Hit Points or fewer remaining. Bloodied has no game effect on its own but might trigger other game effects.",
+  "shortDescription": "A creature is Bloodied while it has half its Hit Points or fewer remaining.",
+  "flavorText": null,
+  "rulesAsWritten": "If you have half your Hit Points or fewer, you're Bloodied, which has no game effect on its own but which might trigger other game effects.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levels": [],
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-5e6f-7a8b-9c0d-e1f2a3b4c5d6",
+      "order": 0,
+      "name": "Bloodied Threshold Check",
+      "description": "A creature becomes Bloodied when its current Hit Points drop to half its Hit Point maximum or fewer. The threshold is calculated as: current HP <= (Hit Point Maximum / 2), rounding down per the general rounding rule. The creature ceases to be Bloodied when its current Hit Points exceed half its Hit Point maximum.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Current Hit Points drop to half of Hit Point maximum or fewer"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature gains the Bloodied status. This status has no game effect on its own but might trigger other game effects that reference the Bloodied state.",
+          "mechanicalNote": "Bloodied is not one of the 15 formal conditions (Blinded, Charmed, Deafened, Exhaustion, Frightened, Grappled, Incapacitated, Invisible, Paralyzed, Petrified, Poisoned, Prone, Restrained, Stunned, Unconscious). It is a descriptive status that serves as a trigger for other features and effects."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b2c3d4e5-6f7a-8b9c-0d1e-f2a3b4c5d6e7",
+      "order": 1,
+      "name": "Bloodied Status Removal",
+      "description": "A creature is no longer Bloodied when its current Hit Points exceed half its Hit Point maximum, whether through healing, Temporary Hit Points do not count as actual Hit Points for this purpose since Temporary Hit Points are not Hit Points.",
+      "trigger": {
+        "event": "OnHealingReceived",
+        "condition": "Current Hit Points rise above half of Hit Point maximum"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The Bloodied status is removed from the creature when its current Hit Points exceed half its Hit Point maximum.",
+          "mechanicalNote": "Temporary Hit Points are explicitly not Hit Points per the rules, so they do not factor into determining whether a creature is Bloodied. Only actual current Hit Points compared to Hit Point maximum determine Bloodied status."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "c3d4e5f6-7a8b-9c0d-1e2f-a3b4c5d6e7f8",
+      "method": "Other",
+      "description": "The Bloodied status ends when the creature's current Hit Points exceed half its Hit Point maximum, typically through healing.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Bloodied is a binary status: a creature either is or is not Bloodied. It cannot stack."
+  },
+  "dmNotes": "Bloodied is a status indicator, not a formal condition. It does not appear in the list of 15 conditions defined in the rules. It is defined both in the Hit Points section of Chapter 1 (Playing the Game) under Damage and Healing and in the Rules Glossary (Appendix C). The glossary entry states: 'A creature is Bloodied while it has half its Hit Points or fewer remaining.' The Chapter 1 text clarifies: 'which has no game effect on its own but which might trigger other game effects.' DMs should note this is a passive status that other features, abilities, or monster traits may reference as a trigger condition. The threshold uses the general rounding-down rule (half of an odd Hit Point maximum rounds down).",
+  "commonRulings": [
+    {
+      "question": "Does Bloodied impose any penalties or grant any benefits by itself?",
+      "ruling": "No. The rules explicitly state that Bloodied has no game effect on its own. It exists solely as a status that other game effects might reference as a trigger.",
+      "isOfficial": true
+    },
+    {
+      "question": "Is Bloodied one of the official conditions like Blinded or Stunned?",
+      "ruling": "No. Bloodied is not listed among the 15 conditions defined in the rules (Blinded, Charmed, Deafened, Exhaustion, Frightened, Grappled, Incapacitated, Invisible, Paralyzed, Petrified, Poisoned, Prone, Restrained, Stunned, Unconscious). It is a separate status descriptor.",
+      "isOfficial": true
+    },
+    {
+      "question": "How do you calculate the Bloodied threshold for a creature with an odd number of maximum Hit Points?",
+      "ruling": "Per the general rounding rule ('round down if you end up with a fraction, even if the fraction is one-half or greater'), a creature with 15 Hit Point maximum is Bloodied at 7 HP or fewer (15 / 2 = 7.5, rounded down to 7).",
+      "isOfficial": true
+    },
+    {
+      "question": "Do Temporary Hit Points affect whether a creature is Bloodied?",
+      "ruling": "No. Temporary Hit Points are explicitly stated to not be Hit Points. The Bloodied status is determined by current Hit Points compared to Hit Point maximum. A creature at 3 out of 20 HP with 15 Temporary Hit Points is still Bloodied.",
+      "isOfficial": false
+    },
+    {
+      "question": "Is a creature at exactly half its Hit Point maximum considered Bloodied?",
+      "ruling": "Yes. The rules state a creature is Bloodied while it has 'half its Hit Points or fewer remaining,' so a creature at exactly half is Bloodied.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-03T00:00:00Z",
+  "updatedAt": "2025-01-03T00:00:00Z",
+  "version": "1.0.0"
+}

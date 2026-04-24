@@ -1,0 +1,218 @@
+{
+  "name": "Ice Devil",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar (Nine Hells)"],
+  "treasure": ["Any"],
+  "lore": "Ice devils, also known as gelugons, serve as generals and strategists in the infernal hierarchy of the Nine Hells. Coldly logical and mercilessly efficient, these towering insectoid fiends command legions of lesser devils and orchestrate campaigns of conquest across the Lower Planes. Their chitinous bodies radiate supernatural cold, and their tactical brilliance makes them among the most feared of Baator's denizens.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 180,
+    "dice": {
+      "count": 19,
+      "die": "d10",
+      "modifier": 76
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 21,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 7
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 9
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 7
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 9
+    }
+  },
+  "resistances": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Cold, Fire, and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "14",
+  "experiencePoints": 11500,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the devil's Darkvision."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "INT",
+      "spellSaveDC": 17,
+      "spellAttackBonus": 9,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Wall of Ice",
+              "level": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The devil makes two Bite attacks and one Tail attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 2
+      },
+      {
+        "actionName": "Tail",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +10, reach 5 ft. Hit: 12 (2d6 + 5) Piercing damage plus 10 (3d6) Cold damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 5
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +10, reach 10 ft. Hit: 12 (2d6 + 5) Bludgeoning damage plus 10 (3d6) Cold damage. If the target is a creature, it must succeed on a DC 17 Constitution saving throw or have its Speed reduced to 0 until the end of its next turn.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 5
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ],
+          "additionalEffects": "If the target is a creature, it must succeed on a DC 17 Constitution saving throw or have its Speed reduced to 0 until the end of its next turn.",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 17,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "effects": "The target's Speed is reduced to 0 until the end of its next turn."
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "Pony",
+  "slug": "pony",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "10",
+  "initiative": "+0 (10)",
+  "hp": "11",
+  "hpFormula": "2d8 + 2",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 10,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 0,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 10",
+  "languages": "None",
+  "cr": "1/8 (XP 25; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Hooves",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 4 (1d4 + 2) Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

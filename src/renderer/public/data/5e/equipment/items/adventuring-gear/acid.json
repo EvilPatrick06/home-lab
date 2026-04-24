@@ -1,0 +1,13 @@
+{
+  "name": "Acid",
+  "cost": "25 GP",
+  "weight": "1 lb.",
+  "description": "When you take the Attack action, you can replace one of your attacks with throwing a vial of Acid. Target one creature or object you can see within 20 feet. DC 8 + Dex mod + Prof Bonus Dex save or take 2d6 Acid damage.",
+  "slug": "acid",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

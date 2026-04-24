@@ -1,0 +1,55 @@
+[
+  {
+    "id": "staff-of-the-woodlands",
+    "name": "Staff of the Woodlands",
+    "rarity": "Rare",
+    "path": "../../rare/staff-of-the-woodlands.json"
+  },
+  {
+    "id": "staff-of-healing",
+    "name": "Staff of Healing",
+    "rarity": "Rare",
+    "path": "../../rare/staff-of-healing.json"
+  },
+  {
+    "id": "staff-of-charming",
+    "name": "Staff of Charming",
+    "rarity": "Rare",
+    "path": "../../rare/staff-of-charming.json"
+  },
+  { "id": "staff-of-fire", "name": "Staff of Fire", "rarity": "Very Rare" },
+  { "id": "staff-of-frost", "name": "Staff of Frost", "rarity": "Very Rare" },
+  { "id": "staff-of-power", "name": "Staff of Power", "rarity": "Very Rare" },
+  { "id": "staff-of-striking", "name": "Staff of Striking", "rarity": "Very Rare" },
+  {
+    "id": "staff-of-swarming-insects",
+    "name": "Staff of Swarming Insects",
+    "rarity": "Rare",
+    "path": "../../rare/staff-of-swarming-insects.json"
+  },
+  { "id": "staff-of-thunder-and-lightning", "name": "Staff of Thunder and Lightning", "rarity": "Very Rare" },
+  {
+    "id": "staff-of-withering",
+    "name": "Staff of Withering",
+    "rarity": "Rare",
+    "path": "../../rare/staff-of-withering.json"
+  },
+  {
+    "id": "staff-of-the-magi",
+    "name": "Staff of the Magi",
+    "rarity": "Legendary",
+    "path": "../../legendary/staff-of-the-magi.json"
+  },
+  {
+    "id": "staff-of-the-python",
+    "name": "Staff of the Python",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/staff-of-the-python.json"
+  },
+  {
+    "id": "staff-of-the-adder",
+    "name": "Staff of the Adder",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/staff-of-the-adder.json"
+  }
+]

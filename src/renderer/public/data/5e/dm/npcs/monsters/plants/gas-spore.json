@@ -1,0 +1,123 @@
+{
+  "name": "Gas Spore",
+  "sizes": ["Large"],
+  "creatureType": "Plant",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "A gas spore is a fungal creature that bears an uncanny resemblance to a beholder. It drifts through dark caverns, and when destroyed, it bursts in a cloud of deadly spores that can infect and kill living creatures, spawning new gas spores from the remains.",
+  "armorClass": {
+    "value": 5
+  },
+  "hitPoints": {
+    "average": 1,
+    "dice": {
+      "count": 1,
+      "die": "d10",
+      "modifier": -4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 10,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": -5,
+    "score": 5
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "DEX": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "CON": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "conditionImmunities": [
+    "Blinded",
+    "Charmed",
+    "Deafened",
+    "Exhaustion",
+    "Frightened",
+    "Paralyzed",
+    "Poisoned",
+    "Prone"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 30,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 5
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Death Burst",
+      "description": "When the gas spore is reduced to 0 Hit Points, it explodes in a cloud of spores. Each creature within 20 feet of it must succeed on a DC 15 Constitution saving throw or take 10 (3d6) Poison damage and have the Poisoned condition. A Poisoned creature takes 5 (1d10) Poison damage at the start of each of its turns. The creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success. A creature reduced to 0 Hit Points by this damage dies, and 1d4 Tiny gas spores sprout from the dead creature's corpse 2d4 hours later."
+    },
+    {
+      "name": "Eerie Resemblance",
+      "description": "The gas spore resembles a Beholder. A creature that can see the gas spore can discern its true nature with a successful DC 15 Intelligence (Nature) check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Touch",
+      "description": "Melee Attack Roll: +0, reach 5 ft. Hit: 1 Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 0,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 1,
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

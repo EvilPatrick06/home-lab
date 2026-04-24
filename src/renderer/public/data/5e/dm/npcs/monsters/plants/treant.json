@@ -1,0 +1,164 @@
+{
+  "name": "Treant",
+  "sizes": ["Huge"],
+  "creatureType": "Plant",
+  "alignment": "Chaotic Good",
+  "habitat": ["Forest"],
+  "treasure": ["None"],
+  "lore": "Treants are ancient, awakened trees that serve as protectors of the deep forests. Standing tall with bark-covered bodies and limbs like gnarled branches, they are slow to anger but terrible in their wrath. Treants speak in deep, rumbling voices and view themselves as guardians of their woodland homes. They command lesser trees to rise up and fight alongside them, and they hurl great rocks at those who would despoil the wilds. When motionless, a treant is nearly indistinguishable from a normal tree.",
+  "armorClass": {
+    "value": 16,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 138,
+    "dice": {
+      "count": 12,
+      "die": "d12",
+      "modifier": 60
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 23,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 21,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "resistances": ["Bludgeoning and Piercing"],
+  "vulnerabilities": ["Fire"],
+  "senses": {
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Common", "Druidic", "Elvish", "Sylvan"]
+  },
+  "challengeRating": "9",
+  "experiencePoints": 5000,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "If the treant is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the treant move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern that the treant is animate."
+    },
+    {
+      "name": "Siege Monster",
+      "description": "The treant deals double damage to objects and structures."
+    }
+  ],
+  "multiattack": {
+    "description": "The treant makes two Slam attacks. It can replace one of these attacks with a Rock attack.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Slam",
+        "replaceCount": 1,
+        "with": "Rock"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +10, reach 5 ft. Hit: 16 (3d6 + 6) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rock",
+      "description": "Ranged Attack Roll: +10, range 60/180 ft. Hit: 28 (4d10 + 6) Bludgeoning damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 10,
+        "range": {
+          "normal": 60,
+          "long": 180
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 28,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Animate Trees",
+      "description": "The treant magically animates one or two trees it can see within 60 feet of itself. Each tree uses the Treant stat block, except it has Intelligence 1 and Charisma 1, it can't speak, and it has only the Slam action. An animated tree acts as an ally of the treant on the treant's Initiative count. The tree remains animate for 1 day or until it dies, until the treant dies or is more than 120 feet from the tree, or until the treant takes a Bonus Action to turn it back into an inanimate tree, whereupon the tree takes root if possible.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "summon": {
+        "creatureName": "Treant",
+        "fixedCount": 2,
+        "notes": "Each animated tree has Intelligence 1 and Charisma 1, can't speak, and has only the Slam action. Maximum of two trees."
+      }
+    }
+  ]
+}

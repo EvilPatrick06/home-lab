@@ -1,0 +1,51 @@
+{
+  "name": "Grease",
+  "level": 1,
+  "school": "Conjuration",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a bit of pork rind or butter",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Nonflammable grease covers the ground in a 10-foot square centered on a point within range and turns it into Difficult Terrain for the duration.\n\nWhen the grease appears, each creature standing in its area must succeed on a Dexterity saving throw or have the Prone condition. A creature that enters the area or ends its turn there must also succeed on that save or fall Prone.",
+  "areaOfEffect": [
+    {
+      "shape": "Square",
+      "sizeFeet": 10
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The creature has the Prone condition"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Prone",
+      "trigger": "onFailedSave",
+      "duration": "Instantaneous (creature can stand up normally)"
+    }
+  ],
+  "createsDifficultTerrain": true
+}

@@ -1,0 +1,162 @@
+{
+  "name": "Revenant",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Neutral",
+  "habitat": ["Any"],
+  "treasure": ["Individual"],
+  "lore": "A revenant is an undead creature driven by a burning desire for vengeance. It rises from the grave to hunt down those it holds responsible for its death. The revenant's appearance reflects the injuries it suffered in life, and its will is so powerful that even the destruction of its body cannot stop it. If its corpse is destroyed, the revenant's spirit seeks out a new corpse to inhabit, continuing its relentless quest for revenge.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 136,
+    "dice": {
+      "count": 16,
+      "die": "d8",
+      "modifier": 64
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 7
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    }
+  },
+  "resistances": ["Necrotic and Psychic"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Poisoned", "Stunned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "notes": "The languages it knew in life"
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Regeneration",
+      "description": "The revenant regains 10 Hit Points at the start of each of its turns. If the revenant takes Fire or Radiant damage, this trait doesn't function at the start of its next turn. The revenant's body is destroyed only if it starts its turn with 0 Hit Points and doesn't regenerate."
+    },
+    {
+      "name": "Turn Immunity",
+      "description": "The revenant is immune to effects that turn Undead."
+    },
+    {
+      "name": "Vengeful Tracker",
+      "description": "The revenant knows the distance to and direction of any creature against which it seeks revenge, provided both are on the same plane of existence."
+    }
+  ],
+  "multiattack": {
+    "description": "The revenant makes two Vengeful Strike attacks. It can replace one attack with Vengeful Glare.",
+    "attacks": [
+      {
+        "actionName": "Vengeful Strike",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Vengeful Strike",
+        "replaceCount": 1,
+        "with": "Vengeful Glare"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Vengeful Strike",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 11 (2d6 + 4) Bludgeoning damage plus 7 (2d6) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Vengeful Glare",
+      "description": "The revenant targets one creature it can see within 30 feet of itself. The target must succeed on a DC 15 Wisdom saving throw or have the Paralyzed condition until the end of the revenant's next turn.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 15,
+        "targets": "one creature the revenant can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Paralyzed",
+              "duration": "until the end of the revenant's next turn"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

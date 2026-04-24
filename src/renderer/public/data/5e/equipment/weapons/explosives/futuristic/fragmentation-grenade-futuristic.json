@@ -1,0 +1,27 @@
+{
+  "name": "Fragmentation Grenade (Futuristic)",
+  "slug": "fragmentation-grenade-futuristic",
+  "category": "Explosive",
+  "era": "Futuristic",
+  "cost": "—",
+  "weight": "1 lb.",
+  "description": "As an action, a character can throw this grenade at a point up to 60 feet away. Each creature within 20 feet of that point must make a DC 15 Dexterity saving throw, taking 28 (8d6) Piercing damage on a failed save, or half as much on a successful one.",
+  "attack": {
+    "throwRange": 60,
+    "damage": "8d6",
+    "damageType": "Piercing",
+    "averageDamage": 28,
+    "saveDC": 15,
+    "saveAbility": "Dexterity",
+    "halfDamageOnSave": true,
+    "area": {
+      "shape": "Sphere",
+      "radius": 20
+    }
+  },
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Explosives"
+  }
+}

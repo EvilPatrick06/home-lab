@@ -1,0 +1,13 @@
+{
+  "name": "Bottle, Glass",
+  "cost": "2 GP",
+  "weight": "2 lb.",
+  "description": "Holds up to 1½ pints.",
+  "slug": "bottle-glass",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

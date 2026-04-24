@@ -1,0 +1,15 @@
+{
+  "name": "Lightning Cannon",
+  "ac": 19,
+  "hp": 30,
+  "attack": "+6, range 300/1,200 ft.",
+  "damage": "22 (4d10) Lightning",
+  "description": "Requires Aim only. Creates secondary damage: each creature within 10 feet of target makes DC 15 Dex save or takes 11 (2d10) Lightning.",
+  "slug": "lightning-cannon",
+  "category": "Siege Equipment",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

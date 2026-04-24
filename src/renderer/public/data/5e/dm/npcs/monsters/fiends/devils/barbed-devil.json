@@ -1,0 +1,211 @@
+{
+  "name": "Barbed Devil",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["The Nine Hells"],
+  "treasure": ["None"],
+  "lore": "Barbed devils, also known as hamatulas, serve as the guards and sentinels of the Nine Hells. Their bodies are covered in sharp, hooked barbs that shred the flesh of any creature that touches them. They relish combat, hurling gouts of hellish flame at distant foes and raking those foolish enough to close into melee with their razor-sharp claws and spiked tails.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 110,
+    "dice": {
+      "count": 13,
+      "die": "d8",
+      "modifier": 52
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 6,
+    "score": 16
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 5
+    },
+    {
+      "skill": "Insight",
+      "bonus": 5
+    },
+    {
+      "skill": "Perception",
+      "bonus": 5
+    }
+  ],
+  "resistances": ["Cold"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Barbed Hide",
+      "description": "A creature that hits the devil with a melee attack roll while within 5 feet of it takes 5 (1d10) Piercing damage."
+    },
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the devil's Darkvision."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The devil makes three attacks: two Claw attacks and one Tail attack. It can replace any attack with a Hurl Flame attack.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      },
+      {
+        "actionName": "Tail",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Hurl Flame"
+      },
+      {
+        "replace": "Tail",
+        "replaceCount": 1,
+        "with": "Hurl Flame"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 6 (1d6 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 10 (2d6 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hurl Flame",
+      "description": "Ranged Attack Roll: +6, range 150 ft. Hit: 16 (3d8 + 3) Fire damage. If the target is a flammable object that isn't being worn or carried, it catches fire.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 6,
+        "range": {
+          "normal": 150,
+          "long": 150
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Fire"
+            }
+          ],
+          "additionalEffects": "If the target is a flammable object that isn't being worn or carried, it catches fire."
+        }
+      }
+    }
+  ]
+}

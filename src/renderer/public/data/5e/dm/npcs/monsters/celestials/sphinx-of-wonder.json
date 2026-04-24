@@ -1,0 +1,284 @@
+{
+  "name": "Sphinx of Wonder",
+  "sizes": ["Large"],
+  "creatureType": "Celestial",
+  "descriptiveTags": ["Sphinx"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Desert", "Planar"],
+  "treasure": ["Arcana"],
+  "lore": "A sphinx of wonder guards places of great magical knowledge and tests those who seek entry with riddles and enigmatic challenges. Created by the gods to protect their most prized secrets, these majestic creatures are enigmatic and unpredictable, channeling the raw chaos of wonder through their mighty roars. A sphinx of wonder delights in paradox and whimsy, and its magical roar can produce wildly varied effects on those who fail to resist it.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 199,
+    "dice": {
+      "count": 19,
+      "die": "d10",
+      "modifier": 95
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 4
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "CHA": {
+      "score": 23,
+      "modifier": 6,
+      "save": 10
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 7
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    },
+    {
+      "skill": "Religion",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Necrotic and Radiant"],
+  "damageImmunities": ["Psychic"],
+  "conditionImmunities": ["Charmed", "Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common", "Celestial"],
+    "telepathy": 120
+  },
+  "challengeRating": "12",
+  "experiencePoints": 8400,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Inscrutable",
+      "description": "The sphinx is immune to any effect that would sense its emotions or read its thoughts. Wisdom (Insight) checks made to ascertain the sphinx's intentions or sincerity have Disadvantage."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The sphinx has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 18,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Prestidigitation",
+              "level": 0
+            },
+            {
+              "name": "Thaumaturgy",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Tongues",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Greater Restoration",
+              "level": 5
+            },
+            {
+              "name": "Heroes' Feast",
+              "level": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The sphinx makes two Rend attacks. It can replace one of them with a use of Roar of Wonder (if available) or Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Rend",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Rend",
+        "replaceCount": 1,
+        "with": "Roar of Wonder"
+      },
+      {
+        "replace": "Rend",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Rend",
+      "description": "Melee Attack Roll: +10, reach 5 ft. Hit: 17 (2d10 + 6) Slashing damage plus 14 (4d6) Radiant damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Radiant"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Roar of Wonder",
+      "description": "The sphinx unleashes a magical roar. Each creature of the sphinx's choice within 120 feet of the sphinx makes a DC 18 Charisma saving throw. On a failed save, a creature rolls on the Roar of Wonder table to determine the roar's effect. On a successful save, a creature takes 13 (3d8) Psychic damage.\n\nRoar of Wonder (d6):\n1: The creature takes 44 (8d10) Psychic damage.\n2: The creature has the Frightened condition for 1 minute. While Frightened, the creature has Speed 0. The creature repeats the save at the end of each of its turns, ending the effect on itself on a success.\n3: The creature has the Stunned condition for 1 minute. The creature repeats the save at the end of each of its turns, ending the effect on itself on a success.\n4: The creature takes 22 (4d10) Force damage and has the Prone condition.\n5: The creature is teleported to an unoccupied space the sphinx can see within 120 feet of itself. The space must be on a surface or in a liquid that can support the creature.\n6: The creature regains 22 (4d10) Hit Points. The creature also has the Invisible condition for 1 minute or until it makes an attack roll, whichever comes first.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      },
+      "savingThrow": {
+        "ability": "CHA",
+        "dc": 18,
+        "targets": "each creature of the sphinx's choice within 120 feet",
+        "onFailure": {
+          "effects": "Roll on the Roar of Wonder table (d6): 1 — 44 (8d10) Psychic damage; 2 — Frightened for 1 minute (Speed 0, repeat save at end of turn); 3 — Stunned for 1 minute (repeat save at end of turn); 4 — 22 (4d10) Force damage and Prone; 5 — Teleported to unoccupied space within 120 feet; 6 — Regains 22 (4d10) HP and Invisible for 1 minute or until it attacks."
+        },
+        "onSuccess": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 120,
+        "centered": true
+      }
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Rend",
+        "description": "The sphinx makes one Rend attack.",
+        "cost": 1
+      },
+      {
+        "name": "Teleport",
+        "description": "The sphinx teleports, along with any equipment it is wearing or carrying, to an unoccupied space it can see within 120 feet of itself.",
+        "cost": 1,
+        "teleport": {
+          "distance": 120
+        }
+      },
+      {
+        "name": "Arcane Prowl",
+        "description": "The sphinx moves up to its Speed without provoking Opportunity Attacks, and it can use Spellcasting.",
+        "cost": 2
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "Crusader's Mantle",
+  "level": 3,
+  "school": "Evocation",
+  "classes": ["Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You radiate a magical aura in a 30-foot Emanation. While in the aura, you and your allies each deal an extra 1d4 Radiant damage when hitting with a weapon or an Unarmed Strike.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 30,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "self",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 4
+      },
+      "type": "Radiant",
+      "applicationType": "perAttack",
+      "condition": "when hitting with a weapon or an Unarmed Strike while in the aura"
+    }
+  ],
+  "tags": ["buff", "aura", "damage", "radiant", "weapon", "unarmed"]
+}

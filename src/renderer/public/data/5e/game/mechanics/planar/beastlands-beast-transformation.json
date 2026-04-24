@@ -1,0 +1,164 @@
+{
+  "id": "d3a1c2b4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "name": "Beastlands - Beast Transformation",
+  "slug": "beastlands-beast-transformation",
+  "category": "VariantRule",
+  "subcategory": "Planar Effects",
+  "tags": ["Beastlands", "Outer Planes", "Beast", "transformation", "shape-shift", "planar effect"],
+  "source": {
+    "book": "Dungeon Master's Guide",
+    "chapter": "Chapter 6: Cosmology",
+    "section": "Beastlands"
+  },
+  "gameEdition": "2024",
+  "description": "Whenever a visitor slays a Beast native to the Beastlands, the slayer must succeed on a DC 10 Charisma saving throw or shape-shift into the type of Beast that was slain. The creature's game statistics are replaced by the Beast's stat block, but the creature retains its alignment, personality, creature type, Intelligence score, and ability to speak. At the end of each Long Rest, the shape-shifted creature repeats the save. On a successful save, the creature returns to its true form. After three failed saves, the transformation can be undone only by a Remove Curse spell or similar magic.",
+  "shortDescription": "Slaying a Beast native to the Beastlands forces a DC 10 CHA save or the slayer shape-shifts into that Beast type. Repeats save each Long Rest; after 3 failures only Remove Curse ends it.",
+  "flavorText": "The plane embodies nature's wildness and beauty, but it also speaks to the animal within all living creatures.",
+  "rulesAsWritten": "Whenever a visitor slays a Beast native to the plane, the slayer must succeed on a DC 10 Charisma saving throw or shape-shift into the type of Beast that was slain. The creature's game statistics are replaced by the Beast's stat block, but the creature retains its alignment, personality, creature type, Intelligence score, and ability to speak. At the end of each Long Rest, the shape-shifted creature repeats the save. On a successful save, the creature returns to its true form. After three failed saves, the transformation can be undone only by a Remove Curse spell or similar magic.",
+  "isVariantRule": true,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "order": 0,
+      "name": "Beast Slaying Trigger",
+      "description": "When a visitor to the Beastlands slays a Beast native to the plane, the slayer must make a DC 10 Charisma saving throw.",
+      "trigger": {
+        "event": "OnDamageDealt",
+        "condition": "Visitor slays a Beast native to the Beastlands, reducing it to 0 Hit Points"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The slayer must succeed on a DC 10 Charisma saving throw or shape-shift into the type of Beast that was slain. On a failed save, the creature's game statistics are replaced by the Beast's stat block, but the creature retains its alignment, personality, creature type, Intelligence score, and ability to speak.",
+          "mechanicalNote": "Game statistics replaced by the slain Beast's stat block. Retained: alignment, personality, creature type, Intelligence score, ability to speak. This is not the Polymorph spell; it is a unique planar transformation."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+      "order": 1,
+      "name": "Long Rest Recovery Save",
+      "description": "At the end of each Long Rest, the shape-shifted creature repeats the DC 10 Charisma saving throw. On a successful save, the creature returns to its true form.",
+      "trigger": {
+        "event": "OnLongRest",
+        "condition": "Creature is currently shape-shifted by the Beastlands Beast Transformation effect"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The shape-shifted creature repeats the DC 10 Charisma saving throw. On a successful save, the creature returns to its true form. Each failed save counts toward the three-failure threshold.",
+          "mechanicalNote": "Success ends the transformation and restores the creature's true form and original game statistics. Failures are tracked cumulatively."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f",
+      "order": 2,
+      "name": "Three Failed Saves - Permanent Transformation",
+      "description": "After three failed saving throws (including the initial save and subsequent Long Rest saves), the transformation becomes permanent and can be undone only by a Remove Curse spell or similar magic.",
+      "trigger": {
+        "event": "OnSavingThrowMade",
+        "condition": "Creature has accumulated three failed Charisma saving throws against the Beast Transformation effect"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "After three failed saves, the transformation can be undone only by a Remove Curse spell or similar magic. The creature remains in Beast form indefinitely until such magic is applied.",
+          "mechanicalNote": "The three failures are cumulative across the initial save and all subsequent Long Rest saves. Only Remove Curse or similar magic can reverse the transformation after this threshold is reached."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f90",
+      "method": "SaveAtEndOfTurn",
+      "description": "At the end of each Long Rest, the shape-shifted creature repeats the DC 10 Charisma saving throw. On a successful save, the creature returns to its true form. This method is available only before three total failed saves.",
+      "savingThrow": {
+        "ability": "CHA",
+        "dc": 10,
+        "frequency": "Once"
+      },
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9001",
+      "method": "SpellEffect",
+      "description": "After three failed saves, the transformation can be undone only by a Remove Curse spell or similar magic.",
+      "automaticAfterDuration": false,
+      "spellsOrEffects": ["Remove Curse"]
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Each instance of slaying a Beast native to the Beastlands triggers its own independent saving throw and transformation."
+  },
+  "dmNotes": "This effect applies only to visitors to the Beastlands who slay Beasts native to the plane. Natives of the Beastlands and spirits who have taken animal form are not subject to this rule. The three failed saves are cumulative: the initial failed save upon slaying the Beast counts as the first failure, and subsequent Long Rest saves count toward the total. After three total failures, the transformation is locked in until magical removal. The creature retains its alignment, personality, creature type, Intelligence score, and ability to speak even while transformed, making this distinct from Polymorph.",
+  "commonRulings": [
+    {
+      "question": "Does the initial failed save count as one of the three failed saves?",
+      "ruling": "Yes. The text states that after three failed saves the transformation becomes permanent. The initial failed save upon slaying the Beast counts as the first failure, and subsequent failed saves at the end of Long Rests count toward the total of three.",
+      "isOfficial": false
+    },
+    {
+      "question": "What game statistics are replaced and what is retained?",
+      "ruling": "The creature's game statistics are replaced by the Beast's stat block, but the creature retains its alignment, personality, creature type, Intelligence score, and ability to speak. This means ability scores (except Intelligence), Hit Points, AC, Speed, skills, senses, and other stat block features come from the Beast's stat block.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does the creature retain its creature type or take on the Beast type?",
+      "ruling": "The creature retains its original creature type. For example, a Humanoid that transforms retains the Humanoid type despite having the physical form and statistics of a Beast.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can a successful save on the initial Charisma saving throw prevent the transformation entirely?",
+      "ruling": "Yes. If the creature succeeds on the initial DC 10 Charisma saving throw upon slaying the Beast, no transformation occurs at all.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does this effect trigger if a companion or summoned creature slays the Beast?",
+      "ruling": "The text specifies 'the slayer' must make the saving throw. The DM determines who delivered the killing blow. If a summoned creature or companion slays the Beast, the DM adjudicates whether that creature or its controller is considered the slayer.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-15T12:00:00Z",
+  "updatedAt": "2025-01-15T12:00:00Z",
+  "version": "1.0.0"
+}

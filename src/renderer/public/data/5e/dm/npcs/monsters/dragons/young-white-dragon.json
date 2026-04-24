@@ -1,0 +1,64 @@
+{
+  "name": "Young White Dragon",
+  "slug": "young-white-dragon",
+  "size": "Large",
+  "type": "Dragon",
+  "alignment": "Chaotic Evil",
+  "ac": "17",
+  "initiative": "+3 (13)",
+  "hp": "123",
+  "hpFormula": "13d10 + 52",
+  "speed": "40 ft., Burrow 20 ft., Fly 80 ft., Swim 40 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 10,
+    "con": 18,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 3,
+    "con": 4,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +6, Stealth +3",
+  "immunities": "Cold",
+  "senses": "Blindsight 30 ft., Darkvision 120 ft.; Passive Perception 16",
+  "languages": "Common, Draconic",
+  "cr": "6 (XP 2,300; PB +3)",
+  "traits": [
+    {
+      "name": "Ice Walk",
+      "description": "The dragon can move across and climb icy surfaces without needing to make an ability check. Additionally, Difficult Terrain composed of ice or snow doesn't cost it extra movement."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The dragon makes three Rend attacks."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 9 (2d4 + 4) Slashing damage plus 2 (1d4) Cold damage."
+    },
+    {
+      "name": "Cold Breath (Recharge 5-6)",
+      "description": "*Constitution Saving Throw:* DC 15, each creature in a 30-foot Cone. *Failure:* 40 (9d8) Cold damage. *Success:* Half damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Dragon of Cold and Cruelty*\n**Habitat:** Arctic; **Treasure:** Arcana\nAmong the most primal chromatic dragons, white dragons prioritize survival over all. Life is harsh and uncertain in the arctic expanses, glacial heights, and frozen seas where these dragons dwell. White dragons fiercely protect their territories, scouring the frigid regions for food and evidence of trespassers. Most white dragons ignore the plots of smaller creatures and other dragons, concerning themselves only with their own survival.\nWhite dragons create lairs to defend themselves from other deadly arctic creatures and from dangerous natural conditions. Within these shelters, white dragons hoard testaments to their superiority, such as monstrous skulls, the gear of defeated rivals, and curiosities that capture their interest. To protect such treasure, white dragons coax ice to form over their hoards or sink their wealth in frigid pools. For white dragons, each piece of treasure embodies a victory -- the details of which inflate as these dragons age.\nWhite dragon wyrmlings usually head off on their own soon after hatching. While the cold means little to these creatures, food is scarce in arctic realms, and predators there are merciless. Most white dragon wyrmlings survive by scavenging, hunting opportunistically, and quickly fleeing foes -- including other white dragons.\nYoung white dragons defend their hunting grounds from rivals. In some cases, kobolds and groups of humanoids might offer food and treasure to young white dragons, attempting to keep the dragons satiated and less likely to prey on their communities.\nAdult white dragons claim large territories and are often the mightiest predators in those lands. While some lurk in their lairs for months, others regularly soar over their domains. When they spot something moving on the ice, they might swoop down to feed or extort food and offerings from sapient creatures.\nLike arctic storms, ancient white dragons threaten icy realms. They emerge from their frozen lairs to indulge their hungers for food or treasure, menacing other creatures with lethal cold. While they might ignore animals or small groups of polar wanderers, these dragons are quick to challenge other dragons and creatures wielding powerful magic, hoping to add their foes' skulls and magic items to their own hoards.\nWhite dragons brood in bitterly cold lairs clawed from stone and ice.\nThe region containing an adult or ancient white dragon's lair is affected by its presence, creating the following effects:\n**Frigid Cold.** The area within 1 mile of the lair is an area of extreme cold. Any water in that area is frigid water. See the *Dungeon Master's Guide* for rules on extreme cold and frigid water.\n**Glacial Gloom.** The area within 1 mile of the lair is Lightly Obscured by chilly fog. Whenever a creature other than the dragon or one of its allies finishes a Long Rest in that area, that creature must succeed on a DC 15 Constitution saving throw or have its Speed reduced by 10 feet for 1 hour.\nIf the dragon dies or moves its lair elsewhere, these effects end immediately.",
+  "habitat": "Arctic",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Dragons-Chromatic",
+    "file": "Dragons-Chromatic.md"
+  }
+}

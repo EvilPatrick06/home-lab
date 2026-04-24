@@ -1,0 +1,58 @@
+{
+  "name": "Burning Hands",
+  "level": 1,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A thin sheet of flames shoots forth from you. Each creature in a 15-foot Cone makes a Dexterity saving throw, taking 3d6 Fire damage on a failed save or half as much damage on a successful one. Flammable objects in the Cone that aren't being worn or carried start burning.",
+  "areaOfEffect": [
+    {
+      "shape": "Cone",
+      "lengthFeet": 15,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 6
+      },
+      "type": "Fire",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 1,
+        "description": "The damage increases by 1d6 for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["damage", "area-of-effect", "ignites-objects"]
+}

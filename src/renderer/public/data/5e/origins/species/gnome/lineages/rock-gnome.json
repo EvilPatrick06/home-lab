@@ -1,0 +1,15 @@
+{
+  "id": "rock-gnome",
+  "name": "Rock Gnome",
+  "species": "gnome",
+  "description": "Natural inventors and tinkerers.",
+  "traits": [
+    {
+      "name": "Artificers Lore",
+      "description": "Double proficiency bonus on History checks for magic items and tech."
+    },
+    { "name": "Tinker", "description": "Proficiency with tinkers tools. Can craft Tiny clockwork devices." }
+  ],
+  "abilityScoreIncrease": { "constitution": 1 },
+  "source": "PHB 2024"
+}

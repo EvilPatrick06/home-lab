@@ -1,0 +1,684 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Dominant",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "gehenna",
+      "name": "Gehenna",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Lawful Evil", "Neutral Evil"],
+      "philosophicalEssence": "Gehenna is the plane of suspicion and greed, with no space for mercy or compassion.",
+      "emotionalInfluence": "Suspicion and greed pervade the plane; tensions run high and no one can be trusted. Environmental effects can manifest this atmosphere mechanically (see Environmental Effects in chapter 3).",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Four volcanic mountains dominating four layers, with lesser volcanic earthbergs drifting in the air and smashing into the greater mountains.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Volcanic fissures vent noxious fumes. Clouds of volcanic ash and steam are present on Khalas. Constant gray ashfall on Chamada. Acidic ash mingles with falling snow on Mungoth.",
+        "temperature": {
+          "category": "layered",
+          "description": "Varies by layer: Khalas has lava and volcanic heat; Chamada has constant lava flows and eruptions; Mungoth is freezing with acidic ash and snow; Krangath is suspended in silence and darkness."
+        },
+        "hasSurface": true,
+        "dominantElement": "Volcanic rock and lava",
+        "weatherPatterns": "Volcanic ash, lava flows, eruptions, acidic ash mixed with snow on Mungoth, gray ashfall on Chamada."
+      },
+      "layers": [
+        {
+          "name": "Khalas",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "Lava illuminates clouds of volcanic ash and steam from the River Styx.",
+          "notableLocations": [
+            {
+              "name": "Teardrop Palace",
+              "description": "A bustling market crowded with Fiends and occasional mortal visitors that offers all manner of forbidden and sinister goods for sale. Its name comes from its shape: the point is on the palace's uphill side so it diverts the ever-present lava flow to either side of the structure."
+            }
+          ],
+          "notableInhabitants": ["Yugoloths"],
+          "layerSpecificHazards": [
+            {
+              "name": "Lava Flows",
+              "description": "Lava illuminates clouds of volcanic ash and steam."
+            },
+            {
+              "name": "Volcanic Ash and Steam",
+              "description": "Clouds of volcanic ash and steam pervade the layer, vented from the River Styx."
+            }
+          ],
+          "environmentalDescription": "Lava illuminates clouds of volcanic ash and steam from the River Styx.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Chamada",
+          "alternateNames": [],
+          "layerNumber": 2,
+          "description": "Constant lava flows and eruptions make overland travel difficult. Iron zeppelins piloted by yugoloths drift through the constant gray ashfall.",
+          "notableLocations": [
+            {
+              "name": "Tower Arcane",
+              "description": "A sinister structure adorned with blades and spikes and guarded by arcanaloths. It is rumored to hold yugoloths' history and the records of their contracts."
+            }
+          ],
+          "notableInhabitants": ["Yugoloths", "Arcanaloths"],
+          "layerSpecificHazards": [
+            {
+              "name": "Constant Lava Flows and Eruptions",
+              "description": "Constant lava flows and eruptions make overland travel difficult."
+            },
+            {
+              "name": "Gray Ashfall",
+              "description": "Constant gray ashfall covers the layer."
+            }
+          ],
+          "environmentalDescription": "Constant lava flows and eruptions make overland travel difficult. Iron zeppelins piloted by yugoloths drift through the constant gray ashfall.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Mungoth",
+          "alternateNames": [],
+          "layerNumber": 3,
+          "description": "Acidic ash mingles with falling snow on this freezing layer.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Acidic Ash",
+              "description": "Acidic ash mingles with falling snow."
+            },
+            {
+              "name": "Freezing Temperatures",
+              "description": "This is a freezing layer with falling snow."
+            }
+          ],
+          "environmentalDescription": "Acidic ash mingles with falling snow on this freezing layer.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Krangath",
+          "alternateNames": ["The Dead Furnace"],
+          "layerNumber": 4,
+          "description": "The Dead Furnace is a great mountain suspended in silence and darkness, home to a coterie of liches.",
+          "notableLocations": [
+            {
+              "name": "The Dead Furnace",
+              "description": "A great mountain suspended in silence and darkness, home to a coterie of liches."
+            }
+          ],
+          "notableInhabitants": ["Liches"],
+          "layerSpecificHazards": [
+            {
+              "name": "Silence and Darkness",
+              "description": "The layer is suspended in silence and darkness, devoid of light and sound."
+            }
+          ],
+          "lightLevel": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {},
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none",
+              "description": "Krangath is suspended in perpetual silence and darkness."
+            }
+          },
+          "environmentalDescription": "The Dead Furnace is a great mountain suspended in silence and darkness, home to a coterie of liches.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 4,
+      "timeFlow": {
+        "type": "normal",
+        "description": "No specific time flow alteration is described for Gehenna. Distance is virtually meaningless on Outer Planes; a perceptible region might seem small on one visit and stretch to infinity on another."
+      },
+      "hazards": [
+        {
+          "id": "gehenna-volcanic-slopes",
+          "name": "Volcanic Slopes",
+          "description": "The rocky slopes of the plane make movement difficult and dangerous. The ground inclines at least 45 degrees almost everywhere. In places, steep cliffs and deep canyons present more challenging obstacles.",
+          "category": "physical",
+          "severity": "major",
+          "movementSpeedPenalty": {
+            "type": "inclined_terrain",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal",
+              "description": "Normal gravity oriented toward the volcanic mountain surfaces."
+            },
+            "terrainIncline": {
+              "angleDegrees": 45,
+              "isPervasive": true,
+              "climbingRequired": true,
+              "fallRisk": true
+            },
+            "effectiveSpeedReductionPercent": 50
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Gehenna"
+        },
+        {
+          "id": "gehenna-volcanic-fissures",
+          "name": "Volcanic Fissures",
+          "description": "Hazards include volcanic fissures that vent noxious fumes or searing flames.",
+          "category": "environmental",
+          "severity": "major",
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Gehenna"
+        },
+        {
+          "id": "gehenna-earthbergs",
+          "name": "Volcanic Earthbergs",
+          "description": "Lesser volcanic earthbergs drift in the air and smash into the greater mountains, presenting collision hazards.",
+          "category": "physical",
+          "severity": "severe",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Gehenna"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "gehenna-suspicion-greed",
+          "name": "Suspicion and Greed",
+          "description": "Gehenna is the plane of suspicion and greed, with no space for mercy or compassion. Adventures on this plane might be an opportunity to explore themes of betrayal, examining how characters behave when tensions run high and they can trust no one—perhaps not even each other.",
+          "mechanicalEffect": "See Environmental Effects in chapter 3 for one way this atmosphere can manifest. Characters may encounter people in need who turn out to be yugoloths in disguise, pitting the characters' growing suspicion against their empathy and compassion.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Suspicion and greed pervade the plane; no space for mercy or compassion. Tensions run high and trust is impossible.",
+          "sourceReference": "Chapter 3: Environmental Effects (referenced)"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "gehenna-river-styx",
+          "name": "River Styx",
+          "type": "river",
+          "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+          "description": "The River Styx churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries of the Styx snake through lower layers of these planes. Sinister ferries float on the waters of the Styx, crewed by pilots skilled in negotiating the unpredictable currents and eddies of the river. For a price, these pilots carry passengers from plane to plane.",
+          "hazards": [
+            "The ill effects of the Styx are described under Hazards in chapter 3.",
+            "The Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks."
+          ],
+          "isOneWay": false,
+          "navigableBy": [
+            "Sinister ferries crewed by skilled pilots",
+            "Some pilots are Fiends",
+            "Some pilots are souls of dead creatures from the Material Plane"
+          ]
+        },
+        {
+          "id": "gehenna-gate-town-torch",
+          "name": "Torch Gate-Town",
+          "type": "portal_network",
+          "connectedPlanes": ["Outlands", "Gehenna"],
+          "description": "Torch is one of the sixteen gate-towns evenly spaced around the outside edge of the Outlands, built around a portal leading to Gehenna. Each gate-town shares many of the characteristics of the plane where its gate leads.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["foot", "any standard means"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend", "Undead"],
+        "notableEntities": [
+          {
+            "name": "Yugoloths",
+            "creatureType": "Fiend",
+            "description": "Greedy and selfish Fiends that dwell in Gehenna in great numbers. Gehenna is their birthplace."
+          },
+          {
+            "name": "Arcanaloths",
+            "creatureType": "Fiend",
+            "description": "Yugoloths that guard the Tower Arcane on Chamada."
+          },
+          {
+            "name": "Liches (Krangath)",
+            "creatureType": "Undead",
+            "description": "A coterie of liches that call Krangath, the Dead Furnace, their home."
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Celestial"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on Gehenna, a Celestial makes a DC 10 Constitution saving throw.",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, it must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "customCondition": "Planar Dissonance",
+            "cumulative": true,
+            "cumulativeDescription": "The 1d4 penalty is cumulative with each failed save.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "all",
+              "subtracted": true
+            },
+            "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature"
+          },
+          "onSuccess": {
+            "description": "No additional penalty. Previous cumulative penalties remain until a Long Rest on a compatible plane.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": ["Fiend"],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": true,
+          "repeatSaveTiming": "After each Long Rest on the plane",
+          "recoveryTrigger": "Finishing a Long Rest on a plane that isn't opposed to the creature's nature",
+          "recoveryMethods": ["Finish a Long Rest on a plane that is not opposed to the creature's nature"],
+          "failureProbabilityAtDC": {
+            "dc": 10,
+            "noModifierFailChance": 0.45,
+            "commonModifierRange": {
+              "low": 2,
+              "high": 5
+            },
+            "failChanceAtLowMod": 0.35,
+            "failChanceAtHighMod": 0.2
+          }
+        },
+        "description": "Celestials who visit the Lower Planes (including Gehenna) experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on Gehenna, a Celestial makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, it must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Suspicion and greed",
+        "Betrayal and broken trust",
+        "Infiltrating sinister markets",
+        "Uncovering ancient yugoloth secrets",
+        "Navigating volcanic terrain",
+        "Encounters with yugoloths in disguise"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Russet",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3: Environmental Effects - referenced for mechanical manifestation of Gehenna's atmosphere of suspicion and greed"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3: Hazards - ill effects of the River Styx"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "river-styx-global",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries snake through lower layers. Sinister ferries carry passengers from plane to plane for a price.",
+      "hazards": ["Memory-draining waters (ill effects described in chapter 3)", "Unpredictable currents and eddies"],
+      "isOneWay": false,
+      "navigableBy": ["Sinister ferries crewed by Fiends or souls of the dead"]
+    }
+  ],
+  "bloodWar": {
+    "description": "Throughout history, the teeming demon hordes of the Abyss and the regimented legions of devils from the Nine Hells have battled for supremacy in the cosmos. The Blood War has raged for millennia, ravaging the Lower Planes. The battlefields are concentrated in the Nine Hells and the Abyss, though fighting also takes place on the Material Plane, on the planes between those realms on the Great Wheel, and anywhere else demons and devils congregate.",
+    "primaryBattlefields": ["Nine Hells", "Abyss"],
+    "factions": [
+      {
+        "name": "Demon Hordes",
+        "planeOfOrigin": "Abyss",
+        "creatureType": "Fiend (Demon)",
+        "role": "Chaotic Evil aggressors seeking supremacy"
+      },
+      {
+        "name": "Devil Legions",
+        "planeOfOrigin": "Nine Hells",
+        "creatureType": "Fiend (Devil)",
+        "role": "Lawful Evil regimented legions defending territory and seeking supremacy"
+      }
+    ],
+    "spilloverPlanes": ["Material Plane", "Acheron", "Gehenna", "Hades", "Carceri"],
+    "adventureImplications": "Many demons and devils are obsessed with finding some advantage for their side in the Blood War, and powerful mortal adventurers are sometimes drawn into tangled schemes to that end. Open conflict between Fiends is a constant threat on most of the Lower Planes. Natives of the Upper Planes also have roles to play, standing ready to intervene whenever the Blood War spills outside the Abyss and Nine Hells."
+  },
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Portals can function like doorways, locations, or vortices. Most portals aren't open all the time but open only in particular situations or when a certain requirement is met.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting portal requirements (command, key item, random, situation, or time)",
+        "Potentially bypassing guardians"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portal guardians", "One-way portals", "Requirements may be unknown"],
+      "destinations": ["Any plane connected by the specific portal"]
+    },
+    {
+      "id": "spells-planar-travel",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Ability to cast the relevant spell", "Appropriate spell slot or component"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in arrival location"],
+      "destinations": ["Various planes depending on the spell"]
+    },
+    {
+      "id": "river-styx-travel",
+      "name": "River Styx Travel",
+      "type": "planar_pathway",
+      "description": "Sinister ferries float on the waters of the Styx, crewed by pilots skilled in negotiating the unpredictable currents and eddies. For a price, these pilots carry passengers from plane to plane.",
+      "requirements": ["Payment to ferry pilots"],
+      "associatedSpells": [],
+      "risks": ["Memory-draining waters", "Unpredictable currents", "Dangerous environment"],
+      "destinations": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"]
+    },
+    {
+      "id": "gate-town-torch",
+      "name": "Gate-Town of Torch",
+      "type": "portal",
+      "description": "Torch is a gate-town on the Outlands built around a portal leading to Gehenna. The town shares many characteristics of Gehenna.",
+      "requirements": ["Travel to the Outlands", "Reach the gate-town of Torch"],
+      "associatedSpells": [],
+      "risks": ["Gate-town reflects characteristics of Gehenna"],
+      "destinations": ["Gehenna"]
+    },
+    {
+      "id": "astral-color-pool-gehenna",
+      "name": "Astral Color Pool to Gehenna",
+      "type": "portal",
+      "description": "Gateways leading from the Astral Plane to Gehenna appear as two-dimensional pools of rippling russet color, 1d6 × 10 feet in diameter.",
+      "requirements": ["Access to the Astral Plane", "Locating a russet-colored pool"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["Psychic winds in the Astral Plane", "Difficulty locating the correct color pool"],
+      "destinations": ["Gehenna"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    }
+  ],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, it must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 subtracted from D20 Tests.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "all",
+          "subtracted": true
+        },
+        "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature",
+        "exhaustionLevels": 0,
+        "exhaustionIsRemovable": true
+      },
+      "onSuccess": {
+        "description": "No additional penalty is applied. Previous cumulative penalties remain.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": true,
+      "repeatSaveTiming": "After each Long Rest on the hostile plane",
+      "recoveryTrigger": "Finishing a Long Rest on a plane that isn't opposed to the creature's nature",
+      "recoveryMethods": ["Finish a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 2,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.35,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

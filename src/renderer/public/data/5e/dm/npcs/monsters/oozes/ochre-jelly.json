@@ -1,0 +1,136 @@
+{
+  "name": "Ochre Jelly",
+  "sizes": ["Large"],
+  "creatureType": "Ooze",
+  "alignment": "Unaligned",
+  "habitat": ["Sewer", "Swamp", "Underdark"],
+  "treasure": ["None"],
+  "lore": "Ochre jellies are yellowish oozes that dissolve flesh and organic material on contact. They seep through cracks and crevices in search of creatures to consume, creeping through dungeons, caverns, and sewers. An ochre jelly that takes certain types of damage splits into smaller copies of itself, turning an adventurer's apparent triumph into a multiplying menace.",
+  "armorClass": {
+    "value": 8
+  },
+  "hitPoints": {
+    "average": 45,
+    "dice": {
+      "count": 6,
+      "die": "d10",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Climb",
+      "distance": 10
+    }
+  ],
+  "initiative": {
+    "modifier": -2,
+    "score": 8
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "resistances": ["Slashing"],
+  "damageImmunities": ["Lightning"],
+  "conditionImmunities": ["Blinded", "Charmed", "Deafened", "Exhaustion", "Frightened", "Prone"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amorphous",
+      "description": "The jelly can move through a space as narrow as 1 inch without squeezing."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The jelly can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 9 (2d6 + 2) Bludgeoning damage plus 3 (1d6) Acid damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Split",
+      "description": "When the jelly is hit by an attack that deals Lightning or Slashing damage while the jelly has 10 or more Hit Points, it splits into two new jellies. Each new jelly has Hit Points equal to half the original jelly's Hit Points, rounded down. New jellies are one size smaller than the original jelly.",
+      "trigger": "The jelly is hit by an attack that deals Lightning or Slashing damage while the jelly has 10 or more Hit Points."
+    }
+  ]
+}

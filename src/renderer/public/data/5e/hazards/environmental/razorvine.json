@@ -1,0 +1,12 @@
+{
+  "name": "Razorvine",
+  "severity": "Level 1+",
+  "description": "Covers 10-foot-square area. Creature entering for first time on a turn takes 5 (1d10) Slashing damage. Can be cut through: AC 11, 25 HP, immune to most damage types.",
+  "slug": "razorvine",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

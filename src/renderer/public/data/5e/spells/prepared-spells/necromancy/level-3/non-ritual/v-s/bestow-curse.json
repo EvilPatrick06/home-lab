@@ -1,0 +1,113 @@
+{
+  "name": "Bestow Curse",
+  "level": 3,
+  "school": "Necromancy",
+  "classes": ["Bard", "Cleric", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You touch a creature, which must succeed on a Wisdom saving throw or become cursed for the duration. Until the curse ends, the target suffers one of the following effects of your choice:\n\n- Choose one ability. The target has Disadvantage on ability checks and saving throws made with that ability.\n- The target has Disadvantage on attack rolls against you.\n- In combat, the target must succeed on a Wisdom saving throw at the start of each of its turns or be forced to take the Dodge action on that turn.\n- If you deal damage to the target with an attack roll or a spell, the target takes an extra 1d8 Necrotic damage.",
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true
+  },
+  "spellOptions": [
+    {
+      "name": "Ability Disadvantage",
+      "description": "Choose one ability. The target has Disadvantage on ability checks and saving throws made with that ability."
+    },
+    {
+      "name": "Attack Roll Disadvantage",
+      "description": "The target has Disadvantage on attack rolls against you."
+    },
+    {
+      "name": "Forced Dodge",
+      "description": "In combat, the target must succeed on a Wisdom saving throw at the start of each of its turns or be forced to take the Dodge action on that turn.",
+      "savingThrow": {
+        "ability": "Wisdom",
+        "effectOnFailure": "The target is forced to take the Dodge action on that turn"
+      }
+    },
+    {
+      "name": "Extra Necrotic Damage",
+      "description": "If you deal damage to the target with an attack roll or a spell, the target takes an extra 1d8 Necrotic damage.",
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 1,
+            "diceValue": 8
+          },
+          "type": "Necrotic",
+          "applicationType": "onHit",
+          "condition": "When you deal damage to the target with an attack roll or a spell"
+        }
+      ]
+    }
+  ],
+  "higherLevelCasting": {
+    "overrides": [
+      {
+        "minSlotLevel": 4,
+        "maxSlotLevel": 4,
+        "description": "You can maintain Concentration on it for up to 10 minutes.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": true,
+          "amount": 10,
+          "unit": "minutes"
+        }
+      },
+      {
+        "minSlotLevel": 5,
+        "maxSlotLevel": 6,
+        "description": "The spell doesn't require Concentration, and the duration becomes 8 hours.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": false,
+          "amount": 8,
+          "unit": "hours"
+        },
+        "concentrationOverride": false
+      },
+      {
+        "minSlotLevel": 7,
+        "maxSlotLevel": 8,
+        "description": "The spell doesn't require Concentration, and the duration becomes 24 hours.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": false,
+          "amount": 24,
+          "unit": "hours"
+        },
+        "concentrationOverride": false
+      },
+      {
+        "minSlotLevel": 9,
+        "maxSlotLevel": 9,
+        "description": "The spell doesn't require Concentration, and the spell lasts until dispelled.",
+        "durationOverride": {
+          "type": "UntilDispelled",
+          "concentration": false
+        },
+        "concentrationOverride": false
+      }
+    ]
+  },
+  "tags": ["curse", "debuff"]
+}

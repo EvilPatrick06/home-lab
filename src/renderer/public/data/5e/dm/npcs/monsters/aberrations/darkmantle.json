@@ -1,0 +1,54 @@
+{
+  "name": "Darkmantle",
+  "slug": "darkmantle",
+  "size": "Small",
+  "type": "Aberration",
+  "alignment": "Unaligned",
+  "ac": "11",
+  "initiative": "+3 (13)",
+  "hp": "22",
+  "hpFormula": "5d6 + 5",
+  "speed": "10 ft., Fly 30 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 12,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 1,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +3",
+  "senses": "Blindsight 60 ft.; Passive Perception 10",
+  "languages": "None",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Crush",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Bludgeoning damage, and the darkmantle attaches to the target. If the target is a Medium or smaller creature and the darkmantle had Advantage on the attack roll, it covers the target, which has the *Blinded* condition and is suffocating while the darkmantle is attached in this way."
+    },
+    {
+      "name": "Darkness Aura (1/Day)",
+      "description": "Magical Darkness fills a 15-foot Emanation originating from the darkmantle. This effect lasts while the darkmantle maintains Concentration on it, up to 10 minutes. Darkvision can't penetrate this area, and no light can illuminate it."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Ceiling-Clinging Ambush Predator*\n**Habitat:** Underdark; **Treasure:** None\nUnnatural subterranean hunters, darkmantles veil themselves in magical shadows and use their bizarre anatomies to disguise themselves as stalactites. When prey passes below, lurking darkmantles drop and unfurl their webbed tentacles, attempting to blind, suffocate, or crush their victims.\nDarkmantles share similarities with piercers and ropers and often hunt near those monsters. Scholars have attempted to establish a shared origin or life cycle between those creatures, but their efforts are thwarted by those monsters' supernatural physiologies and deadly natures.\n> *Just assume there's no such thing as a stalactite.*\n>\n> --S. Wakeman, Underdark Explorer",
+  "habitat": "Underdark",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

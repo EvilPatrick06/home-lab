@@ -1,0 +1,24 @@
+{
+  "id": "sight-rot",
+  "name": "Sight Rot",
+  "type": "disease",
+  "savingThrow": {
+    "ability": "Constitution",
+    "dc": 15
+  },
+  "transmission": "Caused by drinking water tainted by the sight rot fungus. The disease can also be spread through contact with infected creatures' tears or eye discharge.",
+  "incubation": "1 day",
+  "symptoms": "Painful, bloodshot eyes that weep a milky discharge. Vision becomes progressively blurrier and more distorted.",
+  "effects": [
+    {
+      "stage": "Infected",
+      "description": "The infected creature suffers a -1 penalty to attack rolls and ability checks that rely on sight. At the end of each long rest after the symptoms appear, the penalty worsens by 1. When the penalty reaches -5, the victim is blinded until its sight is restored by magic such as Lesser Restoration or Heal."
+    }
+  ],
+  "recovery": "Applying a rare flower called Eyebright to the infected creature's eyes prevents the disease from worsening for 24 hours. After three applications, the treatment cures the disease entirely. Eyebright grows in some swamps and can be found with a DC 15 Wisdom (Survival) check during a day of foraging.",
+  "cure": "A Lesser Restoration spell or similar magic cures the disease immediately. Three applications of Eyebright herb cures it naturally.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Diseases"
+  }
+}

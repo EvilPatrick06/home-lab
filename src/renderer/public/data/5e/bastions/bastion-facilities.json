@@ -1,0 +1,1876 @@
+{
+  "basicFacilities": [
+    {
+      "type": "bedroom",
+      "name": "Bedroom",
+      "description": "A private sleeping chamber for the bastion owner or guests. Provides a comfortable place for a Long Rest."
+    },
+    {
+      "type": "dining-room",
+      "name": "Dining Room",
+      "description": "A communal eating area where residents and visitors gather for meals."
+    },
+    {
+      "type": "parlor",
+      "name": "Parlor",
+      "description": "A comfortable sitting room for entertaining guests and conducting informal meetings."
+    },
+    {
+      "type": "courtyard",
+      "name": "Courtyard",
+      "description": "An open-air space within the bastion, used for gatherings, exercise, or decoration."
+    },
+    {
+      "type": "kitchen",
+      "name": "Kitchen",
+      "description": "A well-equipped cooking area that produces enough food for the bastion's residents."
+    },
+    {
+      "type": "storage",
+      "name": "Storage",
+      "description": "Secure storage for equipment, supplies, and treasure."
+    }
+  ],
+  "specialFacilities": [
+    {
+      "type": "arcane-study",
+      "name": "Arcane Study",
+      "description": "A place of quiet research devoted to the study of the arcane arts. Bookshelves and writing desks fill the room, and the air smells of old parchment.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": {
+        "type": "arcane-focus",
+        "description": "Ability to use an Arcane Focus or a tool as a Spellcasting Focus"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["craft"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Arcane Study Charm",
+        "description": "After spending a Long Rest in your Bastion, you gain a Charm that lasts for 7 days. It allows you to cast Identify without expending a spell slot or using Material components. You can't gain this Charm again while you still have it.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Arcane Focus",
+          "description": "Commission the hireling to craft an Arcane Focus. The work takes 7 days and costs no money.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Book",
+          "description": "Commission the hireling to craft a blank book.",
+          "daysRequired": 7,
+          "cost": 10
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Magic Item (Arcana)",
+          "description": "Commission the hireling to craft a Common or Uncommon magic item from the Arcana tables in ch. 7. The facility has the required tool and the hireling has proficiency. Requires level 9+. If the item lets its user cast spells, you must craft it yourself with all those spells prepared.",
+          "daysRequired": 14,
+          "cost": 100,
+          "levelRequired": 9
+        }
+      ]
+    },
+    {
+      "type": "armory",
+      "name": "Armory",
+      "description": "This facility stores weapons, armor, and ammunition for the bastion's defense. When stocked, defenders gain advantage on attack rolls during bastion attacks.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": null,
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["trade"],
+      "allowMultiple": false,
+      "permanentBenefit": "While the Armory is stocked, when any event causes you to roll dice to determine if your Bastion loses defenders, roll 1d8 in place of each 1d6 you would normally roll. When the event is over, the Armory is depleted regardless of outcome.",
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Stock Armory",
+          "description": "Commission the hireling to stock the Armory with armor, shields, weapons, and ammunition. Costs 100 GP plus an extra 100 GP for each Bastion Defender. If your Bastion has a Smithy, the total cost is halved.",
+          "daysRequired": 7,
+          "cost": 100
+        }
+      ]
+    },
+    {
+      "type": "barrack",
+      "name": "Barrack",
+      "description": "This facility houses trained soldiers who serve as Bastion Defenders. A Roomy barrack can hold up to 12 defenders; a Vast one holds up to 25.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["recruit"],
+      "allowMultiple": true,
+      "orderOptions": [
+        {
+          "order": "recruit",
+          "name": "Recruit: Defenders",
+          "description": "Recruit up to 4 Bastion Defenders. The recruitment costs no money.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "garden",
+      "name": "Garden",
+      "description": "A cultivated garden that can serve decorative, culinary, herbal, or poisonous purposes. The garden type is chosen when built.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["harvest"],
+      "allowMultiple": true,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "harvest",
+          "name": "Harvest: Decorative",
+          "description": "Harvest ten exquisite floral bouquets (worth 5 GP each), ten vials of Perfume, or ten Candles.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "harvest",
+          "name": "Harvest: Food",
+          "description": "Harvest 100 days worth of Rations.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "harvest",
+          "name": "Harvest: Herb",
+          "description": "Harvest herbs used to create either ten Healer's Kits or one Potion of Healing.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "harvest",
+          "name": "Harvest: Poison",
+          "description": "Harvest plants used to create either two vials of Antitoxin or one vial of Basic Poison.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Library",
+      "description": "Floor-to-ceiling bookshelves fill this facility. The library contains an impressive collection of reference works on a variety of subjects.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Topic",
+          "description": "Research any topic. The hireling provides an answer to one question about history, lore, or a specific subject.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "sanctuary",
+      "name": "Sanctuary",
+      "description": "A consecrated space for prayer, meditation, and divine communion. Holy symbols and religious icons adorn the walls.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": {
+        "type": "holy-or-druidic",
+        "description": "Ability to use a Holy Symbol or Druidic Focus as a Spellcasting Focus"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["craft", "research"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Sanctuary Charm",
+        "description": "You can cast Healing Word without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Holy Water",
+          "description": "Craft a flask of Holy Water.",
+          "daysRequired": 7,
+          "cost": 25
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Magic Item (Religion)",
+          "description": "Craft a Common or Uncommon magic item from the Religion tables. Requires level 9+.",
+          "daysRequired": 14,
+          "cost": 100,
+          "levelRequired": 9
+        },
+        {
+          "order": "research",
+          "name": "Research: Divine Lore",
+          "description": "Research a divine topic. The hireling provides an answer to one question about a deity, celestial, or divine phenomenon.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "smithy",
+      "name": "Smithy",
+      "description": "This Smithy contains a forge, an anvil, and other tools needed to craft weapons, armor, and other equipment.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 2,
+      "orders": ["craft"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Smith's Tools",
+          "description": "The hirelings craft anything that can be made with Smith's Tools, using the rules in the Player's Handbook.",
+          "daysRequired": 7,
+          "cost": -1
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Magic Item (Armament)",
+          "description": "Commission the hirelings to craft a Common or Uncommon magic item from the Armaments tables in ch. 7. The facility has the required tool and hirelings have proficiency. Requires level 9+. If the item lets its user cast spells, you must craft it yourself with all those spells prepared.",
+          "daysRequired": 14,
+          "cost": 100,
+          "levelRequired": 9
+        }
+      ]
+    },
+    {
+      "type": "storehouse",
+      "name": "Storehouse",
+      "description": "An enlarged, secured storage area with organized shelves, crates, and locked chests. Far more capacity than a basic Storage room.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["trade"],
+      "allowMultiple": true,
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Buy Supplies",
+          "description": "Purchase adventuring gear, tools, or supplies at standard prices.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "trade",
+          "name": "Trade: Sell Goods",
+          "description": "Sell stored goods for half their listed price.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "workshop",
+      "name": "Workshop",
+      "description": "A versatile crafting space equipped with workbenches and up to six sets of Artisan's Tools. Ideal for creating nonmagical items.",
+      "level": 5,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 3,
+      "orders": ["craft"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Nonmagical Item",
+          "description": "Craft any nonmagical item using the Workshop's Artisan's Tools at half normal cost and time.",
+          "daysRequired": 7,
+          "cost": -1
+        }
+      ],
+      "permanentBenefit": "Source of Inspiration: After spending an entire Short Rest in your Workshop, you gain Heroic Inspiration. You can't gain this benefit again until you finish a Long Rest."
+    },
+    {
+      "type": "gaming-hall",
+      "name": "Gaming Hall",
+      "description": "This facility is a den of games and gambling. Card tables, dice cups, and dart boards fill the space. Visitors come to test their luck.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": true,
+      "hirelingCount": 4,
+      "orders": ["trade"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Run Games",
+          "description": "Run games of chance. Roll d100 on the Gaming Hall Winnings table to determine profit or loss.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ],
+      "tables": {
+        "winnings": [
+          {
+            "min": 1,
+            "max": 20,
+            "result": "Lose 1d6 x 50 GP"
+          },
+          {
+            "min": 21,
+            "max": 40,
+            "result": "Break even"
+          },
+          {
+            "min": 41,
+            "max": 60,
+            "result": "Win 1d6 x 25 GP"
+          },
+          {
+            "min": 61,
+            "max": 80,
+            "result": "Win 1d6 x 50 GP"
+          },
+          {
+            "min": 81,
+            "max": 95,
+            "result": "Win 1d6 x 100 GP"
+          },
+          {
+            "min": 96,
+            "max": 100,
+            "result": "Win 1d6 x 200 GP"
+          }
+        ]
+      }
+    },
+    {
+      "type": "greenhouse",
+      "name": "Greenhouse",
+      "description": "An enclosure where rare plants and fungi are nurtured in a controlled climate.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["harvest"],
+      "allowMultiple": false,
+      "charm": null,
+      "fruitOfRestoration": {
+        "description": "One plant in your Greenhouse has three magical fruits growing on it. Any creature that eats one of these fruits gains the benefit of a Lesser Restoration spell. Fruits that aren't eaten within 24 hours of being picked lose their magic. The plant replaces all picked fruits daily at dawn, and it can't be transplanted without killing it.",
+        "fruitsPerDay": 3,
+        "spell": "Lesser Restoration"
+      },
+      "orderOptions": [
+        {
+          "order": "harvest",
+          "name": "Harvest: Healing Herbs",
+          "description": "Commission the hireling to create a Potion of Healing (Greater) made from healing herbs. The work takes 7 days and costs no money.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "harvest",
+          "name": "Harvest: Poison",
+          "description": "Commission the hireling to extract one application of a poison from rare plants or fungi. Choose from: Assassin's Blood, Malice, Pale Tincture, or Truth Serum. The work takes 7 days and costs no money.",
+          "daysRequired": 7,
+          "cost": 0,
+          "poisonOptions": ["Assassin's Blood", "Malice", "Pale Tincture", "Truth Serum"]
+        }
+      ]
+    },
+    {
+      "type": "laboratory",
+      "name": "Laboratory",
+      "description": "Glass vials, flasks, and alchemical apparatus fill this room. The laboratory is used for brewing potions and conducting alchemical experiments.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": null,
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["craft"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Potion of Healing",
+          "description": "Craft a Potion of Healing.",
+          "daysRequired": 7,
+          "cost": 25
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Potion of Greater Healing",
+          "description": "Craft a Potion of Greater Healing. Requires level 13+.",
+          "daysRequired": 14,
+          "cost": 100,
+          "levelRequired": 13
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Antitoxin",
+          "description": "Craft a vial of Antitoxin.",
+          "daysRequired": 7,
+          "cost": 25
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Alchemist's Fire",
+          "description": "Craft a flask of Alchemist's Fire.",
+          "daysRequired": 7,
+          "cost": 25
+        }
+      ]
+    },
+    {
+      "type": "sacristy",
+      "name": "Sacristy",
+      "description": "This room stores sacred vestments and religious items. It serves as a preparation area for religious ceremonies.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": {
+        "type": "holy-or-druidic",
+        "description": "Ability to use a Holy Symbol or Druidic Focus as a Spellcasting Focus"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["craft", "empower"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Sacristy Charm",
+        "description": "You can cast Remove Curse without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Holy Water (batch)",
+          "description": "Craft 4 flasks of Holy Water.",
+          "daysRequired": 7,
+          "cost": 100
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Magic Item (Religion)",
+          "description": "Craft a Common or Uncommon magic item from the Religion tables. Requires level 13+.",
+          "daysRequired": 14,
+          "cost": 200,
+          "levelRequired": 13
+        },
+        {
+          "order": "empower",
+          "name": "Empower: Bless Defenders",
+          "description": "Bless the bastion's defenders. For the next 7 days, each defender gains +1 to attack rolls.",
+          "daysRequired": 7,
+          "cost": 50
+        }
+      ]
+    },
+    {
+      "type": "scriptorium",
+      "name": "Scriptorium",
+      "description": "Writing desks, ink pots, and stacks of parchment fill this room. The scriptorium is used for copying texts and creating spell scrolls.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": null,
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["craft"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Spell Scroll (Cantrip)",
+          "description": "Craft a Spell Scroll of a cantrip you know.",
+          "daysRequired": 7,
+          "cost": 15
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Spell Scroll (1st Level)",
+          "description": "Craft a Spell Scroll of a 1st-level spell you know.",
+          "daysRequired": 7,
+          "cost": 25
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Spell Scroll (2nd Level)",
+          "description": "Craft a Spell Scroll of a 2nd-level spell you know.",
+          "daysRequired": 7,
+          "cost": 50
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Spell Scroll (3rd Level)",
+          "description": "Craft a Spell Scroll of a 3rd-level spell you know. Requires level 13+.",
+          "daysRequired": 14,
+          "cost": 100,
+          "levelRequired": 13
+        }
+      ]
+    },
+    {
+      "type": "stable",
+      "name": "Stable",
+      "description": "Housing for mounts and beasts of burden. A Roomy stable can hold up to 3 Large creatures; a Vast stable can hold up to 6 Large creatures.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["trade"],
+      "allowMultiple": false,
+      "permanentBenefit": "Mounts stabled here recover all Hit Point Dice on a Long Rest.",
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Buy Mount",
+          "description": "Purchase a mount at standard prices through the hireling's contacts.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "trade",
+          "name": "Trade: Breed Mounts",
+          "description": "Breed mounts over time. After 4 bastion turns, gain a young mount of a type already stabled.",
+          "daysRequired": 28,
+          "cost": 50
+        }
+      ]
+    },
+    {
+      "type": "teleportation-circle",
+      "name": "Teleportation Circle",
+      "description": "A permanent Teleportation Circle inscribed in the floor of this room. Only the bastion owner and those they authorize can use it.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": {
+        "type": "spellcasting-focus",
+        "description": "Ability to use a Spellcasting Focus"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["recruit"],
+      "allowMultiple": false,
+      "permanentBenefit": "Contains a permanent Teleportation Circle. Anyone who knows the sigil sequence can teleport to this circle. The owner can link to one other permanent circle whose sigil sequence they know.",
+      "orderOptions": [
+        {
+          "order": "recruit",
+          "name": "Recruit: Spellcaster",
+          "description": "The NPC spellcaster can cast a Wizard spell of level 4 or lower (or level 8 if you are level 17+). The spellcaster stays for 14 days or until a spell is cast.",
+          "daysRequired": 14,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "theater",
+      "name": "Theater",
+      "description": "A stage, seating, and acoustic design make this facility ideal for performances. Musicians, actors, and orators can entertain audiences here.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": null,
+      "defaultSpace": "vast",
+      "enlargeable": true,
+      "hirelingCount": 4,
+      "orders": ["empower"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "empower",
+          "name": "Empower: Inspire",
+          "description": "Host an inspiring performance. Choose one ally who attends; they gain Inspiration.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "trade",
+          "name": "Trade: Host Performance",
+          "description": "Host a public performance. Earn 2d6 x 25 GP in admission fees.",
+          "daysRequired": 7,
+          "cost": 25
+        }
+      ]
+    },
+    {
+      "type": "training-area",
+      "name": "Training Area",
+      "description": "An open space for martial practice and physical training, with practice dummies, sparring rings, and weapon racks.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": true,
+      "hirelingCount": 4,
+      "orders": ["empower"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "empower",
+          "name": "Empower: Battle Training",
+          "description": "The trainer provides battle instruction. You gain +1 to attack rolls with one weapon type for 7 days.",
+          "daysRequired": 7,
+          "cost": 50
+        },
+        {
+          "order": "empower",
+          "name": "Empower: Skill Training",
+          "description": "The trainer teaches a skill. You gain proficiency in one skill for 7 days.",
+          "daysRequired": 7,
+          "cost": 50
+        },
+        {
+          "order": "empower",
+          "name": "Empower: Tool Training",
+          "description": "The trainer teaches tool use. You gain proficiency with one Artisan's Tool for 7 days.",
+          "daysRequired": 7,
+          "cost": 50
+        },
+        {
+          "order": "empower",
+          "name": "Empower: Unarmed Combat",
+          "description": "The trainer teaches unarmed combat. Your unarmed strikes deal 1d6 damage for 7 days.",
+          "daysRequired": 7,
+          "cost": 50
+        },
+        {
+          "order": "empower",
+          "name": "Empower: Weapon Training",
+          "description": "The trainer teaches advanced weapon techniques. You gain a weapon mastery property for one weapon for 7 days.",
+          "daysRequired": 7,
+          "cost": 75
+        }
+      ]
+    },
+    {
+      "type": "trophy-room",
+      "name": "Trophy Room",
+      "description": "A showcase for trophies, relics, and mementos of adventures. Visitors are impressed by the displays.",
+      "level": 9,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "permanentBenefit": "Visitors who see the trophy room are favorably disposed toward you. You have Advantage on Charisma (Persuasion) checks with NPCs who have seen it.",
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Lore",
+          "description": "Commission the facility to research a topic related to a trophy on display. The hireling provides an answer to one question about the trophy's origin, history, or significance.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "research",
+          "name": "Research: Trinket Trophy",
+          "description": "Roll on the Implements table for a chance to discover a magical trinket among the collection.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "archive",
+      "name": "Archive",
+      "description": "A vast collection of books, scrolls, and rare manuscripts organized with meticulous care. The archive holds knowledge on specialized subjects.",
+      "level": 13,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Deep Lore",
+          "description": "Research a topic in depth. The hireling provides comprehensive answers to up to 3 questions on a single topic.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "research",
+          "name": "Research: Identify Magic Item",
+          "description": "Identify the properties of a magic item left in the archive.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "meditation-chamber",
+      "name": "Meditation Chamber",
+      "description": "A tranquil room designed for deep meditation and mental focus. Incense burns softly and the walls absorb sound.",
+      "level": 13,
+      "setting": "core",
+      "prerequisite": null,
+      "defaultSpace": "cramped",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["empower"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "empower",
+          "name": "Empower: Deep Meditation",
+          "description": "Meditate deeply. Recover one expended spell slot of 5th level or lower.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "menagerie",
+      "name": "Menagerie",
+      "description": "A collection of exotic creatures housed in comfortable enclosures. The menagerie can hold creatures of various sizes.",
+      "level": 13,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 2,
+      "orders": ["recruit"],
+      "allowMultiple": false,
+      "permanentBenefit": "Creatures in the menagerie can serve as Bastion Defenders. The menagerie can hold up to 6 Medium or smaller creatures, or 3 Large creatures, or 1 Huge creature.",
+      "orderOptions": [
+        {
+          "order": "recruit",
+          "name": "Recruit: Acquire Creature",
+          "description": "Acquire a creature for the menagerie. Cost varies by creature type and CR.",
+          "daysRequired": 14,
+          "cost": -1
+        }
+      ],
+      "tables": {
+        "creatures": [
+          {
+            "name": "Cat",
+            "size": "tiny",
+            "cost": 5,
+            "cr": "0"
+          },
+          {
+            "name": "Hawk",
+            "size": "tiny",
+            "cost": 10,
+            "cr": "0"
+          },
+          {
+            "name": "Mastiff",
+            "size": "medium",
+            "cost": 25,
+            "cr": "1/8"
+          },
+          {
+            "name": "Pony",
+            "size": "medium",
+            "cost": 30,
+            "cr": "1/8"
+          },
+          {
+            "name": "Wolf",
+            "size": "medium",
+            "cost": 50,
+            "cr": "1/4"
+          },
+          {
+            "name": "Boar",
+            "size": "medium",
+            "cost": 50,
+            "cr": "1/4"
+          },
+          {
+            "name": "Giant Goat",
+            "size": "large",
+            "cost": 100,
+            "cr": "1/2"
+          },
+          {
+            "name": "Black Bear",
+            "size": "medium",
+            "cost": 100,
+            "cr": "1/2"
+          },
+          {
+            "name": "Dire Wolf",
+            "size": "large",
+            "cost": 200,
+            "cr": "1"
+          },
+          {
+            "name": "Giant Eagle",
+            "size": "large",
+            "cost": 200,
+            "cr": "1"
+          },
+          {
+            "name": "Giant Spider",
+            "size": "large",
+            "cost": 200,
+            "cr": "1"
+          },
+          {
+            "name": "Brown Bear",
+            "size": "large",
+            "cost": 300,
+            "cr": "1"
+          },
+          {
+            "name": "Owlbear",
+            "size": "large",
+            "cost": 500,
+            "cr": "3"
+          }
+        ]
+      }
+    },
+    {
+      "type": "observatory",
+      "name": "Observatory",
+      "description": "A domed tower with a powerful telescope and star charts. The observatory is used for celestial observation and divination.",
+      "level": 13,
+      "setting": "core",
+      "prerequisite": {
+        "type": "spellcasting-focus",
+        "description": "Ability to use a Spellcasting Focus"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["empower"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Observatory Charm",
+        "description": "You can cast Contact Other Plane without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Celestial Reading",
+          "description": "Study the stars. The hireling provides insight into one future event or question (as the Augury spell, but more detailed).",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "research",
+          "name": "Research: Navigate",
+          "description": "Calculate a route. Gain Advantage on Survival checks to navigate for the next 7 days.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "pub",
+      "name": "Pub",
+      "description": "A cozy tavern within the bastion that serves drinks and food. The pub attracts visitors and generates income through its magical beverages.",
+      "level": 13,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Information Gathering",
+          "description": "Commission the bartender to gather information from spies aware of important events within 10 miles of your Bastion over the next 7 days. These spies can divulge the location of any creature familiar to you within 50 miles (not hidden by magic). They also learn where that creature has been for the previous 7 days.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ],
+      "tables": {
+        "specials": [
+          {
+            "name": "Bigby's Burden",
+            "effect": "Drinking a pint grants you the 'enlarge' effect of an Enlarge/Reduce spell with a duration of 24 hours (no saving throw allowed)."
+          },
+          {
+            "name": "Kiss of the Spider Queen",
+            "effect": "Drinking a pint grants you the effect of a Spider Climb spell with a duration of 24 hours."
+          },
+          {
+            "name": "Moonlight Serenade",
+            "effect": "Drinking a pint gives you Darkvision out to 60 feet for 24 hours. If you already have Darkvision, its range is extended by 60 feet for the same duration."
+          },
+          {
+            "name": "Positive Reinforcement",
+            "effect": "Drinking a pint gives you Resistance to Necrotic damage for 24 hours."
+          },
+          {
+            "name": "Sterner Stuff",
+            "effect": "For 24 hours after drinking a pint, you automatically succeed on saving throws to avoid or end the Frightened condition."
+          }
+        ]
+      },
+      "enlargeDescription": "You can enlarge your Pub to a Vast facility by spending 2,000 GP. If you do so, the Pub can have two magical beverages from the Pub Special list on tap at a time. A Vast Pub gains three additional hirelings (servers), for a total of four."
+    },
+    {
+      "type": "reliquary",
+      "name": "Reliquary",
+      "description": "A secured vault for storing and displaying holy relics, cursed items, and objects of great power. Protective wards guard the contents.",
+      "level": 13,
+      "setting": "core",
+      "prerequisite": {
+        "type": "holy-or-druidic",
+        "description": "Ability to use a Holy Symbol or Druidic Focus as a Spellcasting Focus"
+      },
+      "defaultSpace": "cramped",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["harvest"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Reliquary Charm",
+        "description": "You can cast Greater Restoration without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Identify Relic",
+          "description": "Study a relic or cursed item to learn its full properties and history.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "empower",
+          "name": "Empower: Ward",
+          "description": "Place a protective ward on the bastion. For 7 days, hostile creatures have Disadvantage on attack rolls while inside.",
+          "daysRequired": 7,
+          "cost": 100
+        }
+      ]
+    },
+    {
+      "type": "demiplane",
+      "name": "Demiplane",
+      "description": "A small extradimensional space accessible only through a door in the bastion. The demiplane is a 30-foot cube of whatever environment you desire.",
+      "level": 17,
+      "setting": "core",
+      "prerequisite": {
+        "type": "spellcasting-focus",
+        "description": "Ability to use a Spellcasting Focus"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["empower"],
+      "allowMultiple": false,
+      "permanentBenefit": "The demiplane is a 30-foot cube that can take any form you desire. Time passes normally inside. The door is invisible from the outside and can only be opened by you.",
+      "orderOptions": [
+        {
+          "order": "empower",
+          "name": "Empower: Reshape",
+          "description": "Reshape the demiplane's environment, furnishings, and appearance.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "guildhall",
+      "name": "Guildhall",
+      "description": "A meeting hall for guild members. The guildhall attracts skilled professionals who can provide services and generate income.",
+      "level": 17,
+      "setting": "core",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["recruit"],
+      "allowMultiple": false,
+      "permanentBenefit": "You can recruit skilled hirelings through the guild. Guild members provide a 10% discount on services related to the guild's trade.",
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Guild Services",
+          "description": "Offer guild services to visitors. Earn 3d6 x 50 GP in fees.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "recruit",
+          "name": "Recruit: Skilled Hireling",
+          "description": "Recruit a skilled NPC through guild contacts for a specific task.",
+          "daysRequired": 7,
+          "cost": 100
+        }
+      ],
+      "tables": {
+        "guildTypes": [
+          {
+            "name": "Adventurers' Guild",
+            "description": "A guild for adventurers seeking quests and companions. Members share rumors and job postings."
+          },
+          {
+            "name": "Bakers' Guild",
+            "description": "A guild for bakers and pastry chefs. Members provide food for events at reduced cost."
+          },
+          {
+            "name": "Brewers' Guild",
+            "description": "A guild for brewers and vintners. Members supply beverages and know local gossip."
+          },
+          {
+            "name": "Masons' Guild",
+            "description": "A guild for stonemasons and builders. Members can assist with bastion construction at reduced cost."
+          },
+          {
+            "name": "Shipbuilders' Guild",
+            "description": "A guild for shipwrights and sailors. Members can arrange sea transport and naval repairs."
+          },
+          {
+            "name": "Thieves' Guild",
+            "description": "A secretive guild for rogues and spies. Members can gather intelligence and fence stolen goods."
+          }
+        ]
+      }
+    },
+    {
+      "type": "sanctum",
+      "name": "Sanctum",
+      "description": "The ultimate magical workshop, combining features of an Arcane Study, Laboratory, and Scriptorium. Powerful wards protect the room.",
+      "level": 17,
+      "setting": "core",
+      "prerequisite": {
+        "type": "holy-focus",
+        "description": "Ability to use a Holy Symbol or Druidic Focus as a Spellcasting Focus"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 4,
+      "orders": ["empower"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Sanctum Charm",
+        "description": "You can cast Heal without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Rare Magic Item",
+          "description": "Craft a Rare magic item. Requires special materials (DM discretion).",
+          "daysRequired": 28,
+          "cost": 500
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Spell Scroll (4th-5th Level)",
+          "description": "Craft a Spell Scroll of a 4th or 5th-level spell you know.",
+          "daysRequired": 14,
+          "cost": 250
+        },
+        {
+          "order": "research",
+          "name": "Research: Create Spell",
+          "description": "Research the creation of a new spell (DM adjudicates results).",
+          "daysRequired": 28,
+          "cost": 500
+        }
+      ]
+    },
+    {
+      "type": "war-room",
+      "name": "War Room",
+      "description": "The War Room is where you plan military actions in consultation with loyal lieutenants, each one a battle-hardened Veteran Warrior whose alignment matches yours. You start with two lieutenants. Lieutenants are hirelings, not Bastion Defenders; however, if your Bastion is attacked, each lieutenant housed in your Bastion reduces by 1 the number of dice rolled to determine Bastion Defender losses.",
+      "level": 17,
+      "setting": "core",
+      "prerequisite": {
+        "type": "fighting-style",
+        "description": "Fighting Style feature or Unarmored Defense feature"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 2,
+      "orders": ["recruit"],
+      "allowMultiple": false,
+      "charm": null,
+      "orderOptions": [
+        {
+          "order": "recruit",
+          "name": "Recruit: Lieutenant",
+          "description": "Gain one new lieutenant. You can have up to ten lieutenants at any time.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "recruit",
+          "name": "Recruit: Soldiers",
+          "description": "Commission one or more lieutenants to assemble a small army. Each lieutenant can muster 100 Guards in 7 days (or 20 mounted on Riding Horses). It costs 1 GP per day to feed each guard and horse. The army must be led by you or a lieutenant, or it disbands. It also disbands if unfed for 1 day.",
+          "daysRequired": 7,
+          "cost": -1
+        }
+      ]
+    },
+    {
+      "type": "amethyst-dragon-den",
+      "name": "Amethyst Dragon Den",
+      "description": "A crystalline chamber that attracts a young amethyst dragon as an ally. The dragon provides psionic assistance and serves as a powerful defender.",
+      "level": 5,
+      "setting": "fr",
+      "prerequisite": {
+        "type": "spellcasting-focus",
+        "description": "Ability to use a Spellcasting Focus"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 0,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "permanentBenefit": "A young amethyst dragon lairs here. The dragon serves as a powerful Bastion Defender (CR 4) and can provide psionic readings.",
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Psionic Reading",
+          "description": "The amethyst dragon performs a psionic reading, revealing information about a creature or object you describe.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "harper-hideout",
+      "name": "Harper Hideout",
+      "description": "A secret meeting place for Harper agents, disguised as an ordinary room. Hidden compartments and encoded messages fill the space.",
+      "level": 5,
+      "setting": "fr",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Renown 3+ with the Harpers",
+        "factionName": "Harpers",
+        "renownThreshold": 3
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Harper Intelligence",
+          "description": "The Harper agent gathers intelligence on a topic. Gain detailed information about a person, place, or organization.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "red-wizard-necropolis",
+      "name": "Red Wizard Necropolis",
+      "description": "A dark chamber where necromantic rituals raise undead servants. The dead serve as tireless workers and defenders.",
+      "level": 5,
+      "setting": "fr",
+      "prerequisite": {
+        "type": "arcane-focus",
+        "description": "Ability to use an Arcane Focus as a Spellcasting Focus"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 0,
+      "orders": ["recruit"],
+      "allowMultiple": false,
+      "permanentBenefit": "Undead defenders raised here do not require food, water, or pay. They follow simple orders without question.",
+      "orderOptions": [
+        {
+          "order": "recruit",
+          "name": "Recruit: Undead Defenders",
+          "description": "Raise up to 4 undead defenders (Skeletons or Zombies). No gold cost, but requires corpses or bones.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "zhentarim-travel-station",
+      "name": "Zhentarim Travel Station",
+      "description": "A waystation for Zhentarim caravans, providing secure storage, fresh horses, and trade connections across the network.",
+      "level": 5,
+      "setting": "fr",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Renown 3+ with the Zhentarim",
+        "factionName": "Zhentarim",
+        "renownThreshold": 3
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["trade"],
+      "allowMultiple": false,
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Zhentarim Commerce",
+          "description": "Use the Zhentarim trade network. Buy or sell goods at 10% better than market price.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "trade",
+          "name": "Trade: Smuggle Goods",
+          "description": "Smuggle goods through the network. Earn 2d6 x 50 GP, but risk attracting attention (10% chance of Bastion Attack event).",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "emerald-enclave-grove",
+      "name": "Emerald Enclave Grove",
+      "description": "A sacred grove tended by Emerald Enclave members. Rare plants and animals thrive here under druidic protection.",
+      "level": 9,
+      "setting": "fr",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Renown 3+ with the Emerald Enclave",
+        "factionName": "Emerald Enclave",
+        "renownThreshold": 3
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["harvest", "recruit"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Grove Charm",
+        "description": "You can cast Plant Growth without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "harvest",
+          "name": "Harvest: Rare Natural Materials",
+          "description": "Harvest rare herbs, mosses, and fungi worth 2d6 x 25 GP.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "recruit",
+          "name": "Recruit: Animal Companion",
+          "description": "Attract a beast companion from the grove (similar to Menagerie creatures).",
+          "daysRequired": 14,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "lords-alliance-noble-residence",
+      "name": "Lords' Alliance Noble Residence",
+      "description": "An opulent wing of the bastion designed to host Lords' Alliance dignitaries. Fine furnishings and secure meeting rooms provide diplomatic advantages.",
+      "level": 9,
+      "setting": "fr",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Renown 10+ with the Lords' Alliance",
+        "factionName": "Lords' Alliance",
+        "renownThreshold": 10
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 2,
+      "orders": ["empower", "trade"],
+      "allowMultiple": false,
+      "orderOptions": [
+        {
+          "order": "empower",
+          "name": "Empower: Diplomatic Meeting",
+          "description": "Host a diplomatic meeting. Gain Advantage on Persuasion checks with nobility and government officials for 7 days.",
+          "daysRequired": 7,
+          "cost": 100
+        },
+        {
+          "order": "trade",
+          "name": "Trade: Alliance Resources",
+          "description": "Request resources from the Lords' Alliance. Receive 500 GP worth of supplies or military aid.",
+          "daysRequired": 14,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "order-of-gauntlet-tournament-field",
+      "name": "Order of the Gauntlet Tournament Field",
+      "description": "A grand tournament field where Order of the Gauntlet knights train and compete. Jousting lists, archery ranges, and melee rings provide martial training.",
+      "level": 9,
+      "setting": "fr",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Renown 3+ with the Order of the Gauntlet",
+        "factionName": "Order of the Gauntlet",
+        "renownThreshold": 3
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["empower", "recruit"],
+      "allowMultiple": false,
+      "orderOptions": [
+        {
+          "order": "empower",
+          "name": "Empower: Tournament Training",
+          "description": "Train in tournament combat. Gain +2 to attack rolls with lances, longswords, or longbows for 7 days.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "recruit",
+          "name": "Recruit: Knight Defenders",
+          "description": "Recruit Order knights as defenders (CR 1/2 each). Up to 2 per turn.",
+          "daysRequired": 7,
+          "cost": 100
+        }
+      ]
+    },
+    {
+      "type": "cult-of-dragon-archive",
+      "name": "Cult of the Dragon Archive",
+      "description": "A hidden archive of draconic lore, including secrets of dragon transformation and dracolich creation. Knowledge is power here.",
+      "level": 13,
+      "setting": "fr",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Renown 10+ with the Cult of the Dragon",
+        "factionName": "Cult of the Dragon",
+        "renownThreshold": 10
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Draconic Lore Charm",
+        "description": "You can cast Fear without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Draconic Secrets",
+          "description": "Research draconic lore. Learn detailed information about dragon types, lairs, or hoards.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "research",
+          "name": "Research: Dracolich Lore",
+          "description": "Research the forbidden art of dracolich creation (purely academic, of course).",
+          "daysRequired": 14,
+          "cost": 200
+        }
+      ]
+    },
+    {
+      "type": "dragonmark-outpost",
+      "name": "Dragonmark Outpost",
+      "description": "A trade outpost connected to one of Eberron's dragonmarked houses, providing access to their specialized services and trade networks.",
+      "level": 5,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Connection to a Dragonmarked House",
+        "factionName": "Dragonmarked House"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["trade"],
+      "allowMultiple": false,
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: House Services",
+          "description": "Access dragonmarked house services at a 15% discount. Services depend on the specific house.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "trade",
+          "name": "Trade: House Commerce",
+          "description": "Use the house's trade network. Buy or sell goods at favorable rates, earning 1d6 x 50 GP profit.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "kundarak-vault",
+      "name": "Kundarak Vault",
+      "description": "A heavily warded vault built with House Kundarak security techniques. Nearly impregnable, the vault protects the most valuable treasures.",
+      "level": 9,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Connection to House Kundarak",
+        "factionName": "House Kundarak"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["trade"],
+      "allowMultiple": false,
+      "permanentBenefit": "Items stored in the vault cannot be stolen by bastion events. The vault holds up to 50,000 GP worth of treasure.",
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Banking Services",
+          "description": "Access House Kundarak banking. Deposit gold and earn 1% interest per bastion turn.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "navigators-helm",
+      "name": "Navigator's Helm",
+      "description": "A navigation center equipped with House Lyrandar charts and weather-prediction instruments, designed for airship or ship operations.",
+      "level": 9,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Connection to House Lyrandar",
+        "factionName": "House Lyrandar"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Weather Prediction",
+          "description": "Predict weather patterns for the next 7 days with perfect accuracy.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "research",
+          "name": "Research: Navigation",
+          "description": "Plot an optimal route to any destination. Travel time is reduced by 25%.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "orien-helm",
+      "name": "Orien Helm",
+      "description": "A teleportation relay station connected to House Orien's transportation network. Provides long-distance transportation services.",
+      "level": 9,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Connection to House Orien",
+        "factionName": "House Orien"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["trade"],
+      "allowMultiple": false,
+      "permanentBenefit": "Functions as a limited Teleportation Circle connected to the House Orien network. Can transport up to 6 creatures to any Orien station.",
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Courier Service",
+          "description": "Send or receive packages through the Orien network. Delivery within 1d4 days.",
+          "daysRequired": 7,
+          "cost": 25
+        },
+        {
+          "order": "trade",
+          "name": "Trade: Passenger Transport",
+          "description": "Arrange transportation for up to 6 passengers to an Orien station. Cost: 50 GP per passenger.",
+          "daysRequired": 7,
+          "cost": 300
+        }
+      ]
+    },
+    {
+      "type": "artificers-forge",
+      "name": "Artificer's Forge",
+      "description": "A specialized workshop for creating magical items using Eberron's unique artifice techniques. Dragonshards and schema line the walls.",
+      "level": 13,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "artisan-tools-focus",
+        "description": "Ability to use Artisan's Tools as a Spellcasting Focus (Artificer)"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": true,
+      "hirelingCount": 1,
+      "orders": ["craft"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Artificer's Charm",
+        "description": "You can cast Magic Weapon (at 4th level) without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Common Magic Item",
+          "description": "Craft a Common magic item using artifice techniques.",
+          "daysRequired": 7,
+          "cost": 50
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Uncommon Magic Item",
+          "description": "Craft an Uncommon magic item using artifice techniques.",
+          "daysRequired": 14,
+          "cost": 200
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Rare Magic Item",
+          "description": "Craft a Rare magic item. Requires special dragonshards.",
+          "daysRequired": 28,
+          "cost": 500
+        }
+      ]
+    },
+    {
+      "type": "inquisitives-agency",
+      "name": "Inquisitive's Agency",
+      "description": "A detective agency specializing in investigation and intelligence gathering, staffed by professional inquisitives.",
+      "level": 13,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "expertise",
+        "description": "Expertise in Investigation, Insight, or Perception"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 2,
+      "orders": ["research"],
+      "allowMultiple": false,
+      "orderOptions": [
+        {
+          "order": "research",
+          "name": "Research: Investigate Person",
+          "description": "Investigate a person's background, associates, and activities. Full dossier in 7 days.",
+          "daysRequired": 7,
+          "cost": 100
+        },
+        {
+          "order": "research",
+          "name": "Research: Investigate Location",
+          "description": "Scout a location and report on defenses, inhabitants, and points of entry.",
+          "daysRequired": 7,
+          "cost": 100
+        },
+        {
+          "order": "research",
+          "name": "Research: Surveillance",
+          "description": "Place a target under surveillance. Learn their daily routine and contacts.",
+          "daysRequired": 14,
+          "cost": 200
+        }
+      ]
+    },
+    {
+      "type": "lyrandar-helm",
+      "name": "Lyrandar Helm",
+      "description": "An advanced weather-control station using House Lyrandar's Mark of Storm. Can manipulate weather patterns around the bastion.",
+      "level": 13,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "faction-renown",
+        "description": "Connection to House Lyrandar",
+        "factionName": "House Lyrandar"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["empower"],
+      "allowMultiple": false,
+      "permanentBenefit": "The bastion and surrounding 1-mile radius have controlled weather. Crops always thrive, and severe weather cannot damage the bastion.",
+      "orderOptions": [
+        {
+          "order": "empower",
+          "name": "Empower: Weather Control",
+          "description": "Control weather in a 5-mile radius for 24 hours. Choose the conditions.",
+          "daysRequired": 7,
+          "cost": 100
+        },
+        {
+          "order": "empower",
+          "name": "Empower: Storm Defense",
+          "description": "Call a storm to defend the bastion. During attacks, each attacker takes 2d6 lightning damage.",
+          "daysRequired": 7,
+          "cost": 200
+        }
+      ]
+    },
+    {
+      "type": "manifest-zone",
+      "name": "Manifest Zone",
+      "description": "A room built around a manifest zone — a place where one of Eberron's planes bleeds into the Material Plane. The zone's effects depend on the linked plane.",
+      "level": 13,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "spellcasting-focus",
+        "description": "Ability to use a Spellcasting Focus"
+      },
+      "defaultSpace": "roomy",
+      "enlargeable": false,
+      "hirelingCount": 0,
+      "orders": ["empower"],
+      "allowMultiple": false,
+      "permanentBenefit": "The manifest zone provides passive benefits based on the linked plane. Irian: healing spells heal +2 HP. Thelanis: illusion spells have +1 DC. Fernia: fire spells deal +2 damage.",
+      "orderOptions": [
+        {
+          "order": "empower",
+          "name": "Empower: Planar Attunement",
+          "description": "Attune to the manifest zone's energy. Gain a benefit related to the linked plane for 7 days.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "museum",
+      "name": "Museum",
+      "description": "A curated collection of artifacts, historical items, and curiosities from across Eberron. The museum attracts scholars and tourists.",
+      "level": 13,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "none",
+        "description": "None"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 1,
+      "orders": ["trade", "research"],
+      "allowMultiple": false,
+      "charm": {
+        "name": "Museum Charm",
+        "description": "You can cast Locate Object without expending a spell slot. Once you use this charm, it vanishes.",
+        "duration": "7 days"
+      },
+      "orderOptions": [
+        {
+          "order": "trade",
+          "name": "Trade: Admission Fees",
+          "description": "Open the museum to visitors. Earn 2d6 x 25 GP in admission fees.",
+          "daysRequired": 7,
+          "cost": 0
+        },
+        {
+          "order": "research",
+          "name": "Research: Artifact Lore",
+          "description": "Research an artifact in the collection. Learn its full history and properties.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "type": "construct-forge",
+      "name": "Construct Forge",
+      "description": "A specialized forge for creating magical constructs — tireless servants and powerful defenders animated by arcane power.",
+      "level": 17,
+      "setting": "eberron",
+      "prerequisite": {
+        "type": "artisan-tools-focus",
+        "description": "Ability to use Artisan's Tools as a Spellcasting Focus (Artificer)"
+      },
+      "defaultSpace": "vast",
+      "enlargeable": false,
+      "hirelingCount": 2,
+      "orders": ["craft", "recruit"],
+      "allowMultiple": false,
+      "permanentBenefit": "Constructs created here do not require food, water, or rest. They serve as tireless workers and powerful defenders.",
+      "orderOptions": [
+        {
+          "order": "craft",
+          "name": "Craft: Homunculus",
+          "description": "Create a Homunculus servant (CR 0, Tiny construct).",
+          "daysRequired": 7,
+          "cost": 100
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Iron Defender",
+          "description": "Create an Iron Defender (CR 1, Medium construct).",
+          "daysRequired": 14,
+          "cost": 500
+        },
+        {
+          "order": "craft",
+          "name": "Craft: Shield Guardian",
+          "description": "Create a Shield Guardian (CR 7, Large construct). Requires special materials.",
+          "daysRequired": 56,
+          "cost": 5000
+        },
+        {
+          "order": "recruit",
+          "name": "Recruit: Construct Defenders",
+          "description": "Assign existing constructs as bastion defenders.",
+          "daysRequired": 7,
+          "cost": 0
+        }
+      ],
+      "tables": {
+        "constructs": [
+          {
+            "name": "Homunculus",
+            "cr": "0",
+            "size": "tiny",
+            "cost": 100,
+            "days": 7
+          },
+          {
+            "name": "Flying Sword",
+            "cr": "1/4",
+            "size": "small",
+            "cost": 150,
+            "days": 7
+          },
+          {
+            "name": "Animated Armor",
+            "cr": "1",
+            "size": "medium",
+            "cost": 300,
+            "days": 14
+          },
+          {
+            "name": "Iron Defender",
+            "cr": "1",
+            "size": "medium",
+            "cost": 500,
+            "days": 14
+          },
+          {
+            "name": "Rug of Smothering",
+            "cr": "2",
+            "size": "large",
+            "cost": 750,
+            "days": 21
+          },
+          {
+            "name": "Stone Defender",
+            "cr": "2",
+            "size": "medium",
+            "cost": 1000,
+            "days": 21
+          },
+          {
+            "name": "Iron Golem",
+            "cr": "16",
+            "size": "large",
+            "cost": 10000,
+            "days": 90
+          },
+          {
+            "name": "Shield Guardian",
+            "cr": "7",
+            "size": "large",
+            "cost": 5000,
+            "days": 56
+          }
+        ]
+      }
+    }
+  ]
+}

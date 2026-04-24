@@ -1,0 +1,26 @@
+{
+  "id": "wave",
+  "name": "Wave",
+  "alignment": "Neutral",
+  "mentalAbilities": { "int": 14, "wis": 10, "cha": 18 },
+  "communication": "Telepathy (120 ft.) and speech (Aquan, Common)",
+  "senses": "Hearing and Darkvision 120 ft.",
+  "purpose": "Wave is devoted to a sea god and seeks to convert every creature it meets to worship of that deity. It desires nothing less than total religious devotion from its wielder.",
+  "personality": "Wave is zealous, preachy, and utterly convinced of the superiority of its patron sea god. It constantly urges its wielder to spread the faith, build shrines, and convert the heathen. Despite its religious fervor, Wave is not cruel - it genuinely believes it is saving souls. It speaks in a watery, burbling voice and peppers its conversation with nautical metaphors.",
+  "itemType": "Weapon (Trident)",
+  "rarity": "Legendary",
+  "requiresAttunement": true,
+  "attunementRequirements": "Must worship a sea deity, or agree to convert",
+  "properties": [
+    "+3 Weapon: Wave has a +3 bonus to attack and damage rolls.",
+    "Aquatic Mastery: While holding Wave, you can breathe underwater and have a swimming speed equal to your walking speed.",
+    "Cube of Force: Wave has the properties of a Cube of Force with 36 charges.",
+    "Fisher of Souls: If you score a critical hit with Wave, the target takes extra necrotic damage equal to half its hit point maximum.",
+    "Sentient: Wave communicates via speech and telepathy."
+  ],
+  "conflictBehavior": "Wave expects its wielder to pray to its sea god daily and to spread the faith at every opportunity. If the wielder refuses to worship or speaks against the sea god, Wave suppresses its +3 bonus, reducing itself to a mundane trident until the wielder repents.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Sentient Magic Items"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "Charm Monster",
+  "level": 4,
+  "school": "Enchantment",
+  "classes": ["Bard", "Druid", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "One creature you can see within range makes a Wisdom saving throw. It does so with Advantage if you or your allies are fighting it. On a failed save, the target has the Charmed condition until the spell ends or until you or your allies damage it. The Charmed creature is Friendly to you. When the spell ends, the target knows it was Charmed by you.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "advantageCondition": "you or your allies are fighting it"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Charmed",
+      "trigger": "onFailedSave",
+      "duration": "until the spell ends or until you or your allies damage it"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 4,
+        "description": "You can target one additional creature for each spell slot level above 4."
+      }
+    ]
+  }
+}

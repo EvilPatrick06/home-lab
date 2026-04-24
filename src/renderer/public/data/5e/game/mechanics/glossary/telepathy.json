@@ -1,0 +1,11 @@
+{
+  "name": "Telepathy",
+  "slug": "telepathy",
+  "description": "Telepathy is a magical ability that allows a creature to communicate mentally with another creature within a specified range. The contacted creature doesn't need to share a language with the telepath, but the contacted creature must understand at least one language.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

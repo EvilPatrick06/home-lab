@@ -1,0 +1,15 @@
+{
+  "name": "Herbalism Kit",
+  "cost": "5 GP",
+  "weight": "3 lb.",
+  "ability": "Intelligence",
+  "utilize": "Identify a plant (DC 10)",
+  "craft": "Antitoxin, Candle, Healer's Kit, Potion of Healing",
+  "slug": "herbalism-kit",
+  "category": "Other Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

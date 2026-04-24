@@ -1,0 +1,13 @@
+{
+  "name": "Executioner's Axe",
+  "slug": "executioners-axe",
+  "type": "Weapon (Battleaxe",
+  "rarity": "Greataxe, Halberd, or Handaxe), Very Rare",
+  "attunement": false,
+  "description": "You gain a +1 bonus to attack rolls and damage rolls made with this magic weapon.\n\nAny Humanoid you hit with the weapon takes an extra 2d6 Slashing damage, and you gain Temporary Hit Points equal to the extra damage dealt.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

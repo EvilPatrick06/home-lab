@@ -1,0 +1,109 @@
+{
+  "id": "celtic-pantheon",
+  "name": "Celtic Pantheon",
+  "description": "It's said that something wild lurks in the heart of every soul, a space that thrills to the sound of geese calling in the night, to the whispering wind through the pines, to the unexpected red of mistletoe on an oak — and it is in this space that the Celtic gods dwell. They sprang from the brook and stream, their might heightened by the strength of the oak and the beauty of the woodlands and open moor. When the first forester dared put a name to the face seen in the bole of a tree or the voice babbling in a brook, these gods forced themselves into being.",
+  "deities": [
+    {
+      "name": "The Daghdha",
+      "title": "God of Weather and Crops",
+      "alignment": "Chaotic Good",
+      "domains": ["Nature", "Trickery"],
+      "symbol": "Bubbling cauldron or shield"
+    },
+    {
+      "name": "Arawn",
+      "title": "God of Life and Death",
+      "alignment": "Neutral Evil",
+      "domains": ["Life", "Death"],
+      "symbol": "Black star on gray background"
+    },
+    {
+      "name": "Belenus",
+      "title": "God of Sun, Light, and Warmth",
+      "alignment": "Neutral Good",
+      "domains": ["Light"],
+      "symbol": "Solar disk and standing stones"
+    },
+    {
+      "name": "Brigantia",
+      "title": "Goddess of Rivers and Livestock",
+      "alignment": "Neutral Good",
+      "domains": ["Life"],
+      "symbol": "Footbridge"
+    },
+    {
+      "name": "Diancecht",
+      "title": "God of Medicine and Healing",
+      "alignment": "Lawful Good",
+      "domains": ["Life"],
+      "symbol": "Crossed oak and mistletoe branches"
+    },
+    {
+      "name": "Dunatis",
+      "title": "God of Mountains and Peaks",
+      "alignment": "Neutral",
+      "domains": ["Nature"],
+      "symbol": "Red sun-capped mountain peak"
+    },
+    {
+      "name": "Goibhniu",
+      "title": "God of Smiths and Healing",
+      "alignment": "Neutral Good",
+      "domains": ["Knowledge", "Life"],
+      "symbol": "Giant mallet over sword"
+    },
+    {
+      "name": "Lugh",
+      "title": "God of Arts, Travel, and Commerce",
+      "alignment": "Chaotic Neutral",
+      "domains": ["Knowledge", "Life"],
+      "symbol": "Pair of long hands"
+    },
+    {
+      "name": "Manannan mac Lir",
+      "title": "God of Oceans and Sea Creatures",
+      "alignment": "Lawful Neutral",
+      "domains": ["Nature", "Tempest"],
+      "symbol": "Wave of white water on green"
+    },
+    {
+      "name": "Math Mathonwy",
+      "title": "God of Magic",
+      "alignment": "Neutral Evil",
+      "domains": ["Knowledge"],
+      "symbol": "Staff"
+    },
+    {
+      "name": "Morrigan",
+      "title": "Goddess of Battle",
+      "alignment": "Chaotic Evil",
+      "domains": ["War"],
+      "symbol": "Two crossed spears"
+    },
+    {
+      "name": "Nuada",
+      "title": "God of War and Warriors",
+      "alignment": "Neutral",
+      "domains": ["War"],
+      "symbol": "Silver hand on black background"
+    },
+    {
+      "name": "Oghma",
+      "title": "God of Speech and Writing",
+      "alignment": "Neutral Good",
+      "domains": ["Knowledge"],
+      "symbol": "Unfurled scroll"
+    },
+    {
+      "name": "Silvanus",
+      "title": "God of Nature and Forests",
+      "alignment": "Neutral",
+      "domains": ["Nature"],
+      "symbol": "Summer oak tree"
+    }
+  ],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "section": "Appendix B: Gods of the Multiverse"
+  }
+}

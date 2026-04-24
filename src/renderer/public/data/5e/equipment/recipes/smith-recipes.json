@@ -1,0 +1,78 @@
+{
+  "name": "Smith's Tools Recipes",
+  "slug": "smith-recipes",
+  "tool": "Smith's Tools",
+  "recipes": [
+    {
+      "id": "craft-arrowheads",
+      "name": "Arrowheads (20)",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "5 SP",
+      "components": ["Iron ingot"],
+      "result": "Arrows (20)",
+      "resultSlug": "arrows",
+      "description": "Forge iron arrowheads to be fitted onto arrow shafts."
+    },
+    {
+      "id": "craft-chain-mail",
+      "name": "Chain Mail",
+      "dc": 18,
+      "time": "15 days",
+      "cost": "37 GP 5 SP",
+      "components": ["Iron ingots", "Wire"],
+      "result": "Chain Mail (1)",
+      "resultSlug": "chain-mail",
+      "description": "Forge interlocking metal rings into a suit of chain mail armor."
+    },
+    {
+      "id": "craft-longsword",
+      "name": "Longsword",
+      "dc": 15,
+      "time": "3 days",
+      "cost": "7 GP 5 SP",
+      "components": ["Steel ingot", "Leather grip", "Crossguard"],
+      "result": "Longsword (1)",
+      "resultSlug": "longsword",
+      "description": "Forge a versatile slashing weapon from steel."
+    },
+    {
+      "id": "craft-shield",
+      "name": "Shield",
+      "dc": 12,
+      "time": "2 days",
+      "cost": "5 GP",
+      "components": ["Wood planks", "Iron boss", "Leather straps"],
+      "result": "Shield (1)",
+      "resultSlug": "shield",
+      "description": "Construct a sturdy shield with an iron boss and leather straps."
+    },
+    {
+      "id": "craft-plate-armor",
+      "name": "Plate Armor",
+      "dc": 20,
+      "time": "300 days",
+      "cost": "750 GP",
+      "components": ["Steel ingots", "Leather padding", "Rivets"],
+      "result": "Plate Armor (1)",
+      "resultSlug": "plate-armor",
+      "description": "Forge shaped steel plates fitted together to cover the entire body. The pinnacle of metallic armor."
+    },
+    {
+      "id": "craft-iron-spikes",
+      "name": "Iron Spikes (10)",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "5 SP",
+      "components": ["Iron ingot"],
+      "result": "Iron Spikes (10)",
+      "resultSlug": "spikes-iron",
+      "description": "Forge simple iron spikes used for climbing or securing doors."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "Wand of Lightning Bolts",
+  "itemType": "Wand",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": "by a Spellcaster",
+  "description": "This wand has 7 charges. While holding it, you can expend no more than 3 charges to cast *Lightning Bolt* (save DC 15) from it. For 1 charge, you cast the level 3 version of the spell. You can increase the spell's level by 1 for each additional charge you expend.",
+  "properties": {
+    "charges": 7,
+    "rechargeRate": "dawn",
+    "rechargeAmount": {
+      "formula": "1d6 + 1",
+      "min": 2,
+      "max": 8
+    },
+    "spells": [
+      {
+        "name": "Lightning Bolt",
+        "castingTime": "1 action",
+        "level": 3,
+        "charges": 1
+      }
+    ]
+  },
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

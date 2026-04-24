@@ -1,0 +1,48 @@
+{
+  "name": "Polymorph",
+  "level": 4,
+  "school": "Transmutation",
+  "classes": ["Bard", "Druid", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a caterpillar cocoon",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You attempt to transform a creature that you can see within range into a Beast. The target must succeed on a Wisdom saving throw or shape-shift into a Beast form for the duration. That form can be any Beast you choose that has a Challenge Rating equal to or less than the target's (or the target's level if it doesn't have a Challenge Rating). The target's game statistics are replaced by the stat block of the chosen Beast, but the target retains its alignment, personality, creature type, Hit Points, and Hit Point Dice. The target gains a number of Temporary Hit Points equal to the Hit Points of the Beast form. The spell ends early on the target if it has no Temporary Hit Points left. The target is limited in the actions it can perform by the anatomy of its new form, and it can't speak or cast spells. The target's gear melds into the new form. The creature can't use or otherwise benefit from any of that equipment.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true
+  },
+  "preventsSpellcasting": true,
+  "shapeshift": {
+    "targetBecomesType": "Beast",
+    "maxCR": "equal to or less than the target's Challenge Rating or level",
+    "retains": ["alignment", "personality", "creature type", "Hit Points", "Hit Point Dice"],
+    "replaces": ["game statistics (except retained traits)"],
+    "gainsTempHP": true,
+    "description": "The target shape-shifts into a Beast form of your choice with a CR equal to or less than the target's CR or level. The target's game statistics are replaced by the chosen Beast's stat block, but it retains its alignment, personality, creature type, Hit Points, and Hit Point Dice. The target gains Temporary Hit Points equal to the Beast form's Hit Points. The spell ends early if the target has no Temporary Hit Points left. The target cannot speak or cast spells, and its gear melds into the new form and cannot be used."
+  },
+  "tags": ["shapeshift", "polymorph", "transformation", "beast form"]
+}

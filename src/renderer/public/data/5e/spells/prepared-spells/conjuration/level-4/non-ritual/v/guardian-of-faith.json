@@ -1,0 +1,50 @@
+{
+  "name": "Guardian of Faith",
+  "level": 4,
+  "school": "Conjuration",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "A Large spectral guardian appears and hovers for the duration in an unoccupied space that you can see within range. The guardian occupies that space and is invulnerable, and it appears in a form appropriate for your deity or pantheon. Any enemy that moves to a space within 10 feet of the guardian for the first time on a turn or starts its turn there makes a Dexterity saving throw, taking 20 Radiant damage on a failed save or half as much damage on a successful one. The guardian vanishes when it has dealt a total of 60 damage.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 10
+    }
+  ],
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "fixedBonus": 20
+      },
+      "type": "Radiant",
+      "halfOnSave": true,
+      "applicationType": "onEntry"
+    }
+  ],
+  "tags": ["invulnerable-guardian", "damage-cap-60", "deity-themed", "large-creature", "occupies-space"]
+}

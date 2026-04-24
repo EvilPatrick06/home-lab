@@ -1,0 +1,12 @@
+{
+  "name": "Webs",
+  "severity": "Level 1+",
+  "description": "Fills a 20-foot cube. Lightly Obscured and Difficult Terrain. DC 12 Dex save to avoid Restrained condition when entering. DC 12 Athletics or Acrobatics to escape. Webs are flammable: 5-foot cube burns in 1 round, deals 5 (1d10) Fire damage to any creature in it.",
+  "slug": "webs",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

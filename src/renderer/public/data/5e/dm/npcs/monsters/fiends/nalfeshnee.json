@@ -1,0 +1,213 @@
+{
+  "name": "Nalfeshnee",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Abyss)"],
+  "treasure": ["Arcana"],
+  "lore": "Nalfeshnees are pig-faced demons of avarice and greed that lurk in the Abyss. Bloated and corpulent, they are among the most cunning of demons, wielding eldritch light and brute force in equal measure. They delight in hoarding knowledge and magical secrets, lording their intellect over lesser fiends.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 184,
+    "dice": {
+      "count": 16,
+      "die": "d10",
+      "modifier": 96
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 21,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 22,
+      "modifier": 6,
+      "save": 11
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 9
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 6
+    },
+    "CHA": {
+      "score": 15,
+      "modifier": 2,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 9
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 120
+  },
+  "challengeRating": "13",
+  "experiencePoints": 10000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The nalfeshnee has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The nalfeshnee makes two Claw attacks. It can replace one attack with a use of Horror Nimbus (if available) or Teleport.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Horror Nimbus"
+      },
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Teleport"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +10, reach 10 ft. Hit: 16 (2d10 + 5) Slashing damage plus 14 (4d6) Force damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 16,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Horror Nimbus",
+      "description": "Multicolored light erupts from the nalfeshnee. Each creature within a 15-foot Emanation originating from the nalfeshnee must succeed on a DC 17 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 17,
+        "targets": "each creature in a 15-foot Emanation",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 17,
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 15,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "WIS",
+            "dc": 17,
+            "onSuccess": {
+              "effects": "The effect ends on the creature."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teleport",
+      "description": "The nalfeshnee teleports, along with any equipment it is wearing or carrying, up to 120 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 120,
+        "notes": "Along with any equipment it is wearing or carrying, to an unoccupied space it can see"
+      }
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "name": "Shadow Demon",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Abyss)", "Underdark"],
+  "treasure": ["None"],
+  "lore": "Shadow demons are incorporeal fiends spawned from the darkest recesses of the Abyss. They lurk in dim places, feeding on fear and despair. When not serving a more powerful demon, a shadow demon hunts mortals, tormenting victims before draining the life from them. In Bright Light, a shadow demon is weakened and vulnerable, but in darkness it is a lethal predator that can pass through walls and vanish into the gloom.",
+  "armorClass": {
+    "value": 13
+  },
+  "hitPoints": {
+    "average": 66,
+    "dice": {
+      "count": 12,
+      "die": "d8",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 5
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 4
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Acid, Fire, Necrotic, and Thunder", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Cold, Lightning, and Poison"],
+  "conditionImmunities": ["Exhaustion", "Grappled", "Paralyzed", "Petrified", "Poisoned", "Prone", "Restrained"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 120
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Incorporeal Movement",
+      "description": "The demon can move through other creatures and objects as if they were Difficult Terrain. It takes 5 (1d10) Force damage if it ends its turn inside an object."
+    },
+    {
+      "name": "Light Sensitivity",
+      "description": "While in Bright Light, the demon has Disadvantage on attack rolls and on Wisdom (Perception) checks that rely on sight."
+    }
+  ],
+  "multiattack": {
+    "description": "The demon makes two Shadow Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Shadow Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Shadow Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 10 (2d6 + 3) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shadow Stealth",
+      "description": "The demon takes the Hide action. It can take this Bonus Action only while in Dim Light or Darkness."
+    }
+  ]
+}

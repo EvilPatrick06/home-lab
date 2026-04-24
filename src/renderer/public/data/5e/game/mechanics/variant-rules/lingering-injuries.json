@@ -1,0 +1,85 @@
+{
+  "id": "lingering-injuries",
+  "name": "Lingering Injuries",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "When a creature takes a critical hit, drops to 0 Hit Points but isn't killed outright, or fails a Death Saving Throw by 5 or more, it may sustain a lingering injury. The DM rolls on the Lingering Injuries table (d20) to determine the result. Injuries range from cosmetic scars to lost limbs, each with specific mechanical effects and healing requirements.",
+  "mechanics": {
+    "triggers": [
+      "The creature takes a critical hit",
+      "The creature drops to 0 Hit Points but is not killed outright",
+      "The creature fails a Death Saving Throw by 5 or more (rolls a 5 or lower)"
+    ],
+    "table": [
+      {
+        "roll": 1,
+        "injury": "Lose an Eye",
+        "effect": "Disadvantage on Wisdom (Perception) checks that rely on sight and on ranged attack rolls. If both eyes are lost, the creature gains the Blinded condition.",
+        "healing": "Regenerate spell"
+      },
+      {
+        "roll": 2,
+        "injury": "Lose an Arm or Hand",
+        "effect": "Can no longer hold anything with two hands and can hold only a single object at a time. Cannot wield weapons with the Two-Handed property.",
+        "healing": "Regenerate spell"
+      },
+      {
+        "roll": 3,
+        "injury": "Lose a Foot or Leg",
+        "effect": "Walking Speed is halved. Must use a cane or crutch to move unless the creature has a prosthetic. Falls Prone after using the Dash action. Disadvantage on Dexterity checks made to balance.",
+        "healing": "Regenerate spell"
+      },
+      {
+        "roll": [4, 5],
+        "injury": "Limp",
+        "effect": "Walking Speed reduced by 5 feet. Must succeed on a DC 10 Dexterity saving throw after using the Dash action or fall Prone.",
+        "healing": "Magical healing or DC 15 Wisdom (Medicine) check. The injury heals naturally after 30 days."
+      },
+      {
+        "roll": [6, 7],
+        "injury": "Internal Injury",
+        "effect": "Whenever the creature attempts an action in combat, it must succeed on a DC 15 Constitution saving throw or lose the action and can't use Reactions until the start of its next turn.",
+        "healing": "Magical healing or 10 days of rest"
+      },
+      {
+        "roll": [8, 9],
+        "injury": "Broken Ribs",
+        "effect": "Whenever the creature takes damage, it must succeed on a DC 10 Constitution saving throw or be Stunned until the end of its next turn.",
+        "healing": "Magical healing or 10 days of rest"
+      },
+      {
+        "roll": [10, 11],
+        "injury": "Horrible Scar",
+        "effect": "Disadvantage on Charisma (Persuasion) checks and Advantage on Charisma (Intimidation) checks.",
+        "healing": "Regenerate spell or magic that removes scars"
+      },
+      {
+        "roll": [12, 13],
+        "injury": "Festering Wound",
+        "effect": "Hit Point Maximum is reduced by 1 at the end of every 24 hours the wound persists. If Hit Point Maximum drops to 0, the creature dies.",
+        "healing": "Any magical healing, or DC 15 Wisdom (Medicine) check once every 24 hours (10 successes to heal)"
+      },
+      {
+        "roll": [14, 15, 16],
+        "injury": "Minor Scar",
+        "effect": "No mechanical effect. The scar is cosmetic only.",
+        "healing": "None required"
+      },
+      {
+        "roll": [17, 18, 19, 20],
+        "injury": "No Lasting Injury",
+        "effect": "No lingering injury is sustained.",
+        "healing": "N/A"
+      }
+    ],
+    "generalHealing": "Unless otherwise stated, the Regenerate spell can heal any lingering injury, including restoring lost limbs and eyes. A prosthetic limb or similar magic item can mitigate the effects of a lost limb."
+  },
+  "interactions": [
+    "A creature can accumulate multiple lingering injuries; each is tracked separately and their effects stack",
+    "The Regenerate spell restores all lost body parts when cast, healing all such injuries simultaneously",
+    "Losing both eyes results in the Blinded condition until at least one eye is restored",
+    "This rule adds significant lethality and consequence to combat; best suited for gritty or low-magic campaigns",
+    "Constitution saving throw proficiency helps with Internal Injury and Broken Ribs effects",
+    "DMs may choose to apply this rule only to certain triggers (e.g., only on dropping to 0 HP) to reduce frequency"
+  ]
+}

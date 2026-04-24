@@ -1,0 +1,13 @@
+{
+  "name": "Potion of Diminution",
+  "itemType": "Potion",
+  "rarity": "Rare",
+  "requiresAttunement": false,
+  "description": "When you drink this potion, you gain the \"reduce\" effect of the *Enlarge/Reduce* spell for 1d4 hours (no Concentration required).",
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

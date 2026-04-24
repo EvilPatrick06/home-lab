@@ -1,0 +1,265 @@
+{
+  "id": "a7c1d3e8-5f24-4b9a-8e61-2c3f4d5a6b7e",
+  "name": "Hit Points",
+  "slug": "hit-points",
+  "category": "GeneralRule",
+  "subcategory": "Health and Durability",
+  "tags": ["hit-points", "hp", "health", "damage", "healing", "death", "core-mechanic"],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Rules Glossary",
+    "section": "Hit Points"
+  },
+  "gameEdition": "2024",
+  "description": "Hit Points represent a creature's durability and vitality—a combination of physical and mental stamina, the will to live, and luck. A creature's current Hit Points can be any number from 0 to the creature's Hit Point Maximum. As a creature takes damage, its current Hit Points decrease. When a creature's Hit Points drop to 0, it either falls Unconscious or dies instantly if the remaining damage equals or exceeds its Hit Point Maximum. Healing restores Hit Points but cannot raise them above the Hit Point Maximum. Temporary Hit Points serve as a buffer of extra durability that is lost before regular Hit Points.",
+  "shortDescription": "A measure of a creature's remaining durability. Damage reduces them; healing restores them. Dropping to 0 causes Unconsciousness or death.",
+  "flavorText": "Hit Points represent a combination of physical and mental durability, the will to live, and luck.",
+  "rulesAsWritten": "A creature's current Hit Points (usually just called Hit Points) can be any number from the creature's Hit Point Maximum down to 0. Whenever a creature takes damage, that damage is subtracted from its Hit Points. The loss of Hit Points has no effect on a creature's capabilities until the creature drops to 0 Hit Points. When you receive healing, your Hit Points are restored up to your Hit Point Maximum; healing cannot cause them to exceed that number. If a creature drops to 0 Hit Points, it either falls Unconscious or is killed outright. When damage reduces a creature to 0 Hit Points and there is damage remaining, the creature dies instantly if the remaining damage equals or exceeds its Hit Point Maximum. Temporary Hit Points aren't actual Hit Points; they are a buffer against damage, a pool of Hit Points that protect the real ones. Temporary Hit Points can't be restored by healing, and they don't stack—if you have Temporary Hit Points and receive more of them, you decide whether to keep the ones you have or to gain the new ones.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Unconscious",
+      "relationship": "CanCause",
+      "isAutomatic": true,
+      "note": "A creature drops to 0 Hit Points and is not killed outright, it falls Unconscious."
+    },
+    {
+      "conditionName": "Exhaustion",
+      "relationship": "ImpliedBy",
+      "isAutomatic": false,
+      "note": "Some levels of Exhaustion affect Hit Point Maximum."
+    },
+    {
+      "conditionName": "Petrified",
+      "relationship": "ImpliedBy",
+      "isAutomatic": false,
+      "note": "A Petrified creature is not subject to normal HP loss from aging or poison but remains at its current HP."
+    },
+    {
+      "conditionName": "Poisoned",
+      "relationship": "ImpliedBy",
+      "isAutomatic": false,
+      "note": "Various poison effects can reduce Hit Points or Hit Point Maximum."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "b1a2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "order": 0,
+      "name": "Hit Point Maximum Calculation",
+      "description": "A creature's Hit Point Maximum is determined at character creation and increases each level. At 1st level, it equals the maximum value of the character's Hit Die plus their Constitution modifier. At each level thereafter, the character gains additional Hit Points equal to one roll of the Hit Die (or the fixed average value) plus the Constitution modifier (minimum of 1 Hit Point gained per level).",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Calculated at character creation and each level up"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Hit Point Maximum at 1st level equals maximum Hit Die value + Constitution modifier. Each subsequent level adds 1 Hit Die roll (or fixed average) + Constitution modifier. Minimum 1 HP gained per level.",
+          "mechanicalNote": "The Hit Die size is determined by the character's class: d6 (Sorcerer, Wizard), d8 (Bard, Cleric, Druid, Monk, Rogue, Warlock), d10 (Fighter, Paladin, Ranger), d12 (Barbarian). Constitution modifier changes retroactively affect all levels."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c2b3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "order": 1,
+      "name": "Taking Damage",
+      "description": "Whenever a creature takes damage, the damage is subtracted from its current Hit Points. The loss of Hit Points has no effect on a creature's capabilities until the creature drops to 0 Hit Points.",
+      "trigger": {
+        "event": "OnDamageTaken"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Subtract the damage dealt from the creature's current Hit Points. If Temporary Hit Points are present, they absorb damage first before regular Hit Points are reduced. Hit Point loss has no mechanical effect on the creature's capabilities until the creature reaches 0 HP.",
+          "mechanicalNote": "Damage is applied after accounting for Resistance (halve damage), Vulnerability (double damage), and Immunity (zero damage) to the relevant damage type."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d3c4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+      "order": 2,
+      "name": "Receiving Healing",
+      "description": "Healing restores Hit Points up to the creature's Hit Point Maximum. Healing cannot cause a creature's Hit Points to exceed its Hit Point Maximum. A creature at 0 Hit Points that receives healing regains consciousness.",
+      "trigger": {
+        "event": "OnHealingReceived"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Add the healing amount to the creature's current Hit Points. The total cannot exceed the creature's Hit Point Maximum; any excess healing is lost. A creature at 0 Hit Points that receives any amount of healing regains consciousness and is no longer Unconscious (from the Dying condition).",
+          "mechanicalNote": "Healing does not restore Temporary Hit Points. A dead creature cannot be healed except by magic that specifically restores life."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e4d5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "order": 3,
+      "name": "Dropping to 0 Hit Points",
+      "description": "When a creature is reduced to 0 Hit Points and is not killed outright, it falls Unconscious. This Unconsciousness ends if the creature regains any Hit Points.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature's Hit Points are reduced to exactly 0 with no remaining excess damage equal to or exceeding its Hit Point Maximum"
+      },
+      "effects": [
+        {
+          "effectType": "ConditionImposition",
+          "imposition": {
+            "id": "f5e6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+            "conditionName": "Unconscious",
+            "isAutomatic": true,
+            "note": "The creature falls Unconscious and must begin making Death Saving Throws at the start of each of its turns."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a5b6c7d8-e9f0-4a1b-2c3d-4e5f6a7b8c9d",
+      "order": 4,
+      "name": "Instant Death from Massive Damage",
+      "description": "When damage reduces a creature to 0 Hit Points and there is damage remaining, the creature dies instantly if the remaining damage equals or exceeds its Hit Point Maximum.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Remaining damage after reducing HP to 0 equals or exceeds the creature's Hit Point Maximum"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature dies instantly. No Death Saving Throws are made. For example, a creature with a Hit Point Maximum of 12 that currently has 6 HP takes 18 damage. The first 6 damage reduces HP to 0, and 12 damage remains, which equals the HP Maximum—instant death.",
+          "mechanicalNote": "This applies to all creatures regardless of type. The comparison is remaining damage >= Hit Point Maximum, not current Hit Points."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b6c7d8e9-f0a1-4b2c-3d4e-5f6a7b8c9d0e",
+      "order": 5,
+      "name": "Death Saving Throws",
+      "description": "When a creature starts its turn with 0 Hit Points, it must make a Death Saving Throw (a special saving throw with a DC of 10 not associated with any ability score). On a success, no effect; on a failure, one failure is tallied. Three successes stabilize the creature. Three failures kill the creature. Rolling a 1 counts as two failures. Rolling a 20 causes the creature to regain 1 Hit Point.",
+      "trigger": {
+        "event": "StartOfTurn",
+        "condition": "Creature has 0 Hit Points and is not stable"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Make a Death Saving Throw: roll a d20 with DC 10. On 10+: one success. On 9 or lower: one failure. On natural 1: two failures. On natural 20: regain 1 HP (and become conscious). Three total successes: creature stabilizes (no longer makes Death Saving Throws but remains Unconscious at 0 HP). Three total failures: creature dies. Successes and failures reset when the creature regains any Hit Points or becomes stable.",
+          "mechanicalNote": "A stable creature that is not healed regains 1 Hit Point after 1d4 hours. Taking any damage at 0 HP counts as one Death Saving Throw failure (or two failures if the damage is from a Critical Hit). An attack against an Unconscious creature within 5 feet is automatically a Critical Hit if it hits."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c7d8e9f0-a1b2-4c3d-4e5f-6a7b8c9d0e1f",
+      "order": 6,
+      "name": "Temporary Hit Points",
+      "description": "Temporary Hit Points are a buffer against damage. They are lost before regular Hit Points when a creature takes damage. Temporary Hit Points can't be restored by healing, can't exceed a set amount granted by the effect, and don't stack. When a creature gains Temporary Hit Points while already having them, it chooses whether to keep the existing ones or replace them with the new ones. Temporary Hit Points expire after a Long Rest unless a feature specifies otherwise.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature has Temporary Hit Points when damage is taken"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "When a creature with Temporary Hit Points takes damage, the Temporary Hit Points are lost first. Any leftover damage carries over to regular Hit Points. For example, if a creature has 5 Temporary HP and takes 7 damage, it loses all 5 Temporary HP and takes 2 damage to its regular HP. Temporary Hit Points cannot be healed or restored. If a creature receives new Temporary Hit Points while already having some, the creature chooses to keep the old total or accept the new total (they do not add together).",
+          "mechanicalNote": "Temporary Hit Points last until depleted or until the creature finishes a Long Rest, unless otherwise specified by the granting effect."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Hit Points from multiple sources of healing stack normally up to the creature's Hit Point Maximum. Temporary Hit Points do NOT stack; the creature chooses the higher value when receiving additional Temporary Hit Points."
+  },
+  "dmNotes": "Hit Points are the primary tracking mechanism for creature vitality. Remember that loss of HP has no mechanical effect on a creature's capabilities until it reaches 0 HP—there is no 'bloodied' condition in the 2024 rules, though DMs may describe injuries narratively. Constitution modifier changes (such as from ability score increases or effects like Enhance Ability) retroactively adjust the Hit Point Maximum for all levels. Monsters and NPCs typically die at 0 HP rather than making Death Saving Throws, at the DM's discretion.",
+  "commonRulings": [
+    {
+      "question": "Can healing raise Hit Points above the Hit Point Maximum?",
+      "ruling": "No. Healing can restore Hit Points only up to the creature's Hit Point Maximum. Any excess healing is wasted.",
+      "isOfficial": true
+    },
+    {
+      "question": "Do Temporary Hit Points stack?",
+      "ruling": "No. If you have Temporary Hit Points and receive more, you choose whether to keep your current Temporary Hit Points or gain the new ones. They never add together.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does taking damage at 0 HP while Unconscious cause a Death Saving Throw failure?",
+      "ruling": "Yes. Any damage taken while at 0 HP causes one automatic Death Saving Throw failure. If the source of the damage is a Critical Hit (such as a melee attack against the Unconscious creature from within 5 feet), it counts as two failures instead.",
+      "isOfficial": true
+    },
+    {
+      "question": "If my Constitution modifier changes, do I recalculate my Hit Point Maximum retroactively?",
+      "ruling": "Yes. Your Hit Point Maximum changes as if you had the new Constitution modifier from 1st level. For each level, add or subtract the difference caused by the modifier change.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a creature with 0 Hit Points be healed if it has failed Death Saving Throws?",
+      "ruling": "Yes, as long as the creature has not yet died (three failures or instant death). Receiving any healing at 0 HP restores the creature to consciousness, and all Death Saving Throw successes and failures are reset.",
+      "isOfficial": true
+    },
+    {
+      "question": "What happens to Temporary Hit Points after a Long Rest?",
+      "ruling": "Temporary Hit Points are lost when you finish a Long Rest, unless the effect granting them specifies a different duration.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-03T00:00:00Z",
+  "updatedAt": "2025-01-03T00:00:00Z",
+  "version": "1.0.0"
+}

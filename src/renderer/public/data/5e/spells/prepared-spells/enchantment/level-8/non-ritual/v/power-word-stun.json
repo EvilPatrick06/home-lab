@@ -1,0 +1,61 @@
+{
+  "name": "Power Word Stun",
+  "level": 8,
+  "school": "Enchantment",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You overwhelm the mind of one creature you can see within range. If the target has 150 Hit Points or fewer, it has the Stunned condition. Otherwise, its Speed is 0 until the start of your next turn. The Stunned target makes a Constitution saving throw at the end of each of its turns, ending the condition on itself on a success.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "conditionsApplied": [
+    {
+      "condition": "Stunned",
+      "trigger": "automatic",
+      "duration": "Until the target succeeds on a Constitution saving throw (requires 150 HP or fewer)",
+      "savingThrowToEnd": {
+        "ability": "Constitution",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "speedModifiers": [
+    {
+      "type": "set",
+      "value": 0,
+      "speedType": "all"
+    }
+  ],
+  "hpThresholdEffects": [
+    {
+      "minHP": 0,
+      "maxHP": 150,
+      "effect": "The target has the Stunned condition. The Stunned target makes a Constitution saving throw at the end of each of its turns, ending the condition on itself on a success.",
+      "conditionsApplied": ["Stunned"]
+    },
+    {
+      "minHP": 151,
+      "maxHP": 999999,
+      "effect": "The target's Speed is 0 until the start of your next turn.",
+      "duration": "until the start of your next turn"
+    }
+  ],
+  "tags": ["power word", "hp threshold", "no initial save", "single target"]
+}

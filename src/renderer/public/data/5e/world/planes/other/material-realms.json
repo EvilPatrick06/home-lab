@@ -1,0 +1,11 @@
+{
+  "name": "Material Realms",
+  "slug": "material-realms",
+  "category": "other",
+  "description": "The Material Plane is where the philosophical and elemental forces of the other planes of existence collide in the jumbled existence of mortal life and matter. It is a thoroughly magical place, reflected in the two planes that share its central place in the multiverse.\n\nThe Feywild and the Shadowfell are parallel dimensions occupying the same cosmological space as the Material Plane. The landscapes of these three planes are similar, but those of the Feywild are more marvelous and whimsical, while those of the Shadowfell are more bleak and ominous. Passage between the Material Plane and these other realms is sometimes effortless, even accidental. Adventurers might enter a grove of trees on the Material Plane and suddenly find themselves in a lush, colorful forest on the Feywild or a grim wood of dead trees on the Shadowfell.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 6",
+    "section": "Cosmology"
+  }
+}

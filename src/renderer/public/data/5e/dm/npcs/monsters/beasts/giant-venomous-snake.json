@@ -1,0 +1,48 @@
+{
+  "name": "Giant Venomous Snake",
+  "slug": "giant-venomous-snake",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "14",
+  "initiative": "+4 (14)",
+  "hp": "11",
+  "hpFormula": "2d8 + 2",
+  "speed": "40 ft., Swim 40 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 18,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 4,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +2",
+  "senses": "Blindsight 10 ft.; Passive Perception 12",
+  "languages": "None",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +6, reach 10 ft. *Hit:* 6 (1d4 + 4) Piercing damage plus 4 (1d8) Poison damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

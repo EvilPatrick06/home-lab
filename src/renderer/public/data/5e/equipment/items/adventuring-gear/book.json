@@ -1,0 +1,13 @@
+{
+  "name": "Book",
+  "cost": "25 GP",
+  "weight": "5 lb.",
+  "description": "If you consult an accurate nonfiction Book about its topic, +5 bonus to Intelligence (Arcana, History, Nature, or Religion) checks about that topic.",
+  "slug": "book",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

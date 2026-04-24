@@ -1,0 +1,201 @@
+{
+  "name": "Merrow",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Coastal", "Underwater"],
+  "treasure": ["Any"],
+  "lore": "Merrow are vicious aquatic predators that haunt coastlines and bodies of deep water. Once merfolk, they were warped by demonic influence into hulking, savage hunters. They delight in dragging air-breathing creatures beneath the waves to drown them and feast on the remains.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 45,
+    "dice": {
+      "count": 6,
+      "die": "d10",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Aquan"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "gear": [
+    {
+      "name": "Harpoon",
+      "quantity": 1
+    }
+  ],
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The merrow can breathe air and water."
+    }
+  ],
+  "multiattack": {
+    "description": "The merrow makes one Bite attack and one Claws attack, or it makes two Harpoon attacks.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claws",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Harpoon"
+      },
+      {
+        "replace": "Claws",
+        "replaceCount": 1,
+        "with": "Harpoon"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 8 (1d8 + 4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 9 (2d4 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Harpoon",
+      "description": "Melee or Ranged Attack Roll: +6, reach 5 ft. or range 20/60 ft. Hit: 11 (2d6 + 4) Piercing damage. If the target is a Medium or smaller creature, the merrow pulls the target up to 20 feet straight toward itself.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 6,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If the target is a Medium or smaller creature, the merrow pulls the target up to 20 feet straight toward itself."
+        }
+      }
+    }
+  ]
+}

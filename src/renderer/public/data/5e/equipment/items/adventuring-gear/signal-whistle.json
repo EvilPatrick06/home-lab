@@ -1,0 +1,13 @@
+{
+  "name": "Signal Whistle",
+  "cost": "5 CP",
+  "weight": "—",
+  "description": "When blown as Utilize action, produces a sound heard up to 600 feet away.",
+  "slug": "signal-whistle",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

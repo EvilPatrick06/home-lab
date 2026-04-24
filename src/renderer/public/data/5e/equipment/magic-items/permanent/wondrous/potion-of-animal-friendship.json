@@ -1,0 +1,20 @@
+{
+  "name": "Potion of Animal Friendship",
+  "cost": {
+    "amount": 200,
+    "denomination": "GP"
+  },
+  "weight": 0.5,
+  "description": "When you drink this potion, you can cast the Animal Friendship spell (save DC 13) at will for 1 hour. The potion's liquid is a swirling golden color with small fish-shaped particles suspended in it. This is a magic item detailed in the Dungeon Master's Guide; it is not listed in the Player's Handbook Chapter 6 equipment tables.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Bonus Action",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "dcFormula": "13"
+  },
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

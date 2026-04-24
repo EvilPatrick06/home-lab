@@ -1,0 +1,14 @@
+{
+  "id": "surprise",
+  "name": "Surprise",
+  "description": "A group of adventurers sneaks up on a bandit camp or a gelatinous cube glides through a dungeon passage unnoticed. In these situations, one side of the encounter gains Surprise over the other.",
+  "rules": {
+    "determination": "The DM determines who might be surprised. If neither side tries to be stealthy, they automatically notice each other. Otherwise, the DM compares the Dexterity (Stealth) checks of anyone hiding with the Passive Perception of each creature on the opposing side. Any character or monster that doesn't notice a threat is Surprised at the start of the encounter.",
+    "effectOnSurprisedCreatures": [
+      "A Surprised creature has Disadvantage on its Initiative roll",
+      "A Surprised creature can't move or take actions on its first turn of combat",
+      "A Surprised creature can't take Reactions until its first turn ends"
+    ],
+    "notes": "In D&D 2024, Surprise no longer skips a creature's entire turn. Instead, a Surprised creature has Disadvantage on its Initiative roll and can't move, take actions, or take bonus actions on its first turn. After the creature's first turn ends, it can take Reactions normally."
+  }
+}

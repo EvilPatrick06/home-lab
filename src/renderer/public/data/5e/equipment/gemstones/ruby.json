@@ -1,0 +1,13 @@
+{
+  "name": "Ruby",
+  "slug": "ruby",
+  "value": "5,000 GP",
+  "category": "Gemstone",
+  "description": "clear red to deep crimson",
+  "dieValue": "4",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

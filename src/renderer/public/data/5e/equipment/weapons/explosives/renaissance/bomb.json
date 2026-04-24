@@ -1,0 +1,27 @@
+{
+  "name": "Bomb",
+  "slug": "bomb",
+  "category": "Explosive",
+  "era": "Renaissance",
+  "cost": "150 GP",
+  "weight": "1 lb.",
+  "description": "As an action, a character can light this bomb and throw it at a point up to 60 feet away. Each creature within 5 feet of that point must succeed on a DC 12 Dexterity saving throw or take 10 (3d6) Fire damage.",
+  "attack": {
+    "throwRange": 60,
+    "damage": "3d6",
+    "damageType": "Fire",
+    "averageDamage": 10,
+    "saveDC": 12,
+    "saveAbility": "Dexterity",
+    "halfDamageOnSave": false,
+    "area": {
+      "shape": "Sphere",
+      "radius": 5
+    }
+  },
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Explosives"
+  }
+}

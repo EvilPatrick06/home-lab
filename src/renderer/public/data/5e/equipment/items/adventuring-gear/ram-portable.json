@@ -1,0 +1,13 @@
+{
+  "name": "Ram, Portable",
+  "cost": "4 GP",
+  "weight": "35 lb.",
+  "description": "+4 bonus to Strength check to break doors. Another character can help (gives Advantage).",
+  "slug": "ram-portable",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

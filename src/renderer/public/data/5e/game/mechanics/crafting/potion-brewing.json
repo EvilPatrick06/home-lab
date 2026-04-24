@@ -1,0 +1,114 @@
+{
+  "id": "potion-brewing",
+  "name": "Brewing Potions",
+  "description": "A character who has proficiency with the Herbalism Kit can create potions of healing and other potions. Brewing a potion requires the character to have proficiency with a Herbalism Kit, access to suitable ingredients worth half the potion's market price, and a sufficient amount of downtime.",
+  "requirements": [
+    "Proficiency with a Herbalism Kit",
+    "Ingredients worth half the potion's market price",
+    "Access to a workspace with heat source and containers"
+  ],
+  "costByRarity": [
+    {
+      "rarity": "Common",
+      "time": "1 day",
+      "timeDays": 1,
+      "cost": "25 GP",
+      "costGP": 25,
+      "example": "Potion of Healing"
+    },
+    {
+      "rarity": "Uncommon",
+      "time": "1 workweek",
+      "timeDays": 5,
+      "cost": "100 GP",
+      "costGP": 100,
+      "example": "Potion of Greater Healing"
+    },
+    {
+      "rarity": "Rare",
+      "time": "3 workweeks",
+      "timeDays": 15,
+      "cost": "1,000 GP",
+      "costGP": 1000,
+      "example": "Potion of Superior Healing"
+    },
+    {
+      "rarity": "Very Rare",
+      "time": "6 workweeks",
+      "timeDays": 30,
+      "cost": "10,000 GP",
+      "costGP": 10000,
+      "example": "Potion of Supreme Healing"
+    },
+    {
+      "rarity": "Legendary",
+      "time": "12 workweeks",
+      "timeDays": 60,
+      "cost": "50,000 GP",
+      "costGP": 50000,
+      "example": "—"
+    }
+  ],
+  "commonPotions": [
+    { "name": "Potion of Healing", "rarity": "Common", "effect": "Regain 2d4 + 2 HP", "marketPrice": "50 GP" },
+    {
+      "name": "Potion of Greater Healing",
+      "rarity": "Uncommon",
+      "effect": "Regain 4d4 + 4 HP",
+      "marketPrice": "200 GP"
+    },
+    {
+      "name": "Potion of Superior Healing",
+      "rarity": "Rare",
+      "effect": "Regain 8d4 + 8 HP",
+      "marketPrice": "2,000 GP"
+    },
+    {
+      "name": "Potion of Supreme Healing",
+      "rarity": "Very Rare",
+      "effect": "Regain 10d4 + 20 HP",
+      "marketPrice": "20,000 GP"
+    },
+    {
+      "name": "Potion of Climbing",
+      "rarity": "Common",
+      "effect": "Climb Speed equal to walking speed for 1 hour",
+      "marketPrice": "50 GP"
+    },
+    {
+      "name": "Potion of Fire Breath",
+      "rarity": "Uncommon",
+      "effect": "Exhale fire in a 30-foot cone (4d6 Fire)",
+      "marketPrice": "200 GP"
+    },
+    {
+      "name": "Potion of Resistance",
+      "rarity": "Uncommon",
+      "effect": "Resistance to one damage type for 1 hour",
+      "marketPrice": "200 GP"
+    },
+    {
+      "name": "Potion of Invisibility",
+      "rarity": "Very Rare",
+      "effect": "Invisible for 1 hour",
+      "marketPrice": "20,000 GP"
+    },
+    {
+      "name": "Potion of Flying",
+      "rarity": "Very Rare",
+      "effect": "Fly Speed of 60 feet for 1 hour",
+      "marketPrice": "20,000 GP"
+    },
+    {
+      "name": "Potion of Speed",
+      "rarity": "Very Rare",
+      "effect": "Haste effect for 1 minute (no Concentration)",
+      "marketPrice": "20,000 GP"
+    }
+  ],
+  "notes": "If the brewing is interrupted, the attempt fails and the ingredients are wasted. A day of brewing requires 8 hours of work. The DM may allow an Intelligence (Herbalism Kit) check for complex potions.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Crafting Magic Items"
+  }
+}

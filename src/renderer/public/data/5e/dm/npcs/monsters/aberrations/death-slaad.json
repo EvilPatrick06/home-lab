@@ -1,0 +1,281 @@
+{
+  "name": "Death Slaad",
+  "sizes": ["Medium"],
+  "creatureType": "Aberration",
+  "descriptiveTags": ["Slaad", "Shapechanger"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar"],
+  "treasure": ["Any"],
+  "lore": "Death slaads are the most cunning and powerful of their kind, capable of assuming humanoid forms and wielding potent magic. These creatures scheme and plot to spread chaos across the planes, working to further the inscrutable goals of Slaad Lords. A death slaad's humanoid guise often allows it to infiltrate societies, where it manipulates events to sow discord and entropy.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 170,
+    "dice": {
+      "count": 20,
+      "die": "d8",
+      "modifier": 80
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 6
+    },
+    "CON": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 4
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    }
+  ],
+  "resistances": ["Acid, Cold, Fire, Lightning, and Thunder"],
+  "gear": [
+    {
+      "name": "Greatsword",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common", "Slaad"],
+    "telepathy": 60
+  },
+  "challengeRating": "10",
+  "experiencePoints": 5900,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The slaad has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Regeneration",
+      "description": "The slaad regains 10 Hit Points at the start of each of its turns if it has at least 1 Hit Point."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 15,
+      "spellAttackBonus": 7,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            },
+            {
+              "name": "Mage Hand",
+              "level": 0
+            },
+            {
+              "name": "Major Image",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Cloudkill",
+              "level": 5
+            },
+            {
+              "name": "Fireball",
+              "level": 3
+            },
+            {
+              "name": "Fly",
+              "level": 3
+            },
+            {
+              "name": "Tongues",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The slaad makes three attacks, using Claw or Greatsword in any combination. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Greatsword",
+        "count": 2
+      },
+      {
+        "actionName": "Claw",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +9, reach 5 ft. Hit: 10 (1d10 + 5) Slashing damage plus 7 (2d6) Necrotic damage. Available only in slaad form.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Greatsword",
+      "description": "Melee Attack Roll: +9, reach 5 ft. Hit: 12 (2d6 + 5) Slashing damage plus 7 (2d6) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The slaad casts one of its available spells, using Charisma as the spellcasting ability (spell save DC 15, +7 to hit with spell attacks). The slaad requires no Material components for its spells."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shape-Shift",
+      "description": "The slaad shape-shifts into a Small or Medium Humanoid or back into its true form (a Medium Slaad). Other than its size, its statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed."
+    }
+  ]
+}

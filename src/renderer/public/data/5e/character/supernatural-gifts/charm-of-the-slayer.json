@@ -1,0 +1,12 @@
+{
+  "name": "Charm of the Slayer",
+  "type": "Charm",
+  "charges": 3,
+  "description": "This charm has 3 charges. When you hit a creature with an attack roll using a weapon, you can expend 1 charge to deal an extra 2d10 Radiant damage to the target. Once all charges are used, the charm vanishes.",
+  "slug": "charm-of-the-slayer",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

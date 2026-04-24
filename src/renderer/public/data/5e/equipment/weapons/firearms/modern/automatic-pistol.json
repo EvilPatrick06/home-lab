@@ -1,0 +1,23 @@
+{
+  "name": "Automatic Pistol",
+  "slug": "automatic-pistol",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Modern",
+  "damage": "2d6",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Reload (15)"],
+  "weight": "3 lb.",
+  "cost": "—",
+  "range": {
+    "normal": 50,
+    "long": 150
+  },
+  "ammunitionType": "Modern Bullet",
+  "reloadCapacity": 15,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

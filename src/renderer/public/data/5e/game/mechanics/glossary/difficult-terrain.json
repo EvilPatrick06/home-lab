@@ -1,0 +1,11 @@
+{
+  "name": "Difficult Terrain",
+  "slug": "difficult-terrain",
+  "description": "If a space is Difficult Terrain, every foot of movement in that space costs 1 extra foot.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

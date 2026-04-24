@@ -1,0 +1,15 @@
+{
+  "name": "Carpenter's Tools",
+  "cost": "8 GP",
+  "weight": "6 lb.",
+  "ability": "Strength",
+  "utilize": "Seal or pry open a door or container (DC 20)",
+  "craft": "Club, Greatclub, Quarterstaff, Barrel, Chest, Ladder, Pole, Portable Ram, Torch",
+  "slug": "carpenters-tools",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

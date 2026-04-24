@@ -1,0 +1,13 @@
+{
+  "name": "Jet",
+  "slug": "jet",
+  "value": "100 GP",
+  "category": "Gemstone",
+  "description": "deep black",
+  "dieValue": "7",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

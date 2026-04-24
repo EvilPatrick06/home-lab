@@ -1,0 +1,633 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Plane of Ash",
+          "Plane of Ice",
+          "Plane of Magma",
+          "Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "astral-plane",
+      "name": "Astral Plane",
+      "alternateNames": ["Astral Sea"],
+      "category": "Transitive Plane",
+      "subcategory": "Astral",
+      "alignments": [],
+      "philosophicalEssence": "A realm of thought and dream, where visitors travel as disembodied souls to reach the Outer Planes.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "thought_based",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A great silvery sea with swirling wisps of white and gray streaking among motes of light",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Creatures on the Astral Plane don't age or suffer from hunger or thirst.",
+        "temperature": {
+          "category": "temperate",
+          "description": "Silvery void with no notable temperature extremes described"
+        }
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "stopped",
+        "ratioToMaterialPlane": "subjective",
+        "agingOccurs": false,
+        "hungerThirstApplies": false,
+        "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst. Githyanki establish outposts on other planes so their children can grow to maturity."
+      },
+      "hazards": [
+        {
+          "id": "psychic-wind",
+          "name": "Psychic Wind",
+          "description": "A psychic wind is a storm of thought that batters travelers' minds rather than their bodies. The storm is made of lost memories, forgotten ideas, and subconscious fears that went astray in the Astral Plane and conglomerated into this powerful force. A psychic wind is first sensed as a rapid darkening of the silver-gray sky. After 1d4 minutes, the area becomes as dark as a moonless night. As the sky darkens, the traveler feels buffeting and shaking, as if the plane were rebelling against the storm. As quickly as it comes, the psychic wind passes, and the sky returns to normal in 1 minute. A group of travelers journeying together is subjected to one location effect, determined by consulting the Psychic Wind Location Effects table. Each traveler caught in a psychic wind makes a DC 15 Intelligence saving throw. On a failed save, the traveler suffers a random effect from the Psychic Wind Psychic Effects table as well.",
+          "category": "psychic",
+          "severity": "major",
+          "damagePerTurn": {
+            "dice": {
+              "count": 4,
+              "die": 10,
+              "modifier": 0,
+              "expression": "4d10",
+              "averageResult": 22
+            },
+            "damageType": "Psychic",
+            "averageDamagePerTurn": 22,
+            "frequency": "on_trigger",
+            "frequencyDescription": "On failed DC 15 Intelligence saving throw when caught in a psychic wind, if psychic effect roll result is 13-17 on d20",
+            "triggerCondition": "Failed DC 15 Intelligence saving throw while caught in a psychic wind and rolled 13-17 on the Psychic Wind Psychic Effects table",
+            "resistanceFactor": 0.5,
+            "savingThrowForHalf": {
+              "ability": "Intelligence",
+              "dc": 15,
+              "onSuccess": "no_damage",
+              "onFailure": "full damage if psychic effect roll indicates damage"
+            }
+          },
+          "savingThrowToTraverse": {
+            "ability": "Intelligence",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "on_entry",
+            "triggerDescription": "Each traveler caught in a psychic wind makes a DC 15 Intelligence saving throw to resist psychic effects. Location effects apply to the entire group regardless of the save.",
+            "onFailure": {
+              "description": "On a failed save, the traveler suffers a random effect from the Psychic Wind Psychic Effects table: d20 roll 1-8 results in Stunned condition for 1 minute (repeat save at end of each turn to end), 9-12 results in 11 (2d10) Psychic damage, 13-17 results in 22 (4d10) Psychic damage, 18-20 results in Unconscious condition for 5 (1d10) hours (ends if the creature takes damage or another creature takes an action to shake it awake).",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "cumulative": false
+            },
+            "onSuccess": {
+              "description": "On a successful save, the traveler suffers no psychic effect from the Psychic Wind Psychic Effects table. The group-wide location effect from the Psychic Wind Location Effects table still applies.",
+              "endsEffect": true
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": true,
+            "repeatSaveTiming": "End of each of the creature's turns (only for the Stunned condition effect, rolls 1-8 on the Psychic Effects table)",
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": -1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.75,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "detectionMethod": {
+            "warningTimeMinutes": 2.5,
+            "warningDescription": "A psychic wind is first sensed as a rapid darkening of the silver-gray sky. After 1d4 minutes (average 2.5), the area becomes as dark as a moonless night."
+          },
+          "locationTableRoll": {
+            "die": 20,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 8,
+                "effect": "Diverted",
+                "description": "Diverted; add 1d6 days to travel time"
+              },
+              {
+                "rangeLow": 9,
+                "rangeHigh": 12,
+                "effect": "Blown astray",
+                "description": "Blown astray; add 3d10 days to travel time"
+              },
+              {
+                "rangeLow": 13,
+                "rangeHigh": 16,
+                "effect": "Lost",
+                "description": "Lost; at the end of the travel time, the characters arrive at a location other than the intended destination"
+              },
+              {
+                "rangeLow": 17,
+                "rangeHigh": 20,
+                "effect": "Sent through random color pool",
+                "description": "Sent through a random color pool (roll on the Astral Color Pools table)"
+              }
+            ]
+          },
+          "psychicEffectTableRoll": {
+            "die": 20,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 8,
+                "effect": "Stunned for 1 minute",
+                "conditionApplied": "Stunned",
+                "durationDescription": "1 minute; repeat the saving throw at the end of each of your turns, ending the effect on yourself on a success"
+              },
+              {
+                "rangeLow": 9,
+                "rangeHigh": 12,
+                "effect": "2d10 Psychic damage",
+                "damage": {
+                  "count": 2,
+                  "die": 10,
+                  "modifier": 0,
+                  "expression": "2d10",
+                  "averageResult": 11
+                },
+                "damageType": "Psychic",
+                "durationDescription": "Instantaneous"
+              },
+              {
+                "rangeLow": 13,
+                "rangeHigh": 17,
+                "effect": "4d10 Psychic damage",
+                "damage": {
+                  "count": 4,
+                  "die": 10,
+                  "modifier": 0,
+                  "expression": "4d10",
+                  "averageResult": 22
+                },
+                "damageType": "Psychic",
+                "durationDescription": "Instantaneous"
+              },
+              {
+                "rangeLow": 18,
+                "rangeHigh": 20,
+                "effect": "Unconscious for 1d10 hours",
+                "conditionApplied": "Unconscious",
+                "durationDescription": "5 (1d10) hours; the effect ends if you take damage or if another creature takes an action to shake you awake"
+              }
+            ]
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology, Astral Plane, Psychic Wind"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [
+        {
+          "id": "astral-color-pool-generic",
+          "type": "color_pool",
+          "destination": "Various Outer Planes, Inner Planes, or Material Plane",
+          "destinationPlane": "Various",
+          "bidirectional": true,
+          "colorOrAppearance": "Two-dimensional pools of rippling colors, perceived by the Astral self rather than physical eyes",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          }
+        }
+      ],
+      "portalFrequency": "common",
+      "planarConnections": [
+        {
+          "id": "astral-psychic-wind-connection",
+          "name": "Psychic Wind",
+          "type": "psychic_wind",
+          "connectedPlanes": [
+            "Astral Plane",
+            "Abyss",
+            "Acheron",
+            "Arborea",
+            "Arcadia",
+            "Beastlands",
+            "Bytopia",
+            "Carceri",
+            "Elysium",
+            "Ethereal Plane",
+            "Gehenna",
+            "Hades",
+            "Limbo",
+            "Material Plane",
+            "Mechanus",
+            "Mount Celestia",
+            "Nine Hells",
+            "Outlands",
+            "Pandemonium",
+            "Ysgard"
+          ],
+          "description": "A psychic wind can send travelers through a random color pool, potentially depositing them on any plane reachable via Astral color pools. Roll on the Astral Color Pools table (d20) to determine the destination.",
+          "hazards": ["psychic-wind"],
+          "isOneWay": true
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial", "Fiend", "Aberration", "Humanoid"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Githyanki",
+            "race": "Githyanki",
+            "description": "Githyanki establish outposts on the Astral Plane, building cities on the petrified corpses of dead gods. Tu'narath is the most infamous such city.",
+            "location": "Various locations including dead god corpses"
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "astral-movement",
+          "name": "Astral Movement",
+          "description": "A traveler in the Astral Plane can move by simply thinking about moving. In combat, a creature has a Fly Speed (in feet) equal to 5 times its Intelligence score and can hover.",
+          "mechanicalEffect": "Fly Speed = 5 × Intelligence score (in feet). Creature can hover. Outside combat, distance is meaningless and movement is accomplished by thought.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "astral-navigation",
+          "name": "Astral Navigation",
+          "description": "All that is required to find one's destination is to think about it. As long as the destination is somewhere in the Astral Plane or in Wildspace, thinking about a place makes the creature aware of the most direct route to that location.",
+          "mechanicalEffect": "Thinking about a destination reveals the most direct route. Travel to a specific location takes 4d6 days; travel to a general location takes 1d4 × 10 hours.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "astral-no-aging",
+          "name": "Astral Timelessness",
+          "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst.",
+          "mechanicalEffect": "No aging, no hunger, no thirst while on the Astral Plane.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "colorPoolColor": "Silver",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "astral-projection-spell",
+      "name": "Astral Projection",
+      "type": "spell",
+      "description": "Astral Projection lets adventurers project themselves into the Astral Plane and from there travel to the Outer Planes.",
+      "requirements": ["Spell slot of appropriate level"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["Psychic Wind", "Encounters with githyanki or other Astral denizens"],
+      "destinations": ["Astral Plane", "Any Outer Plane via color pools"]
+    },
+    {
+      "id": "gate-spell",
+      "name": "Gate",
+      "type": "spell",
+      "description": "Gate can directly transport adventurers to any other plane.",
+      "requirements": ["9th level spell slot"],
+      "associatedSpells": ["Gate"],
+      "risks": [],
+      "destinations": ["Any plane"]
+    },
+    {
+      "id": "plane-shift-spell",
+      "name": "Plane Shift",
+      "type": "spell",
+      "description": "Plane Shift can directly transport adventurers to any other plane, with different degrees of precision.",
+      "requirements": ["Spell slot of appropriate level", "Tuning fork attuned to destination plane"],
+      "associatedSpells": ["Plane Shift"],
+      "risks": [],
+      "destinations": ["Any plane"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

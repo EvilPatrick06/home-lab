@@ -1,0 +1,25 @@
+{
+  "id": "blackrazor",
+  "name": "Blackrazor",
+  "alignment": "Chaotic Neutral",
+  "mentalAbilities": { "int": 17, "wis": 10, "cha": 19 },
+  "communication": "Telepathy (120 ft.) and speech (Common)",
+  "senses": "Hearing and Darkvision 120 ft.",
+  "purpose": "Blackrazor exists to consume souls. It has no greater goal beyond feeding its endless hunger for life force.",
+  "personality": "Blackrazor is domineering, possessive, and single-minded in its desire to consume souls. It speaks in a deep, resonant voice and grows sullen and uncooperative if denied the chance to slay. It flatters wielders who feed it frequently and threatens those who do not. Blackrazor despises Wave and Whelm and wishes to destroy them.",
+  "itemType": "Weapon (Greatsword)",
+  "rarity": "Legendary",
+  "requiresAttunement": true,
+  "attunementRequirements": "Attuned by a creature of non-lawful alignment",
+  "properties": [
+    "Devour Soul: When you use it to reduce a creature to 0 HP, Blackrazor devours the soul. A creature whose soul is devoured cannot be revived by any means short of a Wish spell.",
+    "Soul Charge: For every soul devoured, you gain temporary HP equal to the slain creature's HP maximum. While you have these temporary HP, you have advantage on attack rolls, saving throws, and ability checks.",
+    "Haste: While attuned, your speed increases by 10 feet.",
+    "Blindness to Undead: Blackrazor has no power over undead. If you use it to attack undead, you take 1d10 necrotic damage."
+  ],
+  "conflictBehavior": "If the wielder refuses to slay creatures for Blackrazor to consume, the sword attempts to take control. The wielder must succeed on a DC 17 Charisma saving throw or be charmed by the sword for 1d12 hours.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Sentient Magic Items"
+  }
+}

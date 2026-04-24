@@ -1,0 +1,13 @@
+{
+  "name": "Quiver",
+  "cost": "1 GP",
+  "weight": "1 lb.",
+  "description": "Holds up to 20 Arrows.",
+  "slug": "quiver",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

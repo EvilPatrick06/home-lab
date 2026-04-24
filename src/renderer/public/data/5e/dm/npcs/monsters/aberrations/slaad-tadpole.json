@@ -1,0 +1,111 @@
+{
+  "name": "Slaad Tadpole",
+  "sizes": ["Tiny"],
+  "creatureType": "Aberration",
+  "descriptiveTags": ["Slaad"],
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Planar (Limbo)"],
+  "treasure": ["None"],
+  "lore": "Slaad tadpoles are the parasitic larval form of slaadi. They gestate inside a host infected by a slaad's claws or implanted egg, eventually bursting free to feed and grow. Left unchecked, a slaad tadpole transforms into an adult slaad within a matter of hours or days.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 10,
+    "dice": {
+      "count": 4,
+      "die": "d4",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "CHA": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    }
+  },
+  "resistances": ["Acid, Cold, Fire, Lightning, and Thunder"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 7
+  },
+  "languages": {
+    "understood": ["Slaadi"],
+    "notes": "understands Slaadi but can't speak"
+  },
+  "challengeRating": "1/8",
+  "experiencePoints": 25,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The slaad has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "systemPrompt": 1500,
+  "retrievedChunks": 8000,
+  "srdData": 2000,
+  "campaignData": 2000,
+  "creatures": 2000,
+  "gameState": 1500,
+  "memory": 2000,
+  "conversationHistory": 4000,
+  "responseBuffer": 4000,
+  "fileReadContent": 4000,
+  "webSearchResults": 2000,
+  "total": 25000
+}

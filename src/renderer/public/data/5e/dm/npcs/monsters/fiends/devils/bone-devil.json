@@ -1,0 +1,244 @@
+{
+  "name": "Bone Devil",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar (Nine Hells)"],
+  "treasure": ["None"],
+  "lore": "Bone devils serve as the taskmasters and overseers of the Nine Hells, commanding lesser devils and enforcing infernal law. These tall, skeletal fiends have scorpion-like tails dripping with venom and exude an aura of dread that can paralyze mortals with fear. Also known as osyluths, bone devils take cruel delight in tormenting those under their charge and are prized by archdevils for their ruthless efficiency.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 142,
+    "dice": {
+      "count": 15,
+      "die": "d10",
+      "modifier": 60
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 5
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 6
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 7
+    },
+    {
+      "skill": "Insight",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Cold"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "9",
+  "experiencePoints": 5000,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the devil's Darkvision."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The devil makes two Claw attacks and one Sting attack. It can replace one Claw attack with a use of Frightful Presence.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      },
+      {
+        "actionName": "Sting",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Frightful Presence"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +8, reach 10 ft. Hit: 8 (1d8 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sting",
+      "description": "Melee Attack Roll: +8, reach 10 ft. Hit: 13 (2d8 + 4) Piercing damage plus 17 (5d6) Poison damage, and the target must succeed on a DC 16 Constitution saving throw or have the Poisoned condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 17,
+              "dice": {
+                "count": 5,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 16,
+            "targets": "the target",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "1 minute",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 16,
+                    "targets": "the target",
+                    "onSuccess": {
+                      "effects": "The effect ends on the target."
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the devil's choice within 30 feet of it must succeed on a DC 15 Wisdom saving throw or have the Frightened condition until the end of the target's next turn. A target that succeeds on the save is immune to this devil's Frightful Presence for 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 15,
+        "targets": "each creature of the devil's choice within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "until the end of the target's next turn"
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The target is immune to this devil's Frightful Presence for 24 hours."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 30,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "until the end of the target's next turn"
+        }
+      ]
+    }
+  ]
+}

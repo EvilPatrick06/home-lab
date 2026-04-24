@@ -1,0 +1,301 @@
+{
+  "name": "Mind Flayer",
+  "sizes": ["Medium"],
+  "creatureType": "Aberration",
+  "descriptiveTags": ["Illithid"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Arcana"],
+  "lore": "Mind flayers, also called illithids, are psionic tyrants that dwell deep underground in colonies organized around an elder brain. They feed on the brains of sentient creatures, using their tentacles to extract the brains of helpless prey. Mind flayers communicate via telepathy and use their formidable psionic powers to dominate and enslave other creatures, bending them to serve the colony's alien purposes. A colony's elder brain resides in a briny pool at the colony's heart, where it telepathically coordinates the machinations of its mind flayer thralls.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Breastplate"]
+  },
+  "hitPoints": {
+    "average": 71,
+    "dice": {
+      "count": 13,
+      "die": "d8",
+      "modifier": 13
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 7
+    },
+    "WIS": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 7
+    },
+    {
+      "skill": "Deception",
+      "bonus": 6
+    },
+    {
+      "skill": "Insight",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "resistances": ["Psychic"],
+  "gear": [
+    {
+      "name": "Breastplate",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Deep Speech", "Undercommon"],
+    "telepathy": 120
+  },
+  "challengeRating": "7",
+  "experiencePoints": 2900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The mind flayer has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Telepathic Hub",
+      "description": "The mind flayer can use its telepathy to simultaneously communicate with any number of creatures within 120 feet of it, provided they share a language or also have telepathy."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting (Psionics)",
+      "ability": "INT",
+      "spellSaveDC": 15,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Levitate",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dominate Monster",
+              "level": 8
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The mind flayer makes two Tentacle attacks. It can replace one of these attacks with Extract Brain if available.",
+    "attacks": [
+      {
+        "actionName": "Tentacle",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Tentacle",
+        "replaceCount": 1,
+        "with": "Extract Brain"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Tentacle",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 15 (2d10 + 4) Psychic damage. If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 15) and must succeed on a DC 15 Intelligence saving throw or have the Stunned condition until the grapple ends.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one creature",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 15,
+              "duration": "until escaped"
+            }
+          ],
+          "savingThrow": {
+            "ability": "INT",
+            "dc": 15,
+            "targets": "the grappled target",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Stunned",
+                  "duration": "until the grapple ends"
+                }
+              ]
+            }
+          },
+          "additionalEffects": "Only Grapples targets that are Medium or smaller."
+        }
+      }
+    },
+    {
+      "name": "Extract Brain",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 55 (10d10) Piercing damage. If this damage reduces the target to 0 Hit Points, the mind flayer kills the target by extracting and devouring its brain. This attack can target only a Medium or smaller creature that has the Incapacitated condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one Incapacitated creature that is Medium or smaller",
+        "hit": {
+          "damage": [
+            {
+              "average": 55,
+              "dice": {
+                "count": 10,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If this damage reduces the target to 0 Hit Points, the mind flayer kills the target by extracting and devouring its brain."
+        }
+      }
+    },
+    {
+      "name": "Mind Blast",
+      "description": "The mind flayer magically emits psychic energy in a 60-foot Cone. Each creature in that area must make a DC 15 Intelligence saving throw, taking 22 (4d8 + 4) Psychic damage on a failed save or half as much damage on a successful one. On a failed save, a creature also has the Stunned condition for 1 minute. The Stunned creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 60
+      },
+      "savingThrow": {
+        "ability": "INT",
+        "dc": 15,
+        "targets": "each creature in a 60-foot Cone",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Stunned",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "INT",
+                "dc": 15,
+                "targets": "the Stunned creature at the end of each of its turns",
+                "onSuccess": {
+                  "effects": "The Stunned condition ends on the creature."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ]
+}

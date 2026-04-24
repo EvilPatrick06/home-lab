@@ -1,0 +1,30 @@
+{
+  "name": "Inspiring Leader",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "abilityScores": [
+      {
+        "abilities": ["Wisdom", "Charisma"],
+        "minimum": 13
+      }
+    ]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Wisdom", "Charisma"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Bolstering Performance",
+      "description": "When you finish a Short or Long Rest, you can give an inspiring performance: a speech, song, or dance. When you do so, choose up to six allies (which can include yourself) within 30 feet of yourself who witness the performance. The chosen creatures each gain Temporary Hit Points equal to your character level plus the modifier of the ability you increased with this feat."
+    }
+  ],
+  "source": "PHB 2024"
+}

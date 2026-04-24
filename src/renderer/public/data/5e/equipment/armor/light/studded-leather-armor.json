@@ -1,0 +1,17 @@
+{
+  "name": "Studded Leather Armor",
+  "slug": "studded-leather-armor",
+  "category": "Light",
+  "ac": "12 + Dex modifier",
+  "strength": null,
+  "stealthDisadvantage": false,
+  "weight": "13 lb.",
+  "cost": "45 GP",
+  "donTime": "1 Minute",
+  "doffTime": "1 Minute",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

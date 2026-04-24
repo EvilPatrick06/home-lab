@@ -1,0 +1,76 @@
+{
+  "name": "Moonbeam",
+  "level": 2,
+  "school": "Evocation",
+  "classes": ["Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a moonseed leaf",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "A silvery beam of pale light shines down in a 5-foot-radius, 40-foot-high Cylinder centered on a point within range. Until the spell ends, Dim Light fills the Cylinder, and you can take a Magic action on later turns to move the Cylinder up to 60 feet.\n\nWhen the Cylinder appears, each creature in it makes a Constitution saving throw. On a failed save, a creature takes 2d10 Radiant damage, and if the creature is shape-shifted (as a result of the Polymorph spell, for example), it reverts to its true form and can't shape-shift until it leaves the Cylinder. On a successful save, a creature takes half as much damage only. A creature also makes this save when the spell's area moves into its space and when it enters the spell's area or ends its turn there. A creature makes this save only once per turn.",
+  "areaOfEffect": [
+    {
+      "shape": "Cylinder",
+      "radiusFeet": 5,
+      "heightFeet": 40,
+      "movablePerTurn": true,
+      "movementFeet": 60
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Constitution",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 10
+      },
+      "type": "Radiant",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "light": {
+    "dimRadiusFeet": 5
+  },
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "Move the Cylinder up to 60 feet.",
+    "movementFeet": 60
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 10,
+        "baseSpellLevel": 2,
+        "description": "The damage increases by 1d10 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["movable-area", "shapeshift-reversion", "once-per-turn-save"]
+}

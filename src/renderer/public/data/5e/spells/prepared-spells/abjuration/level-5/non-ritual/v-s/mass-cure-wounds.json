@@ -1,0 +1,55 @@
+{
+  "name": "Mass Cure Wounds",
+  "level": 5,
+  "school": "Abjuration",
+  "classes": ["Bard", "Cleric", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A wave of healing energy washes out from a point you can see within range. Choose up to six creatures in a 30-foot-radius Sphere centered on that point. Each target regains Hit Points equal to 5d8 plus your spellcasting ability modifier.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 30
+    }
+  ],
+  "targetCount": 6,
+  "targetType": "creature",
+  "healing": [
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 8
+      },
+      "addCasterMod": true,
+      "applicationType": "onCast"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "healingIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 5,
+        "description": "The healing increases by 1d8 for each spell slot level above 5."
+      }
+    ]
+  },
+  "tags": ["healing", "area-of-effect"]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "Heavily Armored",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "features": ["Medium Armor Training"]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Constitution", "Strength"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Armor Training",
+      "description": "You gain training with Heavy armor."
+    }
+  ],
+  "source": "PHB 2024"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Potion of Flying",
+  "itemType": "Potion",
+  "rarity": "Very Rare",
+  "requiresAttunement": false,
+  "description": "When you drink this potion, you gain a Fly Speed equal to your Speed for 1 hour and can hover. If you're in the air when the potion wears off, you fall unless you have some other means of staying aloft.",
+  "properties": null,
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

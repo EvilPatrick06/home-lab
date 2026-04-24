@@ -1,0 +1,220 @@
+{
+  "name": "Wererat",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Lycanthrope"],
+  "alignment": "Neutral",
+  "habitat": ["Urban"],
+  "treasure": ["Individual"],
+  "lore": "Wererats are cunning lycanthropes that lurk in sewers, alleyways, and other urban underbellies. They form tight-knit packs and often operate as thieves' guilds, using their ability to shift between humanoid and rat forms to move unseen through cities. Their bite can transmit the curse of wererat lycanthropy to Humanoids.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 33,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 6
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks that aren't silvered"],
+  "conditionImmunities": ["Charmed"],
+  "gear": [
+    {
+      "name": "Shortsword",
+      "quantity": 1
+    },
+    {
+      "name": "Hand Crossbow",
+      "quantity": 1
+    },
+    {
+      "name": "Bolts",
+      "quantity": 20
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The wererat has Advantage on an attack roll against a creature if at least one of the wererat's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "multiattack": {
+    "description": "The wererat makes two attacks, using Bite, Shortsword, or Hand Crossbow in any combination.",
+    "attacks": [
+      {
+        "actionName": "Shortsword",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Shortsword",
+        "replaceCount": 2,
+        "with": "Bite"
+      },
+      {
+        "replace": "Shortsword",
+        "replaceCount": 2,
+        "with": "Hand Crossbow"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Bite (Rat or Hybrid Form Only). Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Piercing damage. If the target is a Humanoid, it must succeed on a DC 11 Constitution saving throw or be cursed with wererat lycanthropy.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If the target is a Humanoid, it must succeed on a DC 11 Constitution saving throw or be cursed with wererat lycanthropy.",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 11,
+            "targets": "the target, if it is a Humanoid",
+            "onFailure": {
+              "effects": "The target is cursed with wererat lycanthropy."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Shortsword",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hand Crossbow",
+      "description": "Ranged Attack Roll: +4, range 30/120 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 4,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shape-Shift",
+      "description": "The wererat shape-shifts into a Rat-Humanoid hybrid or a Tiny rat, or it returns to its Humanoid form. Its game statistics, other than its size, don't change. Any equipment it is wearing or carrying isn't transformed. The wererat reverts to its Humanoid form if it dies."
+    }
+  ]
+}

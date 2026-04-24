@@ -1,0 +1,43 @@
+{
+  "name": "Staff of Charming",
+  "itemType": "Staff",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": "by a Bard, Cleric, Druid, Sorcerer, Warlock, or Wizard",
+  "description": "This staff has 10 charges. While holding the staff, you can use any of its properties:\n\nCast Spell. You can expend 1 of the staff's charges to cast Charm Person, Command, or Comprehend Languages from it using your spell save DC.\n\nReflect Enchantment. If you succeed on a saving throw against an Enchantment spell that targets only you, you can take a Reaction to expend 1 charge from the staff and turn the spell back on its caster as if you had cast the spell.\n\nResist Enchantment. If you fail a saving throw against an Enchantment spell that targets only you, you can turn your failed save into a successful one. You can't use this property of the staff again until the next dawn.\n\nRegaining Charges. The staff regains 1d8 + 2 expended charges daily at dawn. If you expend the last charge, roll 1d20. On a 1, the staff crumbles to dust and is destroyed.",
+  "properties": [
+    {
+      "type": "CastSpell",
+      "spells": [
+        {
+          "name": "Charm Person",
+          "chargeCost": 1
+        },
+        {
+          "name": "Command",
+          "chargeCost": 1
+        },
+        {
+          "name": "Comprehend Languages",
+          "chargeCost": 1
+        }
+      ]
+    },
+    {
+      "type": "ReflectEnchantment",
+      "chargeCost": 1
+    },
+    {
+      "type": "ResistEnchantment"
+    }
+  ],
+  "weight": "2 to 7 pounds",
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "charges": 10,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d8 + 2",
+  "source": "DMG 2024"
+}

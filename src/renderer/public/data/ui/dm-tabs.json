@@ -1,0 +1,15 @@
+[
+  { "id": "combat", "label": "Combat", "icon": "\u2694\uFE0F" },
+  { "id": "magic", "label": "Magic", "icon": "\u2728" },
+  { "id": "dmtools", "label": "DM Tools", "icon": "\uD83D\uDEE0\uFE0F" },
+  { "id": "map", "label": "Map", "icon": "\uD83D\uDDFA\uFE0F" },
+  { "id": "party", "label": "Party", "icon": "\uD83D\uDC65" },
+  { "id": "audio", "label": "Audio", "icon": "\uD83D\uDD0A" },
+  { "id": "aidm", "label": "AI DM", "icon": "\uD83E\uDD16" },
+  { "id": "campaign", "label": "Campaign", "icon": "\uD83D\uDCD6" },
+  { "id": "dice", "label": "Dice & Rolls", "icon": "\uD83C\uDFB2" },
+  { "id": "chat", "label": "Chat & Social", "icon": "\uD83D\uDCAC" },
+  { "id": "utility", "label": "Utility", "icon": "\u2699\uFE0F" },
+  { "id": "combatlog", "label": "Combat Log", "icon": "\uD83D\uDCDC" },
+  { "id": "journal", "label": "Journal", "icon": "\uD83D\uDCD4" }
+]

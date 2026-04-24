@@ -1,0 +1,48 @@
+{
+  "name": "Tiger",
+  "slug": "tiger",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 12,
+  "hp": 37,
+  "hpFormula": "5d10 + 10",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 17,
+    "dex": 15,
+    "con": 14,
+    "int": 3,
+    "wis": 12,
+    "cha": 8
+  },
+  "skills": "Perception +3, Stealth +6",
+  "senses": "Darkvision 60 ft., Passive Perception 13",
+  "languages": "—",
+  "cr": "1",
+  "xp": "200 XP",
+  "traits": [
+    {
+      "name": "Keen Smell",
+      "description": "Advantage on Wisdom (Perception) checks that rely on smell."
+    },
+    {
+      "name": "Pounce",
+      "description": "If the tiger moves at least 20 ft. straight toward a creature and then hits it with a Claws attack on the same turn, the target must succeed on a DC 13 Strength saving throw or have the Prone condition. If the target has the Prone condition, the tiger can make one Bite attack against it as a Bonus Action."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 8 (1d10 + 3) Piercing."
+    },
+    {
+      "name": "Claws",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 7 (1d8 + 3) Slashing."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

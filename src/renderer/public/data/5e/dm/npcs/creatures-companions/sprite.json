@@ -1,0 +1,49 @@
+{
+  "name": "Sprite",
+  "slug": "sprite",
+  "size": "Tiny",
+  "type": "Fey",
+  "alignment": "Neutral Good",
+  "ac": 15,
+  "acNote": "leather armor",
+  "hp": 2,
+  "hpFormula": "1d4",
+  "speed": "10 ft., Fly 40 ft.",
+  "abilityScores": {
+    "str": 3,
+    "dex": 18,
+    "con": 10,
+    "int": 14,
+    "wis": 13,
+    "cha": 11
+  },
+  "skills": "Perception +3, Stealth +8",
+  "senses": "Passive Perception 13",
+  "languages": "Common, Elvish, Sylvan",
+  "cr": "1/4",
+  "xp": "50 XP",
+  "traits": [
+    {
+      "name": "Heart Sight",
+      "description": "The sprite touches a creature and magically knows the creature's current emotional state. If the target fails a DC 10 Charisma saving throw, the sprite also knows the creature's alignment."
+    },
+    {
+      "name": "Invisibility",
+      "description": "The sprite turns Invisible until it attacks, it casts a spell, or its Concentration ends (as if concentrating on a spell). Equipment the sprite wears or carries is also Invisible."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "*Melee:* +2, reach 5 ft. *Hit:* 1 Slashing."
+    },
+    {
+      "name": "Shortbow",
+      "description": "*Ranged:* +6, range 40/160 ft. *Hit:* 1 Piercing plus the target must succeed on a DC 10 Constitution saving throw or have the Poisoned condition for 1 minute. If the target fails the save by 5 or more, the target has the Poisoned and Unconscious conditions for the same duration."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Hand Crossbow",
+  "slug": "hand-crossbow",
+  "category": "Martial",
+  "type": "Ranged",
+  "damage": "1d6",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Light", "Loading"],
+  "mastery": "Vex",
+  "weight": "3 lb.",
+  "cost": "75 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 30,
+    "long": 120
+  },
+  "ammunitionType": "Bolt"
+}

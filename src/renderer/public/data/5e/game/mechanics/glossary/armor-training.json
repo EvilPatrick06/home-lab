@@ -1,0 +1,11 @@
+{
+  "name": "Armor Training",
+  "slug": "armor-training",
+  "description": "If you wear armor without having training with it, you have Disadvantage on any D20 Test that uses Strength or Dexterity, and you can't cast spells.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

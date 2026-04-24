@@ -1,0 +1,287 @@
+{
+  "name": "Arch Hag",
+  "sizes": ["Medium"],
+  "creatureType": "Fey",
+  "descriptiveTags": ["Hag"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Forest", "Planar (Feywild)", "Swamp"],
+  "treasure": ["Arcana"],
+  "lore": "Arch hags are the most ancient and powerful of all hags—solitary fey of immense magical might who have transcended the need for covens. Having consumed the power of countless lesser hags and stolen the life force of innumerable victims, an arch hag can reshape reality with dark magic. Masters of illusion, deception, and ruinous bargains, arch hags lurk in the deep wilds and in pockets of the Feywild, weaving schemes that span centuries. Mortals who seek an arch hag's aid inevitably pay a terrible price.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 195,
+    "dice": {
+      "count": 26,
+      "die": "d8",
+      "modifier": 78
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 8,
+    "score": 18
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 8
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 9
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 8
+    },
+    "CHA": {
+      "score": 22,
+      "modifier": 6,
+      "save": 11
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 9
+    },
+    {
+      "skill": "Deception",
+      "bonus": 11
+    },
+    {
+      "skill": "Insight",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 8
+    }
+  ],
+  "resistances": ["Psychic"],
+  "conditionImmunities": ["Charmed", "Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic", "Elvish", "Sylvan"],
+    "telepathy": 120
+  },
+  "challengeRating": "14",
+  "experiencePoints": 11500,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the arch hag fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The arch hag has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 19,
+      "spellAttackBonus": 11,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Disguise Self",
+              "level": 1
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Counterspell",
+              "level": 3
+            },
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Phantasmal Killer",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Eyebite",
+              "level": 6
+            },
+            {
+              "name": "Maze",
+              "level": 8
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The arch hag makes three Eldritch Bolt attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Eldritch Bolt",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Eldritch Bolt",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Eldritch Bolt",
+      "description": "Melee or Ranged Attack Roll: +11, reach 5 ft. or range 120 ft. Hit: 15 (2d8 + 6) Force damage plus 9 (2d8) Psychic damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 11,
+        "reach": 5,
+        "range": {
+          "normal": 120,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 6
+              },
+              "type": "Force"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The arch hag casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 19, +11 to hit with spell attacks)."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The arch hag polymorphs into a Small or Medium Humanoid or back into its true form. Its statistics, other than its size, are the same in each form. Any equipment it is wearing or carrying isn't transformed. It reverts to its true form if it dies."
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Teleport",
+        "description": "The arch hag magically teleports, along with anything it is wearing or carrying, up to 30 feet to an unoccupied space it can see.",
+        "cost": 1,
+        "teleport": {
+          "distance": 30
+        }
+      },
+      {
+        "name": "Cackle",
+        "description": "The arch hag targets one creature it can see within 60 feet. The target must succeed on a DC 19 Wisdom saving throw or have the Frightened condition until the end of the target's next turn.",
+        "cost": 1,
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 19,
+          "targets": "one creature the arch hag can see within 60 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Frightened",
+                "duration": "until the end of the target's next turn"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Eldritch Bolt",
+        "description": "The arch hag makes one Eldritch Bolt attack.",
+        "cost": 2
+      }
+    ]
+  }
+}

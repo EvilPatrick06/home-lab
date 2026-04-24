@@ -1,0 +1,34 @@
+[
+  {
+    "key": "pp",
+    "label": "PP",
+    "fullName": "Platinum",
+    "ring": "border-gray-400",
+    "bg": "bg-gray-500",
+    "text": "text-gray-100"
+  },
+  {
+    "key": "gp",
+    "label": "GP",
+    "fullName": "Gold",
+    "ring": "border-yellow-500",
+    "bg": "bg-yellow-600",
+    "text": "text-yellow-100"
+  },
+  {
+    "key": "sp",
+    "label": "SP",
+    "fullName": "Silver",
+    "ring": "border-gray-300",
+    "bg": "bg-gray-300",
+    "text": "text-gray-800"
+  },
+  {
+    "key": "cp",
+    "label": "CP",
+    "fullName": "Copper",
+    "ring": "border-amber-700",
+    "bg": "bg-amber-700",
+    "text": "text-amber-100"
+  }
+]

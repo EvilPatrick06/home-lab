@@ -1,0 +1,369 @@
+{
+  "id": "b5e4c8a1-3f72-4d9e-a1b3-7c8d2e5f4a60",
+  "name": "Death Saving Throw",
+  "slug": "death-saving-throw",
+  "category": "DeathAndDying",
+  "subcategory": "Dying",
+  "tags": ["death", "saving-throw", "zero-hit-points", "dying", "stabilization", "unconscious", "d20"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Rules Glossary",
+    "section": "Death Saving Throw"
+  },
+  "gameEdition": "2024",
+  "description": "When a creature starts its turn with 0 Hit Points, it must make a Death Saving Throw—a special saving throw not tied to any ability score, with a DC of 10. Three accumulated successes result in stabilization; three accumulated failures result in death. A natural 1 counts as two failures, and a natural 20 causes the creature to regain 1 Hit Point. Taking damage at 0 Hit Points causes automatic failures, and damage equaling or exceeding the creature's Hit Point maximum causes instant death.",
+  "shortDescription": "A DC 10 special save made at the start of each turn while at 0 HP. Three successes stabilize; three failures kill.",
+  "rulesAsWritten": "When you start your turn with 0 Hit Points, you must make a special saving throw, called a Death Saving Throw, to determine whether you creep closer to death or cling to life. Unlike other saving throws, this one isn't tied to an ability score. Roll a d20. If the roll is 10 or higher, you succeed. Otherwise, you fail. On your third success, you become Stable. On your third failure, you die. The successes and failures don't need to be consecutive; keep track of both until you collect three of a kind. The number of both is reset to zero when you regain any Hit Points or become Stable. When you make a Death Saving Throw and roll a 1 on the d20, it counts as two failures. If you roll a 20 on the d20, you regain 1 Hit Point. If you take any damage while you have 0 Hit Points, you suffer a Death Saving Throw failure. If the damage is from a Critical Hit, you suffer two failures instead. If the damage equals or exceeds your Hit Point maximum, you die.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "restrictedAction": "Action",
+      "restrictionType": "Prohibited",
+      "condition": "Creature is Unconscious at 0 Hit Points",
+      "note": "While dying, the creature is Unconscious and cannot take Actions, Bonus Actions, Reactions, or move."
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5e",
+      "restrictedAction": "BonusAction",
+      "restrictionType": "Prohibited",
+      "condition": "Creature is Unconscious at 0 Hit Points"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5f",
+      "restrictedAction": "Reaction",
+      "restrictionType": "Prohibited",
+      "condition": "Creature is Unconscious at 0 Hit Points"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c60",
+      "restrictedAction": "Movement",
+      "restrictionType": "Prohibited",
+      "condition": "Creature is Unconscious at 0 Hit Points"
+    }
+  ],
+  "conditionsImposed": [
+    {
+      "id": "c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e5f",
+      "conditionName": "Unconscious",
+      "isAutomatic": true,
+      "note": "A creature at 0 Hit Points is Unconscious. This condition persists while making Death Saving Throws."
+    },
+    {
+      "id": "c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e60",
+      "conditionName": "Prone",
+      "isAutomatic": true,
+      "note": "An Unconscious creature falls Prone."
+    }
+  ],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Unconscious",
+      "relationship": "ImpliedBy",
+      "isAutomatic": true,
+      "note": "Being at 0 Hit Points causes the Unconscious condition, which triggers the requirement for Death Saving Throws."
+    },
+    {
+      "conditionName": "Prone",
+      "relationship": "OftenCombined",
+      "isAutomatic": true,
+      "note": "An Unconscious creature falls Prone."
+    },
+    {
+      "conditionName": "Incapacitated",
+      "relationship": "ImpliedBy",
+      "isAutomatic": true,
+      "note": "The Unconscious condition includes the effects of the Incapacitated condition."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f50",
+      "order": 0,
+      "name": "Death Saving Throw Required",
+      "description": "At the start of each turn while the creature has 0 Hit Points, it must make a Death Saving Throw: roll a d20 against DC 10. No ability score modifier is added. A result of 10 or higher is a success; below 10 is a failure.",
+      "trigger": {
+        "event": "StartOfTurn",
+        "condition": "Creature has 0 Hit Points and is not Stable"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Roll a d20 against DC 10. No ability modifier is applied. A roll of 10 or higher is a success; a roll of 9 or lower is a failure. Track successes and failures separately up to a maximum of three each.",
+          "mechanicalNote": "This is a special saving throw not associated with any ability score. However, features that grant bonuses to all saving throws (e.g., Paladin's Aura of Protection, Bless spell) still apply."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f51",
+      "order": 1,
+      "name": "Three Successes — Stabilization",
+      "description": "When a creature accumulates three Death Saving Throw successes, it becomes Stable. A Stable creature is Unconscious but no longer dying and no longer makes Death Saving Throws. All tallies are reset to zero.",
+      "trigger": {
+        "event": "OnSavingThrowMade",
+        "condition": "Third Death Saving Throw success is accumulated"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature becomes Stable. It remains Unconscious but no longer makes Death Saving Throws. All accumulated successes and failures are reset to zero.",
+          "mechanicalNote": "A Stable creature that is not healed regains 1 Hit Point after 1d4 hours."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f52",
+      "order": 2,
+      "name": "Three Failures — Death",
+      "description": "When a creature accumulates three Death Saving Throw failures, it dies immediately.",
+      "trigger": {
+        "event": "OnSavingThrowMade",
+        "condition": "Third Death Saving Throw failure is accumulated"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature dies immediately.",
+          "mechanicalNote": "Death is permanent unless reversed by magic such as Revivify, Raise Dead, Resurrection, True Resurrection, or Wish."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f53",
+      "order": 3,
+      "name": "Natural 1 — Double Failure",
+      "description": "When a creature rolls a natural 1 on a Death Saving Throw, it counts as two failures instead of one.",
+      "trigger": {
+        "event": "OnSavingThrowMade",
+        "condition": "Natural 1 rolled on the d20 for a Death Saving Throw"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The natural 1 counts as two Death Saving Throw failures instead of one.",
+          "mechanicalNote": "This can cause immediate death if the creature already has one or more failures accumulated."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f54",
+      "order": 4,
+      "name": "Natural 20 — Regain 1 Hit Point",
+      "description": "When a creature rolls a natural 20 on a Death Saving Throw, it regains 1 Hit Point, ending the dying state. All accumulated successes and failures are reset to zero.",
+      "trigger": {
+        "event": "OnSavingThrowMade",
+        "condition": "Natural 20 rolled on the d20 for a Death Saving Throw"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a55",
+            "target": "HP",
+            "operation": "Add",
+            "value": 1,
+            "note": "Creature regains 1 Hit Point on a natural 20 Death Saving Throw."
+          }
+        },
+        {
+          "effectType": "CustomEffect",
+          "description": "All accumulated Death Saving Throw successes and failures are reset to zero. The creature is no longer Unconscious and regains consciousness.",
+          "mechanicalNote": "The creature can act normally on subsequent turns after regaining consciousness."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f55",
+      "order": 5,
+      "name": "Damage at 0 Hit Points — Automatic Failure",
+      "description": "If a creature takes any damage while at 0 Hit Points, it automatically suffers one Death Saving Throw failure without rolling.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature has 0 Hit Points and takes damage from any source"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature suffers one Death Saving Throw failure automatically, without rolling.",
+          "mechanicalNote": "This failure counts toward the three-failure death threshold."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f56",
+      "order": 6,
+      "name": "Critical Hit Damage at 0 Hit Points — Double Failure",
+      "description": "If a creature takes damage from a Critical Hit while at 0 Hit Points, it suffers two Death Saving Throw failures instead of one.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature has 0 Hit Points and takes damage from a Critical Hit"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature suffers two Death Saving Throw failures instead of one.",
+          "mechanicalNote": "Melee attack rolls against an Unconscious creature within 5 feet have Advantage and automatically score a Critical Hit on a hit, making this scenario common in close combat."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f57",
+      "order": 7,
+      "name": "Massive Damage at 0 Hit Points — Instant Death",
+      "description": "If a creature at 0 Hit Points takes damage equal to or exceeding its Hit Point maximum, it dies instantly.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Creature has 0 Hit Points and total damage received equals or exceeds its Hit Point maximum"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature dies instantly. No additional Death Saving Throw failures are recorded; death is immediate and bypasses the normal three-failure threshold.",
+          "mechanicalNote": "Compare the damage taken to the creature's Hit Point maximum, not its current Hit Points (which are 0)."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f58",
+      "order": 8,
+      "name": "Healing Resets Death Save Tallies",
+      "description": "When a creature at 0 Hit Points regains any Hit Points, all accumulated Death Saving Throw successes and failures are reset to zero, and the creature regains consciousness.",
+      "trigger": {
+        "event": "OnHealingReceived",
+        "condition": "Creature has 0 Hit Points and receives healing that restores at least 1 Hit Point"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "All accumulated Death Saving Throw successes and failures are reset to zero. The creature regains consciousness and is no longer dying or Unconscious.",
+          "mechanicalNote": "Even 1 Hit Point of healing is sufficient to end the dying state entirely."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b50",
+      "method": "HealingMagic",
+      "description": "Regaining any Hit Points ends the dying state, resets all Death Saving Throw tallies to zero, and restores consciousness.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b51",
+      "method": "Other",
+      "description": "Accumulating three Death Saving Throw successes causes the creature to become Stable, ending the requirement for further Death Saving Throws. The creature remains Unconscious but is no longer dying.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b52",
+      "method": "Death",
+      "description": "Accumulating three Death Saving Throw failures, or taking damage equal to or exceeding Hit Point maximum while at 0 Hit Points, results in death.",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b53",
+      "method": "SpecialAction",
+      "description": "Another creature can use an Action to administer first aid by making a DC 10 Wisdom (Medicine) check. On a success, the dying creature becomes Stable.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "stackingNote": "A creature can only be in one dying state at a time. Death Saving Throw tallies are a single set of counters tracking up to 3 successes and 3 failures."
+  },
+  "dmNotes": "Death Saving Throws may be rolled publicly or secretly at the DM's discretion; secret rolls heighten tension. Monsters and NPCs typically die instantly at 0 Hit Points rather than making Death Saving Throws, but the DM may choose to have important villains or allies use these rules. Remember that attack rolls against an Unconscious creature have Advantage, and any hit from a melee attack made within 5 feet is automatically a Critical Hit, inflicting two Death Saving Throw failures. Spells and effects that grant bonuses to all saving throws (such as Bless or a Paladin's Aura of Protection) apply to Death Saving Throws as well.",
+  "commonRulings": [
+    {
+      "question": "Do ability score modifiers apply to Death Saving Throws?",
+      "ruling": "No. Death Saving Throws are special saves not tied to any ability score, so no ability modifier is added. However, features and spells that grant bonuses to all saving throws (e.g., Paladin's Aura of Protection, Bless, Ring of Protection) do apply to Death Saving Throws.",
+      "isOfficial": true
+    },
+    {
+      "question": "Do monsters and NPCs make Death Saving Throws?",
+      "ruling": "Monsters typically die the instant they drop to 0 Hit Points. The DM can choose to have important NPCs or villains make Death Saving Throws using the same rules as player characters.",
+      "isOfficial": true
+    },
+    {
+      "question": "What happens if a Stable creature takes damage?",
+      "ruling": "A Stable creature that takes damage while at 0 Hit Points is no longer Stable and must resume making Death Saving Throws at the start of its turns. Its previous tallies were reset upon stabilization, so it starts fresh.",
+      "isOfficial": true
+    },
+    {
+      "question": "How long does a Stable creature remain Unconscious without healing?",
+      "ruling": "A Stable creature that receives no healing regains 1 Hit Point after 1d4 hours, at which point it regains consciousness.",
+      "isOfficial": true
+    },
+    {
+      "question": "If a creature has Advantage on saving throws, does it apply to Death Saving Throws?",
+      "ruling": "Yes. If a feature grants Advantage on all saving throws (or on saving throws in general), it applies to Death Saving Throws as well, since they are still saving throws despite not being tied to an ability score.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-12-20T12:00:00Z",
+  "updatedAt": "2024-12-20T12:00:00Z",
+  "version": "1.0.0"
+}

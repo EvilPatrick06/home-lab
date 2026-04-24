@@ -1,0 +1,13 @@
+{
+  "name": "Mantle of Spell Resistance",
+  "slug": "mantle-of-spell-resistance",
+  "type": "Wondrous Item",
+  "rarity": "Rare",
+  "attunement": true,
+  "description": "You have Advantage on saving throws against spells while you wear this cloak.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,61 @@
+# BMO — Python dependencies for Raspberry Pi 5
+# Install: pip install -r requirements.txt
+
+# Core AI
+ollama
+
+# Wake word detection
+openwakeword
+
+# Speaker verification
+resemblyzer
+
+# TTS — local fallback only (cloud primary is Fish Audio)
+piper-tts
+
+# Vision — local fallback only (cloud primary is Google Vision)
+opencv-python-headless
+
+# Audio
+pyaudio
+sounddevice
+numpy
+
+# Web framework
+flask
+flask-socketio
+gevent
+gevent-websocket
+
+# Google APIs (Calendar)
+google-api-python-client
+google-auth-oauthlib
+
+# Smart home / Chromecast
+pychromecast
+
+# TV Remote
+androidtvremote2
+
+# Music
+ytmusicapi
+yt-dlp
+python-vlc
+
+# CLI
+rich
+
+# MCP (Model Context Protocol)
+mcp
+httpx
+sseclient-py
+
+# Cloud API helpers
+requests
+
+# Hardware — Pi-specific
+RPi.GPIO
+smbus2
+luma.oled
+spidev
+Pillow

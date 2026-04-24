@@ -1,0 +1,30 @@
+{
+  "id": "sune",
+  "name": "Sune",
+  "title": "Goddess of Love and Beauty",
+  "alignment": "Chaotic Good",
+  "domains": ["Life", "Light"],
+  "symbol": "Face of a beautiful red-haired woman",
+  "description": "Sune Firehair is the goddess of beauty, love, and passion. She embodies the transformative power of love and believes that true beauty comes from within. Her followers seek to spread love, create beautiful art, and protect beauty in all its forms. Sune's temples are places of art, music, and romance, and her clergy are known for their attractiveness and charm.",
+  "piety": {
+    "thresholds": [
+      {
+        "score": 3,
+        "benefit": "You can cast Charm Person once without expending a spell slot. You regain this ability after a long rest."
+      },
+      { "score": 10, "benefit": "You have advantage on Charisma (Persuasion) checks." },
+      {
+        "score": 25,
+        "benefit": "You can cast Calm Emotions once without expending a spell slot. You regain this ability after a long rest."
+      },
+      {
+        "score": 50,
+        "benefit": "You gain resistance to psychic damage. Creatures charmed by you regard you as a trusted friend."
+      }
+    ]
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Deities of the Multiverse"
+  }
+}

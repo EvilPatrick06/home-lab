@@ -1,0 +1,192 @@
+{
+  "name": "Githzerai Monk",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Gith"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Planar (Limbo)"],
+  "treasure": ["Individual"],
+  "lore": "Githzerai monks live in fortified monasteries on the plane of Limbo, using their psionic focus and iron discipline to impose order on the swirling chaos around them. They hone body and mind into living weapons, channeling psychic energy through their unarmed strikes. Githzerai monasteries are led by powerful zerths and guided by the teachings of the legendary Zerthimon, whose philosophy of self-reliance and resistance to tyranny permeates every aspect of githzerai culture.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Psychic Defense"]
+  },
+  "hitPoints": {
+    "average": 49,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 9
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 6,
+    "score": 16
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Insight",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    }
+  ],
+  "senses": {
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Common", "Gith"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Mental Discipline",
+      "description": "The monk has Advantage on saving throws to avoid or end the Charmed or Frightened condition on itself."
+    },
+    {
+      "name": "Psychic Defense",
+      "description": "While the monk isn't wearing armor and isn't using a Shield, the monk's AC includes its Wisdom modifier."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Githzerai Psionics",
+      "ability": "WIS",
+      "spellSaveDC": 14,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true,
+        "ignoresMaterialWithCost": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": false,
+          "spells": [
+            {
+              "name": "Feather Fall",
+              "level": 1
+            },
+            {
+              "name": "Jump",
+              "level": 1
+            },
+            {
+              "name": "See Invisibility",
+              "level": 2
+            },
+            {
+              "name": "Shield",
+              "level": 1
+            }
+          ]
+        }
+      ],
+      "notes": "This spellcasting is a Bonus Action. The monk requires no spell components and uses Wisdom as the spellcasting ability."
+    }
+  ],
+  "multiattack": {
+    "description": "The monk makes three Unarmed Strike attacks.",
+    "attacks": [
+      {
+        "actionName": "Unarmed Strike",
+        "count": 3
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Unarmed Strike",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 8 (1d10 + 3) Bludgeoning damage plus 10 (3d6) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Githzerai Psionics",
+      "description": "The monk casts one of the following spells, requiring no spell components and using Wisdom as the spellcasting ability (spell save DC 14): Feather Fall, Jump, See Invisibility, or Shield.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Slow Fall",
+      "description": "The monk reduces the fall's damage by 20.",
+      "trigger": "The monk falls."
+    }
+  ]
+}

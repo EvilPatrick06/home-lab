@@ -1,0 +1,22 @@
+{
+  "name": "Candle",
+  "cost": {
+    "amount": 1,
+    "denomination": "CP"
+  },
+  "weight": null,
+  "description": "For 1 hour, a lit Candle sheds Bright Light in a 5-foot radius and Dim Light for an additional 5 feet.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": {
+    "brightRadiusFt": 5,
+    "dimAdditionalFt": 5,
+    "durationHours": 1,
+    "shape": "Radius"
+  },
+  "capacityDescription": null
+}

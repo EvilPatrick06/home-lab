@@ -1,0 +1,13 @@
+{
+  "name": "Chrysoberyl",
+  "slug": "chrysoberyl",
+  "value": "100 GP",
+  "category": "Gemstone",
+  "description": "yellow-green to pale green",
+  "dieValue": "3",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Sentinel Shield",
+  "slug": "sentinel-shield",
+  "type": "Armor (Shield)",
+  "rarity": "Uncommon",
+  "attunement": false,
+  "description": "While holding this Shield, you have Advantage on Initiative rolls and Wisdom (Perception) checks. The Shield is emblazoned with a symbol of an eye.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

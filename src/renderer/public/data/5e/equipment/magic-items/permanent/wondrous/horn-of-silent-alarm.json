@@ -1,0 +1,13 @@
+{
+  "name": "Horn of Silent Alarm",
+  "itemType": "Wondrous Item",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "This horn warns you, granting a +2 bonus to your Initiative rolls if you don't have the Incapacitated condition.",
+  "weight": 2,
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

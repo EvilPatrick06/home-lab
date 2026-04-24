@@ -1,0 +1,56 @@
+{
+  "id": "lifestyle-expenses",
+  "name": "Lifestyle Expenses",
+  "description": "Lifestyle expenses provide a simple way to account for the cost of living in a fantasy world. They cover accommodations, food and drink, and all other basic necessities. The cost covers a period of one day.",
+  "lifestyles": [
+    {
+      "id": "wretched",
+      "name": "Wretched",
+      "costPerDay": "0 GP",
+      "costPerDayGP": 0,
+      "description": "You live in inhumane conditions. With no place to call home, you shelter wherever you can, sneaking into barns, huddling in old crates, and relying on the good graces of people better off than you. You are frequently exposed to disease, violence, and despair."
+    },
+    {
+      "id": "squalid",
+      "name": "Squalid",
+      "costPerDay": "1 SP",
+      "costPerDayGP": 0.1,
+      "description": "You live in a leaky stable, a mud-floored hut just outside town, or a vermin-infested boarding house in the worst part of town. You have shelter from the elements, but in a desperate and often violent environment."
+    },
+    {
+      "id": "poor",
+      "name": "Poor",
+      "costPerDay": "2 SP",
+      "costPerDayGP": 0.2,
+      "description": "A poor lifestyle means going without the comforts available in a stable community. Simple food and lodgings, threadbare clothing, and unpredictable conditions. Your accommodations might be a room in a flophouse or in the common room above a tavern."
+    },
+    {
+      "id": "modest",
+      "name": "Modest",
+      "costPerDay": "1 GP",
+      "costPerDayGP": 1,
+      "description": "A modest lifestyle keeps you out of the slums and ensures you can maintain your equipment. You live in an older part of town, renting a room in a boarding house, inn, or temple. You eat adequate food and can afford plain clothing."
+    },
+    {
+      "id": "comfortable",
+      "name": "Comfortable",
+      "costPerDay": "2 GP",
+      "costPerDayGP": 2,
+      "description": "Choosing a comfortable lifestyle means that you can afford nicer clothing and can easily maintain your equipment. You live in a small cottage in a middle-class neighborhood or in a private room at a fine inn. You associate with merchants, skilled tradespeople, and military officers."
+    },
+    {
+      "id": "wealthy",
+      "name": "Wealthy",
+      "costPerDay": "4 GP",
+      "costPerDayGP": 4,
+      "description": "Choosing a wealthy lifestyle means living a life of luxury, though you might not have achieved the social status associated with old money or royalty. You live a lifestyle comparable to that of a highly successful merchant, a favored servant of the royalty, or the owner of a few small businesses."
+    },
+    {
+      "id": "aristocratic",
+      "name": "Aristocratic",
+      "costPerDay": "10 GP minimum",
+      "costPerDayGP": 10,
+      "description": "You live a life of plenty and comfort. You move in circles populated by the most powerful people in the community. You have excellent lodgings, perhaps a townhouse in the nicest part of town or a suite in the finest inn. You dine at the best restaurants, and you have access to whatever services you need."
+    }
+  ]
+}

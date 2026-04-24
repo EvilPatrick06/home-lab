@@ -1,0 +1,20 @@
+{
+  "name": "Cubic Gate",
+  "cost": {
+    "amount": 40000,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "This cube is 3 inches across and radiates palpable magical energy. Each of the six sides of the cube is keyed to a different plane of existence, one of which is the Material Plane. The other sides are keyed to planes determined by the DM. You can use an action to press one side of the cube to cast the Gate spell with it, opening a portal to the plane keyed to that side. Alternatively, if you use an action to press one side twice, you can cast the Plane Shift spell (save DC 17) with the cube and transport the targets to the plane keyed to that side. The cube has 3 charges. Each use of the cube expends 1 charge. The cube regains 1d3 expended charges daily at dawn.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": {
+    "ability": "Charisma",
+    "dcFormula": "17"
+  },
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

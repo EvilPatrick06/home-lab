@@ -1,0 +1,13 @@
+{
+  "name": "Ring of Free Action",
+  "slug": "ring-of-free-action",
+  "type": "Ring",
+  "rarity": "Rare",
+  "attunement": true,
+  "description": "While you wear this ring, Difficult Terrain doesn't cost you extra movement. In addition, magic can neither reduce any of your Speeds nor cause you to have the Paralyzed or Restrained condition.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

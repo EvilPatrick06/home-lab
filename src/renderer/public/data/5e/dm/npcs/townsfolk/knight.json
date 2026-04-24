@@ -1,0 +1,48 @@
+{
+  "id": "knight",
+  "name": "Knight",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Alignment",
+  "ac": 18,
+  "acSource": "plate armor",
+  "hp": 52,
+  "hpFormula": "8d8 + 16",
+  "speed": "30 ft.",
+  "stats": { "str": 16, "dex": 11, "con": 14, "int": 11, "wis": 11, "cha": 15 },
+  "savingThrows": "Con +4, Wis +2",
+  "senses": "Passive Perception 10",
+  "languages": "Any one language (usually Common)",
+  "cr": "3",
+  "xp": "700 XP",
+  "traits": [
+    {
+      "name": "Brave",
+      "description": "The knight has advantage on saving throws against being frightened."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The knight makes two melee attacks."
+    },
+    {
+      "name": "Greatsword",
+      "description": "*Melee Weapon Attack:* +5 to hit, reach 5 ft., one target. *Hit:* 10 (2d6 + 3) slashing damage."
+    },
+    {
+      "name": "Heavy Crossbow",
+      "description": "*Ranged Weapon Attack:* +2 to hit, range 100/400 ft., one target. *Hit:* 5 (1d10) piercing damage."
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Parry",
+      "description": "The knight adds 2 to its AC against one melee attack that would hit it. To do so, the knight must see the attacker and be wielding a melee weapon."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

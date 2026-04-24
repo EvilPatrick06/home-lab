@@ -1,0 +1,51 @@
+node_modules
+out
+dist
+*.log
+.DS_Store
+Thumbs.db
+nul
+.env
+.env.*
+.env.local
+.vscode/
+.claude/
+.idea/
+*.swp
+*.swo
+*~
+*.asar
+*.blockmap
+*.tsbuildinfo
+dev-app-update.yml
+resources/chunk-index.json
+
+# Reference PDFs (too large for GitHub)
+5.5e References/
+
+# Temporary/working files
+_pdf_text_lines.txt
+_pdf_text_output.txt
+_rules_glossary.txt
+_spell_descriptions.txt
+_spells_full.txt
+_spells_list.txt
+tsc-*.txt
+
+# BMO secrets
+BMO-setup/pi-iam-credentials.txt
+BMO-setup/.env
+BMO-setup/pi/*.pem
+BMO-setup/config/.env
+BMO-setup/pi/config/credentials.json
+
+# BMO runtime
+BMO-setup/pi/__pycache__/
+BMO-setup/pi/agents/__pycache__/
+BMO-setup/pi/venv/
+BMO-setup/pi/data/
+BMO-setup/pi/logs/
+BMO-setup/pi/.bmo/
+BMO-setup/pi/.audiocache/
+BMO-setup/pi/wake_clips/
+BMO-setup/pi/*.ppn

@@ -1,0 +1,13 @@
+{
+  "name": "Magnifying Glass",
+  "cost": "100 GP",
+  "weight": "—",
+  "description": "Advantage on checks to appraise or inspect detailed items. Can light fire with sunlight in 5 minutes.",
+  "slug": "magnifying-glass",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

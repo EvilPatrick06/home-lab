@@ -1,0 +1,17 @@
+{
+  "name": "Pot, Iron",
+  "cost": {
+    "amount": 2,
+    "denomination": "GP"
+  },
+  "weight": 10,
+  "description": "An Iron Pot holds up to 1 gallon.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": "Holds up to 1 gallon"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Maul",
+  "slug": "maul",
+  "category": "Martial",
+  "type": "Melee",
+  "damage": "2d6",
+  "damageType": "Bludgeoning",
+  "properties": ["Heavy", "Two-Handed"],
+  "mastery": "Topple",
+  "weight": "10 lb.",
+  "cost": "10 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

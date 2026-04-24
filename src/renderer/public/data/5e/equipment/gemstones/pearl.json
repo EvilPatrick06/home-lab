@@ -1,0 +1,13 @@
+{
+  "name": "Pearl",
+  "slug": "pearl",
+  "value": "100 GP",
+  "category": "Gemstone",
+  "description": "lustrous white, yellow, or pink",
+  "dieValue": "8",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "Dwarf",
+  "creatureType": "Humanoid",
+  "size": {
+    "type": "fixed",
+    "value": "Medium"
+  },
+  "speed": 30,
+  "darkvision": 120,
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "You have Darkvision with a range of 120 feet."
+    },
+    {
+      "name": "Dwarven Resilience",
+      "description": "You have Resistance to Poison damage. You also have Advantage on saving throws you make to avoid or end the Poisoned condition."
+    },
+    {
+      "name": "Dwarven Toughness",
+      "description": "Your Hit Point maximum increases by 1, and it increases by 1 again whenever you gain a level."
+    },
+    {
+      "name": "Stonecunning",
+      "description": "As a Bonus Action, you gain Tremorsense with a range of 60 feet for 10 minutes. You must be on a stone surface or touching a stone surface to use this Tremorsense. The stone can be natural or worked.",
+      "usageLimit": {
+        "type": "perProficiencyBonus",
+        "rechargesOn": "Long Rest"
+      }
+    }
+  ],
+  "description": "Dwarves were raised from the earth in the elder days by a deity of the forge. Called by various names on different worlds — Moradin, Reorx, and others — that god gave dwarves an affinity for stone and metal and for living underground. The god also made them resilient like the mountains, with a life span of about 350 years.\n\nSquat and often bearded, the original dwarves carved cities and strongholds into mountainsides and under the earth. Their oldest legends tell of conflicts with the monsters of mountaintops and the Underdark, whether those monsters were towering giants or subterranean horrors. Inspired by those tales, dwarves of any culture often sing of valorous deeds — especially of the little overcoming the mighty.",
+  "lifespan": 350,
+  "source": "PHB 2024"
+}

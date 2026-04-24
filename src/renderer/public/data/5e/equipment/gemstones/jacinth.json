@@ -1,0 +1,13 @@
+{
+  "name": "Jacinth",
+  "slug": "jacinth",
+  "value": "5,000 GP",
+  "category": "Gemstone",
+  "description": "fiery orange",
+  "dieValue": "3",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

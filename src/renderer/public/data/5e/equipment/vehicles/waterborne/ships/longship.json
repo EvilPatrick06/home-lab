@@ -1,0 +1,20 @@
+{
+  "name": "Longship",
+  "slug": "longship",
+  "category": "Waterborne Vehicle",
+  "type": "Ship",
+  "cost": "10000 GP",
+  "speed": "3 mph",
+  "crew": 40,
+  "passengers": 150,
+  "cargoTons": 10,
+  "ac": 15,
+  "hp": 300,
+  "damageThreshold": 15,
+  "description": "A long, narrow warship propelled by both sail and oars. Longships have a shallow draft, allowing them to navigate rivers and land directly on beaches.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Waterborne Vehicles"
+  }
+}

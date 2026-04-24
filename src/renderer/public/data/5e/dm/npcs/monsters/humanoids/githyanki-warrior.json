@@ -1,0 +1,182 @@
+{
+  "name": "Githyanki Warrior",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Gith"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Astral Plane"],
+  "treasure": ["Armaments"],
+  "armorClass": {
+    "value": 17,
+    "sources": ["Half Plate Armor"]
+  },
+  "hitPoints": {
+    "average": 49,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 9
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 3
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 3
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    }
+  ],
+  "resistances": ["Psychic"],
+  "gear": [
+    {
+      "name": "Half Plate Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Longsword",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Common", "Gith"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Psychic Resilience",
+      "description": "The githyanki has Resistance to Psychic damage."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting (Psionics)",
+      "ability": "INT",
+      "spellSaveDC": 11,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Mage Hand",
+              "level": 0,
+              "notes": "The hand is Invisible"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Jump",
+              "level": 1
+            },
+            {
+              "name": "Misty Step",
+              "level": 2
+            },
+            {
+              "name": "Nondetection",
+              "level": 3,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The githyanki makes two Longsword attacks.",
+    "attacks": [
+      {
+        "actionName": "Longsword",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 7 (1d10 + 2) Slashing damage plus 9 (2d8) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

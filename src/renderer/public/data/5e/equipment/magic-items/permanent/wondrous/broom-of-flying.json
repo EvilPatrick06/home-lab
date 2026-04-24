@@ -1,0 +1,15 @@
+{
+  "name": "Broom of Flying",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "This wooden broom is the perfect transportation for a witch or other small creature. You can use an Bonus Action to speak the command word and throw the broom on the ground, whereupon it immediately transforms into a Medium magical mount. It has a flying speed of 50 feet and can carry up to 300 pounds. It disappears in a puff of smoke when you dismount or speak the command word again.",
+  "properties": null,
+  "weight": 3,
+  "cost": {
+    "amount": 20000,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

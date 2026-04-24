@@ -1,0 +1,117 @@
+{
+  "name": "Lemure",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Nine Hells"],
+  "treasure": ["None"],
+  "lore": "Lemures are the lowest form of devil—wretched souls condemned to the Nine Hells and transformed into mindless, misshapen lumps of flesh. They shamble forward in mobs, attacking whatever more powerful devils direct them toward. If destroyed in the Nine Hells, a lemure reforms unless killed by holy means, ensuring an eternity of torment and servitude.",
+  "armorClass": {
+    "value": 7
+  },
+  "hitPoints": {
+    "average": 13,
+    "dice": {
+      "count": 3,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 15
+    }
+  ],
+  "initiative": {
+    "modifier": -3,
+    "score": 7
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    }
+  },
+  "resistances": ["Cold"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Infernal"],
+    "notes": "understands Infernal but can't speak"
+  },
+  "challengeRating": "0",
+  "experiencePoints": 10,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the lemure's Darkvision."
+    },
+    {
+      "name": "Hellish Rejuvenation",
+      "description": "If the lemure dies in the Nine Hells, it revives with all its Hit Points in 1d10 days unless it is killed by a Good-aligned creature or its remains are sprinkled with Holy Water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Fist",
+      "description": "Melee Attack Roll: +2, reach 5 ft. Hit: 2 (1d4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 2,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

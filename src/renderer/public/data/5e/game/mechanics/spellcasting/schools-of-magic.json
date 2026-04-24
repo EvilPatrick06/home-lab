@@ -1,0 +1,47 @@
+{
+  "schoolsOfMagic": [
+    {
+      "school": "Abjuration",
+      "typicalEffects": "Prevents or reverses harmful effects"
+    },
+    {
+      "school": "Conjuration",
+      "typicalEffects": "Transports creatures or objects"
+    },
+    {
+      "school": "Divination",
+      "typicalEffects": "Reveals information"
+    },
+    {
+      "school": "Enchantment",
+      "typicalEffects": "Influences minds"
+    },
+    {
+      "school": "Evocation",
+      "typicalEffects": "Channels energy to create effects that are often destructive"
+    },
+    {
+      "school": "Illusion",
+      "typicalEffects": "Deceives the mind or senses"
+    },
+    {
+      "school": "Necromancy",
+      "typicalEffects": "Manipulates life and death"
+    },
+    {
+      "school": "Transmutation",
+      "typicalEffects": "Transforms creatures or objects"
+    }
+  ],
+  "rulesNote": "These categories help describe spells but have no rules of their own, although some other rules refer to them.",
+  "validSchoolValues": [
+    "Abjuration",
+    "Conjuration",
+    "Divination",
+    "Enchantment",
+    "Evocation",
+    "Illusion",
+    "Necromancy",
+    "Transmutation"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "Giant Spider",
+  "slug": "giant-spider",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 14,
+  "hp": 26,
+  "hpFormula": "4d10 + 4",
+  "speed": "30 ft., Climb 30 ft.",
+  "abilityScores": {
+    "str": 14,
+    "dex": 16,
+    "con": 12,
+    "int": 2,
+    "wis": 11,
+    "cha": 4
+  },
+  "skills": "Stealth +7",
+  "senses": "Blindsight 10 ft., Darkvision 60 ft., Passive Perception 10",
+  "languages": "—",
+  "cr": "1",
+  "xp": "200 XP",
+  "traits": [
+    {
+      "name": "Spider Climb",
+      "description": "Can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    },
+    {
+      "name": "Web Sense",
+      "description": "While in contact with a web, the spider knows the exact location of any other creature in contact with the same web."
+    },
+    {
+      "name": "Web Walker",
+      "description": "Ignores movement restrictions caused by webbing."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 7 (1d8 + 3) Piercing plus 9 (2d8) Poison damage. The target must make a DC 11 Constitution saving throw, taking the Poison damage on a failed save, or half as much on a success. If the Poison damage reduces the target to 0 HP, the target is Stable but has the Poisoned and Unconscious conditions for 1 hour."
+    },
+    {
+      "name": "Web (Recharge 5-6)",
+      "description": "*Ranged:* +5, range 30/60 ft. *Hit:* The target has the Restrained condition. As an action, the Restrained target can make a DC 12 Strength check, ending the condition on a success. The web can also be attacked (AC 10; 5 HP; Vulnerability to Fire damage; Immunity to Bludgeoning, Poison, and Psychic damage)."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

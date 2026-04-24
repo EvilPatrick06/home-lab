@@ -1,0 +1,6 @@
+{
+  "id": "slow",
+  "name": "Slow",
+  "description": "If you hit a creature with a weapon that has the Slow property, that creature's Speed is reduced by 10 feet until the start of your next turn. A creature's Speed can't be reduced below 0 by this property.",
+  "mechanicalEffect": "On hit, reduce target's Speed by 10 feet until the start of your next turn. Minimum speed of 0."
+}

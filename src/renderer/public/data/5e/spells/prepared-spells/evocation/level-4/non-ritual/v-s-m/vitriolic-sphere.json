@@ -1,0 +1,73 @@
+{
+  "name": "Vitriolic Sphere",
+  "level": 4,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 150,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a drop of bile",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You point at a location within range, and a glowing, 1-foot-diameter ball of acid streaks there and explodes in a 20-foot-radius Sphere. Each creature in that area makes a Dexterity saving throw. On a failed save, a creature takes 10d4 Acid damage and another 5d4 Acid damage at the end of its next turn. On a successful save, a creature takes half the initial damage only.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 20
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 10,
+        "diceValue": 4
+      },
+      "type": "Acid",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    },
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 4
+      },
+      "type": "Acid",
+      "halfOnSave": false,
+      "applicationType": "onTurnEnd",
+      "condition": "Failed initial saving throw only; successful save negates this damage entirely"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 2,
+        "diceValue": 4,
+        "baseSpellLevel": 4,
+        "description": "The initial damage increases by 2d4 for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["damage", "acid", "aoe"]
+}

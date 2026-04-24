@@ -1,0 +1,125 @@
+{
+  "name": "Crawling Claw",
+  "sizes": ["Tiny"],
+  "creatureType": "Undead",
+  "alignment": "Neutral Evil",
+  "habitat": ["Ruins", "Urban"],
+  "treasure": ["None"],
+  "lore": "A crawling claw is a severed hand or foot animated by necromantic magic. Necromancers use these grisly servants as scouts, spies, and agents of mischief. Because crawling claws are so easily destroyed, a necromancer might keep a supply of them preserved in jars. They silently obey their creator's commands, scuttling through shadows to carry out sinister tasks.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 2,
+    "dice": {
+      "count": 1,
+      "die": "d4",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Climb",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 4,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 30,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Common"],
+    "notes": "can't speak"
+  },
+  "challengeRating": "0",
+  "experiencePoints": 10,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Turn Immunity",
+      "description": "The claw is immune to effects that turn Undead."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 3 (1d4 + 1) Bludgeoning damage plus 2 (1d4) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

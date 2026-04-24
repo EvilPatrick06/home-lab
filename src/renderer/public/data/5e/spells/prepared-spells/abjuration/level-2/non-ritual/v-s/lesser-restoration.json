@@ -1,0 +1,27 @@
+{
+  "name": "Lesser Restoration",
+  "level": 2,
+  "school": "Abjuration",
+  "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You touch a creature and end one condition on it: Blinded, Deafened, Paralyzed, or Poisoned.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "conditionsRemoved": ["Blinded", "Deafened", "Paralyzed", "Poisoned"],
+  "tags": ["condition removal", "healing"]
+}

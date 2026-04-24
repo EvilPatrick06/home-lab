@@ -1,0 +1,145 @@
+{
+  "name": "Nightmare",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "alignment": "Neutral Evil",
+  "habitat": ["Lower Planes"],
+  "treasure": ["None"],
+  "lore": "A nightmare is a fiendish steed wreathed in fire that gallops through the skies on flaming hooves. Coveted by powerful villains as mounts, nightmares serve cruel masters as terrifying steeds of war. They can carry their riders from the Material Plane to the Ethereal Plane and back again, making them ideal for sinister raids and swift escapes. When riderless, a nightmare roams the Lower Planes, leaving scorched hoofprints in its wake.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 68,
+    "dice": {
+      "count": 8,
+      "die": "d10",
+      "modifier": 24
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 60
+    },
+    {
+      "type": "Fly",
+      "distance": 90
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "damageImmunities": ["Fire"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "understood": ["Abyssal", "Common", "Infernal"],
+    "notes": "understands Abyssal, Common, and Infernal but can't speak"
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Confer Fire Resistance",
+      "description": "The nightmare can grant Resistance to Fire damage to any creature riding it."
+    },
+    {
+      "name": "Illumination",
+      "description": "The nightmare sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet."
+    }
+  ],
+  "multiattack": {
+    "description": "The nightmare makes two Flaming Hoof attacks.",
+    "attacks": [
+      {
+        "actionName": "Flaming Hoof",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Flaming Hoof",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 11 (2d6 + 4) Bludgeoning damage plus 7 (2d6) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ethereal Stride",
+      "description": "The nightmare and up to three willing creatures within 5 feet of it magically enter the Ethereal Plane from the Material Plane, or vice versa."
+    }
+  ],
+  "bonusActions": null,
+  "reactions": null,
+  "legendaryActions": null,
+  "lair": null
+}

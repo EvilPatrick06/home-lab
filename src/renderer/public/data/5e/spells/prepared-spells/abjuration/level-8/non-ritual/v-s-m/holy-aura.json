@@ -1,0 +1,64 @@
+{
+  "name": "Holy Aura",
+  "level": 8,
+  "school": "Abjuration",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a reliquary worth 1,000+ GP",
+      "cost": 1000,
+      "currency": "GP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "For the duration, you emit an aura in a 30-foot Emanation. While in the aura, creatures of your choice have Advantage on all saving throws, and other creatures have Disadvantage on attack rolls against them. In addition, when a Fiend or an Undead hits an affected creature with a melee attack roll, the attacker must succeed on a Constitution saving throw or have the Blinded condition until the end of its next turn.",
+  "targetType": "self",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 30,
+      "originatesFromCaster": true
+    }
+  ],
+  "savingThrow": {
+    "ability": "Constitution",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The Fiend or Undead attacker has the Blinded condition until the end of its next turn"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Blinded",
+      "trigger": "custom",
+      "duration": "until the end of the attacker's next turn"
+    }
+  ],
+  "advantagesGranted": [
+    {
+      "on": "savingThrows",
+      "condition": "creatures of your choice while in the aura"
+    }
+  ],
+  "disadvantagesImposed": [
+    {
+      "on": "attackRollsAgainstTarget",
+      "condition": "other creatures making attack rolls against affected creatures in the aura"
+    }
+  ],
+  "tags": ["aura", "protective", "anti-fiend", "anti-undead"]
+}

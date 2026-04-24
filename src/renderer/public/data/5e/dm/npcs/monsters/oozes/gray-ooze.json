@@ -1,0 +1,61 @@
+{
+  "name": "Gray Ooze",
+  "slug": "gray-ooze",
+  "size": "Medium",
+  "type": "Ooze",
+  "alignment": "Unaligned",
+  "ac": "9",
+  "initiative": "−2 (13)",
+  "hp": "22",
+  "hpFormula": "3d8 + 9",
+  "speed": "10 ft., Climb 10 ft.",
+  "abilityScores": {
+    "str": 12,
+    "dex": 6,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": -2,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +2",
+  "immunities": "Blinded, Charmed, Deafened, Exhaustion, Frightened, Grappled, Prone, Restrained",
+  "resistances": "Acid, Cold, Fire",
+  "senses": "Blindsight 60 ft.; Passive Perception 8",
+  "languages": "None",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [
+    {
+      "name": "Amorphous",
+      "description": "The ooze can move through a space as narrow as 1 inch without expending extra movement to do so."
+    },
+    {
+      "name": "Corrosive Form",
+      "description": "Nonmagical ammunition is destroyed immediately after hitting the ooze and dealing any damage. Any nonmagical weapon takes a cumulative −1 penalty to attack rolls immediately after dealing damage to the ooze and coming into contact with it. The weapon is destroyed if the penalty reaches −5. The penalty can be removed by casting the *Mending* spell on the weapon."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 10 (2d8 + 1) Acid damage. Nonmagical armor worn by the target takes a −1 penalty to the AC it offers. The armor is destroyed if the penalty reduces its AC to 10. The penalty can be removed by casting the *Mending* spell on the armor."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Hungry Slimes and Magical Failures*\n**Habitat:** Underdark; **Treasure:** None\nGray oozes are predatory, corrosive slimes that blend in with stony surroundings.\nGray oozes appear in areas affected by unpredictable magic. Magic-users who fail in their attempts to bind elemental spirits to the bodies of Constructs might also accidentally create gray oozes.\nPsychic gray oozes exhibit violent psionic abilities. These oozes sometimes result from failed attempts to summon or create creatures linked to the Elemental Plane of Earth, like gargoyles or homunculi.",
+  "habitat": "Underdark",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Oozes",
+    "file": "Oozes.md"
+  }
+}

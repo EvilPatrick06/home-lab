@@ -1,0 +1,24 @@
+{
+  "name": "Boon of Fortitude",
+  "category": "Epic Boon",
+  "prerequisites": {
+    "level": 19
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": "any",
+        "amount": 1,
+        "maximum": 30,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Fortified Health",
+      "description": "Your Hit Point maximum increases by 40. In addition, whenever you regain Hit Points, you can regain additional Hit Points equal to your Constitution modifier. Once you've regained these additional Hit Points, you can't do so again until the start of your next turn."
+    }
+  ],
+  "source": "PHB 2024"
+}

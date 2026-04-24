@@ -1,0 +1,163 @@
+{
+  "id": "d4e2c8a1-7f3b-4a9e-b1d0-6c8e2f4a9b31",
+  "name": "Feywild Memory Loss",
+  "slug": "feywild-memory-loss",
+  "category": "VariantRule",
+  "subcategory": "Planar Magic",
+  "tags": ["feywild", "memory", "planes", "fey", "optional", "saving-throw", "wisdom", "curse"],
+  "source": {
+    "book": "Dungeon Master's Guide",
+    "chapter": "Chapter 6: Cosmology",
+    "section": "Feywild / Feywild Magic"
+  },
+  "gameEdition": "2024",
+  "description": "A creature that leaves the Feywild makes a DC 10 Wisdom saving throw. Fey creatures automatically succeed on the saving throw, as do creatures that have the Fey Ancestry trait, such as elves. On a failed save, the creature remembers nothing from its time spent in the Feywild. On a successful save, the creature's memories remain intact but are a little hazy. Any spell that can end a curse can restore the creature's lost memories.",
+  "shortDescription": "Creatures leaving the Feywild must make a DC 10 Wisdom save or lose all memories of their time there. Fey and creatures with Fey Ancestry auto-succeed.",
+  "flavorText": "Tales speak of children kidnapped by Fey creatures and spirited away to the Feywild, only to return to their parents years later without having aged a day and with no memories of their captors or the realm they came from.",
+  "rulesAsWritten": "A creature that leaves the Feywild makes a DC 10 Wisdom saving throw. Fey creatures automatically succeed on the saving throw, as do creatures that have the Fey Ancestry trait, such as elves. On a failed save, the creature remembers nothing from its time spent in the Feywild. On a successful save, the creature's memories remain intact but are a little hazy. Any spell that can end a curse can restore the creature's lost memories.",
+  "isVariantRule": true,
+  "isOptionalRule": true,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-1111-4aaa-b111-000000000001",
+      "order": 0,
+      "name": "Memory Loss Saving Throw on Leaving Feywild",
+      "description": "When a creature leaves the Feywild, it must make a DC 10 Wisdom saving throw. Fey creatures and creatures with the Fey Ancestry trait automatically succeed. On a failed save, the creature remembers nothing from its time spent in the Feywild. On a successful save, the creature's memories remain intact but are a little hazy.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature leaves the Feywild"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "On a failed DC 10 Wisdom saving throw, the creature remembers nothing from its time spent in the Feywild. On a successful save, the creature's memories remain intact but are a little hazy.",
+          "mechanicalNote": "Fey creatures automatically succeed. Creatures with the Fey Ancestry trait (such as elves) automatically succeed. The saving throw DC is 10. Ability: Wisdom."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-2222-4bbb-b222-000000000002",
+      "order": 1,
+      "name": "Fey Creature Automatic Success",
+      "description": "Fey creatures automatically succeed on the Memory Loss saving throw when leaving the Feywild.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature leaving the Feywild has the Fey creature type"
+      },
+      "effects": [
+        {
+          "effectType": "AutomaticOutcome",
+          "outcome": {
+            "id": "b1c2d3e4-3333-4ccc-c333-000000000003",
+            "rollType": "SavingThrow",
+            "outcome": "AutoSuccess",
+            "scope": {
+              "customScope": "Memory Loss saving throw upon leaving the Feywild"
+            },
+            "condition": "Creature has the Fey creature type",
+            "note": "Fey creatures automatically succeed on the Memory Loss saving throw."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-4444-4ddd-d444-000000000004",
+      "order": 2,
+      "name": "Fey Ancestry Automatic Success",
+      "description": "Creatures that have the Fey Ancestry trait, such as elves, automatically succeed on the Memory Loss saving throw when leaving the Feywild.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature leaving the Feywild has the Fey Ancestry trait"
+      },
+      "effects": [
+        {
+          "effectType": "AutomaticOutcome",
+          "outcome": {
+            "id": "b1c2d3e4-5555-4eee-e555-000000000005",
+            "rollType": "SavingThrow",
+            "outcome": "AutoSuccess",
+            "scope": {
+              "customScope": "Memory Loss saving throw upon leaving the Feywild"
+            },
+            "condition": "Creature has the Fey Ancestry trait (such as elves)",
+            "note": "Creatures with Fey Ancestry automatically succeed on the Memory Loss saving throw."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "c1d2e3f4-6666-4fff-f666-000000000006",
+      "method": "SpellEffect",
+      "description": "Any spell that can end a curse can restore the creature's lost memories.",
+      "automaticAfterDuration": false,
+      "spellsOrEffects": ["Remove Curse", "Any spell that can end a curse"]
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true
+  },
+  "dmNotes": "This is an optional rule presented under 'Feywild Magic' to reflect the strange magic that suffuses the Feywild. The DM decides whether to use this rule. Memory loss applies only when a creature leaves the Feywild, not while it is on the plane. The effect is treated as a curse for the purposes of removal. On a successful save, memories are described as 'a little hazy' — the DM should adjudicate what this means narratively but it does not impose a mechanical penalty.",
+  "commonRulings": [
+    {
+      "question": "Does the Memory Loss saving throw apply every time a creature leaves the Feywild, or only the first time?",
+      "ruling": "The rules state 'A creature that leaves the Feywild makes a DC 10 Wisdom saving throw,' implying the save is required each time a creature departs the Feywild.",
+      "isOfficial": false
+    },
+    {
+      "question": "What happens on a successful save — do the hazy memories have a mechanical effect?",
+      "ruling": "The text states that on a successful save the creature's memories remain intact but are 'a little hazy.' No mechanical penalty is specified for hazy memories; this is a narrative effect.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does the memory loss apply to creatures native to the Feywild who are not Fey?",
+      "ruling": "Only Fey creatures and creatures with the Fey Ancestry trait automatically succeed. Non-Fey creatures native to the Feywild who lack Fey Ancestry must still make the saving throw.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can Greater Restoration restore lost Feywild memories?",
+      "ruling": "Yes. Greater Restoration can end a curse, and the rule states 'Any spell that can end a curse can restore the creature's lost memories.'",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-10T00:00:00Z",
+  "updatedAt": "2025-01-10T00:00:00Z",
+  "version": "1.0.0"
+}

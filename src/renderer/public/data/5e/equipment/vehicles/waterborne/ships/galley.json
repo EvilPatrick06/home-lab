@@ -1,0 +1,20 @@
+{
+  "name": "Galley",
+  "slug": "galley",
+  "category": "Waterborne Vehicle",
+  "type": "Ship",
+  "cost": "30000 GP",
+  "speed": "4 mph",
+  "crew": 80,
+  "passengers": 40,
+  "cargoTons": 150,
+  "ac": 15,
+  "hp": 500,
+  "damageThreshold": 20,
+  "description": "A large warship propelled by both sails and oars. Galleys are crewed by large numbers of rowers and can carry substantial cargo or troops.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Waterborne Vehicles"
+  }
+}

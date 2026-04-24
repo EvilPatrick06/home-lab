@@ -1,0 +1,13 @@
+{
+  "name": "Backpack",
+  "cost": "2 GP",
+  "weight": "5 lb.",
+  "description": "Holds up to 30 pounds within 1 cubic foot. Can also serve as a saddlebag.",
+  "slug": "backpack",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

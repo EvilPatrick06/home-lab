@@ -1,0 +1,24 @@
+{
+  "name": "Staff of Thunder and Lightning",
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "weight": 4,
+  "description": "This item is not found in the 2024 Player's Handbook Chapter 6: Equipment. It is a magic item detailed in the Dungeon Master's Guide. As a legendary staff requiring Attunement, it can be wielded as a magic Quarterstaff that grants a +2 bonus to attack and damage rolls made with it. It has the following additional properties, each of which can be used once per dawn. Lightning: When you hit with a melee attack using the staff, you can cause the target to take an extra 2d6 Lightning damage. Thunder: When you hit with a melee attack using the staff, you can cause the staff to emit a crack of thunder audible out to 300 feet; the target must succeed on a DC 17 Constitution saving throw or be Stunned until the end of your next turn. Lightning Strike: You can use an action to cause a bolt of lightning in a 5-foot-wide, 120-foot-long Line; each creature in the Line must make a DC 17 Dexterity saving throw, taking 9d6 Lightning damage on a failed save or half as much on a success. Thunderclap: You can cause a thunderclap audible out to 600 feet; each creature within 60 feet of you must make a DC 17 Constitution saving throw or become Stunned until the end of your next turn. Thunder and Lightning: You can use both Lightning Strike and Thunderclap simultaneously.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Attack",
+  "savingThrow": {
+    "ability": "Constitution",
+    "dcFormula": "17"
+  },
+  "damage": {
+    "count": 1,
+    "die": 6,
+    "type": "Bludgeoning"
+  },
+  "lightProperties": null,
+  "capacityDescription": null
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Mystery Key",
+  "slug": "mystery-key",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "A question mark is worked into the head of this key. The key has a 5 percent chance of unlocking any lock into which it's inserted. Once it unlocks something, the key disappears.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Carnelian",
+  "slug": "carnelian",
+  "value": "50 GP",
+  "category": "Gemstone",
+  "description": "orange to red-brown",
+  "dieValue": "2",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Silver and gold brooch",
+  "slug": "silver-and-gold-brooch",
+  "value": "750 GP",
+  "category": "Art Object",
+  "description": "",
+  "dieValue": "8",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

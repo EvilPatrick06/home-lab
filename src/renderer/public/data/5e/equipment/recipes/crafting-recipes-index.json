@@ -1,0 +1,38 @@
+{
+  "name": "Crafting Recipes Index",
+  "slug": "crafting-recipes-index",
+  "description": "Master index of all crafting recipes organized by tool type. In the 2024 rules, crafting uses Artisan's Tools during Downtime. The character must have proficiency with the appropriate tool, meet the DC, and spend the required time and materials.",
+  "recipeFiles": [
+    {
+      "tool": "Alchemist's Supplies",
+      "file": "alchemist-recipes.json",
+      "recipeCount": 6
+    },
+    {
+      "tool": "Smith's Tools",
+      "file": "smith-recipes.json",
+      "recipeCount": 6
+    },
+    {
+      "tool": "Herbalism Kit",
+      "file": "herbalist-recipes.json",
+      "recipeCount": 5
+    },
+    {
+      "tool": "Poisoner's Kit",
+      "file": "poisoner-recipes.json",
+      "recipeCount": 5
+    }
+  ],
+  "generalRules": {
+    "requirement": "Proficiency with the relevant tool",
+    "activity": "Crafting (Downtime Activity)",
+    "progressPerDay": "You can craft items worth 5 GP of market value per day of downtime (or 50 GP per Workweek)",
+    "multipleCharacters": "Multiple characters can combine their efforts to craft a single item, each contributing 5 GP per day"
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

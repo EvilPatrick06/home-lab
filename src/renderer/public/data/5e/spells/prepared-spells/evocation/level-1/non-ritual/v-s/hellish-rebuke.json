@@ -1,0 +1,56 @@
+{
+  "name": "Hellish Rebuke",
+  "level": 1,
+  "school": "Evocation",
+  "classes": ["Warlock"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Reaction",
+    "ritual": false,
+    "trigger": "you take damage from a creature that you can see within 60 feet of yourself"
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "The creature that damaged you is momentarily surrounded by green flames. It makes a Dexterity saving throw, taking 2d10 Fire damage on a failed save or half as much damage on a successful one.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 10
+      },
+      "type": "Fire",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 10,
+        "baseSpellLevel": 1,
+        "description": "The damage increases by 1d10 for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["damage", "reaction", "fire"]
+}

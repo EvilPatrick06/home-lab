@@ -1,0 +1,17 @@
+{
+  "name": "Mirror",
+  "cost": {
+    "amount": 5,
+    "denomination": "GP"
+  },
+  "weight": 0.5,
+  "description": "A handheld steel Mirror is useful for personal cosmetics but also for peeking around corners and reflecting light as a signal.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

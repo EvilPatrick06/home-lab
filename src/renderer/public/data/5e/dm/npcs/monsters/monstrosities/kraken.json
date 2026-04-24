@@ -1,0 +1,416 @@
+{
+  "name": "Kraken",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Monstrosity",
+  "descriptiveTags": ["Titan"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Coastal", "Underwater"],
+  "treasure": ["Any"],
+  "lore": "Among the most fearsome creatures in the sea, krakens are massive tentacled terrors that lurk in the deepest ocean trenches. These ancient monstrosities possess alien intellects and have been worshiped as gods by desperate sailors and coastal dwellers. A kraken views the entire ocean as its domain and is capable of summoning devastating storms to destroy ships and coastal settlements alike. Some krakens establish lairs in underwater caverns or sunken ruins, warping the surrounding seas with their terrible power.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 472,
+    "dice": {
+      "count": 27,
+      "die": "d20",
+      "modifier": 189
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Swim",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 7,
+    "score": 17
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 30,
+      "modifier": 10,
+      "save": 17
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 7
+    },
+    "CON": {
+      "score": 25,
+      "modifier": 7,
+      "save": 14
+    },
+    "INT": {
+      "score": 22,
+      "modifier": 6,
+      "save": 13
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 11
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 11
+    }
+  ],
+  "damageImmunities": ["Lightning"],
+  "conditionImmunities": ["Frightened", "Paralyzed"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 21
+  },
+  "languages": {
+    "understood": ["Abyssal", "Celestial", "Infernal", "Primordial"],
+    "telepathy": 120,
+    "notes": "understands Abyssal, Celestial, Infernal, and Primordial but can't speak"
+  },
+  "challengeRating": "23",
+  "experiencePoints": 50000,
+  "proficiencyBonus": 7,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The kraken can breathe air and water."
+    },
+    {
+      "name": "Freedom of Movement",
+      "description": "The kraken ignores Difficult Terrain, and magical effects can't reduce its Speed or give it the Restrained condition. It can spend 5 feet of movement to escape from nonmagical restraints or being Grappled."
+    },
+    {
+      "name": "Siege Monster",
+      "description": "The kraken deals double damage to objects and structures."
+    }
+  ],
+  "multiattack": {
+    "description": "The kraken makes three attacks: one Bite attack and two Tentacle attacks. It can replace one Tentacle attack with a use of Fling.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Tentacle",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Tentacle",
+        "replaceCount": 1,
+        "with": "Fling"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +17, reach 5 ft. Hit: 23 (3d8 + 10) Piercing damage. If the target is a Huge or smaller creature Grappled by the kraken, the target is swallowed, and the grapple ends. A swallowed creature has the Blinded and Restrained conditions, has Total Cover against attacks and other effects outside the kraken, and takes 42 (12d6) Acid damage at the start of each of the kraken's turns. If the kraken takes 50 damage or more on a single turn from a creature inside it, the kraken must succeed on a DC 25 Constitution saving throw at the end of that turn or regurgitate all swallowed creatures, each of which lands in a space within 10 feet of the kraken and has the Prone condition. If the kraken dies, a swallowed creature is no longer Restrained by it and can escape from the corpse by using 15 feet of movement, exiting Prone.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 23,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 10
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If the target is a Huge or smaller creature Grappled by the kraken, the target is swallowed, and the grapple ends. A swallowed creature has the Blinded and Restrained conditions, has Total Cover against attacks and other effects outside the kraken, and takes 42 (12d6) Acid damage at the start of each of the kraken's turns. If the kraken takes 50 damage or more on a single turn from a creature inside it, the kraken must succeed on a DC 25 Constitution saving throw at the end of that turn or regurgitate all swallowed creatures, each of which lands in a space within 10 feet of the kraken and has the Prone condition. If the kraken dies, a swallowed creature is no longer Restrained by it and can escape from the corpse by using 15 feet of movement, exiting Prone.",
+          "conditions": [
+            {
+              "condition": "Blinded",
+              "duration": "while swallowed"
+            },
+            {
+              "condition": "Restrained",
+              "duration": "while swallowed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tentacle",
+      "description": "Melee Attack Roll: +17, reach 30 ft. Hit: 20 (3d6 + 10) Bludgeoning damage. If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 25). Until this grapple ends, the target has the Restrained condition. The kraken has ten tentacles, each of which can grapple one target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 30,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 20,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 10
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 25). Until this grapple ends, the target has the Restrained condition. The kraken has ten tentacles, each of which can grapple one target.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 25
+            },
+            {
+              "condition": "Restrained",
+              "duration": "until the grapple ends"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Fling",
+      "description": "One Large or smaller object held or creature Grappled by the kraken is thrown up to 60 feet in a random direction and has the Prone condition. If a thrown target strikes a solid surface, the target takes 3 (1d6) Bludgeoning damage for every 10 feet it was thrown. If the target is thrown at another creature, that creature must succeed on a DC 25 Dexterity saving throw or take the same damage and have the Prone condition.",
+      "conditions": [
+        {
+          "condition": "Prone"
+        }
+      ],
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 25,
+        "targets": "another creature struck by the thrown target",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Bludgeoning",
+              "notes": "per 10 feet the target was thrown; up to 6d6 at 60 feet"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Prone"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Lightning Storm",
+      "description": "The kraken magically creates three bolts of lightning, each of which can strike a point the kraken can see within 500 feet of itself. Each creature within 10 feet of a struck point must make a DC 22 Dexterity saving throw, taking 22 (4d10) Lightning damage on a failed save, or half as much damage on a successful one. A creature in the area of more than one bolt is affected only once.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 22,
+        "targets": "each creature within 10 feet of a struck point",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Sphere",
+        "size": 10,
+        "centered": false
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Tentacle Attack",
+        "description": "The kraken makes one Tentacle attack.",
+        "cost": 1
+      },
+      {
+        "name": "Fling",
+        "description": "The kraken uses Fling.",
+        "cost": 1
+      },
+      {
+        "name": "Lightning Storm",
+        "description": "The kraken uses Lightning Storm, if available.",
+        "cost": 2
+      },
+      {
+        "name": "Ink Cloud",
+        "description": "While underwater, the kraken expels an ink cloud in a 60-foot Emanation centered on itself. The cloud spreads around corners, and its area is Heavily Obscured. Each creature in the cloud must make a DC 22 Constitution saving throw, taking 27 (6d8) Poison damage on a failed save, or half as much damage on a successful one. The cloud lasts for 1 minute or until a strong current disperses it. After expelling the ink, the kraken can Swim up to its Swim Speed.",
+        "cost": 3,
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 22,
+          "targets": "each creature in the cloud",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 27,
+                "dice": {
+                  "count": 6,
+                  "die": "d8",
+                  "modifier": 0
+                },
+                "type": "Poison"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 60,
+          "centered": true
+        }
+      }
+    ]
+  },
+  "lair": {
+    "description": "A kraken typically lairs in a vast underwater cavern, a sunken ruin, or an abyssal trench. The area around the lair is warped by the kraken's alien presence, creating violent storms and treacherous currents. Within its lair, the kraken commands the water itself, turning the environment into a deadly weapon against intruders.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Tidal Wave",
+        "description": "A wave of water sweeps through the lair. Each creature in the water within 60 feet of the kraken must succeed on a DC 22 Strength saving throw or be pushed up to 60 feet away from the kraken and have the Prone condition.",
+        "savingThrow": {
+          "ability": "STR",
+          "dc": 22,
+          "targets": "each creature in the water within 60 feet of the kraken",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ],
+            "effects": "The creature is pushed up to 60 feet away from the kraken."
+          }
+        }
+      },
+      {
+        "name": "Whirlpool",
+        "description": "A whirlpool forms at a point the kraken can see within 60 feet of it. Each creature in the water within 25 feet of the point must succeed on a DC 22 Strength saving throw or be pulled up to 25 feet toward the point and have the Restrained condition until initiative count 20 of the next round.",
+        "savingThrow": {
+          "ability": "STR",
+          "dc": 22,
+          "targets": "each creature in the water within 25 feet of the point",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Restrained",
+                "duration": "until initiative count 20 of the next round"
+              }
+            ],
+            "effects": "The creature is pulled up to 25 feet toward the whirlpool's center."
+          }
+        }
+      },
+      {
+        "name": "Lightning Bolt",
+        "description": "A bolt of lightning strikes a point the kraken can see within 120 feet of it. Each creature within 10 feet of the point must make a DC 22 Dexterity saving throw, taking 16 (3d10) Lightning damage on a failed save, or half as much damage on a successful one.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 22,
+          "targets": "each creature within 10 feet of the point",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 16,
+                "dice": {
+                  "count": 3,
+                  "die": "d10",
+                  "modifier": 0
+                },
+                "type": "Lightning"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "damage": [
+          {
+            "average": 16,
+            "dice": {
+              "count": 3,
+              "die": "d10",
+              "modifier": 0
+            },
+            "type": "Lightning"
+          }
+        ],
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 10,
+          "centered": false
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "The area within 6 miles of the lair is subjected to supernaturally violent storms. Ships caught in these storms have a high chance of being destroyed.",
+        "radius": 6,
+        "endCondition": "The kraken dies or moves its lair."
+      },
+      {
+        "description": "Aquatic creatures within 6 miles of the lair that have an Intelligence score of 2 or lower are Charmed by the kraken and become aggressive toward intruders in the area.",
+        "radius": 6,
+        "endCondition": "The kraken dies or moves its lair."
+      },
+      {
+        "description": "The kraken can alter the weather at will within 6 miles of its lair, as if it had cast the Control Weather spell.",
+        "radius": 6,
+        "endCondition": "The kraken dies or moves its lair."
+      }
+    ]
+  }
+}

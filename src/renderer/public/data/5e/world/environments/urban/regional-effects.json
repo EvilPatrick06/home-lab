@@ -1,0 +1,41 @@
+{
+  "biome": "Urban",
+  "legendaryEffects": [
+    {
+      "source": "Vampire Lord",
+      "effects": [
+        "Fog rolls through the streets at night, making the city lightly obscured between dusk and dawn.",
+        "Rats and bats are unusually prevalent and aggressive, serving as the vampire's spies.",
+        "Citizens become paranoid and distrustful; NPC attitudes shift one step toward Hostile."
+      ],
+      "radius": "1 mile"
+    },
+    {
+      "source": "Thieves' Guild Master",
+      "effects": [
+        "Pickpocket attempts are more frequent; characters must succeed on a DC 14 Wisdom (Perception) check when in crowds or lose 1d10 gp worth of valuables.",
+        "Information brokers and fences operate openly, but prices for goods and services increase by 25%.",
+        "City watch patrols are fewer and less effective; response time to disturbances doubles."
+      ],
+      "radius": "City-wide"
+    }
+  ],
+  "naturalHazards": [
+    {
+      "name": "Crowds",
+      "description": "Dense crowds function as difficult terrain. Dashing through a crowd requires a DC 10 Dexterity (Acrobatics) check; on a failure, the creature makes no progress and may lose belongings to pickpockets."
+    },
+    {
+      "name": "Structural Collapse",
+      "description": "Abandoned or poorly maintained buildings may collapse. A creature inside a collapsing structure must make a DC 15 Dexterity saving throw, taking 4d6 bludgeoning damage on a failure and half on a success."
+    },
+    {
+      "name": "Fire Spread",
+      "description": "Fire in densely packed urban areas spreads rapidly. Wooden structures catch fire in 1d4 rounds. Stone structures resist fire but interiors can still burn. Citizens will form bucket brigades, but a fire not contained within 10 rounds can engulf an entire city block."
+    },
+    {
+      "name": "Sewer Hazards",
+      "description": "Urban sewer systems are treacherous. Slippery surfaces (DC 10 Acrobatics to avoid falling Prone), toxic gases (DC 12 Constitution save or Poisoned), and aggressive vermin are common. Deep sections may contain otyughs or worse."
+    }
+  ]
+}

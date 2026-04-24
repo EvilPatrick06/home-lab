@@ -1,0 +1,12 @@
+{
+  "name": "Rockslide",
+  "severity": "Level 5+",
+  "description": "Fills a 30-foot area. Each creature in area makes DC 15 Dex save. On failure: 22 (4d10) Bludgeoning damage and Prone and Restrained by rubble. Success: half damage, no conditions. DC 15 Athletics to escape rubble.",
+  "slug": "rockslide",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

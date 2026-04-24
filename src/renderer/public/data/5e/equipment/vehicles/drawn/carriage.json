@@ -1,0 +1,12 @@
+{
+  "name": "Carriage",
+  "cost": "100 GP",
+  "weight": "600 lb.",
+  "slug": "carriage",
+  "category": "Drawn Vehicle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

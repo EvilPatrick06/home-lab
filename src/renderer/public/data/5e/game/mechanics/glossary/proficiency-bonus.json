@@ -1,0 +1,11 @@
+{
+  "name": "Proficiency Bonus",
+  "slug": "proficiency-bonus",
+  "description": "A Proficiency Bonus is added to D20 Tests you're proficient in and to your spell save DC. It is determined by your level. You never add your Proficiency Bonus more than once to the same roll.\n\n### Proficiency Bonus by Level\n\n| Level | Bonus |\n|---|---|\n| 1-4 | +2 |\n| 5-8 | +3 |\n| 9-12 | +4 |\n| 13-16 | +5 |\n| 17-20 | +6 |",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

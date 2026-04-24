@@ -1,0 +1,152 @@
+{
+  "name": "Griffon",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Arctic", "Coastal", "Grassland", "Hill", "Mountain"],
+  "treasure": ["None"],
+  "lore": "Griffons are fierce avian predators with the muscular body of a lion and the head, forelegs, and wings of an eagle. They nest on high, rocky crags and swoop down to hunt horses and other large prey. Horses are a griffon's favored meal, and a griffon that spots a horse will attack it in preference to other targets. Griffons mate for life and fiercely defend their nests. If raised from hatchlings, griffons can be trained as loyal mounts, though they remain wild and temperamental creatures.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 59,
+    "dice": {
+      "count": 7,
+      "die": "d10",
+      "modifier": 21
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {},
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Heightened Sight",
+      "description": "The griffon's Passive Perception is 20 when perceiving with Sight."
+    }
+  ],
+  "multiattack": {
+    "description": "The griffon makes one Beak attack and one Claws attack.",
+    "attacks": [
+      {
+        "actionName": "Beak",
+        "count": 1
+      },
+      {
+        "actionName": "Claws",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Beak",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 8 (1d8 + 4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 11 (2d6 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

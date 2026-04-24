@@ -1,0 +1,40 @@
+{
+  "name": "Weasel",
+  "slug": "weasel",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 13,
+  "hp": 1,
+  "hpFormula": "1d4 - 1",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 3,
+    "dex": 16,
+    "con": 8,
+    "int": 2,
+    "wis": 12,
+    "cha": 3
+  },
+  "skills": "Perception +3, Stealth +5",
+  "senses": "Passive Perception 13",
+  "languages": "—",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [
+    {
+      "name": "Keen Hearing and Smell",
+      "description": "Advantage on Wisdom (Perception) checks that rely on hearing or smell."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 1 Piercing."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

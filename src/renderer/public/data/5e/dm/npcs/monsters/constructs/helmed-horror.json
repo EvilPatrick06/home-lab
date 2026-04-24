@@ -1,0 +1,170 @@
+{
+  "name": "Helmed Horror",
+  "sizes": ["Medium"],
+  "creatureType": "Construct",
+  "alignment": "Neutral",
+  "habitat": ["Dungeon"],
+  "treasure": ["Armaments"],
+  "lore": "A helmed horror is a suit of animated plate armor that flies through the air to attack its creator's enemies. Created by powerful spellcasters, these constructs serve as tireless guardians, carrying out their orders with relentless precision. Each helmed horror is immune to certain spells chosen by its creator, making it a formidable foe for those who rely on magic.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Plate Armor", "Shield"]
+  },
+  "hitPoints": {
+    "average": 60,
+    "dice": {
+      "count": 8,
+      "die": "d8",
+      "modifier": 24
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Force, Necrotic, and Poison"],
+  "conditionImmunities": [
+    "Blinded",
+    "Charmed",
+    "Deafened",
+    "Exhaustion",
+    "Frightened",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Stunned"
+  ],
+  "gear": [
+    {
+      "name": "Longsword",
+      "quantity": 1
+    },
+    {
+      "name": "Plate Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "understood": ["the languages of its creator"],
+    "notes": "Understands the languages of its creator but can't speak"
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The helmed horror has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Spell Immunity",
+      "description": "The helmed horror is immune to three spells chosen by its creator. Typical immunities include Fireball, Heat Metal, and Lightning Bolt."
+    }
+  ],
+  "multiattack": {
+    "description": "The helmed horror makes two Longsword attacks.",
+    "attacks": [
+      {
+        "actionName": "Longsword",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 8 (1d8 + 4) Slashing damage plus 5 (2d4) Force damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 5,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

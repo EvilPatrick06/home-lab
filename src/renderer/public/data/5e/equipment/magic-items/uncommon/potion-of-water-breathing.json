@@ -1,0 +1,13 @@
+{
+  "name": "Potion of Water Breathing",
+  "slug": "potion-of-water-breathing",
+  "type": "Potion",
+  "rarity": "Uncommon",
+  "attunement": false,
+  "description": "You can breathe underwater for 24 hours after drinking this potion.\n\nThis potion's cloudy green fluid smells of the sea and has a jellyfish-like bubble floating in it.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "magic-shop",
+  "name": "Magic Shop",
+  "type": "magic",
+  "defaultMarkup": 1.5,
+  "inventoryCategories": [
+    {
+      "category": "Common Magic Items",
+      "stockChance": "always",
+      "items": [
+        { "name": "Potion of Healing", "cost": "50 gp", "rarity": "Common" },
+        { "name": "Spell Scroll (Cantrip)", "cost": "25 gp", "rarity": "Common" },
+        { "name": "Spell Scroll (1st Level)", "cost": "75 gp", "rarity": "Common" },
+        { "name": "Potion of Climbing", "cost": "75 gp", "rarity": "Common" },
+        { "name": "Driftglobe", "cost": "100 gp", "rarity": "Common" }
+      ]
+    },
+    {
+      "category": "Uncommon Magic Items",
+      "stockChance": "likely",
+      "items": [
+        { "name": "Potion of Greater Healing", "cost": "150 gp", "rarity": "Uncommon" },
+        { "name": "Spell Scroll (2nd Level)", "cost": "250 gp", "rarity": "Uncommon" },
+        { "name": "Spell Scroll (3rd Level)", "cost": "500 gp", "rarity": "Uncommon" },
+        { "name": "Bag of Holding", "cost": "500 gp", "rarity": "Uncommon" },
+        { "name": "Goggles of Night", "cost": "400 gp", "rarity": "Uncommon" },
+        { "name": "Cloak of Protection", "cost": "500 gp", "rarity": "Uncommon" },
+        { "name": "Gauntlets of Ogre Power", "cost": "800 gp", "rarity": "Uncommon" },
+        { "name": "Boots of Elvenkind", "cost": "500 gp", "rarity": "Uncommon" },
+        { "name": "Wand of Magic Detection", "cost": "500 gp", "rarity": "Uncommon" },
+        { "name": "Pearl of Power", "cost": "500 gp", "rarity": "Uncommon" },
+        { "name": "Immovable Rod", "cost": "500 gp", "rarity": "Uncommon" }
+      ]
+    },
+    {
+      "category": "Rare Magic Items",
+      "stockChance": "rare",
+      "items": [
+        { "name": "Potion of Superior Healing", "cost": "500 gp", "rarity": "Rare" },
+        { "name": "Spell Scroll (4th Level)", "cost": "1000 gp", "rarity": "Rare" },
+        { "name": "Spell Scroll (5th Level)", "cost": "2500 gp", "rarity": "Rare" },
+        { "name": "Amulet of Health", "cost": "5000 gp", "rarity": "Rare" },
+        { "name": "Belt of Hill Giant Strength", "cost": "5000 gp", "rarity": "Rare" },
+        { "name": "Cloak of Displacement", "cost": "5000 gp", "rarity": "Rare" },
+        { "name": "Flame Tongue", "cost": "5000 gp", "rarity": "Rare" },
+        { "name": "Necklace of Fireballs", "cost": "3000 gp", "rarity": "Rare" }
+      ]
+    },
+    {
+      "category": "Arcane Focuses & Components",
+      "stockChance": "always",
+      "items": [
+        { "name": "Arcane Focus (Crystal)", "cost": "10 gp", "rarity": "Mundane" },
+        { "name": "Arcane Focus (Orb)", "cost": "20 gp", "rarity": "Mundane" },
+        { "name": "Arcane Focus (Rod)", "cost": "10 gp", "rarity": "Mundane" },
+        { "name": "Arcane Focus (Staff)", "cost": "5 gp", "rarity": "Mundane" },
+        { "name": "Arcane Focus (Wand)", "cost": "10 gp", "rarity": "Mundane" },
+        { "name": "Component Pouch", "cost": "25 gp", "rarity": "Mundane" },
+        { "name": "Spellbook (blank)", "cost": "50 gp", "rarity": "Mundane" },
+        { "name": "Diamond Dust (100 gp worth)", "cost": "100 gp", "rarity": "Mundane" },
+        { "name": "Diamond (300 gp worth)", "cost": "300 gp", "rarity": "Mundane" },
+        { "name": "Ruby (1000 gp worth)", "cost": "1000 gp", "rarity": "Mundane" }
+      ]
+    }
+  ],
+  "restockInterval": "monthly",
+  "flavor": "Glowing runes flicker across the doorway. Inside, enchanted objects float on velvet displays. The proprietor speaks in hushed tones about each item's provenance."
+}

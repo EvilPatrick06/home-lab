@@ -1,0 +1,16 @@
+{
+  "id": "drow",
+  "name": "Drow",
+  "species": "elf",
+  "description": "Drow descended from dark-skinned elves driven underground.",
+  "traits": [
+    { "name": "Superior Darkvision", "description": "Darkvision range of 120 feet." },
+    {
+      "name": "Drow Magic",
+      "description": "Dancing Lights cantrip; Faerie Fire at 3rd level; Darkness at 5th level. Charisma is spellcasting ability."
+    },
+    { "name": "Sunlight Sensitivity", "description": "Disadvantage on attacks and Perception in direct sunlight." }
+  ],
+  "abilityScoreIncrease": { "charisma": 1 },
+  "source": "PHB 2024"
+}

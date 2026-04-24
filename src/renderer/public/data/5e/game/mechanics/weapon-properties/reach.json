@@ -1,0 +1,6 @@
+{
+  "id": "reach",
+  "name": "Reach",
+  "description": "A Reach weapon adds 5 feet to your reach when you attack with it, as well as when determining your reach for Opportunity Attacks with it.",
+  "mechanicalEffect": "Adds 5 feet to attack reach and Opportunity Attack reach (typically extending reach from 5 feet to 10 feet)."
+}

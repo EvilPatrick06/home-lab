@@ -1,0 +1,32 @@
+{
+  "id": "bandit",
+  "name": "Bandit",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Non-Lawful Alignment",
+  "ac": 12,
+  "acSource": "leather armor",
+  "hp": 11,
+  "hpFormula": "2d8 + 2",
+  "speed": "30 ft.",
+  "stats": { "str": 11, "dex": 12, "con": 12, "int": 10, "wis": 10, "cha": 10 },
+  "senses": "Passive Perception 10",
+  "languages": "Any one language (usually Common)",
+  "cr": "1/8",
+  "xp": "25 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Scimitar",
+      "description": "*Melee Weapon Attack:* +3 to hit, reach 5 ft., one target. *Hit:* 4 (1d6 + 1) slashing damage."
+    },
+    {
+      "name": "Light Crossbow",
+      "description": "*Ranged Weapon Attack:* +3 to hit, range 80/320 ft., one target. *Hit:* 5 (1d8 + 1) piercing damage."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

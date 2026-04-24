@@ -1,0 +1,20 @@
+{
+  "name": "Drow Poison",
+  "slug": "drow-poison",
+  "category": "Poison",
+  "type": "Injury",
+  "cost": "200 GP",
+  "weight": "—",
+  "description": "A creature subjected to this poison must succeed on a DC 13 Constitution saving throw or have the Poisoned condition for 1 hour. If the saving throw fails by 5 or more, the creature also has the Unconscious condition while Poisoned in this way. The creature wakes up if it takes damage or if another creature takes an action to shake it awake.",
+  "saveDC": 13,
+  "saveAbility": "Constitution",
+  "effect": "Poisoned",
+  "additionalEffect": "Unconscious if failed save by 5+",
+  "duration": "1 hour",
+  "wakeOnDamage": true,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poisons"
+  }
+}

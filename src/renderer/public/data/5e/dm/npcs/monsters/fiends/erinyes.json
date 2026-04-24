@@ -1,0 +1,260 @@
+{
+  "name": "Erinyes",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar (Nine Hells)"],
+  "treasure": ["Armaments"],
+  "lore": "Erinyes are fallen angels who serve as elite soldiers and enforcers of the Nine Hells. Clad in gleaming plate armor and wielding weapons that drip with supernatural poison, they combine devastating martial prowess with the cunning of fiends. Erinyes serve as commanders of infernal legions and as personal agents of the archdevils, carrying out missions that require a combination of guile, charm, and lethal force.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Plate Armor"]
+  },
+  "hitPoints": {
+    "average": 178,
+    "dice": {
+      "count": 21,
+      "die": "d8",
+      "modifier": 84
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 6
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 6
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    }
+  },
+  "skills": [
+    {
+      "skill": "Intimidation",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 8
+    }
+  ],
+  "resistances": ["Cold", "Bludgeoning, Piercing, and Slashing from nonmagical attacks that aren't silvered"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "gear": [
+    {
+      "name": "Plate Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Longsword",
+      "quantity": 1
+    },
+    {
+      "name": "Longbow",
+      "quantity": 1
+    },
+    {
+      "name": "Rope of Entanglement",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "12",
+  "experiencePoints": 8400,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Diabolical Restoration",
+      "description": "If the erinyes dies outside the Nine Hells, it revives with all its Hit Points in the Nine Hells in 1d10 days unless it is killed by a Good-aligned creature or its remains are sprinkled with Holy Water within 24 hours of its death."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The erinyes has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The erinyes makes three Longsword or Longbow attacks. It can replace one attack with a use of Rope of Entanglement if available.",
+    "attacks": [
+      {
+        "actionName": "Longsword",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Longsword",
+        "replaceCount": 1,
+        "with": "Rope of Entanglement"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 8 (1d8 + 4) Slashing damage plus 13 (3d8) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Longbow",
+      "description": "Ranged Attack Roll: +7, range 150/600 ft. Hit: 7 (1d8 + 3) Piercing damage plus 13 (3d8) Poison damage. If the target is a creature, it must succeed on a DC 16 Constitution saving throw or have the Poisoned condition for 8 hours. The Poisoned condition can be ended early by a Lesser Restoration spell or similar magic.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 7,
+        "range": {
+          "normal": 150,
+          "long": 600
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 16,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "8 hours"
+                }
+              ],
+              "effects": "The Poisoned condition can be ended early by a Lesser Restoration spell or similar magic."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Rope of Entanglement",
+      "description": "One creature the erinyes can see within 30 feet of it must succeed on a DC 16 Dexterity saving throw or have the Restrained condition until the rope is removed. A creature, including the Restrained target, can use its action to make a DC 16 Strength (Athletics) check, freeing the Restrained creature on a success. The rope has AC 20, 20 Hit Points, and Immunity to Poison and Psychic damage.",
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 16,
+        "targets": "one creature the erinyes can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "duration": "until the rope is removed",
+              "escapeDC": 16
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Restrained",
+          "duration": "until the rope is removed",
+          "escapeDC": 16
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Parry",
+      "description": "The erinyes adds 4 to its AC against one melee attack that would hit it. To do so, the erinyes must see the attacker and be wielding a melee weapon.",
+      "trigger": "The erinyes is hit by a melee attack roll while it can see the attacker and is wielding a melee weapon."
+    }
+  ]
+}

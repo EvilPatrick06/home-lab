@@ -1,0 +1,13 @@
+{
+  "name": "Rations",
+  "cost": "5 SP",
+  "weight": "2 lb.",
+  "description": "Travel-ready food: jerky, dried fruit, hardtack, nuts. 1 day of food.",
+  "slug": "rations",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Wraps of Unarmed Power",
+  "itemType": "Wondrous Item",
+  "rarity": {
+    "common": "+1",
+    "rare": "+2",
+    "veryRare": "+3"
+  },
+  "requiresAttunement": true,
+  "description": "While wearing these wraps, you have a bonus to attack rolls and damage rolls made with your Unarmed Strikes. The bonus is determined by the wraps' rarity, and those strikes deal your choice of Force damage or their normal damage type.",
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

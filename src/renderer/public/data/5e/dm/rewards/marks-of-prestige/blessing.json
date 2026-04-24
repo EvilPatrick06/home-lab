@@ -1,0 +1,56 @@
+{
+  "id": "blessing",
+  "name": "Blessings",
+  "description": "Divine boons granted by gods or powerful celestial beings. A character can have only one blessing at a time, and a blessing cannot be removed except by the Wish spell or the deity who granted it.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Supernatural Gifts - Blessings"
+  },
+  "blessings": [
+    {
+      "id": "blessing-of-health",
+      "name": "Blessing of Health",
+      "description": "Your Constitution score increases by 2, to a maximum of 22.",
+      "mechanicalEffect": { "abilityScoreIncrease": { "ability": "con", "amount": 2, "newMax": 22 } }
+    },
+    {
+      "id": "blessing-of-protection",
+      "name": "Blessing of Protection",
+      "description": "You gain a +1 bonus to AC and saving throws.",
+      "mechanicalEffect": { "acBonus": 1, "savingThrowBonus": 1 }
+    },
+    {
+      "id": "blessing-of-magic-resistance",
+      "name": "Blessing of Magic Resistance",
+      "description": "You have advantage on saving throws against spells and other magical effects.",
+      "mechanicalEffect": { "advantage": "saving throws against spells and magical effects" }
+    },
+    {
+      "id": "blessing-of-understanding",
+      "name": "Blessing of Understanding",
+      "description": "Your Wisdom score increases by 2, to a maximum of 22.",
+      "mechanicalEffect": { "abilityScoreIncrease": { "ability": "wis", "amount": 2, "newMax": 22 } }
+    },
+    {
+      "id": "blessing-of-valhalla",
+      "name": "Blessing of Valhalla",
+      "description": "The blessing grants the power to summon spirit warriors. You can blow a spectral war horn as an action, summoning 3d4 + 3 berserker spirits that fight alongside you for 1 hour or until destroyed. Once used, this property cannot be used again for 7 days.",
+      "mechanicalEffect": { "action": "Summon 3d4+3 berserker spirits for 1 hour", "recharge": "7 days" }
+    },
+    {
+      "id": "blessing-of-weapon-enhancement",
+      "name": "Blessing of Weapon Enhancement",
+      "description": "One nonmagical weapon in your possession becomes a +1 weapon whenever you wield it.",
+      "mechanicalEffect": { "weaponBonus": 1, "target": "one nonmagical weapon when wielded" }
+    },
+    {
+      "id": "blessing-of-wound-closure",
+      "name": "Blessing of Wound Closure",
+      "description": "You regain 1d6 hit points at the start of your turn if you have at least 1 hit point. In addition, if you are stabilized, you regain consciousness at the start of your next turn with 1 HP.",
+      "mechanicalEffect": {
+        "regeneration": "1d6 HP at start of turn (if above 0 HP)",
+        "stabilization": "regain consciousness next turn with 1 HP"
+      }
+    }
+  ]
+}

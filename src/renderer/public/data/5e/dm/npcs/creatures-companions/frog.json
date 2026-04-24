@@ -1,0 +1,39 @@
+{
+  "name": "Frog",
+  "slug": "frog",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 11,
+  "hp": 1,
+  "hpFormula": "1d4 - 1",
+  "speed": "20 ft., Swim 20 ft.",
+  "abilityScores": {
+    "str": 1,
+    "dex": 13,
+    "con": 8,
+    "int": 1,
+    "wis": 8,
+    "cha": 3
+  },
+  "skills": "Perception +1, Stealth +3",
+  "senses": "Darkvision 30 ft., Passive Perception 11",
+  "languages": "—",
+  "cr": "0",
+  "xp": "0 XP",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "Can breathe air and water."
+    },
+    {
+      "name": "Standing Leap",
+      "description": "The frog's Long Jump is up to 10 ft. and its High Jump is up to 5 ft., with or without a running start."
+    }
+  ],
+  "actions": [],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

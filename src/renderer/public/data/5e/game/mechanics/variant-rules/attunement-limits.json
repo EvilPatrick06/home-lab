@@ -1,0 +1,34 @@
+{
+  "id": "attunement-limits",
+  "name": "Attunement Limits",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "By default, a creature can be attuned to no more than 3 magic items at a time. This variant rule scales the attunement limit by character level, allowing higher-level characters to attune to more items.",
+  "mechanics": {
+    "defaultRule": {
+      "limit": 3,
+      "description": "A creature can be attuned to no more than 3 magic items at a time. Attempting to attune to a 4th item fails; the creature must end attunement with an existing item first."
+    },
+    "variantScaling": {
+      "description": "The attunement limit increases as the character gains levels",
+      "table": [
+        { "levels": "1-4", "attunementSlots": 3 },
+        { "levels": "5-10", "attunementSlots": 4 },
+        { "levels": "11-16", "attunementSlots": 5 },
+        { "levels": "17-20", "attunementSlots": 6 }
+      ]
+    },
+    "attunementProcess": {
+      "duration": "Short Rest",
+      "description": "A creature must spend a Short Rest focused on the item to attune to it. During the Short Rest, the creature maintains physical contact with the item and concentrates on it.",
+      "endingAttunement": "A creature can voluntarily end attunement to an item during a Short Rest. Attunement also ends if the creature no longer meets the item's prerequisites, if the item has been more than 100 feet away for 24 hours, if the creature dies, or if another creature attunes to the item."
+    }
+  },
+  "interactions": [
+    "Artificers already have a class feature that increases their attunement limit; this variant stacks or replaces that feature at DM discretion",
+    "Increasing attunement slots at higher levels allows characters to benefit from more of their accumulated magic items",
+    "This variant can significantly increase character power at higher tiers of play since magic items that require attunement tend to be more powerful",
+    "DMs should consider treasure distribution carefully when using this variant to avoid overpowered combinations",
+    "The Identify spell or a Short Rest reveals whether an item requires attunement"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "name": "Elemental Weapon",
+  "level": 3,
+  "school": "Transmutation",
+  "classes": ["Druid", "Paladin", "Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "A nonmagical weapon you touch becomes a magic weapon. Choose one of the following damage types: Acid, Cold, Fire, Lightning, or Thunder. For the duration, the weapon has a +1 bonus to attack rolls and deals an extra 1d4 damage of the chosen type when it hits.",
+  "targetType": "object",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 4
+      },
+      "type": ["Acid", "Cold", "Fire", "Lightning", "Thunder"],
+      "applicationType": "onHit"
+    }
+  ],
+  "d20Modifiers": [
+    {
+      "appliesTo": "attackRolls",
+      "fixedBonus": 1,
+      "isBonus": true
+    }
+  ],
+  "higherLevelCasting": {
+    "overrides": [
+      {
+        "minSlotLevel": 5,
+        "maxSlotLevel": 6,
+        "description": "The bonus to attack rolls increases to +2, and the extra damage increases to 2d4."
+      },
+      {
+        "minSlotLevel": 7,
+        "maxSlotLevel": 9,
+        "description": "The bonus to attack rolls increases to +3, and the extra damage increases to 3d4."
+      }
+    ]
+  },
+  "tags": ["buff", "weapon enhancement", "elemental damage", "magic weapon"]
+}

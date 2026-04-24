@@ -1,0 +1,13 @@
+{
+  "name": "Crystal Ball",
+  "slug": "crystal-ball",
+  "type": "Wondrous Item",
+  "rarity": "Very Rare",
+  "attunement": true,
+  "description": "While touching this crystal orb, you can cast *Scrying* (save DC 17) with it.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

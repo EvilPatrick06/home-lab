@@ -1,0 +1,59 @@
+{
+  "name": "Mummy",
+  "slug": "mummy",
+  "size": "Medium or Small",
+  "type": "Undead",
+  "alignment": "Lawful Evil",
+  "ac": "11",
+  "initiative": "−1 (9)",
+  "hp": "58",
+  "hpFormula": "9d8 + 18",
+  "speed": "20 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 8,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": -1,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Necrotic, Poison; Charmed, Exhaustion, Frightened, Paralyzed, Poisoned",
+  "vulnerabilities": "Fire",
+  "senses": "Darkvision 60 ft.; Passive Perception 11",
+  "languages": "Common plus two other languages",
+  "cr": "3 (XP 700; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The mummy makes two Rotting Fist attacks and uses Dreadful Glare."
+    },
+    {
+      "name": "Rotting Fist",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 8 (1d10 + 3) Bludgeoning damage plus 10 (3d6) Necrotic damage. If the target is a creature, it is cursed. While cursed, the target can't regain Hit Points, its Hit Point maximum doesn't return to normal when finishing a Long Rest, and its Hit Point maximum decreases by 10 (3d6) every 24 hours that elapse. A creature dies and turns to dust if reduced to 0 Hit Points by this attack."
+    },
+    {
+      "name": "Dreadful Glare",
+      "description": "*Wisdom Saving Throw:* DC 11, one creature the mummy can see within 60 feet. *Failure:* The target has the *Frightened* condition until the end of the mummy's next turn. *Success:* The target is immune to this mummy's Dreadful Glare for 24 hours."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Deathless Ancients with Ageless Ambitions*\n**Habitat:** Desert, Swamp; **Treasure:** Relics\nMysterious rites and mighty faith can tie spirits to their corpses, binding them to their remains for all time. Should their resting places be violated, these beings, known as mummies, reanimate their deteriorating bodies to restore the sanctity of their tombs and punish those who disturbed their rest.\nMummies pursue those who offend them, typically mortals who desecrate their resting places, steal their burial treasures, or defile sites tied to their faith. With undying rage, these ancient corpses go to extreme lengths to avenge themselves and restore what they need to find peace.\nA mummy might look frail, but its body possesses supernatural strength, and its gaze can strike fear in the bravest hearts. Those who escape a mummy's grasp might find themselves subject to a terrible curse. Victims of a mummy's curse gradually wither, their bodies rotting away until they're reduced to dust. This curse can be healed only by the *Remove Curse* spell or similar magic.\nCommon mummies are the remains of priests, nobles, or champions of faith that underwent magical burial rites. Some are preserved through processes using linen wrappings or clay, but others are preserved by peat bogs, ice, magic, or other means.\nRoll on or choose a result from the Mummy Resurrections table to determine why a mummy has returned from the dead.\n> *Rule 7: Before opening a sarcophagus, light a torch.*\n>\n> -- X the Mystic's Rules of Dungeon Survival",
+  "habitat": "Desert, Swamp",
+  "treasure": "Relics",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

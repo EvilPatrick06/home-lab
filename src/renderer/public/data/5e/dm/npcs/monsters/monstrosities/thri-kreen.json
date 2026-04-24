@@ -1,0 +1,235 @@
+{
+  "name": "Thri-kreen",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "alignment": "Neutral",
+  "habitat": ["Desert", "Grassland"],
+  "treasure": ["Armaments"],
+  "lore": "Thri-kreen are insectoid hunters that communicate with others of their kind through a combination of clicking mandibles, waving antennae, and subtle gestures with their four arms. Other creatures find this sign language difficult to interpret. Thri-kreen can also use psionics to communicate.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 33,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 6
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    },
+    {
+      "skill": "Survival",
+      "bonus": 3
+    }
+  ],
+  "gear": [
+    {
+      "name": "Chatkcha",
+      "quantity": 2
+    },
+    {
+      "name": "Gythka",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Thri-kreen"],
+    "telepathy": 60
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Chameleon Carapace",
+      "description": "The thri-kreen has Advantage on Dexterity (Stealth) checks it makes to hide."
+    }
+  ],
+  "multiattack": {
+    "description": "The thri-kreen makes two attacks, using Claw, Gythka, or Chatkcha in any combination.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Gythka"
+      },
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Chatkcha"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Gythka",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Chatkcha",
+      "description": "Ranged Attack Roll: +5, range 30/120 ft. Hit: 6 (1d6 + 3) Slashing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 5,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 5 (1d4 + 3) Piercing damage, and the target has the Poisoned condition until the start of the thri-kreen's next turn.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Poisoned",
+              "duration": "until the start of the thri-kreen's next turn"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "Elk",
+  "slug": "elk",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 10,
+  "hp": 13,
+  "hpFormula": "2d10 + 2",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 10,
+    "con": 12,
+    "int": 2,
+    "wis": 10,
+    "cha": 6
+  },
+  "senses": "Passive Perception 10",
+  "languages": "—",
+  "cr": "1/4",
+  "xp": "50 XP",
+  "traits": [
+    {
+      "name": "Charge",
+      "description": "If the elk moves at least 20 ft. straight toward a target and then hits it with a Ram attack on the same turn, the target takes an extra 7 (2d6) damage. If the target is a creature, it must succeed on a DC 13 Strength saving throw or have the Prone condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Ram",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Bludgeoning."
+    },
+    {
+      "name": "Hooves",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 8 (2d4 + 3) Bludgeoning."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

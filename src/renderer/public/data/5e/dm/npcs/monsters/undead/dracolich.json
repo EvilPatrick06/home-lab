@@ -1,0 +1,93 @@
+{
+  "name": "Dracolich",
+  "slug": "dracolich",
+  "size": "Huge or Gargantuan",
+  "type": "Undead",
+  "alignment": "Lawful Evil",
+  "ac": "20",
+  "initiative": "+12 (22)",
+  "hp": "225",
+  "hpFormula": "18d12 + 108",
+  "speed": "40 ft., Burrow 30 ft., Fly 80 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 10,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 0,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +14, Stealth +6",
+  "immunities": "Necrotic, Poison; Charmed, Exhaustion, Frightened, Paralyzed, Poisoned",
+  "senses": "Blindsight 60 ft., Darkvision 120 ft.; Passive Perception 24",
+  "languages": "Common, Draconic",
+  "cr": "17 (XP 18,000, or 20,000 in lair; PB +6)",
+  "traits": [
+    {
+      "name": "Legendary Resistance (3/Day, or 4/Day in Lair)",
+      "description": "If the dracolich fails a saving throw, it can choose to succeed instead."
+    },
+    {
+      "name": "Life Suppression",
+      "description": "Creatures within 60 feet of the dracolich can't regain Hit Points."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The dracolich has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Soul Gem",
+      "description": "The dracolich has a magical gem. If the dracolich is destroyed while the gem is on the same plane of existence as it, the dracolich gains a new body in 1d20 days, regaining all its Hit Points and appearing within 5 feet of the gem."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The dracolich makes three Rend attacks. It can replace one attack with a use of Spellcasting to cast *Ray of Sickness* (level 2 version)."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +13, reach 10 ft. *Hit:* 18 (2d10 + 7) Slashing damage plus 4 (1d8) Necrotic damage."
+    },
+    {
+      "name": "Necrotic Breath (Recharge 5--6)",
+      "description": "*Constitution Saving Throw:* DC 20, each creature in a 60-foot Cone. *Failure:* 52 (8d12) Necrotic damage. *Success:* Half damage."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The dracolich casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 19, +11 to hit with spell attacks):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [
+    {
+      "name": "Pounce",
+      "description": "The dracolich moves up to half its Speed, and it makes one Rend attack."
+    },
+    {
+      "name": "Sickening Ray",
+      "description": "The dracolich uses Spellcasting to cast *Ray of Sickness* (level 2 version). The dracolich can't take this action again until the start of its next turn."
+    },
+    {
+      "name": "Terrifying Presence",
+      "description": "*Wisdom Saving Throw:* DC 19, each creature in a 30-foot Emanation originating from the dracolich. *Failure:* 11 (2d10) Psychic damage, and the target has the Frightened condition until the end of its next turn. *Failure or Success:* The dracolich can't take this action again until the start of its next turn."
+    }
+  ],
+  "lore": "*Unique Dragons Beyond Chromatic and Metallic*\n*Draconic Tyrant Reborn*\n**Habitat:** Any; **Treasure:** Any\nThe vilest dragons seek to escape the grip of death, employing ageless secrets and blasphemous magic to become horrors called dracoliches. These deathless dragons bind their spirits to gems and magically animate their rotting corpses. Eventually becoming skeletal horrors, dracoliches continue the centuries-spanning plots they pursued in life, seek revenge on those that brought them low, and strive toward vicious goals they couldn't indulge in life.\nDracoliches combine the corrupt immortality of the undead with the legendary power of dragons. A dracolich retains a breath weapon, but it is a chilling necrotic blast. These terrors gradually sicken the land near their lairs and attract sinister followers -- usually other undead or cultists seeking to revel in their terrible might. Living dragons of all types loathe and seek to destroy dracoliches, viewing them as distortions of draconic magic.\nThere are untold profane routes by which a dragon might become a dracolich. However one is created, a dracolich chooses a gem that becomes the anchor for its spirit and binds the deathless dragon to the world. So long as a dracolich is on the same plane of existence as its soul gem, the dracolich can survive the destruction of its physical body. Its spirit retreats into the gem if the dracolich's body is destroyed, and the monster might one day regain its terrifying form. Dracoliches often sequester their soul gems within meaningful treasure from their hoard or in unassuming baubles. Roll on or choose a result from the Dracolich Soul Gem Vessels table to inspire what holds a dracolich's soul gem.\nA dracolich lurks in a corrupted version of the lair it had in life.\nThe region containing a dracolich's lair is warped by its presence, creating the following effects:\n***Sapping Mist.*** The area within 1 mile of the lair is Lightly Obscured by pale fog. Whenever a creature other than the dracolich or one of its allies finishes a Long Rest in that area, it must succeed on a DC 15 Constitution saving throw or gain 1 Exhaustion level.\n***Soul Drain.*** Creatures within 1 mile of the lair have Disadvantage on Death Saving Throws.\nIf the dracolich is destroyed or moves its lair elsewhere, these effects end immediately. The effects resume if the dracolich gains a new body (see its Soul Gem trait).\n> *And naught will be left save shattered thrones with no rulers. But the dead dragons shall rule the world entire ...*\n>\n> -- Sammaster the Fallen's translation of The Chronicle of Years to Come",
+  "habitat": "Any",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Dragons-Other",
+    "file": "Dragons-Other.md"
+  }
+}

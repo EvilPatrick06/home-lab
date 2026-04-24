@@ -1,0 +1,19 @@
+{
+  "name": "Spiked Pit",
+  "type": "mechanical",
+  "trigger": "A creature moves onto the pit's lid",
+  "duration": "Instantaneous",
+  "severity": "Level 5+",
+  "dc": 13,
+  "detectDC": 13,
+  "disarmDC": 13,
+  "damage": "11 (2d10) Piercing + 11 (2d10) Piercing",
+  "description": "20-foot-deep pit with spikes. DC 13 Dex save to grab edge. Fall: 11 (2d10) Bludgeoning plus 11 (2d10) Piercing from spikes. Creature needs Climb Speed or climbing gear to escape.",
+  "slug": "spiked-pit",
+  "category": "Trap",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Traps"
+  }
+}

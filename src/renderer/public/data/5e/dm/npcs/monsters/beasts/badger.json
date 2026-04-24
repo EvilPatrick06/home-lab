@@ -1,0 +1,49 @@
+{
+  "name": "Badger",
+  "slug": "badger",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "11",
+  "initiative": "+0 (10)",
+  "hp": "5",
+  "hpFormula": "1d4 + 3",
+  "speed": "20 ft., Burrow 5 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 11,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 0,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +3",
+  "resistances": "Poison",
+  "senses": "Darkvision 30 ft.; Passive Perception 13",
+  "languages": "None",
+  "cr": "0 (XP 10; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +2, reach 5 ft. *Hit:* 1 Piercing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

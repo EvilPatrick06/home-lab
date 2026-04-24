@@ -1,0 +1,133 @@
+{
+  "id": "downtime-costs",
+  "name": "Downtime Activity Costs",
+  "description": "Costs associated with various downtime activities between adventures in D&D 2024.",
+  "activities": [
+    {
+      "id": "training-language",
+      "name": "Training (Language)",
+      "costPerDay": "1 GP",
+      "costPerDayGP": 1,
+      "totalDays": 250,
+      "totalCost": "250 GP",
+      "description": "You can spend time learning a new language. You must find an instructor willing to teach you. Training lasts 250 days and costs 1 GP per day. After you spend the requisite amount of time and money, you learn the new language."
+    },
+    {
+      "id": "training-tool",
+      "name": "Training (Tool Proficiency)",
+      "costPerDay": "1 GP",
+      "costPerDayGP": 1,
+      "totalDays": 250,
+      "totalCost": "250 GP",
+      "description": "You can spend time learning a new tool proficiency. You must find an instructor willing to teach you. Training lasts 250 days and costs 1 GP per day. After you spend the requisite amount of time and money, you gain proficiency with the tool."
+    },
+    {
+      "id": "research",
+      "name": "Research",
+      "costPerDay": "50 GP",
+      "costPerDayGP": 50,
+      "totalDays": null,
+      "totalCost": "Varies",
+      "description": "Spending time researching lore. You must have access to a library, sage, or similar source of knowledge. Research costs 50 GP per day spent researching, which covers expenses for materials, access fees, and so on."
+    },
+    {
+      "id": "scribing-spell-scroll-cantrip",
+      "name": "Scribing a Spell Scroll (Cantrip)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 1,
+      "totalCost": "15 GP",
+      "description": "Scribing a cantrip onto a spell scroll takes 1 day and costs 15 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-1st",
+      "name": "Scribing a Spell Scroll (1st Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 1,
+      "totalCost": "25 GP",
+      "description": "Scribing a 1st-level spell onto a spell scroll takes 1 day and costs 25 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-2nd",
+      "name": "Scribing a Spell Scroll (2nd Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 3,
+      "totalCost": "250 GP",
+      "description": "Scribing a 2nd-level spell onto a spell scroll takes 3 days and costs 250 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-3rd",
+      "name": "Scribing a Spell Scroll (3rd Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 5,
+      "totalCost": "500 GP",
+      "description": "Scribing a 3rd-level spell onto a spell scroll takes 1 workweek (5 days) and costs 500 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-4th",
+      "name": "Scribing a Spell Scroll (4th Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 10,
+      "totalCost": "2,500 GP",
+      "description": "Scribing a 4th-level spell onto a spell scroll takes 2 workweeks (10 days) and costs 2,500 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-5th",
+      "name": "Scribing a Spell Scroll (5th Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 20,
+      "totalCost": "5,000 GP",
+      "description": "Scribing a 5th-level spell onto a spell scroll takes 4 workweeks (20 days) and costs 5,000 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-6th",
+      "name": "Scribing a Spell Scroll (6th Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 40,
+      "totalCost": "15,000 GP",
+      "description": "Scribing a 6th-level spell onto a spell scroll takes 8 workweeks (40 days) and costs 15,000 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-7th",
+      "name": "Scribing a Spell Scroll (7th Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 80,
+      "totalCost": "25,000 GP",
+      "description": "Scribing a 7th-level spell onto a spell scroll takes 16 workweeks (80 days) and costs 25,000 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-8th",
+      "name": "Scribing a Spell Scroll (8th Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 160,
+      "totalCost": "50,000 GP",
+      "description": "Scribing an 8th-level spell onto a spell scroll takes 32 workweeks (160 days) and costs 50,000 GP."
+    },
+    {
+      "id": "scribing-spell-scroll-9th",
+      "name": "Scribing a Spell Scroll (9th Level)",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": 240,
+      "totalCost": "250,000 GP",
+      "description": "Scribing a 9th-level spell onto a spell scroll takes 48 workweeks (240 days) and costs 250,000 GP."
+    },
+    {
+      "id": "building-stronghold",
+      "name": "Building a Stronghold",
+      "costPerDay": null,
+      "costPerDayGP": null,
+      "totalDays": null,
+      "totalCost": "Varies by structure",
+      "description": "A character can spend time building a stronghold. Costs and time vary depending on the type of structure. See the Bastion rules for details on constructing and maintaining a personal base of operations."
+    }
+  ]
+}

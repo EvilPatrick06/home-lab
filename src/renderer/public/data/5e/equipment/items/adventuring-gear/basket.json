@@ -1,0 +1,13 @@
+{
+  "name": "Basket",
+  "cost": "4 SP",
+  "weight": "2 lb.",
+  "description": "Holds up to 40 pounds within 2 cubic feet.",
+  "slug": "basket",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "Longstrider",
+  "level": 1,
+  "school": "Transmutation",
+  "classes": ["Bard", "Druid", "Ranger", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a pinch of dirt",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You touch a creature. The target's Speed increases by 10 feet until the spell ends.",
+  "targetType": "creature",
+  "speedModifiers": [
+    {
+      "type": "bonus",
+      "value": 10,
+      "speedType": "walk"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 1,
+        "description": "You can target one additional creature for each spell slot level above 1."
+      }
+    ]
+  }
+}

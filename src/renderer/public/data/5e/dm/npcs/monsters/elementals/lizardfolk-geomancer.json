@@ -1,0 +1,62 @@
+{
+  "name": "Lizardfolk Geomancer",
+  "slug": "lizardfolk-geomancer",
+  "size": "Medium",
+  "type": "Elemental",
+  "alignment": "Neutral",
+  "ac": "13",
+  "initiative": "+0 (10)",
+  "hp": "33",
+  "hpFormula": "6d8 + 6",
+  "speed": "30 ft., Burrow 20 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 10,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": 0,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Nature +2, Perception +4, Stealth +4",
+  "senses": "Passive Perception 14",
+  "languages": "Draconic, Primordial (Terran)",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The lizardfolk makes two Earth Burst attacks."
+    },
+    {
+      "name": "Earth Burst",
+      "description": "*Melee or Ranged Attack Roll:* +4, reach 5 ft. or range 60 ft. *Hit:* 9 (2d6 + 2) Bludgeoning damage."
+    },
+    {
+      "name": "Hail of Stone (Recharge 5--6)",
+      "description": "*Constitution Saving Throw:* DC 12, each creature in a 20-foot-radius, 40-foot-high Cylinder centered on a point the lizardfolk can see within 60 feet. *Failure:* 15 (6d4) Bludgeoning damage, and the target has the Prone condition. *Success:* Half damage only."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The lizardfolk casts one of the following spells, requiring no Material components and using Wisdom as the spellcasting ability (spell save DC 12):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Reptilian Defenders of the Land*\n**Habitat:** Forest, Swamp; **Treasure:** Individual\nLizardfolk dwell in wildernesses suffused with primal magic. While many lizardfolk are Humanoids with varied skills, some forge powerful bonds with the Elemental Plane of Earth, granting them magical connections to the cycle of growth and rebirth.\nLizardfolk geomancers draw magic from the natural world, using it to protect their people and territories.\nLizardfolk sovereigns undergo magical rites that imbue them with fantastic strength and magic from the Elemental Plane of Earth. In some, though, it also unlocks a primal viciousness.",
+  "habitat": "Forest, Swamp",
+  "treasure": "Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

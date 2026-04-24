@@ -1,0 +1,46 @@
+{
+  "id": "spellwrought-tattoo",
+  "name": "Spellwrought Tattoo",
+  "rarity": "Varies",
+  "attunement": false,
+  "description": "This tattoo contains a single spell, wrought on your skin by a magic needle. Once the tattoo is applied, you can cast the spell, requiring no material components. The tattoo glows faintly while you cast the spell and for the spell's duration. Once the spell ends, the tattoo vanishes from your skin. The level of the spell in the tattoo determines the spell's saving throw DC, its attack bonus, the tattoo's rarity, and the tattoo needle's rarity.",
+  "variants": [
+    {
+      "spellLevel": "Cantrip",
+      "rarity": "Common",
+      "spellSaveDC": 13,
+      "spellAttackBonus": 5,
+      "needleRequired": "Common"
+    },
+    { "spellLevel": "1st", "rarity": "Common", "spellSaveDC": 13, "spellAttackBonus": 5, "needleRequired": "Common" },
+    {
+      "spellLevel": "2nd",
+      "rarity": "Uncommon",
+      "spellSaveDC": 13,
+      "spellAttackBonus": 5,
+      "needleRequired": "Uncommon"
+    },
+    {
+      "spellLevel": "3rd",
+      "rarity": "Uncommon",
+      "spellSaveDC": 15,
+      "spellAttackBonus": 7,
+      "needleRequired": "Uncommon"
+    },
+    { "spellLevel": "4th", "rarity": "Rare", "spellSaveDC": 15, "spellAttackBonus": 7, "needleRequired": "Rare" },
+    { "spellLevel": "5th", "rarity": "Rare", "spellSaveDC": 17, "spellAttackBonus": 9, "needleRequired": "Rare" }
+  ],
+  "properties": {
+    "type": "Magical Tattoo",
+    "bodyLocation": "Any",
+    "consumable": true
+  },
+  "effects": [
+    {
+      "name": "Cast Contained Spell",
+      "description": "Cast the spell contained in the tattoo, requiring no material components. The tattoo vanishes after the spell ends.",
+      "activation": "MagicAction"
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

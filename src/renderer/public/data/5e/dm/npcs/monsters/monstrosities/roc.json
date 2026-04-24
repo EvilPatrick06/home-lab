@@ -1,0 +1,159 @@
+{
+  "name": "Roc",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Monstrosity",
+  "alignment": "Unaligned",
+  "habitat": ["Hill", "Mountain"],
+  "treasure": ["None"],
+  "lore": "A roc is a gargantuan bird of prey that dwells among the highest mountain peaks and coastal cliffs, large enough to carry off elephants and whales. Sailors watch the skies in dread when entering roc territory, while mountain folk tell tales of these legendary predators nesting atop inaccessible summits. Rocs are primal forces of nature, fiercely territorial and relentless in the pursuit of prey.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 248,
+    "dice": {
+      "count": 16,
+      "die": "d20",
+      "modifier": 80
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 120
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 28,
+      "modifier": 9,
+      "save": 9
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 4
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 4
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "specialSenses": [],
+    "passivePerception": 14
+  },
+  "languages": {},
+  "challengeRating": "11",
+  "experiencePoints": 7200,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Keen Sight",
+      "description": "The roc has Advantage on Wisdom (Perception) checks that rely on sight."
+    }
+  ],
+  "multiattack": {
+    "description": "The roc makes two attacks: one Beak attack and one Talons attack.",
+    "attacks": [
+      {
+        "actionName": "Beak",
+        "count": 1
+      },
+      {
+        "actionName": "Talons",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Beak",
+      "description": "Melee Attack Roll: +13, reach 10 ft. Hit: 27 (4d8 + 9) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 27,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 9
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Talons",
+      "description": "Melee Attack Roll: +13, reach 5 ft. Hit: 23 (4d6 + 9) Slashing damage, and the target has the Grappled condition (escape DC 21). Until this grapple ends, the target has the Restrained condition, and the roc can't use Talons on another target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 23,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 9
+              },
+              "type": "Slashing"
+            }
+          ],
+          "additionalEffects": "Until this grapple ends, the target has the Restrained condition, and the roc can't use Talons on another target.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 21
+            },
+            {
+              "condition": "Restrained",
+              "duration": "until the grapple ends"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

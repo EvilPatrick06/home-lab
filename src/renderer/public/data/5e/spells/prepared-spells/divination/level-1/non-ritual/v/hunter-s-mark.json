@@ -1,0 +1,78 @@
+{
+  "name": "Hunter's Mark",
+  "level": 1,
+  "school": "Divination",
+  "classes": ["Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You magically mark one creature you can see within range as your quarry. Until the spell ends, you deal an extra 1d6 Force damage to the target whenever you hit it with an attack roll. You also have Advantage on any Wisdom (Perception or Survival) check you make to find it. If the target drops to 0 Hit Points before this spell ends, you can take a Bonus Action to move the mark to a new creature you can see within range.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Force",
+      "applicationType": "onHit"
+    }
+  ],
+  "advantagesGranted": [
+    {
+      "on": "abilityChecks",
+      "ability": "Wisdom",
+      "condition": "Perception or Survival checks made to find the marked target"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "BonusAction",
+    "description": "If the target drops to 0 Hit Points before the spell ends, you can take a Bonus Action to move the mark to a new creature you can see within range."
+  },
+  "higherLevelCasting": {
+    "overrides": [
+      {
+        "minSlotLevel": 3,
+        "maxSlotLevel": 4,
+        "description": "Your Concentration can last up to 8 hours.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": true,
+          "amount": 8,
+          "unit": "hours"
+        }
+      },
+      {
+        "minSlotLevel": 5,
+        "maxSlotLevel": 9,
+        "description": "Your Concentration can last up to 24 hours.",
+        "durationOverride": {
+          "type": "Timed",
+          "concentration": true,
+          "amount": 24,
+          "unit": "hours"
+        }
+      }
+    ]
+  },
+  "tags": ["bonus-damage", "tracking", "concentration", "mark"]
+}

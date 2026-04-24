@@ -1,0 +1,19 @@
+{
+  "name": "Rolling Stone",
+  "type": "mechanical",
+  "trigger": "A creature moves onto a pressure plate",
+  "duration": "Until the stone stops rolling",
+  "severity": "Level 5+",
+  "dc": 15,
+  "detectDC": 15,
+  "disarmDC": null,
+  "damage": "55 (10d10) Bludgeoning",
+  "description": "Large stone rolls down a corridor. Initiative 10. Moves 60 ft. per turn. Creatures in path: DC 15 Dex save or 55 (10d10) Bludgeoning and Prone. Stone: AC 17, HP 100, Damage Threshold 10.",
+  "slug": "rolling-stone",
+  "category": "Trap",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Traps"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Shield of Expression",
+  "category": "Shield",
+  "cost": {
+    "amount": 10,
+    "denomination": "GP"
+  },
+  "ac": {
+    "base": 2,
+    "addDexModifier": false,
+    "maxDexBonus": null,
+    "isShieldBonus": true
+  },
+  "strengthRequirement": null,
+  "stealthDisadvantage": false,
+  "weight": 6,
+  "donDoffTime": {
+    "donMinutes": 1,
+    "doffMinutes": 1
+  }
+}

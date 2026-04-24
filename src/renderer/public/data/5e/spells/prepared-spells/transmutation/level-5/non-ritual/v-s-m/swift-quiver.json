@@ -1,0 +1,37 @@
+{
+  "name": "Swift Quiver",
+  "level": 5,
+  "school": "Transmutation",
+  "classes": ["Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a Quiver worth 1+ GP",
+      "cost": 1,
+      "currency": "GP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "When you cast the spell and as a Bonus Action until it ends, you can make two attacks with a weapon that fires Arrows or Bolts, such as a Longbow or a Light Crossbow. The spell magically creates the ammunition needed for each attack. Each Arrow or Bolt created by the spell deals damage like a nonmagical piece of ammunition of its kind and disintegrates immediately after it hits or misses.",
+  "targetType": "self",
+  "subsequentTurnAction": {
+    "actionType": "BonusAction",
+    "description": "You can make two attacks with a weapon that fires Arrows or Bolts, such as a Longbow or a Light Crossbow. The spell magically creates the ammunition needed for each attack."
+  },
+  "tags": ["buff", "ammunition", "ranged", "combat"]
+}

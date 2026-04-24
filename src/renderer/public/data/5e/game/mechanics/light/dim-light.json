@@ -1,0 +1,307 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. This entry documents the universal illumination category of Dim Light, which applies across all planes and material realms wherever the conditions for it are met.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Environments",
+        "description": "Universal environmental rules governing illumination categories (Bright Light, Dim Light, Darkness) that apply across all planes of existence.",
+        "memberPlanes": ["dim-light-environment"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "dim-light-environment",
+      "name": "Dim Light",
+      "alternateNames": ["Shadows"],
+      "category": "Special",
+      "alignments": [],
+      "philosophicalEssence": "Dim Light is one of three categories of illumination. It represents the transitional boundary between Bright Light and Darkness, creating conditions where details are harder to perceive.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": false,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "dim-light-lightly-obscured",
+          "name": "Lightly Obscured Area (Dim Light)",
+          "description": "Dim Light, also called shadows, creates a Lightly Obscured area. An area of Dim Light is usually a boundary between Bright Light and surrounding Darkness. The soft light of twilight and dawn also counts as Dim Light. A full moon might bathe the land in Dim Light.",
+          "mechanicalEffect": "You have Disadvantage on Wisdom (Perception) checks that rely on sight when trying to see something in a Lightly Obscured area such as Dim Light.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": "Twilight, dawn, full moonlight, boundary between Bright Light and Darkness",
+            "visibilityRange": {
+              "standard": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": false,
+              "obscuresVision": false,
+              "absorbsLight": false,
+              "radiatesEnergy": false
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": -50
+          },
+          "movementPenalty": {
+            "type": "none",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 0
+          },
+          "affectsEmotions": false,
+          "duration": "As long as the dim light conditions persist",
+          "removalMethods": ["Introducing a source of Bright Light", "Extinguishing light sources to create Darkness"],
+          "sourceReference": "Chapter 1: Playing the Game, Vision and Light; Appendix C: Rules Glossary, Light and Lightly Obscured"
+        },
+        {
+          "id": "darkvision-in-dim-light",
+          "name": "Darkvision Interaction with Dim Light",
+          "description": "If you have Darkvision, you can see in Dim Light within a specified range as if it were Bright Light. You can also see in Darkness within that range as if it were Dim Light, discerning colors in that Darkness only as shades of gray.",
+          "mechanicalEffect": "Creatures with Darkvision treat Dim Light as Bright Light within their Darkvision range, negating the Lightly Obscured condition caused by Dim Light. In Darkness within their Darkvision range, they see as if in Dim Light (Lightly Obscured) and discern colors only as shades of gray.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": null,
+              "withDarkvision": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": false,
+              "obscuresVision": false,
+              "absorbsLight": false,
+              "radiatesEnergy": false
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "illuminationModifierPercent": 0
+          },
+          "affectsEmotions": false,
+          "duration": "Permanent trait of creatures with Darkvision",
+          "removalMethods": [],
+          "sourceReference": "Appendix C: Rules Glossary, Darkvision"
+        },
+        {
+          "id": "dim-light-sources",
+          "name": "Common Sources of Dim Light",
+          "description": "Dim Light is typically found at the boundary between a source of Bright Light and the surrounding Darkness. Torches, lanterns, fires, and other illumination sources produce Bright Light within a specific radius, beyond which they typically shed Dim Light for an additional radius. The soft light of twilight and dawn counts as Dim Light. A full moon might bathe the land in Dim Light. Even gloomy days provide Bright Light, not Dim Light.",
+          "mechanicalEffect": "Many light-producing items and spells specify two radii: a Bright Light radius and a Dim Light radius. The Dim Light radius defines the Lightly Obscured boundary zone around the Bright Light area.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": "Twilight, dawn, full moonlight, outer radius of torches/lanterns/fires",
+            "visibilityRange": {
+              "standard": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": false,
+              "extinguishesMagicalFlames": false,
+              "suppressesDarkvision": false,
+              "obscuresVision": false,
+              "absorbsLight": false,
+              "radiatesEnergy": false
+            },
+            "dayNightCycle": {
+              "exists": true,
+              "transitionType": "gradual",
+              "description": "Dim Light naturally occurs during twilight and dawn transitions between day (Bright Light) and night (Darkness). A full moon might produce Dim Light at night."
+            },
+            "illuminationModifierPercent": -50
+          },
+          "affectsEmotions": false,
+          "duration": "Varies by source",
+          "removalMethods": [],
+          "sourceReference": "Chapter 1: Playing the Game, Vision and Light"
+        },
+        {
+          "id": "dim-light-unseen-attackers",
+          "name": "Unseen Attackers and Targets in Dim Light",
+          "description": "Dim Light alone does not make creatures unseen. It creates a Lightly Obscured area, which imposes Disadvantage on Wisdom (Perception) checks relying on sight but does not grant the Blinded condition. Creatures in Dim Light can still be seen. Only Heavily Obscured areas (Darkness) cause the Blinded condition when trying to see something there.",
+          "mechanicalEffect": "In Dim Light (Lightly Obscured), creatures are still visible. Attack rolls are not affected by Disadvantage from Dim Light alone. Only Wisdom (Perception) checks relying on sight have Disadvantage. The Blinded condition applies only in Heavily Obscured areas such as Darkness, not in Lightly Obscured areas such as Dim Light.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "While in Dim Light",
+          "removalMethods": ["Moving to Bright Light"],
+          "sourceReference": "Chapter 1: Playing the Game, Vision and Light; Appendix C: Rules Glossary, Heavily Obscured, Lightly Obscured, Blinded"
+        },
+        {
+          "id": "dim-light-hide-action",
+          "name": "Dim Light and the Hide Action",
+          "description": "Dim Light creates conditions where hiding may be possible. The DM decides when circumstances are appropriate for hiding. Dim Light (Lightly Obscured) makes details harder to see, which may support attempts to hide depending on available cover or obscurement.",
+          "mechanicalEffect": "Dim Light as a Lightly Obscured area may provide sufficient conditions for a creature to attempt the Hide action (Dexterity [Stealth] check), at the DM's discretion. Heavily Obscured areas such as Darkness are more clearly sufficient for hiding.",
+          "isOptional": true,
+          "affectsEmotions": false,
+          "duration": "While conditions permit",
+          "removalMethods": ["Introducing Bright Light"],
+          "sourceReference": "Chapter 1: Playing the Game, Hiding"
+        },
+        {
+          "id": "dim-light-passive-perception",
+          "name": "Dim Light and Passive Perception",
+          "description": "Passive Perception is calculated as 10 + Wisdom (Perception) modifier. In a Lightly Obscured area such as Dim Light, Wisdom (Perception) checks that rely on sight have Disadvantage, which translates to a -5 penalty to Passive Perception for sight-based detection.",
+          "mechanicalEffect": "In Dim Light, a creature's Passive Perception for sight-based detection is effectively reduced by 5 (from the Disadvantage on Wisdom [Perception] checks relying on sight).",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "While in Dim Light",
+          "removalMethods": ["Moving to Bright Light", "Using Darkvision within its range"],
+          "sourceReference": "Appendix C: Rules Glossary, Passive Perception; Chapter 1: Playing the Game, Vision and Light"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "none",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "dim-light-illumination-category",
+          "name": "Dim Light Illumination Category",
+          "description": "Dim Light is one of three categories of illumination defined in the game: Bright Light, Dim Light, and Darkness. Dim Light creates a Lightly Obscured area. A Lightly Obscured area — such as an area with Dim Light, patchy fog, or moderate foliage — causes Disadvantage on Wisdom (Perception) checks that rely on sight. Dim Light is also called shadows.",
+          "mechanicalEffect": "Dim Light = Lightly Obscured area. Disadvantage on Wisdom (Perception) checks relying on sight. Does NOT impose the Blinded condition (that is Heavily Obscured / Darkness). Darkvision allows seeing in Dim Light as if it were Bright Light within the specified range.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "dim-light-contrast-bright-darkness",
+          "name": "Illumination Category Relationships",
+          "description": "Three illumination categories exist: Bright Light lets most creatures see normally. Dim Light creates a Lightly Obscured area. Darkness creates a Heavily Obscured area, imposing the Blinded condition when trying to see something there. Dim Light is the intermediate category between Bright Light and Darkness.",
+          "mechanicalEffect": "Bright Light: normal vision, no penalties. Dim Light (Lightly Obscured): Disadvantage on sight-based Wisdom (Perception) checks. Darkness (Heavily Obscured): Blinded condition when trying to see something there. Darkvision upgrades Dim Light to effective Bright Light and Darkness to effective Dim Light within its range.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [],
+      "adventureThemes": [],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 1: Playing the Game; Appendix C: Rules Glossary",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game — Vision and Light section defines Dim Light as creating a Lightly Obscured area, details its sources (twilight, dawn, full moonlight, boundary of Bright Light), and explains its mechanical effect (Disadvantage on Wisdom [Perception] checks relying on sight)."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary — Darkvision entry: creatures with Darkvision see in Dim Light as Bright Light and in Darkness as Dim Light (shades of gray only) within specified range."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary — Lightly Obscured entry: Disadvantage on Wisdom (Perception) checks to see something. Examples include Dim Light, patchy fog, moderate foliage."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary — Light entry: Three categories — Bright Light (normal vision), Dim Light (Lightly Obscured), Darkness (Heavily Obscured)."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary — Passive Perception: 10 + Wisdom (Perception) modifier. Disadvantage subtracts 5, which applies in Dim Light for sight-based passive detection."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary — Heavily Obscured entry: Blinded condition applies when trying to see something in a Heavily Obscured area (Darkness), contrasting with Dim Light which only imposes Disadvantage on Perception."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

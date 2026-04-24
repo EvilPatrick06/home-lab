@@ -1,0 +1,226 @@
+{
+  "name": "Guardian Naga",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "descriptiveTags": ["Naga"],
+  "alignment": "Lawful Good",
+  "habitat": ["Desert", "Forest", "Ruins", "Temple"],
+  "treasure": ["Relics"],
+  "lore": "Guardian nagas are benevolent serpentine beings that protect sacred places and powerful relics. They dwell in temples, ruins, and other sites of great spiritual or magical significance, watching over them for centuries. A guardian naga's sense of duty is absolute; it will sacrifice itself to protect its charge, confident in its ability to rejuvenate. These nagas are wise counselors and formidable foes of evil, using both their venomous bite and divine magic to defend the places and objects entrusted to their care.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 136,
+    "dice": {
+      "count": 16,
+      "die": "d10",
+      "modifier": 48
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    },
+    "WIS": {
+      "score": 19,
+      "modifier": 4,
+      "save": 8
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    }
+  },
+  "skills": [
+    {
+      "skill": "Insight",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    }
+  ],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Celestial", "Common"]
+  },
+  "challengeRating": "10",
+  "experiencePoints": 5900,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Rejuvenation",
+      "description": "If the naga dies, it revives with all its Hit Points in 1d6 days unless a Wish spell is used to prevent this trait from functioning. The revived naga appears in an unoccupied space within 10 feet of where it died."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "WIS",
+      "spellSaveDC": 16,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Command",
+              "level": 1
+            },
+            {
+              "name": "Mending",
+              "level": 0
+            },
+            {
+              "name": "Thaumaturgy",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Cure Wounds",
+              "level": 1,
+              "castAtLevel": 3
+            },
+            {
+              "name": "Hold Person",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Bestow Curse",
+              "level": 3
+            },
+            {
+              "name": "Flame Strike",
+              "level": 5
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Geas",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The naga makes two Bite attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +8, reach 10 ft. Hit: 8 (1d8 + 4) Piercing damage plus 27 (6d8) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 27,
+              "dice": {
+                "count": 6,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The naga casts one of the following spells, requiring no Material components, using Wisdom as the spellcasting ability (spell save DC 16): At will: Command, Mending, Thaumaturgy; 3/day each: Cure Wounds (level 3 version), Hold Person; 2/day each: Bestow Curse, Flame Strike; 1/day: Geas"
+    }
+  ]
+}

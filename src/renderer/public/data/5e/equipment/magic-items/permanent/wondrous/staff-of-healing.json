@@ -1,0 +1,30 @@
+{
+  "name": "Staff of Healing",
+  "itemType": "Staff",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": "by a Bard, Cleric, or Druid",
+  "description": "This staff has 10 charges. While holding the staff, you can cast one of the spells on the following table from it, using your spellcasting ability modifier. The table indicates how many charges you must expend to cast the spell.",
+  "properties": [
+    {
+      "spell": "Cure Wounds",
+      "chargeCost": "1 charge per spell level (maximum 4 for a level 4 spell)"
+    },
+    {
+      "spell": "Lesser Restoration",
+      "chargeCost": 2
+    },
+    {
+      "spell": "Mass Cure Wounds",
+      "chargeCost": 5
+    }
+  ],
+  "weight": "between 2 and 7 pounds",
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "charges": 10,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d6 + 4"
+}

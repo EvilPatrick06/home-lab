@@ -1,0 +1,13 @@
+{
+  "name": "Staff of Healing",
+  "slug": "staff-of-healing",
+  "type": "Staff",
+  "rarity": "Rare (Requires Attunement by a Bard, Cleric, or Druid)",
+  "attunement": true,
+  "description": "This staff has 10 charges. While holding the staff, you can cast one of the spells on the following table from it, using your spellcasting ability modifier. The table indicates how many charges you must expend to cast the spell.\n\n| Spell | Charge Cost |\n|-------|-------------|\n| *Cure Wounds* | 1 charge per spell level (maximum 4 for a level 4 spell) |\n| *Lesser Restoration* | 2 |\n| *Mass Cure Wounds* | 5 |\n\n**Regaining Charges.** The staff regains 1d6 + 4 expended charges daily at dawn. If you expend the last charge, roll 1d20. On a 1, the staff vanishes in a flash of light, lost forever.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

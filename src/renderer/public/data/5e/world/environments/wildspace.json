@@ -1,0 +1,544 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all. Wildspace systems exist where the Astral Plane overlaps with the Material Plane, allowing access to the stars and planets of Material Plane worlds.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      },
+      {
+        "name": "Special Regions",
+        "description": "Wildspace systems are regions where the Astral Plane overlaps with the Material Plane, containing the stars and planets of Material Plane worlds.",
+        "memberPlanes": ["Wildspace"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "wildspace",
+      "name": "Wildspace",
+      "alternateNames": ["Wildspace Systems"],
+      "category": "Special",
+      "subcategory": "Astral",
+      "alignments": [],
+      "philosophicalEssence": "Wildspace systems are vast expanses where the Astral Plane overlaps with the Material Plane, containing the celestial bodies—stars, planets, moons, gas clouds—of Material Plane worlds. Every world of the Material Plane is situated in a Wildspace system.",
+      "emotionalInfluence": "Unlike the rest of the Astral Plane, Wildspace does not suspend the passage of time or biological needs. Creatures and objects age normally and exist on both the Astral Plane and Material Plane simultaneously.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Vast airless expanses bobbing in the Astral Plane like corks in an ocean, each containing a sun, planets, moons, gas clouds, and other cosmic bodies",
+        "breathableAtmosphere": false,
+        "atmosphereNotes": "Wildspace systems are described as vast, airless expanses. Creatures require their own air supply or magical means to breathe. Space-dwelling life-forms (spores, plankton, larger creatures resembling fish and aquatic mammals) teem within Wildspace, suggesting pockets or envelopes of breathable atmosphere may exist around some bodies or creatures.",
+        "temperature": {
+          "category": "variable",
+          "description": "Temperature varies depending on proximity to the sun or other celestial bodies within the Wildspace system. No specific temperature is given in the rules."
+        },
+        "hasSurface": false,
+        "dominantElement": "None; Wildspace is a void containing celestial bodies",
+        "weatherPatterns": "No weather patterns described; the environment is a void between celestial bodies"
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Unlike the rest of the Astral Plane where creatures don't age or suffer from hunger or thirst, creatures and objects in Wildspace age normally. This is because Wildspace exists on both the Astral Plane and Material Plane simultaneously, and the Material Plane's normal time flow applies."
+      },
+      "hazards": [
+        {
+          "id": "wildspace-airless-void",
+          "name": "Airless Void",
+          "description": "Wildspace systems are vast, airless expanses. Creatures without their own air supply or magical means of breathing will suffocate. A creature can hold its breath for a number of minutes equal to 1 + its Constitution modifier (minimum of 30 seconds). When out of breath, it can survive for a number of rounds equal to its Constitution modifier (minimum 1 round), then drops to 0 HP and is dying until it can breathe again.",
+          "category": "environmental",
+          "severity": "lethal",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": ["Construct", "Undead"],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Wildspace description states 'vast, airless expanses'; suffocation rules from rules glossary"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "wildspace-dual-planar-existence",
+          "name": "Dual Planar Existence",
+          "description": "Creatures and objects in Wildspace exist on both the Astral Plane and Material Plane simultaneously.",
+          "mechanicalEffect": "This overlap enables creatures to use spells such as Teleport to travel from Wildspace to a nearby world, or vice versa. Creatures and objects age normally in Wildspace, unlike in the rest of the Astral Plane where aging is suspended.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology, Astral Plane, Wildspace"
+        },
+        {
+          "id": "wildspace-normal-aging",
+          "name": "Normal Aging",
+          "description": "Unlike the broader Astral Plane where creatures do not age or suffer from hunger or thirst, creatures in Wildspace age normally.",
+          "mechanicalEffect": "Creatures and objects in Wildspace are subject to normal passage of time, hunger, thirst, and aging, because they exist on the Material Plane simultaneously. This is a specific exception to the Astral Plane's general rule that creatures don't age or suffer from hunger or thirst.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology, Astral Plane, Wildspace"
+        },
+        {
+          "id": "wildspace-astral-navigation",
+          "name": "Astral Navigation to Wildspace",
+          "description": "As an Astral traveler approaches a Wildspace system, the silver fog of the Astral Plane gradually thins until it falls away in Wildspace. Then the sun of the Wildspace system comes into view—often millions of miles away—along with colorful gas clouds, planets, moons, and other cosmic bodies.",
+          "mechanicalEffect": "A creature in the Astral Plane can think of a specific Wildspace system (e.g., 'the Wildspace system of Realmspace') to become aware of the most direct route to that location. The creature does not know how long the journey will take or how perilous it will be, just which direction to go. The DM decides travel time; a trek to a specific Wildspace system might take 4d6 days.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology, Astral Plane, Navigating the Astral Plane"
+        },
+        {
+          "id": "wildspace-space-dwelling-life",
+          "name": "Space-Dwelling Life-Forms",
+          "description": "A Wildspace system teems with space-dwelling life-forms, including spores, plankton, and larger creatures that resemble fish and aquatic mammals.",
+          "mechanicalEffect": "Encounters with space-dwelling creatures are possible while traveling through Wildspace. These life-forms populate the void between celestial bodies.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology, Astral Plane, Wildspace"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "none",
+      "planarConnections": [
+        {
+          "id": "wildspace-to-astral",
+          "name": "Wildspace to Astral Plane Boundary",
+          "type": "other",
+          "connectedPlanes": ["Astral Plane", "Material Plane"],
+          "description": "Wildspace exists where the Astral Plane overlaps with the Material Plane. As an Astral traveler approaches a Wildspace system, the silver fog of the Astral Plane gradually thins until it falls away. A creature or ship traveling from one Wildspace system to another must cross the Astral Plane unless it has some other magical means of traveling from one world to another.",
+          "hazards": ["Psychic Wind while traversing the Astral Plane between Wildspace systems"],
+          "travelTime": {
+            "formula": "4d6",
+            "dice": {
+              "count": 4,
+              "die": 6,
+              "modifier": 0,
+              "expression": "4d6",
+              "averageResult": 14
+            },
+            "unitMultiplier": "days"
+          },
+          "isOneWay": false,
+          "navigableBy": [
+            "Spelljammer vessels",
+            "Astral travelers",
+            "Creatures using thought-based movement in the Astral Plane"
+          ]
+        },
+        {
+          "id": "wildspace-to-material-world",
+          "name": "Wildspace to Material Plane World",
+          "type": "other",
+          "connectedPlanes": ["Material Plane"],
+          "description": "Every world of the Material Plane is situated in a Wildspace system. Because creatures in Wildspace exist on both the Astral Plane and Material Plane simultaneously, spells such as Teleport can transport creatures from Wildspace to a nearby world, or vice versa.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["Teleport spell", "Teleportation Circle spell", "Spelljammer vessels", "Other magical means"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Aberration", "Humanoid", "Monstrosity", "Beast"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Githyanki Outposts",
+            "description": "Githyanki establish outposts in Wildspace and on other planes so their children can grow to maturity, since creatures on the broader Astral Plane don't age."
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "wildspace-astral-movement",
+          "name": "Astral Movement in Wildspace Approach",
+          "description": "While in the Astral Plane approaching Wildspace, a traveler can move by simply thinking about moving. In combat, a creature has a Fly Speed equal to 5 times its Intelligence score and can hover. Distance has little meaning outside combat.",
+          "mechanicalEffect": "Fly Speed (ft) = 5 × Intelligence score, with hover capability. To find a destination in or approaching Wildspace, a creature need only think about the destination (e.g., 'the Wildspace system of Realmspace') to become aware of the most direct route. The DM decides travel time: a trek to a specific Wildspace system might take 4d6 days; a more general location might take 1d4 × 10 hours.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "wildspace-inter-system-travel",
+          "name": "Inter-System Travel Requirement",
+          "description": "A creature or ship traveling from one Wildspace system to another must cross the Astral Plane unless it has some other magical means of traveling from one world to another.",
+          "mechanicalEffect": "There is no direct path between Wildspace systems; the Astral Plane must be traversed. This exposes travelers to Astral Plane hazards including psychic winds. Alternative methods include spells, the Shadowfell, or the Feywild, though such routes are less charted and no less perilous.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "wildspace-teleportation-overlap",
+          "name": "Material-Astral Overlap Enables Teleportation",
+          "description": "Because creatures and objects in Wildspace exist on both the Astral Plane and Material Plane simultaneously, teleportation magic functions between Wildspace and nearby Material Plane worlds.",
+          "mechanicalEffect": "Creatures can use spells such as Teleport to travel from Wildspace to a nearby world, or vice versa. This is a specific property of the dual-planar overlap unique to Wildspace.",
+          "affectsSpellcasting": true,
+          "spellcastingRestrictions": {
+            "blockedSpells": [],
+            "exemptSpells": [],
+            "modifiedSpells": [
+              {
+                "spell": "Teleport",
+                "modification": "Can be used to travel between Wildspace and a nearby Material Plane world due to the simultaneous existence on both planes"
+              },
+              {
+                "spell": "Teleportation Circle",
+                "modification": "Can be used to travel between Wildspace and a nearby Material Plane world due to the simultaneous existence on both planes"
+              }
+            ]
+          }
+        }
+      ],
+      "adventureThemes": [
+        "Exploration of cosmic voids between worlds",
+        "Encounters with space-dwelling life-forms",
+        "Inter-world travel and navigation",
+        "Spelljamming voyages",
+        "Discovery of distant Material Plane worlds"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Spelljammer: Adventures in Space",
+          "description": "Contains extensive information about Wildspace and Astral travel"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Wildspace is described as a subsection of the Astral Plane in Chapter 6: Cosmology. Also referenced under Material Plane section as a route for traveling between worlds (The Great Journey)."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "astral-to-wildspace-general",
+      "name": "Astral Sea to Wildspace Systems",
+      "type": "other",
+      "connectedPlanes": ["Astral Plane", "Wildspace", "Material Plane"],
+      "description": "Wildspace systems bob in the Astral Plane like corks in an ocean. As an Astral traveler approaches a Wildspace system, the silver fog of the Astral Plane gradually thins until it falls away. Every world of the Material Plane is situated in a Wildspace system, making Wildspace the bridge between the Astral Sea and Material Plane worlds.",
+      "hazards": ["Psychic Wind"],
+      "travelTime": {
+        "formula": "4d6",
+        "dice": {
+          "count": 4,
+          "die": 6,
+          "modifier": 0,
+          "expression": "4d6",
+          "averageResult": 14
+        },
+        "unitMultiplier": "days"
+      },
+      "isOneWay": false,
+      "navigableBy": [
+        "Thought-based Astral travel",
+        "Spelljammer vessels",
+        "Astral Projection spell",
+        "Gate spell",
+        "Plane Shift spell"
+      ]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "astral-thought-travel-to-wildspace",
+      "name": "Thought-Based Astral Travel to Wildspace",
+      "type": "voyage",
+      "description": "A traveler in the Astral Plane can move by simply thinking about moving. To find a Wildspace system, the traveler thinks about the destination (e.g., 'the Wildspace system of Realmspace'), which makes the creature aware of the most direct route to that location. The creature doesn't know how long the journey will take or how perilous it will be, just which direction to go.",
+      "requirements": [
+        "Must be on the Astral Plane",
+        "Must think of a specific Wildspace system or location within it"
+      ],
+      "associatedSpells": ["Astral Projection"],
+      "risks": [
+        "Psychic Wind (DC 15 Intelligence saving throw)",
+        "Unknown travel duration",
+        "Unknown perils along the route"
+      ],
+      "destinations": ["Any Wildspace system", "Any specific location within the Astral Plane or Wildspace"]
+    },
+    {
+      "id": "spelljammer-wildspace-travel",
+      "name": "Spelljammer Vessel Travel",
+      "type": "voyage",
+      "description": "Traveling through Wildspace and across the Astral Plane aboard a vessel powered by magic is one method of transit between the worlds of the Material Plane (referred to as The Great Journey).",
+      "requirements": ["A vessel powered by magic (spelljammer)"],
+      "associatedSpells": [],
+      "risks": [
+        "Psychic Wind when crossing the Astral Plane between systems",
+        "Encounters with Astral denizens",
+        "Space-dwelling creatures in Wildspace"
+      ],
+      "destinations": ["Other Wildspace systems", "Material Plane worlds within a Wildspace system"]
+    },
+    {
+      "id": "teleport-wildspace-to-world",
+      "name": "Teleportation Between Wildspace and Material Plane Worlds",
+      "type": "spell",
+      "description": "Because creatures in Wildspace exist on both the Astral Plane and Material Plane simultaneously, teleportation spells can transport creatures from Wildspace to a nearby world, or vice versa.",
+      "requirements": [
+        "Must be in Wildspace or on a nearby Material Plane world",
+        "Appropriate spell or magical means"
+      ],
+      "associatedSpells": ["Teleport", "Teleportation Circle"],
+      "risks": ["Standard risks of teleportation spells (e.g., off-target arrival)"],
+      "destinations": ["Nearby Material Plane world from Wildspace", "Wildspace from a Material Plane world"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

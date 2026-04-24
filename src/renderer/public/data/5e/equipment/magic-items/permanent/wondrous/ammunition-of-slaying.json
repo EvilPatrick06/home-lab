@@ -1,0 +1,82 @@
+{
+  "name": "Ammunition of Slaying",
+  "itemType": "Weapon (Any Ammunition)",
+  "rarity": "Very Rare",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "This magic ammunition is meant to slay creatures of a particular type, which the DM chooses or determines randomly by rolling on the table below. If a creature of that type takes damage from the ammunition, the creature makes a DC 17 Constitution saving throw, taking an extra 6d10 Force damage on a failed save or half as much extra damage on a successful one.\n\nAfter dealing its extra damage to a creature, the ammunition becomes nonmagical.",
+  "properties": {
+    "slayType": {
+      "rollTable": [
+        {
+          "result": "Aberrations",
+          "chance": 10
+        },
+        {
+          "result": "Beasts",
+          "chance": 5
+        },
+        {
+          "result": "Celestials",
+          "chance": 5
+        },
+        {
+          "result": "Constructs",
+          "chance": 5
+        },
+        {
+          "result": "Dragons",
+          "chance": 10
+        },
+        {
+          "result": "Elementals",
+          "chance": 10
+        },
+        {
+          "result": "Humanoids",
+          "chance": 10
+        },
+        {
+          "result": "Fey",
+          "chance": 10
+        },
+        {
+          "result": "Fiends",
+          "chance": 10
+        },
+        {
+          "result": "Giants",
+          "chance": 5
+        },
+        {
+          "result": "Monstrosities",
+          "chance": 5
+        },
+        {
+          "result": "Oozes",
+          "chance": 5
+        },
+        {
+          "result": "Plants",
+          "chance": 5
+        },
+        {
+          "result": "Undead",
+          "chance": 10
+        }
+      ]
+    },
+    "saveDC": 17,
+    "extraDamage": {
+      "count": 6,
+      "die": 10,
+      "type": "Force"
+    }
+  },
+  "weight": 0,
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

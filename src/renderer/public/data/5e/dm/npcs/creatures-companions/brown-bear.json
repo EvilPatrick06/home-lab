@@ -1,0 +1,48 @@
+{
+  "name": "Brown Bear",
+  "slug": "brown-bear",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 11,
+  "hp": 34,
+  "hpFormula": "4d10 + 12",
+  "speed": "40 ft., Climb 30 ft.",
+  "abilityScores": {
+    "str": 19,
+    "dex": 10,
+    "con": 16,
+    "int": 2,
+    "wis": 13,
+    "cha": 7
+  },
+  "skills": "Perception +3",
+  "senses": "Passive Perception 13",
+  "languages": "—",
+  "cr": "1",
+  "xp": "200 XP",
+  "traits": [
+    {
+      "name": "Keen Smell",
+      "description": "Advantage on Wisdom (Perception) checks that rely on smell."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "One Bite and one Claws attack."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee:* +6, reach 5 ft. *Hit:* 8 (1d8 + 4) Piercing."
+    },
+    {
+      "name": "Claws",
+      "description": "*Melee:* +6, reach 5 ft. *Hit:* 11 (2d6 + 4) Slashing."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

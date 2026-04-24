@@ -1,0 +1,65 @@
+{
+  "name": "Manes Vaporspawn",
+  "slug": "manes-vaporspawn",
+  "size": "Medium",
+  "type": "Fiend",
+  "alignment": "Chaotic Evil",
+  "ac": "13",
+  "initiative": "+1 (11)",
+  "hp": "19",
+  "hpFormula": "3d8 + 6",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 14,
+    "dex": 12,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": 1,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison; Charmed, Exhaustion, Frightened, Grappled, Poisoned, Restrained",
+  "resistances": "Cold, Fire, Lightning",
+  "senses": "Darkvision 60 ft.; Passive Perception 9",
+  "languages": "Understands Abyssal but can't speak",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Contortionist",
+      "description": "The manes can move through a space as narrow as 1 inch without expending extra movement to do so."
+    },
+    {
+      "name": "Sickening Vapors",
+      "description": "*Constitution Saving Throw:* DC 12, each creature in a 5-foot Emanation originating from the manes at the end of the manes's turn. *Failure:* The target has the Incapacitated condition until the end of its next turn. *Success:* The target is immune to this manes's Sickening Vapors for 24 hours."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Slashing damage plus 5 (2d4) Necrotic damage."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shadow Stealth",
+      "description": "While in Dim Light or Darkness, the manes takes the Hide action."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Demons of Panic and Frenzy*\n**Habitat:** Planar (Abyss); **Treasure:** None\nThe lowest form of demons, manes appear when truly loathsome souls are condemned to the Abyss. These misshapen demons have distorted features and bodies that crawl with Abyssal parasites. Overwhelmed by demonic urges and constant terror, manes know only shock and frenzied outbursts.\nManes lash out at creatures that appear weaker than themselves -- or that react to them with fear -- and strive to avoid more powerful demons. When manes escape from the Abyss, they go on reckless rampages and inflict as much harm as possible.\nVaporspawn arise from evil souls shattered by unspeakable torments or the depredations of more powerful demons. These distorted manes undergo endless, painful contortions, and they share their torment with whatever creatures they encounter.",
+  "habitat": "Planar (Abyss)",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Demons",
+    "file": "Demons.md"
+  }
+}

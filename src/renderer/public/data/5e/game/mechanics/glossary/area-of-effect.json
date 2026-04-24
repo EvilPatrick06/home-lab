@@ -1,0 +1,11 @@
+{
+  "name": "Area of Effect",
+  "slug": "area-of-effect",
+  "description": "Areas of effect define the areas where spells and other features take effect. The shapes are defined here:\n\n- **Cone.** A Cone extends in a direction you choose from its point of origin. A Cone's width at a given point along its length is equal to that point's distance from the point of origin. A Cone's point of origin isn't included in the Cone's area of effect unless you decide otherwise.\n- **Cube.** You select a Cube's point of origin, which lies anywhere on a face of the Cube. The Cube's size expresses the length of each side. A Cube's point of origin isn't included in the Cube's area of effect unless you decide otherwise.\n- **Cylinder.** A Cylinder's point of origin is the center of either the top or bottom of the Cylinder. The Cylinder's size expresses the radius and height. A Cylinder's point of origin is included in the Cylinder's area of effect.\n- **Emanation.** An Emanation originates from a creature or a point in space, extending outward in all directions. The Emanation's size expresses the distance it extends. An Emanation's point of origin (creature or point) is included in the Emanation's area of effect.\n- **Line.** A Line extends from its point of origin in a straight path along its length and covers an area defined by its width. A Line's point of origin isn't included in the Line's area of effect unless you decide otherwise.\n- **Sphere.** You select a Sphere's point of origin, and the Sphere extends outward from that point. The Sphere's size expresses the radius. A Sphere's point of origin is included in the Sphere's area of effect.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

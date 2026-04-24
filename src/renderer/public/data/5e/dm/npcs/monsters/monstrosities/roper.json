@@ -1,0 +1,172 @@
+{
+  "name": "Roper",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Neutral Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Any"],
+  "lore": "A roper is a cave-dwelling ambush predator that disguises itself as a natural rock formation such as a stalagmite. It extends sticky tendrils to snare prey and drag victims to its toothy maw. These patient hunters can remain motionless for days, waiting for unsuspecting creatures to wander within reach of their tendrils.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 93,
+    "dice": {
+      "count": 11,
+      "die": "d10",
+      "modifier": 33
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Climb",
+      "distance": 10
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "While the roper remains motionless, it is indistinguishable from a normal cave formation, such as a stalagmite."
+    },
+    {
+      "name": "Grasping Tendrils",
+      "description": "The roper has six tendrils. Each tendril can be attacked (AC 20; 10 Hit Points; Immunity to Poison and Psychic damage). Destroying a tendril deals no damage to the roper, which can extrude a replacement tendril at the start of its next turn."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The roper can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    }
+  ],
+  "multiattack": {
+    "description": "The roper makes one Bite attack and four Tendril attacks, and it uses Reel.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Tendril",
+        "count": 4
+      }
+    ],
+    "additionalEffects": "The roper uses Reel."
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 22 (4d8 + 4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tendril",
+      "description": "Melee Attack Roll: +7, reach 50 ft. Hit: The target has the Grappled condition (escape DC 15). Until the grapple ends, the target also has the Restrained condition. The roper has six tendrils, each of which can grapple one target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 50,
+        "targets": "one target",
+        "hit": {
+          "damage": [],
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 15
+            },
+            {
+              "condition": "Restrained",
+              "duration": "until the grapple ends"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Reel",
+      "description": "The roper pulls each creature it has Grappled up to 25 feet straight toward it."
+    }
+  ]
+}

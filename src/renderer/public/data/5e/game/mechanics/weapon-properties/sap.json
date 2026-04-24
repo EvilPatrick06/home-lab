@@ -1,0 +1,6 @@
+{
+  "id": "sap",
+  "name": "Sap",
+  "description": "If you hit a creature with a weapon that has the Sap property, that creature has Disadvantage on its next attack roll before the start of your next turn.",
+  "mechanicalEffect": "On hit, the target has Disadvantage on its next attack roll before the start of your next turn."
+}

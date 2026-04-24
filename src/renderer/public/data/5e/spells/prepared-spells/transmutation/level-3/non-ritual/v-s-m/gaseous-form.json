@@ -1,0 +1,74 @@
+{
+  "name": "Gaseous Form",
+  "level": 3,
+  "school": "Transmutation",
+  "classes": ["Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a bit of gauze",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "A willing creature you touch shape-shifts, along with everything it's wearing and carrying, into a misty cloud for the duration. The spell ends on the target if it drops to 0 Hit Points or if it takes a Magic action to end the spell on itself.\n\nWhile in this form, the target's only method of movement is a Fly Speed of 10 feet, and it can hover. The target can enter and occupy the space of another creature. The target has Resistance to Bludgeoning, Piercing, and Slashing damage; it has Immunity to the Prone condition; and it has Advantage on Strength, Dexterity, and Constitution saving throws. The target can pass through narrow openings, but it treats liquids as though they were solid surfaces.\n\nThe target can't talk or manipulate objects, and any objects it was carrying or holding can't be dropped, used, or otherwise interacted with. Finally, the target can't attack or cast spells.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "targetMustBeWilling": true,
+  "resistancesGranted": {
+    "damageTypes": ["Bludgeoning", "Piercing", "Slashing"]
+  },
+  "immunitiesGranted": {
+    "conditions": ["Prone"]
+  },
+  "advantagesGranted": [
+    {
+      "on": "savingThrows",
+      "ability": "Strength"
+    },
+    {
+      "on": "savingThrows",
+      "ability": "Dexterity"
+    },
+    {
+      "on": "savingThrows",
+      "ability": "Constitution"
+    }
+  ],
+  "speedModifiers": [
+    {
+      "type": "set",
+      "value": 10,
+      "speedType": "fly",
+      "canHover": true
+    }
+  ],
+  "shapeshift": {
+    "description": "Target shape-shifts into a misty cloud along with everything it's wearing and carrying. Can enter and occupy the space of another creature. Can pass through narrow openings but treats liquids as solid surfaces. Can't talk, manipulate objects, attack, or cast spells. Spell ends if target drops to 0 HP or takes a Magic action to end it."
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 3,
+        "description": "You can target one additional creature for each spell slot level above 3."
+      }
+    ]
+  },
+  "tags": ["shapeshift", "utility", "exploration", "movement"]
+}

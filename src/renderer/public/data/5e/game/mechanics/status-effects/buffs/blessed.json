@@ -1,0 +1,17 @@
+{
+  "id": "blessed",
+  "name": "Blessed",
+  "source": "Bless (1st-level Enchantment spell)",
+  "duration": "Up to 1 minute (Concentration)",
+  "description": "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target adds 1d4 to the roll.",
+  "effects": [
+    { "type": "bonus", "target": "attack rolls", "value": "+1d4" },
+    { "type": "bonus", "target": "saving throws", "value": "+1d4" }
+  ],
+  "endConditions": [
+    "The spell's duration expires (1 minute)",
+    "The caster loses Concentration",
+    "The caster is incapacitated or dies"
+  ],
+  "notes": "Bless requires Concentration. The bonus applies to all attack rolls and saving throws, including Death Saving Throws. Can target up to 3 creatures; upcasting adds 1 creature per slot level above 1st."
+}

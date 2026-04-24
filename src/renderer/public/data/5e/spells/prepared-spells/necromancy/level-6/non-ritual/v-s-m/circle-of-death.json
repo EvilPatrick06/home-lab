@@ -1,0 +1,65 @@
+{
+  "name": "Circle of Death",
+  "level": 6,
+  "school": "Necromancy",
+  "classes": ["Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 150,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "the powder of a crushed black pearl worth 500+ GP",
+      "cost": 500,
+      "currency": "GP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Negative energy ripples out in a 60-foot-radius Sphere from a point you choose within range. Each creature in that area makes a Constitution saving throw, taking 8d8 Necrotic damage on a failed save or half as much damage on a successful one.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 60
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Constitution",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 8,
+        "diceValue": 8
+      },
+      "type": "Necrotic",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 2,
+        "diceValue": 8,
+        "baseSpellLevel": 6,
+        "description": "The damage increases by 2d8 for each spell slot level above 6."
+      }
+    ]
+  },
+  "tags": ["damage", "area-of-effect", "necromancy"]
+}

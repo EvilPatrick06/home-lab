@@ -1,0 +1,139 @@
+{
+  "name": "Shadow",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Shadowfell)", "Ruins", "Underdark", "Urban"],
+  "treasure": ["None"],
+  "lore": "Shadows are undead that resemble dark, incorporeal silhouettes of their former selves. They lurk in dark places, draining the strength of the living and spawning new shadows from the corpses of those they slay. Created through necromantic rituals, foul curses, or the pervasive gloom of the Shadowfell, a shadow retains no memory of its former life, only an insatiable hunger for the vitality of living creatures.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 16,
+    "dice": {
+      "count": 3,
+      "die": "d8",
+      "modifier": 3
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "resistances": [
+    "Acid, Cold, Fire, Lightning, and Thunder",
+    "Bludgeoning, Piercing, and Slashing from nonmagical attacks"
+  ],
+  "damageImmunities": ["Necrotic and Poison"],
+  "conditionImmunities": [
+    "Exhaustion",
+    "Frightened",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Restrained"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["the languages it knew in life"],
+    "notes": "understands the languages it knew in life but can't speak"
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amorphous",
+      "description": "The shadow can move through a space as narrow as 1 inch without squeezing."
+    },
+    {
+      "name": "Shadow Stealth",
+      "description": "While in dim light or darkness, the shadow has Advantage on Dexterity (Stealth) checks."
+    },
+    {
+      "name": "Sunlight Weakness",
+      "description": "While in sunlight, the shadow has Disadvantage on ability checks, attack rolls, and saving throws."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Strength Drain",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 9 (2d6 + 2) Necrotic damage, and the target's Strength score is reduced by 1d4. The target dies if this reduces its Strength to 0. Otherwise, the reduction lasts until the target finishes a Short or Long Rest. If a Humanoid is slain by this attack, a new shadow rises from the corpse 1d4 hours later.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Necrotic"
+            }
+          ],
+          "additionalEffects": "The target's Strength score is reduced by 1d4. The target dies if this reduces its Strength to 0. Otherwise, the reduction lasts until the target finishes a Short or Long Rest. If a Humanoid is slain by this attack, a new shadow rises from the corpse 1d4 hours later."
+        }
+      }
+    }
+  ]
+}

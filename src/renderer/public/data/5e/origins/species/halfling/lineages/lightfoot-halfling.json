@@ -1,0 +1,11 @@
+{
+  "id": "lightfoot-halfling",
+  "name": "Lightfoot Halfling",
+  "species": "halfling",
+  "description": "Can easily hide using other people as cover.",
+  "traits": [
+    { "name": "Naturally Stealthy", "description": "Can hide when obscured by a creature at least one size larger." }
+  ],
+  "abilityScoreIncrease": { "charisma": 1 },
+  "source": "PHB 2024"
+}

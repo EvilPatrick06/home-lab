@@ -1,0 +1,11 @@
+{
+  "name": "Concentration",
+  "slug": "concentration",
+  "description": "Some spells and other effects require Concentration. The effect ends if the concentrator has the Incapacitated condition, dies, or does something else that breaks their Concentration (such as casting another spell requiring Concentration). If a concentrator takes damage, they must succeed on a Constitution saving throw, or their Concentration is broken. The DC is 10 or half the damage taken (round down), whichever is higher.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Brazier of Commanding Fire Elementals",
+  "cost": {
+    "amount": 8000,
+    "denomination": "GP"
+  },
+  "weight": 5,
+  "description": "While a fire burns in this brass brazier, you can use an action to speak the brazier's command word and summon a fire elemental, as if you had cast the Conjure Elemental spell. The brazier can't be used this way again until the next dawn.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

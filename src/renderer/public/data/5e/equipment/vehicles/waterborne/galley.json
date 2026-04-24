@@ -1,0 +1,18 @@
+{
+  "name": "Galley",
+  "cost": "30,000 GP",
+  "speed": "4 mph",
+  "crew": 80,
+  "passengers": 0,
+  "cargo": "150 tons",
+  "ac": 15,
+  "hp": 500,
+  "damageThreshold": 20,
+  "slug": "galley",
+  "category": "Waterborne Vehicle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

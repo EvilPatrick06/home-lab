@@ -1,0 +1,2583 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding of these planes visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around and behind (or above or below) that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "Cosmic Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane, where all four elements churn in chaos; an Overheaven, where good deities and Celestials dwell; and an Underworld, where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them. The planes with an element of good in their nature are called the Upper Planes, while those with an element of evil are the Lower Planes. A plane's alignment is its essence, and a creature whose alignment doesn't match the plane's alignment experiences a sense of dissonance there.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Upper Planes",
+        "description": "The planes with an element of good in their nature are called the Upper Planes. The Upper Planes are the home of Celestials.",
+        "memberPlanes": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+      },
+      {
+        "name": "Lower Planes",
+        "description": "The planes with an element of evil in their nature are called the Lower Planes. The Lower Planes are the home of Fiends.",
+        "memberPlanes": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"]
+      },
+      {
+        "name": "Neutral Planes",
+        "description": "The planes in between Upper and Lower are home to other creatures; for example, modrons are Constructs that inhabit Mechanus, and slaadi are Aberrations that thrive in Limbo.",
+        "memberPlanes": ["Limbo", "Mechanus", "Outlands"]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "mount-celestia",
+      "name": "Mount Celestia",
+      "alternateNames": ["Seven Heavens"],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Lawful Good"],
+      "philosophicalEssence": "The model of justice and order, of celestial grace and endless mercy, where angels and champions of good guard against incursions of evil.",
+      "emotionalInfluence": "Even the most jaded of travelers are filled with awe. Creatures strive constantly to be as righteous as possible.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "divinely_morphic",
+        "shape": "A mountain rising from a shining Silver Sea to utterly incomprehensible heights, with seven plateaus marking its seven heavenly layers",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Varies by layer"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Lunia",
+          "alternateNames": ["Silver Heaven"],
+          "layerNumber": 1,
+          "description": "In the Silver Heaven, the holy water of the Silver Sea laps at the base of the celestial mountain under a starry sky.",
+          "notableLocations": [
+            {
+              "name": "Silver Sea",
+              "description": "Holy water sea lapping at the base of the celestial mountain"
+            }
+          ],
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Mercuria",
+          "alternateNames": ["Golden Heaven"],
+          "layerNumber": 2,
+          "description": "The Golden Heaven's tame slopes and lush valleys are bathed in golden light that evokes the hope of a new dawn."
+        },
+        {
+          "name": "Venya",
+          "alternateNames": ["Pearly Heaven"],
+          "layerNumber": 3,
+          "description": "In the Pearly Heaven, terraced fields and tended woodlands dot the snowy slopes."
+        },
+        {
+          "name": "Solania",
+          "alternateNames": ["Crystal Heaven"],
+          "layerNumber": 4,
+          "description": "In the Crystal Heaven, holy shrines glitter under a silvery sky amid luminescent fog."
+        },
+        {
+          "name": "Mertion",
+          "alternateNames": ["Platinum Heaven"],
+          "layerNumber": 5,
+          "description": "On the sweeping plains of the Platinum Heaven, holy soldiers muster in grand citadels for battles across the planes.",
+          "notableLocations": [
+            {
+              "name": "Empyrea",
+              "description": "A city on the edge of a clear lake, renowned for the healing power of its fountains and springs. Pilgrims from across the planes seek out the healers, hospitals, and restorative magic found here."
+            }
+          ]
+        },
+        {
+          "name": "Jovar",
+          "alternateNames": ["Glittering Heaven"],
+          "layerNumber": 6,
+          "description": "The Glittering Heaven, strewn with beautiful rubies and garnets, is home to the seven-tiered Heavenly City.",
+          "notableLocations": [
+            {
+              "name": "Heavenly City",
+              "description": "A seven-tiered city in the Glittering Heaven"
+            }
+          ]
+        },
+        {
+          "name": "Chronias",
+          "alternateNames": ["Illuminated Heaven"],
+          "layerNumber": 7,
+          "description": "The Illuminated Heaven is an ineffable mystery."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 7,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "mc-blessings",
+          "name": "Pervasive Goodness",
+          "description": "The pervasive goodness of Mount Celestia bestows blessings on creatures on the plane.",
+          "mechanicalEffect": "See Environmental Effects in chapter 3",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "Creatures strive to be as righteous as possible; fills travelers with awe",
+          "sourceReference": "Chapter 3: Environmental Effects"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Proving worthiness",
+        "Forswearing selfishness, greed, and hatred",
+        "Defending against Fiend assaults",
+        "Healing and restoration at Empyrea"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Gold",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "bytopia",
+      "name": "Bytopia",
+      "alternateNames": ["Twin Paradises"],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Lawful Good", "Neutral Good"],
+      "philosophicalEssence": "The heaven of productive work, the satisfaction of a job well done. Personal achievement alongside social interdependence.",
+      "emotionalInfluence": "Goodness flowing through the plane creates feelings of goodwill and happiness in creatures dwelling there.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "multiple_surfaces",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Two layers whose surfaces face each other like the covers of a closed book, about a mile apart",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Dothion is pastoral; Shurrock has harsh weather"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Dothion",
+          "layerNumber": 1,
+          "description": "Farms nestled among well-tamed woods are hubs of pastoral activity and individual industry.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Shurrock",
+          "layerNumber": 2,
+          "description": "Small communities thrive around quarries and mills amid rough country and harsh weather."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 2,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Productive work",
+        "Impact of actions mirrored on opposite layer",
+        "Quiet life vs constant self-improvement"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Amber",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "elysium",
+      "name": "Elysium",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Neutral Good"],
+      "philosophicalEssence": "The embodiment of goodness, a spiritual realm where evil can't abide. Home to creatures of unfettered kindness and a refuge for planar travelers seeking a safe haven.",
+      "emotionalInfluence": "Tranquility and contentment seep into the bones and souls of those who enter Elysium. The longer a visitor remains, the less reason they find to ever leave.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Bucolic landscapes glimmering with life and beauty across four layers",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "temperate"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Amoria",
+          "layerNumber": 1,
+          "description": "Small towns on the banks of the River Oceanus, surrounded by lush meadows, are among the most hospitable refuges on the Outer Planes.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Eronia",
+          "layerNumber": 2,
+          "description": "Steep hills, craggy mountains, and white granite valleys offer a rugged home for hardy souls."
+        },
+        {
+          "name": "Belierin",
+          "layerNumber": 3,
+          "description": "Lighthouses pierce the fog and form hubs for small communities amid sprawling marshlands."
+        },
+        {
+          "name": "Thalasia",
+          "layerNumber": 4,
+          "description": "The Heroic Isles, rising from the headwaters of the River Oceanus, hold the best departed souls.",
+          "notableLocations": [
+            {
+              "name": "Heroic Isles",
+              "description": "Islands rising from the headwaters of the River Oceanus that hold the best departed souls"
+            }
+          ]
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 4,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Temptation to rest from labors",
+        "Devotion to doing good",
+        "Seeking ancient spirits on the Heroic Isles",
+        "Freeing or guarding a mysterious prisoner in Belierin"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Orange",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "beastlands",
+      "name": "Beastlands",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Chaotic Good", "Neutral Good"],
+      "philosophicalEssence": "A plane of nature unbound, embodying nature's wildness and beauty. It speaks to the animal within all living creatures—with respect to their physical substance and fundamental needs.",
+      "emotionalInfluence": "Visitors feel invigorated and more vital—minds more alert, reflexes sharpened, strides quickened. Hunger pangs are acute, but food and drink taste better. Sleep is always deep and restful.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Krigala is eternal summer noon; Brux is eternal twilight; Karasuthra is eternal night"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Krigala",
+          "layerNumber": 1,
+          "description": "The River Oceanus is a strong torrent flowing through this wilderness of eternal summer noon.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Brux",
+          "layerNumber": 2,
+          "description": "A red sun hovers forever on the horizon as mists and streams roil through the trees in eternal twilight."
+        },
+        {
+          "name": "Karasuthra",
+          "layerNumber": 3,
+          "description": "A pale moon provides the only light in this wilderness of eternal night."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 3,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [
+        {
+          "id": "beastlands-shapeshift",
+          "name": "Beast Slayer Shapeshift",
+          "description": "Whenever a visitor slays a Beast native to the plane, the slayer must succeed on a DC 10 Charisma saving throw or shape-shift into the type of Beast that was slain.",
+          "category": "magical",
+          "severity": "major",
+          "savingThrowToTraverse": {
+            "ability": "Charisma",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "on_kill",
+            "triggerDescription": "Whenever a visitor slays a Beast native to the plane",
+            "onFailure": {
+              "description": "The creature shape-shifts into the type of Beast that was slain. The creature's game statistics are replaced by the Beast's stat block, but the creature retains its alignment, personality, creature type, Intelligence score, and ability to speak.",
+              "customCondition": "Shapeshifted into slain Beast form",
+              "duration": "Until three successful Long Rest saves or Remove Curse spell",
+              "cumulative": false
+            },
+            "onSuccess": {
+              "description": "The creature is not shape-shifted",
+              "endsEffect": true
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": true,
+            "repeatSaveTiming": "At the end of each Long Rest",
+            "recoveryMethods": ["Remove Curse spell", "Similar magic", "Three successful saves at end of Long Rest"],
+            "maxFailuresBeforePermanent": 3,
+            "failureProbabilityAtDC": {
+              "dc": 10,
+              "noModifierFailChance": 0.45,
+              "commonModifierRange": {
+                "low": 1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.4,
+              "failChanceAtHighMod": 0.2
+            }
+          },
+          "narrativeWeight": "both"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Beast", "Celestial"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Valuing physical nature of life",
+        "Conflict with those dismissing animals",
+        "Nature unbound"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Emerald green",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "arborea",
+      "name": "Arborea",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Chaotic Good"],
+      "philosophicalEssence": "A plane of extremes: stupendously craggy mountains, unbelievably deep gorges, forests of monstrously huge trees. A larger-than-life place of violent moods and deep affections, of whim backed by steel, and of passions that blaze brightly until they burn out.",
+      "emotionalInfluence": "The air seems charged with excitement. Rage is as common and as honored as joy. Creatures that visit and then leave sometimes experience a desperate desire to return—a yearning so intense it can interfere with day-to-day life.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Sudden squalls and warm flares of sunlight"
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Sudden squalls brew up out of nowhere, beating the tree-lined paths with heavy winds. The storms pass within minutes and leave behind warm flares of sunlight."
+      },
+      "layers": [
+        {
+          "name": "Arvandor",
+          "layerNumber": 1,
+          "description": "Towering trees, colorful wildflowers, abundant grain, and delicious fruit create a lush environment.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Aquallor",
+          "layerNumber": 2,
+          "description": "An eternal ocean fed by the River Oceanus is home to teeming sea life and mighty storms."
+        },
+        {
+          "name": "Mithardir",
+          "layerNumber": 3,
+          "description": "A desert of white sand is abandoned by whatever powers once lived there."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 3,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial", "Fey"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Unfettered emotional honesty",
+        "Discovering who you are when masks fall away",
+        "Secrets buried in Mithardir"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Sapphire blue",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "ysgard",
+      "name": "Ysgard",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Chaotic Good", "Chaotic Neutral"],
+      "philosophicalEssence": "Glory earned through heroic deeds in battle. It's the euphoria of an athlete, the exhilaration of a summer storm, and the triumphant celebration of victory.",
+      "emotionalInfluence": "Euphoria, exhilaration, and triumphant celebration. Since those who die return to life, Ysgard overlooks the horrors of war and focuses entirely on the glory.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Continents floating above oceans of volcanic rock, below which are enormous icy caverns",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Summers long and hot, winters cold and unforgiving"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Ysgard",
+          "layerNumber": 1,
+          "description": "Immense rivers of floating earth grind together in eternal rumbling.",
+          "notableLocations": [
+            {
+              "name": "Plain of Ida",
+              "description": "Daily festivals let warriors and athletes show off their bravery and skill"
+            }
+          ],
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Muspelheim",
+          "layerNumber": 2,
+          "description": "The ground smokes and burns beneath the earthbergs of the top layer."
+        },
+        {
+          "name": "Nidavellir",
+          "layerNumber": 3,
+          "description": "Floating chunks of earth are closer together, giving the appearance of endless tunnels with rich mineral deposits."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 3,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "resurrectionRule": {
+        "enabled": true,
+        "timing": "At dawn the next day",
+        "fullHPRestored": true,
+        "conditionsRemoved": true,
+        "excludedCreatureTypes": ["Construct", "Undead"],
+        "requirement": "Killed in combat while in Ysgard"
+      },
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Glory through heroic deeds",
+        "Lighthearted combat without consequences",
+        "Proving mettle against epic foes"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Indigo",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "arcadia",
+      "name": "Arcadia",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Lawful Good", "Lawful Neutral"],
+      "philosophicalEssence": "Everything works toward the common good and a flawless existence. Purity is eternal, and nothing intrudes on harmony. Individuality is subsumed to peaceful life in community.",
+      "emotionalInfluence": "Suffused with a vigorous life energy that bestows great vitality on visitors.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Orchards of perfectly lined trees, ruler-straight streams, orderly fields, immaculate roads, and cities laid out in geometrically pleasing shapes",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "temperate"
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Governed by four allied demigods called the Storm Kings: the Cloud King, the Wind Queen, the Lightning King, and the Rain Queen."
+      },
+      "layers": [
+        {
+          "name": "Abellio",
+          "layerNumber": 1,
+          "description": "Everything in these fields of plenty is dedicated to the good of all.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Buxenus",
+          "layerNumber": 2,
+          "description": "Military forces gather their strength, amid pleasant valleys and orchards, to reclaim the lost layer of Menausus—now part of Mechanus."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 2,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "arcadia-vitality",
+          "name": "Vigorous Life Energy",
+          "description": "Arcadia is suffused with a vigorous life energy that bestows great vitality on visitors.",
+          "mechanicalEffect": "See Environmental Effects in chapter 3",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "sourceReference": "Chapter 3: Environmental Effects"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial"],
+        "notableEntities": [
+          {
+            "name": "Cloud King",
+            "title": "Storm King",
+            "description": "One of four allied demigods governing Arcadia's weather"
+          },
+          {
+            "name": "Wind Queen",
+            "title": "Storm King",
+            "description": "One of four allied demigods governing Arcadia's weather"
+          },
+          {
+            "name": "Lightning King",
+            "title": "Storm King",
+            "description": "One of four allied demigods governing Arcadia's weather"
+          },
+          {
+            "name": "Rain Queen",
+            "title": "Storm King",
+            "description": "One of four allied demigods governing Arcadia's weather"
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Tension between individual freedom and societal responsibility",
+        "Common good vs personal goals"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Saffron",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "nine-hells",
+      "name": "Nine Hells",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Lawful Evil"],
+      "philosophicalEssence": "The ultimate plane of law and evil, and the epitome of premeditated cruelty. The devils are bound to obey the laws of their superiors, but they squabble within their individual castes.",
+      "emotionalInfluence": "Inflames imaginations, greed, and battle fury. Every shred of evil is used, and each layer specializes to accommodate and exploit the vices and weaknesses of mortals. Insidious manipulation, deceit, and treachery.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "divinely_morphic",
+        "shape": "A pit where the River Styx plunges down through nine tiers",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "layered",
+          "description": "Varies dramatically by layer: volcanic heat on Phlegethos, freezing ice on Stygia and Cania"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Avernus",
+          "layerNumber": 1,
+          "description": "The Blood War rages across battlefields littered with corpses and the wreckage of hellish war machines.",
+          "notableLocations": [
+            {
+              "name": "Avernus Battlefield",
+              "description": "Rocky wasteland with rivers of blood and clouds of biting flies. Fiery comets occasionally fall from the darkened sky."
+            }
+          ],
+          "notableInhabitants": ["Zariel", "Bel", "Tiamat"],
+          "ruler": {
+            "name": "Zariel",
+            "title": "Archduchess of Avernus",
+            "creatureType": "Fiend (Devil)",
+            "description": "Appears as an angel whose skin and wings are scorched. Her eyes burn with a furious white light."
+          },
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Dis",
+          "layerNumber": 2,
+          "description": "Iron roads in deep canyons lead to the dreaded Iron City of Dis.",
+          "notableLocations": [
+            {
+              "name": "Iron City of Dis",
+              "description": "A hideous metropolis where planar travelers conspire with devils and close deals with Fiends."
+            }
+          ],
+          "ruler": {
+            "name": "Dispater",
+            "title": "Archduke of Dis",
+            "creatureType": "Fiend (Devil)",
+            "description": "A manipulator and deceiver, devilishly handsome, bearing only small horns, a tail, and a cloven left hoof."
+          }
+        },
+        {
+          "name": "Minauros",
+          "layerNumber": 3,
+          "description": "Acid falls like rain on putrid bogs and decaying cities.",
+          "ruler": {
+            "name": "Mammon",
+            "title": "Archduke of Minauros",
+            "creatureType": "Fiend (Devil)",
+            "description": "Resembles a massive serpent with the upper torso and head of a hairless, horned humanoid. Greed is legendary."
+          }
+        },
+        {
+          "name": "Phlegethos",
+          "layerNumber": 4,
+          "description": "Obsidian fortresses bask in the heat of raging volcanoes and magma rivers.",
+          "notableLocations": [
+            {
+              "name": "Abriymoch",
+              "description": "A fortress city made of obsidian and dark glass within the caldera of the largest volcano."
+            }
+          ],
+          "ruler": {
+            "name": "Belial and Fierna",
+            "title": "Co-rulers of Phlegethos",
+            "creatureType": "Fiend (Devil)",
+            "description": "Both resemble tieflings with red skin and small horns. Belial exudes civility; Fierna is said to have the wickedest heart in the Nine Hells."
+          }
+        },
+        {
+          "name": "Stygia",
+          "layerNumber": 5,
+          "description": "Levistus's prison is a frigid hellscape of jagged ice and cold fire.",
+          "ruler": {
+            "name": "Levistus",
+            "title": "Archduke of Stygia",
+            "creatureType": "Fiend (Devil)",
+            "description": "Once betrayed Asmodeus and is now encased deep in the ice of Stygia as punishment. Rules telepathically."
+          }
+        },
+        {
+          "name": "Malbolge",
+          "layerNumber": 6,
+          "description": "An ever-crumbling mountain threatens to bury visitors.",
+          "ruler": {
+            "name": "Glasya",
+            "title": "Archduchess of Malbolge",
+            "creatureType": "Fiend (Devil)",
+            "description": "Asmodeus's daughter. Her cruelty and love of wicked schemes rival those of her father."
+          }
+        },
+        {
+          "name": "Maladomini",
+          "layerNumber": 7,
+          "description": "Swarms of hungry flies plague dead cities surrounded by utter desolation.",
+          "ruler": {
+            "name": "Baalzebul",
+            "title": "Lord of Flies, Archduke of Maladomini",
+            "creatureType": "Fiend (Devil)",
+            "description": "A tall, powerful devil with compound eyes of a fly. Cursed by Asmodeus so that any deal he makes leads to calamity."
+          }
+        },
+        {
+          "name": "Cania",
+          "layerNumber": 8,
+          "description": "Ice-trapped cities provide shelter in a realm cold enough to freeze the soul.",
+          "notableLocations": [
+            {
+              "name": "Mephistar",
+              "description": "Ice citadel where Mephistopheles plots to seize the throne of the Nine Hells."
+            }
+          ],
+          "ruler": {
+            "name": "Mephistopheles",
+            "title": "Archduke of Cania",
+            "creatureType": "Fiend (Devil)",
+            "description": "Asmodeus's greatest enemy and ally. A tall, striking devil with impressive horns and a cool demeanor."
+          }
+        },
+        {
+          "name": "Nessus",
+          "layerNumber": 9,
+          "description": "Mighty fortresses stand watch over the deepest pits of the Nine Hells.",
+          "notableLocations": [
+            {
+              "name": "Malsheem",
+              "description": "A gigantic hollowed-out stalagmite citadel-spire rising from a vast rift of unknown depth. Home to Asmodeus and also a prison for souls."
+            }
+          ],
+          "ruler": {
+            "name": "Asmodeus",
+            "title": "Archduke of Nessus, Supreme Ruler of the Nine Hells",
+            "creatureType": "Fiend (Devil)",
+            "description": "Most often appears as a handsome, bearded man with four large horns, piercing red eyes, and flowing robes. The most cunning and well-mannered of archdevils."
+          }
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 9,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend"],
+        "notableEntities": [
+          {
+            "name": "Asmodeus",
+            "title": "Archduke of Nessus, Supreme Ruler of All Devils",
+            "creatureType": "Fiend (Devil)",
+            "alignment": "Lawful Evil",
+            "description": "Wields the power of a lesser god. A supreme tyrant, a brilliant deceiver, and a master of subtlety."
+          },
+          {
+            "name": "Tiamat",
+            "title": "Queen of Evil Dragons",
+            "creatureType": "Fiend (Dragon)",
+            "alignment": "Lawful Evil",
+            "description": "A prisoner on Avernus, ruling her own domain but confined to the Nine Hells by Asmodeus."
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "nh-no-direct-portals",
+          "name": "No Direct Lower-Layer Portals",
+          "description": "By Asmodeus's orders, no planar portals connect directly to the lower layers of the Nine Hells. The first layer, Avernus, is the arrival point for visitors.",
+          "mechanicalEffect": "All visitors must arrive at Avernus first and descend through layers in order."
+        }
+      ],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Resisting insidious manipulation and deceit",
+        "Confronting temptation and corruption",
+        "Descent into the heart of evil",
+        "Navigating infernal hierarchy and politics"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Ruby",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "gehenna",
+      "name": "Gehenna",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Lawful Evil", "Neutral Evil"],
+      "philosophicalEssence": "The plane of suspicion and greed, with no space for mercy or compassion.",
+      "emotionalInfluence": "Suspicion and greed pervade. Tensions run high and no one can be trusted.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A volcanic mountain dominates each of the four layers, with lesser volcanic earthbergs drifting in the air",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Volcanic fissures vent noxious fumes",
+        "temperature": {
+          "category": "layered",
+          "description": "Hot volcanic on Khalas and Chamada; freezing with acidic ash on Mungoth; silence and darkness on Krangath"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Khalas",
+          "layerNumber": 1,
+          "description": "Lava illuminates clouds of volcanic ash and steam from the River Styx.",
+          "notableLocations": [
+            {
+              "name": "Teardrop Palace",
+              "description": "A bustling market offering forbidden and sinister goods for sale, its teardrop shape diverting the ever-present lava flow."
+            }
+          ],
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Chamada",
+          "layerNumber": 2,
+          "description": "Constant lava flows and eruptions make overland travel difficult. Iron zeppelins piloted by yugoloths drift through the constant gray ashfall.",
+          "notableLocations": [
+            {
+              "name": "Tower Arcane",
+              "description": "A sinister structure adorned with blades and spikes, guarded by arcanaloths, rumored to hold yugoloths' history and contract records."
+            }
+          ]
+        },
+        {
+          "name": "Mungoth",
+          "layerNumber": 3,
+          "description": "Acidic ash mingles with falling snow on this freezing layer."
+        },
+        {
+          "name": "Krangath",
+          "alternateNames": ["Dead Furnace"],
+          "layerNumber": 4,
+          "description": "The Dead Furnace is a great mountain suspended in silence and darkness, home to a coterie of liches."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 4,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "gehenna-suspicion",
+          "name": "Atmosphere of Suspicion",
+          "description": "The nature of Gehenna breeds suspicion and greed, with no space for mercy or compassion.",
+          "mechanicalEffect": "See Environmental Effects in chapter 3",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "Suspicion and greed pervade; tensions run high and no one can be trusted",
+          "sourceReference": "Chapter 3: Environmental Effects"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Yugoloths",
+            "description": "Greedy and selfish Fiends that dwell here in great numbers. Gehenna is their birthplace."
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Betrayal and suspicion",
+        "Shopping at the Teardrop Palace at terrifying cost",
+        "Infiltrating the Tower Arcane"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Russet",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "hades",
+      "name": "Hades",
+      "alternateNames": ["Three Glooms", "Gray Wastes"],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Neutral Evil"],
+      "philosophicalEssence": "Places without joy, hope, or passion. The destination of many souls unclaimed by gods or Fiends. Pure, undiluted evil as an inescapable force of gravity dragging all creatures down in spirit.",
+      "emotionalInfluence": "Leaches away color and emotion. The plane slowly kills dreams and desires, draining hope and optimism from formerly fiery spirits. Embodies despair manifested as apathy.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "temperate",
+          "description": "Gray land with an ashen sky"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Oinos",
+          "layerNumber": 1,
+          "description": "A land of dead-gray ash, stunted trees, and virulent disease is stalked by roving bands of Fiends looking for a fight or recruits for the Blood War.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Niflheim",
+          "layerNumber": 2,
+          "description": "Gray pine trees blanket rolling hills and rocky bluffs, and thick mists coil around their trunks."
+        },
+        {
+          "name": "Pluton",
+          "layerNumber": 3,
+          "description": "Shriveled willows, olive trees, and poplars contribute to the gloom of this concentration of the deepest despair in the multiverse."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 3,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [
+        {
+          "id": "hades-gloom",
+          "name": "Plane of Gloom",
+          "description": "At the end of each Long Rest taken on the plane, a visitor makes a DC 10 Wisdom saving throw. On a failed save, the creature gains 1 Exhaustion level that can't be removed while in Hades. At 6 Exhaustion levels, it permanently transforms into a Larva instead of dying.",
+          "category": "planar_trait",
+          "severity": "severe",
+          "savingThrowToTraverse": {
+            "ability": "Wisdom",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "per_long_rest",
+            "triggerDescription": "At the end of each Long Rest taken on the plane",
+            "onFailure": {
+              "description": "The creature gains 1 Exhaustion level that can't be removed while the creature is in Hades.",
+              "exhaustionLevels": 1,
+              "exhaustionIsRemovable": false,
+              "cumulative": true,
+              "cumulativeMaxStacks": 6,
+              "cumulativeDescription": "Each failed save adds 1 Exhaustion level",
+              "terminalEffect": "Permanently transforms into a Larva; all Exhaustion levels are removed",
+              "terminalAtExhaustionLevel": 6,
+              "preventsDeath": true
+            },
+            "onSuccess": {
+              "description": "No exhaustion level is gained",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "failureProbabilityAtDC": {
+              "dc": 10,
+              "noModifierFailChance": 0.45,
+              "commonModifierRange": {
+                "low": 1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.4,
+              "failChanceAtHighMod": 0.2
+            }
+          },
+          "narrativeWeight": "both"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Finding purpose amid despair",
+        "Why bother? Rekindling passion and purpose",
+        "Collecting larvae",
+        "Overwhelming apathy"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Rust",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "carceri",
+      "name": "Carceri",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Chaotic Evil", "Neutral Evil"],
+      "philosophicalEssence": "The grim inspiration for all other prisons in existence. A plane of desolation and despair, home for traitors and backstabbers.",
+      "emotionalInfluence": "Hatreds run like a deep, slow-moving river. Passions, poisons, and realm-shattering betrayals. The plane's nature breeds despair and betrayal.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Six layers described as a long series of spherical worlds arranged like beads on a string, each sphere consisting of six nested spheres",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "layered",
+          "description": "Varies from bogs to fetid jungles to deserts to mountains to frigid oceans to black ice"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Orthrys",
+          "layerNumber": 1,
+          "description": "The River Styx meanders through a layer of vast bogs and quicksand.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Cathrys",
+          "layerNumber": 2,
+          "description": "The stench of decay hangs over fetid jungles and scarlet plains."
+        },
+        {
+          "name": "Minethys",
+          "layerNumber": 3,
+          "description": "Stinging sand blows in unending storms, hiding the ruins of the ancient city Payratheon."
+        },
+        {
+          "name": "Colothys",
+          "layerNumber": 4,
+          "description": "Deep chasms cut between cruel mountains make foot travel nearly impossible."
+        },
+        {
+          "name": "Porphatys",
+          "layerNumber": 5,
+          "description": "Cold, acidic oceans are fed by constant black snow."
+        },
+        {
+          "name": "Agathys",
+          "layerNumber": 6,
+          "description": "Black ice streaked with red covers this frigid realm."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 6,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "extremely_rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "prisonRules": {
+        "isPrisonPlane": true,
+        "escapeMethods": [
+          "Secret passages hidden and guarded by traps and deadly monsters",
+          "River Styx (extremely dangerous, ferries rare and expensive)",
+          "Wish spell",
+          "Becoming stronger than whatever force imprisoned you"
+        ],
+        "blockedSpells": ["All spells that leave the plane except Wish"],
+        "exemptSpells": ["Wish"],
+        "portalBehavior": "Portals and gates that open onto the plane become one-way only",
+        "escapeRequirement": "Prisoners can escape Carceri only by becoming stronger than whatever force imprisoned them there"
+      },
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Spiritual and psychological imprisonment",
+        "Helping prisoners escape",
+        "Overcoming despair and betrayal"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Olive",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "abyss",
+      "name": "Abyss",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Chaotic Evil"],
+      "philosophicalEssence": "Embodies all that is perverse, gruesome, and chaotic. Its virtually endless layers spiral downward into ever more appalling forms. Each layer reflects the entropic nature of the Abyss—decaying, crumbling, corroded.",
+      "emotionalInfluence": "Loathsome corruption of chaos and evil. Temptation to turn against allies in order to survive. Hostile and uncharted.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "variable",
+        "isInfinite": true,
+        "morphic": "highly_morphic",
+        "shape": "Virtually endless layers spiraling downward",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Varies by layer",
+        "temperature": {
+          "category": "variable",
+          "description": "Varies dramatically by layer"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "The Plain of Infinite Portals",
+          "layerNumber": 1,
+          "description": "On layer 1, corroded iron fortresses defend routes to lower layers. Under a glaring red sun, the rocky ground contains gaping craters that are portals to the other layers of the Abyss.",
+          "notableLocations": [
+            {
+              "name": "Broken Reach",
+              "description": "A fortress ruled by a succubus named Red Shroud; the portal leading to Plague-Mort is tucked within.",
+              "ruler": "Red Shroud"
+            }
+          ],
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Azzagrat",
+          "layerNumberRange": {
+            "start": 45,
+            "end": 47
+          },
+          "description": "Graz'zt's corrupt, decadent city is split across layers 45, 46, and 47.",
+          "notableLocations": [
+            {
+              "name": "Argent Palace",
+              "description": "Graz'zt's seat of power in the city of Zelatar"
+            },
+            {
+              "name": "Zelatar",
+              "description": "A city whose bustling markets and pleasure palaces draw visitors from across the multiverse"
+            }
+          ],
+          "ruler": {
+            "name": "Graz'zt",
+            "title": "Demon Lord",
+            "creatureType": "Fiend (Demon)",
+            "description": "Embodies manipulation and cruelty, tempting mortals with appalling delights and decadent luxuries."
+          }
+        },
+        {
+          "name": "The Demonweb",
+          "layerNumber": 66,
+          "description": "On layer 66, Lolth's web snares all and hides portals to other planes.",
+          "ruler": {
+            "name": "Lolth",
+            "title": "Demon Queen of Spiders",
+            "creatureType": "Fiend (Demon)",
+            "description": "Schemes entangle entire civilizations. Of all demon lords, she might have the most active interest in worlds of the Material Plane."
+          }
+        },
+        {
+          "name": "Gaping Maw",
+          "layerNumber": 88,
+          "description": "Layer 88 is a malevolent wilderness surrounding Demogorgon's ocean fortress.",
+          "notableLocations": [
+            {
+              "name": "Abysm",
+              "description": "Twin serpentine towers topped with enormous fanged skulls, rising from a turbid sea"
+            }
+          ],
+          "ruler": {
+            "name": "Demogorgon",
+            "title": "Prince of Demons, The Sibilant Beast",
+            "creatureType": "Fiend (Demon)",
+            "description": "A two-headed monster yearning for nothing less than undoing the order of the multiverse."
+          }
+        },
+        {
+          "name": "Thanatos",
+          "layerNumber": 113,
+          "description": "On layer 113, an endless graveyard hosts Orcus and the sleepless dead.",
+          "notableLocations": [
+            {
+              "name": "Everlost",
+              "description": "A vast palace of obsidian and bone in the howling wasteland called Oblivion's End"
+            }
+          ],
+          "ruler": {
+            "name": "Orcus",
+            "title": "Demon Prince of Undeath, Blood Lord",
+            "creatureType": "Fiend (Demon)",
+            "description": "Worshiped by Undead and living creatures that channel undeath. A brooding and nihilistic entity."
+          }
+        },
+        {
+          "name": "The Slime Pits",
+          "alternateNames": ["Shedaklah"],
+          "layerNumber": 222,
+          "description": "Layer 222, a fetid realm of ooze and fungi, obeys the whims of Juiblex and Zuggtmoy.",
+          "ruler": {
+            "name": "Juiblex and Zuggtmoy",
+            "title": "Demon Lord of Slimes and Oozes / Demon Queen of Fungi",
+            "creatureType": "Fiend (Demon)",
+            "description": "Two equally repugnant demon lords who coexist with little conflict."
+          }
+        },
+        {
+          "name": "The Death Dells",
+          "layerNumber": 422,
+          "description": "Yeenoghu and his gnoll servants prowl layer 422—a cruel, desolate realm.",
+          "ruler": {
+            "name": "Yeenoghu",
+            "title": "Gnoll Lord",
+            "creatureType": "Fiend (Demon)",
+            "description": "Hungers for slaughter and senseless destruction. Gnolls are his instruments on the Material Plane."
+          }
+        },
+        {
+          "name": "The Endless Maze",
+          "layerNumber": 600,
+          "description": "Layer 600's endless labyrinth turns visitors into Baphomet's prey.",
+          "ruler": {
+            "name": "Baphomet",
+            "title": "Horned King, Prince of Beasts",
+            "creatureType": "Fiend (Demon)",
+            "description": "Embodies bestial bloodlust. If he had his way, civilization would crumble and all mortals would embrace their predatory instincts."
+          }
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": "infinite",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "abyss-corruption",
+          "name": "Abyssal Corruption",
+          "description": "The Abyss's corruption affects visitors. Much of the plane seems to be in a decaying, crumbling, or corroded state.",
+          "mechanicalEffect": "See Curses and Magical Contagions in chapter 3",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "Contamination and corruption, temptation to turn against allies",
+          "sourceReference": "Chapter 3: Curses and Magical Contagions"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Confronting evil in one's own heart",
+        "Resisting temptation to turn against allies",
+        "Desperate last stand against demon hordes",
+        "Contamination spreading to other planes"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Amethyst",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "pandemonium",
+      "name": "Pandemonium",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Chaotic Evil", "Chaotic Neutral"],
+      "philosophicalEssence": "A plane of overwhelming chaos, a great mass of rock riddled with tunnels carved by howling winds. The plane of last straws.",
+      "emotionalInfluence": "The incessant howling brings everyone to the edge of lashing out in frustration, breaking down in despair, or dissolving into incoherence—and then pushes them over that edge.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Great mass of rock riddled with tunnels",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Cold, noisy, dark, with no natural light. Wind extinguishes nonmagical open flames.",
+        "temperature": {
+          "category": "cold"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Pandesmos",
+          "layerNumber": 1,
+          "description": "Howling winds, dark streams bound for the River Styx, and blowing snow pour through vast, desolate caverns.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Cocytus",
+          "alternateNames": ["Layer of Lamentation"],
+          "layerNumber": 2,
+          "description": "Winds blowing through narrower tunnels create a stronger force and louder wails, making this the so-called Layer of Lamentation.",
+          "notableLocations": [
+            {
+              "name": "Howler's Crag",
+              "description": "A jagged spike rumored to have a unique magical property: anything yelled from the top finds the ears of its intended recipient anywhere in the multiverse."
+            }
+          ]
+        },
+        {
+          "name": "Phlegethon",
+          "layerNumber": 3,
+          "description": "Tunnel walls absorb light while water creates intricate rock formations."
+        },
+        {
+          "name": "Agathion",
+          "layerNumber": 4,
+          "description": "Sealed-off tunnels are largely inaccessible from elsewhere, making them ideal as vaults for ancient secrets."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 4,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "pandemonium-winds",
+          "name": "Howling Winds",
+          "description": "Wind quickly extinguishes nonmagical open flames such as torches and campfires. It also makes conversation possible only by yelling, and even then only to a maximum distance of 10 feet.",
+          "mechanicalEffect": "Nonmagical open flames extinguished; conversation only by yelling to max 10 feet distance",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "Brings everyone to the edge of frustration, despair, or incoherence",
+          "sourceReference": "Chapter 3: Environmental Effects",
+          "lightModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": null,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": true
+            },
+            "dayNightCycle": {
+              "exists": false
+            },
+            "effectOnConversation": {
+              "maxConversationDistanceFeet": 10,
+              "requiresYelling": true,
+              "reason": "Howling winds drown out normal speech"
+            }
+          }
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "What happens on your worst day",
+        "Frustration and despair",
+        "Ancient secrets in sealed vaults",
+        "Howler's Crag and cosmic communication"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Magenta",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "acheron",
+      "name": "Acheron",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Lawful Evil", "Lawful Neutral"],
+      "philosophicalEssence": "A plane of enforced order, where rigid conformity leads to crushed spirits and broken hopes. Dedicated soldiers, forever lacking a cause.",
+      "emotionalInfluence": "Instills bloodlust. Bleak nihilism of unending conflict, harsh reality of authoritarian rule, and uncaring pressures of social conformity.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "toward_nearest_surface",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Immense iron blocks drifting through an airy void, sometimes colliding",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Ranges from the metallic cold of iron blocks to the frozen ice of Ocanthus"
+        },
+        "hasSurface": true
+      },
+      "layers": [
+        {
+          "name": "Avalas",
+          "layerNumber": 1,
+          "description": "Spirit soldiers wage endless wars across debris-strewn battlefields.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Thuldanin",
+          "layerNumber": 2,
+          "description": "Pitted, hollow cubes are filled with the cast-off machinery of war."
+        },
+        {
+          "name": "Tintibulus",
+          "layerNumber": 3,
+          "description": "Jagged blocks tumble in darkness, holding frozen memories sapped by the River Styx and crystallized into fleeting images."
+        },
+        {
+          "name": "Ocanthus",
+          "layerNumber": 4,
+          "description": "Maelstroms of razor-sharp debris swirl above a mire of black ice."
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 4,
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "acheron-bloodlust",
+          "name": "Bloodlust",
+          "description": "The nature of Acheron instills bloodlust in those who visit the plane.",
+          "mechanicalEffect": "See Environmental Effects in chapter 3",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "Bloodlust",
+          "sourceReference": "Chapter 3: Environmental Effects"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "What are you fighting for?",
+        "Nihilism of unending conflict",
+        "Scavenging Thuldanin for war horrors",
+        "Retrieving secrets from Tintibulus"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Flame red",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "limbo",
+      "name": "Limbo",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Neutral Plane",
+      "alignments": ["Chaotic Neutral"],
+      "philosophicalEssence": "A plane of pure chaos, a roiling soup of impermanent matter and energy. Stone melts into water that freezes into metal, then turns into diamond that burns up into smoke that becomes snow, and on and on endlessly.",
+      "emotionalInfluence": "Visitors find themselves caught up in a storm of intrusive thoughts and unruly emotions, forcing them to confront the transient nature of their identity.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isInfinite": true,
+        "morphic": "highly_morphic",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Atmosphere is chaotic and impermanent",
+        "temperature": {
+          "category": "variable",
+          "description": "Constantly changing"
+        },
+        "hasSurface": false
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "unknown",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Aberration", "Celestial"],
+        "notableEntities": [
+          {
+            "name": "Slaadi",
+            "creatureType": "Aberration",
+            "description": "Live in Limbo and swim amid the chaos, creating nothing"
+          },
+          {
+            "name": "Githzerai",
+            "creatureType": "Humanoid",
+            "description": "Build entire monasteries with their minds"
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Githzerai Monasteries",
+            "race": "Githzerai",
+            "description": "Githzerai build entire monasteries with their minds, creating sanctuaries of order within the chaos"
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "limbo-move-object",
+          "name": "Mental Object Movement",
+          "description": "As a Magic action, a creature in Limbo can make an Intelligence check to mentally move an object within 30 feet that isn't being worn or carried. DC depends on object size.",
+          "mechanicalEffect": "Intelligence check as Magic action; DC by size: Tiny 5, Small 10, Medium 15, Large 20, Huge+ 25. On success, move object 5 feet plus excess over DC.",
+          "interactionCheck": {
+            "id": "limbo-move-check",
+            "name": "Move Object in Limbo",
+            "description": "Mentally move an unattended object within 30 feet",
+            "checkType": "magic_action_check",
+            "ability": "Intelligence",
+            "baseDC": 5,
+            "actionCost": "magic_action",
+            "scalingDCs": {
+              "bySize": {
+                "Tiny": 5,
+                "Small": 10,
+                "Medium": 15,
+                "Large": 20,
+                "Huge": 25,
+                "Gargantuan": 25
+              }
+            },
+            "onSuccess": {
+              "description": "Move the object 5 feet plus a number of feet equal to how much the total exceeded the DC",
+              "movementGrantedFeet": 5,
+              "bonusMovementFormula": "5 + (check total - DC) feet"
+            },
+            "onFailure": {
+              "description": "The object does not move",
+              "noEffect": true
+            },
+            "repeatable": true
+          }
+        },
+        {
+          "id": "limbo-alter-object",
+          "name": "Mental Object Alteration",
+          "description": "As a Magic action, a creature can make an Intelligence check to alter a nonmagical object within 30 feet that isn't being worn or carried. DC by size: Tiny 10, Small 15, Medium 20, Large+ 25.",
+          "mechanicalEffect": "Intelligence check as Magic action; on success, change the object into another nonliving form of the same size.",
+          "interactionCheck": {
+            "id": "limbo-alter-check",
+            "name": "Alter Object in Limbo",
+            "description": "Change a nonmagical unattended object within 30 feet into another nonliving form of the same size",
+            "checkType": "magic_action_check",
+            "ability": "Intelligence",
+            "baseDC": 10,
+            "actionCost": "magic_action",
+            "scalingDCs": {
+              "bySize": {
+                "Tiny": 10,
+                "Small": 15,
+                "Medium": 20,
+                "Large": 25,
+                "Huge": 25,
+                "Gargantuan": 25
+              }
+            },
+            "onSuccess": {
+              "description": "The creature changes the object into another nonliving form of the same size, such as turning a boulder into a ball of fire",
+              "transformsObject": true,
+              "transformationConstraints": "Must be nonliving form of the same size"
+            },
+            "onFailure": {
+              "description": "The object is not altered",
+              "noEffect": true
+            },
+            "repeatable": true
+          }
+        },
+        {
+          "id": "limbo-stabilize-area",
+          "name": "Stabilize Area",
+          "description": "As a Magic action, a creature can make a DC 20 Intelligence check to stabilize an area within a 30-foot-radius Sphere centered on a point it can see. On success, the area is prevented from being altered by the plane for 24 hours or until the creature takes this Magic action again.",
+          "mechanicalEffect": "DC 20 Intelligence check as Magic action; on success, stabilize 30-foot-radius Sphere for 24 hours.",
+          "interactionCheck": {
+            "id": "limbo-stabilize-check",
+            "name": "Stabilize Area in Limbo",
+            "description": "Prevent a 30-foot-radius Sphere from being altered by the plane",
+            "checkType": "magic_action_check",
+            "ability": "Intelligence",
+            "baseDC": 20,
+            "actionCost": "magic_action",
+            "onSuccess": {
+              "description": "The area is prevented from being altered by the plane for 24 hours or until the creature takes this Magic action again",
+              "stabilizesArea": true,
+              "stabilizationRadiusFeet": 30,
+              "durationHours": 24
+            },
+            "onFailure": {
+              "description": "The area is not stabilized",
+              "noEffect": true
+            },
+            "repeatable": true,
+            "successProbabilityModel": {
+              "atModifierZero": 0.05,
+              "atModifierFive": 0.3,
+              "atModifierTen": 0.55
+            }
+          }
+        }
+      ],
+      "domainsOrRegions": [
+        {
+          "id": "limbo-spawning-stone",
+          "name": "Spawning Stone",
+          "type": "Region",
+          "description": "Said to have been created by Primus, the overlord of the modrons, the Spawning Stone absorbs chaotic energy and makes it possible to shape enclaves of order in Limbo, but the chaotic energy it absorbs is responsible for the creation of slaadi."
+        }
+      ],
+      "adventureThemes": [
+        "Asserting sense of self amid chaos",
+        "Confronting transient nature of identity",
+        "Exploring the Spawning Stone",
+        "Githzerai monasteries as refuges"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Jet black",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "mechanus",
+      "name": "Mechanus",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Neutral Plane",
+      "alignments": ["Lawful Neutral"],
+      "philosophicalEssence": "Perfectly regimented order reigns supreme. Law is reflected in a realm of gigantic clockwork gears, interlocked and turning according to their measure. Some theories hold they are the clockwork of time throughout the cosmos.",
+      "emotionalInfluence": "Absolute order. Individual consciousness is subordinated to the search for perfect order, and 'I' is ultimately subsumed into 'we'.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "toward_nearest_surface",
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Gigantic clockwork gears interlocked and turning, each cog with its own gravity pulling toward its center",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "temperate",
+          "description": "Equal measures of light and dark, equal proportions of heat and cold"
+        },
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Construct"],
+        "notableEntities": [
+          {
+            "name": "Primus",
+            "title": "Overlord of the Modrons",
+            "creatureType": "Construct",
+            "description": "A godlike being, creator of the modrons, whose realm is called Regulus.",
+            "rulesLocation": "Regulus"
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Modrons",
+            "race": "Modron",
+            "description": "Primary inhabitants of Mechanus who maintain its intricate clockworks",
+            "location": "Throughout Mechanus"
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [
+        {
+          "id": "mechanus-regulus",
+          "name": "Regulus",
+          "type": "Realm",
+          "ruler": {
+            "name": "Primus",
+            "title": "Overlord of the Modrons"
+          },
+          "description": "The realm of Primus, creator of the modrons."
+        }
+      ],
+      "adventureThemes": [
+        "Individual ego vs party unity",
+        "Setting aside personal goals for greater causes",
+        "Asserting individual identity"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Diamond blue",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "outlands",
+      "name": "Outlands",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Neutral Plane",
+      "alignments": ["Neutral"],
+      "philosophicalEssence": "The plane of neutrality, keeping all aspects of the planes in a paradoxical balance—simultaneously concordant and in opposition. A microcosm of the planes.",
+      "emotionalInfluence": "Balance of opposing planar influences. The closest the Outer Planes come to being like a world on the Material Plane.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isInfinite": false,
+        "isBounded": true,
+        "morphic": "static",
+        "shape": "A great disk with varied terrain—prairies, mountains, and shallow rivers—with the Spire at the center and sixteen gate-towns evenly spaced around the outside edge",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "temperate"
+        },
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "abundant",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial", "Fiend", "Construct", "Aberration", "Humanoid"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [
+        {
+          "id": "gt-automata",
+          "name": "Automata",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Mechanus",
+          "portalDestination": "Mechanus"
+        },
+        {
+          "id": "gt-bedlam",
+          "name": "Bedlam",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Pandemonium",
+          "portalDestination": "Pandemonium"
+        },
+        {
+          "id": "gt-curst",
+          "name": "Curst",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Carceri",
+          "portalDestination": "Carceri"
+        },
+        {
+          "id": "gt-ecstasy",
+          "name": "Ecstasy",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Elysium",
+          "portalDestination": "Elysium"
+        },
+        {
+          "id": "gt-excelsior",
+          "name": "Excelsior",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Mount Celestia",
+          "portalDestination": "Mount Celestia"
+        },
+        {
+          "id": "gt-faunel",
+          "name": "Faunel",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Beastlands",
+          "portalDestination": "Beastlands"
+        },
+        {
+          "id": "gt-fortitude",
+          "name": "Fortitude",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Arcadia",
+          "portalDestination": "Arcadia"
+        },
+        {
+          "id": "gt-glorium",
+          "name": "Glorium",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Ysgard",
+          "portalDestination": "Ysgard"
+        },
+        {
+          "id": "gt-hopeless",
+          "name": "Hopeless",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Hades",
+          "portalDestination": "Hades"
+        },
+        {
+          "id": "gt-plague-mort",
+          "name": "Plague-Mort",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to the Abyss",
+          "portalDestination": "Abyss"
+        },
+        {
+          "id": "gt-ribcage",
+          "name": "Ribcage",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Nine Hells",
+          "portalDestination": "Nine Hells"
+        },
+        {
+          "id": "gt-rigus",
+          "name": "Rigus",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Acheron",
+          "portalDestination": "Acheron"
+        },
+        {
+          "id": "gt-sylvania",
+          "name": "Sylvania",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Arborea",
+          "portalDestination": "Arborea"
+        },
+        {
+          "id": "gt-torch",
+          "name": "Torch",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Gehenna",
+          "portalDestination": "Gehenna"
+        },
+        {
+          "id": "gt-tradegate",
+          "name": "Tradegate",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Bytopia",
+          "portalDestination": "Bytopia"
+        },
+        {
+          "id": "gt-xaos",
+          "name": "Xaos",
+          "type": "Gate-town",
+          "description": "Gate-town with portal to Limbo",
+          "portalDestination": "Limbo"
+        }
+      ],
+      "adventureThemes": [
+        "Conflicts between opposing planar influences",
+        "Celestial spies and Fiend assassins",
+        "Preserving balance from powerful extremes",
+        "Variety of planar-themed adventures"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Leather brown",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Planescape: Adventures in the Multiverse",
+          "description": "Includes extensive information on the Outlands"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "river-oceanus",
+      "name": "River Oceanus",
+      "type": "river",
+      "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+      "description": "The water of the Oceanus is sweet and fragrant, as befits its headwaters in the Blessed Fields of Elysium. It flows through each of Elysium's layers, passes through the top layer of the Beastlands, streams across the top layer of Arborea, and finally drains away somewhere in Arborea's second layer.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Trading vessels", "Hired boats"]
+    },
+    {
+      "id": "river-styx",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of the Lower Planes, with tributaries snaking through lower layers.",
+      "hazards": ["Memory-draining waters (see Hazards in chapter 3)"],
+      "isOneWay": false,
+      "navigableBy": [
+        "Sinister ferries crewed by skilled pilots",
+        "Fiend pilots",
+        "Souls of dead creatures from the Material Plane"
+      ]
+    },
+    {
+      "id": "infinite-staircase",
+      "name": "Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": ["All planes"],
+      "description": "An extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond lies a small landing with a stairway leading up and down. The staircase changes appearance as it climbs and descends.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Any creature that can walk or climb"]
+    },
+    {
+      "id": "yggdrasil",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Astral Plane", "Material Plane"],
+      "description": "A cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly others. Most of its trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Climbing creatures", "Expert guides"]
+    }
+  ],
+  "bloodWar": {
+    "description": "Throughout history, the teeming demon hordes of the Abyss and the regimented legions of devils from the Nine Hells have battled for supremacy in the cosmos. The Blood War is a conflict that has raged for millennia, ravaging the Lower Planes.",
+    "primaryBattlefields": ["Nine Hells", "Abyss"],
+    "factions": [
+      {
+        "name": "Demon Hordes",
+        "planeOfOrigin": "Abyss",
+        "creatureType": "Fiend (Demon)",
+        "role": "Teeming chaotic forces seeking to overwhelm through sheer numbers and destruction"
+      },
+      {
+        "name": "Devil Legions",
+        "planeOfOrigin": "Nine Hells",
+        "creatureType": "Fiend (Devil)",
+        "role": "Regimented lawful forces seeking supremacy through strategy and discipline"
+      }
+    ],
+    "spilloverPlanes": ["Material Plane", "Acheron", "Gehenna", "Hades", "Carceri", "Pandemonium"],
+    "adventureImplications": "Powerful mortal adventurers are sometimes drawn into tangled schemes by demons and devils seeking advantage. Natives of the Upper Planes stand ready to intervene whenever the Blood War spills outside the Abyss and Nine Hells."
+  },
+  "planarTravelMethods": [],
+  "infernalHierarchy": [
+    {
+      "rank": 1,
+      "title": "Lemure",
+      "category": "Least Devils",
+      "creatureType": "Lemure",
+      "canPromoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": [],
+      "promotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 2,
+      "title": "Imp",
+      "category": "Lesser Devils",
+      "creatureType": "Imp",
+      "canPromoteTo": ["Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 3,
+      "title": "Spined devil",
+      "category": "Lesser Devils",
+      "creatureType": "Spined devil",
+      "canPromoteTo": ["Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 4,
+      "title": "Bearded devil",
+      "category": "Lesser Devils",
+      "creatureType": "Bearded devil",
+      "canPromoteTo": ["Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 5,
+      "title": "Barbed devil",
+      "category": "Lesser Devils",
+      "creatureType": "Barbed devil",
+      "canPromoteTo": ["Chain devil", "Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 6,
+      "title": "Chain devil",
+      "category": "Lesser Devils",
+      "creatureType": "Chain devil",
+      "canPromoteTo": ["Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 7,
+      "title": "Bone devil",
+      "category": "Lesser Devils",
+      "creatureType": "Bone devil",
+      "canPromoteTo": ["Horned devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 8,
+      "title": "Horned devil",
+      "category": "Greater Devils",
+      "creatureType": "Horned devil",
+      "canPromoteTo": ["Erinyes"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 9,
+      "title": "Erinyes",
+      "category": "Greater Devils",
+      "creatureType": "Erinyes",
+      "canPromoteTo": ["Ice devil"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 10,
+      "title": "Ice devil",
+      "category": "Greater Devils",
+      "creatureType": "Ice devil",
+      "canPromoteTo": ["Pit fiend"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 11,
+      "title": "Pit fiend",
+      "category": "Greater Devils",
+      "creatureType": "Pit fiend",
+      "canPromoteTo": ["Duke/duchess"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 12,
+      "title": "Duke/duchess",
+      "category": "Archdevils",
+      "creatureType": "Archdevil",
+      "canPromoteTo": ["Archduke/archduchess"],
+      "canDemoteTo": ["Any lesser or greater devil form"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    },
+    {
+      "rank": 13,
+      "title": "Archduke/archduchess",
+      "category": "Archdevils",
+      "creatureType": "Archdevil",
+      "canPromoteTo": [],
+      "canDemoteTo": ["Any form at Asmodeus's discretion"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    }
+  ],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature (Celestials on Lower Planes, Fiends on Upper Planes)",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds an additional 1d4 subtracted from all D20 Tests. Multiple failed saves stack.",
+        "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature"
+      },
+      "onSuccess": {
+        "description": "No additional penalty is applied. Previously accumulated penalties remain.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryTrigger": "Finish a Long Rest on a plane that isn't opposed to the creature's nature",
+      "recoveryMethods": ["Finish a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 1,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.4,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 17,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

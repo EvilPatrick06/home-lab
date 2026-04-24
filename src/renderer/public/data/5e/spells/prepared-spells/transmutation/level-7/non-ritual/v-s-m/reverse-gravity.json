@@ -1,0 +1,54 @@
+{
+  "name": "Reverse Gravity",
+  "level": 7,
+  "school": "Transmutation",
+  "classes": ["Druid", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 100,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a lodestone and iron filings",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "This spell reverses gravity in a 50-foot-radius, 100-foot high Cylinder centered on a point within range. All creatures and objects in that area that aren't anchored to the ground fall upward and reach the top of the Cylinder. A creature can make a Dexterity saving throw to grab a fixed object it can reach, thus avoiding the fall upward. If a ceiling or an anchored object is encountered in this upward fall, creatures and objects strike it just as they would during a downward fall. If an affected creature or object reaches the Cylinder's top without striking anything, it hovers there for the duration. When the spell ends, affected objects and creatures fall downward.",
+  "areaOfEffect": [
+    {
+      "shape": "Cylinder",
+      "radiusFeet": 50,
+      "heightFeet": 100
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noEffectOnSuccess": true,
+    "effectOnSuccess": "Creature grabs a fixed object it can reach and avoids falling upward",
+    "effectOnFailure": "Creature falls upward to the top of the Cylinder or until striking a ceiling or anchored object"
+  },
+  "forcedMovement": [
+    {
+      "type": "fall",
+      "distanceFeet": 100,
+      "direction": "up",
+      "onFailedSave": true
+    }
+  ],
+  "tags": ["control", "gravity", "movement", "environmental"]
+}

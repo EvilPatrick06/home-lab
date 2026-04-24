@@ -1,0 +1,13 @@
+{
+  "name": "Parchment",
+  "cost": "1 SP",
+  "weight": "—",
+  "description": "One sheet holds about 250 handwritten words.",
+  "slug": "parchment",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

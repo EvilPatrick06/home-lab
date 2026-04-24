@@ -1,0 +1,328 @@
+{
+  "name": "Mind Flayer Arcanist",
+  "sizes": ["Medium"],
+  "creatureType": "Aberration",
+  "descriptiveTags": ["Mind Flayer"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Arcana"],
+  "lore": "Mind flayer arcanists are rare individuals among their kind who have supplemented their innate psionic abilities with arcane spellcasting. Other mind flayers view arcanists with a mixture of suspicion and grudging respect, for arcane magic represents a path to power that lies beyond the elder brain's psionic dominion. An arcanist's mastery of arcane lore makes it an even more formidable adversary than a typical mind flayer, capable of hurling destructive spells while still wielding its devastating psychic powers.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Breastplate"]
+  },
+  "hitPoints": {
+    "average": 112,
+    "dice": {
+      "count": 15,
+      "die": "d8",
+      "modifier": 45
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 7
+    },
+    "WIS": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 7
+    },
+    {
+      "skill": "Deception",
+      "bonus": 6
+    },
+    {
+      "skill": "Insight",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "resistances": ["Psychic"],
+  "gear": [
+    {
+      "name": "Breastplate",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Deep Speech", "Undercommon"],
+    "telepathy": 120
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The mind flayer has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting (Psionics)",
+      "ability": "INT",
+      "spellSaveDC": 15,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true,
+        "ignoresMaterialWithCost": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Levitate",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dominate Monster",
+              "level": 8
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Arcane Spellcasting",
+      "ability": "INT",
+      "spellSaveDC": 15,
+      "spellAttackBonus": 7,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Dancing Lights",
+              "level": 0
+            },
+            {
+              "name": "Mage Hand",
+              "level": 0,
+              "notes": "The hand is invisible"
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Counterspell",
+              "level": 3
+            },
+            {
+              "name": "Fireball",
+              "level": 3
+            },
+            {
+              "name": "Lightning Bolt",
+              "level": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Tentacles",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 15 (2d10 + 4) Psychic damage. If the target is Medium or smaller, it has the Grappled condition (escape DC 15) and must succeed on a DC 15 Intelligence saving throw or have the Stunned condition until the grapple ends.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one creature",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "duration": "until escaped",
+              "escapeDC": 15
+            }
+          ],
+          "savingThrow": {
+            "ability": "INT",
+            "dc": 15,
+            "targets": "the grappled target",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Stunned",
+                  "duration": "until the grapple ends"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Extract Brain",
+      "description": "Melee Attack Roll: +7, reach 5 ft., one Incapacitated Humanoid grappled by the mind flayer. Hit: 55 (10d10) Piercing damage. If this damage reduces the target to 0 Hit Points, the mind flayer kills the target by extracting and devouring its brain.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one Incapacitated Humanoid grappled by the mind flayer",
+        "hit": {
+          "damage": [
+            {
+              "average": 55,
+              "dice": {
+                "count": 10,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If this damage reduces the target to 0 Hit Points, the mind flayer kills the target by extracting and devouring its brain."
+        }
+      }
+    },
+    {
+      "name": "Mind Blast",
+      "description": "The mind flayer magically emits psychic energy in a 60-foot Cone. Each creature in that area must succeed on a DC 15 Intelligence saving throw or take 22 (4d8 + 4) Psychic damage and have the Stunned condition for 1 minute. On a successful save, a creature takes half as much damage only. A Stunned creature repeats the save at the end of each of its turns, ending the condition on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "INT",
+        "dc": 15,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Stunned",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "INT",
+                "dc": 15,
+                "targets": "the stunned creature",
+                "onSuccess": {
+                  "effects": "The condition ends on the creature."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 60
+      }
+    }
+  ]
+}

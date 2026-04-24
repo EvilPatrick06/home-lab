@@ -1,0 +1,11 @@
+{
+  "name": "Food",
+  "slug": "food",
+  "description": "A creature requires food each day based on its size (see Water/Food Needs per Day table). A creature that eats but consumes less than half the required food must succeed on a DC 15 Constitution saving throw at the end of the day or gain 1 Exhaustion level. A creature that eats nothing automatically gains 1 Exhaustion level at the end of the day.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

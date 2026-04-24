@@ -1,0 +1,21 @@
+{
+  "name": "Handaxe",
+  "slug": "handaxe",
+  "category": "Simple",
+  "type": "Melee",
+  "damage": "1d6",
+  "damageType": "Slashing",
+  "properties": ["Light", "Thrown"],
+  "mastery": "Vex",
+  "weight": "2 lb.",
+  "cost": "5 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 20,
+    "long": 60
+  }
+}

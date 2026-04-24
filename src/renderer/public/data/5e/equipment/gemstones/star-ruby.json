@@ -1,0 +1,13 @@
+{
+  "name": "Star ruby",
+  "slug": "star-ruby",
+  "value": "1,000 GP",
+  "category": "Gemstone",
+  "description": "ruby with white star-shaped center",
+  "dieValue": "6",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

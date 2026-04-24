@@ -1,0 +1,11 @@
+{
+  "name": "Blessing of Wound Closure",
+  "type": "Blessing",
+  "description": "When you are Unconscious and make a Death Saving Throw, you succeed on a roll of 6 or higher. Also, whenever you roll Hit Dice to regain HP, double the number of HP restored.",
+  "slug": "blessing-of-wound-closure",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Black pearl",
+  "slug": "black-pearl",
+  "value": "500 GP",
+  "category": "Gemstone",
+  "description": "pure black",
+  "dieValue": "3",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

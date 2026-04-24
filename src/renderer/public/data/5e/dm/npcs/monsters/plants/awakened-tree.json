@@ -1,0 +1,106 @@
+{
+  "name": "Awakened Tree",
+  "sizes": ["Huge"],
+  "creatureType": "Plant",
+  "alignment": "Unaligned",
+  "habitat": ["Forest"],
+  "treasure": ["None"],
+  "lore": "An awakened tree is a towering plant given sentience and the ability to move by magic such as the Awaken spell. It carries out the instructions of its creator, whether guarding a druid's grove or patrolling an ancient forest. When motionless, it is indistinguishable from an ordinary tree, making it an ideal sentinel.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 59,
+    "dice": {
+      "count": 7,
+      "die": "d12",
+      "modifier": 14
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": -2,
+    "score": 8
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "vulnerabilities": ["Fire"],
+  "resistances": ["Bludgeoning and Piercing"],
+  "senses": {
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["One language known by its creator"],
+    "notes": "Can't speak"
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "While the tree remains motionless, it is indistinguishable from an ordinary tree."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 14 (3d6 + 4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

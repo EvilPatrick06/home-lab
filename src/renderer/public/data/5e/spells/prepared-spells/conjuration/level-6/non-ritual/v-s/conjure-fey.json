@@ -1,0 +1,73 @@
+{
+  "name": "Conjure Fey",
+  "level": 6,
+  "school": "Conjuration",
+  "classes": ["Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "You conjure a Medium spirit from the Feywild in an unoccupied space you can see within range. The spirit lasts for the duration, and it looks like a Fey creature of your choice. When the spirit appears, you can make one melee spell attack against a creature within 5 feet of it. On a hit, the target takes Psychic damage equal to 3d12 plus your spellcasting ability modifier, and the target has the Frightened condition until the start of your next turn, with both you and the spirit as the source of the fear. As a Bonus Action on your later turns, you can teleport the spirit to an unoccupied space you can see within 30 feet of the space it left and make the attack against a creature within 5 feet of it.",
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "attackType": "MeleeSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 12,
+        "addCasterMod": true
+      },
+      "type": "Psychic",
+      "applicationType": "onHit"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Frightened",
+      "trigger": "onHit",
+      "duration": "until the start of your next turn"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "BonusAction",
+    "description": "Teleport the spirit to an unoccupied space you can see within 30 feet of the space it left and make the melee spell attack against a creature within 5 feet of it.",
+    "damage": {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 12,
+        "addCasterMod": true
+      },
+      "type": "Psychic",
+      "applicationType": "onHit"
+    }
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 2,
+        "diceValue": 12,
+        "baseSpellLevel": 6,
+        "description": "The damage increases by 2d12 for each spell slot level above 6."
+      }
+    ]
+  },
+  "tags": ["conjuration", "fey", "psychic", "frightened", "teleport", "bonus-action-repeat"]
+}

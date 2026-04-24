@@ -1,0 +1,27 @@
+{
+  "name": "Ability Score Improvement",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "repeatable": {
+    "restriction": null
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["any"],
+        "amount": 2,
+        "maximum": 20,
+        "count": 1
+      },
+      {
+        "abilities": ["any"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 2
+      }
+    ]
+  },
+  "source": "PHB 2024"
+}

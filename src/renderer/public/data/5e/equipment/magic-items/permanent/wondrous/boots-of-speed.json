@@ -1,0 +1,15 @@
+{
+  "name": "Boots of Speed",
+  "itemType": "Wondrous Item",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "While you wear these boots, your Walking Speed doubles, and when you make a Dash action, you gain an additional 10 feet of movement for that turn.",
+  "properties": null,
+  "weight": 3,
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

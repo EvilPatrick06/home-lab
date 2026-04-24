@@ -1,0 +1,37 @@
+{
+  "name": "Barkskin",
+  "level": 2,
+  "school": "Transmutation",
+  "classes": ["Druid", "Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a handful of bark",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You touch a willing creature. Until the spell ends, the target's skin assumes a bark-like appearance, and the target has an Armor Class of 17 if its AC is lower than that.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "acModifier": {
+    "type": "setMinimum",
+    "value": 17
+  },
+  "tags": ["buff", "defense"]
+}

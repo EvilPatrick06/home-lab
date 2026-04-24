@@ -1,0 +1,163 @@
+{
+  "id": "a1c3e5f7-8b2d-4a6c-9e0f-1d3b5a7c9e2f",
+  "name": "Healing",
+  "slug": "healing",
+  "category": "GeneralRule",
+  "subcategory": "Hit Points",
+  "tags": ["healing", "hit-points", "recovery", "combat", "resting", "spells"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Rules Glossary",
+    "section": "Healing"
+  },
+  "gameEdition": "2024",
+  "description": "Healing is the mechanic by which a creature regains lost Hit Points. When a creature receives healing, the creature's Hit Points increase by the amount of healing received, up to the creature's Hit Point Maximum. A creature that has 0 Hit Points and receives healing regains consciousness and gains those Hit Points. Healing cannot raise a creature's Hit Points above its Hit Point Maximum. A dead creature cannot regain Hit Points until magic such as Revivify has restored it to life.",
+  "shortDescription": "Regain lost HP up to your HP Maximum. Healing at 0 HP restores consciousness. Dead creatures can't be healed without life-restoring magic.",
+  "rulesAsWritten": "When you receive healing, you regain Hit Points equal to the amount of healing received, up to your Hit Point Maximum. If you are at 0 Hit Points and receive any amount of healing, you regain consciousness. Healing has no effect on a dead creature.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Unconscious",
+      "relationship": "RemovedBy",
+      "isAutomatic": true,
+      "note": "A creature at 0 HP that is Unconscious due to having 0 HP regains consciousness upon receiving any amount of healing."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "b2d4f6a8-1c3e-4b5d-8a7f-2e4c6d8a0b1f",
+      "order": 0,
+      "name": "Regain Hit Points",
+      "description": "When a creature receives healing, it regains a number of Hit Points equal to the healing received. The creature's current Hit Points cannot exceed its Hit Point Maximum.",
+      "trigger": {
+        "event": "OnHealingReceived"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature's current Hit Points increase by the amount of healing received, up to the creature's Hit Point Maximum. Any healing in excess of the Hit Point Maximum is wasted.",
+          "mechanicalNote": "new_hp = min(current_hp + healing_amount, hp_maximum)"
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c3e5a7b9-2d4f-4c6e-9b8a-3f5d7e9a1c2d",
+      "order": 1,
+      "name": "Regain Consciousness at 0 HP",
+      "description": "If the creature is at 0 Hit Points and Unconscious (due to being at 0 HP) when it receives healing, it regains consciousness immediately upon gaining those Hit Points.",
+      "trigger": {
+        "event": "OnHealingReceived",
+        "condition": "Creature is at 0 Hit Points and Unconscious due to having 0 HP"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature regains consciousness. The Unconscious condition (caused by being at 0 HP) ends. The creature gains Hit Points equal to the healing amount received.",
+          "mechanicalNote": "Unconscious condition from 0 HP is removed; creature is conscious with the healed HP total."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d4f6b8c0-3e5a-4d7f-0c9b-4a6e8f0b2d3e",
+      "order": 2,
+      "name": "No Effect on Dead Creatures",
+      "description": "Healing has no effect on a dead creature. A creature must first be restored to life by magic such as Revivify before it can regain Hit Points through healing.",
+      "trigger": {
+        "event": "OnHealingReceived",
+        "condition": "Creature is dead"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The healing has no effect. The creature remains dead and gains no Hit Points. Only magic that explicitly restores a dead creature to life (such as Revivify, Raise Dead, Resurrection, True Resurrection, or Wish) can restore the creature before healing can take effect.",
+          "mechanicalNote": "Healing is negated entirely if the target is dead, not merely at 0 HP."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e5a7c9d1-4f6b-4e8a-1d0c-5b7f9a1c3e4f",
+      "order": 3,
+      "name": "HP Maximum Cap",
+      "description": "Healing cannot cause a creature's current Hit Points to exceed its Hit Point Maximum. Any excess healing is lost.",
+      "trigger": {
+        "event": "OnHealingReceived",
+        "condition": "Healing amount would cause current HP to exceed HP Maximum"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Current Hit Points are set to the creature's Hit Point Maximum. Any healing beyond the HP Maximum is not stored or transferred and is simply lost.",
+          "mechanicalNote": "Overheal is discarded: effective_healing = min(healing_amount, hp_maximum - current_hp)"
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": null,
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Multiple sources of healing are applied individually and sequentially. Simultaneous healing effects each add their amount independently, but the creature's HP can never exceed its HP Maximum regardless of the number of sources."
+  },
+  "dmNotes": "Healing sources include spells (such as Cure Wounds, Healing Word), class features (such as a Paladin's Lay on Hands or a Fighter's Second Wind), potions (such as Potion of Healing), resting (Short Rest with Hit Dice or Long Rest), and other special abilities. Remember that a reduced HP Maximum (such as from a Wraith's Life Drain or the Exhaustion condition at certain levels) limits the ceiling for healing.",
+  "commonRulings": [
+    {
+      "question": "Does healing a creature at 0 HP cancel ongoing Death Saving Throws?",
+      "ruling": "Yes. When a creature at 0 HP receives healing and regains Hit Points, it is no longer at 0 HP, so it stops making Death Saving Throws. Any accumulated Death Saving Throw successes and failures are reset.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a creature receive healing if its Hit Point Maximum has been reduced to 0?",
+      "ruling": "A creature whose HP Maximum is 0 cannot regain Hit Points through healing, because healing cannot raise current HP above the HP Maximum. Such a creature would die if it reaches 0 HP.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can you heal a creature that is stable at 0 HP but not yet conscious?",
+      "ruling": "Yes. A stable creature at 0 HP that receives any healing gains those HP and regains consciousness immediately.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does healing remove conditions other than Unconscious at 0 HP?",
+      "ruling": "No. Healing by itself only restores Hit Points and ends the Unconscious condition caused by being at 0 HP. Other conditions (Poisoned, Frightened, etc.) require their own specific removal methods unless a healing effect explicitly states otherwise.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

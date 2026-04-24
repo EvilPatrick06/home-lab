@@ -1,0 +1,16 @@
+{
+  "name": "Entertainer",
+  "description": "You spent much of your youth following roving fairs and carnivals, performing odd jobs for musicians and acrobats in exchange for lessons. You may have learned how to walk a tightrope, how to play a lute in a distinct style, or how to recite poetry with impeccable diction. To this day, you thrive on applause and long for the stage.",
+  "abilityScores": ["Strength", "Dexterity", "Charisma"],
+  "skillProficiencies": ["Acrobatics", "Performance"],
+  "toolProficiency": "one kind of Musical Instrument",
+  "feat": "Musician",
+  "equipment": [
+    {
+      "option": "A",
+      "items": ["Musical Instrument (same as above)", "2 Costumes", "Mirror", "Perfume", "Traveler's Clothes", "11 GP"]
+    },
+    { "option": "B", "items": ["50 GP"] }
+  ],
+  "source": "PHB 2024"
+}

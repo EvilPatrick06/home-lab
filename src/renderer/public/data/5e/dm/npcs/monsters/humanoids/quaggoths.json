@@ -1,0 +1,130 @@
+{
+  "name": "Quaggoth",
+  "sizes": ["Large"],
+  "creatureType": "Humanoid",
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "Quaggoths are savage, shaggy, ape-like humanoids that dwell in the Underdark. They often serve as thralls to drow or other Underdark powers. Despite their brutish demeanor, some quaggoths possess a dim racial memory of a time when their kind was a proud people before a terrible curse transformed them into their current bestial forms. When gravely wounded, a quaggoth enters a berserk fury that makes it even more dangerous.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 76,
+    "dice": {
+      "count": 9,
+      "die": "d10",
+      "modifier": 27
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Athletics",
+      "bonus": 5
+    }
+  ],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Undercommon"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Wounded Fury",
+      "description": "While the quaggoth has 10 Hit Points or fewer, it has Advantage on attack rolls, and its Claw attacks deal an extra 7 (2d6) damage on a hit."
+    }
+  ],
+  "multiattack": {
+    "description": "The quaggoth makes two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

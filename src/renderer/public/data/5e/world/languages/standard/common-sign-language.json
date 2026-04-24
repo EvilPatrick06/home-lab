@@ -1,0 +1,13 @@
+{
+  "name": "Common Sign Language",
+  "script": "None (gestural)",
+  "origin": "Widely used across the Material Plane",
+  "speakers": "Anyone, including those who are deaf or hard of hearing",
+  "slug": "common-sign-language",
+  "category": "Standard",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

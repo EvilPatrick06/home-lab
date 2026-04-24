@@ -1,0 +1,168 @@
+{
+  "name": "Xorn",
+  "sizes": ["Medium"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["Individual"],
+  "lore": "Xorns are bizarre elemental creatures native to the Elemental Plane of Earth. They have radially symmetrical, barrel-shaped bodies with three eyes, three arms ending in taloned hands, and a wide mouth atop their heads. Xorns have an insatiable appetite for gems and precious metals, which they can detect by scent. They burrow through earth and stone as easily as a fish swims through water, leaving no tunnel or trace of their passage. While not inherently hostile, xorns can become aggressive when denied the minerals they crave.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 73,
+    "dice": {
+      "count": 7,
+      "die": "d8",
+      "modifier": 42
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Burrow",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 22,
+      "modifier": 6,
+      "save": 6
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "resistances": ["Piercing and Slashing"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      },
+      {
+        "type": "Tremorsense",
+        "range": 60
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Terran"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Earth Glide",
+      "description": "The xorn can burrow through nonmagical, unworked earth and stone. While doing so, the xorn doesn't disturb the material it moves through."
+    },
+    {
+      "name": "Treasure Sense",
+      "description": "The xorn can pinpoint, by scent, the location of precious metals and stones, such as coins and gems, within 60 feet of itself."
+    }
+  ],
+  "multiattack": {
+    "description": "The xorn makes one Bite attack and three Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 3
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 13 (3d6 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 6 (1d6 + 3) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

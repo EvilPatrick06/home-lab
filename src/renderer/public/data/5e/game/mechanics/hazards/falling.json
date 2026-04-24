@@ -1,0 +1,315 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. Falling is a universal hazard applicable across all planes that have gravity.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "The Material Plane and its echoes (Feywild, Shadowfell), where falling is most commonly encountered.",
+        "memberPlanes": ["Material Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "material-plane",
+      "name": "Material Plane",
+      "alternateNames": [],
+      "category": "Material Realm",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [
+        {
+          "id": "falling",
+          "name": "Falling",
+          "description": "A creature falls when there is nothing holding it up. A falling creature drops up to 500 feet per turn. At the end of a fall, a creature takes 1d6 Bludgeoning damage for every 10 feet it fell, to a maximum of 20d6. The creature has the Prone condition when it lands, unless it avoids taking damage from the fall.",
+          "category": "physical",
+          "severity": "lethal",
+          "damagePerTurn": {
+            "dice": {
+              "count": 20,
+              "die": 6,
+              "modifier": 0,
+              "expression": "20d6",
+              "averageResult": 70
+            },
+            "damageType": "Bludgeoning",
+            "averageDamagePerTurn": 70,
+            "frequency": "on_trigger",
+            "frequencyDescription": "Damage is applied once at the end of a fall, not per round. The number of d6 equals the number of 10-foot increments fallen, to a maximum of 20d6.",
+            "triggerCondition": "A creature falls and lands. Damage is calculated as 1d6 Bludgeoning per 10 feet fallen, maximum 20d6 (200 feet of falling). A fall of less than 10 feet deals no damage under this rule.",
+            "cumulativeDamageModel": {
+              "escalates": true,
+              "escalationFormula": "1d6 per 10 feet fallen, minimum 1d6 at 10 feet, maximum 20d6 at 200+ feet. Average damage = (number of 10-foot increments) * 3.5, capped at 70.",
+              "maxDamagePerTurn": 120
+            },
+            "effectiveRoundsToIncapacitate": {
+              "averageHPAssumption": 40,
+              "estimatedRounds": 1
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary — Falling"
+        },
+        {
+          "id": "falling-prone-on-landing",
+          "name": "Falling — Prone Condition on Landing",
+          "description": "A creature that takes damage from a fall has the Prone condition when it lands. If the creature avoids taking damage from the fall (e.g., through Resistance reducing damage to 0, immunity, or other means), it does not gain the Prone condition.",
+          "category": "physical",
+          "severity": "minor",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "mechanical",
+          "sourceReference": "Appendix C: Rules Glossary — Falling"
+        },
+        {
+          "id": "falling-rate",
+          "name": "Falling — Rate of Descent",
+          "description": "A falling creature drops up to 500 feet per turn (a round is about 6 seconds). This means a creature falling more than 500 feet does not land until a subsequent turn, and falling damage is not applied until the end of the fall.",
+          "category": "physical",
+          "severity": "trivial",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "mechanical",
+          "sourceReference": "Appendix C: Rules Glossary — Falling"
+        },
+        {
+          "id": "flying-creature-fall",
+          "name": "Flying Creature Fall",
+          "description": "If a flying creature has the Incapacitated or Prone condition or its Fly Speed is reduced to 0, the creature falls unless it can hover or is being held aloft by magic.",
+          "category": "physical",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": ["Hover", "Held aloft by magic"],
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary — Flying"
+        },
+        {
+          "id": "falling-off-mount",
+          "name": "Falling Off a Mount",
+          "description": "If an effect is about to move your mount against its will while you're on it, you must succeed on a DC 10 Dexterity saving throw or fall off, landing with the Prone condition in an unoccupied space within 5 feet of the mount. While mounted, you must make the same save if you're knocked Prone or the mount is.",
+          "category": "physical",
+          "severity": "minor",
+          "savingThrowToTraverse": {
+            "ability": "Dexterity",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "situational",
+            "triggerDescription": "When an effect is about to move your mount against its will while you are on it, or when you or the mount are knocked Prone while you are mounted.",
+            "onFailure": {
+              "description": "You fall off the mount, landing with the Prone condition in an unoccupied space within 5 feet of the mount.",
+              "conditionApplied": "Prone",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "cumulative": false,
+              "preventsDeath": false
+            },
+            "onSuccess": {
+              "description": "You remain mounted and are not knocked off.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": [],
+            "failureProbabilityAtDC": {
+              "dc": 10,
+              "noModifierFailChance": 0.45,
+              "commonModifierRange": {
+                "low": 0,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.45,
+              "failChanceAtHighMod": 0.2
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 1: Playing the Game — Mounted Combat"
+        },
+        {
+          "id": "falling-does-not-provoke-opportunity-attack",
+          "name": "Falling Does Not Provoke Opportunity Attacks",
+          "description": "You don't provoke an Opportunity Attack if you fall past an enemy. Opportunity Attacks are not provoked when you are moved without using your movement, action, Bonus Action, or Reaction — falling qualifies as such involuntary movement.",
+          "category": "physical",
+          "severity": "trivial",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "mechanical",
+          "sourceReference": "Chapter 1: Playing the Game — Opportunity Attacks"
+        },
+        {
+          "id": "jumping-landing-in-difficult-terrain",
+          "name": "Jumping — Landing in Difficult Terrain (Related Fall Risk)",
+          "description": "If you land in Difficult Terrain after a jump, you must make a DC 10 Dexterity (Acrobatics) check or have the Prone condition. This is related to falling as it governs landing conditions.",
+          "category": "physical",
+          "severity": "trivial",
+          "interactionCheck": {
+            "id": "jump-landing-difficult-terrain-check",
+            "name": "Jump Landing in Difficult Terrain",
+            "description": "When landing from a jump in Difficult Terrain, a creature must make a DC 10 Dexterity (Acrobatics) check or gain the Prone condition.",
+            "checkType": "ability_check",
+            "ability": "Dexterity",
+            "skill": "Acrobatics",
+            "baseDC": 10,
+            "actionCost": "no_action",
+            "onSuccess": {
+              "description": "You land without falling Prone."
+            },
+            "onFailure": {
+              "description": "You have the Prone condition.",
+              "conditionOnFailure": "Prone",
+              "noEffect": false
+            },
+            "repeatable": true,
+            "requiresConcentration": false,
+            "endsOnConcentrationBreak": false,
+            "successProbabilityModel": {
+              "atModifierZero": 0.55,
+              "atModifierFive": 0.8,
+              "atModifierTen": 1
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "mechanical",
+          "sourceReference": "Appendix C: Rules Glossary — Jumping"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {},
+      "specialRules": [
+        {
+          "id": "falling-damage-scaling",
+          "name": "Falling Damage Scaling Rule",
+          "description": "Falling damage scales linearly at 1d6 Bludgeoning damage per 10 feet fallen, to a maximum of 20d6. This means a fall of 200 feet or more always deals 20d6 damage. A fall of less than 10 feet deals no falling damage under the standard rule.",
+          "mechanicalEffect": "Damage = min(floor(distance_in_feet / 10), 20)d6 Bludgeoning. Average damage per 10 feet = 3.5. Maximum average damage (200+ feet) = 70. The Prone condition is applied on landing if any damage is taken. The creature drops up to 500 feet per turn (approximately 83.3 feet per second). If a fall exceeds 500 feet, the creature continues falling on subsequent turns.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "falling-universal-applicability",
+          "name": "Falling Is Universal",
+          "description": "Falling applies to any creature when there is nothing holding it up. There is no saving throw to avoid falling damage itself; the damage is automatic upon landing. Avoidance requires flight, hovering, feather fall effects, or other specific abilities.",
+          "mechanicalEffect": "No saving throw is inherent to the Falling hazard. Damage is automatic. Prone condition is automatic unless zero damage is taken. Flying creatures fall if Incapacitated, Prone, or Fly Speed is 0, unless they can hover or are held aloft by magic.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "adventureThemes": [],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game — Hazards section lists Falling; Combat section describes falling past enemies and Opportunity Attacks; Mounted Combat section describes falling off a mount."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary — Falling entry defines all core mechanics: 500 ft/turn drop rate, 1d6 per 10 ft, 20d6 max, Prone on landing. Flying entry defines when flying creatures fall."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary — Jumping entry defines DC 10 Dexterity (Acrobatics) check when landing in Difficult Terrain."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

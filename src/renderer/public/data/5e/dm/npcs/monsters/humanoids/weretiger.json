@@ -1,0 +1,202 @@
+{
+  "name": "Weretiger",
+  "sizes": ["Medium", "Large"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Neutral",
+  "habitat": ["Forest", "Grassland", "Hill"],
+  "treasure": ["Armaments"],
+  "lore": "Weretigers are powerful and regal lycanthropes who tend to be solitary and territorial. In humanoid form, they are often graceful, strikingly attractive, and physically imposing. Many weretigers view themselves as guardians of the wilds, stalking those who despoil or threaten the lands they claim. Unlike many other lycanthropes, weretigers sometimes maintain a measure of control over their bestial natures, though the hunger within can erupt when provoked.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 95,
+    "dice": {
+      "count": 10,
+      "die": "d8",
+      "modifier": 50
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks that aren't silvered"],
+  "gear": [
+    {
+      "name": "Scimitar",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "multiattack": {
+    "description": "The weretiger makes two attacks, using Claw or Scimitar in any combination. It can replace one of these attacks with a Bite.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Bite"
+      },
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Scimitar"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 8 (1d10 + 3) Piercing damage. If the target is a Humanoid, it must succeed on a DC 15 Constitution saving throw or be cursed with weretiger lycanthropy. Tiger or Hybrid Form Only.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If the target is a Humanoid, it must succeed on a DC 15 Constitution saving throw or be cursed with weretiger lycanthropy.",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 15,
+            "targets": "Humanoid targets only",
+            "onFailure": {
+              "effects": "The target is cursed with weretiger lycanthropy."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Slashing damage. Tiger or Hybrid Form Only.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Scimitar",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Slashing damage. Humanoid or Hybrid Form Only.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The weretiger shape-shifts into a Large tiger, a Medium tiger-humanoid hybrid, or back into its true humanoid form. Its game statistics, other than its size and Speed, are the same in each form. Any equipment it is wearing or carrying isn't transformed. The weretiger reverts to its true form if it dies. In Tiger or Hybrid form, the weretiger's walking Speed is 40 feet instead of 30 feet."
+    }
+  ]
+}

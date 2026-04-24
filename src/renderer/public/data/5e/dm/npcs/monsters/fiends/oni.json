@@ -1,0 +1,77 @@
+{
+  "name": "Oni",
+  "slug": "oni",
+  "size": "Large",
+  "type": "Fiend",
+  "alignment": "Lawful Evil",
+  "ac": "17",
+  "initiative": "+0 (10)",
+  "hp": "119",
+  "hpFormula": "14d10 + 42",
+  "speed": "30 ft., Fly 30 ft. (hover)",
+  "abilityScores": {
+    "str": 19,
+    "dex": 11,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 3,
+    "con": 6,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Arcana +5, Deception +8, Perception +4",
+  "resistances": "Cold",
+  "senses": "Darkvision 60 ft.; Passive Perception 14",
+  "languages": "Common, Giant",
+  "cr": "7 (XP 2,900; PB +3)",
+  "traits": [
+    {
+      "name": "Regeneration",
+      "description": "The oni regains 10 Hit Points at the start of each of its turns if it has at least 1 Hit Point."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The oni makes two Claw or Nightmare Ray attacks. It can replace one attack with a use of Spellcasting."
+    },
+    {
+      "name": "Claw",
+      "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 10 (1d12 + 4) Slashing damage plus 9 (2d8) Necrotic damage."
+    },
+    {
+      "name": "Nightmare Ray",
+      "description": "*Ranged Attack Roll:* +5, range 60 ft. *Hit:* 9 (2d6 + 2) Psychic damage, and the target has the Frightened condition until the start of the oni's next turn."
+    },
+    {
+      "name": "Shape-Shift",
+      "description": "The oni shape-shifts into a Small or Medium Humanoid or a Large Giant, or it returns to its true form. Other than its size, its game statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The oni casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 13):"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Invisibility",
+      "description": "The oni casts *Invisibility* on itself, requiring no spell components and using the same spellcasting ability as Spellcasting."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Wickedness Drawn to the Wicked*\n**Habitat:** Forest, Urban; **Treasure:** Armaments\nOni are elusive entities that inhabit dark forests and other wildernesses. By shape-shifting into the form of an innocent or moving invisibly, oni encroach on communities and lonely roads. They frequently harass people of faith, testing the limits of their piousness, or torment selfish people, punishing them for their wickedness. Wise communities often have guardian statues, annual rituals, or local superstitions meant to keep oni at bay. In rare cases, an oni might gradually befriend such communities and protect them from other threats for generations.\nOni torment villages that don't pay them or other supernatural forces respect. Roll on or choose a result from the Oni Troubles table to inspire how an oni menaces such communities.",
+  "habitat": "Forest, Urban",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Giants",
+    "file": "Giants.md"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "id": "heavy",
+  "name": "Heavy",
+  "description": "Small creatures have Disadvantage on attack rolls with Heavy weapons. A Heavy weapon's size and bulk make it too large for a Small creature to use effectively.",
+  "mechanicalEffect": "Small creatures have Disadvantage on attack rolls with this weapon."
+}

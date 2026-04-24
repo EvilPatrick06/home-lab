@@ -1,0 +1,139 @@
+{
+  "id": "d3a2f1e8-7b4c-4e9a-bf12-6c8d0e3f5a71",
+  "name": "Planar Dissonance",
+  "slug": "planar-dissonance",
+  "category": "VariantRule",
+  "subcategory": "Planar Mechanics",
+  "tags": ["planar", "outer-planes", "celestial", "fiend", "alignment", "cosmology", "lower-planes", "upper-planes"],
+  "source": {
+    "book": "Dungeon Master's Guide (2024)",
+    "chapter": "Chapter 6: Cosmology",
+    "section": "Alignment and the Outer Planes"
+  },
+  "gameEdition": "2024",
+  "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+  "shortDescription": "Celestials on Lower Planes and Fiends on Upper Planes must make a DC 10 CON save after each Long Rest or subtract a cumulative 1d4 from all D20 Tests.",
+  "flavorText": "A Celestial or Fiend that lingers too long on a plane opposed to its nature feels the very fabric of reality rejecting its presence.",
+  "rulesAsWritten": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "Cumulative",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "order": 0,
+      "name": "Planar Dissonance Trigger",
+      "description": "After finishing a Long Rest on a plane that is alien to its nature (Celestials on Lower Planes, Fiends on Upper Planes), the creature must make a DC 10 Constitution saving throw.",
+      "trigger": {
+        "event": "OnLongRest",
+        "condition": "Creature is a Celestial finishing a Long Rest on a Lower Plane, or a Fiend finishing a Long Rest on an Upper Plane"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save, meaning each subsequent failure adds an additional 1d4 penalty to all D20 Tests.",
+          "mechanicalNote": "DC 10 Constitution saving throw. Failure imposes a cumulative -1d4 penalty per failed save to all D20 Tests (attack rolls, ability checks, and saving throws). Multiple failures stack, e.g., two failed saves means subtract 2d4 from every D20 Test."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "order": 1,
+      "name": "Planar Dissonance Cumulative Penalty",
+      "description": "On each failed DC 10 Constitution saving throw after a Long Rest on an opposed plane, an additional 1d4 is subtracted from all D20 Tests the creature makes. This penalty stacks with previous failed saves.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Creature has one or more cumulative failed Planar Dissonance saves"
+      },
+      "effects": [
+        {
+          "effectType": "NumericalModifier",
+          "modifier": {
+            "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+            "target": "AllD20Tests",
+            "operation": "Subtract",
+            "value": 4,
+            "scope": {
+              "customScope": "Subtract 1d4 per cumulative failed Planar Dissonance save from every D20 Test. The value of 4 represents the maximum of 1d4 per failed save; actual value is rolled as 1d4 per failure."
+            },
+            "perLevelScaling": false,
+            "note": "Subtract 1d4 from every D20 Test per failed Planar Dissonance save. The effect is cumulative: e.g., 3 failed saves = subtract 3d4 from all D20 Tests."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f80",
+      "method": "Other",
+      "description": "The cumulative Planar Dissonance effect ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature. All accumulated penalties are removed at once.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": true,
+    "stacksWithOthers": true,
+    "stackingNote": "The effect is explicitly cumulative with each failed save. Each failed DC 10 Constitution saving throw after a Long Rest on an opposed plane adds an additional 1d4 penalty subtracted from all D20 Tests."
+  },
+  "dmNotes": "Planar Dissonance applies only to Celestials on Lower Planes and Fiends on Upper Planes. It does not apply to other creature types regardless of alignment. The discomfort begins after more than a few hours, but the mechanical saving throw is triggered only after finishing a Long Rest on the opposed plane. The Upper Planes are: Mount Celestia, Bytopia, Elysium, Beastlands, Arborea, Arcadia, and Ysgard. The Lower Planes are: Gehenna, Hades, Carceri, the Abyss, Pandemonium, the Nine Hells, and Acheron. Planes with neutral alignments (Outlands, Mechanus, Limbo) are neither Upper nor Lower Planes and do not trigger this effect. The cumulative nature means prolonged stays become increasingly debilitating, as 1d4 is added per failure. There is no stated maximum number of cumulative penalties.",
+  "commonRulings": [
+    {
+      "question": "Does Planar Dissonance apply to player characters who are Celestials or Fiends?",
+      "ruling": "Yes. Any creature with the Celestial creature type on a Lower Plane or the Fiend creature type on an Upper Plane is subject to this rule, including player characters of those creature types.",
+      "isOfficial": false
+    },
+    {
+      "question": "What counts as a plane 'opposed to its nature' for the removal condition?",
+      "ruling": "For Celestials, the Lower Planes (planes with an element of evil) are opposed to their nature. For Fiends, the Upper Planes (planes with an element of good) are opposed. A Long Rest on any plane that is not one of these opposed planes—including the Material Plane, Transitive Planes, Inner Planes, or neutral Outer Planes—ends the effect.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does the cumulative penalty have a maximum?",
+      "ruling": "The rules as written specify no maximum. Each failed save adds another 1d4 subtracted from all D20 Tests, and the penalties continue to accumulate with each failed Long Rest save.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does a successful save on the Long Rest prevent additional penalties but not remove existing ones?",
+      "ruling": "The rules state the effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature. A successful save on the DC 10 Constitution saving throw simply means no additional 1d4 penalty is added that day; existing penalties remain until the creature rests on a non-opposed plane.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does this affect all D20 Tests or only specific types?",
+      "ruling": "The rule states 'whenever the creature makes a D20 Test,' which encompasses all three types: attack rolls, ability checks, and saving throws.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

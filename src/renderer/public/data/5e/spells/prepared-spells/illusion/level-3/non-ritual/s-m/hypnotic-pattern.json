@@ -1,0 +1,62 @@
+{
+  "name": "Hypnotic Pattern",
+  "level": 3,
+  "school": "Illusion",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": false,
+    "somatic": true,
+    "material": {
+      "description": "a pinch of confetti",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You create a twisting pattern of colors in a 30-foot Cube within range. The pattern appears for a moment and vanishes. Each creature in the area who can see the pattern must succeed on a Wisdom saving throw or have the Charmed condition for the duration. While Charmed, the creature has the Incapacitated condition and a Speed of 0. The spell ends for an affected creature if it takes any damage or if someone else uses an action to shake the creature out of its stupor.",
+  "areaOfEffect": [
+    {
+      "shape": "Cube",
+      "sizeFeet": 30
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Charmed",
+      "trigger": "onFailedSave",
+      "duration": "for the duration; ends early if the creature takes any damage or another creature uses an action to shake it"
+    },
+    {
+      "condition": "Incapacitated",
+      "trigger": "onFailedSave",
+      "duration": "while Charmed by this spell"
+    }
+  ],
+  "speedModifiers": [
+    {
+      "type": "set",
+      "value": 0,
+      "speedType": "all"
+    }
+  ],
+  "tags": ["control", "area", "crowd-control"]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Ogre",
+  "slug": "ogre",
+  "size": "Large",
+  "type": "Giant",
+  "alignment": "Chaotic Evil",
+  "ac": "11",
+  "initiative": "−1 (9)",
+  "hp": "68",
+  "hpFormula": "8d10 + 24",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 19,
+    "dex": 8,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": -1,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "gear": "Greatclub, Javelins (3)",
+  "senses": "Darkvision 60 ft.; Passive Perception 8",
+  "languages": "Common, Giant",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Greatclub",
+      "description": "*Melee Attack Roll:* +6, reach 5 ft. *Hit:* 13 (2d8 + 4) Bludgeoning damage."
+    },
+    {
+      "name": "Javelin",
+      "description": "*Melee or Ranged Attack Roll:* +6, reach 5 ft. or range 30/120 ft. *Hit:* 11 (2d6 + 4) Piercing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Raging Hulks and Hoarders*\n**Habitat:** Arctic, Desert, Forest, Grassland, Hill, Mountain, Swamp, Underdark; **Treasure:** Armaments\nOgres are selfish raiders and hulking gluttons spawned of hateful supernatural forces. From dismal ruins and bleak hinterlands, they raid vulnerable communities and ambush travelers. Ogres covet food and treasure, and they spitefully destroy art, books, clockwork devices, and other delicate or lovingly made things. Occasionally they kidnap victims to eat later or, more rarely, performers who catch their interest.\nOgres trace their origins to wrathful deities such as Erythnul, Takhisis, and Vaprak. They magically emerge from the earth of lands corrupted by evil gods, sinister magic, or ancient curses. Some bear evidence of the places that spawned them, sporting rocky calluses, mossy growths, or frozen scars.\nOgres are 10-foot-tall brutes that overwhelm their foes and take what spoils they please. Ogre raiders ally with other evil forces in return for food, riches, and promises of battle.\nOgrillons arise from Humanoids cursed by foul magic or the will of wrathful deities. They appear similar to whoever they once were, but they grow to over 8 feet tall and gain ogre-like features. Ogrillons constantly seethe with supernatural anger, which they might struggle to control or purposefully vent on other creatures.",
+  "habitat": "Arctic, Desert, Forest, Grassland, Hill, Mountain, Swamp, Underdark",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Giants",
+    "file": "Giants.md"
+  }
+}

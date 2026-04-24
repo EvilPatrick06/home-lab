@@ -1,0 +1,234 @@
+{
+  "id": "e7c3a1f0-4b2d-4e8a-9f1c-3d5a7b9e2c04",
+  "name": "Spell Geometries",
+  "slug": "spell-geometries",
+  "category": "SpellcastingRule",
+  "subcategory": "Areas of Effect",
+  "tags": [
+    "area-of-effect",
+    "cone",
+    "cube",
+    "cylinder",
+    "emanation",
+    "line",
+    "sphere",
+    "spellcasting",
+    "origin-point",
+    "template"
+  ],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 7: Spellcasting",
+    "section": "Areas of Effect"
+  },
+  "gameEdition": "2024",
+  "description": "Many spells and other effects cover an Area of Effect, which is typically one of six shapes: Cone, Cube, Cylinder, Emanation, Line, or Sphere. Every Area of Effect has a point of origin, a location from which the effect's energy erupts. Each shape definition specifies how to position its point of origin. A spell's effect expands in straight lines from its point of origin. If no unblocked straight line extends from the point of origin to a location within the Area of Effect, that location is not included in the Area of Effect. To block a line, an obstruction must provide Total Cover.",
+  "shortDescription": "Rules governing the six geometric shapes (Cone, Cube, Cylinder, Emanation, Line, Sphere) used to define spell and effect areas.",
+  "rulesAsWritten": "Many spells and other effects cover an Area of Effect, which typically has one of six shapes, each of which is defined in this section. Every Area of Effect has a point of origin, a location from which the effect's energy erupts. The rules for each shape specify how to position its point of origin. An effect expands in straight lines from the point of origin. If no unblocked straight line extends from the point of origin to a location within the Area of Effect, that location isn't included in the Area of Effect. To block one of these imaginary lines, an obstruction must provide Total Cover.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-0001-4aaa-b001-000000000001",
+      "order": 0,
+      "name": "Point of Origin",
+      "description": "Every Area of Effect has a point of origin, a location from which the effect's energy erupts. The rules for each shape specify how you can position the point of origin. Typically the point of origin is a point in space, but some effects have an area that originates from a creature or object. A spell's effect expands in straight lines from the point of origin. If no unblocked straight line extends from the point of origin to a location within the area, that location is not included in the spell's area. To block one of these imaginary lines, an obstruction must provide Total Cover.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "The spell or effect specifies an Area of Effect"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Determine the point of origin for the spell's Area of Effect as specified by the spell description and the geometry's positioning rules. An effect expands in straight lines from its point of origin; any location that cannot be reached by an unblocked straight line from the point of origin (because of Total Cover) is excluded from the Area of Effect.",
+          "mechanicalNote": "Total Cover blocks line of effect; partial or half cover does not block inclusion in the area but may grant AC and saving throw bonuses separately."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0002-4aaa-b002-000000000002",
+      "order": 1,
+      "name": "Cone",
+      "description": "A Cone extends in a direction you choose from its point of origin. A Cone's width at a given point along its length is equal to that point's distance from the point of origin. The Cone's area of effect specifies its maximum length. A Cone's point of origin is not included in the Cone's area of effect unless you decide otherwise.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "The spell's area of effect is a Cone"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "A Cone extends in a direction chosen by the caster from its point of origin. At any given distance from the origin, the Cone's width equals that distance. The specified size is the Cone's maximum length. The point of origin is not included in the area unless the caster decides otherwise.",
+          "mechanicalNote": "Width at distance D from origin = D. For example, a 60-foot Cone is 60 feet long and 60 feet wide at its far end."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0003-4aaa-b003-000000000003",
+      "order": 2,
+      "name": "Cube",
+      "description": "You select a Cube's point of origin, which lies anywhere on a face of the cubic effect. The Cube's size expresses the length of each side. A Cube's point of origin is not included in the Cube's area of effect unless you decide otherwise.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "The spell's area of effect is a Cube"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The caster selects a point of origin that lies anywhere on one face of the cubic area. The specified size equals the length of each side of the Cube. The point of origin is not included in the area unless the caster decides otherwise.",
+          "mechanicalNote": "A 10-foot Cube covers a 10×10×10-foot space. The origin point is on one face, so the Cube extends from that face."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0004-4aaa-b004-000000000004",
+      "order": 3,
+      "name": "Cylinder",
+      "description": "A Cylinder's point of origin is the center of a circle of a particular radius given in the spell description. The circle must either be on the ground or at the height of the spell effect. The energy in a Cylinder expands in straight lines from the point of origin to the perimeter of the circle, forming the base of the Cylinder. The spell's effect then shoots up from the base or down from the top, to a distance equal to the height of the Cylinder. A Cylinder's point of origin is included in the Cylinder's area of effect.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "The spell's area of effect is a Cylinder"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The point of origin is the center of a circle whose radius is specified by the spell. The base circle must be on the ground or at the spell effect's height. Energy expands from the origin to the circle's perimeter and then extends vertically (up from the base or down from the top) for the specified height. The point of origin IS included in the Cylinder's area of effect.",
+          "mechanicalNote": "Defined by both radius and height. A 20-foot-radius, 40-foot-high Cylinder covers a circular area 40 feet in diameter and 40 feet tall."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0005-4aaa-b005-000000000005",
+      "order": 4,
+      "name": "Emanation",
+      "description": "An Emanation extends in straight lines from a creature or a point in space that is its point of origin. The effect specifies the distance the Emanation extends, which is the Emanation's radius. An Emanation moves with the creature or point of origin if applicable. An Emanation's point of origin (including a creature if the creature is the origin) is included in the Emanation's area of effect.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "The spell's area of effect is an Emanation"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "An Emanation radiates outward in all directions from a creature or a point of origin. The specified size is the radius of the Emanation. If the origin is a creature, the Emanation moves with the creature. The point of origin (including a creature) IS included in the Emanation's area of effect.",
+          "mechanicalNote": "A 10-foot Emanation from a creature extends 10 feet in every direction from that creature. Unlike a Sphere, the origin is always included and an Emanation can move with its source."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0006-4aaa-b006-000000000006",
+      "order": 5,
+      "name": "Line",
+      "description": "A Line extends from its point of origin in a straight path up to its length and covers an area defined by its width. A Line's point of origin is not included in the Line's area of effect unless you decide otherwise.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "The spell's area of effect is a Line"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "A Line extends in a straight path from its point of origin, for a distance up to the Line's specified length, and has a specified width (typically 5 feet unless stated otherwise). The point of origin is not included in the area unless the caster decides otherwise.",
+          "mechanicalNote": "A 30-foot by 5-foot Line extends 30 feet long and 5 feet wide from the origin point."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0007-4aaa-b007-000000000007",
+      "order": 6,
+      "name": "Sphere",
+      "description": "You select a Sphere's point of origin, and the Sphere extends outward from that point. The Sphere's size expresses the radius of the Sphere. A Sphere's point of origin is included in the Sphere's area of effect.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "The spell's area of effect is a Sphere"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The caster selects a point of origin, and the Sphere extends outward from that point in all directions for the specified radius. The point of origin IS included in the Sphere's area of effect.",
+          "mechanicalNote": "A 20-foot Sphere has a 20-foot radius (40-foot diameter). Unlike an Emanation, a Sphere does not move with its origin."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": null,
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Areas of effect from different spells can overlap. A creature in the overlapping area is affected by each spell independently."
+  },
+  "dmNotes": "When adjudicating whether a creature is within an Area of Effect, use the straight-line rule from the point of origin. If you are playing on a grid, use the optional template rules provided in the Dungeon Master's Guide to determine which squares are within the area. A creature is in the area if at least half the creature's space is covered by the shape. Note that the 2024 rules clarify which shapes include their point of origin: Cylinder, Emanation, and Sphere include their origin; Cone, Cube, and Line do not unless the caster chooses.",
+  "commonRulings": [
+    {
+      "question": "Does a creature at the very edge of an area of effect get affected?",
+      "ruling": "A creature's space must be reached by an unblocked straight line from the point of origin. On a grid, use the DMG template rules; typically a creature is affected if at least half its space overlaps the area.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can a caster exclude themselves from their own area of effect spell?",
+      "ruling": "Not unless the spell says so. However, Cones, Cubes, and Lines do not include their point of origin by default, so a caster originating those shapes from themselves is not in the area unless they choose to be.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does an Emanation move with the caster?",
+      "ruling": "Yes. If the point of origin of an Emanation is a creature, the Emanation moves with that creature.",
+      "isOfficial": true
+    },
+    {
+      "question": "What blocks a spell's area of effect?",
+      "ruling": "An obstruction must provide Total Cover to block the imaginary straight line from the point of origin. Half Cover and Three-Quarters Cover do not block inclusion in the area, though they still grant their normal AC and saving throw bonuses.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-09-17T00:00:00Z",
+  "updatedAt": "2024-09-17T00:00:00Z",
+  "version": "1.0.0"
+}

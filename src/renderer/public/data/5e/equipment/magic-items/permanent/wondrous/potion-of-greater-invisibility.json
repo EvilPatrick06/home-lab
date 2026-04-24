@@ -1,0 +1,10 @@
+{
+  "name": "Potion of Greater Invisibility",
+  "itemType": "Potion",
+  "rarity": "Very Rare",
+  "requiresAttunement": false,
+  "description": "This potion's container looks empty but feels as though it holds liquid. When you drink the potion, you have the Invisible condition for 1 hour.",
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

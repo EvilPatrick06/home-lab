@@ -1,0 +1,12 @@
+{
+  "name": "Green Slime",
+  "severity": "Level 1+",
+  "description": "Drips from ceiling in 5-foot square. DC 10 Dex save to avoid. On contact, 5 (1d10) Acid damage per turn until slime is scraped off (requiring an action). Deals 11 (2d10) Acid damage to wood or metal.",
+  "slug": "green-slime",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

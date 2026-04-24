@@ -1,0 +1,129 @@
+{
+  "name": "Merfolk",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "alignment": "Neutral",
+  "habitat": ["Coastal", "Underwater"],
+  "treasure": ["Individual"],
+  "lore": "Merfolk are aquatic humanoids who dwell in underwater communities, from sunlit coral reefs to the shadowy depths. They can breathe both air and water, though they rarely venture far from the sea. Merfolk are wary of surface dwellers but not inherently hostile, sometimes trading or forming alliances when their interests align. They defend their territory fiercely, wielding tridents with practiced skill.",
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 11,
+    "dice": {
+      "count": 2,
+      "die": "d8",
+      "modifier": 2
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    }
+  ],
+  "gear": [
+    {
+      "name": "Trident",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Aquan", "Common"]
+  },
+  "challengeRating": "1/8",
+  "experiencePoints": 25,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The merfolk can breathe air and water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Trident",
+      "description": "Melee or Ranged Attack Roll: +2, reach 5 ft. or range 20/60 ft. Hit: 3 (1d6) Piercing damage, or 4 (1d8) Piercing damage if used with two hands in melee.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 2,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Piercing",
+              "notes": "or 4 (1d8) Piercing damage if used with two hands in melee"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

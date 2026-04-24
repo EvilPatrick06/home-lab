@@ -1,0 +1,13 @@
+{
+  "name": "Bell",
+  "cost": "1 GP",
+  "weight": "—",
+  "description": "When rung as a Utilize action, produces a sound that can be heard up to 60 feet away.",
+  "slug": "bell",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

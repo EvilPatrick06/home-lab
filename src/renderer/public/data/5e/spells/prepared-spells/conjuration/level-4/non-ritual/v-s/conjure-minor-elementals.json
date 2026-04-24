@@ -1,0 +1,56 @@
+{
+  "name": "Conjure Minor Elementals",
+  "level": 4,
+  "school": "Conjuration",
+  "classes": ["Druid", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "You conjure spirits from the Elemental Planes that flit around you in a 15-foot Emanation for the duration. Until the spell ends, any attack you make deals an extra 2d8 damage when you hit a creature in the Emanation. This damage is Acid, Cold, Fire, or Lightning (your choice when you make the attack). In addition, the ground in the Emanation is Difficult Terrain for your enemies.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 15,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "self",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 8
+      },
+      "type": ["Acid", "Cold", "Fire", "Lightning"],
+      "applicationType": "onHit"
+    }
+  ],
+  "createsDifficultTerrain": true,
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 2,
+        "diceValue": 8,
+        "baseSpellLevel": 4,
+        "description": "The damage increases by 2d8 for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["buff", "elemental", "extra damage", "difficult terrain"]
+}

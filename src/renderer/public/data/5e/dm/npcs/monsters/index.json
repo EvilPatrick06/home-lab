@@ -1,0 +1,1574 @@
+[
+  {
+    "id": "aboleth",
+    "name": "Aboleth",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/aberrations/aboleth.json"
+  },
+  {
+    "id": "blue-slaad",
+    "name": "Blue Slaad",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/aberrations/blue-slaad.json"
+  },
+  {
+    "id": "chuul",
+    "name": "Chuul",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/aberrations/chuul.json"
+  },
+  {
+    "id": "cloaker",
+    "name": "Cloaker",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/aberrations/cloaker.json"
+  },
+  {
+    "id": "death-slaad",
+    "name": "Death Slaad",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/aberrations/death-slaad.json"
+  },
+  {
+    "id": "flumph",
+    "name": "Flumph",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/aberrations/flumph.json"
+  },
+  {
+    "id": "gibbering-mouther",
+    "name": "Gibbering Mouther",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/aberrations/gibbering-mouther.json"
+  },
+  {
+    "id": "gray-slaad",
+    "name": "Gray Slaad",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/aberrations/gray-slaad.json"
+  },
+  {
+    "id": "green-slaad",
+    "name": "Green Slaad",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/aberrations/green-slaad.json"
+  },
+  {
+    "id": "grell",
+    "name": "Grell",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/aberrations/grell.json"
+  },
+  {
+    "id": "intellect-devourer",
+    "name": "Intellect Devourer",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/aberrations/intellect-devourer.json"
+  },
+  {
+    "id": "mind-flayer-arcanist",
+    "name": "Mind Flayer Arcanist",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/aberrations/mind-flayers/mind-flayer-arcanist.json"
+  },
+  {
+    "id": "mind-flayer-colonies",
+    "name": "Mind Flayer",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/aberrations/mind-flayers/mind-flayer-colonies.json"
+  },
+  {
+    "id": "mind-flayer",
+    "name": "Mind Flayer",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/aberrations/mind-flayers/mind-flayer.json"
+  },
+  {
+    "id": "nothic",
+    "name": "Nothic",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/aberrations/nothic.json"
+  },
+  {
+    "id": "otyugh",
+    "name": "Otyugh",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/aberrations/otyugh.json"
+  },
+  {
+    "id": "red-slaad",
+    "name": "Red Slaad",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/aberrations/red-slaad.json"
+  },
+  {
+    "id": "slaad-tadpole",
+    "name": "Slaad Tadpole",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/aberrations/slaad-tadpole.json"
+  },
+  {
+    "id": "spectator",
+    "name": "Spectator",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/aberrations/spectator.json"
+  },
+  {
+    "id": "axe-beaks",
+    "name": "Axe Beak",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/beasts/axe-beaks.json"
+  },
+  {
+    "id": "stirges",
+    "name": "Stirge",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/beasts/stirges.json"
+  },
+  {
+    "id": "couatl",
+    "name": "Couatl",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/celestials/couatl.json"
+  },
+  {
+    "id": "deva",
+    "name": "Deva",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/celestials/deva.json"
+  },
+  {
+    "id": "empyreans",
+    "name": "Empyrean",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/celestials/empyreans.json"
+  },
+  {
+    "id": "pegasus",
+    "name": "Pegasus",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/celestials/pegasus.json"
+  },
+  {
+    "id": "planetar",
+    "name": "Planetar",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/celestials/planetar.json"
+  },
+  {
+    "id": "solar",
+    "name": "Solar",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/celestials/solar.json"
+  },
+  {
+    "id": "sphinx-of-valor",
+    "name": "Sphinx of Valor",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/celestials/sphinx-of-valor.json"
+  },
+  {
+    "id": "sphinx-of-wonder",
+    "name": "Sphinx of Wonder",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/celestials/sphinx-of-wonder.json"
+  },
+  {
+    "id": "unicorn",
+    "name": "Unicorn",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/celestials/unicorn.json"
+  },
+  {
+    "id": "animated-objects",
+    "name": "Animated Armor",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/constructs/animated-objects.json"
+  },
+  {
+    "id": "clay-golem",
+    "name": "Clay Golem",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/constructs/clay-golem.json"
+  },
+  {
+    "id": "colossus",
+    "name": "Colossus",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/constructs/colossus.json"
+  },
+  {
+    "id": "duodrone",
+    "name": "Duodrone",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/constructs/duodrone.json"
+  },
+  {
+    "id": "flesh-golem",
+    "name": "Flesh Golem",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/constructs/flesh-golem.json"
+  },
+  {
+    "id": "helmed-horror",
+    "name": "Helmed Horror",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/constructs/helmed-horror.json"
+  },
+  {
+    "id": "homunculus",
+    "name": "Homunculus",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/constructs/homunculus.json"
+  },
+  {
+    "id": "iron-golem",
+    "name": "Iron Golem",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/constructs/iron-golem.json"
+  },
+  {
+    "id": "monodrone",
+    "name": "Monodrone",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/constructs/monodrone.json"
+  },
+  {
+    "id": "pentadrone",
+    "name": "Pentadrone",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/constructs/pentadrone.json"
+  },
+  {
+    "id": "quadrone",
+    "name": "Quadrone",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/constructs/quadrone.json"
+  },
+  {
+    "id": "scarecrow",
+    "name": "Scarecrow",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/constructs/scarecrow.json"
+  },
+  {
+    "id": "shield-guardian",
+    "name": "Shield Guardian",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/constructs/shield-guardian.json"
+  },
+  {
+    "id": "stone-golem",
+    "name": "Stone Golem",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/constructs/stone-golem.json"
+  },
+  {
+    "id": "tridrone",
+    "name": "Tridrone",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/constructs/tridrone.json"
+  },
+  {
+    "id": "ancient-shadow-dragon",
+    "name": "Ancient Shadow Dragon",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/dragons/ancient-shadow-dragon.json"
+  },
+  {
+    "id": "black-dragon",
+    "name": "Adult Black Dragon",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/dragons/black-dragon.json"
+  },
+  {
+    "id": "blue-dragon",
+    "name": "Adult Blue Dragon",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/dragons/blue-dragon.json"
+  },
+  {
+    "id": "brass-dragon",
+    "name": "Ancient Brass Dragon",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/dragons/brass-dragon.json"
+  },
+  {
+    "id": "bronze-dragon",
+    "name": "Adult Bronze Dragon",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/dragons/bronze-dragon.json"
+  },
+  {
+    "id": "copper-dragon",
+    "name": "Adult Copper Dragon",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/dragons/copper-dragon.json"
+  },
+  {
+    "id": "dragon-turtle",
+    "name": "Dragon Turtle",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/dragons/dragon-turtle.json"
+  },
+  {
+    "id": "faerie-dragons",
+    "name": "Faerie Dragon",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/dragons/faerie-dragons.json"
+  },
+  {
+    "id": "gold-dragon",
+    "name": "Ancient Gold Dragon",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/dragons/gold-dragon.json"
+  },
+  {
+    "id": "green-dragon",
+    "name": "Adult Green Dragon",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/dragons/green-dragon.json"
+  },
+  {
+    "id": "kobolds",
+    "name": "Kobold",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/dragons/kobolds.json"
+  },
+  {
+    "id": "pseudodragon",
+    "name": "Pseudodragon",
+    "alignment": "Neutral Good",
+    "path": "dm/npcs/monsters/dragons/pseudodragon.json"
+  },
+  {
+    "id": "red-dragon",
+    "name": "Ancient Red Dragon",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/dragons/red-dragon.json"
+  },
+  {
+    "id": "shadow-dragon-wyrmling",
+    "name": "Shadow Dragon Wyrmling",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/dragons/shadow-dragon-wyrmling.json"
+  },
+  {
+    "id": "shadow-dragon",
+    "name": "Shadow Dragon",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/dragons/shadow-dragon.json"
+  },
+  {
+    "id": "silver-dragon",
+    "name": "Ancient Silver Dragon",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/dragons/silver-dragon.json"
+  },
+  {
+    "id": "white-dragon",
+    "name": "Ancient White Dragon",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/dragons/white-dragon.json"
+  },
+  {
+    "id": "wyvern",
+    "name": "Wyvern",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/dragons/wyvern.json"
+  },
+  {
+    "id": "young-shadow-dragon",
+    "name": "Young Shadow Dragon",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/dragons/young-shadow-dragon.json"
+  },
+  {
+    "id": "air-elemental",
+    "name": "Air Elemental",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/air-elemental.json"
+  },
+  {
+    "id": "azers",
+    "name": "Azer",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/elementals/azers.json"
+  },
+  {
+    "id": "dao",
+    "name": "Dao",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/elementals/daos/dao.json"
+  },
+  {
+    "id": "djinni",
+    "name": "Djinni",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/elementals/djinnis/djinni.json"
+  },
+  {
+    "id": "dust-mephit",
+    "name": "Dust Mephit",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/elementals/dust-mephit.json"
+  },
+  {
+    "id": "earth-elemental",
+    "name": "Earth Elemental",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/earth-elemental.json"
+  },
+  {
+    "id": "efreeti",
+    "name": "Efreeti",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/elementals/efreetis/efreeti.json"
+  },
+  {
+    "id": "elemental-cataclysm",
+    "name": "Elemental Cataclysm",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/elemental-cataclysm.json"
+  },
+  {
+    "id": "fire-elemental",
+    "name": "Fire Elemental",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/fire-elemental.json"
+  },
+  {
+    "id": "galeb-duhr",
+    "name": "Galeb Duhr",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/galeb-duhr.json"
+  },
+  {
+    "id": "gargoyle",
+    "name": "Gargoyle",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/elementals/gargoyle.json"
+  },
+  {
+    "id": "ice-mephit",
+    "name": "Ice Mephit",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/elementals/ice-mephit.json"
+  },
+  {
+    "id": "invisible-stalker",
+    "name": "Invisible Stalker",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/invisible-stalker.json"
+  },
+  {
+    "id": "magma-mephit",
+    "name": "Magma Mephit",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/magma-mephit.json"
+  },
+  {
+    "id": "magmin",
+    "name": "Magmin",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/elementals/magmin.json"
+  },
+  {
+    "id": "marid",
+    "name": "Marid",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/elementals/marids/marid.json"
+  },
+  {
+    "id": "mud-mephit",
+    "name": "Mud Mephit",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/elementals/mud-mephit.json"
+  },
+  {
+    "id": "salamanders",
+    "name": "Salamander",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/elementals/salamanders.json"
+  },
+  {
+    "id": "smoke-mephit",
+    "name": "Smoke Mephit",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/elementals/smoke-mephit.json"
+  },
+  {
+    "id": "steam-mephit",
+    "name": "Steam Mephit",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/elementals/steam-mephit.json"
+  },
+  {
+    "id": "water-elemental",
+    "name": "Water Elemental",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/water-elemental.json"
+  },
+  {
+    "id": "water-weird",
+    "name": "Water Weird",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/water-weird.json"
+  },
+  {
+    "id": "xorn",
+    "name": "Xorn",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/elementals/xorn.json"
+  },
+  {
+    "id": "animal-lord",
+    "name": "Animal Lord",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/fey/animal-lord.json"
+  },
+  {
+    "id": "arch-hag",
+    "name": "Arch Hag",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fey/arch-hag.json"
+  },
+  {
+    "id": "blink-dog",
+    "name": "Blink Dog",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/fey/blink-dog.json"
+  },
+  {
+    "id": "centaurs",
+    "name": "Centaur",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/fey/centaurs.json"
+  },
+  {
+    "id": "dryad",
+    "name": "Dryad",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/fey/dryad.json"
+  },
+  {
+    "id": "goblins",
+    "name": "Goblin",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fey/goblins.json"
+  },
+  {
+    "id": "green-hag",
+    "name": "Green Hag",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fey/green-hag.json"
+  },
+  {
+    "id": "hobgoblins",
+    "name": "Hobgoblin Warrior",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fey/hobgoblins.json"
+  },
+  {
+    "id": "pixies",
+    "name": "Pixie",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/fey/pixies.json"
+  },
+  {
+    "id": "satyrs",
+    "name": "Satyr",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/fey/satyrs.json"
+  },
+  {
+    "id": "sea-hag",
+    "name": "Sea Hag",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fey/sea-hag.json"
+  },
+  {
+    "id": "sprite",
+    "name": "Sprite",
+    "alignment": "Neutral Good",
+    "path": "dm/npcs/monsters/fey/sprite.json"
+  },
+  {
+    "id": "arcanaloth",
+    "name": "Arcanaloth",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/arcanaloth.json"
+  },
+  {
+    "id": "balor",
+    "name": "Balor",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/balor.json"
+  },
+  {
+    "id": "barlgura",
+    "name": "Barlgura",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/barlgura.json"
+  },
+  {
+    "id": "cambion",
+    "name": "Cambion",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/cambion.json"
+  },
+  {
+    "id": "chasme",
+    "name": "Chasme",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/chasme.json"
+  },
+  {
+    "id": "shadow-demon",
+    "name": "Shadow Demon",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/demons/shadow-demon.json"
+  },
+  {
+    "id": "barbed-devil",
+    "name": "Barbed Devil",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/devils/barbed-devil.json"
+  },
+  {
+    "id": "bearded-devil",
+    "name": "Bearded Devil",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/devils/bearded-devil.json"
+  },
+  {
+    "id": "bone-devil",
+    "name": "Bone Devil",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/devils/bone-devil.json"
+  },
+  {
+    "id": "chain-devil",
+    "name": "Chain Devil",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/devils/chain-devil.json"
+  },
+  {
+    "id": "horned-devil",
+    "name": "Horned Devil",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/devils/horned-devil.json"
+  },
+  {
+    "id": "ice-devil",
+    "name": "Ice Devil",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/devils/ice-devil.json"
+  },
+  {
+    "id": "spined-devil",
+    "name": "Spined Devil",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/devils/spined-devil.json"
+  },
+  {
+    "id": "dretches",
+    "name": "Dretch",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/dretches.json"
+  },
+  {
+    "id": "erinyes",
+    "name": "Erinyes",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/erinyes.json"
+  },
+  {
+    "id": "glabrezu",
+    "name": "Glabrezu",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/glabrezu.json"
+  },
+  {
+    "id": "gnolls",
+    "name": "Gnoll",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/gnolls.json"
+  },
+  {
+    "id": "goristro",
+    "name": "Goristro",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/goristro.json"
+  },
+  {
+    "id": "hell-hound",
+    "name": "Hell Hound",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/hell-hound.json"
+  },
+  {
+    "id": "hezrou",
+    "name": "Hezrou",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/hezrou.json"
+  },
+  {
+    "id": "imp",
+    "name": "Imp",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/imp.json"
+  },
+  {
+    "id": "incubus",
+    "name": "Incubus",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/incubus.json"
+  },
+  {
+    "id": "jackalwere",
+    "name": "Jackalwere",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/jackalwere.json"
+  },
+  {
+    "id": "larvae",
+    "name": "Larva",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/larvae.json"
+  },
+  {
+    "id": "lemures",
+    "name": "Lemure",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/lemures.json"
+  },
+  {
+    "id": "manes",
+    "name": "Manes",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/manes.json"
+  },
+  {
+    "id": "marilith",
+    "name": "Marilith",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/marilith.json"
+  },
+  {
+    "id": "mezzoloth",
+    "name": "Mezzoloth",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/mezzoloth.json"
+  },
+  {
+    "id": "nalfeshnee",
+    "name": "Nalfeshnee",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/nalfeshnee.json"
+  },
+  {
+    "id": "night-hag",
+    "name": "Night Hag",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/night-hag.json"
+  },
+  {
+    "id": "nightmare",
+    "name": "Nightmare",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/nightmare.json"
+  },
+  {
+    "id": "nycaloth",
+    "name": "Nycaloth",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/nycaloth.json"
+  },
+  {
+    "id": "pit-fiend",
+    "name": "Pit Fiend",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/pit-fiend.json"
+  },
+  {
+    "id": "quasit",
+    "name": "Quasit",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/quasit.json"
+  },
+  {
+    "id": "rakshasa",
+    "name": "Rakshasa",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/fiends/rakshasa.json"
+  },
+  {
+    "id": "succubus",
+    "name": "Succubus",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/succubus.json"
+  },
+  {
+    "id": "ultroloth",
+    "name": "Ultroloth",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/fiends/ultroloth.json"
+  },
+  {
+    "id": "vrock",
+    "name": "Vrock",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/vrock.json"
+  },
+  {
+    "id": "yochlol",
+    "name": "Yochlol",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/fiends/yochlol.json"
+  },
+  {
+    "id": "cloud-giant",
+    "name": "Cloud Giant",
+    "alignment": "Neutral Good",
+    "path": "dm/npcs/monsters/giants/cloud-giant.json"
+  },
+  {
+    "id": "cyclopes",
+    "name": "Cyclops",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/giants/cyclopes.json"
+  },
+  {
+    "id": "ettin",
+    "name": "Ettin",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/giants/ettin.json"
+  },
+  {
+    "id": "fire-giant",
+    "name": "Fire Giant",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/giants/fire-giant.json"
+  },
+  {
+    "id": "fomorian",
+    "name": "Fomorian",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/giants/fomorian.json"
+  },
+  {
+    "id": "frost-giant",
+    "name": "Frost Giant",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/giants/frost-giant.json"
+  },
+  {
+    "id": "hill-giant",
+    "name": "Hill Giant",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/giants/hill-giant.json"
+  },
+  {
+    "id": "ogres",
+    "name": "Ogre",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/giants/ogres.json"
+  },
+  {
+    "id": "oni",
+    "name": "Oni",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/giants/oni.json"
+  },
+  {
+    "id": "stone-giant",
+    "name": "Stone Giant",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/giants/stone-giant.json"
+  },
+  {
+    "id": "storm-giant",
+    "name": "Storm Giant",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/giants/storm-giant.json"
+  },
+  {
+    "id": "troll",
+    "name": "Troll",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/giants/troll.json"
+  },
+  {
+    "id": "aarakocra",
+    "name": "Aarakocra",
+    "alignment": "Neutral Good",
+    "path": "dm/npcs/monsters/humanoids/aarakocra.json"
+  },
+  {
+    "id": "bugbears",
+    "name": "Bugbear",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/humanoids/bugbears.json"
+  },
+  {
+    "id": "bullywugs",
+    "name": "Bullywug",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/humanoids/bullywugs.json"
+  },
+  {
+    "id": "githyanki-dracomancer",
+    "name": "Githyanki Dracomancer",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/humanoids/githyanki-dracomancer.json"
+  },
+  {
+    "id": "githyanki-knight",
+    "name": "Githyanki Knight",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/humanoids/githyanki-knight.json"
+  },
+  {
+    "id": "githyanki-warrior",
+    "name": "Githyanki Warrior",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/humanoids/githyanki-warrior.json"
+  },
+  {
+    "id": "githzerai-monk",
+    "name": "Githzerai Monk",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/humanoids/githzerai-monk.json"
+  },
+  {
+    "id": "githzerai-psion",
+    "name": "Githzerai Psion",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/humanoids/githzerai-psion.json"
+  },
+  {
+    "id": "githzerai-zerth",
+    "name": "Githzerai Zerth",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/humanoids/githzerai-zerth.json"
+  },
+  {
+    "id": "grimlock",
+    "name": "Grimlock",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/humanoids/grimlock.json"
+  },
+  {
+    "id": "half-dragon",
+    "name": "Half Dragon",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/humanoids/half-dragon.json"
+  },
+  {
+    "id": "kenku",
+    "name": "Kenku",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/humanoids/kenku.json"
+  },
+  {
+    "id": "kuo-toa",
+    "name": "Kuo-toa",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/humanoids/kuo-toa.json"
+  },
+  {
+    "id": "lizardfolk",
+    "name": "Lizardfolk",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/humanoids/lizardfolk.json"
+  },
+  {
+    "id": "merfolk",
+    "name": "Merfolk",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/humanoids/merfolk.json"
+  },
+  {
+    "id": "quaggoths",
+    "name": "Quaggoth",
+    "alignment": "Chaotic Neutral",
+    "path": "dm/npcs/monsters/humanoids/quaggoths.json"
+  },
+  {
+    "id": "sahuagin",
+    "name": "Sahuagin",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/humanoids/sahuagin.json"
+  },
+  {
+    "id": "troglodyte",
+    "name": "Troglodyte",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/humanoids/troglodyte.json"
+  },
+  {
+    "id": "vampires",
+    "name": "Vampire Familiar",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/humanoids/vampires.json"
+  },
+  {
+    "id": "werebear",
+    "name": "Werebear",
+    "alignment": "Neutral Good",
+    "path": "dm/npcs/monsters/humanoids/werebear.json"
+  },
+  {
+    "id": "wereboar",
+    "name": "Wereboar",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/humanoids/wereboar.json"
+  },
+  {
+    "id": "wererat",
+    "name": "Wererat",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/humanoids/wererat.json"
+  },
+  {
+    "id": "weretiger",
+    "name": "Weretiger",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/humanoids/weretiger.json"
+  },
+  {
+    "id": "werewolf",
+    "name": "Werewolf",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/humanoids/werewolf.json"
+  },
+  {
+    "id": "abominable-yeti",
+    "name": "Abominable Yeti",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/abominable-yeti.json"
+  },
+  {
+    "id": "ankheg",
+    "name": "Ankheg",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/ankheg.json"
+  },
+  {
+    "id": "basilisk",
+    "name": "Basilisk",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/basilisk.json"
+  },
+  {
+    "id": "behir",
+    "name": "Behir",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/monstrosities/behir.json"
+  },
+  {
+    "id": "bulettes",
+    "name": "Bulette",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/bulettes.json"
+  },
+  {
+    "id": "carrion-crawler",
+    "name": "Carrion Crawler",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/carrion-crawler.json"
+  },
+  {
+    "id": "chimera",
+    "name": "Chimera",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/chimera.json"
+  },
+  {
+    "id": "cockatrices",
+    "name": "Cockatrice",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/cockatrices.json"
+  },
+  {
+    "id": "darkmantle",
+    "name": "Darkmantle",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/darkmantle.json"
+  },
+  {
+    "id": "death-dog",
+    "name": "Death Dog",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/monstrosities/death-dog.json"
+  },
+  {
+    "id": "displacer-beast",
+    "name": "Displacer Beast",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/monstrosities/displacer-beast.json"
+  },
+  {
+    "id": "doppelganger",
+    "name": "Doppelganger",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/monstrosities/doppelganger.json"
+  },
+  {
+    "id": "drider",
+    "name": "Drider",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/drider.json"
+  },
+  {
+    "id": "ettercap",
+    "name": "Ettercap",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/monstrosities/ettercap.json"
+  },
+  {
+    "id": "gorgons",
+    "name": "Gorgon",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/gorgons.json"
+  },
+  {
+    "id": "gricks",
+    "name": "Grick",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/monstrosities/gricks.json"
+  },
+  {
+    "id": "griffon",
+    "name": "Griffon",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/griffon.json"
+  },
+  {
+    "id": "guardian-naga",
+    "name": "Guardian Naga",
+    "alignment": "Lawful Good",
+    "path": "dm/npcs/monsters/monstrosities/guardian-naga.json"
+  },
+  {
+    "id": "harpy",
+    "name": "Harpy",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/harpy.json"
+  },
+  {
+    "id": "hippogriff",
+    "name": "Hippogriff",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/hippogriff.json"
+  },
+  {
+    "id": "hook-horror",
+    "name": "Hook Horror",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/monstrosities/hook-horror.json"
+  },
+  {
+    "id": "hydra",
+    "name": "Hydra",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/hydra.json"
+  },
+  {
+    "id": "kraken",
+    "name": "Kraken",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/kraken.json"
+  },
+  {
+    "id": "lamia",
+    "name": "Lamia",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/lamia.json"
+  },
+  {
+    "id": "manticore",
+    "name": "Manticore",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/monstrosities/manticore.json"
+  },
+  {
+    "id": "medusa",
+    "name": "Medusa",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/monstrosities/medusa.json"
+  },
+  {
+    "id": "merrow",
+    "name": "Merrow",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/merrow.json"
+  },
+  {
+    "id": "mimic",
+    "name": "Mimic",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/monstrosities/mimic.json"
+  },
+  {
+    "id": "minotaur-of-baphomet",
+    "name": "Minotaur of Baphomet",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/minotaur-of-baphomet.json"
+  },
+  {
+    "id": "owlbears",
+    "name": "Owlbear",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/owlbears.json"
+  },
+  {
+    "id": "peryton",
+    "name": "Peryton",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/peryton.json"
+  },
+  {
+    "id": "phase-spider",
+    "name": "Phase Spider",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/phase-spider.json"
+  },
+  {
+    "id": "piercer",
+    "name": "Piercer",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/piercer.json"
+  },
+  {
+    "id": "purple-worm",
+    "name": "Purple Worm",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/purple-worm.json"
+  },
+  {
+    "id": "remorhazes",
+    "name": "Remorhaz",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/remorhazes.json"
+  },
+  {
+    "id": "roc",
+    "name": "Roc",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/roc.json"
+  },
+  {
+    "id": "roper",
+    "name": "Roper",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/monstrosities/roper.json"
+  },
+  {
+    "id": "rust-monster",
+    "name": "Rust Monster",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/rust-monster.json"
+  },
+  {
+    "id": "sphinx-of-lore",
+    "name": "Sphinx of Lore",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/monstrosities/sphinx-of-lore.json"
+  },
+  {
+    "id": "sphinx-of-secrets",
+    "name": "Sphinx of Secrets",
+    "alignment": "Lawful Neutral",
+    "path": "dm/npcs/monsters/monstrosities/sphinx-of-secrets.json"
+  },
+  {
+    "id": "spirit-naga",
+    "name": "Spirit Naga",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/spirit-naga.json"
+  },
+  {
+    "id": "tarrasque",
+    "name": "Tarrasque",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/monstrosities/tarrasque.json"
+  },
+  {
+    "id": "thri-kreen",
+    "name": "Thri-kreen",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/monstrosities/thri-kreen.json"
+  },
+  {
+    "id": "umber-hulk",
+    "name": "Umber Hulk",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/umber-hulk.json"
+  },
+  {
+    "id": "winter-wolf",
+    "name": "Winter Wolf",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/monstrosities/winter-wolf.json"
+  },
+  {
+    "id": "worgs",
+    "name": "Worg",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/monstrosities/worgs.json"
+  },
+  {
+    "id": "yeti",
+    "name": "Yeti",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/monstrosities/yeti.json"
+  },
+  {
+    "id": "yuan-ti",
+    "name": "Yuan-ti Malison",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/monstrosities/yuan-ti.json"
+  },
+  {
+    "id": "black-pudding",
+    "name": "Black Pudding",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/oozes/black-pudding.json"
+  },
+  {
+    "id": "blob-of-annihilation",
+    "name": "Blob of Annihilation",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/oozes/blob-of-annihilation.json"
+  },
+  {
+    "id": "gelatinous-cube",
+    "name": "Gelatinous Cube",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/oozes/gelatinous-cube.json"
+  },
+  {
+    "id": "gray-oozes",
+    "name": "Gray Ooze",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/oozes/gray-oozes.json"
+  },
+  {
+    "id": "ochre-jelly",
+    "name": "Ochre Jelly",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/oozes/ochre-jelly.json"
+  },
+  {
+    "id": "awakened-shrub",
+    "name": "Awakened Shrub",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/plants/awakened-shrub.json"
+  },
+  {
+    "id": "awakened-tree",
+    "name": "Awakened Tree",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/plants/awakened-tree.json"
+  },
+  {
+    "id": "gas-spore",
+    "name": "Gas Spore",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/plants/gas-spore.json"
+  },
+  {
+    "id": "myconid-adult",
+    "name": "Myconid Adult",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/plants/myconid-adult.json"
+  },
+  {
+    "id": "myconid-sovereign",
+    "name": "Myconid Sovereign",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/plants/myconid-sovereign.json"
+  },
+  {
+    "id": "myconid-sprout",
+    "name": "Myconid Sprout",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/plants/myconid-sprout.json"
+  },
+  {
+    "id": "needle-blight",
+    "name": "Needle Blight",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/plants/needle-blight.json"
+  },
+  {
+    "id": "shambling-mound",
+    "name": "Shambling Mound",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/plants/shambling-mound.json"
+  },
+  {
+    "id": "shrieker",
+    "name": "Shrieker",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/plants/shrieker.json"
+  },
+  {
+    "id": "treant",
+    "name": "Treant",
+    "alignment": "Chaotic Good",
+    "path": "dm/npcs/monsters/plants/treant.json"
+  },
+  {
+    "id": "twig-blight",
+    "name": "Twig Blight",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/plants/twig-blight.json"
+  },
+  {
+    "id": "vine-blight",
+    "name": "Vine Blight",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/plants/vine-blight.json"
+  },
+  {
+    "id": "violet-fungus",
+    "name": "Violet Fungus",
+    "alignment": "Unaligned",
+    "path": "dm/npcs/monsters/plants/violet-fungus.json"
+  },
+  {
+    "id": "banshee",
+    "name": "Banshee",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/undead/banshee.json"
+  },
+  {
+    "id": "bone-naga",
+    "name": "Bone Naga",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/undead/bone-naga.json"
+  },
+  {
+    "id": "crawling-claws",
+    "name": "Crawling Claw",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/undead/crawling-claws.json"
+  },
+  {
+    "id": "death-knights",
+    "name": "Death Knight",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/undead/death-knights.json"
+  },
+  {
+    "id": "death-tyrant",
+    "name": "Death Tyrant",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/undead/death-tyrant.json"
+  },
+  {
+    "id": "flameskull",
+    "name": "Flameskull",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/undead/flameskull.json"
+  },
+  {
+    "id": "ghasts",
+    "name": "Ghast",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/undead/ghasts.json"
+  },
+  {
+    "id": "ghost",
+    "name": "Ghost",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/undead/ghosts/ghost.json"
+  },
+  {
+    "id": "ghouls",
+    "name": "Ghoul",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/undead/ghouls.json"
+  },
+  {
+    "id": "demilich",
+    "name": "Demilich",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/undead/lichs/demilich.json"
+  },
+  {
+    "id": "dracolich",
+    "name": "Dracolich",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/undead/lichs/dracolich.json"
+  },
+  {
+    "id": "lich",
+    "name": "Lich",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/undead/lichs/lich.json"
+  },
+  {
+    "id": "mummies",
+    "name": "Mummy",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/undead/mummys/mummies.json"
+  },
+  {
+    "id": "poltergeist",
+    "name": "Poltergeist",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/undead/poltergeist.json"
+  },
+  {
+    "id": "revenants",
+    "name": "Revenant",
+    "alignment": "Neutral",
+    "path": "dm/npcs/monsters/undead/revenants.json"
+  },
+  {
+    "id": "shadow",
+    "name": "Shadow",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/undead/shadow.json"
+  },
+  {
+    "id": "skeletons",
+    "name": "Skeleton",
+    "alignment": "Lawful Evil",
+    "path": "dm/npcs/monsters/undead/skeletons/skeletons.json"
+  },
+  {
+    "id": "specter",
+    "name": "Specter",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/undead/specters/specter.json"
+  },
+  {
+    "id": "wight",
+    "name": "Wight",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/undead/wight.json"
+  },
+  {
+    "id": "will-o--wisp",
+    "name": "Will-o'-Wisp",
+    "alignment": "Chaotic Evil",
+    "path": "dm/npcs/monsters/undead/will-o--wisp.json"
+  },
+  {
+    "id": "wraith",
+    "name": "Wraith",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/undead/wraiths/wraith.json"
+  },
+  {
+    "id": "zombies",
+    "name": "Zombie",
+    "alignment": "Neutral Evil",
+    "path": "dm/npcs/monsters/undead/zombies/zombies.json"
+  }
+]

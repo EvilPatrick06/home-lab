@@ -1,0 +1,15 @@
+{
+  "name": "Boots of Elvenkind",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "While wearing these boots, your steps make no sound, regardless of the surface you are moving across. You also have Advantage on Dexterity (Stealth) checks made to move silently.",
+  "properties": null,
+  "weight": 2,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

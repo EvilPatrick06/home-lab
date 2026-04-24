@@ -1,0 +1,66 @@
+{
+  "id": "vision-and-perception",
+  "name": "Vision and Perception",
+  "description": "Rules governing visibility, light levels, obscurement, and special senses in D&D 2024.",
+  "lightLevels": {
+    "brightLight": {
+      "name": "Bright Light",
+      "description": "Bright Light lets most creatures see normally. Even gloomy days provide Bright Light, as do torches, lanterns, fires, and other sources of illumination within a specific radius."
+    },
+    "dimLight": {
+      "name": "Dim Light",
+      "description": "Dim Light, also called shadows, creates a Lightly Obscured area. An area of Dim Light is usually a boundary between a source of Bright Light, such as a torch, and surrounding darkness. The soft light of twilight and dawn also counts as Dim Light."
+    },
+    "darkness": {
+      "name": "Darkness",
+      "description": "Darkness creates a Heavily Obscured area. Characters face Darkness outdoors at night (even most moonlit nights), within the confines of an unlit dungeon, or in an area of magical darkness."
+    }
+  },
+  "obscurement": {
+    "lightlyObscured": {
+      "name": "Lightly Obscured",
+      "description": "In a Lightly Obscured area -- such as Dim Light, patchy fog, or moderate foliage -- creatures have Disadvantage on Wisdom (Perception) checks that rely on sight.",
+      "effect": "Disadvantage on Perception checks relying on sight"
+    },
+    "heavilyObscured": {
+      "name": "Heavily Obscured",
+      "description": "A Heavily Obscured area -- such as Darkness, opaque fog, or dense foliage -- blocks vision entirely. A creature effectively suffers from the Blinded condition when trying to see something in that area.",
+      "effect": "Effectively Blinded when trying to see into or through the area"
+    }
+  },
+  "specialSenses": [
+    {
+      "name": "Blindsight",
+      "description": "A creature with Blindsight can perceive its surroundings without relying on sight, within a specific radius. Creatures without eyes, such as oozes, and creatures with echolocation or heightened senses typically have this sense.",
+      "typicalRanges": [10, 30, 60, 120],
+      "penetratesInvisibility": true,
+      "penetratesDarkness": true,
+      "blockedBy": "Total Cover"
+    },
+    {
+      "name": "Darkvision",
+      "description": "A creature with Darkvision can see in Dim Light within a specified range as if it were Bright Light, and in Darkness as if it were Dim Light. The creature can't discern color in Darkness, only shades of gray.",
+      "typicalRanges": [60, 120, 300],
+      "penetratesInvisibility": false,
+      "penetratesDarkness": true,
+      "limitation": "Darkness is treated as Dim Light (Lightly Obscured), so Disadvantage on Perception checks still applies"
+    },
+    {
+      "name": "Tremorsense",
+      "description": "A creature with Tremorsense can detect and pinpoint the origin of vibrations within a specific radius, provided that the creature and the source of the vibrations are in contact with the same ground or substance. Tremorsense can't be used to detect flying or incorporeal creatures.",
+      "typicalRanges": [10, 30, 60],
+      "penetratesInvisibility": true,
+      "penetratesDarkness": true,
+      "limitation": "Requires contact with the same ground or substance. Cannot detect flying or incorporeal creatures."
+    },
+    {
+      "name": "Truesight",
+      "description": "A creature with Truesight can, out to a specific range, see in normal and magical Darkness, see Invisible creatures and objects, automatically detect visual illusions and succeed on saving throws against them, and perceive the original form of a shapechanger or a creature transformed by magic. Furthermore, the creature can see into the Ethereal Plane within the same range.",
+      "typicalRanges": [30, 60, 120],
+      "penetratesInvisibility": true,
+      "penetratesDarkness": true,
+      "penetratesIllusions": true,
+      "seesEtherealPlane": true
+    }
+  ]
+}

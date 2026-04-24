@@ -1,0 +1,201 @@
+{
+  "name": "Satyr",
+  "sizes": ["Medium"],
+  "creatureType": "Fey",
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Forest", "Planar (Feywild)"],
+  "treasure": ["Individual"],
+  "lore": "Satyrs are fun-loving fey creatures that dwell in forests and the Feywild. They revel in music, dance, wine, and all manner of merriment. While generally harmless, their enchanting performances can beguile even the most strong-willed mortals. Satyrs are known for their goatlike legs, curling horns, and irrepressible zest for revelry.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Leather Armor"]
+  },
+  "hitPoints": {
+    "average": 31,
+    "dice": {
+      "count": 7,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    },
+    {
+      "skill": "Performance",
+      "bonus": 7
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 5
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "gear": [
+    {
+      "name": "Leather Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Panpipes",
+      "quantity": 1
+    },
+    {
+      "name": "Shortbow",
+      "quantity": 1
+    },
+    {
+      "name": "Arrows",
+      "quantity": 20
+    }
+  ],
+  "senses": {
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Common", "Elvish", "Sylvan"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The satyr has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Ram",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 6 (2d4 + 1) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shortbow",
+      "description": "Ranged Attack Roll: +4, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 4,
+        "range": {
+          "normal": 80,
+          "long": 320
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Enchanting Performance",
+      "description": "The satyr plays a song on its panpipes or speaks a poem. Each Humanoid and Giant within 60 feet of the satyr that can hear the performance must succeed on a DC 13 Wisdom saving throw or have the Charmed condition until the end of the satyr's next turn. On a successful save, a creature is immune to this satyr's Enchanting Performance for 24 hours.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 13,
+        "targets": "each Humanoid and Giant within 60 feet that can hear the performance",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "until the end of the satyr's next turn"
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature is immune to this satyr's Enchanting Performance for 24 hours."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 60,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Charmed",
+          "duration": "until the end of the satyr's next turn"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+  {"question": "What is BMO's gender?", "choices": ["Male", "Female", "Non-binary", "BMO is genderless"], "answer": 3},
+  {"question": "What is Finn's species?", "choices": ["Candy person", "Human", "Dog", "Ice elemental"], "answer": 1},
+  {"question": "What instrument does Marceline play?", "choices": ["Guitar", "Drums", "Bass guitar", "Violin"], "answer": 2},
+  {"question": "What is the name of Finn's sword made of demon blood?", "choices": ["Root Sword", "Demon Blood Sword", "Grass Sword", "Finn Sword"], "answer": 1},
+  {"question": "Who is the ruler of the Candy Kingdom?", "choices": ["Marceline", "Flame Princess", "Princess Bubblegum", "Lumpy Space Princess"], "answer": 2},
+  {"question": "What is Jake's special power?", "choices": ["Super strength", "Stretching", "Flying", "Invisibility"], "answer": 1},
+  {"question": "What is the Ice King's real name?", "choices": ["Simon Petrikov", "Gunther", "Abraham Lincoln", "Billy"], "answer": 0},
+  {"question": "What land does Adventure Time take place in?", "choices": ["Candy Land", "Ooo", "Neverland", "Hyrule"], "answer": 1},
+  {"question": "Who is BMO's imaginary friend?", "choices": ["Bubble", "Football", "Air", "Neptr"], "answer": 1},
+  {"question": "What does BMO see in the mirror?", "choices": ["Finn", "Jake", "Football", "Another BMO"], "answer": 2},
+  {"question": "What event caused the Land of Ooo to exist?", "choices": ["A spell", "The Mushroom War", "A natural disaster", "Magic Man"], "answer": 1},
+  {"question": "What color is Marceline's skin?", "choices": ["Blue", "Green", "Gray", "Purple"], "answer": 2},
+  {"question": "Who is Finn's biological father?", "choices": ["Joshua", "Martin", "Billy", "The Lich"], "answer": 1},
+  {"question": "What is Lady Rainicorn's language?", "choices": ["Japanese", "Chinese", "Korean", "Vietnamese"], "answer": 2},
+  {"question": "What is the name of the Ice King's penguin?", "choices": ["Penguin", "Gunter", "Waddles", "Tux"], "answer": 1},
+  {"question": "How old is Marceline?", "choices": ["500", "800", "1000", "1003"], "answer": 2},
+  {"question": "What does BMO stand for?", "choices": ["Be More", "Basic Machine Operator", "Binary Mechanical Organism", "It's just a name"], "answer": 0},
+  {"question": "Who created BMO?", "choices": ["Princess Bubblegum", "Moe", "Simon", "The Catalyst Comet"], "answer": 1},
+  {"question": "What is Lumpy Space Princess's catchphrase?", "choices": ["Mathematical!", "Oh my glob!", "Algebraic!", "Unacceptable!"], "answer": 1},
+  {"question": "What is the name of Jake's daughter?", "choices": ["TV", "Charlie", "Viola", "All of the above"], "answer": 3}
+]

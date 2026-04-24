@@ -1,0 +1,11 @@
+{
+  "name": "Opportunity Attack",
+  "slug": "opportunity-attack",
+  "description": "You can make an Opportunity Attack when a creature you can see leaves your reach using its movement, action, or Reaction. You use your Reaction to make one melee attack against the provoking creature. The attack occurs right before the creature leaves your reach.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

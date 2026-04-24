@@ -1,0 +1,13 @@
+{
+  "name": "Orb of Time",
+  "itemType": "Wondrous Item",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "You can take a Magic action to determine which way is magnetic north. Nothing happens if the orb is used in a location that has no magnetic north.",
+  "weight": 0,
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

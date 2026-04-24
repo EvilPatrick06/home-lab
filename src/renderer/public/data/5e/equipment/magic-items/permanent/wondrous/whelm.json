@@ -1,0 +1,25 @@
+{
+  "name": "Warhammer",
+  "category": "Martial",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 15,
+    "denomination": "GP"
+  },
+  "damage": {
+    "count": 1,
+    "die": 8,
+    "type": "Bludgeoning"
+  },
+  "weight": 5,
+  "properties": [
+    {
+      "property": "Versatile",
+      "twoHandedDamage": {
+        "count": 1,
+        "die": 10
+      }
+    }
+  ],
+  "mastery": "Push"
+}

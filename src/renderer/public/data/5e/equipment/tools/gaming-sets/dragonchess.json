@@ -1,0 +1,15 @@
+{
+  "name": "Gaming Set (Dragonchess)",
+  "slug": "dragonchess",
+  "category": "Gaming Set",
+  "cost": "1 GP",
+  "weight": "—",
+  "ability": "Wisdom",
+  "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+  "craft": "",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

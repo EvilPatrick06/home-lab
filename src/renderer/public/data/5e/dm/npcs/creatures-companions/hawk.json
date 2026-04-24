@@ -1,0 +1,40 @@
+{
+  "name": "Hawk",
+  "slug": "hawk",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 13,
+  "hp": 1,
+  "hpFormula": "1d4 - 1",
+  "speed": "10 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 5,
+    "dex": 16,
+    "con": 8,
+    "int": 2,
+    "wis": 14,
+    "cha": 6
+  },
+  "skills": "Perception +4",
+  "senses": "Passive Perception 14",
+  "languages": "—",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [
+    {
+      "name": "Keen Sight",
+      "description": "Advantage on Wisdom (Perception) checks that rely on sight."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Talons",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 1 Slashing."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

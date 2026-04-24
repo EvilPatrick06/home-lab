@@ -1,0 +1,66 @@
+{
+  "name": "Spiritual Weapon",
+  "level": 2,
+  "school": "Evocation",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You create a floating, spectral force that resembles a weapon of your choice and lasts for the duration. The force appears within range in a space of your choice, and you can immediately make one melee spell attack against one creature within 5 feet of the force. On a hit, the target takes Force damage equal to 1d8 plus your spellcasting ability modifier. As a Bonus Action on your later turns, you can move the force up to 20 feet and repeat the attack against a creature within 5 feet of it.",
+  "targetType": "creature",
+  "attackType": "MeleeSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8,
+        "addCasterMod": true
+      },
+      "type": "Force",
+      "applicationType": "onHit"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "BonusAction",
+    "description": "You can move the force up to 20 feet and repeat the melee spell attack against a creature within 5 feet of it.",
+    "damage": {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8,
+        "addCasterMod": true
+      },
+      "type": "Force",
+      "applicationType": "onHit"
+    },
+    "movementFeet": 20
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 2,
+        "description": "The damage increases by 1d8 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["combat", "bonus-action-cast"]
+}

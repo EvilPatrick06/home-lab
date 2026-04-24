@@ -1,0 +1,6 @@
+{
+  "id": "loading",
+  "name": "Loading",
+  "description": "Because of the time required to load this weapon, you can fire only one piece of ammunition from it when you use an action, bonus action, or reaction to fire it, regardless of the number of attacks you can normally make.",
+  "mechanicalEffect": "Limited to one shot per action, bonus action, or reaction, regardless of number of attacks. The Crossbow Expert feat removes this limitation."
+}

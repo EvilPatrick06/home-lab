@@ -1,0 +1,144 @@
+{
+  "name": "Worg",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Neutral Evil",
+  "habitat": ["Forest", "Hill"],
+  "treasure": ["None"],
+  "lore": "Worgs are large, evil, intelligent wolf-like creatures that speak their own language and Goblin. They often serve as mounts for goblins and other savage humanoids. Cunning and malevolent, worgs hunt in packs and delight in tormenting their prey before devouring it.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 26,
+    "dice": {
+      "count": 4,
+      "die": "d10",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Goblin", "Worg"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Heightened Hearing and Smell",
+      "description": "The worg has Advantage on Wisdom (Perception) checks that rely on hearing or smell."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 10 (2d6 + 3) Piercing damage. If the target is a creature, it must succeed on a DC 13 Strength saving throw or have the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "STR",
+            "dc": 13,
+            "targets": "the target (if it is a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Prone"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "savingThrow": {
+        "ability": "STR",
+        "dc": 13,
+        "targets": "the target (if it is a creature)",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Prone"
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Prone"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "Power Word Kill",
+  "level": 9,
+  "school": "Enchantment",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You compel one creature you can see within range to die. If the target has 100 Hit Points or fewer, it dies. Otherwise, it takes 12d12 Psychic damage.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 12,
+        "diceValue": 12
+      },
+      "type": "Psychic",
+      "condition": "target has more than 100 Hit Points"
+    }
+  ],
+  "hpThresholdEffects": [
+    {
+      "minHP": 0,
+      "maxHP": 100,
+      "effect": "The target dies.",
+      "kills": true
+    },
+    {
+      "minHP": 101,
+      "maxHP": 99999,
+      "effect": "The target takes 12d12 Psychic damage.",
+      "damage": {
+        "dice": {
+          "diceCount": 12,
+          "diceValue": 12
+        },
+        "type": "Psychic"
+      }
+    }
+  ],
+  "tags": ["death", "hp-threshold", "no-save", "no-attack-roll"]
+}

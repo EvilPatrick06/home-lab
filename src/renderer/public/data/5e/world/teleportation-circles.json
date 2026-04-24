@@ -1,0 +1,136 @@
+{
+  "description": "Teleportation circle network template for world-building. DMs can define known circles and their sigil sequences to enable fast travel between locations.",
+  "spellReference": {
+    "name": "Teleportation Circle",
+    "level": 5,
+    "school": "Conjuration",
+    "castingTime": "1 minute",
+    "range": "10 feet",
+    "components": ["V", "M"],
+    "materialCost": "50 GP worth of rare chalks and inks infused with precious gems, which the spell consumes",
+    "duration": "1 round",
+    "permanentCircleRequirement": "Cast on the same spot every day for 1 year"
+  },
+  "knownCircles": [
+    {
+      "id": "waterdeep-blackstaff-tower",
+      "name": "Blackstaff Tower",
+      "location": "Waterdeep",
+      "region": "Sword Coast",
+      "plane": "Material Plane",
+      "access": "Restricted",
+      "controller": "Blackstaff (Archmage)",
+      "notes": "Heavily guarded. Permission required from the Blackstaff to use."
+    },
+    {
+      "id": "waterdeep-yawning-portal",
+      "name": "The Yawning Portal",
+      "location": "Waterdeep",
+      "region": "Sword Coast",
+      "plane": "Material Plane",
+      "access": "Semi-Public",
+      "controller": "Durnan",
+      "notes": "Available for a fee. Popular with adventurers."
+    },
+    {
+      "id": "baldurs-gate-high-hall",
+      "name": "High Hall",
+      "location": "Baldur's Gate",
+      "region": "Sword Coast",
+      "plane": "Material Plane",
+      "access": "Restricted",
+      "controller": "Council of Four",
+      "notes": "Government-controlled. Used for diplomatic purposes."
+    },
+    {
+      "id": "candlekeep-library",
+      "name": "Candlekeep",
+      "location": "Candlekeep",
+      "region": "Sword Coast",
+      "plane": "Material Plane",
+      "access": "Restricted",
+      "controller": "The Avowed",
+      "notes": "Requires a book of value as entry fee. Circle in the inner ward."
+    },
+    {
+      "id": "sigil-great-bazaar",
+      "name": "Great Bazaar Portal",
+      "location": "Sigil, City of Doors",
+      "region": "Outlands",
+      "plane": "Sigil",
+      "access": "Public",
+      "controller": "Lady of Pain (indirectly)",
+      "notes": "One of many portals in Sigil. Requires a specific portal key."
+    },
+    {
+      "id": "neverwinter-academy",
+      "name": "Academy of Arcane Arts",
+      "location": "Neverwinter",
+      "region": "Sword Coast",
+      "plane": "Material Plane",
+      "access": "Semi-Public",
+      "controller": "Arcane Brotherhood",
+      "notes": "Available to members and paying customers."
+    }
+  ],
+  "circleTemplate": {
+    "id": "",
+    "name": "",
+    "location": "",
+    "region": "",
+    "plane": "Material Plane",
+    "access": "Restricted",
+    "controller": "",
+    "sigilSequence": "",
+    "notes": ""
+  },
+  "accessLevels": [
+    { "id": "public", "name": "Public", "description": "Open to anyone who knows the sigil sequence." },
+    { "id": "semi-public", "name": "Semi-Public", "description": "Available for a fee or with basic credentials." },
+    { "id": "restricted", "name": "Restricted", "description": "Requires explicit permission from the controller." },
+    {
+      "id": "secret",
+      "name": "Secret",
+      "description": "Known only to a select few. Sigil sequence is closely guarded."
+    }
+  ],
+  "mishapTable": {
+    "description": "When using Teleport (not Teleportation Circle), the DM rolls on the Teleportation table based on familiarity.",
+    "familiarityLevels": [
+      {
+        "level": "Permanent Circle",
+        "onTarget": "1-100",
+        "mishap": "None",
+        "notes": "Teleportation Circle spell always succeeds to a known permanent circle."
+      },
+      {
+        "level": "Associated Object",
+        "onTarget": "1-100",
+        "mishap": "None",
+        "notes": "Having an object from the destination guarantees success."
+      },
+      { "level": "Very Familiar", "onTarget": "1-97", "offTarget": "98-99", "similarArea": "100", "mishap": "None" },
+      {
+        "level": "Seen Casually",
+        "onTarget": "1-88",
+        "offTarget": "89-94",
+        "similarArea": "95-98",
+        "mishap": "99-100"
+      },
+      { "level": "Viewed Once", "onTarget": "1-76", "offTarget": "77-88", "similarArea": "89-96", "mishap": "97-100" },
+      { "level": "Description", "onTarget": "1-54", "offTarget": "55-73", "similarArea": "74-92", "mishap": "93-100" },
+      {
+        "level": "False Destination",
+        "onTarget": "None",
+        "offTarget": "None",
+        "similarArea": "1-50",
+        "mishap": "51-100"
+      }
+    ]
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 7",
+    "section": "Spells"
+  }
+}

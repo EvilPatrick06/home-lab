@@ -1,0 +1,13 @@
+{
+  "name": "Obsidian",
+  "slug": "obsidian",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "black",
+  "dieValue": "9",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Hat of Disguise",
+  "slug": "hat-of-disguise",
+  "type": "Wondrous Item",
+  "rarity": "Uncommon",
+  "attunement": true,
+  "description": "While wearing this hat, you can cast the *Disguise Self* spell. The spell ends if the hat is removed.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

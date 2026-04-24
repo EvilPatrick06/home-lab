@@ -1,0 +1,17 @@
+{
+  "name": "Greataxe",
+  "slug": "greataxe",
+  "category": "Martial",
+  "type": "Melee",
+  "damage": "1d12",
+  "damageType": "Slashing",
+  "properties": ["Heavy", "Two-Handed"],
+  "mastery": "Cleave",
+  "weight": "7 lb.",
+  "cost": "30 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

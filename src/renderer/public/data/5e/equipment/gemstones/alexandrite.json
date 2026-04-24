@@ -1,0 +1,13 @@
+{
+  "name": "Alexandrite",
+  "slug": "alexandrite",
+  "value": "500 GP",
+  "category": "Gemstone",
+  "description": "dark green",
+  "dieValue": "1",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

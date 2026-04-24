@@ -1,0 +1,1853 @@
+{
+  "name": "Sorcerer",
+  "description": "Sorcerers wield innate magic that is stamped into their being. Some Sorcerers can't name the origin of their power, while others trace it to strange events in their personal or family history. The blessing of a dragon or a dryad at a baby's birth or the strike of lightning from a clear sky might spark a Sorcerer's gift. So too might the gift of a deity, exposure to the strange magic of another plane of existence, or a glimpse into the inner workings of reality. Whatever the origin, the result is an indelible mark on the Sorcerer, a churning magic that can be passed down through generations. Sorcerers don't learn magic; the raw, roiling power of magic is part of them. The essential art of a Sorcerer is learning to harness and channel that innate magic, allowing the Sorcerer to discover new and staggering ways to unleash their power. As Sorcerers master their innate magic, they grow more attuned to its origin, developing distinct powers that reflect its source. Sorcerers are rare. Some family lines produce exactly one Sorcerer in every generation, but most of the time, the talents of sorcery appear as a fluke. People who have this magical power soon discover that it doesn't like to stay quiet. A Sorcerer's magic wants to be wielded.",
+  "coreTraits": {
+    "primaryAbility": ["Charisma"],
+    "hitPointDie": "D6",
+    "savingThrowProficiencies": ["Constitution", "Charisma"],
+    "skillProficiencies": {
+      "count": 2,
+      "from": ["Arcana", "Deception", "Insight", "Intimidation", "Persuasion", "Religion"]
+    },
+    "weaponProficiencies": [
+      {
+        "category": "Simple"
+      }
+    ],
+    "armorTraining": [],
+    "startingEquipment": [
+      {
+        "label": "A",
+        "items": ["Spear", "2 Daggers", "Arcane Focus (crystal)", "Dungeoneer's Pack"],
+        "gp": 28
+      },
+      {
+        "label": "B",
+        "items": [],
+        "gp": 50
+      }
+    ]
+  },
+  "multiclassing": {
+    "hitPointDie": true,
+    "spellcastingNote": "See the multiclassing rules in chapter 2 to determine your available spell slots."
+  },
+  "spellcasting": {
+    "type": "full",
+    "ability": "Charisma",
+    "focus": ["Arcane Focus"],
+    "ritualCasting": "none",
+    "cantripsKnown": true,
+    "preparedSpellsMechanic": "oneSwapOnLevelUp",
+    "usesSpellbook": false,
+    "pactMagic": false,
+    "initialCantrips": 4,
+    "initialPreparedSpells": 2
+  },
+  "levelProgression": [
+    {
+      "level": 1,
+      "proficiencyBonus": 2,
+      "features": ["Spellcasting", "Innate Sorcery"],
+      "sorceryPoints": 0,
+      "cantrips": 4,
+      "preparedSpells": 2,
+      "spellSlots": {
+        "slot1": 2,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 2,
+      "proficiencyBonus": 2,
+      "features": ["Font of Magic", "Metamagic"],
+      "sorceryPoints": 2,
+      "cantrips": 4,
+      "preparedSpells": 4,
+      "spellSlots": {
+        "slot1": 3,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 3,
+      "proficiencyBonus": 2,
+      "features": ["Sorcerer Subclass"],
+      "sorceryPoints": 3,
+      "cantrips": 4,
+      "preparedSpells": 6,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 2,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 4,
+      "proficiencyBonus": 2,
+      "features": ["Ability Score Improvement"],
+      "sorceryPoints": 4,
+      "cantrips": 5,
+      "preparedSpells": 7,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 5,
+      "proficiencyBonus": 3,
+      "features": ["Sorcerous Restoration"],
+      "sorceryPoints": 5,
+      "cantrips": 5,
+      "preparedSpells": 9,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 2,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 6,
+      "proficiencyBonus": 3,
+      "features": ["Subclass feature"],
+      "sorceryPoints": 6,
+      "cantrips": 5,
+      "preparedSpells": 10,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 7,
+      "proficiencyBonus": 3,
+      "features": ["Sorcery Incarnate"],
+      "sorceryPoints": 7,
+      "cantrips": 5,
+      "preparedSpells": 11,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 1,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 8,
+      "proficiencyBonus": 3,
+      "features": ["Ability Score Improvement"],
+      "sorceryPoints": 8,
+      "cantrips": 5,
+      "preparedSpells": 12,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 2,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 9,
+      "proficiencyBonus": 4,
+      "features": [],
+      "sorceryPoints": 9,
+      "cantrips": 5,
+      "preparedSpells": 14,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 1,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 10,
+      "proficiencyBonus": 4,
+      "features": ["Metamagic"],
+      "sorceryPoints": 10,
+      "cantrips": 6,
+      "preparedSpells": 15,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 11,
+      "proficiencyBonus": 4,
+      "features": [],
+      "sorceryPoints": 11,
+      "cantrips": 6,
+      "preparedSpells": 16,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 12,
+      "proficiencyBonus": 4,
+      "features": ["Ability Score Improvement"],
+      "sorceryPoints": 12,
+      "cantrips": 6,
+      "preparedSpells": 16,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 13,
+      "proficiencyBonus": 5,
+      "features": [],
+      "sorceryPoints": 13,
+      "cantrips": 6,
+      "preparedSpells": 17,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 14,
+      "proficiencyBonus": 5,
+      "features": ["Subclass feature"],
+      "sorceryPoints": 14,
+      "cantrips": 6,
+      "preparedSpells": 17,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 0,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 15,
+      "proficiencyBonus": 5,
+      "features": [],
+      "sorceryPoints": 15,
+      "cantrips": 6,
+      "preparedSpells": 18,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 16,
+      "proficiencyBonus": 5,
+      "features": ["Ability Score Improvement"],
+      "sorceryPoints": 16,
+      "cantrips": 6,
+      "preparedSpells": 18,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 0
+      }
+    },
+    {
+      "level": 17,
+      "proficiencyBonus": 6,
+      "features": ["Metamagic"],
+      "sorceryPoints": 17,
+      "cantrips": 6,
+      "preparedSpells": 19,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 18,
+      "proficiencyBonus": 6,
+      "features": ["Subclass feature"],
+      "sorceryPoints": 18,
+      "cantrips": 6,
+      "preparedSpells": 20,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 19,
+      "proficiencyBonus": 6,
+      "features": ["Epic Boon"],
+      "sorceryPoints": 19,
+      "cantrips": 6,
+      "preparedSpells": 21,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 2,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      }
+    },
+    {
+      "level": 20,
+      "proficiencyBonus": 6,
+      "features": ["Arcane Apotheosis"],
+      "sorceryPoints": 20,
+      "cantrips": 6,
+      "preparedSpells": 22,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 2,
+        "slot7": 2,
+        "slot8": 1,
+        "slot9": 1
+      }
+    }
+  ],
+  "classFeatures": [
+    {
+      "name": "Spellcasting",
+      "level": 1,
+      "description": "Drawing from your innate magic, you can cast spells. You know four Sorcerer cantrips of your choice. Whenever you gain a Sorcerer level, you can replace one of your cantrips from this feature with another Sorcerer cantrip of your choice. When you reach Sorcerer levels 4 and 10, you learn another Sorcerer cantrip of your choice. You prepare the list of level 1+ spells that are available for you to cast with this feature. To start, choose two level 1 Sorcerer spells. The number of spells on your list increases as you gain Sorcerer levels, as shown in the Prepared Spells column of the Sorcerer Features table. Whenever that number increases, choose additional Sorcerer spells until the number of spells on your list matches the number in the table. The chosen spells must be of a level for which you have spell slots. Whenever you gain a Sorcerer level, you can replace one spell on your list with another Sorcerer spell for which you have spell slots. Charisma is your spellcasting ability for your Sorcerer spells. You can use an Arcane Focus as a Spellcasting Focus for your Sorcerer spells.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Innate Sorcery",
+      "level": 1,
+      "description": "An event in your past left an indelible mark on you, infusing you with simmering magic. As a Bonus Action, you can unleash that magic for 1 minute, during which you gain the following benefits: The spell save DC of your Sorcerer spells increases by 1. You have Advantage on the attack rolls of Sorcerer spells you cast.",
+      "activation": "BonusAction",
+      "usesPerRest": {
+        "uses": 2,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Font of Magic",
+      "level": 2,
+      "description": "You can tap into the wellspring of magic within yourself. This wellspring is represented by Sorcery Points, which allow you to create a variety of magical effects. You have 2 Sorcery Points, and you gain more as you reach higher levels, as shown in the Sorcery Points column of the Sorcerer Features table. You can't have more Sorcery Points than the number shown in the table for your level. You regain all expended Sorcery Points when you finish a Long Rest. Converting Spell Slots to Sorcery Points: You can expend a spell slot to gain a number of Sorcery Points equal to the slot's level (no action required). Creating Spell Slots: As a Bonus Action, you can transform unexpended Sorcery Points into one spell slot. You can create a spell slot no higher than level 5. Any spell slot you create with this feature vanishes when you finish a Long Rest.",
+      "activation": "Special"
+    },
+    {
+      "name": "Metamagic",
+      "level": 2,
+      "description": "Because your magic flows from within, you can alter your spells to suit your needs; you gain two Metamagic options of your choice from the Metamagic Options. You use the chosen options to temporarily modify spells you cast. To use an option, you must spend the number of Sorcery Points that it costs. You can use only one Metamagic option on a spell when you cast it unless otherwise noted in one of those options. Whenever you gain a Sorcerer level, you can replace one of your Metamagic options with one you don't know. You gain two more options at Sorcerer level 10 and two more at Sorcerer level 17.",
+      "activation": "Special"
+    },
+    {
+      "name": "Sorcerer Subclass",
+      "level": 3,
+      "description": "You gain a Sorcerer subclass of your choice. The Aberrant Sorcery, Clockwork Sorcery, Draconic Sorcery, and Wild Magic Sorcery subclasses are detailed after this class's description. A subclass is a specialization that grants you features at certain Sorcerer levels. For the rest of your career, you gain each of your subclass's features that are of your Sorcerer level or lower.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 4,
+      "description": "You gain the Ability Score Improvement feat or another feat of your choice for which you qualify. You gain this feature again at Sorcerer levels 8, 12, and 16.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Sorcerous Restoration",
+      "level": 5,
+      "description": "When you finish a Short Rest, you can regain expended Sorcery Points, but no more than a number equal to half your Sorcerer level (round down). Once you use this feature, you can't do so again until you finish a Long Rest.",
+      "activation": "Special",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "Long"
+      }
+    },
+    {
+      "name": "Sorcery Incarnate",
+      "level": 7,
+      "description": "If you have no uses of Innate Sorcery left, you can use it if you spend 2 Sorcery Points when you take the Bonus Action to activate it. In addition, while your Innate Sorcery feature is active, you can use up to two of your Metamagic options on each spell you cast.",
+      "activation": "Passive",
+      "replacesOrImproves": "Innate Sorcery"
+    },
+    {
+      "name": "Epic Boon",
+      "level": 19,
+      "description": "You gain an Epic Boon feat or another feat of your choice for which you qualify. Boon of Dimensional Travel is recommended.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Arcane Apotheosis",
+      "level": 20,
+      "description": "While your Innate Sorcery feature is active, you can use one Metamagic option on each of your turns without spending Sorcery Points on it.",
+      "activation": "Passive",
+      "replacesOrImproves": "Innate Sorcery"
+    }
+  ],
+  "subclassLabel": "Sorcerer Subclass",
+  "subclassFeatureLevels": [3, 6, 14, 18],
+  "subclasses": [
+    {
+      "name": "Aberrant Sorcery",
+      "description": "An alien influence has wrapped its tendrils around your mind, giving you psionic power. You can now touch other minds with that power and alter the world around you. Will this power shine from you as a hopeful beacon to others? Or will you be a terror to those who feel the stab of your mind? Perhaps a psychic wind from the Astral Plane carried psionic energy to you, or you were exposed to the Far Realm's warping influence. Alternatively, you were implanted with a mind flayer tadpole, but your transformation into a mind flayer never occurred; now the tadpole's psionic power is yours. However you acquired this power, your mind is aflame with it.",
+      "featureLevels": [3, 6, 14, 18],
+      "features": [
+        {
+          "name": "Psionic Spells",
+          "level": 3,
+          "description": "When you reach a Sorcerer level specified in the Psionic Spells table, you thereafter always have the listed spells prepared.",
+          "grantsSpells": [
+            {
+              "spell": "Arms of Hadar",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Calm Emotions",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Detect Thoughts",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dissonant Whispers",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Mind Sliver",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Hunger of Hadar",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Sending",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Evard's Black Tentacles",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Summon Aberration",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Rary's Telepathic Bond",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Telekinesis",
+              "alwaysPrepared": true
+            }
+          ],
+          "subclassSpellTables_note": "see subclassSpellTables"
+        },
+        {
+          "name": "Telepathic Speech",
+          "level": 3,
+          "description": "You can form a telepathic connection between your mind and the mind of another. As a Bonus Action, choose one creature you can see within 30 feet of yourself. You and the chosen creature can communicate telepathically with each other while the two of you are within a number of miles of each other equal to your Charisma modifier (minimum of 1 mile). To understand each other, you each must mentally use a language the other knows. The telepathic connection lasts for a number of minutes equal to your Sorcerer level. It ends early if you use this ability to form a connection with a different creature.",
+          "activation": "BonusAction"
+        },
+        {
+          "name": "Psionic Sorcery",
+          "level": 6,
+          "description": "When you cast any level 1+ spell from your Psionic Spells feature, you can cast it by expending a spell slot as normal or by spending a number of Sorcery Points equal to the spell's level. If you cast the spell using Sorcery Points, it requires no Verbal or Somatic components, and it requires no Material components unless they are consumed by the spell or have a cost specified in it.",
+          "activation": "Special"
+        },
+        {
+          "name": "Psychic Defenses",
+          "level": 6,
+          "description": "You have Resistance to Psychic damage, and you have Advantage on saving throws to avoid or end the Charmed or Frightened condition.",
+          "activation": "Passive",
+          "damageResistances": ["Psychic"]
+        },
+        {
+          "name": "Revelation in Flesh",
+          "level": 14,
+          "description": "You can unleash the aberrant truth hidden within yourself. As a Bonus Action, you can spend 1 Sorcery Point or more to magically alter your body for 10 minutes. For each Sorcery Point you spend, you gain one of the following benefits of your choice, the effects of which last until the alteration ends.",
+          "activation": "BonusAction",
+          "options": [
+            {
+              "name": "Aquatic Adaptation",
+              "description": "You gain a Swim Speed equal to twice your Speed, and you can breathe underwater. Gills grow from your neck or flare behind your ears, and your fingers become webbed or you grow wriggling cilia."
+            },
+            {
+              "name": "Glistening Flight",
+              "description": "You gain a Fly Speed equal to your Speed, and you can hover. As you fly, your skin glistens with mucus or otherworldly light."
+            },
+            {
+              "name": "See the Invisible",
+              "description": "You can see any Invisible creature within 60 feet of yourself that isn't behind Total Cover. Your eyes also turn black or become writhing sensory tendrils."
+            },
+            {
+              "name": "Wormlike Movement",
+              "description": "Your body, along with any equipment you are wearing or carrying, becomes slimy and pliable. You can move through any space as narrow as 1 inch, and you can spend 5 feet of movement to escape from nonmagical restraints or the Grappled condition."
+            }
+          ]
+        },
+        {
+          "name": "Warping Implosion",
+          "level": 18,
+          "description": "You can unleash a space-warping anomaly. As a Magic action, you teleport to an unoccupied space you can see within 120 feet of yourself. Immediately after you disappear, each creature within 30 feet of the space you left must make a Strength saving throw against your spell save DC. On a failed save, a creature takes 3d10 Force damage and is pulled straight toward the space you left, ending in an unoccupied space as close to your former space as possible. On a successful save, the creature takes half as much damage only.",
+          "activation": "MagicAction",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "spend 5 Sorcery Points (no action required)"
+          },
+          "savingThrow": {
+            "ability": "Strength",
+            "formula": "spell save DC"
+          }
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Psionic Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Arms of Hadar", "Calm Emotions", "Detect Thoughts", "Dissonant Whispers", "Mind Sliver"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Hunger of Hadar", "Sending"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Evard's Black Tentacles", "Summon Aberration"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Rary's Telepathic Bond", "Telekinesis"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Clockwork Sorcery",
+      "description": "The cosmic force of order has suffused you with magic. That power arises from Mechanus or a realm like it — a plane of existence shaped entirely by clockwork efficiency. You or someone from your lineage might have become entangled in the machinations of modrons, the orderly beings who inhabit Mechanus. Perhaps your ancestor even took part in the Great Modron March. Whatever its origin within you, the power of order can seem strange to others, but for you, it's part of a vast and glorious system.",
+      "featureLevels": [3, 6, 14, 18],
+      "features": [
+        {
+          "name": "Clockwork Spells",
+          "level": 3,
+          "description": "When you reach a Sorcerer level specified in the Clockwork Spells table, you thereafter always have the listed spells prepared. In addition, consult the Manifestations of Order table and choose or randomly determine a way your connection to order manifests while you are casting any of your Sorcerer spells.",
+          "grantsSpells": [
+            {
+              "spell": "Aid",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Alarm",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Lesser Restoration",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Protection from Evil and Good",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dispel Magic",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Protection from Energy",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Freedom of Movement",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Summon Construct",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Greater Restoration",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Wall of Force",
+              "alwaysPrepared": true
+            }
+          ],
+          "randomTables": [
+            {
+              "name": "Manifestations of Order",
+              "die": "1d6",
+              "entries": [
+                {
+                  "roll": "1",
+                  "effect": "Spectral cogwheels hover behind you."
+                },
+                {
+                  "roll": "2",
+                  "effect": "The hands of a clock spin in your eyes."
+                },
+                {
+                  "roll": "3",
+                  "effect": "Your skin glows with a brassy sheen."
+                },
+                {
+                  "roll": "4",
+                  "effect": "Floating equations and geometric objects overlay your body."
+                },
+                {
+                  "roll": "5",
+                  "effect": "Your Spellcasting Focus temporarily takes the form of a Tiny clockwork mechanism."
+                },
+                {
+                  "roll": "6",
+                  "effect": "The ticking of gears or ringing of a clock can be heard by you and those affected by your magic."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Restore Balance",
+          "level": 3,
+          "description": "Your connection to the plane of absolute order allows you to equalize chaotic moments. When a creature you can see within 60 feet of yourself is about to roll a d20 with Advantage or Disadvantage, you can take a Reaction to prevent the roll from being affected by Advantage and Disadvantage.",
+          "activation": "Reaction",
+          "usesPerRest": {
+            "uses": "Charisma modifier (minimum of once)",
+            "restType": "Long"
+          }
+        },
+        {
+          "name": "Bastion of Law",
+          "level": 6,
+          "description": "You can tap into the grand equation of existence to imbue a creature with a shimmering shield of order. As a Magic action, you can expend 1 to 5 Sorcery Points to create a magical ward around yourself or another creature you can see within 30 feet of yourself. The ward is represented by a number of d8s equal to the number of Sorcery Points spent to create it. When the warded creature takes damage, it can expend a number of those dice, roll them, and reduce the damage taken by the total rolled on those dice. The ward lasts until you finish a Long Rest or until you use this feature again.",
+          "activation": "MagicAction"
+        },
+        {
+          "name": "Trance of Order",
+          "level": 14,
+          "description": "You gain the ability to align your consciousness with the endless calculations of Mechanus. As a Bonus Action, you can enter this state for 1 minute. For the duration, attack rolls against you can't benefit from Advantage, and whenever you make a D20 Test, you can treat a roll of 9 or lower on the d20 as a 10.",
+          "activation": "BonusAction",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "spend 5 Sorcery Points (no action required)"
+          }
+        },
+        {
+          "name": "Clockwork Cavalcade",
+          "level": 18,
+          "description": "You momentarily summon spirits of order to expunge disorder around you. As a Magic action, you summon the spirits in a 30-foot Cube originating from you. The spirits look like modrons or other Constructs of your choice. The spirits are intangible and invulnerable, and they create the following effects within the Cube before vanishing. Heal: The spirits restore up to 100 Hit Points, divided as you choose among any number of creatures of your choice in the Cube. Repair: Any damaged objects entirely in the Cube are repaired instantly. Dispel: Every spell of level 6 and lower ends on creatures and objects of your choice in the Cube.",
+          "activation": "MagicAction",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "spend 7 Sorcery Points (no action required)"
+          }
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Clockwork Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Aid", "Alarm", "Lesser Restoration", "Protection from Evil and Good"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Dispel Magic", "Protection from Energy"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Freedom of Movement", "Summon Construct"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Greater Restoration", "Wall of Force"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Draconic Sorcery",
+      "description": "Your innate magic comes from the gift of a dragon. Perhaps an ancient dragon facing death bequeathed some of its magical power to you or your ancestor. You might have absorbed magic from a site infused with dragons' power. Or perhaps you handled a treasure taken from a dragon's hoard that was steeped in draconic power. Or you might have a dragon for an ancestor.",
+      "featureLevels": [3, 6, 14, 18],
+      "features": [
+        {
+          "name": "Draconic Resilience",
+          "level": 3,
+          "description": "The magic in your body manifests physical traits of your draconic gift. Your Hit Point maximum increases by 3, and it increases by 1 whenever you gain another Sorcerer level. Parts of you are also covered by dragon-like scales. While you aren't wearing armor, your base Armor Class equals 10 plus your Dexterity and Charisma modifiers.",
+          "activation": "Passive",
+          "unarmoredDefense": {
+            "baseAC": 10,
+            "modifiers": ["Dexterity", "Charisma"],
+            "allowsShield": true
+          },
+          "bonusHitPoints": {
+            "initial": 3,
+            "perLevel": 1
+          }
+        },
+        {
+          "name": "Draconic Spells",
+          "level": 3,
+          "description": "When you reach a Sorcerer level specified in the Draconic Spells table, you thereafter always have the listed spells prepared.",
+          "grantsSpells": [
+            {
+              "spell": "Alter Self",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Chromatic Orb",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Command",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Dragon's Breath",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Fear",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Fly",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Arcane Eye",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Charm Monster",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Legend Lore",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Summon Dragon",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Elemental Affinity",
+          "level": 6,
+          "description": "Your draconic magic has an affinity with a damage type associated with dragons. Choose one of those types: Acid, Cold, Fire, Lightning, or Poison. You have Resistance to that damage type, and when you cast a spell that deals damage of that type, you can add your Charisma modifier to one damage roll of that spell.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Dragon Wings",
+          "level": 14,
+          "description": "As a Bonus Action, you can cause draconic wings to appear on your back. The wings last for 1 hour or until you dismiss them (no action required). For the duration, you have a Fly Speed of 60 feet.",
+          "activation": "BonusAction",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "spend 3 Sorcery Points (no action required)"
+          }
+        },
+        {
+          "name": "Dragon Companion",
+          "level": 18,
+          "description": "You can cast Summon Dragon without a Material component. You can also cast it once without a spell slot, and you regain the ability to cast it in this way when you finish a Long Rest. Whenever you start casting the spell, you can modify it so that it doesn't require Concentration. If you do so, the spell's duration becomes 1 minute for that casting.",
+          "activation": "Special",
+          "grantsSpells": [
+            {
+              "spell": "Summon Dragon",
+              "alwaysPrepared": true,
+              "freeUses": 1,
+              "freeUseRestType": "Long"
+            }
+          ]
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Draconic Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Alter Self", "Chromatic Orb", "Command", "Dragon's Breath"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Fear", "Fly"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Arcane Eye", "Charm Monster"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Legend Lore", "Summon Dragon"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wild Magic Sorcery",
+      "description": "Your innate magic stems from the forces of chaos that underlie the order of creation. You or an ancestor might have endured exposure to raw magic, perhaps through a planar portal leading to Limbo or the Elemental Planes. Perhaps you were blessed by a fey being or marked by a demon. Or your magic could be a fluke with no apparent cause. Whatever its source, this magic churns within you, waiting for any outlet.",
+      "featureLevels": [3, 6, 14, 18],
+      "features": [
+        {
+          "name": "Wild Magic Surge",
+          "level": 3,
+          "description": "Your spellcasting can unleash surges of untamed magic. Once per turn, you can roll 1d20 immediately after you cast a Sorcerer spell with a spell slot. If you roll a 20, roll on the Wild Magic Surge table to create a magical effect. If the magical effect is a spell, it is too wild to be affected by your Metamagic.",
+          "activation": "Special",
+          "randomTables": [
+            {
+              "name": "Wild Magic Surge",
+              "die": "d100",
+              "entries": [
+                {
+                  "roll": "01-04",
+                  "effect": "Roll on this table at the start of each of your turns for the next minute, ignoring this result on subsequent rolls."
+                },
+                {
+                  "roll": "05-08",
+                  "effect": "A creature that is Friendly toward you appears in a random unoccupied space within 60 feet of you. The creature is under the DM's control and disappears 1 minute later. Roll 1d4 to determine the creature: on a 1, a Modron Duodrone appears; on a 2, a Flumph appears; on a 3, a Modron Monodrone appears; on a 4, a Unicorn appears."
+                },
+                {
+                  "roll": "09-12",
+                  "effect": "For the next minute, you regain 5 Hit Points at the start of each of your turns."
+                },
+                {
+                  "roll": "13-16",
+                  "effect": "Creatures have Disadvantage on saving throws against the next spell you cast in the next minute that involves a saving throw."
+                },
+                {
+                  "roll": "17-20",
+                  "effect": "You are subjected to an effect that lasts for 1 minute unless its description says otherwise. Roll 1d8 to determine the effect: on a 1, you're surrounded by faint, ethereal music only you and creatures within 5 feet of you can hear; on a 2, your size increases by one size category; on a 3, you grow a long beard made of feathers that remains until you sneeze, at which point the feathers explode from your face and vanish; on a 4, you must shout when you speak; on a 5, illusory butterflies flutter in the air within 10 feet of you; on a 6, an eye appears on your forehead, granting you Advantage on Wisdom (Perception) checks; on a 7, pink bubbles float out of your mouth whenever you speak; on an 8, your skin turns a vibrant shade of blue for 24 hours or until the effect is ended by a Remove Curse spell."
+                },
+                {
+                  "roll": "21-24",
+                  "effect": "For the next minute, all your spells with a casting time of an action have a casting time of a Bonus Action."
+                },
+                {
+                  "roll": "25-28",
+                  "effect": "You are transported to the Astral Plane until the end of your next turn. You then return to the space you previously occupied or the nearest unoccupied space if that space is occupied."
+                },
+                {
+                  "roll": "29-32",
+                  "effect": "The next time you cast a spell that deals damage within the next minute, don't roll the spell's damage dice for the damage. Instead use the highest number possible for each damage die."
+                },
+                {
+                  "roll": "33-36",
+                  "effect": "You have Resistance to all damage for the next minute."
+                },
+                {
+                  "roll": "37-40",
+                  "effect": "You turn into a potted plant until the start of your next turn. While a plant, you have the Incapacitated condition and have Vulnerability to all damage. If you drop to 0 Hit Points, your pot breaks, and your form reverts."
+                },
+                {
+                  "roll": "41-44",
+                  "effect": "For the next minute, you can teleport up to 20 feet as a Bonus Action on each of your turns."
+                },
+                {
+                  "roll": "45-48",
+                  "effect": "You and up to three creatures you choose within 30 feet of you have the Invisible condition for 1 minute. This invisibility ends on a creature immediately after it makes an attack roll, deals damage, or casts a spell."
+                },
+                {
+                  "roll": "49-52",
+                  "effect": "A spectral shield hovers near you for the next minute, granting you a +2 bonus to AC and immunity to Magic Missile."
+                },
+                {
+                  "roll": "53-56",
+                  "effect": "You can take one extra action on this turn."
+                },
+                {
+                  "roll": "57-60",
+                  "effect": "You cast a random spell. Roll 1d10 to determine the spell: on a 1, Confusion; on a 2, Fireball; on a 3, Fog Cloud; on a 4, Fly (cast on a random creature within 60 feet of you); on a 5, Grease; on a 6, Levitate (cast on yourself); on a 7, Magic Missile (cast as a level 5 spell); on a 8, Mirror Image; on a 9, Polymorph (cast on yourself), and if you fail the saving throw, you turn into a Goat; on a 10, See Invisibility."
+                },
+                {
+                  "roll": "61-64",
+                  "effect": "For the next minute, any flammable, nonmagical object you touch that isn't being worn or carried by another creature bursts into flame, takes 1d4 Fire damage, and is burning."
+                },
+                {
+                  "roll": "65-68",
+                  "effect": "If you die within the next hour, you immediately revive as if by the Reincarnate spell."
+                },
+                {
+                  "roll": "69-72",
+                  "effect": "You have the Frightened condition until the end of your next turn. The DM determines the source of your fear."
+                },
+                {
+                  "roll": "73-76",
+                  "effect": "You teleport up to 60 feet to an unoccupied space you can see."
+                },
+                {
+                  "roll": "77-80",
+                  "effect": "A random creature within 60 feet of you has the Poisoned condition for 1d4 hours."
+                },
+                {
+                  "roll": "81-84",
+                  "effect": "You radiate Bright Light in a 30-foot radius for the next minute. Any creature that ends its turn within 5 feet of you has the Blinded condition until the end of its next turn."
+                },
+                {
+                  "roll": "85-88",
+                  "effect": "Up to three creatures of your choice that you can see within 30 feet of you take 1d10 Necrotic damage. You regain Hit Points equal to the sum of the Necrotic damage dealt."
+                },
+                {
+                  "roll": "89-92",
+                  "effect": "Up to three creatures of your choice that you can see within 30 feet of you take 4d10 Lightning damage."
+                },
+                {
+                  "roll": "93-96",
+                  "effect": "You and all creatures within 30 feet of you have Vulnerability to Piercing damage for the next minute."
+                },
+                {
+                  "roll": "97-00",
+                  "effect": "Roll 1d6: On a 1, you regain 2d10 Hit Points; on a 2, one ally of your choice within 300 feet of you regains 2d10 Hit Points; on a 3, you regain your lowest-level expended spell slot; on a 4, one ally of your choice within 300 feet of you regains their lowest-level expended spell slot; on a 5, you regain all your expended Sorcery Points; on a 6, all the effects of row 17-20 affect you simultaneously."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Tides of Chaos",
+          "level": 3,
+          "description": "You can manipulate chaos itself to give yourself Advantage on one D20 Test before you roll the d20. Once you do so, you must cast a Sorcerer spell with a spell slot or finish a Long Rest before you can use this feature again. If you do cast a Sorcerer spell with a spell slot before you finish a Long Rest, you automatically roll on the Wild Magic Surge table.",
+          "activation": "Special",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "Cast a Sorcerer spell with a spell slot (also triggers Wild Magic Surge)"
+          }
+        },
+        {
+          "name": "Bend Luck",
+          "level": 6,
+          "description": "You have the ability to twist fate using your wild magic. Immediately after another creature you can see rolls the d20 for a D20 Test, you can take a Reaction and spend 1 Sorcery Point to roll 1d4 and apply the number rolled as a bonus or penalty (your choice) to the d20 roll.",
+          "activation": "Reaction"
+        },
+        {
+          "name": "Controlled Chaos",
+          "level": 14,
+          "description": "You gain a modicum of control over the surges of your wild magic. Whenever you roll on the Wild Magic Surge table, you can roll twice and use either number.",
+          "activation": "Passive",
+          "replacesOrImproves": "Wild Magic Surge"
+        },
+        {
+          "name": "Tamed Surge",
+          "level": 18,
+          "description": "Immediately after you cast a Sorcerer spell with a spell slot, you can create an effect of your choice from the Wild Magic Surge table instead of rolling on that table. You can choose any effect in the table except for the final row, and if the chosen effect involves a roll, you must make it. Once you use this feature, you can't do so again until you finish a Long Rest.",
+          "activation": "Special",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long"
+          }
+        }
+      ]
+    }
+  ],
+  "spellList": {
+    "cantrips": [
+      {
+        "name": "Acid Splash",
+        "school": "Evocation"
+      },
+      {
+        "name": "Blade Ward",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Chill Touch",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Dancing Lights",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Elementalism",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Fire Bolt",
+        "school": "Evocation"
+      },
+      {
+        "name": "Friends",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Light",
+        "school": "Evocation"
+      },
+      {
+        "name": "Mage Hand",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Mending",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Message",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Mind Sliver",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Minor Illusion",
+        "school": "Illusion"
+      },
+      {
+        "name": "Poison Spray",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Prestidigitation",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Ray of Frost",
+        "school": "Evocation"
+      },
+      {
+        "name": "Shocking Grasp",
+        "school": "Evocation"
+      },
+      {
+        "name": "Sorcerous Burst",
+        "school": "Evocation"
+      },
+      {
+        "name": "Thunderclap",
+        "school": "Evocation"
+      },
+      {
+        "name": "True Strike",
+        "school": "Divination"
+      }
+    ],
+    "level1": [
+      {
+        "name": "Burning Hands",
+        "school": "Evocation"
+      },
+      {
+        "name": "Charm Person",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Chromatic Orb",
+        "school": "Evocation",
+        "materialComponent": true
+      },
+      {
+        "name": "Color Spray",
+        "school": "Illusion"
+      },
+      {
+        "name": "Comprehend Languages",
+        "school": "Divination",
+        "ritual": true
+      },
+      {
+        "name": "Detect Magic",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true
+      },
+      {
+        "name": "Disguise Self",
+        "school": "Illusion"
+      },
+      {
+        "name": "Expeditious Retreat",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "False Life",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Feather Fall",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Fog Cloud",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Grease",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Ice Knife",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Jump",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Mage Armor",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Magic Missile",
+        "school": "Evocation"
+      },
+      {
+        "name": "Ray of Sickness",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Shield",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Silent Image",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Sleep",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Thunderwave",
+        "school": "Evocation"
+      },
+      {
+        "name": "Witch Bolt",
+        "school": "Evocation",
+        "concentration": true
+      }
+    ],
+    "level2": [
+      {
+        "name": "Alter Self",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Arcane Vigor",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Blindness/Deafness",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Blur",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Cloud of Daggers",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Crown of Madness",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Darkness",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Darkvision",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Detect Thoughts",
+        "school": "Divination",
+        "concentration": true
+      },
+      {
+        "name": "Dragon's Breath",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Enhance Ability",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Enlarge/Reduce",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Flame Blade",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Flaming Sphere",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Gust of Wind",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Hold Person",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Invisibility",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Knock",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Levitate",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Magic Weapon",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Mind Spike",
+        "school": "Divination",
+        "concentration": true
+      },
+      {
+        "name": "Mirror Image",
+        "school": "Illusion"
+      },
+      {
+        "name": "Misty Step",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Phantasmal Force",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Scorching Ray",
+        "school": "Evocation"
+      },
+      {
+        "name": "See Invisibility",
+        "school": "Divination"
+      },
+      {
+        "name": "Shatter",
+        "school": "Evocation"
+      },
+      {
+        "name": "Spider Climb",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Suggestion",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Web",
+        "school": "Conjuration",
+        "concentration": true
+      }
+    ],
+    "level3": [
+      {
+        "name": "Blink",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Clairvoyance",
+        "school": "Divination",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Counterspell",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Daylight",
+        "school": "Evocation"
+      },
+      {
+        "name": "Dispel Magic",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Fear",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Fireball",
+        "school": "Evocation"
+      },
+      {
+        "name": "Fly",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Gaseous Form",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Haste",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Hypnotic Pattern",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Lightning Bolt",
+        "school": "Evocation"
+      },
+      {
+        "name": "Major Image",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Protection from Energy",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Sleet Storm",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Slow",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Stinking Cloud",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Tongues",
+        "school": "Divination"
+      },
+      {
+        "name": "Vampiric Touch",
+        "school": "Necromancy",
+        "concentration": true
+      },
+      {
+        "name": "Water Breathing",
+        "school": "Transmutation",
+        "ritual": true
+      },
+      {
+        "name": "Water Walk",
+        "school": "Transmutation",
+        "ritual": true
+      }
+    ],
+    "level4": [
+      {
+        "name": "Banishment",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Blight",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Charm Monster",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Confusion",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Dimension Door",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Dominate Beast",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Fire Shield",
+        "school": "Evocation"
+      },
+      {
+        "name": "Greater Invisibility",
+        "school": "Illusion",
+        "concentration": true
+      },
+      {
+        "name": "Ice Storm",
+        "school": "Evocation"
+      },
+      {
+        "name": "Polymorph",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Stoneskin",
+        "school": "Transmutation",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Vitriolic Sphere",
+        "school": "Evocation"
+      },
+      {
+        "name": "Wall of Fire",
+        "school": "Evocation",
+        "concentration": true
+      }
+    ],
+    "level5": [
+      {
+        "name": "Animate Objects",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Bigby's Hand",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Cloudkill",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Cone of Cold",
+        "school": "Evocation"
+      },
+      {
+        "name": "Creation",
+        "school": "Illusion"
+      },
+      {
+        "name": "Dominate Person",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Hold Monster",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Insect Plague",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Seeming",
+        "school": "Illusion"
+      },
+      {
+        "name": "Synaptic Static",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Telekinesis",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Teleportation Circle",
+        "school": "Conjuration",
+        "materialComponent": true
+      },
+      {
+        "name": "Wall of Stone",
+        "school": "Evocation",
+        "concentration": true
+      }
+    ],
+    "level6": [
+      {
+        "name": "Arcane Gate",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Chain Lightning",
+        "school": "Evocation"
+      },
+      {
+        "name": "Circle of Death",
+        "school": "Necromancy",
+        "materialComponent": true
+      },
+      {
+        "name": "Disintegrate",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Eyebite",
+        "school": "Necromancy",
+        "concentration": true
+      },
+      {
+        "name": "Flesh to Stone",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Globe of Invulnerability",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Mass Suggestion",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Move Earth",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Otiluke's Freezing Sphere",
+        "school": "Evocation"
+      },
+      {
+        "name": "Sunbeam",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "True Seeing",
+        "school": "Divination",
+        "materialComponent": true
+      }
+    ],
+    "level7": [
+      {
+        "name": "Delayed Blast Fireball",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Etherealness",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Finger of Death",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Fire Storm",
+        "school": "Evocation"
+      },
+      {
+        "name": "Plane Shift",
+        "school": "Conjuration",
+        "materialComponent": true
+      },
+      {
+        "name": "Prismatic Spray",
+        "school": "Evocation"
+      },
+      {
+        "name": "Reverse Gravity",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Teleport",
+        "school": "Conjuration"
+      }
+    ],
+    "level8": [
+      {
+        "name": "Demiplane",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Dominate Monster",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Earthquake",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Incendiary Cloud",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Power Word Stun",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Sunburst",
+        "school": "Evocation"
+      }
+    ],
+    "level9": [
+      {
+        "name": "Gate",
+        "school": "Conjuration",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Meteor Swarm",
+        "school": "Evocation"
+      },
+      {
+        "name": "Power Word Kill",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Time Stop",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Wish",
+        "school": "Conjuration"
+      }
+    ]
+  },
+  "metamagicOptions": [
+    {
+      "name": "Careful Spell",
+      "sorceryPointCost": 1,
+      "description": "When you cast a spell that forces other creatures to make a saving throw, you can protect some of those creatures from the spell's full force. To do so, spend 1 Sorcery Point and choose a number of those creatures up to your Charisma modifier (minimum of one creature). A chosen creature automatically succeeds on its saving throw against the spell, and it takes no damage if it would normally take half damage on a successful save."
+    },
+    {
+      "name": "Distant Spell",
+      "sorceryPointCost": 1,
+      "description": "When you cast a spell that has a range of at least 5 feet, you can spend 1 Sorcery Point to double the spell's range. Or when you cast a spell that has a range of Touch, you can spend 1 Sorcery Point to make the spell's range 30 feet."
+    },
+    {
+      "name": "Empowered Spell",
+      "sorceryPointCost": 1,
+      "description": "When you roll damage for a spell, you can spend 1 Sorcery Point to reroll a number of the damage dice up to your Charisma modifier (minimum of one), and you must use the new rolls. You can use Empowered Spell even if you've already used a different Metamagic option during the casting of the spell.",
+      "stackableWithOthers": true
+    },
+    {
+      "name": "Extended Spell",
+      "sorceryPointCost": 1,
+      "description": "When you cast a spell that has a duration of 1 minute or longer, you can spend 1 Sorcery Point to double its duration to a maximum duration of 24 hours. If the affected spell requires Concentration, you have Advantage on any saving throw you make to maintain that Concentration."
+    },
+    {
+      "name": "Heightened Spell",
+      "sorceryPointCost": 2,
+      "description": "When you cast a spell that forces a creature to make a saving throw, you can spend 2 Sorcery Points to give one target of the spell Disadvantage on saves against the spell."
+    },
+    {
+      "name": "Quickened Spell",
+      "sorceryPointCost": 2,
+      "description": "When you cast a spell that has a casting time of an action, you can spend 2 Sorcery Points to change the casting time to a Bonus Action for this casting. You can't modify a spell in this way if you've already cast a level 1+ spell on the current turn, nor can you cast a level 1+ spell on this turn after modifying a spell in this way."
+    },
+    {
+      "name": "Seeking Spell",
+      "sorceryPointCost": 1,
+      "description": "If you make an attack roll for a spell and miss, you can spend 1 Sorcery Point to reroll the d20, and you must use the new roll. You can use Seeking Spell even if you've already used a different Metamagic option during the casting of the spell.",
+      "stackableWithOthers": true
+    },
+    {
+      "name": "Subtle Spell",
+      "sorceryPointCost": 1,
+      "description": "When you cast a spell, you can spend 1 Sorcery Point to cast it without any Verbal, Somatic, or Material components, except Material components that are consumed by the spell or that have a cost specified in the spell."
+    },
+    {
+      "name": "Transmuted Spell",
+      "sorceryPointCost": 1,
+      "description": "When you cast a spell that deals a type of damage from the following list, you can spend 1 Sorcery Point to change that damage type to one of the other listed types: Acid, Cold, Fire, Lightning, Poison, Thunder."
+    },
+    {
+      "name": "Twinned Spell",
+      "sorceryPointCost": 1,
+      "description": "When you cast a spell, such as Charm Person, that can be cast with a higher-level spell slot to target an additional creature, you can spend 1 Sorcery Point to increase the spell's effective level by 1."
+    }
+  ],
+  "spellSlotCreationTable": [
+    {
+      "slotLevel": 1,
+      "sorceryPointCost": 2,
+      "minimumSorcererLevel": 2
+    },
+    {
+      "slotLevel": 2,
+      "sorceryPointCost": 3,
+      "minimumSorcererLevel": 3
+    },
+    {
+      "slotLevel": 3,
+      "sorceryPointCost": 5,
+      "minimumSorcererLevel": 5
+    },
+    {
+      "slotLevel": 4,
+      "sorceryPointCost": 6,
+      "minimumSorcererLevel": 7
+    },
+    {
+      "slotLevel": 5,
+      "sorceryPointCost": 7,
+      "minimumSorcererLevel": 9
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Temporary Hit Points",
+  "slug": "temporary-hit-points",
+  "description": "Temporary Hit Points are a buffer against damage. When you take damage, Temporary HP are lost first. They can't be restored by healing, and they don't stack (you keep the higher amount). They go away after a Long Rest.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "Tasha's Hideous Laughter",
+  "level": 1,
+  "school": "Enchantment",
+  "classes": ["Bard", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a tart and a feather",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "One creature of your choice that you can see within range makes a Wisdom saving throw. On a failed save, it has the Prone and Incapacitated conditions for the duration. During that time, it laughs uncontrollably if it's capable of laughter, and it can't end the Prone condition on itself. At the end of each of its turns and each time it takes damage, it makes another Wisdom saving throw. The target has Advantage on the save if the save is triggered by damage. On a successful save, the spell ends.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The target has the Prone and Incapacitated conditions for the duration, laughs uncontrollably, and can't end the Prone condition on itself.",
+    "repeatSave": {
+      "timing": "custom",
+      "customTiming": "At the end of each of its turns and each time it takes damage",
+      "endsEffectOnSuccess": true
+    },
+    "advantageCondition": "The save is triggered by taking damage"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Prone",
+      "trigger": "onFailedSave",
+      "duration": "For the duration; the target can't end this condition on itself",
+      "savingThrowToEnd": {
+        "ability": "Wisdom",
+        "timing": "custom",
+        "customTiming": "At the end of each of its turns and each time it takes damage"
+      }
+    },
+    {
+      "condition": "Incapacitated",
+      "trigger": "onFailedSave",
+      "duration": "For the duration",
+      "savingThrowToEnd": {
+        "ability": "Wisdom",
+        "timing": "custom",
+        "customTiming": "At the end of each of its turns and each time it takes damage"
+      }
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 1,
+        "description": "You can target one additional creature for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["control", "debuff", "incapacitate", "prone"]
+}

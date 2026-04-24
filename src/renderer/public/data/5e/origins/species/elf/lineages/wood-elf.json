@@ -1,0 +1,12 @@
+{
+  "id": "wood-elf",
+  "name": "Wood Elf",
+  "species": "elf",
+  "description": "Wood Elves have keen senses and fleet feet.",
+  "traits": [
+    { "name": "Fleet of Foot", "description": "Your walking speed increases to 35 feet." },
+    { "name": "Mask of the Wild", "description": "You can hide when lightly obscured by natural phenomena." }
+  ],
+  "abilityScoreIncrease": { "wisdom": 1 },
+  "source": "PHB 2024"
+}

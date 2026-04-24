@@ -1,0 +1,24 @@
+{
+  "name": "Boon of Dimensional Travel",
+  "category": "Epic Boon",
+  "prerequisites": {
+    "level": 19
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": "any",
+        "amount": 1,
+        "maximum": 30,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Blink Steps",
+      "description": "Immediately after you take the Attack action or the Magic action, you can teleport up to 30 feet to an unoccupied space you can see."
+    }
+  ],
+  "source": "PHB 2024"
+}

@@ -1,0 +1,58 @@
+{
+  "name": "Giant Axe Beak",
+  "slug": "giant-axe-beak",
+  "size": "Huge",
+  "type": "Monstrosity",
+  "alignment": "Unaligned",
+  "ac": "15",
+  "initiative": "+5 (15)",
+  "hp": "84",
+  "hpFormula": "8d12 + 32",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 21,
+    "dex": 14,
+    "con": 19,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 5,
+    "dex": 2,
+    "con": 4,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4",
+  "senses": "Passive Perception 14",
+  "languages": "None",
+  "cr": "5 (XP 1,800; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The axe beak makes one Sharpened Beak attack and one Talons attack."
+    },
+    {
+      "name": "Sharpened Beak",
+      "description": "*Melee Attack Roll:* +8, reach 10 ft. *Hit:* 18 (2d12 + 5) Slashing damage, and a creature within 5 feet of the target (axe beak's choice) takes 6 (1d12) Slashing damage."
+    },
+    {
+      "name": "Talons",
+      "description": "*Melee Attack Roll:* +8, reach 5 ft. *Hit:* 14 (2d8 + 5) Piercing damage. If the target is a Large or smaller creature, it has the *Prone* condition."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Flightless Avian Predators*\n**Habitat:** Arctic, Grassland, Hill; **Treasure:** None\nAxe beaks are flightless, birdlike creatures with distinctive axe-shaped beaks. Swift predators, they chase down prey and use their beaks to hack through foliage protecting their quarry. Axe beaks live in varied environments. Colorfully plumed axe beaks race across tropical plains, while axe beaks with snowy feathers hunt the tundra.\nAxe beaks are difficult to train, but those hatched and raised in captivity can become reliable mounts.\nAlone or in small groups, axe beaks stalk prey to feed their flocks. When working together, axe beaks use rudimentary tactics, with some distracting threats while others strike vulnerable targets or rush young axe beaks to safety.\nGiant axe beaks typically dwell in secluded, primeval realms, such as isolated islands or underground wildernesses. They often compete with dinosaurs and other giant beasts for territory.\n> *The thing's got an axe for a face and a giant, angry rooster for everything else--of course I want to ride it!*\n>\n> --Batley Summerfoot, Adventurer",
+  "habitat": "Arctic, Grassland, Hill",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

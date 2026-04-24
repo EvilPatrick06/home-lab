@@ -1,0 +1,13 @@
+{
+  "name": "Smoldering Armor",
+  "slug": "smoldering-armor",
+  "type": "Armor (Any Heavy",
+  "rarity": "Medium, or Light), Common",
+  "attunement": false,
+  "description": "Wisps of harmless, odorless smoke rise from this armor while it is worn.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

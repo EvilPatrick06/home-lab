@@ -1,0 +1,17 @@
+{
+  "error": "EXTRACTION_NOT_POSSIBLE",
+  "target": "Adventures With Gith",
+  "reason": "'Adventures With Gith' is a narrative lore subsection within the Gith monster entry of the 2024 Monster Manual. It provides DM-facing adventure hooks and plot ideas rather than a creature stat block. It contains no Armor Class, Hit Points, ability scores, or other mechanical data required by BestiarySchema. The Gith monster section contains individually named stat blocks (e.g., Githyanki Buccaneer, Githyanki Gish, Githyanki Knight, Githyanki Kith'rak, Githyanki Supreme Commander, Githyanki Warrior, Githzerai Anarch, Githzerai Enlightened, Githzerai Monk, Githzerai Zerth) that can each be extracted as valid BestiarySchema entries. Please re-request using a specific Gith stat block name.",
+  "extractableStatBlocks": [
+    "Githyanki Buccaneer",
+    "Githyanki Gish",
+    "Githyanki Knight",
+    "Githyanki Kith'rak",
+    "Githyanki Supreme Commander",
+    "Githyanki Warrior",
+    "Githzerai Anarch",
+    "Githzerai Enlightened",
+    "Githzerai Monk",
+    "Githzerai Zerth"
+  ]
+}

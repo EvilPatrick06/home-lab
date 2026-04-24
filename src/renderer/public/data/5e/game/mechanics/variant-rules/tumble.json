@@ -1,0 +1,29 @@
+{
+  "id": "tumble",
+  "name": "Tumble",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "A creature can try to tumble through a hostile creature's space by making a Dexterity (Acrobatics) check contested by the hostile creature's Dexterity (Acrobatics) check. The tumbling creature can use its action or bonus action to attempt the tumble.",
+  "mechanics": {
+    "action": "Action or Bonus Action (creature's choice)",
+    "attackerRoll": "Dexterity (Acrobatics) check",
+    "defenderRoll": "Dexterity (Acrobatics) check",
+    "onSuccess": "The tumbling creature can move through the hostile creature's space once this turn",
+    "onFailure": "The tumbling creature's movement is stopped. It cannot move through the hostile creature's space.",
+    "movement": "Moving through the hostile creature's space still costs movement as normal. The hostile creature's space is not difficult terrain for this movement.",
+    "limitations": [
+      "The creature can only move through the hostile creature's space once per tumble attempt",
+      "The hostile creature does not move; only the tumbling creature passes through",
+      "This does not provoke opportunity attacks by itself (though leaving the hostile creature's reach afterward might)",
+      "A creature cannot end its turn in another creature's space"
+    ]
+  },
+  "interactions": [
+    "Dexterity-based characters (Rogues, Monks, Rangers) excel at tumbling due to high Acrobatics modifiers",
+    "Rogues with Expertise in Acrobatics are particularly effective at tumbling through enemy spaces",
+    "This provides a Dexterity-based alternative to Overrun (which uses Strength), giving agile characters their own method of moving past enemies",
+    "Using a Bonus Action for tumble preserves the creature's Action for attacking or other abilities",
+    "Unlike Overrun, Tumble does not have size-based Advantage/Disadvantage, making it equally effective regardless of relative creature sizes",
+    "This synergizes with Cunning Action (Rogue) since Rogues already have valuable Bonus Action options and may prefer using their Action to tumble while using Cunning Action for other purposes"
+  ]
+}

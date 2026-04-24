@@ -1,0 +1,47 @@
+{
+  "name": "Camel",
+  "slug": "camel",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "10",
+  "initiative": "−1 (9)",
+  "hp": "17",
+  "hpFormula": "2d10 + 6",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 8,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": -1,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Darkvision 60 ft.; Passive Perception 10",
+  "languages": "None",
+  "cr": "1/8 (XP 25; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 4 (1d4 + 2) Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

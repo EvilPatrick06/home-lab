@@ -1,0 +1,11 @@
+{
+  "name": "1 lb. of wheat",
+  "slug": "1-lb-of-wheat",
+  "cost": "1 CP",
+  "category": "Trade Good",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

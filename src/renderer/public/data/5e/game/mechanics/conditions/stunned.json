@@ -1,0 +1,11 @@
+{
+  "name": "Stunned",
+  "slug": "stunned",
+  "description": "A Stunned creature has the Incapacitated condition. The creature can't move and can speak only falteringly. The creature automatically fails Strength and Dexterity saving throws. Attack rolls against the creature have Advantage.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

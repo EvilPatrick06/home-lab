@@ -1,0 +1,215 @@
+{
+  "name": "Dryad",
+  "sizes": ["Medium"],
+  "creatureType": "Fey",
+  "alignment": "Neutral",
+  "habitat": ["Forest"],
+  "treasure": ["Arcana"],
+  "lore": "Dryads are shy fey spirits bound to the trees of enchanted groves. They watch over their woodland homes and form bonds with those who show respect for nature, but they can be fierce when their forests are threatened. Dryads can magically step between trees and charm those who intrude upon their domain.",
+  "armorClass": {
+    "value": 16,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 55,
+    "dice": {
+      "count": 10,
+      "die": "d8",
+      "modifier": 10
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Elvish", "Sylvan"]
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The dryad has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Tree Stride",
+      "description": "Once on each of its turns, the dryad can use 10 feet of its movement to step magically into one living tree within 5 feet of it and emerge from a second living tree within 60 feet of the first tree, appearing in an unoccupied space within 5 feet of the second tree. Both trees must be Large or bigger."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 14,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Druidcraft",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Entangle",
+              "level": 1
+            },
+            {
+              "name": "Goodberry",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Pass without Trace",
+              "level": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The dryad makes two Vine Whip attacks.",
+    "attacks": [
+      {
+        "actionName": "Vine Whip",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Vine Whip",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 8 (1d8 + 4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Fey Charm",
+      "description": "One Humanoid or Beast the dryad can see within 30 feet must succeed on a DC 14 Wisdom saving throw or have the Charmed condition for 24 hours. The charmed creature regards the dryad as a trusted friend. The target repeats the save whenever it takes damage, ending the effect on itself on a success. If the target's save succeeds or the effect ends for it, the target is immune to this dryad's Fey Charm for 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 14,
+        "targets": "one Humanoid or Beast the dryad can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "24 hours",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 14,
+                "targets": "the charmed target whenever it takes damage",
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ],
+          "effects": "The charmed creature regards the dryad as a trusted friend."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Charmed",
+          "duration": "24 hours"
+        }
+      ]
+    }
+  ],
+  "bonusActions": null,
+  "reactions": null,
+  "legendaryActions": null,
+  "lair": null
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Lolth's Sting",
+  "cost": "200 GP",
+  "type": "Injury",
+  "dc": 13,
+  "damage": "1d6 Poison",
+  "effect": "Poisoned for 1 hour",
+  "description": "A creature subjected to this poison must succeed on a DC 13 Constitution saving throw or take 3 (1d6) Poison damage and have the Poisoned condition for 1 hour.",
+  "slug": "lolths-sting",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

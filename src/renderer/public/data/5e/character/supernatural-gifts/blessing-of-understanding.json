@@ -1,0 +1,11 @@
+{
+  "name": "Blessing of Understanding",
+  "type": "Blessing",
+  "description": "Your Wisdom score increases by 2, to a maximum of 22.",
+  "slug": "blessing-of-understanding",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

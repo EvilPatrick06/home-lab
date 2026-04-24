@@ -1,0 +1,13 @@
+{
+  "name": "Giant",
+  "script": "Dwarvish",
+  "origin": "Giants",
+  "speakers": "Giants, goliaths, ogres",
+  "slug": "giant",
+  "category": "Standard",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

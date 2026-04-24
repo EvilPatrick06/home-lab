@@ -1,0 +1,232 @@
+{
+  "name": "Yochlol",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon", "Shapechanger"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Any"],
+  "lore": "Yochlols are the Handmaidens of Lolth, the demon queen of spiders. They serve as her spies, emissaries, and enforcers among the drow. A yochlol can take the form of a female drow or a giant spider, and it can dissolve into a toxic gaseous cloud. Utterly devoted to Lolth, they carry out her will in the mortal world and punish those who displease the Spider Queen.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 136,
+    "dice": {
+      "count": 16,
+      "die": "d8",
+      "modifier": 64
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 6
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 8
+    },
+    {
+      "skill": "Insight",
+      "bonus": 6
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Elvish", "Undercommon"],
+    "telepathy": 60
+  },
+  "challengeRating": "10",
+  "experiencePoints": 5900,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Demonic Resilience",
+      "description": "The yochlol has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Spider Climb",
+      "description": "The yochlol can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+    },
+    {
+      "name": "Web Walker",
+      "description": "The yochlol ignores movement restrictions caused by webs."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 16,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Web",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dominate Person",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The yochlol makes two Slam attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Slam",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 15 (2d10 + 4) Bludgeoning damage plus 13 (3d8) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The yochlol casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 16):\nAt will: Detect Thoughts, Web\n1/day each: Dominate Person"
+    },
+    {
+      "name": "Mist Form",
+      "description": "The yochlol transforms into toxic mist or back into its true form. While in mist form, the yochlol can't take any actions, speak, or manipulate objects. It is weightless, has a Fly Speed of 30 feet (hover), and can enter a hostile creature's space and stop there. If air can pass through a space, the mist can do so without squeezing, and it can't pass through water. It has Advantage on Strength, Dexterity, and Constitution saving throws, and it is immune to all nonmagical damage. Each creature that starts its turn in the yochlol's space must succeed on a DC 16 Constitution saving throw or take 13 (3d8) Poison damage.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 16,
+        "targets": "each creature that starts its turn in the yochlol's space",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature takes no damage."
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The yochlol transforms into a Medium female Drow or a Medium Giant Spider, or back into its true form. Its game statistics are the same in each form, except where noted. Any equipment it is wearing or carrying isn't transformed. It reverts to its true form if it dies."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "lords-alliance",
+  "name": "Lords' Alliance",
+  "symbol": "A gold crown on a red field",
+  "beliefs": "The Lords' Alliance is a coalition of rulers from cities and towns who band together for mutual security. Members believe that civilized society must be preserved and that threats to any member threaten all. The Alliance is political, pragmatic, and focused on mutual defense.",
+  "goals": [
+    "Ensure the safety and prosperity of cities and other settlements",
+    "Maintain a strong coalition against threats to civilization",
+    "Proactively eliminate threats before they can reach civilized lands",
+    "Bring honor to one's homeland and the Alliance"
+  ],
+  "ranks": [
+    { "rank": 1, "title": "Cloak", "renownRequired": 1, "description": "Agent working on behalf of the Alliance." },
+    {
+      "rank": 2,
+      "title": "Redknife",
+      "renownRequired": 3,
+      "description": "Trusted operative who handles sensitive missions."
+    },
+    {
+      "rank": 3,
+      "title": "Stingblade",
+      "renownRequired": 10,
+      "description": "Elite agent with significant authority."
+    },
+    {
+      "rank": 4,
+      "title": "Warduke",
+      "renownRequired": 25,
+      "description": "Military commander with regional authority."
+    },
+    {
+      "rank": 5,
+      "title": "Lioncrown",
+      "renownRequired": 50,
+      "description": "Inner council member with influence over Alliance policy."
+    }
+  ],
+  "benefits": [
+    { "rank": 1, "benefit": "Lodging and food in any Alliance city." },
+    { "rank": 2, "benefit": "Access to Alliance intelligence about regional threats." },
+    { "rank": 3, "benefit": "A letter of recommendation granting audience with local rulers." },
+    { "rank": 4, "benefit": "Can requisition a company of 20 soldiers for a military operation." },
+    {
+      "rank": 5,
+      "benefit": "Political influence: can propose alliance-wide policy and request aid from member cities."
+    }
+  ],
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Factions"
+  }
+}

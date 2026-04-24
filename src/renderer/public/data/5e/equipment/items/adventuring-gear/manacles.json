@@ -1,0 +1,13 @@
+{
+  "name": "Manacles",
+  "cost": "2 GP",
+  "weight": "6 lb.",
+  "description": "As Utilize action, bind Small/Medium Grappled/Incapacitated/Restrained creature (DC 13 Sleight of Hand). Escape: DC 20, Burst: DC 25. Comes with key.",
+  "slug": "manacles",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

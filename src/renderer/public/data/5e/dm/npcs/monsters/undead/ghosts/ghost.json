@@ -1,0 +1,213 @@
+{
+  "name": "Ghost",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Neutral",
+  "habitat": ["Ruins", "Urban"],
+  "treasure": ["None"],
+  "lore": "Ghosts are the restless spirits of those who died with unfinished business binding them to the Material Plane. Despair, rage, or a desperate need for justice can keep a soul from passing on, causing it to manifest as a spectral echo of its former self. A ghost typically haunts the location of its death or a place of great personal significance, endlessly replaying moments of its life or lashing out at the living. Some ghosts can be laid to rest by fulfilling their unresolved purpose, while others are so consumed by anguish that no amount of aid can free them.",
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 45,
+    "dice": {
+      "count": 10,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 40,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "resistances": ["Acid, Fire, Lightning, and Thunder", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Cold, Necrotic, and Poison"],
+  "conditionImmunities": [
+    "Charmed",
+    "Exhaustion",
+    "Frightened",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Restrained"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "notes": "The languages it knew in life"
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Ethereal Sight",
+      "description": "The ghost can see 60 feet into the Ethereal Plane when it is on the Material Plane and vice versa."
+    },
+    {
+      "name": "Incorporeal Movement",
+      "description": "The ghost can move through other creatures and objects as if they were Difficult Terrain. It takes 5 (1d10) Force damage if it ends its turn inside an object."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Withering Touch",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 17 (4d6 + 3) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Etherealness",
+      "description": "The ghost enters the Ethereal Plane from the Material Plane, or vice versa. It is visible on the Material Plane while it is in the Border Ethereal, and vice versa, yet it can't affect or be affected by anything on the other plane."
+    },
+    {
+      "name": "Horrifying Visage",
+      "description": "Each non-Undead creature within 60 feet of the ghost that can see it must succeed on a DC 13 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to this ghost's Horrifying Visage for the next 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 13,
+        "targets": "each non-Undead creature within 60 feet that can see the ghost",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 13,
+                "targets": "the Frightened creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature is immune to this ghost's Horrifying Visage for the next 24 hours."
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 60,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "WIS",
+            "dc": 13,
+            "targets": "the Frightened creature at the end of each of its turns",
+            "onSuccess": {
+              "effects": "The effect ends on the creature."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Possession",
+      "description": "One Humanoid that the ghost can see within 5 feet of it must succeed on a DC 13 Charisma saving throw or be possessed by the ghost; the ghost then disappears, and the target has the Incapacitated condition and loses control of its body. The ghost now controls the body but doesn't deprive the target of awareness. The ghost can't be targeted by any attack, spell, or other effect, except ones that turn Undead, and it retains its alignment, Intelligence, Wisdom, Charisma, and immunity to the Charmed and Frightened conditions. It otherwise uses the possessed target's statistics but doesn't gain access to the target's knowledge, class features, or proficiencies. The possession lasts until the body drops to 0 Hit Points, the ghost ends it as a Bonus Action, or the ghost is turned or forced out by an effect like the Dispel Evil and Good spell. When the possession ends, the ghost reappears in an unoccupied space within 5 feet of the body. The target is immune to this ghost's Possession for 24 hours after succeeding on the saving throw or after the possession ends.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CHA",
+        "dc": 13,
+        "targets": "one Humanoid the ghost can see within 5 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Incapacitated",
+              "duration": "until the body drops to 0 Hit Points, the ghost ends it as a Bonus Action, or the ghost is turned or forced out by an effect like Dispel Evil and Good"
+            }
+          ],
+          "effects": "The target is possessed by the ghost. The ghost disappears and controls the target's body but doesn't deprive the target of awareness. The ghost retains its alignment, Intelligence, Wisdom, Charisma, and immunity to the Charmed and Frightened conditions. It otherwise uses the possessed target's statistics but doesn't gain access to the target's knowledge, class features, or proficiencies."
+        },
+        "onSuccess": {
+          "effects": "The target is immune to this ghost's Possession for 24 hours."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Incapacitated",
+          "duration": "until the body drops to 0 Hit Points, the ghost ends it as a Bonus Action, or the ghost is turned or forced out"
+        }
+      ]
+    }
+  ]
+}

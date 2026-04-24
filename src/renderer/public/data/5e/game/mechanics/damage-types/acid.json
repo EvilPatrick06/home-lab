@@ -1,0 +1,13 @@
+{
+  "id": "acid",
+  "name": "Acid",
+  "description": "Corrosive spray and dissolving enzymes deal Acid damage. Acid eats through materials and flesh alike, causing chemical burns.",
+  "commonSources": [
+    "Black Dragon breath weapon",
+    "Acid Splash cantrip",
+    "Vitriolic Sphere spell",
+    "Gray Ooze",
+    "Troll stomach acid"
+  ],
+  "resistanceNotes": "Creatures with Acid resistance take half damage from Acid sources. Some oozes and black dragons are immune to Acid."
+}

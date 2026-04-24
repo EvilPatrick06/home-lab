@@ -1,0 +1,59 @@
+{
+  "id": "tavern",
+  "name": "Tavern & Inn",
+  "type": "food-lodging",
+  "defaultMarkup": 1.0,
+  "inventoryCategories": [
+    {
+      "category": "Meals",
+      "items": [
+        { "name": "Bread Loaf", "cost": "2 cp" },
+        { "name": "Cheese Wedge", "cost": "1 sp" },
+        { "name": "Meal, Squalid", "cost": "3 cp", "description": "Thin gruel or stale bread" },
+        { "name": "Meal, Poor", "cost": "6 cp", "description": "Bread, turnips, and onions" },
+        { "name": "Meal, Modest", "cost": "3 sp", "description": "Meat stew with bread" },
+        { "name": "Meal, Comfortable", "cost": "5 sp", "description": "Roast meat, vegetables, bread, and cheese" },
+        { "name": "Meal, Wealthy", "cost": "8 sp", "description": "Multiple courses with fine ingredients" },
+        { "name": "Meal, Aristocratic", "cost": "2 gp", "description": "A lavish feast of exotic delicacies" },
+        { "name": "Rations (1 day)", "cost": "5 sp", "description": "Dried foods for travel" }
+      ]
+    },
+    {
+      "category": "Drinks",
+      "items": [
+        { "name": "Ale (mug)", "cost": "4 cp" },
+        { "name": "Ale (gallon)", "cost": "2 sp" },
+        { "name": "Wine, Common (pitcher)", "cost": "2 sp" },
+        { "name": "Wine, Fine (bottle)", "cost": "10 gp" },
+        { "name": "Mead (mug)", "cost": "5 cp" },
+        { "name": "Spirits (glass)", "cost": "5 sp" }
+      ]
+    },
+    {
+      "category": "Lodging (per night)",
+      "items": [
+        { "name": "Squalid Lodging", "cost": "7 cp", "description": "A spot on the common-room floor near the hearth" },
+        { "name": "Poor Lodging", "cost": "1 sp", "description": "A cot in a shared room" },
+        { "name": "Modest Lodging", "cost": "5 sp", "description": "A small private room with a bed" },
+        { "name": "Comfortable Lodging", "cost": "8 sp", "description": "A private room with a lock and clean linens" },
+        { "name": "Wealthy Lodging", "cost": "2 gp", "description": "A spacious suite with fine furnishings" },
+        {
+          "name": "Aristocratic Lodging",
+          "cost": "4 gp",
+          "description": "The finest suite with personal attendant service"
+        }
+      ]
+    },
+    {
+      "category": "Services",
+      "items": [
+        { "name": "Stabling (per day)", "cost": "5 sp", "description": "Feed and shelter for one mount" },
+        { "name": "Hot Bath", "cost": "5 cp" },
+        { "name": "Messenger (per mile)", "cost": "2 cp" },
+        { "name": "Laundry", "cost": "1 cp" }
+      ]
+    }
+  ],
+  "restockInterval": "daily",
+  "flavor": "Warm light spills from the windows. Inside, a crackling hearth and the smell of roasting meat welcome weary travelers. The barkeep polishes a mug and nods in greeting."
+}

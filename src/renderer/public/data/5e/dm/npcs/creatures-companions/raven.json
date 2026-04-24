@@ -1,0 +1,40 @@
+{
+  "name": "Raven",
+  "slug": "raven",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 12,
+  "hp": 1,
+  "hpFormula": "1d4 - 1",
+  "speed": "10 ft., Fly 50 ft.",
+  "abilityScores": {
+    "str": 2,
+    "dex": 14,
+    "con": 8,
+    "int": 2,
+    "wis": 12,
+    "cha": 6
+  },
+  "skills": "Perception +3",
+  "senses": "Passive Perception 13",
+  "languages": "—",
+  "cr": "0",
+  "xp": "10 XP",
+  "traits": [
+    {
+      "name": "Mimicry",
+      "description": "Can mimic simple sounds it has heard, such as a whisper, a baby crying, or an animal chittering. A creature that hears the sounds can tell they are imitations with a successful DC 10 Wisdom (Insight) check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Beak",
+      "description": "*Melee:* +4, reach 5 ft. *Hit:* 1 Piercing."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

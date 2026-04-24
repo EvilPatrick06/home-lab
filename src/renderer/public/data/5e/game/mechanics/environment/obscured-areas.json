@@ -1,0 +1,1121 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. Obscured Areas rules govern vision and perception across all planes, determining when creatures have Disadvantage on Perception checks (Lightly Obscured) or the Blinded condition (Heavily Obscured). Light levels of Bright Light, Dim Light, and Darkness map directly to obscurement categories and interact with special senses such as Darkvision, Blindsight, Tremorsense, and Truesight.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree."
+      },
+      {
+        "name": "Astral Dominant",
+        "description": "Material realms suspended between astral realms above and elemental realms below."
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: Material Plane, Transitive Planes, single Elemental Plane, Overheaven, and Underworld."
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, exerting greater influence on the Material Plane the closer they draw."
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "The Material Plane and its echoes (Feywild, Shadowfell). Standard obscured areas rules apply based on ambient lighting.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and Astral Plane. Both feature inherent visibility limitations that create obscured conditions.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes and Para-elemental Planes. Several feature environmental obscurement from ash, smoke, thick water, or lack of light.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen planes corresponding to alignments. Some feature inherent darkness or obscurement such as Pandemonium and Hades.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "The Positive Plane is overwhelmingly bright (blinding radiance). The Negative Plane is a lightless void (Heavily Obscured everywhere).",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "material-plane",
+      "name": "Material Plane",
+      "alternateNames": ["Prime Material"],
+      "category": "Material Realm",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "philosophicalEssence": "The collision of philosophical and elemental forces in the jumbled existence of mortal life and matter.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Varies by world and location."
+        }
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Normal time flow serves as the baseline for all other planes."
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "lightly-obscured-area",
+          "name": "Lightly Obscured Area",
+          "description": "An area that is Lightly Obscured — such as an area with Dim Light, patchy fog, or moderate foliage — makes details harder to see. A creature has Disadvantage on Wisdom (Perception) checks that rely on sight when trying to see something in a Lightly Obscured area. Dim Light creates a Lightly Obscured area. An area of Dim Light is usually a boundary between Bright Light and surrounding Darkness. The soft light of twilight and dawn also counts as Dim Light. A full moon might bathe the land in Dim Light.",
+          "mechanicalEffect": "Disadvantage on Wisdom (Perception) checks to see something in the area. This applies to any creature relying on physical sight. Darkvision allows a creature to treat Darkness as Dim Light (Lightly Obscured instead of Heavily Obscured), meaning the creature still has Disadvantage on Perception checks relying on sight in that area. Blindsight, Tremorsense, and Truesight can bypass this penalty within their respective ranges.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": "Boundary between Bright Light and Darkness; twilight; dawn; full moon",
+            "visibilityRange": {
+              "standard": null,
+              "withDarkvision": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Dim light, patchy fog, moderate foliage"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Colors muted; shadows prevalent"
+          },
+          "affectsEmotions": false,
+          "duration": "As long as the obscuring condition persists (e.g., dim light, fog, foliage).",
+          "removalMethods": [
+            "Providing Bright Light to the area",
+            "Clearing the fog or foliage",
+            "Using Blindsight, Tremorsense, or Truesight to perceive within range"
+          ],
+          "sourceReference": "Chapter 1: Playing the Game — Vision and Light — Obscured Areas; Rules Glossary — Lightly Obscured"
+        },
+        {
+          "id": "heavily-obscured-area",
+          "name": "Heavily Obscured Area",
+          "description": "A Heavily Obscured area — such as an area with Darkness, heavy fog, or dense foliage — blocks vision entirely. It is opaque. A creature has the Blinded condition when trying to see something in a Heavily Obscured area. The Blinded condition means the creature can't see and automatically fails any ability check that requires sight. Attack rolls against the creature have Advantage, and the creature's attack rolls have Disadvantage. Darkness creates a Heavily Obscured area. Characters face Darkness outdoors at night (even most moonlit nights), within the confines of an unlit dungeon, or in an area of magical Darkness.",
+          "mechanicalEffect": "The creature has the Blinded condition when trying to see something there. Blinded: can't see; automatically fails any ability check that requires sight; attack rolls against the creature have Advantage; the creature's attack rolls have Disadvantage. A creature with Darkvision treats Darkness within its Darkvision range as Dim Light (Lightly Obscured), downgrading Heavily Obscured to Lightly Obscured for that creature. Blindsight allows a creature to see within its range without relying on physical sight, negating the Blinded condition from obscurement. Truesight pierces Darkness (including magical Darkness), negating Heavily Obscured within its range.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "withDarkvision": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Darkness, heavy fog, dense foliage"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "No color visible; total darkness or opaque obstruction"
+          },
+          "affectsEmotions": false,
+          "duration": "As long as the obscuring condition persists (e.g., darkness, heavy fog, dense foliage).",
+          "removalMethods": [
+            "Providing Bright Light or Dim Light to the area (downgrades to Lightly Obscured or removes obscurement)",
+            "Clearing heavy fog or dense foliage",
+            "Using Darkvision (downgrades Darkness to Lightly Obscured within range)",
+            "Using Blindsight (negates within range)",
+            "Using Truesight (pierces Darkness including magical Darkness within range)"
+          ],
+          "sourceReference": "Chapter 1: Playing the Game — Vision and Light — Obscured Areas; Rules Glossary — Heavily Obscured, Blinded condition"
+        },
+        {
+          "id": "bright-light",
+          "name": "Bright Light",
+          "description": "Bright Light lets most creatures see normally. Even gloomy days provide Bright Light, as do torches, lanterns, fires, and other sources of illumination within a specific radius. Bright Light does not create an obscured area.",
+          "mechanicalEffect": "No obscurement penalty. Creatures see normally. No Disadvantage on Wisdom (Perception) checks due to lighting. No Blinded condition imposed.",
+          "isOptional": false,
+          "lightModification": {
+            "baseLevel": "bright_light",
+            "naturalLightSource": "Sunlight, torches, lanterns, fires, gloomy daylight",
+            "visibilityRange": {
+              "standard": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {},
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            }
+          },
+          "affectsEmotions": false,
+          "duration": "As long as the light source persists.",
+          "removalMethods": [],
+          "sourceReference": "Chapter 1: Playing the Game — Vision and Light — Light"
+        },
+        {
+          "id": "invisible-creature-heavily-obscured",
+          "name": "Invisible Condition Creates Heavily Obscured",
+          "description": "An Invisible creature is impossible to see without the aid of magic or a special sense. The creature is Heavily Obscured. The creature's location can be detected by any noise it makes or any tracks it leaves. Attack rolls against the creature have Disadvantage, and the creature's attack rolls have Advantage.",
+          "mechanicalEffect": "The Invisible creature is treated as Heavily Obscured. Other creatures attempting to see the Invisible creature have the Blinded condition with respect to that creature. Attack rolls against the Invisible creature have Disadvantage. The Invisible creature's attack rolls have Advantage. Blindsight can see an Invisible creature within its range. Truesight can see Invisible creatures within its range.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "For the duration of the Invisible condition.",
+          "removalMethods": [
+            "Ending the Invisible condition",
+            "Blindsight (perceives Invisible creatures within range)",
+            "Truesight (perceives Invisible creatures within range)",
+            "Tremorsense (pinpoints location if both in contact with same surface/liquid)"
+          ],
+          "sourceReference": "Rules Glossary — Invisible condition; Blindsight; Truesight"
+        },
+        {
+          "id": "darkvision-obscurement-interaction",
+          "name": "Darkvision Interaction with Obscured Areas",
+          "description": "If you have Darkvision, you can see in Dim Light within a specified range as if it were Bright Light and in Darkness within that range as if it were Dim Light. You discern colors in that Darkness only as shades of gray. This means Darkvision downgrades Darkness (Heavily Obscured) to Dim Light (Lightly Obscured) within range. The creature still suffers Disadvantage on Wisdom (Perception) checks relying on sight in that area, but does not gain the Blinded condition.",
+          "mechanicalEffect": "Within Darkvision range: Darkness (Heavily Obscured) becomes effectively Dim Light (Lightly Obscured). Dim Light (Lightly Obscured) becomes effectively Bright Light (no obscurement). Colors in Darkness perceived only as shades of gray. Outside Darkvision range, normal obscurement rules apply.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "Permanent innate sense.",
+          "removalMethods": [
+            "Some magical effects suppress Darkvision (e.g., magical Darkness from certain spells that explicitly state they suppress Darkvision)"
+          ],
+          "sourceReference": "Rules Glossary — Darkvision"
+        },
+        {
+          "id": "blindsight-obscurement-interaction",
+          "name": "Blindsight Interaction with Obscured Areas",
+          "description": "If you have Blindsight, you can see within a specific range without relying on physical sight. Within that range, you can see anything that isn't behind Total Cover, even if you have the Blinded condition or are in Darkness. Moreover, in that range you can see something that has the Invisible condition. Blindsight completely bypasses both Lightly Obscured and Heavily Obscured areas within its range.",
+          "mechanicalEffect": "Within Blindsight range: Lightly Obscured and Heavily Obscured conditions are irrelevant. No Disadvantage on Perception checks from obscurement. No Blinded condition from Heavily Obscured areas. Can perceive Invisible creatures. Blocked only by Total Cover.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "Permanent innate sense.",
+          "removalMethods": [],
+          "sourceReference": "Rules Glossary — Blindsight"
+        },
+        {
+          "id": "truesight-obscurement-interaction",
+          "name": "Truesight Interaction with Obscured Areas",
+          "description": "If you have Truesight, your vision is enhanced within a specified range. In that range, your vision pierces through Darkness (including magical Darkness), Illusions, invisibility, and transmutations. You also see into the Ethereal Plane within that range. Truesight completely negates Heavily Obscured conditions caused by Darkness or magical Darkness, and sees through Invisible creatures' Heavy Obscurement.",
+          "mechanicalEffect": "Within Truesight range: Darkness (including magical Darkness) does not create Heavily Obscured conditions. Invisible creatures are not Heavily Obscured. Illusions do not obscure. Pierces transmutation-based disguises. Can see into Ethereal Plane.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "Permanent innate sense or spell duration.",
+          "removalMethods": [],
+          "sourceReference": "Rules Glossary — Truesight"
+        },
+        {
+          "id": "unseen-attackers-and-targets",
+          "name": "Unseen Attackers and Targets",
+          "description": "When you make an attack roll against a target you can't see (such as a target in a Heavily Obscured area), you have Disadvantage on the roll. This is true whether you're guessing the target's location or targeting a creature you can hear but not see. If the target isn't in the location you targeted, you miss. When a creature can't see you (such as when you are in a Heavily Obscured area or Invisible), you have Advantage on attack rolls against it. If you are hidden when you make an attack roll, you give away your location when the attack hits or misses.",
+          "mechanicalEffect": "Attacking a target you can't see: Disadvantage on attack roll. If target is not at targeted location: automatic miss. When a creature can't see you: Advantage on your attack rolls against it. Hidden attacker's location revealed on hit or miss. These rules interact directly with Heavily Obscured areas and the Blinded condition they impose.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "Applies whenever obscurement prevents sight between attacker and target.",
+          "removalMethods": [
+            "Removing the obscurement",
+            "Using special senses (Blindsight, Truesight, Tremorsense) to perceive the target"
+          ],
+          "sourceReference": "Chapter 1: Playing the Game — Combat — Unseen Attackers and Targets"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Humanoid", "Beast", "Dragon", "Monstrosity", "Undead"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "obscured-areas-core-rule",
+          "name": "Obscured Areas",
+          "description": "An area might be Lightly or Heavily Obscured. These are the two degrees of obscurement in the game. The degree of obscurement is determined by lighting conditions (Bright Light, Dim Light, Darkness) and environmental factors (fog, foliage, smoke, ash, magical effects). Bright Light creates no obscurement. Dim Light creates a Lightly Obscured area. Darkness creates a Heavily Obscured area. Other factors such as fog density and foliage density independently create Lightly or Heavily Obscured areas regardless of light level.",
+          "mechanicalEffect": "Lightly Obscured: Disadvantage on Wisdom (Perception) checks that rely on sight to perceive things in the area. Heavily Obscured: The Blinded condition applies when trying to see something in the area. Blinded: can't see; automatically fails ability checks requiring sight; attack rolls against the creature have Advantage; the creature's attack rolls have Disadvantage. These rules are foundational environment rules that apply across all planes of existence.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "light-obscurement-mapping",
+          "name": "Light Level to Obscurement Mapping",
+          "description": "The three categories of illumination map directly to obscurement levels. Bright Light: no obscurement; most creatures see normally. Dim Light (also called shadows): creates a Lightly Obscured area; usually a boundary between Bright Light and surrounding Darkness; includes twilight, dawn, and full moonlight. Darkness: creates a Heavily Obscured area; found outdoors at night (even most moonlit nights), in unlit dungeons, and in areas of magical Darkness.",
+          "mechanicalEffect": "Bright Light = No obscurement penalty. Dim Light = Lightly Obscured (Disadvantage on sight-based Perception checks). Darkness = Heavily Obscured (Blinded condition when trying to see). Magical Darkness may explicitly resist being countered by nonmagical light or Darkvision, depending on the spell description.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "passive-perception-obscurement",
+          "name": "Passive Perception and Obscured Areas",
+          "description": "Passive Perception equals 10 + the creature's Wisdom (Perception) modifier. Advantage adds 5; Disadvantage subtracts 5. In a Lightly Obscured area, creatures relying on sight effectively have Disadvantage on Perception checks, reducing Passive Perception by 5 for sight-based detection. In a Heavily Obscured area, sight-based Perception checks automatically fail, so Passive Perception cannot detect things that require sight.",
+          "mechanicalEffect": "Lightly Obscured: Passive Perception for sight-based detection is reduced by 5 (Disadvantage applies a -5 penalty to Passive Perception). Heavily Obscured: Passive Perception cannot detect anything requiring sight (Blinded condition means automatic failure on ability checks requiring sight).",
+          "affectsSpellcasting": false
+        }
+      ],
+      "adventureThemes": [
+        "Vision and environmental awareness",
+        "Stealth and ambush tactics in obscured conditions",
+        "Managing light sources in dangerous environments"
+      ],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 1: Playing the Game — Vision and Light; Rules Glossary",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game — Vision and Light — Obscured Areas defines Lightly Obscured and Heavily Obscured areas and their connection to Dim Light and Darkness."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Rules Glossary — Lightly Obscured, Heavily Obscured, Blinded condition, Darkvision, Blindsight, Truesight, Tremorsense, Invisible condition, Passive Perception."
+        }
+      ]
+    },
+    {
+      "id": "ethereal-plane",
+      "name": "Ethereal Plane",
+      "alternateNames": [],
+      "category": "Transitive Plane",
+      "subcategory": "Ethereal",
+      "alignments": [],
+      "philosophicalEssence": "A misty, fog-bound dimension whose shores overlap the Material Plane and Inner Planes.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Fog and mist pervade the plane, creating inherent obscurement.",
+        "hasSurface": false,
+        "temperature": {
+          "category": "variable",
+          "description": "Variable, matching the overlapped plane somewhat."
+        }
+      },
+      "layers": [
+        {
+          "name": "Border Ethereal",
+          "alternateNames": [],
+          "description": "The Border Ethereal overlaps the Material Plane, the Feywild, the Shadowfell, and the Inner Planes. Visibility is usually limited to 60 feet. From the Border Ethereal, a traveler can see into the overlapped plane, but that plane appears grayish and indistinct, its colors blurring into each other and edges turning fuzzy, limiting visibility to 30 feet into the other plane.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Ethereal Fog Obscurement",
+              "description": "Mist and fog pervade the Border Ethereal, limiting visibility to 60 feet. Looking into the overlapped plane from the Border Ethereal limits visibility to 30 feet, and the overlapped plane appears grayish and indistinct with blurring colors and fuzzy edges.",
+              "lightModification": {
+                "baseLevel": "dim_light",
+                "naturalLightSource": null,
+                "visibilityRange": {
+                  "standard": 60,
+                  "inBorderRegion": 30,
+                  "minimumVisibility": 0,
+                  "unit": "feet"
+                },
+                "magicalProperties": {
+                  "obscuresVision": true,
+                  "obscuringMedium": "Ethereal mist and fog"
+                },
+                "dayNightCycle": {
+                  "exists": false,
+                  "transitionType": "none"
+                },
+                "colorDescription": "Grayish; colors of overlapped plane blur into each other"
+              }
+            }
+          ],
+          "lightLevel": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 60,
+              "inBorderRegion": 30,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Ethereal mist and fog"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Grayish and indistinct"
+          },
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Deep Ethereal",
+          "alternateNames": [],
+          "description": "The Deep Ethereal engulfs visitors in roiling mist. Visibility is usually limited to 30 feet. Scattered throughout are curtains of vaporous color leading to the Border Ethereal of specific planes.",
+          "notableLocations": [
+            {
+              "name": "Radiant Citadel",
+              "description": "A floating city carved from a single massive fossil around a colossal gemstone called the Auroral Diamond. In the haze of the Ethereal Plane, the Auroral Diamond is a scintillating beacon visible from miles away."
+            }
+          ],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Deep Ethereal Fog Obscurement",
+              "description": "Roiling mist engulfs visitors, limiting visibility to 30 feet. This creates a Lightly Obscured area at minimum, with distant objects beyond 30 feet being Heavily Obscured.",
+              "lightModification": {
+                "baseLevel": "dim_light",
+                "naturalLightSource": null,
+                "visibilityRange": {
+                  "standard": 30,
+                  "minimumVisibility": 0,
+                  "unit": "feet"
+                },
+                "magicalProperties": {
+                  "obscuresVision": true,
+                  "obscuringMedium": "Roiling ethereal mist"
+                },
+                "dayNightCycle": {
+                  "exists": false,
+                  "transitionType": "none"
+                },
+                "colorDescription": "Misty, fog-bound; curtains of vaporous color scattered throughout"
+              }
+            }
+          ],
+          "lightLevel": {
+            "baseLevel": "dim_light",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 30,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Roiling ethereal mist"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Misty and fog-bound"
+          },
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 2,
+      "timeFlow": {
+        "type": "distorted",
+        "ratioToMaterialPlane": "variable",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Distance is meaningless in the Deep Ethereal. A trip takes 1d10 × 10 hours regardless of origin and destination."
+      },
+      "hazards": [
+        {
+          "id": "ether-cyclone",
+          "name": "Ether Cyclone",
+          "description": "A serpentine column spinning through the plane. Appears abruptly, distorting and uprooting everything in its path. Travelers with Passive Perception 15+ receive 1 minute warning via a deep thrum in ethereal matter.",
+          "category": "weather",
+          "severity": "major",
+          "detectionMethod": {
+            "passivePerceptionDC": 15,
+            "warningTimeMinutes": 1,
+            "warningDescription": "A deep thrum in the ethereal matter."
+          },
+          "locationTableRoll": {
+            "die": 20,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 12,
+                "effect": "Extended journey",
+                "description": "Each character makes DC 15 Charisma saving throw. If at least half succeed, travel delayed 1d10 hours. Otherwise journey travel time doubled."
+              },
+              {
+                "rangeLow": 13,
+                "rangeHigh": 19,
+                "effect": "Blown to random location",
+                "description": "Blown to a random location in the Border Ethereal overlapping a random plane (roll on Ethereal Curtains table)."
+              },
+              {
+                "rangeLow": 20,
+                "rangeHigh": 20,
+                "effect": "Hurled to Astral",
+                "description": "Hurled to a random destination on the Astral Plane."
+              }
+            ]
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Ethereal Plane — Ether Cyclones"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "uncommon",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [],
+      "etherealCurtainColor": "Turquoise"
+    },
+    {
+      "id": "pandemonium",
+      "name": "Pandemonium",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Chaotic Evil", "Chaotic Neutral"],
+      "philosophicalEssence": "Overwhelming chaos; a great mass of rock riddled with tunnels carved by howling winds.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Cold, noisy, and dark with no natural light. Wind quickly extinguishes nonmagical open flames such as torches and campfires.",
+        "hasSurface": true,
+        "temperature": {
+          "category": "cold",
+          "description": "Cold environment with howling winds."
+        }
+      },
+      "layers": [
+        {
+          "name": "Pandesmos",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "Howling winds, dark streams bound for the River Styx, and blowing snow pour through vast, desolate caverns.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Cocytus",
+          "alternateNames": ["Layer of Lamentation"],
+          "layerNumber": 2,
+          "description": "Winds blowing through narrower tunnels create a stronger force and louder wails, making this the so-called Layer of Lamentation.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Phlegethon",
+          "alternateNames": [],
+          "layerNumber": 3,
+          "description": "Tunnel walls absorb light while water creates intricate rock formations. The light-absorbing walls create enhanced darkness beyond normal.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Light-Absorbing Walls",
+              "description": "Tunnel walls in Phlegethon absorb light, creating enhanced darkness. This makes the layer even more Heavily Obscured than normal Darkness, as light sources are less effective.",
+              "lightModification": {
+                "baseLevel": "magical_darkness",
+                "naturalLightSource": null,
+                "visibilityRange": {
+                  "standard": 0,
+                  "minimumVisibility": 0,
+                  "unit": "feet"
+                },
+                "magicalProperties": {
+                  "absorbsLight": true,
+                  "obscuresVision": true,
+                  "obscuringMedium": "Light-absorbing tunnel walls"
+                },
+                "dayNightCycle": {
+                  "exists": false,
+                  "transitionType": "none"
+                },
+                "colorDescription": "Absolute darkness; walls absorb all light"
+              }
+            }
+          ],
+          "lightLevel": {
+            "baseLevel": "magical_darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "absorbsLight": true,
+              "obscuresVision": true,
+              "obscuringMedium": "Light-absorbing tunnel walls"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Total darkness from light-absorbing walls"
+          },
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Agathion",
+          "alternateNames": [],
+          "layerNumber": 4,
+          "description": "Sealed-off tunnels are largely inaccessible from elsewhere, making them ideal as vaults for ancient secrets.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 4,
+      "timeFlow": {
+        "type": "normal",
+        "agingOccurs": true,
+        "hungerThirstApplies": true
+      },
+      "hazards": [
+        {
+          "id": "pandemonium-darkness",
+          "name": "No Natural Light",
+          "description": "Pandemonium is cold, noisy, and dark, with no natural light. The entire plane is a Heavily Obscured area by default due to Darkness. Wind quickly extinguishes nonmagical open flames such as torches and campfires, making it extremely difficult to create Bright or Dim Light through nonmagical means.",
+          "category": "environmental",
+          "severity": "major",
+          "lightLevelModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "extinguishesNonmagicalFlames": true,
+              "obscuresVision": true,
+              "obscuringMedium": "Total darkness; no natural light; winds extinguish nonmagical flames"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Pitch black; no natural light source exists"
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": ["Darkvision", "Blindsight", "Truesight"],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Pandemonium"
+        },
+        {
+          "id": "pandemonium-wind-conversation",
+          "name": "Howling Winds Limit Communication",
+          "description": "The howling winds make conversation possible only by yelling, and even then only to a maximum distance of 10 feet.",
+          "category": "sonic",
+          "severity": "moderate",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Pandemonium"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "adventureThemes": [
+        "Darkness and obscurement as constant hazard",
+        "Frustration and despair in the howling dark",
+        "Navigating without natural light"
+      ],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [],
+      "colorPoolColor": "Magenta"
+    },
+    {
+      "id": "negative-plane",
+      "name": "Negative Plane",
+      "alternateNames": [],
+      "category": "Positive Negative Plane",
+      "subcategory": "Negative",
+      "alignments": [],
+      "philosophicalEssence": "The source of necrotic energy that destroys the living and animates the Undead. A lightless void without end.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": false,
+        "atmosphereNotes": "A lightless void. Merely entering is comparable to the life-draining touch of a wraith. Only creatures with Immunity to Necrotic damage can survive long.",
+        "hasSurface": false,
+        "temperature": {
+          "category": "variable",
+          "description": "Cold and void-like."
+        }
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "agingOccurs": true,
+        "hungerThirstApplies": true
+      },
+      "hazards": [
+        {
+          "id": "negative-plane-total-darkness",
+          "name": "Lightless Void",
+          "description": "The Negative Plane is a lightless void without end. To an observer there is little to see — it is a dark, empty place. The entire plane is Heavily Obscured due to total Darkness. There is no natural light of any kind. This creates permanent Blinded conditions for creatures relying on physical sight.",
+          "category": "environmental",
+          "severity": "lethal",
+          "lightLevelModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 0,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Absolute lightless void"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Absolute blackness; no light exists"
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": ["Necrotic"],
+          "immuneTraits": ["Darkvision", "Blindsight", "Truesight"],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Negative Plane"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "extremely_rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Undead"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "para-elemental-plane-of-ash",
+      "name": "Para-elemental Plane of Ash",
+      "alternateNames": ["Great Conflagration"],
+      "category": "Para-elemental Plane",
+      "subcategory": "Para-elemental Ash",
+      "alignments": [],
+      "philosophicalEssence": "Where howling winds from the Plane of Air mix with the cinder storms and lava of the Sea of Fire.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": false,
+        "atmosphereNotes": "An endless storm of flames, smoke, and ash. The thick ash obscures sight beyond a few dozen feet.",
+        "hasSurface": false,
+        "temperature": {
+          "category": "hot",
+          "description": "Flames, smoke, and ash fill the environment."
+        }
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "agingOccurs": true,
+        "hungerThirstApplies": true
+      },
+      "hazards": [
+        {
+          "id": "ash-plane-obscurement",
+          "name": "Thick Ash Obscurement",
+          "description": "The thick ash obscures sight beyond a few dozen feet, and the battering winds make travel difficult. This creates a Lightly Obscured area within a few dozen feet and a Heavily Obscured area beyond that range. The endless storm of flames, smoke, and ash is a constant environmental hazard.",
+          "category": "environmental",
+          "severity": "major",
+          "lightLevelModification": {
+            "baseLevel": "variable",
+            "naturalLightSource": "Flames and lava provide flickering illumination that is quickly choked by ash",
+            "visibilityRange": {
+              "standard": 30,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Thick volcanic ash, smoke, and cinder storms"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Reddish-orange glow choked by gray-black ash"
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Para-elemental Planes — Plane of Ash"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    },
+    {
+      "id": "elemental-plane-of-fire",
+      "name": "Elemental Plane of Fire",
+      "alternateNames": [],
+      "category": "Inner Plane",
+      "subcategory": "Elemental Fire",
+      "alignments": [],
+      "philosophicalEssence": "Vibrancy, passion, and change. Energy, passion, transformation, and destruction.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "The air is breathable but creatures not native to the plane must cover their mouths and eyes to avoid stinging cinders. The weather is marked by fierce winds and thick ash.",
+        "hasSurface": true,
+        "dominantElement": "Fire",
+        "weatherPatterns": "Fierce winds, thick ash, cinder storms. Efreet use magic to keep cinder storms from the City of Brass. Elsewhere wind always blows, sometimes rising to hurricane force.",
+        "temperature": {
+          "category": "hot",
+          "description": "Comparable to a hot desert on the Material Plane. A blazing sun waxes from white hot at noon to deep red at midnight."
+        }
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "24-hour cycle based on sun intensity: white hot at noon, deep red at midnight."
+      },
+      "hazards": [
+        {
+          "id": "fire-plane-ash-obscurement",
+          "name": "Thick Ash and Cinder Storms",
+          "description": "The weather on the Plane of Fire is marked by fierce winds and thick ash. Creatures not native to the plane must cover their mouths and eyes to avoid stinging cinders. The thick ash creates Lightly to Heavily Obscured conditions depending on storm intensity. At noon, the light is intense (Bright Light), but during the darkest hours, the plane displays a deep-red twilight (Dim Light, Lightly Obscured). Ash and smoke can create additional obscurement layers on top of the ambient light level.",
+          "category": "weather",
+          "severity": "moderate",
+          "lightLevelModification": {
+            "baseLevel": "variable",
+            "naturalLightSource": "A blazing sun with a 24-hour cycle from white hot at noon to deep red at midnight",
+            "visibilityRange": {
+              "standard": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Thick volcanic ash, cinder storms, and smoke"
+            },
+            "dayNightCycle": {
+              "exists": true,
+              "periodHours": 24,
+              "lightPhaseDuration": 12,
+              "darkPhaseDuration": 12,
+              "transitionType": "gradual",
+              "description": "Sun ranges from white hot at noon to deep red at midnight. At noon light is intense. Darkest hours display deep-red twilight.",
+              "peakIntensity": "White hot at noon",
+              "minimumIntensity": "Deep red at midnight (deep-red twilight)"
+            },
+            "colorDescription": "Golden sky; ranges from blinding white at noon to deep red twilight at midnight"
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": ["Elemental"],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Elemental Plane of Fire"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "uncommon",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental"],
+        "notableEntities": [
+          {
+            "name": "Torchy",
+            "title": "Sentient Flame Tongue Mace and tavern proprietor",
+            "creatureType": "Construct",
+            "description": "A sentient Flame Tongue (Mace) that owns a tavern built atop a tall basalt crag in the middle of a lava river."
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "City of Brass",
+            "race": "Efreeti",
+            "description": "The fabled city of the efreet on the shores of the Sea of Fire. Ornate spires and spiked walls reflect the efreet's grandiose and cruel nature.",
+            "location": "Shores of the Sea of Fire"
+          }
+        ]
+      },
+      "specialRules": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [],
+      "colorPoolColor": "Ruby"
+    },
+    {
+      "id": "elemental-plane-of-air",
+      "name": "Elemental Plane of Air",
+      "alternateNames": [],
+      "category": "Inner Plane",
+      "subcategory": "Elemental Air",
+      "alignments": [],
+      "philosophicalEssence": "Movement, animation, and inspiration. The breath of life, the winds of change.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Constant winds of varying strength. Drifting clouds can obscure visibility in any direction.",
+        "hasSurface": false,
+        "dominantElement": "Air",
+        "weatherPatterns": "Storms are frequent from strong thunderstorms to fierce tornadoes and mighty hurricanes. Rain and snow fall only near Para-elemental Plane of Ice.",
+        "temperature": {
+          "category": "temperate",
+          "description": "Mild except near Para-elemental Planes at either end where temperature is more extreme."
+        }
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "agingOccurs": true,
+        "hungerThirstApplies": true
+      },
+      "hazards": [
+        {
+          "id": "air-plane-cloud-obscurement",
+          "name": "Drifting Cloud Obscurement",
+          "description": "Drifting clouds can obscure visibility in any direction in the plane. These clouds create Lightly or Heavily Obscured areas depending on their density, functioning like patchy fog (Lightly Obscured) or heavy fog (Heavily Obscured).",
+          "category": "weather",
+          "severity": "minor",
+          "lightLevelModification": {
+            "baseLevel": "variable",
+            "naturalLightSource": "No central sun described; ambient light varies",
+            "visibilityRange": {
+              "standard": null,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "Drifting clouds of varying density"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Clear to cloudy; varying visibility"
+          },
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Elemental Plane of Air"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "uncommon",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [],
+      "colorPoolColor": "Pale blue"
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 7,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

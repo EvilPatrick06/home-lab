@@ -1,0 +1,94 @@
+{
+  "name": "Axe Beak",
+  "sizes": ["Large"],
+  "creatureType": "Beast",
+  "alignment": "Unaligned",
+  "habitat": ["Grassland", "Hill"],
+  "treasure": ["None"],
+  "lore": "An axe beak is a large, aggressive flightless bird that stands about 6 feet tall and weighs around 500 pounds. These predatory birds have sharp, axe-shaped beaks that give them their name. They roam grasslands and hills in flocks, aggressively attacking anything that comes near. Axe beaks are sometimes captured and trained as mounts or used as guardians.",
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 19,
+    "dice": {
+      "count": 3,
+      "die": "d10",
+      "modifier": 3
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "passivePerception": 10
+  },
+  "languages": {},
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "actions": [
+    {
+      "name": "Beak",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 6 (1d8 + 2) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

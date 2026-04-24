@@ -1,0 +1,13 @@
+{
+  "name": "Lamp",
+  "cost": "5 SP",
+  "weight": "1 lb.",
+  "description": "Burns Oil. Bright Light in 15-foot radius and Dim Light for additional 30 feet.",
+  "slug": "lamp",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

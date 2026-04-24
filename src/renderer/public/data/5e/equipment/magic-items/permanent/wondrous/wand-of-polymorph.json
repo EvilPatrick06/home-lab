@@ -1,0 +1,21 @@
+{
+  "name": "Wand of Polymorph",
+  "itemType": "Wand",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": "by a Spellcaster",
+  "description": "This wand has 7 charges. While holding it, you can expend 1 charge to cast *Polymorph* (save DC 15) from it.",
+  "properties": [],
+  "weight": null,
+  "cost": null,
+  "charges": 7,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d6 + 1",
+  "spells": [
+    {
+      "name": "Polymorph",
+      "castingCost": 1
+    }
+  ],
+  "source": "DMG 2024"
+}

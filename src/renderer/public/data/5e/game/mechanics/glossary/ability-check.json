@@ -1,0 +1,11 @@
+{
+  "name": "Ability Check",
+  "slug": "ability-check",
+  "description": "An ability check is a D20 Test that represents using one of the six abilities — or a specific skill associated with an ability — to overcome a challenge. The DM calls for an ability check when a character or monster attempts an action (other than an attack) that has a chance of failure. The DM decides which ability is relevant to the attempt and the difficulty of the task, represented by a DC.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

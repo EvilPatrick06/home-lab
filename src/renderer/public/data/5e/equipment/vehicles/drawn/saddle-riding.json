@@ -1,0 +1,12 @@
+{
+  "name": "Saddle, Riding",
+  "cost": "10 GP",
+  "weight": "25 lb.",
+  "slug": "saddle-riding",
+  "category": "Drawn Vehicle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

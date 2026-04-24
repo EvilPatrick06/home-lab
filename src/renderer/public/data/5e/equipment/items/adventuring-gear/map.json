@@ -1,0 +1,13 @@
+{
+  "name": "Map",
+  "cost": "1 GP",
+  "weight": "—",
+  "description": "+5 bonus to Wisdom (Survival) checks to find your way in the place represented.",
+  "slug": "map",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

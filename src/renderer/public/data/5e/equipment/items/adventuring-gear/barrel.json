@@ -1,0 +1,13 @@
+{
+  "name": "Barrel",
+  "cost": "2 GP",
+  "weight": "70 lb.",
+  "description": "Holds up to 40 gallons of liquid or up to 4 cubic feet of dry goods.",
+  "slug": "barrel",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

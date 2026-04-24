@@ -1,0 +1,138 @@
+{
+  "name": "Grimlock",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": [],
+  "alignment": "Neutral Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "Grimlocks are blind cave-dwelling humanoids that navigate using acute hearing and smell. Their ancestors were captured by mind flayers long ago, and generations of living in the lightless Underdark caused them to lose their eyes entirely. Despite their blindness, grimlocks are dangerous hunters that rely on their remaining senses to track and ambush prey in the dark.",
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 11,
+    "dice": {
+      "count": 2,
+      "die": "d8",
+      "modifier": 2
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Athletics",
+      "bonus": 5
+    },
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "conditionImmunities": ["Blinded"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 30,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Undercommon"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Heightened Hearing and Smell",
+      "description": "The grimlock can't use its Blindsight while it has the Deafened condition or while unable to smell."
+    },
+    {
+      "name": "Stone Camouflage",
+      "description": "The grimlock has Advantage on Dexterity (Stealth) checks made to hide in rocky terrain."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Spiked Bone Club",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 5 (1d4 + 3) Bludgeoning damage plus 2 (1d4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

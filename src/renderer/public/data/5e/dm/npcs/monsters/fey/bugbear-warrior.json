@@ -1,0 +1,60 @@
+{
+  "name": "Bugbear Warrior",
+  "slug": "bugbear-warrior",
+  "size": "Medium",
+  "type": "Fey",
+  "alignment": "Chaotic Evil",
+  "ac": "14",
+  "initiative": "+2 (12)",
+  "hp": "33",
+  "hpFormula": "6d8 + 6",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 14,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": 2,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +6, Survival +2",
+  "gear": "Hide Armor, Light Hammers (3)",
+  "senses": "Darkvision 60 ft.; Passive Perception 10",
+  "languages": "Common, Goblin",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Abduct",
+      "description": "The bugbear needn't spend extra movement to move a creature it is grappling."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Grab",
+      "description": "*Melee Attack Roll:* +4, reach 10 ft. *Hit:* 9 (2d6 + 2) Bludgeoning damage. If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 12)."
+    },
+    {
+      "name": "Light Hammer",
+      "description": "*Melee or Ranged Attack Roll:* +4 (with Advantage if the target is Grappled by the bugbear), reach 10 ft. or range 20/60 ft. *Hit:* 9 (3d4 + 2) Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Lurking Goblinoid Brutes*\n**Habitat:** Forest, Grassland, Planar (Feywild), Underdark; **Treasure:** Armaments, Individual\nBugbears embody fear of the wilds and the menace of natural places. They're notoriously stealthy, and foes that venture into their territories often vanish without a trace.\nBugbear stalkers frequently take their victims hostage, relishing opportunities to imprison and terrorize other creatures.\nBugbear warriors serve those who offer them treasure, food, or the chance to hunt challenging prey.",
+  "habitat": "Forest, Grassland, Planar (Feywild), Underdark",
+  "treasure": "Armaments, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

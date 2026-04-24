@@ -1,0 +1,20 @@
+{
+  "name": "Wind Fan",
+  "cost": {
+    "amount": 200,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "While holding this fan, you can cast the Gust of Wind spell (save DC 13) from it as a Magic action. Once used, the fan shouldn't be used again until the next dawn. Each time it is used again before then, there is a cumulative 20 percent chance that the fan is destroyed after use.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": {
+    "ability": "Strength",
+    "dcFormula": "13"
+  },
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

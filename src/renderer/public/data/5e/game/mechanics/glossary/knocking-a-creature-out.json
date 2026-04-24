@@ -1,0 +1,11 @@
+{
+  "name": "Knocking a Creature Out",
+  "slug": "knocking-a-creature-out",
+  "description": "When an attacker reduces a creature to 0 HP with a melee attack, the attacker can knock the creature out, leaving it with the Unconscious condition instead of killing it.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

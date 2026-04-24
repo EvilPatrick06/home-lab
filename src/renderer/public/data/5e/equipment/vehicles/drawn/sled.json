@@ -1,0 +1,12 @@
+{
+  "name": "Sled",
+  "cost": "20 GP",
+  "weight": "300 lb.",
+  "slug": "sled",
+  "category": "Drawn Vehicle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

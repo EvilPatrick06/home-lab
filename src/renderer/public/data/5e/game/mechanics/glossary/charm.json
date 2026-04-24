@@ -1,0 +1,11 @@
+{
+  "name": "Charm",
+  "slug": "charm",
+  "description": "Some abilities and spells can Charm a creature. As defined in the Charmed condition, a Charmed creature can't attack or target its charmer with harmful abilities or magical effects, and the charmer has Advantage on ability checks to interact socially with the Charmed creature.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

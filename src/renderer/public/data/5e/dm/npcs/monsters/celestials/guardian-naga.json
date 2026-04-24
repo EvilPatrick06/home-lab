@@ -1,0 +1,68 @@
+{
+  "name": "Guardian Naga",
+  "slug": "guardian-naga",
+  "size": "Large",
+  "type": "Celestial",
+  "alignment": "Lawful Good",
+  "ac": "18",
+  "initiative": "+4 (14)",
+  "hp": "136",
+  "hpFormula": "16d10 + 48",
+  "speed": "40 ft., Climb 40 ft., Swim 40 ft.",
+  "abilityScores": {
+    "str": 19,
+    "dex": 18,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 8,
+    "con": 7,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Arcana +11, History +11, Religion +11",
+  "immunities": "Poison; Charmed, Paralyzed, Poisoned, Restrained",
+  "senses": "Darkvision 60 ft.; Passive Perception 14",
+  "languages": "Celestial, Common",
+  "cr": "10 (XP 5,900; PB +4)",
+  "traits": [
+    {
+      "name": "Celestial Restoration",
+      "description": "If the naga dies, it returns to life in 1d6 days and regains all its Hit Points unless *Dispel Evil and Good* is cast on its remains."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The naga makes two Bite attacks. It can replace any attack with a use of Poisonous Spittle."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +8, reach 10 ft. *Hit:* 17 (2d12 + 4) Piercing damage plus 22 (4d10) Poison damage."
+    },
+    {
+      "name": "Poisonous Spittle",
+      "description": "*Constitution Saving Throw:* DC 16, one creature the naga can see within 60 feet. *Failure:* 31 (7d8) Poison damage, and the target has the *Blinded* condition until the start of the naga's next turn. *Success:* Half damage only."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The naga casts one of the following spells, requiring no Somatic or Material components and using Wisdom as the spellcasting ability (spell save DC 16):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Enduring Serpentine Lore Keeper*\n**Habitat:** Desert, Forest, Planar (Upper Planes); **Treasure:** Relics\nGuardian nagas are immortal, serpentine scholars that possess perfect memories. They collect the histories and lore of those they live among, guarding cultures' stories and passing them on to new generations with infallible accuracy. Guardian nagas that outlive their host civilizations might linger in whatever ruins remain, preserving the civilizations' stories so their lost people might live on.\nRoll on or choose a result from the Guardian Naga Lore table to inspire what a naga knows.",
+  "habitat": "Desert, Forest, Planar (Upper Planes)",
+  "treasure": "Relics",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

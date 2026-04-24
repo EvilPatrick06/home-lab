@@ -1,0 +1,221 @@
+{
+  "name": "Yuan-ti Malison",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "descriptiveTags": ["Shapechanger", "Yuan-ti"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Desert", "Forest", "Ruins", "Swamp", "Underdark"],
+  "treasure": ["Any"],
+  "lore": "Yuan-ti malisons are yuan-ti that have been partially transformed into serpentine forms through profane rituals. They serve as agents and overseers in yuan-ti society, commanding lesser yuan-ti and enacting the will of the abominations and anathemas that rule their kind. Each malison blends humanoid cunning with serpentine malice, wielding dark sorcery and the ability to assume the shape of a snake to infiltrate and deceive.",
+  "armorClass": {
+    "value": 12,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 58,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 5
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 5
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "gear": [
+    {
+      "name": "Scimitar",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common", "Draconic"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The yuan-ti has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 13,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            },
+            {
+              "name": "Prestidigitation",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Suggestion",
+              "level": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The yuan-ti makes two Scimitar attacks or two Poison Bolt attacks.",
+    "attacks": [
+      {
+        "actionName": "Scimitar",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Scimitar",
+        "replaceCount": 2,
+        "with": "Poison Bolt"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Scimitar",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Slashing damage plus 7 (2d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Poison Bolt",
+      "description": "Ranged Attack Roll: +5, range 120 ft. Hit: 13 (3d6 + 3) Poison damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 5,
+        "range": {
+          "normal": 120,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The yuan-ti shape-shifts into a Medium snake or returns to its true form. Its game statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed."
+    }
+  ]
+}

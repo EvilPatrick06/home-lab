@@ -1,0 +1,62 @@
+{
+  "name": "Lightning Bolt",
+  "level": 3,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a bit of fur and a crystal rod",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A stroke of lightning forming a 100-foot-long, 5-foot-wide Line blasts out from you in a direction you choose. Each creature in the Line makes a Dexterity saving throw, taking 8d6 Lightning damage on a failed save or half as much damage on a successful one.",
+  "areaOfEffect": [
+    {
+      "shape": "Line",
+      "lengthFeet": 100,
+      "widthFeet": 5,
+      "originatesFromCaster": true
+    }
+  ],
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 8,
+        "diceValue": 6
+      },
+      "type": "Lightning",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 3,
+        "description": "The damage increases by 1d6 for each spell slot level above 3."
+      }
+    ]
+  },
+  "tags": ["damage", "area-of-effect", "line"]
+}

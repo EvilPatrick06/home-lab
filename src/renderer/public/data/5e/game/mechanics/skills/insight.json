@@ -1,0 +1,15 @@
+{
+  "id": "insight",
+  "name": "Insight",
+  "ability": "wisdom",
+  "description": "Your Wisdom (Insight) check decides whether you can determine the true intentions of a creature, such as when searching out a lie or predicting someone's next move. Doing so involves gleaning clues from body language, speech habits, and changes in mannerisms.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Sense whether someone is being truthful",
+    "Read body language to predict intentions",
+    "Determine a creature's emotional state",
+    "Detect a disguise or hidden motive",
+    "Get a gut feeling about a course of action"
+  ]
+}

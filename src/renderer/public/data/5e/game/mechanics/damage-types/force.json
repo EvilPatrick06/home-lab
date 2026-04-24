@@ -1,0 +1,13 @@
+{
+  "id": "force",
+  "name": "Force",
+  "description": "Force is pure magical energy focused into a damaging form. Most effects that deal Force damage are spells, including Magic Missile and Eldritch Blast. Force damage is the rarest damage type to be resisted or immune to.",
+  "commonSources": [
+    "Magic Missile spell",
+    "Eldritch Blast cantrip",
+    "Spiritual Weapon spell",
+    "Disintegrate spell",
+    "Wall of Force (impact)"
+  ],
+  "resistanceNotes": "Force is the least resisted damage type in the game. Almost no creatures have resistance or immunity to Force damage, making it extremely reliable."
+}

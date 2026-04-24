@@ -1,0 +1,25 @@
+{
+  "id": "moonblade",
+  "name": "Moonblade",
+  "alignment": "Neutral",
+  "mentalAbilities": { "int": 12, "wis": 10, "cha": 12 },
+  "communication": "Telepathy (120 ft.) with its wielder",
+  "senses": "Hearing and Darkvision 120 ft.",
+  "purpose": "A Moonblade serves as a guardian of elf culture and heritage. It seeks a worthy wielder of elf blood to champion the elf people.",
+  "personality": "The Moonblade has the accumulated personalities of all its previous wielders. It is patient, wise, and deeply invested in the long-term welfare of elvenkind. It communicates through emotional impressions and brief telepathic images rather than words. The blade judges its wielder's actions against the high standards set by previous owners.",
+  "itemType": "Weapon (Longsword)",
+  "rarity": "Legendary",
+  "requiresAttunement": true,
+  "attunementRequirements": "Attuned by an elf or half-elf of neutral good alignment. If a non-elf or unworthy creature attempts to attune, they take 2d6 necrotic damage and the attempt fails.",
+  "properties": [
+    "Rune Blade: A Moonblade gains one rune for each wielder who has attuned to it. The DM chooses or randomly determines each rune's property.",
+    "+1 Weapon: The Moonblade has a +1 bonus to attack and damage rolls for its first rune.",
+    "Additional Runes (d6): 1 - Extra +1 (total +2), 2 - Crits on 19-20, 3 - 1d6 extra fire damage on hit, 4 - Wielder gains Darkvision 60 ft., 5 - Cast Fly on self 1/day, 6 - Resurrect wielder 1/week.",
+    "Sentient: The blade can communicate telepathically with its wielder and convey emotions when within 120 feet."
+  ],
+  "conflictBehavior": "If the wielder acts against the interests of elvenkind, the Moonblade attempts to suppress its rune abilities. Persistent betrayal causes the blade to refuse to function, becoming a mundane longsword until the wielder atones.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Sentient Magic Items"
+  }
+}

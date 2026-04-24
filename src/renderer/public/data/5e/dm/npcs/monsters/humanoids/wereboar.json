@@ -1,0 +1,182 @@
+{
+  "name": "Wereboar",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Forest", "Grassland", "Hill"],
+  "treasure": ["Armaments"],
+  "lore": "Wereboars are surly, ill-tempered lycanthropes that relish cruelty. In humanoid form, they often appear stocky, muscular, and short-tempered. When transformed, they become fearsome boar-humanoid hybrids or full boars, goring enemies with savage tusks. Some wereboars form small gangs or bands in wilderness areas, terrorizing settlements and travelers.",
+  "armorClass": {
+    "value": 12,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 85,
+    "dice": {
+      "count": 10,
+      "die": "d8",
+      "modifier": 40
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    }
+  ],
+  "damageImmunities": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks that aren't silvered"],
+  "gear": [
+    {
+      "name": "Maul",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Charge",
+      "description": "If the wereboar moves at least 15 feet straight toward a target and then hits it with a Tusks attack on the same turn, the target takes an extra 7 (2d6) Slashing damage. If the target is a creature, it must succeed on a DC 14 Strength saving throw or have the Prone condition. Available in Boar or Hybrid Form only."
+    },
+    {
+      "name": "Relentless",
+      "description": "If the wereboar takes damage that would reduce it to 0 Hit Points, it is reduced to 1 Hit Point instead.",
+      "limitedUsage": {
+        "type": "rechargeAfterRest",
+        "restType": "ShortOrLong"
+      }
+    }
+  ],
+  "multiattack": {
+    "description": "The wereboar makes two attacks, using Maul, Tusks, or a combination of them. It can replace one attack with a use of Change Shape.",
+    "attacks": [
+      {
+        "actionName": "Maul",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Maul",
+        "replaceCount": 1,
+        "with": "Tusks"
+      },
+      {
+        "replace": "Maul",
+        "replaceCount": 1,
+        "with": "Change Shape"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Maul",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 11 (2d6 + 4) Bludgeoning damage. Available in Humanoid or Hybrid Form only.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tusks",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 11 (2d6 + 4) Slashing damage. If the target is a Humanoid, it must succeed on a DC 14 Constitution saving throw or be cursed with wereboar lycanthropy. Available in Boar or Hybrid Form only.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ],
+          "additionalEffects": "If the target is a Humanoid, it must succeed on a DC 14 Constitution saving throw or be cursed with wereboar lycanthropy.",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 14,
+            "targets": "Humanoid targets only",
+            "onFailure": {
+              "effects": "The target is cursed with wereboar lycanthropy."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Change Shape",
+      "description": "The wereboar shape-shifts into a Medium boar-humanoid hybrid or a Medium boar, or back into its true humanoid form. Other than its Speed (40 ft. in Boar or Hybrid Form, 30 ft. in Humanoid Form), its statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed."
+    }
+  ]
+}

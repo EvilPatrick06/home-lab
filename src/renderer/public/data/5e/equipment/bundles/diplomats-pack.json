@@ -1,0 +1,13 @@
+{
+  "name": "Diplomat's Pack",
+  "cost": "39 GP",
+  "weight": "39 lb.",
+  "contents": "Chest, Fine Clothes, Ink, 5 Ink Pens, Lamp, 2 Map or Scroll Cases, 4 flasks of Oil, 5 sheets of Paper, 5 sheets of Parchment, Perfume, Tinderbox",
+  "slug": "diplomats-pack",
+  "category": "Equipment Bundle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

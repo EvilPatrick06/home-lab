@@ -1,0 +1,90 @@
+[
+  {
+    "id": "ring-of-protection",
+    "name": "Ring of Protection",
+    "rarity": "Rare",
+    "path": "../../rare/ring-of-protection.json"
+  },
+  {
+    "id": "ring-of-resistance",
+    "name": "Ring of Resistance",
+    "rarity": "Rare",
+    "path": "../../rare/ring-of-resistance.json"
+  },
+  {
+    "id": "ring-of-spell-storing",
+    "name": "Ring of Spell Storing",
+    "rarity": "Rare",
+    "path": "../../rare/ring-of-spell-storing.json"
+  },
+  { "id": "ring-of-evasion", "name": "Ring of Evasion", "rarity": "Rare", "path": "../../rare/ring-of-evasion.json" },
+  {
+    "id": "ring-of-free-action",
+    "name": "Ring of Free Action",
+    "rarity": "Rare",
+    "path": "../../rare/ring-of-free-action.json"
+  },
+  {
+    "id": "ring-of-x-ray-vision",
+    "name": "Ring of X-ray Vision",
+    "rarity": "Rare",
+    "path": "../../rare/ring-of-x-ray-vision.json"
+  },
+  {
+    "id": "ring-of-invisibility",
+    "name": "Ring of Invisibility",
+    "rarity": "Legendary",
+    "path": "../../legendary/ring-of-invisibility.json"
+  },
+  { "id": "ring-of-regeneration", "name": "Ring of Regeneration", "rarity": "Very Rare" },
+  { "id": "ring-of-telekinesis", "name": "Ring of Telekinesis", "rarity": "Very Rare" },
+  {
+    "id": "ring-of-three-wishes",
+    "name": "Ring of Three Wishes",
+    "rarity": "Legendary",
+    "path": "../../legendary/ring-of-three-wishes.json"
+  },
+  { "id": "ring-of-shooting-stars", "name": "Ring of Shooting Stars", "rarity": "Very Rare" },
+  {
+    "id": "ring-of-spell-turning",
+    "name": "Ring of Spell Turning",
+    "rarity": "Legendary",
+    "path": "../../legendary/ring-of-spell-turning.json"
+  },
+  {
+    "id": "ring-of-feather-falling",
+    "name": "Ring of Feather Falling",
+    "rarity": "Rare",
+    "path": "../../rare/ring-of-feather-falling.json"
+  },
+  {
+    "id": "ring-of-mind-shielding",
+    "name": "Ring of Mind Shielding",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/ring-of-mind-shielding.json"
+  },
+  {
+    "id": "ring-of-swimming",
+    "name": "Ring of Swimming",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/ring-of-swimming.json"
+  },
+  {
+    "id": "ring-of-jumping",
+    "name": "Ring of Jumping",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/ring-of-jumping.json"
+  },
+  {
+    "id": "ring-of-warmth",
+    "name": "Ring of Warmth",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/ring-of-warmth.json"
+  },
+  {
+    "id": "ring-of-water-walking",
+    "name": "Ring of Water Walking",
+    "rarity": "Uncommon",
+    "path": "../../uncommon/ring-of-water-walking.json"
+  }
+]

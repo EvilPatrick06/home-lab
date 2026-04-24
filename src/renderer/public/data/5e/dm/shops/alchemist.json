@@ -1,0 +1,138 @@
+{
+  "id": "alchemist",
+  "name": "Alchemist",
+  "type": "specialty",
+  "defaultMarkup": 1.0,
+  "inventoryCategories": [
+    {
+      "category": "Potions",
+      "items": [
+        {
+          "name": "Potion of Healing",
+          "cost": "50 gp",
+          "weight": 0.5,
+          "rarity": "Common",
+          "effect": "Regain 2d4 + 2 HP"
+        },
+        {
+          "name": "Potion of Greater Healing",
+          "cost": "150 gp",
+          "weight": 0.5,
+          "rarity": "Uncommon",
+          "effect": "Regain 4d4 + 4 HP"
+        },
+        {
+          "name": "Potion of Climbing",
+          "cost": "75 gp",
+          "weight": 0.5,
+          "rarity": "Common",
+          "effect": "Gain climbing speed equal to walking speed for 1 hour"
+        },
+        {
+          "name": "Potion of Animal Friendship",
+          "cost": "100 gp",
+          "weight": 0.5,
+          "rarity": "Uncommon",
+          "effect": "Cast Animal Friendship (save DC 13) for 1 hour"
+        },
+        {
+          "name": "Potion of Growth",
+          "cost": "125 gp",
+          "weight": 0.5,
+          "rarity": "Uncommon",
+          "effect": "Enlarge effect for 1d4 hours"
+        },
+        {
+          "name": "Potion of Water Breathing",
+          "cost": "100 gp",
+          "weight": 0.5,
+          "rarity": "Uncommon",
+          "effect": "Breathe underwater for 1 hour"
+        },
+        {
+          "name": "Potion of Fire Breath",
+          "cost": "150 gp",
+          "weight": 0.5,
+          "rarity": "Uncommon",
+          "effect": "Exhale fire in a 30-ft cone, 4d6 fire damage"
+        },
+        {
+          "name": "Potion of Resistance",
+          "cost": "150 gp",
+          "weight": 0.5,
+          "rarity": "Uncommon",
+          "effect": "Gain resistance to one damage type for 1 hour"
+        }
+      ]
+    },
+    {
+      "category": "Poisons",
+      "items": [
+        {
+          "name": "Basic Poison (vial)",
+          "cost": "100 gp",
+          "weight": 0,
+          "effect": "DC 10 Con save or 1d4 poison damage, coat one weapon or 3 pieces of ammunition"
+        },
+        {
+          "name": "Assassin's Blood (ingested)",
+          "cost": "150 gp",
+          "weight": 0,
+          "effect": "DC 10 Con save or 6 (1d12) poison damage and Poisoned 24 hours"
+        },
+        {
+          "name": "Malice (inhaled)",
+          "cost": "250 gp",
+          "weight": 0,
+          "effect": "DC 15 Con save or Poisoned 1 hour; also Blinded while Poisoned"
+        },
+        {
+          "name": "Pale Tincture (ingested)",
+          "cost": "250 gp",
+          "weight": 0,
+          "effect": "DC 16 Con save or 3 (1d6) poison damage and Poisoned; repeat save each 24 hours, 7 (2d6) on fail, ends on success"
+        },
+        {
+          "name": "Truth Serum (ingested)",
+          "cost": "150 gp",
+          "weight": 0,
+          "effect": "DC 11 Con save or Poisoned 1 hour and cannot knowingly lie"
+        }
+      ]
+    },
+    {
+      "category": "Alchemical Supplies",
+      "items": [
+        {
+          "name": "Acid (vial)",
+          "cost": "25 gp",
+          "weight": 1,
+          "effect": "2d6 acid damage as improvised ranged weapon"
+        },
+        {
+          "name": "Alchemist's Fire",
+          "cost": "50 gp",
+          "weight": 1,
+          "effect": "1d4 fire damage per turn until extinguished (DC 10 Dex)"
+        },
+        { "name": "Antitoxin", "cost": "50 gp", "weight": 0, "effect": "Advantage on saves vs. poison for 1 hour" },
+        { "name": "Perfume (vial)", "cost": "5 gp", "weight": 0 },
+        {
+          "name": "Alchemist's Supplies",
+          "cost": "50 gp",
+          "weight": 8,
+          "effect": "Tool proficiency required to craft alchemical items"
+        },
+        {
+          "name": "Herbalism Kit",
+          "cost": "5 gp",
+          "weight": 3,
+          "effect": "Required to craft Potions of Healing and Antitoxin"
+        },
+        { "name": "Poisoner's Kit", "cost": "50 gp", "weight": 2, "effect": "Required to craft and handle poisons" }
+      ]
+    }
+  ],
+  "restockInterval": "weekly",
+  "flavor": "Shelves lined with bubbling flasks and labeled jars. The sharp scent of reagents stings the nose. A cautious shopkeep measures ingredients with exacting precision."
+}

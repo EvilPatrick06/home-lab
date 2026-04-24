@@ -1,0 +1,11 @@
+{
+  "name": "Proficiency",
+  "slug": "proficiency",
+  "description": "If you have proficiency with something — a weapon, tool, skill, saving throw, etc. — you can add your Proficiency Bonus to relevant D20 Tests. You gain proficiencies from your species, background, class, and feats.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

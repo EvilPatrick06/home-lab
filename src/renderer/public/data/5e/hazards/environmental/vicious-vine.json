@@ -1,0 +1,12 @@
+{
+  "name": "Vicious Vine",
+  "severity": "Level 5+",
+  "description": "Fills a 20-foot square. When creature enters, vines make +8 melee attack. Hit: 11 (2d10) Slashing damage and creature is Restrained. DC 15 Athletics or Acrobatics to escape. AC 12, 25 HP per 5-foot section.",
+  "slug": "vicious-vine",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "name": "Scorching Ray",
+  "level": 2,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You hurl three fiery rays. You can hurl them at one target within range or at several. Make a ranged spell attack for each ray. On a hit, the target takes 2d6 Fire damage.",
+  "attackType": "RangedSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 6
+      },
+      "type": "Fire",
+      "applicationType": "onHit"
+    }
+  ],
+  "targetCount": 3,
+  "targetType": "creature",
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalProjectiles",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 2,
+        "description": "You create one additional ray for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["projectile", "multiple-attacks"]
+}

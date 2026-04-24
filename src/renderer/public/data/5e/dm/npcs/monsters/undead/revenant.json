@@ -1,0 +1,73 @@
+{
+  "name": "Revenant",
+  "slug": "revenant",
+  "size": "Medium",
+  "type": "Undead",
+  "alignment": "Neutral",
+  "ac": "13",
+  "initiative": "+2 (12)",
+  "hp": "127",
+  "hpFormula": "15d8 + 60",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 14,
+    "con": 18,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 7,
+    "dex": 2,
+    "con": 7,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison; Charmed, Exhaustion, Frightened, Paralyzed, Poisoned, Stunned",
+  "resistances": "Necrotic, Psychic",
+  "senses": "Darkvision 60 ft.; Passive Perception 13",
+  "languages": "Common plus one other language",
+  "cr": "5 (XP 1,800; PB +3)",
+  "traits": [
+    {
+      "name": "Regeneration",
+      "description": "The revenant regains 10 Hit Points at the start of each of its turns. If the revenant takes Fire or Radiant damage, this trait doesn't function at the start of its next turn. Its body is destroyed only if it starts its turn with 0 Hit Points and doesn't regenerate."
+    },
+    {
+      "name": "Undead Restoration",
+      "description": "If the revenant dies, it revives 24 hours later in a different body unless *Dispel Evil or Good* is cast on its corpse. If it revives, it animates a Humanoid corpse elsewhere on the same plane of existence; it now looks different but uses the same stat block and returns with all its Hit Points."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The revenant uses Vengeful Glare and makes two Slam attacks."
+    },
+    {
+      "name": "Slam",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 11 (2d6 + 4) Necrotic damage."
+    },
+    {
+      "name": "Vengeful Glare",
+      "description": "*Wisdom Saving Throw:* DC 15, one creature the revenant can see within 30 feet. *Failure:* The target has the Frightened condition and repeats the save at the end of each of its turns, ending the effect on itself on a success. After 1 minute, it succeeds automatically. If the Frightened target is cursed by the revenant (see Vow of Revenge), the target also has the Paralyzed condition for the duration."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Vow of Revenge (1/Day)",
+      "description": "The revenant curses one creature it can see within 30 feet of itself. The revenant knows the distance to and direction of the cursed target, even if it is on a different plane of existence. The curse ends on the target if the revenant uses this Bonus Action on a different creature."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Vengeance from beyond the Grave*\n**Habitat:** Forest, Swamp, Urban; **Treasure:** Any\nWrathful spirits bent on revenge, revenants possess corpses and other materials, using them to seek justice or vent their rage on those who wronged them. Revenants refuse to rest until those they seek to punish are no more. If their bodies are destroyed, revenants claim new forms and continue their ruthless quests.\nRevenants possess the bodies they had in life, using them to hunt down their killers. If their bodies are destroyed, they take control of new bodies that gradually change to resemble the revenants' original forms.\nGraveyard revenants possess dozens of bodies that combine to form grotesque masses. They take revenge on those responsible for mass deaths or institutions that callously ruin lives.\nHaunting revenants possess ruins and forsaken places connected with their deaths -- such as abandoned buildings, wrecked ships, or junk heaps. These revenants lurk in plain sight, waiting for their foes to near, then trap their victims within their massive bodies. Those inside a revenant might be battered by animate furnishings or more unsettling manifestations of the revenant's hatred.\nThe places haunting revenants lurk swiftly gain infamous reputations.",
+  "habitat": "Forest, Swamp, Urban",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

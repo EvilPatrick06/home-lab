@@ -1,0 +1,23 @@
+{
+  "name": "Shotgun",
+  "slug": "shotgun",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Modern",
+  "damage": "2d8",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Reload (2)", "Two-Handed"],
+  "weight": "7 lb.",
+  "cost": "—",
+  "range": {
+    "normal": 30,
+    "long": 90
+  },
+  "ammunitionType": "Shotgun Shell",
+  "reloadCapacity": 2,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

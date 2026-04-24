@@ -1,0 +1,289 @@
+{
+  "id": "d3a7c1e2-5f4b-4a8e-9c3d-1b2e6f8a0d4c",
+  "name": "Travel Pace",
+  "slug": "travel-pace",
+  "category": "Exploration",
+  "subcategory": "Travel",
+  "tags": ["travel", "pace", "overland", "exploration", "movement", "marching", "mounted-travel", "vehicles"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "Travel Pace"
+  },
+  "gameEdition": "2024",
+  "description": "While traveling outside combat, a group can move at a Fast, Normal, or Slow pace. The Travel Pace table states how far the party can move in a period of time. If riding horses or other mounts, the group can move twice that distance for 1 hour, after which the mounts need a Short or Long Rest before they can move at that increased pace again. The Dungeon Master's Guide has rules that affect which pace you can choose in certain types of terrain. Each travel pace has a game effect: Fast pace imposes Disadvantage on Wisdom (Perception or Survival) and Dexterity (Stealth) checks. Normal pace imposes Disadvantage on Dexterity (Stealth) checks. Slow pace grants Advantage on Wisdom (Perception or Survival) checks. Travelers in wagons, carriages, or other land vehicles choose a pace as normal. Characters in a waterborne vessel are limited to the speed of the vessel, and they don't choose a travel pace. Depending on the vessel and the size of the crew, ships might be able to travel for up to 24 hours per day.",
+  "shortDescription": "Rules for group overland travel at Fast, Normal, or Slow pace, each with different distances and mechanical effects on checks.",
+  "rulesAsWritten": "While traveling outside combat, a group can move at a Fast, Normal, or Slow pace, as shown on the Travel Pace table. The table states how far the party can move in a period of time; if riding horses or other mounts, the group can move twice that distance for 1 hour, after which the mounts need a Short or Long Rest before they can move at that increased pace again. The Dungeon Master's Guide has rules that affect which pace you can choose in certain types of terrain. Each travel pace has a game effect: Fast — Traveling at a Fast pace imposes Disadvantage on a traveler's Wisdom (Perception or Survival) and Dexterity (Stealth) checks. Normal — Traveling at a Normal pace imposes Disadvantage on Dexterity (Stealth) checks. Slow — Traveling at a Slow pace grants Advantage on Wisdom (Perception or Survival) checks. Travelers in wagons, carriages, or other land vehicles choose a pace as normal. Characters in a waterborne vessel are limited to the speed of the vessel, and they don't choose a travel pace. Depending on the vessel and the size of the crew, ships might be able to travel for up to 24 hours per day.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": true,
+  "maxLevel": 3,
+  "levels": [
+    {
+      "level": 0,
+      "name": "Slow Pace",
+      "description": "Traveling at a Slow pace: 200 feet per minute, 2 miles per hour, 18 miles per day. Grants Advantage on Wisdom (Perception or Survival) checks.",
+      "numericalModifiers": [],
+      "advantageGrants": [
+        {
+          "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+          "rollType": "AbilityCheck",
+          "scope": {
+            "skills": ["Perception", "Survival"],
+            "abilityScores": ["WIS"],
+            "customScope": "While traveling at Slow pace"
+          },
+          "grantedTo": "Self",
+          "condition": "Traveler is moving at Slow pace outside combat",
+          "note": "Applies to Wisdom (Perception or Survival) checks while traveling at Slow pace"
+        }
+      ],
+      "disadvantageImposes": [],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Distance traveled: 200 feet per minute, 2 miles per hour, 18 miles per day.",
+      "isFatal": false
+    },
+    {
+      "level": 1,
+      "name": "Normal Pace",
+      "description": "Traveling at a Normal pace: 300 feet per minute, 3 miles per hour, 24 miles per day. Imposes Disadvantage on Dexterity (Stealth) checks.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [
+        {
+          "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+          "rollType": "AbilityCheck",
+          "scope": {
+            "skills": ["Stealth"],
+            "abilityScores": ["DEX"],
+            "customScope": "While traveling at Normal pace"
+          },
+          "imposedOn": "Self",
+          "condition": "Traveler is moving at Normal pace outside combat",
+          "note": "Applies to Dexterity (Stealth) checks while traveling at Normal pace"
+        }
+      ],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Distance traveled: 300 feet per minute, 3 miles per hour, 24 miles per day.",
+      "isFatal": false
+    },
+    {
+      "level": 2,
+      "name": "Fast Pace",
+      "description": "Traveling at a Fast pace: 400 feet per minute, 4 miles per hour, 30 miles per day. Imposes Disadvantage on Wisdom (Perception or Survival) and Dexterity (Stealth) checks.",
+      "numericalModifiers": [],
+      "advantageGrants": [],
+      "disadvantageImposes": [
+        {
+          "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+          "rollType": "AbilityCheck",
+          "scope": {
+            "skills": ["Perception", "Survival"],
+            "abilityScores": ["WIS"],
+            "customScope": "While traveling at Fast pace"
+          },
+          "imposedOn": "Self",
+          "condition": "Traveler is moving at Fast pace outside combat",
+          "note": "Applies to Wisdom (Perception or Survival) checks while traveling at Fast pace"
+        },
+        {
+          "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+          "rollType": "AbilityCheck",
+          "scope": {
+            "skills": ["Stealth"],
+            "abilityScores": ["DEX"],
+            "customScope": "While traveling at Fast pace"
+          },
+          "imposedOn": "Self",
+          "condition": "Traveler is moving at Fast pace outside combat",
+          "note": "Applies to Dexterity (Stealth) checks while traveling at Fast pace"
+        }
+      ],
+      "automaticOutcomes": [],
+      "actionRestrictions": [],
+      "conditionsImposed": [],
+      "immunities": [],
+      "resistances": [],
+      "vulnerabilities": [],
+      "specialEffect": "Distance traveled: 400 feet per minute, 4 miles per hour, 30 miles per day.",
+      "isFatal": false
+    }
+  ],
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "order": 0,
+      "name": "Choose Travel Pace",
+      "description": "While traveling outside combat, the group collectively chooses a Fast, Normal, or Slow pace. This choice determines the distance traveled per unit of time and applies mechanical effects (Advantage or Disadvantage on certain checks) to all travelers in the group.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Group is traveling outside combat"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The group selects one of three travel paces: Fast (400 ft/min, 4 mi/hr, 30 mi/day), Normal (300 ft/min, 3 mi/hr, 24 mi/day), or Slow (200 ft/min, 2 mi/hr, 18 mi/day). The chosen pace applies to all members of the traveling group simultaneously.",
+          "mechanicalNote": "Fast pace: 400 feet per minute, 4 miles per hour, 30 miles per day. Normal pace: 300 feet per minute, 3 miles per hour, 24 miles per day. Slow pace: 200 feet per minute, 2 miles per hour, 18 miles per day."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "order": 1,
+      "name": "Mounted Travel Doubled Distance",
+      "description": "If riding horses or other mounts, the group can move twice the normal travel pace distance for 1 hour, after which the mounts need a Short or Long Rest before they can move at that increased pace again.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Group is traveling while mounted on horses or other mounts"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "When mounted, the group can move twice the distance listed on the Travel Pace table for up to 1 hour. After this 1 hour of doubled distance, the mounts require a Short or Long Rest before they can move at the increased pace again. During the doubled distance hour, Fast pace covers 8 miles, Normal pace covers 6 miles, and Slow pace covers 4 miles.",
+          "mechanicalNote": "Mounted travel doubles distance for 1 hour: Fast = 8 mi/hr, Normal = 6 mi/hr, Slow = 4 mi/hr. Mounts then require a Short or Long Rest to use the increased pace again."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d",
+      "order": 2,
+      "name": "Land Vehicle Travel Pace",
+      "description": "Travelers in wagons, carriages, or other land vehicles choose a pace as normal, following the same Travel Pace rules as travelers on foot.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Group is traveling in a land vehicle (wagon, carriage, etc.)"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Land vehicle travelers choose Fast, Normal, or Slow pace and follow the same distance and mechanical effect rules as travelers on foot."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b8c9d0e1-f2a3-4b4c-5d6e-7f8a9b0c1d2e",
+      "order": 3,
+      "name": "Waterborne Vessel Travel",
+      "description": "Characters in a waterborne vessel are limited to the speed of the vessel and don't choose a travel pace. Depending on the vessel and the size of the crew, ships might be able to travel for up to 24 hours per day.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Group is traveling aboard a waterborne vessel"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Characters in a waterborne vessel are limited to the speed of the vessel and do not choose a travel pace (Fast, Normal, or Slow). Ships might be able to travel for up to 24 hours per day depending on the vessel and crew size.",
+          "mechanicalNote": "Travel pace choice is not available on waterborne vessels. Speed is determined by the vessel. Maximum travel duration may be up to 24 hours per day."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c9d0e1f2-a3b4-4c5d-6e7f-8a9b0c1d2e3f",
+      "order": 4,
+      "name": "Marching Order",
+      "description": "The adventurers should establish a marching order while they travel, whether indoors or outdoors. A marching order makes it easier to determine which characters are affected by traps, which ones can spot hidden enemies, and which ones are the closest to those enemies if a fight breaks out. The marching order can be changed outside combat.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Group is traveling"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Adventurers establish a marching order while traveling. This determines which characters are affected by traps, which can spot hidden enemies, and which are closest to enemies if combat occurs. The order can be changed outside combat and recorded however the group prefers.",
+          "mechanicalNote": "Marching order is a companion rule to travel pace that determines spatial arrangement of the party during travel."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": true,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Only one travel pace can be active at a time for a traveling group. The pace applies to the entire group collectively."
+  },
+  "dmNotes": "The DM can summarize travel without calculating exact distances or travel times, or the DM can use the travel pace rules. The Dungeon Master's Guide has additional rules that affect which pace can be chosen in certain types of terrain. When every second matters, use the movement rules in Combat instead. Mounts for sale are listed in Chapter 6 of the Player's Handbook. Vehicles for sale are also listed in Chapter 6.",
+  "commonRulings": [
+    {
+      "question": "Can individual party members travel at different paces?",
+      "ruling": "The rules describe the group choosing a pace collectively. If individual members wish to travel at different paces, the DM determines how to handle this, but typically the group moves together at one chosen pace.",
+      "isOfficial": false
+    },
+    {
+      "question": "Do the Advantage/Disadvantage effects from travel pace apply to all travelers or just scouts?",
+      "ruling": "The rules state each travel pace has a game effect that applies to travelers. Fast pace imposes Disadvantage on a traveler's Wisdom (Perception or Survival) and Dexterity (Stealth) checks. Normal pace imposes Disadvantage on Dexterity (Stealth) checks. Slow pace grants Advantage on Wisdom (Perception or Survival) checks. These apply to all travelers moving at that pace.",
+      "isOfficial": false
+    },
+    {
+      "question": "How long can mounts sustain the doubled travel distance?",
+      "ruling": "Mounts can move at twice the travel pace distance for 1 hour. After that 1 hour, the mounts need a Short or Long Rest before they can move at the increased pace again. They can still travel at the normal (non-doubled) pace after that hour without resting.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does Slow pace grant Advantage on Perception checks during combat?",
+      "ruling": "No. Travel pace effects apply only while traveling outside combat. Once combat begins, normal combat movement rules apply.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can the DM skip detailed travel pace tracking?",
+      "ruling": "Yes. The rules explicitly state the DM can summarize travel without calculating exact distances or travel times. The travel pace rules are available when the DM wishes to use them.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-21T00:00:00Z",
+  "updatedAt": "2025-01-21T00:00:00Z",
+  "version": "1.0.0"
+}

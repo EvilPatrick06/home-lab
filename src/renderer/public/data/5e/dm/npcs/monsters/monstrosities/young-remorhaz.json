@@ -1,0 +1,55 @@
+{
+  "name": "Young Remorhaz",
+  "slug": "young-remorhaz",
+  "size": "Large",
+  "type": "Monstrosity",
+  "alignment": "Unaligned",
+  "ac": "14",
+  "initiative": "+1 (11)",
+  "hp": "93",
+  "hpFormula": "11d10 + 33",
+  "speed": "30 ft., Burrow 20 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 13,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 1,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Cold, Fire",
+  "senses": "Darkvision 60 ft., Tremorsense 60 ft.; Passive Perception 10",
+  "languages": "None",
+  "cr": "5 (XP 1,800; PB +3)",
+  "traits": [
+    {
+      "name": "Heat Aura",
+      "description": "At the end of each of the remorhaz's turns, each creature in a 5-foot Emanation originating from the remorhaz takes 11 (2d10) Fire damage."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 15 (2d10 + 4) Piercing damage plus 13 (3d8) Fire damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Super-Heated Arctic Arthropods*\n**Habitat:** Arctic; **Treasure:** None\nRemorhazes are centipede-like terrors that burrow through snow and ice to ambush smaller creatures that trespass in their frozen territories.\nYoung remorhazes scorch and consume any creatures they can chase down and overwhelm.",
+  "habitat": "Arctic",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

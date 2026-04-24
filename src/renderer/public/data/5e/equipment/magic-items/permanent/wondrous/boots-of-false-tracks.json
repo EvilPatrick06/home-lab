@@ -1,0 +1,8 @@
+{
+  "name": "Boots of False Tracks",
+  "itemType": "Wondrous Item",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "This pair of boots leaves misleading tracks on any surface, making it difficult to track the wearer.",
+  "source": "DMG 2024"
+}

@@ -1,0 +1,47 @@
+{
+  "name": "Warhorse",
+  "slug": "warhorse",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "11",
+  "initiative": "+1 (11)",
+  "hp": "19",
+  "hpFormula": "3d10 + 3",
+  "speed": "60 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 12,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 1,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 11",
+  "languages": "None",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Hooves",
+      "description": "*Melee Attack Roll:* +6, reach 5 ft. *Hit:* 9 (2d4 + 4) Bludgeoning damage. If the target is a Large or smaller creature and the horse moved 20+ feet straight toward it immediately before the hit, the target takes an extra 5 (2d4) Bludgeoning damage and has the Prone condition."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

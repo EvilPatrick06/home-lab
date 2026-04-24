@@ -1,0 +1,104 @@
+{
+  "id": "e7c1f3a2-9b4d-4e6a-8f21-3c7d5a0b9e14",
+  "name": "Magic Item Crafting Materials (Lore Reference)",
+  "slug": "magic-item-crafting-materials-lore-reference",
+  "category": "GeneralRule",
+  "subcategory": "Crafting Materials",
+  "tags": ["crafting", "materials", "adamantine", "mithral", "lore", "magic-items"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Appendix A",
+    "section": "Lore Glossary"
+  },
+  "gameEdition": "2024",
+  "description": "Appendix A: Lore Glossary describes special materials used in the crafting of magic items. Adamantine is one of the hardest substances in existence, a dark metal found in meteorites and extraordinary mineral veins, referenced as the basis for Adamantine Armor and Adamantine Weapon magic items (chapter 7). Mithral is a light, flexible metal that resembles silver but is much more durable, most commonly used for crafting lightweight armor that provides excellent protection without bulk or burden (Mithral Armor, chapter 7). No procedural crafting mechanics (DCs, costs, time, or ability checks) are specified in this appendix; the entries serve as lore context for the referenced magic items.",
+  "shortDescription": "Lore descriptions of adamantine and mithral, two special materials referenced in magic item creation.",
+  "flavorText": "Adamantine is one of the hardest substances in existence. Mithral is a light, flexible metal that resembles silver but is much more durable.",
+  "rulesAsWritten": "Adamantine: Adamantine is one of the hardest substances in existence, a dark metal found in meteorites and extraordinary mineral veins. (See the Adamantine Armor and Adamantine Weapon magic items in chapter 7.) Mithral: Mithral is a light, flexible metal that resembles silver but is much more durable. Its most common use is for crafting lightweight armor that provides excellent protection without bulk or burden (see the Mithral Armor magic item in chapter 7).",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-0001-4aaa-bbbb-000000000001",
+      "order": 0,
+      "name": "Adamantine Material Properties",
+      "description": "Adamantine is one of the hardest substances in existence, a dark metal found in meteorites and extraordinary mineral veins. It is the base material for Adamantine Armor and Adamantine Weapon magic items as described in chapter 7.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Material is incorporated into a weapon or armor during crafting"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Adamantine is described as one of the hardest substances in existence. When used to craft armor or weapons, it produces the Adamantine Armor or Adamantine Weapon magic items (see chapter 7 for specific mechanical effects).",
+          "mechanicalNote": "No crafting DCs, costs, or time requirements are specified in this lore glossary entry. Actual magic item properties are defined in chapter 7."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "a1b2c3d4-0002-4aaa-bbbb-000000000002",
+      "order": 1,
+      "name": "Mithral Material Properties",
+      "description": "Mithral is a light, flexible metal that resembles silver but is much more durable. Its most common use is for crafting lightweight armor that provides excellent protection without bulk or burden, producing the Mithral Armor magic item (chapter 7).",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Material is incorporated into armor during crafting"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Mithral is a light, flexible metal resembling silver but far more durable. When used to craft armor, it produces the Mithral Armor magic item, which provides excellent protection without bulk or burden (see chapter 7 for specific mechanical effects).",
+          "mechanicalNote": "No crafting DCs, costs, or time requirements are specified in this lore glossary entry. Actual magic item properties are defined in chapter 7."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": null,
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Material properties are inherent to the crafted item; multiple special materials cannot be combined into a single item unless the DM rules otherwise."
+  },
+  "dmNotes": "This appendix provides ONLY lore descriptions of crafting materials (Adamantine and Mithral). No procedural crafting rules—such as required tools, ability checks, DCs, gold costs, time investments, or minimum character levels—are included in this source text. The actual mechanical properties of Adamantine Armor, Adamantine Weapon, and Mithral Armor magic items are defined in chapter 7. DMs seeking full magic item crafting rules should consult the Dungeon Master's Guide or other supplementary sources.",
+  "commonRulings": [
+    {
+      "question": "Does Appendix A contain actual magic item crafting rules or procedures?",
+      "ruling": "No. Appendix A: Lore Glossary provides only lore descriptions of Adamantine and Mithral as materials. It references the resulting magic items in chapter 7 but does not include crafting procedures, costs, time requirements, or ability check DCs.",
+      "isOfficial": true
+    },
+    {
+      "question": "Where are Adamantine and Mithral items' actual mechanical effects defined?",
+      "ruling": "The mechanical effects of Adamantine Armor, Adamantine Weapon, and Mithral Armor are defined in chapter 7 of the 2024 Player's Handbook, as explicitly cross-referenced by the lore glossary entries.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-03T00:00:00Z",
+  "updatedAt": "2025-01-03T00:00:00Z",
+  "version": "1.0.0"
+}

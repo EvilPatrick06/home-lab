@@ -1,0 +1,13 @@
+{
+  "name": "Helm of Comprehending Languages",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "description": "While wearing this helm, you can cast *Comprehend Languages* from it.",
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

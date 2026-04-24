@@ -1,0 +1,59 @@
+{
+  "name": "Thri-kreen Psion",
+  "slug": "thri-kreen-psion",
+  "size": "Medium",
+  "type": "Monstrosity",
+  "alignment": "Neutral",
+  "ac": "16",
+  "initiative": "+6 (16)",
+  "hp": "149",
+  "hpFormula": "23d8 + 46",
+  "speed": "40 ft., Fly 20 ft. (hover)",
+  "abilityScores": {
+    "str": 18,
+    "dex": 15,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 7,
+    "dex": 5,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4, Stealth +8",
+  "resistances": "Psychic",
+  "senses": "Darkvision 60 ft.; Passive Perception 14",
+  "languages": "Thri-kreen; telepathy 120 ft.",
+  "cr": "8 (XP 3,900; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The thri-kreen makes three Psionic Lance attacks."
+    },
+    {
+      "name": "Psionic Lance",
+      "description": "*Melee or Ranged Attack Roll:* +7, reach 10 ft. or range 120 ft. *Hit:* 18 (4d6 + 4) Psychic damage."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The thri-kreen casts one of the following spells, requiring no spell components and using Intelligence as the spellcasting ability (spell save DC 15):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Mantid Psychics and Scavengers*\n**Habitat:** Desert, Grassland; **Treasure:** Armaments\nThri-kreen are mantis-like wanderers who harness their innate camouflage and psychic abilities to survive. Different groups of thri-kreen have distinct carapaces, from the rocky shades of desert-dwellers to the vibrant hues of those living in verdant lands. While their language has a distinctly insectile quality, thri-kreen often use telepathy to communicate, and groups can rapidly share a wealth of detailed information without making a sound.\n> \"I would tell you now the tale of the first Ka'Cha, the first thri-kreen who knew and taught the truth: that the clutch is all.\" -- Ka'Cha, Thri-kreen Knowledge Hunter\nThri-kreen marauders employ weapons made of stone and bone, such as the spear-like gythka and throwing blades called chatkcha.\nThri-kreen psions harness their psychic powers to avoid danger and manipulate objects from afar.",
+  "habitat": "Desert, Grassland",
+  "treasure": "Armaments",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

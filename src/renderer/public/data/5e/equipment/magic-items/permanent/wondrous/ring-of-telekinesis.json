@@ -1,0 +1,19 @@
+{
+  "name": "Ring of Telekinesis",
+  "itemType": "Ring",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "While wearing this ring, you can cast *Telekinesis* from it.",
+  "properties": null,
+  "weight": null,
+  "cost": null,
+  "spells": [
+    {
+      "name": "Telekinesis",
+      "level": null
+    }
+  ],
+  "damage": null,
+  "source": "DMG 2024"
+}

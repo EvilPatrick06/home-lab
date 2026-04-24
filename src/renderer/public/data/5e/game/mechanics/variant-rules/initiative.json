@@ -1,0 +1,64 @@
+{
+  "id": "initiative",
+  "name": "Initiative Variants",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "Two variant initiative systems that change how turn order is determined. Speed Factor modifies individual initiative rolls based on actions chosen. Side Initiative simplifies combat by having each side roll once.",
+  "mechanics": {
+    "variants": [
+      {
+        "name": "Speed Factor Initiative",
+        "description": "At the start of each round, each creature declares what it intends to do, then rolls initiative with modifiers based on the chosen action. Initiative is re-rolled each round.",
+        "baseRoll": "1d20 + Dexterity modifier (as normal)",
+        "modifiers": {
+          "creatureSize": [
+            { "size": "Tiny", "modifier": 5 },
+            { "size": "Small", "modifier": 2 },
+            { "size": "Medium", "modifier": 0 },
+            { "size": "Large", "modifier": -2 },
+            { "size": "Huge", "modifier": -5 },
+            { "size": "Gargantuan", "modifier": -8 }
+          ],
+          "weaponProperties": [
+            { "type": "Light or Finesse melee weapon", "modifier": 2 },
+            { "type": "Two-Handed or Heavy melee weapon", "modifier": -2 },
+            { "type": "Loading ranged weapon", "modifier": -5 }
+          ],
+          "spellcasting": [
+            { "spellLevel": "Cantrip", "modifier": 0 },
+            { "spellLevel": "1st", "modifier": -1 },
+            { "spellLevel": "2nd", "modifier": -2 },
+            { "spellLevel": "3rd", "modifier": -3 },
+            { "spellLevel": "4th", "modifier": -4 },
+            { "spellLevel": "5th", "modifier": -5 },
+            { "spellLevel": "6th", "modifier": -6 },
+            { "spellLevel": "7th", "modifier": -7 },
+            { "spellLevel": "8th", "modifier": -8 },
+            { "spellLevel": "9th", "modifier": -9 }
+          ]
+        },
+        "changingActions": "If a creature changes its declared action on its turn, it can do so but acts last in the current initiative order for that round."
+      },
+      {
+        "name": "Side Initiative",
+        "description": "Instead of each creature rolling individually, one representative from each side rolls 1d20 (no modifiers). The side with the highest roll acts first. All members of a side act in any order they choose on their side's turn.",
+        "procedure": [
+          "Each side designates one creature to roll 1d20 (no ability modifiers)",
+          "The side with the highest roll takes their turns first",
+          "Ties are re-rolled",
+          "All creatures on the winning side take their turns in any order",
+          "Then all creatures on the losing side take their turns in any order",
+          "Re-roll each round or keep the same order for the entire combat (DM's choice)"
+        ]
+      }
+    ]
+  },
+  "interactions": [
+    "Speed Factor makes higher-level spells and heavy weapons less agile, rewarding light weapon users and cantrip-focused casters",
+    "Speed Factor re-rolls initiative each round, significantly increasing combat bookkeeping",
+    "Side Initiative is much simpler and faster but removes individual initiative bonuses (Alert feat, high Dexterity) from being meaningful",
+    "Side Initiative allows tactical coordination since all members of a side can choose their action order",
+    "The Alert feat and features that add to initiative (such as the War Magic Wizard) have reduced value under Side Initiative",
+    "Side Initiative can create 'rocket tag' situations where the winning side alpha-strikes before the losing side can react"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "id": "letters-of-marque",
+  "name": "Letters of Marque",
+  "description": "Official documents granting legal authority to perform specific activities that would otherwise be illegal.",
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Marks of Prestige"
+  },
+  "letters": [
+    {
+      "id": "privateer-commission",
+      "name": "Privateer Commission",
+      "description": "A letter authorizing the bearer to attack and capture enemy ships on behalf of a sovereign nation.",
+      "grantedBy": "Admiral or monarch",
+      "authority": "Attack and seize enemy merchant and military vessels",
+      "mechanicalEffects": [
+        "Legal immunity for piracy charges in the issuing nation",
+        "Right to keep 50% of captured cargo (remainder goes to the crown)",
+        "Access to friendly ports for repairs and resupply",
+        "Advantage on Charisma checks when dealing with naval authorities of the issuing nation"
+      ],
+      "restrictions": [
+        "Must not attack vessels of allied nations",
+        "Must pay the crown's share of captured goods",
+        "Can be revoked for attacking friendly ships"
+      ]
+    },
+    {
+      "id": "bounty-hunters-license",
+      "name": "Bounty Hunter's License",
+      "description": "Authorization to pursue, capture, and return fugitives for a reward.",
+      "grantedBy": "Local magistrate or lord",
+      "authority": "Pursue and apprehend named criminals across jurisdictions",
+      "mechanicalEffects": [
+        "Legal authority to detain wanted individuals",
+        "Access to criminal records and bounty postings",
+        "Cooperation from local law enforcement",
+        "Advantage on Charisma (Intimidation) checks against wanted criminals"
+      ],
+      "restrictions": [
+        "Must bring targets back alive unless specified otherwise",
+        "Must not cause excessive collateral damage",
+        "Jurisdiction limited to the issuing region unless otherwise stated"
+      ]
+    },
+    {
+      "id": "writ-of-exploration",
+      "name": "Writ of Exploration",
+      "description": "A document granting the bearer authority to explore, map, and claim territory in the name of a sovereign.",
+      "grantedBy": "Monarch or governor",
+      "authority": "Explore uncharted lands and claim them for the issuing authority",
+      "mechanicalEffects": [
+        "Legal right to any treasures found in unclaimed territory",
+        "Right to name discovered landmarks",
+        "Access to royal cartographers and supplies",
+        "Advantage on Charisma checks when requesting aid from the issuing nation's outposts"
+      ],
+      "restrictions": [
+        "Must report discoveries to the issuing authority",
+        "Must not provoke conflict with established civilizations",
+        "Territory claims must be registered"
+      ]
+    },
+    {
+      "id": "inquisitorial-warrant",
+      "name": "Inquisitorial Warrant",
+      "description": "Authority to investigate, interrogate, and judge matters related to a specific threat (e.g., cults, undead, fiends).",
+      "grantedBy": "High priest, bishop, or monarch",
+      "authority": "Investigate and neutralize supernatural threats",
+      "mechanicalEffects": [
+        "Authority to enter private property in pursuit of the threat",
+        "Legal authority to detain and question suspects",
+        "Cooperation from clergy and local authorities",
+        "Advantage on Charisma (Intimidation) checks during interrogations related to the warrant's scope"
+      ],
+      "restrictions": [
+        "Authority limited to the specified threat",
+        "Must report findings to the issuing authority",
+        "Abuse of power results in revocation and possible prosecution"
+      ]
+    }
+  ]
+}

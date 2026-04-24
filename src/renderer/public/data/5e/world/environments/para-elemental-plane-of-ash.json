@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Above Elemental Below",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Model",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "para-elemental-plane-of-ash",
+      "name": "Para-elemental Plane of Ash",
+      "alternateNames": ["Plane of Ash", "Great Conflagration"],
+      "category": "Para-elemental Plane",
+      "subcategory": "Para-elemental Ash",
+      "alignments": [],
+      "philosophicalEssence": "The Plane of Ash highlights the commonality between air and fire—the tendency to movement and change, given a destructive tone by the raging conflagration of the plane.",
+      "emotionalInfluence": "Desolation and hostility; a refuge for outlaws and fugitives who shelter in floating ash clusters",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "variable",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A border region between the Elemental Plane of Air and the Elemental Plane of Fire, forming an endless storm of flames, smoke, and ash",
+        "breathableAtmosphere": false,
+        "atmosphereNotes": "The plane is an endless storm of flames, smoke, and ash. Thick ash obscures sight and battering winds fill the atmosphere. Howling winds from the Plane of Air mix with the cinder storms and lava of the Sea of Fire.",
+        "temperature": {
+          "category": "extreme_heat",
+          "description": "Howling winds from the Plane of Air mix with the cinder storms and lava of the Sea of Fire, creating an environment of extreme heat from the fire element combined with searing hot winds."
+        },
+        "hasSurface": false,
+        "dominantElement": "Ash (mixture of Air and Fire elements)",
+        "weatherPatterns": "Endless storm of flames, smoke, and ash with howling winds and cinder storms. Battering winds make travel difficult."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "No special time flow rules are specified for the Para-elemental Plane of Ash."
+      },
+      "hazards": [
+        {
+          "id": "ash-obscurement",
+          "name": "Thick Ash Obscurement",
+          "description": "The thick ash obscures sight beyond a few dozen feet. The endless storm of flames, smoke, and ash severely limits visibility across the plane.",
+          "category": "elemental",
+          "severity": "major",
+          "lightLevelModification": {
+            "baseLevel": "darkness",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": 30,
+              "minimumVisibility": 0,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "ash"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "Dark gray and orange from flames, smoke, and ash"
+          },
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "variable",
+              "description": "Ash clusters into floating realms; the plane exists as a border region between Air and Fire with no consistent ground surface.",
+              "affectsFloatingObjects": true
+            },
+            "effectiveSpeedReductionPercent": 50,
+            "windForce": {
+              "category": "severe",
+              "opposesMovement": true
+            }
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology, Para-elemental Planes section"
+        },
+        {
+          "id": "battering-winds",
+          "name": "Battering Winds",
+          "description": "Howling winds from the Plane of Air mix with the cinder storms, creating battering winds that make travel difficult across the entire plane.",
+          "category": "weather",
+          "severity": "major",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "variable",
+              "description": "Winds batter travelers making movement across the plane difficult."
+            },
+            "effectiveSpeedReductionPercent": 50,
+            "windForce": {
+              "category": "severe",
+              "opposesMovement": true
+            }
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology, Para-elemental Planes section"
+        },
+        {
+          "id": "endless-storm-of-flames",
+          "name": "Endless Storm of Flames, Smoke, and Ash",
+          "description": "The plane is an endless storm of flames, smoke, and ash. This is not a periodic weather event but a permanent condition of the entire plane, combining elements of fire and air into a destructive conflagration.",
+          "category": "elemental",
+          "severity": "severe",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology, Para-elemental Planes section"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "connection-air-to-ash",
+          "name": "Sirocco Straits Connection",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Air", "Para-elemental Plane of Ash"],
+          "description": "The Sirocco Straits is the region of the Plane of Air nearest to the Para-elemental Plane of Ash, where hot, dry winds scour earth motes into barren chunks of rock.",
+          "hazards": ["Hot dry winds", "Barren scoured earth motes"],
+          "isOneWay": false
+        },
+        {
+          "id": "connection-fire-to-ash",
+          "name": "Sea of Fire Connection",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Fire", "Para-elemental Plane of Ash"],
+          "description": "Lava flows through the Fountains of Creation toward the Para-elemental Plane of Ash and pools into the great Sea of Fire. The Sea of Fire's edge borders the Plane of Ash.",
+          "hazards": ["Lava flows", "Cinder storms"],
+          "isOneWay": false
+        },
+        {
+          "id": "ethereal-curtain-to-ash",
+          "name": "Ethereal Curtain to Plane of Ash",
+          "type": "other",
+          "connectedPlanes": ["Ethereal Plane", "Para-elemental Plane of Ash"],
+          "description": "A dark gray ethereal curtain in the Deep Ethereal connects to the Border Ethereal overlapping the Para-elemental Plane of Ash. Distinguishable by color, texture, and temperature.",
+          "hazards": [],
+          "isOneWay": false
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Outlaw and Fugitive Shelters",
+            "description": "Here and there, ash clusters into floating realms where outlaws and fugitives take shelter."
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "The commonality between air and fire—the tendency to movement and change given a destructive tone",
+        "Interaction and contrast between the forces and ideals embodied by air and fire",
+        "Extreme environments fundamentally similar to places found on the Material Plane",
+        "Exploring the destructive aspects of movement and change"
+      ],
+      "adventureSituations": [],
+      "etherealCurtainColor": "Dark gray",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Elemental Plane of Air section references Sirocco Straits as the region nearest to the Para-elemental Plane of Ash"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Elemental Plane of Fire section references lava flowing from the Fountains of Creation toward the Para-elemental Plane of Ash"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Ethereal Plane section lists Para-elemental Plane of Ash as entry 9 on d12 Ethereal Curtains table with dark gray curtain color"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Inner Planes section describes Para-elemental Planes as border regions between Elemental Planes where elemental substances overlap"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3 referenced for environmental effects related to heat hazards"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "ethereal-curtain-travel",
+      "name": "Ethereal Curtain to Para-elemental Plane of Ash",
+      "type": "natural_crossing",
+      "description": "Dark gray ethereal curtains in the Deep Ethereal lead to the Border Ethereal connected to the Para-elemental Plane of Ash. Curtains are distinguishable by color (dark gray), texture, and temperature.",
+      "requirements": ["Access to the Deep Ethereal via Plane Shift, Gate, or magical portal"],
+      "associatedSpells": ["Plane Shift", "Gate"],
+      "risks": ["Ether cyclones in the Deep Ethereal", "Travel time of 1d10 × 10 hours through the Deep Ethereal"],
+      "destinations": ["Para-elemental Plane of Ash"]
+    },
+    {
+      "id": "portal-travel-to-ash",
+      "name": "Planar Portal to Plane of Ash",
+      "type": "portal",
+      "description": "Portals and vortices can connect to the Para-elemental Plane of Ash. Vortices join an Elemental Plane with a very similar location on another plane.",
+      "requirements": [
+        "Finding a portal that leads to the Plane of Ash",
+        "Meeting portal requirements (command, key item, random, situation, or time-based)"
+      ],
+      "associatedSpells": ["Gate", "Plane Shift"],
+      "risks": ["Portal guardians", "Portal requirements may be difficult to meet"],
+      "destinations": ["Para-elemental Plane of Ash"]
+    },
+    {
+      "id": "spell-travel-to-ash",
+      "name": "Spell-based Travel to Plane of Ash",
+      "type": "spell",
+      "description": "Spells such as Gate and Plane Shift can transport adventurers to the Para-elemental Plane of Ash.",
+      "requirements": [
+        "Ability to cast appropriate spells",
+        "For Plane Shift, a tuning fork attuned to the Para-elemental Plane of Ash"
+      ],
+      "associatedSpells": ["Gate", "Plane Shift"],
+      "risks": ["Arriving in the endless storm of flames, smoke, and ash"],
+      "destinations": ["Para-elemental Plane of Ash"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

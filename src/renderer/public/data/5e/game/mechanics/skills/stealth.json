@@ -1,0 +1,15 @@
+{
+  "id": "stealth",
+  "name": "Stealth",
+  "ability": "dexterity",
+  "description": "Make a Dexterity (Stealth) check when you attempt to conceal yourself from enemies, slink past guards, slip away without being noticed, or sneak up on someone without being seen or heard. In 2024 rules, you must be Heavily Obscured or behind Three-Quarters or Total Cover to take the Hide action.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Hide from creatures using the Hide action",
+    "Sneak past guards or sentries",
+    "Follow someone without being noticed",
+    "Approach a creature without alerting it",
+    "Remain hidden while moving through cover"
+  ]
+}

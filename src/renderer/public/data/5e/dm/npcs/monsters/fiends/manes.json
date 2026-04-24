@@ -1,0 +1,107 @@
+{
+  "name": "Manes",
+  "sizes": ["Small"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["The Abyss"],
+  "treasure": ["None"],
+  "lore": "Manes are the lowest form of demon, wretched creatures formed from the souls of mortals consigned to the Abyss. These pitiful fiends shamble mindlessly through the Lower Planes, driven by insatiable hunger and rage. Other demons use manes as servants and fodder, and the manes that survive long enough in the Abyss may eventually transform into more powerful demons.",
+  "armorClass": {
+    "value": 9
+  },
+  "hitPoints": {
+    "average": 9,
+    "dice": {
+      "count": 2,
+      "die": "d6",
+      "modifier": 2
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 7
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 4,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Frightened", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 9
+  },
+  "languages": {
+    "understood": ["Abyssal"],
+    "notes": "understands Abyssal but can't speak"
+  },
+  "challengeRating": "1/8",
+  "experiencePoints": 25,
+  "proficiencyBonus": 2,
+  "actions": [
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +2, reach 5 ft. Hit: 5 (2d4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 2,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

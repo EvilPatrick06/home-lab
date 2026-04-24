@@ -1,0 +1,24 @@
+{
+  "name": "Boon of Truesight",
+  "category": "Epic Boon",
+  "prerequisites": {
+    "level": 19
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": "any",
+        "amount": 1,
+        "maximum": 30,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Truesight",
+      "description": "You have Truesight with a range of 60 feet."
+    }
+  ],
+  "source": "PHB 2024"
+}

@@ -1,0 +1,161 @@
+{
+  "name": "Vampire Familiar",
+  "sizes": ["Medium", "Small"],
+  "creatureType": "Humanoid",
+  "alignment": "Neutral Evil",
+  "armorClass": {
+    "value": 15
+  },
+  "hitPoints": {
+    "average": 65,
+    "dice": {
+      "count": 10,
+      "die": "d8",
+      "modifier": 20
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Climb",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 15
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 5
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 2
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Necrotic"],
+  "conditionImmunities": ["Charmed"],
+  "gear": [
+    {
+      "name": "Dagger",
+      "quantity": 10
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Common"],
+    "notes": "plus one other language"
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Vampiric Connection",
+      "description": "While the familiar and its vampire master are on the same plane of existence, the vampire can communicate with the familiar telepathically, and the vampire can perceive through the familiar's senses."
+    }
+  ],
+  "multiattack": {
+    "description": "The familiar makes two Umbral Dagger attacks.",
+    "attacks": [
+      {
+        "actionName": "Umbral Dagger",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Umbral Dagger",
+      "description": "Melee or Ranged Attack Roll: +5, reach 5 ft. or range 20/60 ft. Hit: 5 (1d4 + 3) Piercing damage plus 7 (3d4) Necrotic damage. If the target is reduced to 0 Hit Points by this attack, the target becomes Stable but has the Poisoned condition for 1 hour. While it has the Poisoned condition, the target has the Paralyzed condition.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 5,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 3,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ],
+          "additionalEffects": "If the target is reduced to 0 Hit Points by this attack, the target becomes Stable but has the Poisoned condition for 1 hour. While it has the Poisoned condition, the target has the Paralyzed condition."
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Deathless Agility",
+      "description": "The familiar takes the Dash or Disengage action."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Banded agate",
+  "slug": "banded-agate",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "striped brown, blue, white, or red",
+  "dieValue": "2",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "name": "Chain Devil",
+  "slug": "chain-devil",
+  "size": "Medium",
+  "type": "Fiend",
+  "alignment": "Lawful Evil",
+  "ac": "15",
+  "initiative": "+5 (15)",
+  "hp": "85",
+  "hpFormula": "10d8 + 40",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 15,
+    "con": 18,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 2,
+    "con": 7,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Fire, Poison; Poisoned",
+  "resistances": "Bludgeoning, Cold, Piercing, Slashing",
+  "senses": "Darkvision 120 ft. (unimpeded by magical Darkness); Passive Perception 11",
+  "languages": "Infernal; telepathy 120 ft.",
+  "cr": "8 (XP 3,900; PB +3)",
+  "traits": [
+    {
+      "name": "Diabolical Restoration",
+      "description": "If the devil dies outside the Nine Hells, its body disappears in sulfurous smoke, and it gains a new body instantly, reviving with all its Hit Points somewhere in the Nine Hells."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The devil makes two Chain attacks and uses Conjure Infernal Chain."
+    },
+    {
+      "name": "Chain",
+      "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 11 (2d6 + 4) Slashing damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 14) from one of two chains, and it has the Restrained condition until the grapple ends."
+    },
+    {
+      "name": "Conjure Infernal Chain",
+      "description": "The devil conjures a fiery chain to bind a creature. *Dexterity Saving Throw:* DC 15, one creature the devil can see within 60 feet. *Failure:* 9 (2d4 + 4) Fire damage, and the target has the Restrained condition until the end of the devil's next turn, at which point the chain disappears. If the target is Large or smaller, the devil moves the target up to 30 feet straight toward itself. *Success:* The chain disappears."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Unnerving Gaze",
+      "description": "*Trigger:* A creature the devil can see starts its turn within 30 feet of the devil and can see the devil. *Response* — *Wisdom Saving Throw:* DC 15, the triggering creature. *Failure:* The target has the Frightened condition until the end of its turn. *Success:* The target is immune to this devil's Unnerving Gaze for 24 hours."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "*Devil of Pain and Control*\n**Habitat:** Planar (Nine Hells); **Treasure:** Implements\nAlso known as kytons, chain devils consider themselves morbid artisans who use deception, menace, and vicious metal to coerce prisoners into betraying themselves. Many serve powerful devils, wrenching secrets from imprisoned souls using deadly, animate chains. Left to their own devices, chain devils encourage ruthless individuals to pursue forbidden magic, leading their pupils down paths to the Nine Hells.\nAlong with psychological threats and physical harm, a chain devil uses its unnerving gaze to make its victims perceive their worst fear rather than the monster. Roll on or choose a result from the Chain Devil Masks table to inspire a chain devil's fearful appearance.",
+  "habitat": "Planar (Nine Hells)",
+  "treasure": "Implements",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Devils",
+    "file": "Devils.md"
+  }
+}

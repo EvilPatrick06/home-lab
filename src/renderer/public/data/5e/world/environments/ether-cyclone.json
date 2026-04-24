@@ -1,0 +1,454 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between astral realms above and elemental realms below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "Fewer planes: Material Plane, Transitive Planes, single Elemental Plane, Overheaven, and Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in complex orbits exerting greater influence the closer they draw to the Material Plane"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds on the Material Plane, plus the Feywild and Shadowfell as planar echoes.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "Boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes plus Para-elemental Planes, providing raw elemental substance.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen planes corresponding to alignments and philosophical differences.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing raw forces of life and death.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "ethereal-plane",
+      "name": "Ethereal Plane",
+      "alternateNames": [],
+      "category": "Transitive Plane",
+      "subcategory": "Ethereal",
+      "alignments": [],
+      "philosophicalEssence": "A misty, fog-bound dimension whose shores overlap the Material Plane and Inner Planes, providing passage between them.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Misty fog-bound dimension. Border Ethereal visibility usually limited to 60 feet. Deep Ethereal visibility usually limited to 30 feet.",
+        "hasSurface": false,
+        "weatherPatterns": "Ether cyclones appear abruptly as serpentine columns that spin through the plane, distorting and uprooting everything in their path."
+      },
+      "layers": [],
+      "hasDistinctLayers": true,
+      "layerCount": 2,
+      "timeFlow": {
+        "type": "variable",
+        "ratioToMaterialPlane": "variable",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Traveling through the Deep Ethereal takes 1d10 × 10 hours from one curtain to another, regardless of origin and destination. Distance is meaningless; travelers feel as if they can move by a simple act of will but it is impossible to measure speed and hard to track passage of time."
+      },
+      "hazards": [
+        {
+          "id": "ether-cyclone",
+          "name": "Ether Cyclone",
+          "description": "An ether cyclone is a serpentine column that spins through the plane. The cyclone appears abruptly, distorting and uprooting everything in its path and carrying the debris for miles. Travelers with a Passive Perception score of 15 or higher receive 1 minute of warning: a deep thrum in the ethereal matter. Travelers who can't reach a curtain or portal leading elsewhere suffer the cyclone's effect.",
+          "category": "weather",
+          "severity": "major",
+          "savingThrowToTraverse": {
+            "ability": "Charisma",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "situational",
+            "triggerDescription": "Each character in a group traveling together makes a DC 15 Charisma saving throw when the ether cyclone effect roll is 1-12 (Extended Journey). If at least half the group succeeds, travel is delayed by 1d10 hours. Otherwise, the journey's travel time is doubled.",
+            "onFailure": {
+              "description": "If fewer than half the group succeeds, the journey's travel time is doubled.",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "cumulative": false,
+              "preventsDeath": false
+            },
+            "onSuccess": {
+              "description": "If at least half the group succeeds on the saving throw, travel is delayed by 1d10 hours instead of the journey's travel time being doubled.",
+              "endsEffect": false,
+              "partialEffect": "Travel delayed by 1d10 hours"
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": [],
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": -1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.75,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "detectionMethod": {
+            "passivePerceptionDC": 15,
+            "warningTimeMinutes": 1,
+            "warningDescription": "A deep thrum in the ethereal matter is perceived by travelers with a Passive Perception score of 15 or higher, giving 1 minute of warning before the cyclone arrives."
+          },
+          "locationTableRoll": {
+            "die": 20,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 12,
+                "effect": "Extended journey",
+                "description": "Each character in a group traveling together makes a DC 15 Charisma saving throw. If at least half the group succeeds, travel is delayed by 1d10 hours. Otherwise, the journey's travel time is doubled."
+              },
+              {
+                "rangeLow": 13,
+                "rangeHigh": 19,
+                "effect": "Blown to a random location",
+                "description": "Blown to a random location in the Border Ethereal overlapping a random plane (roll on the Ethereal Curtains table)."
+              },
+              {
+                "rangeLow": 20,
+                "rangeHigh": 20,
+                "effect": "Hurled to the Astral Plane",
+                "description": "Hurled to a random destination on the Astral Plane."
+              }
+            ]
+          },
+          "encounterProbability": {
+            "description": "Ether cyclones appear abruptly while traveling through the Ethereal Plane. No specific frequency is given; the DM determines when one occurs."
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology, Ethereal Plane, Ether Cyclones"
+        },
+        {
+          "id": "keening-gloom",
+          "name": "Keening Gloom",
+          "description": "A massive ether cyclone known as the Keening Gloom whirls just beyond the Radiant Citadel in the Ethereal Plane. It is a looming threat and a grim reminder of the Radiant Citadel's precarious position. It functions as an ether cyclone but is a permanent, named fixture near the Radiant Citadel.",
+          "category": "weather",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology, Ethereal Plane, Radiant Citadel"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "uncommon",
+      "planarConnections": [
+        {
+          "id": "ethereal-curtains-connection",
+          "name": "Ethereal Curtains",
+          "type": "other",
+          "connectedPlanes": [
+            "Material Plane",
+            "Shadowfell",
+            "Feywild",
+            "Elemental Plane of Air",
+            "Elemental Plane of Earth",
+            "Elemental Plane of Fire",
+            "Elemental Plane of Water",
+            "Para-elemental Plane of Ash",
+            "Para-elemental Plane of Ice",
+            "Para-elemental Plane of Magma",
+            "Para-elemental Plane of Ooze"
+          ],
+          "description": "Scattered throughout the Deep Ethereal are curtains of vaporous color. Passing through a curtain leads a traveler to a region of the Border Ethereal connected to a specific Inner Plane, the Material Plane, the Feywild, or the Shadowfell. The color of the curtain indicates the plane.",
+          "hazards": ["ether-cyclone"],
+          "isOneWay": false,
+          "navigableBy": ["Plane Shift spell", "Gate spell", "magical portal"]
+        },
+        {
+          "id": "ether-cyclone-astral-connection",
+          "name": "Ether Cyclone Astral Displacement",
+          "type": "ether_cyclone",
+          "connectedPlanes": ["Ethereal Plane", "Astral Plane"],
+          "description": "On a roll of 20 on the Ether Cyclone table, travelers are hurled to a random destination on the Astral Plane.",
+          "hazards": ["ether-cyclone"],
+          "isOneWay": true,
+          "navigableBy": []
+        },
+        {
+          "id": "ether-cyclone-border-ethereal-connection",
+          "name": "Ether Cyclone Border Ethereal Displacement",
+          "type": "ether_cyclone",
+          "connectedPlanes": [
+            "Ethereal Plane",
+            "Material Plane",
+            "Shadowfell",
+            "Feywild",
+            "Elemental Plane of Air",
+            "Elemental Plane of Earth",
+            "Elemental Plane of Fire",
+            "Elemental Plane of Water",
+            "Para-elemental Plane of Ash",
+            "Para-elemental Plane of Ice",
+            "Para-elemental Plane of Magma",
+            "Para-elemental Plane of Ooze"
+          ],
+          "description": "On a roll of 13-19 on the Ether Cyclone table, travelers are blown to a random location in the Border Ethereal overlapping a random plane determined by rolling on the Ethereal Curtains table.",
+          "hazards": ["ether-cyclone"],
+          "isOneWay": true,
+          "navigableBy": []
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [
+          {
+            "name": "Radiant Citadel",
+            "description": "A living relic of twenty-seven great civilizations on the Material Plane. A floating city carved from a single massive fossil around the Auroral Diamond. The Keening Gloom ether cyclone whirls just beyond the city."
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "adventureThemes": [
+        "Traveling between planes via the Deep Ethereal",
+        "Scouting and spying via the Border Ethereal",
+        "Surviving ether cyclones",
+        "Visiting the Radiant Citadel"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Journeys through the Radiant Citadel",
+          "description": "Several worlds accessible from the Radiant Citadel are introduced in this anthology of short adventures."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "ether-cyclone-planar-displacement",
+      "name": "Ether Cyclone Planar Displacement",
+      "type": "ether_cyclone",
+      "connectedPlanes": [
+        "Ethereal Plane",
+        "Astral Plane",
+        "Material Plane",
+        "Shadowfell",
+        "Feywild",
+        "Elemental Plane of Air",
+        "Elemental Plane of Earth",
+        "Elemental Plane of Fire",
+        "Elemental Plane of Water",
+        "Para-elemental Plane of Ash",
+        "Para-elemental Plane of Ice",
+        "Para-elemental Plane of Magma",
+        "Para-elemental Plane of Ooze"
+      ],
+      "description": "Ether cyclones in the Ethereal Plane can displace travelers to random locations in the Border Ethereal overlapping a random plane (d20 roll 13-19) or hurl them to the Astral Plane (d20 roll 20). On rolls 1-12, travel time is extended via a DC 15 Charisma saving throw mechanic.",
+      "hazards": [
+        "Extended journey with doubled travel time",
+        "Random displacement to Border Ethereal",
+        "Random displacement to Astral Plane"
+      ],
+      "isOneWay": true,
+      "navigableBy": []
+    }
+  ],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

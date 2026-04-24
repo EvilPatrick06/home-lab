@@ -1,0 +1,204 @@
+{
+  "name": "Chain Devil",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "lore": "Chain devils, also known as kytons, are sadistic fiends that dwell in the Nine Hells, reveling in the suffering of others. Swathed in animate chains that serve as both armor and weapons, they capture and torment mortal souls. Their visages shift to show the faces of those a viewer has lost, an unnerving mask that fills the hearts of onlookers with dread.",
+  "armorClass": {
+    "value": 16,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 85,
+    "dice": {
+      "count": 10,
+      "die": "d8",
+      "modifier": 40
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 7
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 4
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    }
+  },
+  "resistances": ["Cold"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the devil's Darkvision."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The devil makes two Chain attacks.",
+    "attacks": [
+      {
+        "actionName": "Chain",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Chain",
+      "description": "Melee Attack Roll: +7, reach 10 ft. Hit: 11 (2d6 + 4) Slashing damage plus 7 (2d6) Piercing damage. If the target is a creature, it has the Grappled condition (escape DC 15). Until the grapple ends, the target has the Restrained condition, and the devil can't use this chain against another target. The devil has two chains.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 15
+            },
+            {
+              "condition": "Restrained",
+              "duration": "until the grapple ends"
+            }
+          ],
+          "additionalEffects": "The devil can't use this chain against another target while the grapple persists. The devil has two chains."
+        }
+      }
+    },
+    {
+      "name": "Animate Chains",
+      "description": "Up to four chains the devil can see within 60 feet of itself magically sprout barbs and animate under the devil's control. Each creature within 10 feet of an animated chain must succeed on a DC 15 Dexterity saving throw or take 7 (2d6) Piercing damage and have the Restrained condition until the start of the devil's next turn. A creature can free itself or another creature within its reach from the Restrained condition by succeeding on a DC 15 Strength (Athletics) check as an action.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 15,
+        "targets": "each creature within 10 feet of an animated chain",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "duration": "until the start of the devil's next turn",
+              "escapeDC": 15
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature avoids the damage and isn't restrained."
+        }
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Unnerving Mask",
+      "description": "The triggering creature must succeed on a DC 13 Wisdom saving throw or have the Frightened condition until the start of its next turn.",
+      "trigger": "A creature the devil can see starts its turn within 30 feet of the devil.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 13,
+        "targets": "the triggering creature",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "until the start of the creature's next turn"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

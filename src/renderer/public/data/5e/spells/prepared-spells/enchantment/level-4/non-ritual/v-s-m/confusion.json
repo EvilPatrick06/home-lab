@@ -1,0 +1,59 @@
+{
+  "name": "Confusion",
+  "level": 4,
+  "school": "Enchantment",
+  "classes": ["Bard", "Druid", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "three nut shells",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Each creature in a 10-foot-radius Sphere centered on a point you choose within range must succeed on a Wisdom saving throw, or that target can't take Bonus Actions or Reactions and must roll 1d10 at the start of each of its turns to determine its behavior for that turn: 1 — The target doesn't take an action, and it uses all its movement to move in a random direction (roll 1d4: 1 north, 2 east, 3 south, 4 west). 2–6 — The target doesn't move or take actions. 7–8 — The target doesn't move, and it takes the Attack action to make one melee attack against a random creature within reach; if none are within reach, the target takes no action. 9–10 — The target chooses its behavior. At the end of each of its turns, an affected target repeats the save, ending the spell on itself on a success.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 10
+    }
+  ],
+  "targetType": "point",
+  "mustSeeTarget": false,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "Target can't take Bonus Actions or Reactions and must roll 1d10 at the start of each of its turns to determine behavior",
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "radiusIncrease",
+        "feetPerLevel": 5,
+        "baseSpellLevel": 4,
+        "description": "The Sphere's radius increases by 5 feet for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["control", "area", "random-behavior", "no-bonus-actions", "no-reactions"]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Shovel",
+  "cost": "2 GP",
+  "weight": "5 lb.",
+  "description": "In 1 hour, dig a hole 5 feet on each side in soil or similar material.",
+  "slug": "shovel",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

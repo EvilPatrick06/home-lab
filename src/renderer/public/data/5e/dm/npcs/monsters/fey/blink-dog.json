@@ -1,0 +1,138 @@
+{
+  "name": "Blink Dog",
+  "sizes": ["Medium"],
+  "creatureType": "Fey",
+  "alignment": "Lawful Good",
+  "habitat": ["Forest", "Grassland"],
+  "treasure": ["None"],
+  "lore": "Blink dogs are intelligent, pack-hunting fey creatures that resemble sleek canines. They can teleport short distances in the blink of an eye, a talent that makes them elusive and effective predators. Blink dogs despise displacer beasts and attack them on sight. They are loyal to those who earn their trust and have been known to ally with good-aligned adventurers.",
+  "armorClass": {
+    "value": 13
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 4,
+      "die": "d8",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Blink Dog"],
+    "understood": ["Sylvan"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Keen Hearing and Smell",
+      "description": "The blink dog has Advantage on Wisdom (Perception) checks that rely on hearing or smell."
+    },
+    {
+      "name": "Pack Tactics",
+      "description": "The blink dog has Advantage on an attack roll against a creature if at least one of the blink dog's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Teleport",
+      "description": "The blink dog teleports, along with any equipment it is wearing or carrying, up to 40 feet to an unoccupied space it can see.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 4,
+        "maxRoll": 6
+      },
+      "teleport": {
+        "distance": 40,
+        "notes": "Along with any equipment it is wearing or carrying, to an unoccupied space it can see"
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "Crocodile",
+  "slug": "crocodile",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 12,
+  "hp": 19,
+  "hpFormula": "3d10 + 3",
+  "speed": "20 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 10,
+    "con": 13,
+    "int": 2,
+    "wis": 10,
+    "cha": 5
+  },
+  "skills": "Stealth +2",
+  "senses": "Passive Perception 10",
+  "languages": "—",
+  "cr": "1/2",
+  "xp": "100 XP",
+  "traits": [
+    {
+      "name": "Hold Breath",
+      "description": "Can hold its breath for 15 minutes."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +4, reach 5 ft. *Hit:* 7 (1d10 + 2) Piercing, and the target has the Grappled condition (escape DC 12). Until the grapple ends, the target has the Restrained condition, and the crocodile can't bite another target."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

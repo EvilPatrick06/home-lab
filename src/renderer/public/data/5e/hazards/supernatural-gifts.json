@@ -1,0 +1,122 @@
+[
+  {
+    "id": "blessing-of-health",
+    "name": "Blessing of Health",
+    "type": "blessing",
+    "effect": "Your Constitution score increases by 2, to a maximum of 22.",
+    "description": "A divine blessing that fortifies the recipient's body, granting exceptional resilience.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "blessing-of-magic-resistance",
+    "name": "Blessing of Magic Resistance",
+    "type": "blessing",
+    "effect": "You have Advantage on saving throws against spells and other magical effects.",
+    "description": "A divine blessing that shields the recipient from harmful magic.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "blessing-of-protection",
+    "name": "Blessing of Protection",
+    "type": "blessing",
+    "effect": "You gain a +1 bonus to AC and saving throws.",
+    "description": "A divine blessing that surrounds the recipient with a subtle protective ward.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "blessing-of-understanding",
+    "name": "Blessing of Understanding",
+    "type": "blessing",
+    "effect": "Your Wisdom score increases by 2, to a maximum of 22.",
+    "description": "A divine blessing that grants the recipient exceptional insight and perception.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "blessing-of-valhalla",
+    "name": "Blessing of Valhalla",
+    "type": "blessing",
+    "effect": "You can use a Bonus Action to enter a battle frenzy that lasts 1 minute (as if raging, gaining resistance to Bludgeoning, Piercing, and Slashing damage). Once used, this blessing can't be used again until you finish a Long Rest.",
+    "description": "A blessing from warrior deities that grants the recipient a battle frenzy reminiscent of a barbarian's rage.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "blessing-of-wound-closure",
+    "name": "Blessing of Wound Closure",
+    "type": "blessing",
+    "effect": "You regain 1 Hit Point at the start of each of your turns if you have at least 1 Hit Point. Additionally, when you roll Hit Point Dice to regain Hit Points, you double the number of Hit Points restored.",
+    "description": "A divine blessing that causes the recipient's wounds to close rapidly.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "charm-of-animal-conjuring",
+    "name": "Charm of Animal Conjuring",
+    "type": "charm",
+    "duration": "3 uses",
+    "effect": "You can use an action to cast Conjure Animals (3rd-level version). Once you have used this charm three times, the charm vanishes from you.",
+    "description": "A temporary supernatural gift that allows the recipient to summon animals.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "charm-of-darkvision",
+    "name": "Charm of Darkvision",
+    "type": "charm",
+    "duration": "3 uses",
+    "effect": "You can use an action to cast Darkvision, requiring no spell components. Once you have used this charm three times, the charm vanishes from you.",
+    "description": "A temporary supernatural gift that grants the ability to see in darkness.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "charm-of-feather-falling",
+    "name": "Charm of Feather Falling",
+    "type": "charm",
+    "duration": "3 uses",
+    "effect": "You can cast Feather Fall on yourself, requiring no spell components. Once you have used this charm three times, the charm vanishes from you.",
+    "description": "A temporary supernatural gift that protects the recipient from falling damage.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "charm-of-heroism",
+    "name": "Charm of Heroism",
+    "type": "charm",
+    "duration": "3 uses",
+    "effect": "You can use an action to give yourself the benefit of a Potion of Heroism. The effect lasts 1 hour, granting 10 Temporary Hit Points and the benefit of the Bless spell. Once you have used this charm three times, the charm vanishes from you.",
+    "description": "A temporary supernatural gift that fills the recipient with extraordinary courage.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "charm-of-restoration",
+    "name": "Charm of Restoration",
+    "type": "charm",
+    "duration": "3 uses",
+    "effect": "You can use an action to cast Greater Restoration, requiring no spell components. Once you have used this charm three times, the charm vanishes from you.",
+    "description": "A temporary supernatural gift that allows the recipient to cure ailments.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "charm-of-the-slayer",
+    "name": "Charm of the Slayer",
+    "type": "charm",
+    "duration": "3 uses",
+    "effect": "One weapon you are holding becomes a magic weapon that grants a +3 bonus to attack and damage rolls. Additionally, while holding the weapon, you can use an action to know the exact location of one creature of a specific type (chosen when the charm is bestowed) within 120 feet. The charm lasts 1 hour per use.",
+    "description": "A temporary supernatural gift that empowers a weapon against a specific foe.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "charm-of-vitality",
+    "name": "Charm of Vitality",
+    "type": "charm",
+    "duration": "3 uses",
+    "effect": "You can use an action to regain all your Hit Points and remove all conditions affecting you. Once you have used this charm three times, the charm vanishes from you.",
+    "description": "A temporary supernatural gift that grants full restoration of health.",
+    "source": "dmg2024"
+  },
+  {
+    "id": "charm-of-weapon-enhancement",
+    "name": "Charm of Weapon Enhancement",
+    "type": "charm",
+    "duration": "3 uses",
+    "effect": "You can use a Bonus Action to transform one weapon you hold into a +1 magic weapon for 1 hour. Once you have used this charm three times, the charm vanishes from you.",
+    "description": "A temporary supernatural gift that temporarily enhances a weapon.",
+    "source": "dmg2024"
+  }
+]

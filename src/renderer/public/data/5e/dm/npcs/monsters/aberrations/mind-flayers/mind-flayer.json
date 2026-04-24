@@ -1,0 +1,301 @@
+{
+  "name": "Mind Flayer",
+  "sizes": ["Medium"],
+  "creatureType": "Aberration",
+  "alignment": "Lawful Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Arcana", "Relics"],
+  "lore": "Mind flayers, also known as illithids, are psionic aberrations that dwell deep in the Underdark. These alien tyrants sustain themselves by devouring the brains of other creatures, using their potent mental powers to dominate and enslave lesser beings. They serve elder brain colonies, plotting to reclaim dominion over the worlds they once ruled.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Breastplate"]
+  },
+  "hitPoints": {
+    "average": 127,
+    "dice": {
+      "count": 17,
+      "die": "d8",
+      "modifier": 51
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 7
+    },
+    "WIS": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 7
+    },
+    {
+      "skill": "Deception",
+      "bonus": 6
+    },
+    {
+      "skill": "Insight",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "resistances": ["Psychic"],
+  "gear": [
+    {
+      "name": "Breastplate",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Deep Speech", "Undercommon"],
+    "telepathy": 120
+  },
+  "challengeRating": "7",
+  "experiencePoints": 2900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The mind flayer has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Telepathic Hub",
+      "description": "While the mind flayer is conscious, it can use its telepathy to initiate and maintain telepathic conversations with up to ten creatures at a time. The mind flayer can let those creatures telepathically hear each other while connected in this way."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting (Psionics)",
+      "ability": "INT",
+      "spellSaveDC": 15,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true,
+        "ignoresMaterialWithCost": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Levitate",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dominate Monster",
+              "level": 8
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The mind flayer makes two Tentacle attacks. It can replace one of these attacks with Extract Brain if it has a creature grappled.",
+    "attacks": [
+      {
+        "actionName": "Tentacle",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Tentacle",
+        "replaceCount": 1,
+        "with": "Extract Brain"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Tentacle",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 15 (2d10 + 4) Psychic damage. If the target is Medium or smaller, it has the Grappled condition (escape DC 15) and must succeed on a DC 15 Intelligence saving throw or have the Stunned condition until the grapple ends.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ],
+          "additionalEffects": "If the target is Medium or smaller, it has the Grappled condition (escape DC 15) and must succeed on a DC 15 Intelligence saving throw or have the Stunned condition until the grapple ends.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "duration": "until escaped",
+              "escapeDC": 15
+            }
+          ],
+          "savingThrow": {
+            "ability": "INT",
+            "dc": 15,
+            "targets": "the target, if Medium or smaller",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Stunned",
+                  "duration": "until the grapple ends"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Extract Brain",
+      "description": "Melee Attack Roll: +7, reach 5 ft., one creature Grappled by the mind flayer. Hit: 55 (10d10) Piercing damage. If this damage reduces the target to 0 Hit Points, the mind flayer kills the target by extracting and devouring its brain.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one creature Grappled by the mind flayer",
+        "hit": {
+          "damage": [
+            {
+              "average": 55,
+              "dice": {
+                "count": 10,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If this damage reduces the target to 0 Hit Points, the mind flayer kills the target by extracting and devouring its brain."
+        }
+      }
+    },
+    {
+      "name": "Mind Blast",
+      "description": "The mind flayer emits psychic energy in a 60-foot Cone. Each creature in that area must make a DC 15 Intelligence saving throw, taking 22 (4d8 + 4) Psychic damage on a failed save or half as much damage on a successful one. On a failed save, a creature also has the Stunned condition for 1 minute. A Stunned creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 60
+      },
+      "savingThrow": {
+        "ability": "INT",
+        "dc": 15,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Stunned",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "INT",
+                "dc": 15,
+                "targets": "the Stunned creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ]
+}

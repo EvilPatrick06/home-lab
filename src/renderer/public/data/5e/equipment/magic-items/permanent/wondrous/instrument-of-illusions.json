@@ -1,0 +1,17 @@
+{
+  "name": "Instrument of Illusions",
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "While you are playing this musical instrument, you can create harmless, illusory visual effects within a 5-foot-radius Sphere centered on the instrument. If you are a Bard, the radius increases to 15 feet. The magical effects have neither substance nor sound, and they end when you stop playing. This Common magic item requires Attunement.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

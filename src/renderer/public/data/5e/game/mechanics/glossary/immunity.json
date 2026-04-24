@@ -1,0 +1,11 @@
+{
+  "name": "Immunity",
+  "slug": "immunity",
+  "description": "If you have Immunity to a damage type, damage of that type doesn't reduce your Hit Points. If you have Immunity to a condition, you aren't affected by it.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

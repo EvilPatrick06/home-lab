@@ -1,0 +1,29 @@
+{
+  "id": "falling-rules",
+  "name": "Falling Rules",
+  "description": "Rules for falling damage and related mechanics in D&D 2024.",
+  "basicFalling": {
+    "damagePerTenFeet": "1d6 Bludgeoning",
+    "maximumDice": 20,
+    "maximumFallDistance": 200,
+    "maximumDamage": "20d6 Bludgeoning (200+ feet)",
+    "description": "A creature that falls takes 1d6 Bludgeoning damage at the end of the fall for every 10 feet it fell, to a maximum of 20d6."
+  },
+  "landingProne": {
+    "description": "A creature that takes any damage from a fall lands Prone, unless it avoids taking damage from the fall."
+  },
+  "fallingOntoCreatures": {
+    "description": "If a creature falls into the space of another creature and neither is Tiny, the second creature must succeed on a DC 15 Dexterity saving throw or be struck by the falling creature. The struck creature takes damage as though it had fallen the same distance, and the falling creature's damage is halved. The struck creature is also knocked Prone.",
+    "saveDC": 15,
+    "saveAbility": "Dexterity",
+    "effectOnHit": "Struck creature takes the same fall damage, falling creature's damage is halved, struck creature is knocked Prone"
+  },
+  "flyingCreatures": {
+    "description": "A flying creature that is knocked Prone, has its speed reduced to 0, or is otherwise deprived of the ability to move falls unless it can hover or is being held aloft by magic. If a flying creature falls, it descends 500 feet per round (approximately 60 feet per turn) until it lands or the fall is otherwise halted.",
+    "fallRatePerRound": 500,
+    "fallRatePerTurn": 60
+  },
+  "waterImpact": {
+    "description": "Falling into water or a similar liquid can reduce fall damage. The DM may rule that falling into deep water negates some or all fall damage, depending on the height and conditions. A creature that falls into water from a height of 20 feet or less takes no damage. Heights above that follow normal falling rules unless the creature succeeds on a DC 15 Dexterity (Acrobatics) or Strength (Athletics) check to enter the water cleanly, reducing damage by half."
+  }
+}

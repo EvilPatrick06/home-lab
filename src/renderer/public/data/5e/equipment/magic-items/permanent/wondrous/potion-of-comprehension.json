@@ -1,0 +1,19 @@
+{
+  "name": "Potion of Comprehension",
+  "itemType": "Potion",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "When you drink this potion, you gain the effect of the *Comprehend Languages* spell for 1 hour.",
+  "properties": [],
+  "weight": null,
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "charges": null,
+  "rechargeRate": null,
+  "rechargeAmount": null,
+  "spells": ["Comprehend Languages"],
+  "damage": null,
+  "source": "DMG 2024"
+}

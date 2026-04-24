@@ -1,0 +1,34 @@
+{
+  "id": "absorbing-tattoo",
+  "name": "Absorbing Tattoo",
+  "rarity": "Very Rare",
+  "attunement": true,
+  "description": "This tattoo incorporates designs that emphasize one color. While the tattoo is on your skin, you have Resistance to a type of damage associated with that color (see table). When you take damage of that type, you can take a Reaction to gain Immunity to that instance of the damage, and you regain a number of Hit Points equal to half the damage you would have taken. Once this Reaction is used, it can't be used again until the next dawn.",
+  "damageTypeVariants": [
+    { "color": "Green", "damageType": "Acid" },
+    { "color": "Blue", "damageType": "Cold" },
+    { "color": "Red", "damageType": "Fire" },
+    { "color": "White", "damageType": "Force" },
+    { "color": "Yellow", "damageType": "Lightning" },
+    { "color": "Black", "damageType": "Necrotic" },
+    { "color": "Violet", "damageType": "Poison" },
+    { "color": "Silver", "damageType": "Psychic" },
+    { "color": "Gold", "damageType": "Radiant" },
+    { "color": "Orange", "damageType": "Thunder" }
+  ],
+  "properties": {
+    "type": "Magical Tattoo",
+    "needleRequired": "Very Rare or higher",
+    "bodyLocation": "Any"
+  },
+  "effects": [
+    { "name": "Damage Resistance", "description": "Resistance to the chosen damage type.", "activation": "Passive" },
+    {
+      "name": "Damage Absorption",
+      "description": "As a Reaction, gain Immunity to one instance of the damage type and regain HP equal to half the damage.",
+      "activation": "Reaction",
+      "usesPerDay": 1
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

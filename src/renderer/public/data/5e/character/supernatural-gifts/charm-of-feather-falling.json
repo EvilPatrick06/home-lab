@@ -1,0 +1,12 @@
+{
+  "name": "Charm of Feather Falling",
+  "type": "Charm",
+  "charges": 3,
+  "description": "This charm has 3 charges. When you would take Falling damage, you can expend 1 charge to cast Feather Fall on yourself (no action required). Once all charges are used, the charm vanishes.",
+  "slug": "charm-of-feather-falling",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Supernatural Gifts"
+  }
+}

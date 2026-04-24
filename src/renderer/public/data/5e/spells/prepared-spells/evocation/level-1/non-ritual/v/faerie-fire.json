@@ -1,0 +1,48 @@
+{
+  "name": "Faerie Fire",
+  "level": 1,
+  "school": "Evocation",
+  "classes": ["Bard", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Objects in a 20-foot Cube within range are outlined in blue, green, or violet light (your choice). Each creature in the Cube is also outlined if it fails a Dexterity saving throw. For the duration, objects and affected creatures shed Dim Light in a 10-foot radius and can't benefit from the Invisible condition. Attack rolls against an affected creature or object have Advantage if the attacker can see it.",
+  "areaOfEffect": [
+    {
+      "shape": "Cube",
+      "sizeFeet": 20
+    }
+  ],
+  "targetType": "creatureOrObject",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noEffectOnSuccess": true
+  },
+  "light": {
+    "dimRadiusFeet": 10
+  },
+  "advantagesGranted": [
+    {
+      "on": "attackRollsAgainstTarget",
+      "condition": "if the attacker can see the affected creature or object"
+    }
+  ],
+  "tags": ["debuff", "detection", "negates Invisible benefit"]
+}

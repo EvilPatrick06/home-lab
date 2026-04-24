@@ -1,0 +1,74 @@
+{
+  "name": "Ice Storm",
+  "level": 4,
+  "school": "Evocation",
+  "classes": ["Druid", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 300,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a mitten",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Hail falls in a 20-foot-radius, 40-foot-high Cylinder centered on a point within range. Each creature in the Cylinder makes a Dexterity saving throw. A creature takes 2d10 Bludgeoning damage and 4d6 Cold damage on a failed save or half as much damage on a successful one. Hailstones turn ground in the Cylinder into Difficult Terrain until the end of your next turn.",
+  "areaOfEffect": [
+    {
+      "shape": "Cylinder",
+      "radiusFeet": 20,
+      "heightFeet": 40
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 2,
+        "diceValue": 10
+      },
+      "type": "Bludgeoning",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    },
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 6
+      },
+      "type": "Cold",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "createsDifficultTerrain": true,
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 10,
+        "baseSpellLevel": 4,
+        "description": "The Bludgeoning damage increases by 1d10 for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["damage", "control", "difficult terrain", "area"]
+}

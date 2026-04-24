@@ -1,0 +1,40 @@
+{
+  "id": "rest-lengths",
+  "name": "Rest Lengths",
+  "description": "Short and Long Rests are defined periods of downtime that allow characters to recover resources.",
+  "shortRest": {
+    "name": "Short Rest",
+    "minimumDuration": "1 hour",
+    "durationMinutes": 60,
+    "description": "A Short Rest is a period of downtime, at least 1 hour long, during which a character does nothing more strenuous than eating, drinking, reading, and tending to wounds.",
+    "benefits": [
+      "Spend one or more Hit Dice to regain Hit Points (roll each die, add Constitution modifier)",
+      "Regain features that recharge on a Short Rest (e.g., Fighter's Second Wind, Warlock spell slots)",
+      "Can repeat for multiple short rests per day"
+    ],
+    "restrictions": [
+      "Cannot perform strenuous activity during the rest",
+      "If the rest is interrupted by a period of strenuous activity (at least 1 hour of walking, fighting, casting spells, or similar), the characters must begin the rest again"
+    ]
+  },
+  "longRest": {
+    "name": "Long Rest",
+    "minimumDuration": "8 hours",
+    "durationHours": 8,
+    "description": "A Long Rest is a period of extended downtime, at least 8 hours long, during which a character sleeps for at least 6 hours and performs no more than 2 hours of light activity, such as reading, talking, eating, or standing watch.",
+    "benefits": [
+      "Regain all lost Hit Points",
+      "Regain spent Hit Dice up to half your total (minimum 1)",
+      "Regain all expended spell slots",
+      "Regain features that recharge on a Long Rest",
+      "Reduce Exhaustion level by 1 (if fed and watered)"
+    ],
+    "restrictions": [
+      "Must sleep for at least 6 of the 8 hours",
+      "Up to 2 hours of light activity allowed (reading, talking, standing watch)",
+      "If interrupted by strenuous activity (1 hour of walking, fighting, or similar), must restart",
+      "A character can benefit from only one Long Rest in a 24-hour period",
+      "Must have at least 1 Hit Point to start a Long Rest"
+    ]
+  }
+}

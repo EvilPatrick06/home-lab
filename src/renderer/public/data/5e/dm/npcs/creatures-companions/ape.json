@@ -1,0 +1,43 @@
+{
+  "name": "Ape",
+  "slug": "ape",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 12,
+  "hp": 19,
+  "hpFormula": "3d8 + 6",
+  "speed": "30 ft., Climb 30 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 14,
+    "con": 14,
+    "int": 6,
+    "wis": 12,
+    "cha": 7
+  },
+  "skills": "Athletics +5, Perception +3",
+  "senses": "Passive Perception 13",
+  "languages": "—",
+  "cr": "1/2",
+  "xp": "100 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "Two Fist attacks."
+    },
+    {
+      "name": "Fist",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Bludgeoning."
+    },
+    {
+      "name": "Rock",
+      "description": "*Ranged:* +5, range 25/50 ft. *Hit:* 6 (1d6 + 3) Bludgeoning."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

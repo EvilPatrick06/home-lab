@@ -1,0 +1,463 @@
+{
+  "name": "Lich",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "descriptiveTags": ["Wizard"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar", "Ruins", "Underdark"],
+  "treasure": ["Arcana"],
+  "lore": "A lich is an undead spellcaster, usually a wizard, who has used dark magic to bind its soul to a phylactery—a specially prepared vessel. As long as the phylactery remains intact, the lich is nigh immortal, re-forming a new body if its current one is destroyed. Driven by an obsessive need for arcane knowledge and power, liches hoard magical secrets in lairs warded by deadly traps and undead servants.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 285,
+    "dice": {
+      "count": 38,
+      "die": "d8",
+      "modifier": 114
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 10
+    },
+    "INT": {
+      "score": 24,
+      "modifier": 7,
+      "save": 14
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 9
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 14
+    },
+    {
+      "skill": "History",
+      "bonus": 14
+    },
+    {
+      "skill": "Perception",
+      "bonus": 9
+    }
+  ],
+  "resistances": ["Cold and Lightning"],
+  "damageImmunities": ["Necrotic and Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 19
+  },
+  "languages": {
+    "spoken": ["Common"],
+    "notes": "plus up to five other languages"
+  },
+  "challengeRating": "22",
+  "experiencePoints": 41000,
+  "proficiencyBonus": 7,
+  "traits": [
+    {
+      "name": "Legendary Resistance",
+      "description": "If the lich fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 4
+      }
+    },
+    {
+      "name": "Rejuvenation",
+      "description": "If the lich is destroyed but its phylactery remains intact, the lich re-forms within 1d10 days, regaining all its Hit Points and appearing within 5 feet of the phylactery."
+    },
+    {
+      "name": "Turn Immunity",
+      "description": "The lich is immune to any effect that turns Undead."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "INT",
+      "spellSaveDC": 22,
+      "spellAttackBonus": 14,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Disguise Self",
+              "level": 1
+            },
+            {
+              "name": "Mage Hand",
+              "level": 0
+            },
+            {
+              "name": "Prestidigitation",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Animate Dead",
+              "level": 3
+            },
+            {
+              "name": "Counterspell",
+              "level": 3
+            },
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Lightning Bolt",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dimension Door",
+              "level": 4
+            },
+            {
+              "name": "Forcecage",
+              "level": 7
+            },
+            {
+              "name": "Wall of Force",
+              "level": 5
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Finger of Death",
+              "level": 7
+            },
+            {
+              "name": "Power Word Kill",
+              "level": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The lich makes three Arcane Blast attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Arcane Blast",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Arcane Blast",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Arcane Blast",
+      "description": "Melee or Ranged Attack Roll: +14, reach 5 ft. or range 120 ft. Hit: 29 (4d10 + 7) Force damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 14,
+        "reach": 5,
+        "range": {
+          "normal": 120,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 29,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 7
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The lich casts one of its prepared spells, using Intelligence as the spellcasting ability (spell save DC 22, +14 to hit with spell attack rolls)."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Paralyzing Touch",
+      "description": "Melee Attack Roll: +14, reach 5 ft. Hit: 10 (3d6) Cold damage, and the target must succeed on a DC 22 Constitution saving throw or have the Paralyzed condition for 1 minute. The target repeats the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 22,
+            "targets": "the target",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Paralyzed",
+                  "duration": "1 minute",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 22,
+                    "onSuccess": {
+                      "effects": "The condition ends on the target."
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Arcane Blast",
+        "description": "The lich makes one Arcane Blast attack.",
+        "cost": 1
+      },
+      {
+        "name": "Disrupt Life",
+        "description": "Each non-Undead creature within 20 feet of the lich must succeed on a DC 22 Constitution saving throw or take 21 (6d6) Necrotic damage. The lich regains Hit Points equal to the highest damage dealt to any one target.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 22,
+          "targets": "each non-Undead creature within 20 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 21,
+                "dice": {
+                  "count": 6,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Necrotic"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 20,
+          "centered": true
+        }
+      },
+      {
+        "name": "Frightening Gaze",
+        "description": "The lich fixes its gaze on one creature it can see within 10 feet of it. The target must succeed on a DC 22 Wisdom saving throw or have the Frightened condition for 1 minute. The Frightened target repeats the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 22,
+          "targets": "one creature the lich can see within 10 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Frightened",
+                "duration": "1 minute",
+                "savingThrow": {
+                  "ability": "WIS",
+                  "dc": 22,
+                  "onSuccess": {
+                    "effects": "The condition ends on the target."
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "lair": {
+    "description": "A lich typically lairs in a dungeon, tower, or other structure that has been heavily warded with magical traps and protections. Its phylactery is often hidden within the lair or in a separate, secret location.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Spirit Swarm",
+        "description": "Spirits of the dead swirl through the lair. Each creature the lich chooses that it can see within 60 feet of itself must succeed on a DC 22 Constitution saving throw or take 14 (4d6) Necrotic damage and have the Frightened condition until initiative count 20 on the next round.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 22,
+          "targets": "each creature the lich chooses within 60 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 14,
+                "dice": {
+                  "count": 4,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Necrotic"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Frightened",
+                "duration": "until initiative count 20 on the next round"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Arcane Tether",
+        "description": "One creature the lich can see within 30 feet of itself must succeed on a DC 22 Strength saving throw or have the Restrained condition until initiative count 20 on the next round.",
+        "savingThrow": {
+          "ability": "STR",
+          "dc": 22,
+          "targets": "one creature within 30 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Restrained",
+                "duration": "until initiative count 20 on the next round"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Maddening Whispers",
+        "description": "The lich targets one creature it can see within 60 feet of itself. The target must succeed on a DC 22 Wisdom saving throw or take 10 (3d6) Psychic damage and have the Stunned condition until initiative count 20 on the next round.",
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 22,
+          "targets": "one creature within 60 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 10,
+                "dice": {
+                  "count": 3,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Psychic"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Stunned",
+                "duration": "until initiative count 20 on the next round"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Undead creatures within the area have Advantage on saving throws against any effect that turns Undead.",
+        "radius": 1,
+        "endCondition": "The lich is destroyed or moves its lair."
+      },
+      {
+        "description": "Food instantly molders and water becomes stagnant when brought into the area.",
+        "radius": 1,
+        "endCondition": "The lich is destroyed or moves its lair."
+      },
+      {
+        "description": "If a Humanoid spends at least 10 days within the area and then dies, the corpse rises as a Zombie 1d10 days after death unless the corpse is destroyed or a Remove Curse spell is cast on it.",
+        "radius": 1,
+        "endCondition": "The lich is destroyed or moves its lair."
+      }
+    ]
+  }
+}

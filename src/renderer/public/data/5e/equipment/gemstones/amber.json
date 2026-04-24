@@ -1,0 +1,13 @@
+{
+  "name": "Amber",
+  "slug": "amber",
+  "value": "100 GP",
+  "category": "Gemstone",
+  "description": "watery gold to rich gold",
+  "dieValue": "1",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

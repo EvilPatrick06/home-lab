@@ -1,0 +1,47 @@
+{
+  "name": "Giant Badger",
+  "slug": "giant-badger",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 10,
+  "hp": 13,
+  "hpFormula": "2d8 + 4",
+  "speed": "30 ft., Burrow 10 ft.",
+  "abilityScores": {
+    "str": 13,
+    "dex": 10,
+    "con": 15,
+    "int": 2,
+    "wis": 12,
+    "cha": 5
+  },
+  "senses": "Darkvision 30 ft., Passive Perception 11",
+  "languages": "—",
+  "cr": "1/4",
+  "xp": "50 XP",
+  "traits": [
+    {
+      "name": "Keen Smell",
+      "description": "Advantage on Wisdom (Perception) checks that rely on smell."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "One Bite and one Claws attack."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) Piercing."
+    },
+    {
+      "name": "Claws",
+      "description": "*Melee:* +3, reach 5 ft. *Hit:* 6 (2d4 + 1) Slashing."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

@@ -1,0 +1,107 @@
+[
+  {
+    "id": "crafting",
+    "name": "Crafting",
+    "description": "You craft a nonmagical item. You must have proficiency with the appropriate tools and access to them. For each day of downtime you spend crafting, you can craft items with a total market value of 5 GP, and you must expend raw materials worth half that value.",
+    "daysRequired": 1,
+    "goldCostPerDay": 2.5,
+    "requirements": ["Tool proficiency"],
+    "outcome": "Craft items worth up to 5 GP per day",
+    "reference": "PHB 2024 p.235"
+  },
+  {
+    "id": "practicing-profession",
+    "name": "Practicing a Profession",
+    "description": "You work between adventures. If you have proficiency with a tool or musical instrument, you can earn enough to maintain a modest lifestyle. If you have the Performance skill, you can earn enough for a comfortable lifestyle.",
+    "daysRequired": 1,
+    "goldCostPerDay": 0,
+    "requirements": ["Tool/instrument proficiency or Performance skill"],
+    "outcome": "Earn a modest lifestyle (or comfortable with Performance)",
+    "reference": "PHB 2024 p.235"
+  },
+  {
+    "id": "recuperating",
+    "name": "Recuperating",
+    "description": "You can use downtime between adventures to recover from a debilitating injury, disease, or poison. After 3 days of rest, you can make a DC 15 Constitution saving throw. On a success, you end one effect on yourself that prevents you from regaining Hit Points, or reduce your Exhaustion level by 1.",
+    "daysRequired": 3,
+    "goldCostPerDay": 0,
+    "requirements": [],
+    "outcome": "DC 15 CON save: end one effect preventing HP recovery, or reduce Exhaustion by 1",
+    "reference": "PHB 2024 p.235"
+  },
+  {
+    "id": "researching",
+    "name": "Researching",
+    "description": "You spend your time studying a topic at a library, a sage's residence, or similar location. For each day of research, you must spend 1 GP to cover expenses. The DM determines what you learn.",
+    "daysRequired": 1,
+    "goldCostPerDay": 1,
+    "requirements": ["Access to a library or knowledgeable source"],
+    "outcome": "DM provides information about the topic researched",
+    "reference": "PHB 2024 p.236"
+  },
+  {
+    "id": "training",
+    "name": "Training",
+    "description": "You can spend time between adventures learning a new language or training with a set of tools. You must find an instructor willing to teach you. Training takes 250 days and costs 1 GP per day.",
+    "daysRequired": 250,
+    "goldCostPerDay": 1,
+    "requirements": ["Instructor"],
+    "outcome": "Learn a new language or gain proficiency with a tool",
+    "reference": "PHB 2024 p.236"
+  },
+  {
+    "id": "magic-item-crafting",
+    "name": "Crafting a Magic Item",
+    "description": "A character can craft a magic item if they have the appropriate tool proficiency, required spells, and raw materials. The time and cost depend on the item's rarity.",
+    "daysRequired": 0,
+    "goldCostPerDay": 0,
+    "requirements": ["Tool proficiency", "Required spells (if any)", "Raw materials"],
+    "outcome": "Create a magic item (time/cost by rarity)",
+    "reference": "DMG 2024 p.283",
+    "rarityTable": [
+      { "rarity": "Common", "days": 5, "goldCost": 50, "minLevel": 1 },
+      { "rarity": "Uncommon", "days": 10, "goldCost": 200, "minLevel": 3 },
+      { "rarity": "Rare", "days": 50, "goldCost": 2000, "minLevel": 6 },
+      { "rarity": "Very Rare", "days": 125, "goldCost": 20000, "minLevel": 11 },
+      { "rarity": "Legendary", "days": 250, "goldCost": 100000, "minLevel": 17 }
+    ]
+  },
+  {
+    "id": "scribing-spell-scroll",
+    "name": "Scribing a Spell Scroll",
+    "description": "A spellcaster can transfer a spell they have prepared to a scroll. The time and cost depend on the spell's level.",
+    "daysRequired": 0,
+    "goldCostPerDay": 0,
+    "requirements": ["Spellcaster", "Arcana proficiency", "Spell prepared"],
+    "outcome": "Create a spell scroll",
+    "reference": "DMG 2024 p.283",
+    "spellLevelTable": [
+      { "level": 0, "days": 1, "goldCost": 15 },
+      { "level": 1, "days": 1, "goldCost": 25 },
+      { "level": 2, "days": 3, "goldCost": 100 },
+      { "level": 3, "days": 5, "goldCost": 150 },
+      { "level": 4, "days": 10, "goldCost": 1000 },
+      { "level": 5, "days": 25, "goldCost": 1500 },
+      { "level": 6, "days": 40, "goldCost": 10000 },
+      { "level": 7, "days": 50, "goldCost": 12500 },
+      { "level": 8, "days": 60, "goldCost": 25000 },
+      { "level": 9, "days": 120, "goldCost": 50000 }
+    ]
+  },
+  {
+    "id": "brewing-potion",
+    "name": "Brewing a Potion of Healing",
+    "description": "A character with proficiency in the Herbalism Kit can brew potions of healing. The time and cost depend on the potion type.",
+    "daysRequired": 0,
+    "goldCostPerDay": 0,
+    "requirements": ["Herbalism Kit proficiency"],
+    "outcome": "Create a Potion of Healing",
+    "reference": "DMG 2024 p.283",
+    "potionTable": [
+      { "type": "Healing", "days": 1, "goldCost": 25, "heals": "2d4+2" },
+      { "type": "Greater Healing", "days": 5, "goldCost": 100, "heals": "4d4+4" },
+      { "type": "Superior Healing", "days": 15, "goldCost": 1000, "heals": "8d4+8" },
+      { "type": "Supreme Healing", "days": 20, "goldCost": 10000, "heals": "10d4+20" }
+    ]
+  }
+]

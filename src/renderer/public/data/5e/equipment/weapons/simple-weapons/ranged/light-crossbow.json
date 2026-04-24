@@ -1,0 +1,22 @@
+{
+  "name": "Light Crossbow",
+  "slug": "light-crossbow",
+  "category": "Simple",
+  "type": "Ranged",
+  "damage": "1d8",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Loading", "Two-Handed"],
+  "mastery": "Slow",
+  "weight": "5 lb.",
+  "cost": "25 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 80,
+    "long": 320
+  },
+  "ammunitionType": "Bolt"
+}

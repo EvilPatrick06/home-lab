@@ -1,0 +1,143 @@
+{
+  "name": "Death Dog",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "alignment": "Neutral Evil",
+  "habitat": ["Desert", "Grassland"],
+  "treasure": ["None"],
+  "lore": "A death dog is a two-headed hound whose dual heads share a single diseased mind. Death dogs roam in packs across desolate wastelands and deserts, dragging down prey with venomous bites. When a death dog's poison courses through a victim, it leaves the creature weak and debilitated, vulnerable to the pack's continued assault.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 39,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Two Heads",
+      "description": "The dog has Advantage on Wisdom (Perception) checks and on saving throws against the Blinded, Charmed, Deafened, Frightened, Stunned, and Unconscious conditions."
+    }
+  ],
+  "multiattack": {
+    "description": "The dog makes two Bite attacks.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Piercing damage. If the target is a creature, it must succeed on a DC 12 Constitution saving throw or have the Poisoned condition until the target finishes a Short or Long Rest. If the target already has the Poisoned condition from this attack, it instead takes 7 (2d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 12,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Poisoned",
+                  "duration": "until the target finishes a Short or Long Rest"
+                }
+              ],
+              "effects": "If the target already has the Poisoned condition from this attack, it instead takes 7 (2d6) Poison damage."
+            }
+          }
+        }
+      }
+    }
+  ],
+  "bonusActions": [],
+  "reactions": []
+}

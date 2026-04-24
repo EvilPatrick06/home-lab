@@ -1,0 +1,53 @@
+{
+  "name": "Giant Rat",
+  "slug": "giant-rat",
+  "size": "Small",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "7",
+  "hpFormula": "2d6",
+  "speed": "30 ft., Climb 30 ft.",
+  "abilityScores": {
+    "str": 7,
+    "dex": 16,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -2,
+    "dex": 5,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +2",
+  "senses": "Darkvision 60 ft.; Passive Perception 12",
+  "languages": "None",
+  "cr": "1/8 (XP 25; PB +2)",
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The rat has Advantage on an attack roll against a creature if at least one of the rat's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) Piercing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

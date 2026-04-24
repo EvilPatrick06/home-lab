@@ -1,0 +1,23 @@
+{
+  "id": "ghost-step-tattoo",
+  "name": "Ghost Step Tattoo",
+  "rarity": "Very Rare",
+  "attunement": true,
+  "description": "This tattoo shifts and wavers on the skin, parts of it appearing to phase in and out of existence. The tattoo has 3 charges, and it regains all expended charges daily at dawn. As a Bonus Action, you can expend 1 of the tattoo's charges to become incorporeal until the end of your next turn. For the duration, you gain the following benefits: you have Resistance to Bludgeoning, Piercing, and Slashing damage from nonmagical attacks; you can't be Grappled or Restrained; you can move through creatures and solid objects as if they were Difficult Terrain. If you end your turn inside a solid object, you take 1d10 Force damage.",
+  "properties": {
+    "type": "Magical Tattoo",
+    "needleRequired": "Very Rare or higher",
+    "bodyLocation": "Any",
+    "charges": 3,
+    "rechargeAt": "Dawn"
+  },
+  "effects": [
+    {
+      "name": "Incorporeal Movement",
+      "description": "Become incorporeal until end of next turn. Resistance to nonmagical B/P/S damage, can't be Grappled or Restrained, move through creatures and objects as Difficult Terrain. 1d10 Force damage if ending turn inside an object.",
+      "activation": "BonusAction",
+      "chargesUsed": 1
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

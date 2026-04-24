@@ -1,0 +1,11 @@
+{
+  "name": "Invisible",
+  "slug": "invisible",
+  "description": "An Invisible creature is impossible to see without the aid of magic or a special sense. The creature is Heavily Obscured. The creature's location can be detected by any noise it makes or any tracks it leaves. Attack rolls against the creature have Disadvantage, and the creature's attack rolls have Advantage.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

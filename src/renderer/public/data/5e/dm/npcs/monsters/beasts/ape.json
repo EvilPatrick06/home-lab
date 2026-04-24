@@ -1,0 +1,56 @@
+{
+  "name": "Ape",
+  "slug": "ape",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "19",
+  "hpFormula": "3d8 + 6",
+  "speed": "30 ft., Climb 30 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 14,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 2,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Athletics +5, Perception +3",
+  "senses": "Passive Perception 13",
+  "languages": "None",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The ape makes two Fist attacks."
+    },
+    {
+      "name": "Fist",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) Bludgeoning damage."
+    },
+    {
+      "name": "Rock (Recharge 6)",
+      "description": "*Ranged Attack Roll:* +5, range 25/50 ft. *Hit:* 10 (2d6 + 3) Bludgeoning damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

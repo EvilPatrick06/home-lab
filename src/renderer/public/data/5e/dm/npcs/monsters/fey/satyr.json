@@ -1,0 +1,59 @@
+{
+  "name": "Satyr",
+  "slug": "satyr",
+  "size": "Medium",
+  "type": "Fey",
+  "alignment": "Chaotic Neutral",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "31",
+  "hpFormula": "7d8",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 12,
+    "dex": 16,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 3,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +2, Performance +6, Stealth +5",
+  "senses": "Passive Perception 12",
+  "languages": "Common, Elvish, Sylvan",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The satyr has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Hooves",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) Bludgeoning damage. If the target is a Medium or smaller creature, the satyr pushes the target up to 10 feet straight away from itself."
+    },
+    {
+      "name": "Mockery",
+      "description": "*Wisdom Saving Throw:* DC 12, one creature the satyr can see within 90 feet. *Failure:* 5 (1d6 + 2) Psychic damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Horned and Hoofed Revelers*\n**Habitat:** Forest, Planar (Feywild); **Treasure:** Implements\nSatyrs embody the untamed joys of the wilderness. They indulge in sprees of merrymaking—eating, drinking, performing, fighting, and frolicking.\nSatyrs enjoy demonstrating their physicality through contests, evicting party poopers, and defending Fey realms.\nSatyr revelmasters use magical music to change the moods of other creatures. They do so to keep their celebrations exciting and to ward off foes.",
+  "habitat": "Forest, Planar (Feywild)",
+  "treasure": "Implements",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Fey",
+    "file": "Fey.md"
+  }
+}

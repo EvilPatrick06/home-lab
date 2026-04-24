@@ -1,0 +1,34 @@
+{
+  "name": "Dual Wielder",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "abilityScores": [
+      {
+        "abilities": ["Strength", "Dexterity"],
+        "minimum": 13
+      }
+    ]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength", "Dexterity"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Enhanced Dual Wielding",
+      "description": "When you take the Attack action on your turn and attack with a weapon that has the Light property, you can make one extra attack as a Bonus Action later on the same turn with a different weapon, which must be a Melee weapon that lacks the Two-Handed property. You don't add your ability modifier to the extra attack's damage unless that modifier is negative."
+    },
+    {
+      "name": "Quick Draw",
+      "description": "You can draw or stow two weapons that lack the Two-Handed property when you would normally be able to draw or stow only one."
+    }
+  ],
+  "source": "PHB 2024"
+}

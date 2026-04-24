@@ -1,0 +1,133 @@
+{
+  "name": "Duodrone",
+  "sizes": ["Medium"],
+  "creatureType": "Construct",
+  "descriptiveTags": ["Modron"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Planar (Mechanus)"],
+  "treasure": ["None"],
+  "lore": "Duodrones are two-eyed, bipedal modrons that serve as soldiers and laborers of Mechanus. Each duodrone can process two tasks simultaneously, giving it the ability to patrol and watch for threats at the same time. Duodrones relay orders from tridrones to monodrones and report back on their subordinates' progress.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 26,
+    "dice": {
+      "count": 4,
+      "die": "d8",
+      "modifier": 8
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Modron"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Axiomatic Mind",
+      "description": "The modron can't be compelled to act in a manner contrary to its nature or its instructions."
+    },
+    {
+      "name": "Disintegration",
+      "description": "If the modron dies, its body disintegrates into dust, leaving behind anything it was carrying."
+    }
+  ],
+  "multiattack": {
+    "description": "The duodrone makes two Javelin attacks.",
+    "attacks": [
+      {
+        "actionName": "Javelin",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Javelin",
+      "description": "Melee or Ranged Attack Roll: +4, reach 5 ft. or range 30/120 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 4,
+        "reach": 5,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "gear": [
+    {
+      "name": "Javelin",
+      "quantity": 4
+    }
+  ]
+}

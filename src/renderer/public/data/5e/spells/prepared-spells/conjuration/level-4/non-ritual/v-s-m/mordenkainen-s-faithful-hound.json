@@ -1,0 +1,54 @@
+{
+  "name": "Mordenkainen's Faithful Hound",
+  "level": 4,
+  "school": "Conjuration",
+  "classes": ["Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a silver whistle",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "You conjure a phantom watchdog in an unoccupied space that you can see within range. The hound remains for the duration or until the two of you are more than 300 feet apart from each other. No one but you can see the hound, and it is intangible and invulnerable. When a Small or larger creature comes within 30 feet of it without first speaking the password that you specify when you cast this spell, the hound starts barking loudly. The hound has Truesight with a range of 30 feet. At the start of each of your turns, the hound attempts to bite one enemy within 5 feet of it. That enemy must succeed on a Dexterity saving throw or take 4d8 Force damage. On your later turns, you can take a Magic action to move the hound up to 30 feet.",
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noDamageOnSuccess": true,
+    "noEffectOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 8
+      },
+      "type": "Force",
+      "applicationType": "onTurnStart"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "You can move the hound up to 30 feet.",
+    "movementFeet": 30
+  },
+  "tags": ["summoning", "phantom", "guard", "invisible", "intangible", "invulnerable", "truesight", "password"]
+}

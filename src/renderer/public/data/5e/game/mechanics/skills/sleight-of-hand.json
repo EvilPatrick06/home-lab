@@ -1,0 +1,15 @@
+{
+  "id": "sleight-of-hand",
+  "name": "Sleight of Hand",
+  "ability": "dexterity",
+  "description": "Whenever you attempt an act of legerdemain or manual trickery, such as planting something on someone else or concealing an object on your person, make a Dexterity (Sleight of Hand) check. The DM might also call for this check to determine whether you can lift a coin purse off another person or slip something out of another person's pocket.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Pick a pocket without being noticed",
+    "Conceal an object on your person",
+    "Plant something on another person",
+    "Perform a card trick or other manual trickery",
+    "Discreetly pass an item to someone else"
+  ]
+}

@@ -1,0 +1,286 @@
+{
+  "name": "Animal Lord",
+  "sizes": ["Medium"],
+  "creatureType": "Fey",
+  "descriptiveTags": ["Animal Lord"],
+  "alignment": "Neutral",
+  "habitat": ["Coastal", "Desert", "Forest", "Grassland", "Hill", "Mountain", "Swamp", "Underdark", "Underwater"],
+  "treasure": ["Relics"],
+  "lore": "Animal Lords are powerful Fey beings who embody the primal essence of a particular type of animal. Each Animal Lord serves as a divine guardian and sovereign over its chosen species, dwelling where its animals roam and fiercely protecting them from unnatural threats. In their true forms, Animal Lords appear as imposing humanoid figures bearing unmistakable features of their animal kin. They can assume the shape of a Beast at will and communicate effortlessly with animals. Druids, rangers, and other nature-devoted folk sometimes seek the aid of an Animal Lord, though earning one's favor often requires proving dedication to the natural world.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 170,
+    "dice": {
+      "count": 20,
+      "die": "d8",
+      "modifier": 80
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Nature",
+      "bonus": 5
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 8
+    },
+    {
+      "skill": "Survival",
+      "bonus": 8
+    }
+  ],
+  "conditionImmunities": ["Charmed", "Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common", "Druidic", "Sylvan"],
+    "telepathy": 120
+  },
+  "challengeRating": "12",
+  "experiencePoints": 8400,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the animal lord fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The animal lord has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Speak with Beasts",
+      "description": "The animal lord can communicate with Beasts as if they shared a language."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "WIS",
+      "spellSaveDC": 16,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Animal Friendship",
+              "level": 1
+            },
+            {
+              "name": "Speak with Animals",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Conjure Animals",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Awaken",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The animal lord makes three Primal Strike attacks. It can replace one attack with a use of Change Shape.",
+    "attacks": [
+      {
+        "actionName": "Primal Strike",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Primal Strike",
+        "replaceCount": 1,
+        "with": "Change Shape"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Primal Strike",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 13 (2d8 + 4) Force damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Change Shape",
+      "description": "The animal lord shape-shifts into a Medium or Small Beast or back into its true form. Its game statistics are the same in each form, except its Speed changes to match the new form. Any equipment it is wearing or carrying isn't transformed."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Commanding Presence",
+      "description": "The animal lord targets one Beast or Fey it can see within 60 feet of itself. The target must succeed on a DC 16 Wisdom saving throw or have the Charmed condition for 1 minute. While Charmed in this way, the target obeys the animal lord's verbal commands. The target repeats the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 16,
+        "targets": "one Beast or Fey within 60 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 16,
+                "targets": "the Charmed target at the end of each of its turns",
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Charmed",
+          "duration": "1 minute"
+        }
+      ]
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Strike",
+        "description": "The animal lord makes one Primal Strike attack.",
+        "cost": 1
+      },
+      {
+        "name": "Commanding Voice",
+        "description": "The animal lord uses Commanding Presence.",
+        "cost": 2
+      },
+      {
+        "name": "Bestial Roar",
+        "description": "Each creature of the animal lord's choice within 30 feet of it must succeed on a DC 16 Wisdom saving throw or have the Frightened condition until the end of its next turn.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 16,
+          "targets": "each creature of the animal lord's choice within 30 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Frightened",
+                "duration": "until the end of its next turn"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 30,
+          "centered": true
+        },
+        "conditions": [
+          {
+            "condition": "Frightened",
+            "duration": "until the end of its next turn"
+          }
+        ]
+      }
+    ]
+  }
+}

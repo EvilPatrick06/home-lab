@@ -1,0 +1,335 @@
+{
+  "name": "Death Knight",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "descriptiveTags": ["Paladin"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar", "Ruins"],
+  "treasure": ["Armaments", "Relics"],
+  "lore": "A death knight is a once-noble warrior—typically a paladin—who broke their sacred oaths and was cursed with undeath. Retaining formidable martial prowess and dark spellcasting, a death knight exists in a state of torment and fury, commanding legions of lesser undead as it wages endless campaigns of destruction. Only atonement or a Wish spell can end the cycle of a death knight's restoration.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Plate Armor", "Shield"]
+  },
+  "hitPoints": {
+    "average": 225,
+    "dice": {
+      "count": 18,
+      "die": "d8",
+      "modifier": 144
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 26,
+      "modifier": 8,
+      "save": 8
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 9
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 11
+    }
+  },
+  "damageImmunities": ["Necrotic and Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Poisoned"],
+  "gear": [
+    {
+      "name": "Plate Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    },
+    {
+      "name": "Longsword",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common"]
+  },
+  "challengeRating": "17",
+  "experiencePoints": 18000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The death knight has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Marshal Undead",
+      "description": "Unless the death knight has the Incapacitated condition, it and each Undead of its choice within 60 feet of it have Advantage on saving throws against features that turn Undead."
+    },
+    {
+      "name": "Undead Restoration",
+      "description": "If the death knight is destroyed, it regains all its Hit Points in 1d10 days and becomes active again. The death knight appears at a random location on the same plane of existence where it was destroyed. Only a Wish spell can prevent this trait from functioning."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 19,
+      "spellAttackBonus": 11,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Command",
+              "level": 1
+            },
+            {
+              "name": "Compelled Duel",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Banishment",
+              "level": 4
+            },
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Staggering Smite",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Destructive Wave",
+              "level": 5
+            },
+            {
+              "name": "Hold Monster",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The death knight makes three Unholy Longsword attacks. It can replace one of those attacks with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Unholy Longsword",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Unholy Longsword",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Unholy Longsword",
+      "description": "Melee Attack Roll: +11, reach 5 ft. Hit: 9 (1d8 + 5) Slashing damage plus 18 (4d8) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 11,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 9,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 18,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hellfire Orb",
+      "description": "The death knight hurls a magical ball of fire that explodes at a point it can see within 120 feet of itself. Each creature in a 20-foot-radius Sphere centered on that point must make a DC 19 Dexterity saving throw, taking 35 (10d6) Fire damage plus 35 (10d6) Necrotic damage on a failed save, or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 19,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 35,
+              "dice": {
+                "count": 10,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            },
+            {
+              "average": 35,
+              "dice": {
+                "count": 10,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Sphere",
+        "size": 20
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The death knight casts one of its available spells, using Charisma as the spellcasting ability (spell save DC 19, +11 to hit with spell attacks)."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Parry",
+      "description": "The death knight adds 6 to its AC against one melee attack that would hit it. To use this Reaction, the death knight must see the attacker and be wielding a melee weapon.",
+      "trigger": "The death knight is hit by a melee attack roll."
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Abyssal Word",
+        "description": "The death knight uses Spellcasting to cast Command.",
+        "cost": 1
+      },
+      {
+        "name": "Advance",
+        "description": "The death knight moves up to half its Speed without provoking Opportunity Attacks.",
+        "cost": 1
+      },
+      {
+        "name": "Frightful Strike",
+        "description": "The death knight makes one Unholy Longsword attack. On a hit, the target must also succeed on a DC 19 Wisdom saving throw or have the Frightened condition until the end of the target's next turn.",
+        "cost": 2,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 11,
+          "reach": 5,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 9,
+                "dice": {
+                  "count": 1,
+                  "die": "d8",
+                  "modifier": 5
+                },
+                "type": "Slashing"
+              },
+              {
+                "average": 18,
+                "dice": {
+                  "count": 4,
+                  "die": "d8",
+                  "modifier": 0
+                },
+                "type": "Necrotic"
+              }
+            ],
+            "savingThrow": {
+              "ability": "WIS",
+              "dc": 19,
+              "targets": "the target",
+              "onFailure": {
+                "conditions": [
+                  {
+                    "condition": "Frightened",
+                    "duration": "until the end of the target's next turn"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven; and an Underworld"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "para-elemental-plane-of-magma",
+      "name": "Para-elemental Plane of Magma",
+      "alternateNames": ["Fountains of Creation", "Plane of Magma"],
+      "category": "Para-elemental Plane",
+      "subcategory": "Para-elemental Magma",
+      "alignments": [],
+      "philosophicalEssence": "The interaction between the stability and rigidity of earth and the vibrancy, passion, and change of fire. Represents creation through the fusion of elemental earth and elemental fire.",
+      "emotionalInfluence": "The Para-elemental Planes represent the interaction and sometimes the contrast between the forces and ideals embodied by their constituent elements.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A great range of volcanic mountains forming the boundary between the Plane of Earth and the Plane of Fire",
+        "breathableAtmosphere": false,
+        "atmosphereNotes": "The air reeks of sulfur in the regions nearest the Plane of Magma (as described at the Furnaces on the Plane of Earth). Lava and volcanic activity dominate the landscape.",
+        "temperature": {
+          "category": "extreme_heat",
+          "description": "A volcanic mountain range with lava flowing down slopes. The Furnaces nearest this plane have lava seeping through caverns and air reeking of sulfur."
+        },
+        "hasSurface": true,
+        "dominantElement": "Magma (Earth and Fire)",
+        "weatherPatterns": "Volcanic activity with lava flows down the slopes toward the Plane of Fire"
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "No specific time flow rules are given for the Para-elemental Plane of Magma."
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "magma-to-earth",
+          "name": "Border with Elemental Plane of Earth",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Earth", "Para-elemental Plane of Magma"],
+          "description": "The Furnaces are the mountains on the Plane of Earth nearest the Para-elemental Plane of Magma. Lava seeps through their caverns, and the air reeks of sulfur. The dao have great forges and smelting furnaces here to process ores and shape precious metals.",
+          "hazards": ["Lava seepage", "Sulfurous air"],
+          "isOneWay": false,
+          "navigableBy": ["foot", "burrow"]
+        },
+        {
+          "id": "magma-to-fire",
+          "name": "Border with Elemental Plane of Fire",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Fire", "Para-elemental Plane of Magma"],
+          "description": "Lava flows down the slopes of the volcanic mountains toward the Plane of Fire. The Sea of Fire on the Plane of Fire is fed by lava flowing through the Fountains of Creation.",
+          "hazards": ["Lava flows"],
+          "isOneWay": false,
+          "navigableBy": ["foot", "fly"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental", "Giant", "Dragon"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Azer Communities",
+            "race": "Azer",
+            "description": "Azers are native inhabitants of the Plane of Magma."
+          },
+          {
+            "name": "Fire Giant Settlements",
+            "race": "Fire Giant",
+            "description": "Fire giants make their home on the Plane of Magma."
+          },
+          {
+            "name": "Red Dragon Lairs",
+            "race": "Red Dragon",
+            "description": "Red dragons inhabit the volcanic mountains of the Plane of Magma."
+          }
+        ]
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Extreme volcanic environments",
+        "Interaction and contrast between earth (stability, rigidity, tradition) and fire (vibrancy, passion, change)",
+        "Creation and destruction through elemental fusion",
+        "Fundamentally similar to volcanic environments found on the Material Plane"
+      ],
+      "adventureSituations": [],
+      "etherealCurtainColor": "Maroon",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "The Furnaces on the Elemental Plane of Earth are described as the mountains nearest the Para-elemental Plane of Magma, with lava seeping through caverns and sulfurous air."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "The Sea of Fire on the Elemental Plane of Fire is fed by lava flowing through the Fountains of Creation (Para-elemental Plane of Magma)."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "ethereal-curtain-to-magma",
+      "name": "Ethereal Curtain to Para-elemental Plane of Magma",
+      "type": "natural_crossing",
+      "description": "In the Deep Ethereal, curtains of vaporous color lead to the Border Ethereal connected to specific Inner Planes. A maroon-colored curtain leads to the Para-elemental Plane of Magma.",
+      "requirements": ["Access to the Deep Ethereal via Plane Shift, Gate, or magical portal"],
+      "associatedSpells": ["Plane Shift", "Gate"],
+      "risks": ["Travel through the Deep Ethereal takes 1d10 × 10 hours between curtains", "Ether cyclones"],
+      "destinations": ["Para-elemental Plane of Magma"]
+    },
+    {
+      "id": "portal-vortex-to-magma",
+      "name": "Planar Vortex to Plane of Magma",
+      "type": "portal",
+      "description": "Vortices join an Elemental Plane with a very similar location on the Material Plane, such as a swirling pool of magma in the heart of a volcano leading to the Plane of Fire or nearby para-elemental regions.",
+      "requirements": ["Finding a suitable volcanic vortex location"],
+      "associatedSpells": [],
+      "risks": ["Guardian creatures", "Portal requirements"],
+      "destinations": ["Para-elemental Plane of Magma"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "Control Weather",
+  "level": 8,
+  "school": "Transmutation",
+  "classes": ["Cleric", "Druid", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 10,
+    "timeUnit": "minutes",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "burning incense",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "You take control of the weather within 5 miles of you for the duration. You must be outdoors to cast this spell, and it ends early if you go indoors.\n\nWhen you cast the spell, you change the current weather conditions, which are determined by the DM. You can change precipitation, temperature, and wind. It takes 1d4 × 10 minutes for the new conditions to take effect. Once they do so, you can change the conditions again. When the spell ends, the weather gradually returns to normal.\n\nWhen you change the weather conditions, find a current condition on the following tables and change its stage by one, up or down. When changing the wind, you can change its direction.\n\nPrecipitation: Stage 1 Clear, Stage 2 Light clouds, Stage 3 Overcast or ground fog, Stage 4 Rain hail or snow, Stage 5 Torrential rain driving hail or blizzard.\n\nTemperature: Stage 1 Heat wave, Stage 2 Hot, Stage 3 Warm, Stage 4 Cool, Stage 5 Cold, Stage 6 Freezing.\n\nWind: Stage 1 Calm, Stage 2 Moderate wind, Stage 3 Strong wind, Stage 4 Gale, Stage 5 Storm.",
+  "targetType": "self",
+  "spellOptions": [
+    {
+      "name": "Precipitation",
+      "description": "Change the current precipitation stage by one, up or down. Stages: 1 Clear, 2 Light clouds, 3 Overcast or ground fog, 4 Rain hail or snow, 5 Torrential rain driving hail or blizzard."
+    },
+    {
+      "name": "Temperature",
+      "description": "Change the current temperature stage by one, up or down. Stages: 1 Heat wave, 2 Hot, 3 Warm, 4 Cool, 5 Cold, 6 Freezing."
+    },
+    {
+      "name": "Wind",
+      "description": "Change the current wind stage by one, up or down, and optionally change its direction. Stages: 1 Calm, 2 Moderate wind, 3 Strong wind, 4 Gale, 5 Storm."
+    }
+  ],
+  "tags": ["weather", "utility", "environmental", "outdoor_only"]
+}

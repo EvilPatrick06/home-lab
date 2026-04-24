@@ -1,0 +1,42 @@
+{
+  "id": "vampirism",
+  "name": "Vampirism",
+  "description": "A humanoid slain by a vampire's bite and then buried in the ground rises the following night as a vampire spawn under the vampire's control. A character reduced to 0 Hit Points by a vampire's bite attack has their Hit Point maximum reduced, and if this kills them, they may rise as a vampire spawn.",
+  "transmission": {
+    "method": "A humanoid slain by a vampire's Bite attack and then buried rises as a vampire spawn. Alternatively, a vampire can choose to transform a slain humanoid by letting it drink the vampire's blood.",
+    "hitPointReduction": "The vampire's Bite reduces the target's Hit Point maximum by the amount of Necrotic damage dealt. This reduction lasts until the target finishes a Long Rest.",
+    "deathCondition": "If the Bite reduces the target's Hit Point maximum to 0, the target dies. A humanoid slain this way and then buried rises as a vampire spawn the following night."
+  },
+  "vampireSpawnTraits": {
+    "description": "A vampire spawn is under the control of the vampire that created it. It has many of the vampire's traits but is weaker.",
+    "changes": [
+      "Type becomes Undead",
+      "Gains Darkvision 60 ft.",
+      "Gains Resistance to Necrotic damage",
+      "Gains Resistance to Bludgeoning, Piercing, and Slashing from nonmagical attacks",
+      "Gains Spider Climb (can climb difficult surfaces, including ceilings)",
+      "Gains Regeneration (10 HP at start of turn if not in sunlight or running water)",
+      "Gains Bite attack (melee, Piercing + Necrotic damage, regains HP)",
+      "Sunlight Hypersensitivity (takes 20 Radiant damage when starting turn in sunlight)",
+      "Cannot enter a residence without invitation",
+      "Harmed by running water (takes 20 Acid damage when ending turn in running water)",
+      "Stake to the Heart (Paralyzed if pierced through the heart with a wooden stake while Incapacitated)"
+    ]
+  },
+  "fullVampireTransformation": {
+    "description": "A vampire can choose to turn a slain humanoid into a full vampire instead of a spawn. The vampire allows the dying humanoid to drink its blood. The humanoid then rises as a vampire with its own will, though it may owe fealty to the creating vampire.",
+    "requirements": [
+      "The humanoid must be slain by the vampire's Bite",
+      "The vampire must feed its blood to the dying humanoid",
+      "The humanoid must be buried and rise the following night"
+    ]
+  },
+  "curing": {
+    "spells": ["Wish"],
+    "otherMethods": [
+      "Killing the vampire that created the spawn may free it (DM discretion)",
+      "A Wish spell can end the curse of vampirism"
+    ],
+    "notes": "Vampirism is extremely difficult to cure. Remove Curse does not work against vampirism. The transformation into undead fundamentally changes the creature, and only the most powerful magic can reverse it. A vampire spawn freed from its master's control becomes a full vampire over time."
+  }
+}

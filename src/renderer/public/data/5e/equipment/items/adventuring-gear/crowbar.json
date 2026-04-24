@@ -1,0 +1,13 @@
+{
+  "name": "Crowbar",
+  "cost": "2 GP",
+  "weight": "5 lb.",
+  "description": "Advantage on Strength checks where leverage can be applied.",
+  "slug": "crowbar",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

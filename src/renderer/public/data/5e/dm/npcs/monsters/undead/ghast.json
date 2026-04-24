@@ -1,0 +1,60 @@
+{
+  "name": "Ghast",
+  "slug": "ghast",
+  "size": "Medium",
+  "type": "Undead",
+  "alignment": "Chaotic Evil",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "36",
+  "hpFormula": "8d8",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 17,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 3,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison; Charmed, Exhaustion, Poisoned",
+  "resistances": "Necrotic",
+  "senses": "Darkvision 60 ft.; Passive Perception 10",
+  "languages": "Common",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [
+    {
+      "name": "Stench",
+      "description": "*Constitution Saving Throw:* DC 10, any creature that starts its turn in a 5-foot *Emanation* originating from the ghast. *Failure:* The target has the *Poisoned* condition until the start of its next turn. *Success:* The target is immune to this ghast's Stench for 24 hours."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 7 (1d8 + 3) Piercing damage plus 9 (2d8) Necrotic damage."
+    },
+    {
+      "name": "Claw",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 10 (2d6 + 3) Slashing damage. If the target is a non-Undead creature, it is subjected to the following effect. *Constitution Saving Throw:* DC 10. *Failure:* The target has the *Paralyzed* condition until the end of its next turn."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Tyrants among Corpses*\n**Habitat:** Swamp, Underdark, Urban; **Treasure:** Any\nGhasts are reeking, undying corpses closely related to ghouls. They hunger for the vices they enjoyed in life as much as they do for rotting flesh.\nGhasts frequently organize ghouls into packs to despoil crypts and steal the wealth within.\nGhast gravecallers wield fell magic and converse with corpses. They might pose as liches or vampires.",
+  "habitat": "Swamp, Underdark, Urban",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "name": "Shambling Mound",
+  "sizes": ["Large"],
+  "creatureType": "Plant",
+  "alignment": "Unaligned",
+  "habitat": ["Swamp"],
+  "treasure": ["None"],
+  "lore": "A shambling mound is a mass of rotting vegetation animated by natural magic. It shambles through marshes, swamps, and rain forests, consuming any organic matter in its path. A shambling mound feeds on living things, drawing them into its body and smothering them. The creature gains vitality from lightning, absorbing electrical energy and using it to fuel its growth.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 136,
+    "dice": {
+      "count": 16,
+      "die": "d10",
+      "modifier": 48
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Swim",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 2
+    }
+  ],
+  "resistances": ["Cold and Fire"],
+  "damageImmunities": ["Lightning"],
+  "conditionImmunities": ["Blinded", "Deafened", "Exhaustion"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Lightning Absorption",
+      "description": "Whenever the shambling mound is subjected to Lightning damage, it takes no damage and regains a number of Hit Points equal to the Lightning damage dealt."
+    }
+  ],
+  "multiattack": {
+    "description": "The shambling mound makes two Slam attacks. If both attacks hit the same Medium or smaller creature, the creature has the Grappled condition (escape DC 14), and the shambling mound uses Engulf on it.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ],
+    "additionalEffects": "If both attacks hit the same Medium or smaller creature, the creature has the Grappled condition (escape DC 14), and the shambling mound uses Engulf on it."
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 13 (2d8 + 4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Engulf",
+      "description": "The shambling mound engulfs one Medium or smaller creature Grappled by it. The engulfed creature is no longer Grappled, and it has the Blinded and Restrained conditions. While engulfed, the creature also has Total Cover against attacks and other effects outside the shambling mound and takes 13 (2d8 + 4) Bludgeoning damage at the start of each of the shambling mound's turns. If the shambling mound moves, the engulfed creature moves with it. The engulfed creature can try to escape by using its action to make a DC 14 Strength (Athletics) check. On a success, the creature escapes and enters an unoccupied space within 5 feet of the shambling mound. The shambling mound can have only one creature engulfed at a time.",
+      "damage": [
+        {
+          "average": 13,
+          "dice": {
+            "count": 2,
+            "die": "d8",
+            "modifier": 4
+          },
+          "type": "Bludgeoning",
+          "notes": "At the start of each of the shambling mound's turns"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "Blinded",
+          "duration": "Until the engulf ends"
+        },
+        {
+          "condition": "Restrained",
+          "duration": "Until the engulf ends",
+          "escapeDC": 14
+        }
+      ]
+    }
+  ]
+}

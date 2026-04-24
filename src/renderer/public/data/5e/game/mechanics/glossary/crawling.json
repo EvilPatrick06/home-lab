@@ -1,0 +1,11 @@
+{
+  "name": "Crawling",
+  "slug": "crawling",
+  "description": "While crawling, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain).",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

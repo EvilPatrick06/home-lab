@@ -1,0 +1,129 @@
+{
+  "id": "e30c7a2f-4c91-4e8b-b6d1-3a9f1d82c5e4",
+  "name": "Starting Wealth",
+  "slug": "starting-wealth",
+  "category": "GeneralRule",
+  "subcategory": "Character Creation",
+  "tags": ["character-creation", "equipment", "gold", "starting-equipment", "wealth"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "2",
+    "section": "Starting Equipment"
+  },
+  "gameEdition": "2024",
+  "description": "At character creation, a character receives starting equipment from two sources: their Background and their Class. Every Background grants a specific equipment package plus 50 GP. Every Class grants a specific equipment package. Alternatively, a character can forgo all starting equipment from both Background and Class and instead start with a flat amount of gold pieces to purchase equipment. When using this alternative method, the character starts with 150 GP to spend on equipment from the equipment tables.",
+  "shortDescription": "Characters receive starting equipment from Background (including 50 GP) and Class, or may forgo all starting equipment for 150 GP.",
+  "rulesAsWritten": "Your character's Background and Class each provide starting equipment. If you prefer, you can forgo all starting equipment from your Background and Class and instead start with 150 GP to buy equipment.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a12bfc92-1c49-42ef-b41f-5c3e2a3187d1",
+      "order": 0,
+      "name": "Background Equipment Grant",
+      "description": "The character receives the equipment package specified by their chosen Background, which always includes 50 GP.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character creation, Background selection"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Character receives all equipment listed in their chosen Background's equipment package, plus 50 GP.",
+          "mechanicalNote": "Every Background in the 2024 PHB includes 50 GP as part of its starting equipment package."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b23dae84-60a7-4b3d-ba72-6e4f3b428ae2",
+      "order": 1,
+      "name": "Class Equipment Grant",
+      "description": "The character receives the equipment package specified by their chosen Class.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character creation, Class selection"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Character receives all equipment listed in their chosen Class's starting equipment entry.",
+          "mechanicalNote": "Class equipment packages vary by class and include weapons, armor, adventuring gear, and tools appropriate to the class."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "c34ebf95-71b8-4c4e-cb83-7f5g4c539bf3",
+      "order": 2,
+      "name": "Alternative Starting Wealth",
+      "description": "Instead of taking starting equipment from both Background and Class, the character may forgo all such equipment and begin play with 150 GP to spend on equipment.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character creation; player chooses to forgo Background and Class starting equipment"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Character forgoes all starting equipment from Background and Class and instead receives 150 GP to spend on equipment from the equipment tables.",
+          "mechanicalNote": "This is an all-or-nothing choice: the character must forgo ALL starting equipment from both Background and Class to use this option. They cannot keep some items and take gold for others."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "stackingNote": "Starting wealth is determined once during character creation and does not stack."
+  },
+  "dmNotes": "The alternative 150 GP option is designed to give players flexibility. Remind players that 150 GP may yield more or less value than the default equipment packages depending on their choices. Background equipment packages always include 50 GP, so the default path typically provides both useful gear and some spending money.",
+  "commonRulings": [
+    {
+      "question": "Can a character keep their Background equipment and only trade in their Class equipment for gold?",
+      "ruling": "No. The alternative starting wealth option is all-or-nothing. A character either takes all starting equipment from both Background and Class, or forgoes it all in exchange for 150 GP.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does the 150 GP alternative include the 50 GP normally granted by Backgrounds?",
+      "ruling": "Yes. The 150 GP replaces everything, including the 50 GP from the Background equipment package. A character choosing 150 GP does not also receive the Background's 50 GP on top.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-09-17T00:00:00Z",
+  "updatedAt": "2024-09-17T00:00:00Z",
+  "version": "1.0.0"
+}

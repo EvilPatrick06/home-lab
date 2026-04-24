@@ -1,0 +1,52 @@
+{
+  "name": "Giant Insect",
+  "level": 4,
+  "school": "Conjuration",
+  "classes": ["Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "You summon a giant centipede, spider, or wasp (chosen when you cast the spell). It manifests in an unoccupied space you can see within range and uses the Giant Insect stat block. The form you choose determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends. The creature is an ally to you and your allies. In combat, the creature shares your Initiative count, but it takes its turn immediately after yours. It obeys your verbal commands (no action required by you). If you don't issue any, it takes the Dodge action and uses its movement to avoid danger.",
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "summonsCreature": {
+    "statBlockName": "Giant Insect",
+    "creatureType": "Beast",
+    "variantChoices": ["Centipede", "Spider", "Wasp"],
+    "count": 1,
+    "scalesWithSpellLevel": true,
+    "baseHP": 70,
+    "hpPerLevelAbove": 10,
+    "baseAC": 11,
+    "acPerSpellLevel": true,
+    "attacksEqualHalfSpellLevel": true,
+    "description": "Large Beast, Unaligned. AC 11 + the spell's level. HP 30 + 10 for each spell level. Speed 40 ft., Climb 40 ft., Fly 40 ft. (Wasp only). STR 17 (+3), DEX 13 (+1), CON 15 (+2), INT 4 (-3), WIS 14 (+2), CHA 3 (-4). Senses Darkvision 60 ft., Passive Perception 12. Languages: Understands the languages you know. Spider Climb: can climb difficult surfaces including ceilings without ability checks. Multiattack: number of attacks equal to half the spell's level (round down). Poison Jab: Melee Attack, bonus equals your spell attack modifier, reach 10 ft., 1d6 + 3 + spell's level Piercing damage plus 1d4 Poison damage. Web Bolt (Spider Only): Ranged Attack, bonus equals your spell attack modifier, range 60 ft., 1d10 + 3 + spell's level Bludgeoning damage and target's Speed is reduced to 0 until the start of the insect's next turn. Venomous Spew (Centipede Only): Bonus Action, Constitution saving throw (your spell save DC), one creature within 10 ft., on failure target has the Poisoned condition until the start of the insect's next turn."
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "custom",
+        "baseSpellLevel": 4,
+        "description": "Use the spell slot's level for the spell's level in the stat block, increasing AC (11 + spell level), HP (30 + 10 per spell level), number of Multiattack attacks (half spell level, rounded down), and Poison Jab/Web Bolt damage (1d6+3 or 1d10+3 plus the spell's level)."
+      }
+    ]
+  },
+  "tags": ["summoning", "beast", "concentration"]
+}

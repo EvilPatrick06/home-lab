@@ -1,0 +1,194 @@
+{
+  "name": "Yeti",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Arctic", "Mountain"],
+  "treasure": ["None"],
+  "lore": "Yetis are hulking, apelike predators that dwell in frigid mountain peaks and frozen wastelands. Covered in thick white fur, they blend seamlessly into snowy terrain, ambushing prey with savage claws and a paralyzing gaze that freezes victims in place. Though cunning hunters, yetis have an instinctive fear of fire, and even a small flame can send one into a panicked retreat. Yetis live in small family groups or alone, sheltering in ice caves and venturing out to hunt during blizzards when their camouflage is most effective.",
+  "armorClass": {
+    "value": 12,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 51,
+    "dice": {
+      "count": 6,
+      "die": "d10",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Climb",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "damageImmunities": ["Cold"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Yeti"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Fear of Fire",
+      "description": "If the yeti takes Fire damage, it has Disadvantage on attack rolls and ability checks until the end of its next turn."
+    },
+    {
+      "name": "Snow Camouflage",
+      "description": "The yeti has Advantage on Dexterity (Stealth) checks made to hide in snowy terrain."
+    }
+  ],
+  "multiattack": {
+    "description": "The yeti makes two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 7 (1d6 + 4) Slashing damage plus 3 (1d6) Cold damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Chilling Gaze",
+      "description": "One creature the yeti can see within 30 feet of it must make a DC 13 Constitution saving throw. On a failed save, the target takes 10 (3d6) Cold damage and has the Paralyzed condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success. On a successful save, the target takes half damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 13,
+        "targets": "one creature the yeti can see within 30 feet",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Paralyzed",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 13,
+                "targets": "the affected creature at the end of each of its turns",
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ],
+  "bonusActions": null,
+  "reactions": null,
+  "legendaryActions": null,
+  "lair": null
+}

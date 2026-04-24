@@ -1,0 +1,6 @@
+{
+  "id": "push",
+  "name": "Push",
+  "description": "If you hit a creature with a weapon that has the Push property, you can push the creature up to 10 feet straight away from you if it is Large or smaller.",
+  "mechanicalEffect": "On hit, push target up to 10 feet straight away from you. Only affects Large or smaller creatures."
+}

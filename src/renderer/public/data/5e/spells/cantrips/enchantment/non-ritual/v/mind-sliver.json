@@ -1,0 +1,75 @@
+{
+  "name": "Mind Sliver",
+  "level": 0,
+  "school": "Enchantment",
+  "classes": ["Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "rounds"
+  },
+  "description": "You try to temporarily sliver the mind of one creature you can see within range. The target must succeed on an Intelligence saving throw or take 1d6 Psychic damage and subtract 1d4 from the next saving throw it makes before the end of your next turn.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Intelligence",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "Target takes 1d6 Psychic damage and subtracts 1d4 from the next saving throw it makes before the end of your next turn."
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Psychic",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "d20Modifiers": [
+    {
+      "appliesTo": "savingThrows",
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 4
+      },
+      "isBonus": false
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 6
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 6
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 6
+      }
+    ]
+  },
+  "tags": ["cantrip", "psychic", "debuff", "saving-throw-penalty"]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "encumbrance",
+  "name": "Encumbrance",
+  "source": "PHB 2024",
+  "category": "variant-rule",
+  "description": "This variant rule uses a more granular carrying capacity system with two encumbrance thresholds. Instead of simply having a carrying capacity limit, characters suffer penalties when carrying too much weight relative to their Strength score.",
+  "mechanics": {
+    "defaultCarryingCapacity": {
+      "formula": "Strength score x 15 lbs",
+      "description": "Without the variant rule, a creature can carry weight up to this limit with no penalty. Beyond this, the creature cannot move."
+    },
+    "variantThresholds": [
+      {
+        "level": "Encumbered",
+        "threshold": "Strength score x 5 lbs",
+        "penalties": ["Speed reduced by 10 feet"]
+      },
+      {
+        "level": "Heavily Encumbered",
+        "threshold": "Strength score x 10 lbs",
+        "penalties": [
+          "Speed reduced by 20 feet",
+          "Disadvantage on ability checks, attack rolls, and saving throws that use Strength, Dexterity, or Constitution"
+        ]
+      }
+    ],
+    "maximumCapacity": "A creature still cannot carry more than its Strength score x 15 lbs. Beyond this limit, the creature cannot move.",
+    "sizeModifiers": {
+      "tiny": "Carrying capacity is halved",
+      "small": "No modifier",
+      "medium": "No modifier",
+      "large": "Carrying capacity is doubled",
+      "huge": "Carrying capacity is quadrupled",
+      "gargantuan": "Carrying capacity is octupled (x8)"
+    },
+    "pushDragLift": "A creature can push, drag, or lift a weight up to twice its carrying capacity (Strength score x 30 lbs). While pushing or dragging weight in excess of its carrying capacity, its Speed drops to 5 feet."
+  },
+  "interactions": [
+    "Characters with low Strength scores (spellcasters, Dexterity-focused rogues) are most impacted by encumbrance penalties",
+    "The heavily encumbered Disadvantage on Strength/Dexterity/Constitution saves is extremely punishing, affecting most combat-related saves",
+    "The Bear Totem Barbarian's carrying capacity feature and the Powerful Build trait double carrying capacity thresholds",
+    "Bags of Holding and similar extradimensional storage items become significantly more valuable under this variant",
+    "This rule encourages parties to manage inventory more carefully and make meaningful choices about what equipment to carry",
+    "Mounts and pack animals become more important for transporting gear"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Hat of Disguise",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "description": "While wearing this hat, you can cast the *Disguise Self* spell. The spell ends if the hat is removed.",
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

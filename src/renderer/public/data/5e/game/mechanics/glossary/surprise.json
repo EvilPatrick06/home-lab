@@ -1,0 +1,11 @@
+{
+  "name": "Surprise",
+  "slug": "surprise",
+  "description": "If combat starts and a combatant is surprised, that combatant can't move or take actions (including Bonus Actions and Reactions) on its first turn in combat, and can't take a Reaction until that turn ends.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

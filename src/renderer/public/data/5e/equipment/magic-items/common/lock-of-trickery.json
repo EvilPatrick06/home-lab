@@ -1,0 +1,13 @@
+{
+  "name": "Lock of Trickery",
+  "slug": "lock-of-trickery",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "This lock appears to be an ordinary Lock (of the type described in chapter 6 of the *Player's Handbook*) and comes with a single key. The tumblers in this lock magically adjust to thwart burglars. Dexterity checks made to pick the lock have Disadvantage.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

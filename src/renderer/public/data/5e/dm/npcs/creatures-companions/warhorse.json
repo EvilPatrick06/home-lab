@@ -1,0 +1,39 @@
+{
+  "name": "Warhorse",
+  "slug": "warhorse",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 11,
+  "hp": 19,
+  "hpFormula": "3d10 + 3",
+  "speed": "60 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 12,
+    "con": 13,
+    "int": 2,
+    "wis": 12,
+    "cha": 7
+  },
+  "senses": "Passive Perception 11",
+  "languages": "—",
+  "cr": "1/2",
+  "xp": "100 XP",
+  "traits": [
+    {
+      "name": "Trampling Charge",
+      "description": "If the horse moves at least 20 ft. straight toward a creature and then hits it with a Hooves attack on the same turn, the target must succeed on a DC 14 Strength saving throw or have the Prone condition. If the target has the Prone condition, the horse can make another Hooves attack against it as a Bonus Action."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Hooves",
+      "description": "*Melee:* +6, reach 5 ft. *Hit:* 11 (2d6 + 4) Bludgeoning."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

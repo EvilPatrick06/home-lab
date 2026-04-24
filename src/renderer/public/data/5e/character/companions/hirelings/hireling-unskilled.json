@@ -1,0 +1,19 @@
+{
+  "id": "hireling-unskilled",
+  "name": "Unskilled Hireling",
+  "dailyCost": "2 sp",
+  "description": "An unskilled hireling performs manual labor such as carrying equipment, digging, hauling supplies, or standing watch. They have no special skills or combat training and will flee from any dangerous situation.",
+  "capabilities": [
+    "Carries equipment and supplies (up to their carrying capacity)",
+    "Performs manual labor (digging, hauling, cleaning)",
+    "Stands watch (though with only a +0 Perception modifier)",
+    "Follows simple instructions",
+    "Will not enter dangerous areas willingly"
+  ],
+  "examples": [
+    { "role": "Torchbearer", "description": "Carries a torch or lantern, freeing the party's hands" },
+    { "role": "Porter", "description": "Carries up to 150 lbs. of equipment and supplies" },
+    { "role": "Servant", "description": "Sets up camp, cooks basic meals, tends to gear" },
+    { "role": "Laborer", "description": "Digs ditches, builds simple structures, clears debris" }
+  ]
+}

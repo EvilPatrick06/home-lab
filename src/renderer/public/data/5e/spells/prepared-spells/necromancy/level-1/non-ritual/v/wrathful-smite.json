@@ -1,0 +1,70 @@
+{
+  "name": "Wrathful Smite",
+  "level": 1,
+  "school": "Necromancy",
+  "classes": ["Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false,
+    "trigger": "immediately after hitting a creature with a Melee weapon or an Unarmed Strike"
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "The target takes an extra 1d6 Necrotic damage from the attack, and it must succeed on a Wisdom saving throw or have the Frightened condition until the spell ends. At the end of each of its turns, the Frightened target repeats the save, ending the spell on itself on a success.",
+  "targetType": "creature",
+  "attackType": null,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The target has the Frightened condition until the spell ends.",
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Necrotic",
+      "applicationType": "onHit"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Frightened",
+      "trigger": "onFailedSave",
+      "duration": "until the spell ends",
+      "savingThrowToEnd": {
+        "ability": "Wisdom",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 1,
+        "description": "The damage increases by 1d6 for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["smite", "bonus-action-on-hit", "frightened", "necrotic"]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "River Styx",
+  "severity": "Level 17+",
+  "description": "Contact with the water (including being splashed) requires DC 20 Int save or creature loses all memories of its past. Only Greater Restoration or Wish can restore them.",
+  "slug": "river-styx",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

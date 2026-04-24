@@ -1,0 +1,11 @@
+{
+  "name": "Cover",
+  "slug": "cover",
+  "description": "A target has cover if it is behind something that can block attacks.\n\n- **Half Cover.** +2 bonus to AC and Dexterity saving throws.\n- **Three-Quarters Cover.** +5 bonus to AC and Dexterity saving throws.\n- **Total Cover.** Can't be targeted directly by an attack or a spell, although some spells can reach such a target by including it in an area of effect.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

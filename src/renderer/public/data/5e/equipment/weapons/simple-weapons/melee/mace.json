@@ -1,0 +1,17 @@
+{
+  "name": "Mace",
+  "slug": "mace",
+  "category": "Simple",
+  "type": "Melee",
+  "damage": "1d6",
+  "damageType": "Bludgeoning",
+  "properties": [],
+  "mastery": "Sap",
+  "weight": "4 lb.",
+  "cost": "5 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  }
+}

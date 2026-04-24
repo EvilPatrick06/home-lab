@@ -1,0 +1,35 @@
+{
+  "name": "Cannon",
+  "slug": "cannon",
+  "category": "Siege Weapon",
+  "size": "Large",
+  "ac": 19,
+  "hp": 75,
+  "cost": "—",
+  "description": "A heavy barrel mounted on a wheeled carriage that fires iron cannonballs. It takes three actions to load, aim, and fire the Cannon: Load (action), Aim (action), Fire (action).",
+  "attack": {
+    "toHit": 6,
+    "damage": "8d10",
+    "damageType": "Bludgeoning",
+    "averageDamage": 44,
+    "range": {
+      "normal": 600,
+      "long": 2400
+    }
+  },
+  "crew": 3,
+  "actionsToOperate": [
+    {
+      "action": "Load",
+      "description": "One creature uses its action to load the Cannon with a cannonball and gunpowder."
+    },
+    { "action": "Aim", "description": "One creature uses its action to aim the Cannon." },
+    { "action": "Fire", "description": "One creature uses its action to fire the Cannon." }
+  ],
+  "immunities": ["Poison", "Psychic"],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

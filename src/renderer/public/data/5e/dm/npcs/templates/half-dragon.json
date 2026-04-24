@@ -1,0 +1,194 @@
+{
+  "name": "Half Dragon",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Half-Dragon"],
+  "alignment": "Neutral",
+  "habitat": ["Hill", "Mountain"],
+  "treasure": ["Armaments"],
+  "lore": "Half dragons are Humanoids infused with draconic power, often the result of a dragon's magical blessing, a pact, or an ancient ritual. They bear visible signs of their draconic heritage—scales, slitted pupils, or vestigial horns—and can unleash a devastating breath weapon akin to that of a true dragon. Half dragons are proud warriors who gravitate toward martial pursuits, serving as champions, enforcers, or lone wanderers seeking to prove their draconic might.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Plate Armor"]
+  },
+  "hitPoints": {
+    "average": 85,
+    "dice": {
+      "count": 10,
+      "die": "d8",
+      "modifier": 40
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 7
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 5
+    }
+  },
+  "skills": [
+    {
+      "skill": "Athletics",
+      "bonus": 7
+    },
+    {
+      "skill": "Perception",
+      "bonus": 5
+    }
+  ],
+  "resistances": [
+    {
+      "damageTypes": ["Acid", "Cold", "Fire", "Lightning", "Poison"],
+      "condition": "one type, determined by Draconic Ancestry"
+    }
+  ],
+  "gear": [
+    {
+      "name": "Longsword",
+      "quantity": 1
+    },
+    {
+      "name": "Plate Armor",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 10
+      },
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Draconic Ancestry",
+      "description": "The half dragon has a draconic ancestry that determines the damage type of its Resistance, the bonus damage on its Longsword attacks, and its Breath Weapon. Choose one of the following damage types when the half dragon appears: Acid, Cold, Fire, Lightning, or Poison."
+    }
+  ],
+  "multiattack": {
+    "description": "The half dragon makes two Longsword attacks.",
+    "attacks": [
+      {
+        "actionName": "Longsword",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 8 (1d8 + 4) Slashing damage plus 7 (2d6) damage of the type determined by the half dragon's Draconic Ancestry.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire",
+              "notes": "Damage type determined by Draconic Ancestry; Fire is a placeholder — replace with the chosen ancestry's damage type"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Breath Weapon",
+      "description": "The half dragon exhales destructive energy in a 30-foot Cone. Each creature in that area must make a DC 15 Dexterity saving throw, taking 24 (7d6) damage of the type determined by the half dragon's Draconic Ancestry on a failed save, or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 15,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 24,
+              "dice": {
+                "count": 7,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire",
+              "notes": "Damage type determined by Draconic Ancestry; Fire is a placeholder — replace with the chosen ancestry's damage type"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 30
+      }
+    }
+  ]
+}

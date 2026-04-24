@@ -1,0 +1,15 @@
+{
+  "name": "Keg Launcher",
+  "ac": 15,
+  "hp": 30,
+  "attack": "DC 15 Con save",
+  "damage": "Poisoned for 1 minute",
+  "description": "Requires Load and Aim. Launches a toxic keg that creates 20-foot-radius sphere. Creatures in area must save or be Poisoned.",
+  "slug": "keg-launcher",
+  "category": "Siege Equipment",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

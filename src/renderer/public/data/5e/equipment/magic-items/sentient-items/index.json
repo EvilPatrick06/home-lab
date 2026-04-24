@@ -1,0 +1,74 @@
+[
+  {
+    "id": "blackrazor",
+    "name": "Blackrazor",
+    "rarity": "Legendary",
+    "path": "../artifact/blackrazor.json",
+    "alignment": "Chaotic Neutral",
+    "communication": "Telepathy",
+    "senses": "Hearing and darkvision 120 ft."
+  },
+  {
+    "id": "wave",
+    "name": "Wave",
+    "rarity": "Legendary",
+    "path": "../artifact/wave.json",
+    "alignment": "Neutral",
+    "communication": "Telepathy",
+    "senses": "Hearing and darkvision 120 ft."
+  },
+  {
+    "id": "whelm",
+    "name": "Whelm",
+    "rarity": "Legendary",
+    "path": "../artifact/whelm.json",
+    "alignment": "Lawful Neutral",
+    "communication": "Telepathy",
+    "senses": "Hearing and darkvision 120 ft."
+  },
+  {
+    "id": "moonblade",
+    "name": "Moonblade",
+    "rarity": "Legendary",
+    "path": "../legendary/moonblade.json",
+    "alignment": "Neutral",
+    "communication": "Empathy",
+    "senses": "Hearing and darkvision 120 ft."
+  },
+  {
+    "id": "sword-of-kas",
+    "name": "Sword of Kas",
+    "rarity": "Artifact",
+    "path": "../artifact/sword-of-kas.json",
+    "alignment": "Chaotic Evil",
+    "communication": "Telepathy",
+    "senses": "Hearing and darkvision 120 ft."
+  },
+  {
+    "id": "book-of-exalted-deeds",
+    "name": "Book of Exalted Deeds",
+    "rarity": "Artifact",
+    "path": "../artifact/book-of-exalted-deeds.json",
+    "alignment": "Lawful Good",
+    "communication": "Telepathy",
+    "senses": "Hearing and truesight 120 ft."
+  },
+  {
+    "id": "book-of-vile-darkness",
+    "name": "Book of Vile Darkness",
+    "rarity": "Artifact",
+    "path": "../artifact/book-of-vile-darkness.json",
+    "alignment": "Neutral Evil",
+    "communication": "Telepathy",
+    "senses": "Hearing and truesight 120 ft."
+  },
+  {
+    "id": "eye-and-hand-of-vecna",
+    "name": "Eye and Hand of Vecna",
+    "rarity": "Artifact",
+    "path": "../artifact/eye-and-hand-of-vecna.json",
+    "alignment": "Neutral Evil",
+    "communication": "Telepathy",
+    "senses": "Truesight 120 ft."
+  }
+]

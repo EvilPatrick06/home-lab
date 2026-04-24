@@ -1,0 +1,151 @@
+{
+  "name": "Scarecrow",
+  "sizes": ["Medium"],
+  "creatureType": "Construct",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Farmland", "Forest"],
+  "treasure": ["None"],
+  "lore": "Crafted from cast-off materials and animated through sinister magic, scarecrows are given a semblance of life by malevolent forces—often by hags, fiends, or dark spellcasters. Though they appear to be mundane objects standing in lonely fields, they come alive to terrify and slay. Their straw-filled bodies and hollow faces conceal a predatory cunning, and they delight in the fear they inspire.",
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 36,
+    "dice": {
+      "count": 8,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "vulnerabilities": ["Fire"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Poisoned", "Unconscious"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Languages of its creator"],
+    "notes": "Understands the languages of its creator but can't speak"
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "If the scarecrow is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the scarecrow move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern that the scarecrow is animate."
+    }
+  ],
+  "multiattack": {
+    "description": "The scarecrow makes two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 6 (2d4 + 1) Slashing damage. If the target is a creature, it has the Frightened condition until the start of the scarecrow's next turn.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Slashing"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "until the start of the scarecrow's next turn"
+            }
+          ],
+          "additionalEffects": "The Frightened condition applies only if the target is a creature."
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Terrifying Gaze",
+      "description": "The scarecrow targets one creature it can see within 30 feet of itself. The target must succeed on a DC 11 Wisdom saving throw or have the Frightened condition until the end of the scarecrow's next turn. On a failed save, the target is also Paralyzed for the same duration.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 11,
+        "targets": "one creature the scarecrow can see within 30 feet of itself",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "until the end of the scarecrow's next turn"
+            },
+            {
+              "condition": "Paralyzed",
+              "duration": "until the end of the scarecrow's next turn"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

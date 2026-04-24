@@ -1,0 +1,62 @@
+{
+  "name": "Saber-Toothed Tiger",
+  "slug": "saber-toothed-tiger",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "52",
+  "hpFormula": "7d10 + 14",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 17,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 6,
+    "dex": 5,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +5, Stealth +7",
+  "senses": "Darkvision 60 ft.; Passive Perception 15",
+  "languages": "None",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [
+    {
+      "name": "Running Leap",
+      "description": "With a 10-foot running start, the tiger can Long Jump up to 25 feet."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The tiger makes two Rend attacks."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +6, reach 5 ft. *Hit:* 11 (2d6 + 4) Slashing damage."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Nimble Escape",
+      "description": "The tiger takes the Disengage or Hide action."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

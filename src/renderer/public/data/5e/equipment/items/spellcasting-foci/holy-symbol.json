@@ -1,0 +1,36 @@
+{
+  "name": "Holy Symbol",
+  "slug": "holy-symbol",
+  "category": "Spellcasting Focus",
+  "type": "Holy",
+  "description": "A Holy Symbol is a representation of a god or pantheon. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a Shield.",
+  "variants": [
+    {
+      "name": "Amulet",
+      "slug": "holy-symbol-amulet",
+      "cost": "5 GP",
+      "weight": "1 lb.",
+      "description": "A pendant or medallion bearing a holy symbol, worn around the neck."
+    },
+    {
+      "name": "Emblem",
+      "slug": "holy-symbol-emblem",
+      "cost": "5 GP",
+      "weight": "—",
+      "description": "A holy symbol embossed or engraved on a Shield or similar surface."
+    },
+    {
+      "name": "Reliquary",
+      "slug": "holy-symbol-reliquary",
+      "cost": "5 GP",
+      "weight": "2 lb.",
+      "description": "A small box or container holding a sacred relic, used as a focus for divine spells."
+    }
+  ],
+  "usableBy": ["Cleric", "Paladin"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

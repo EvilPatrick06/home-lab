@@ -1,0 +1,11 @@
+{
+  "name": "Planar Adventure Situations",
+  "slug": "planar-adventure-situations",
+  "category": "other",
+  "description": "You can use the Planar Adventure Situations table instead of the tables in the \"Adventure Situations by Level\" section in chapter 4 to inspire adventures that draw characters into the planes of existence. These adventure ideas are most appropriate for characters of level 11+.\n\n#### Planar Adventure Situations\n\n| d10 | Situation |\n|---|---|\n| 1 | When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life. |\n| 2 | People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed. |\n| 3 | A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun. |\n| 4 | A god has stopped answering prayers and won't respond to any *Commune* spell. |\n| 5 | A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid. |\n| 6 | An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed. |\n| 7 | A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved. |\n| 8 | A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat. |\n| 9 | To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane. |\n| 10 | An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis. |",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 6",
+    "section": "Cosmology"
+  }
+}

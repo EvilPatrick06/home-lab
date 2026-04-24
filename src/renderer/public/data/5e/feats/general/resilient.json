@@ -1,0 +1,24 @@
+{
+  "name": "Resilient",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Saving Throw Proficiency",
+      "description": "You gain saving throw proficiency with the chosen ability."
+    }
+  ],
+  "source": "PHB 2024"
+}

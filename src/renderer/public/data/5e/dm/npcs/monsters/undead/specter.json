@@ -1,0 +1,60 @@
+{
+  "name": "Specter",
+  "slug": "specter",
+  "size": "Medium",
+  "type": "Undead",
+  "alignment": "Chaotic Evil",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "22",
+  "hpFormula": "5d8",
+  "speed": "30 ft., Fly 50 ft. (hover)",
+  "abilityScores": {
+    "str": 1,
+    "dex": 14,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -5,
+    "dex": 2,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Necrotic, Poison; Charmed, Exhaustion, Grappled, Paralyzed, Petrified, Poisoned, Prone, Restrained, Unconscious",
+  "resistances": "Acid, Bludgeoning, Cold, Fire, Lightning, Piercing, Slashing, Thunder",
+  "senses": "Darkvision 60 ft.; Passive Perception 10",
+  "languages": "Understands Common plus one other language but can't speak",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Incorporeal Movement",
+      "description": "The specter can move through other creatures and objects as if they were Difficult Terrain. It takes 5 (1d10) Force damage if it ends its turn inside an object."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the specter has Disadvantage on ability checks and attack rolls."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Life Drain",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 7 (2d6) Necrotic damage. If the target is a creature, its Hit Point maximum decreases by an amount equal to the damage taken."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Spirit of Wrath and Servant of Death*\n**Habitat:** Underdark, Urban; **Treasure:** None\nSpecters are bodiless, life-devouring spirits drawn to darkness and negative emotions. Having lost all connection to the beings they once were, these hateful spirits drain mortal essence to steal fleeting tastes of life and warmth.\nSpecters seek creatures and locations that exude evil and feed on the suffering they inspire. Roll on or choose a result from the Specter Haunts table to inspire where a specter lurks.",
+  "habitat": "Underdark, Urban",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

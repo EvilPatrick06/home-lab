@@ -1,0 +1,11 @@
+{
+  "name": "Climbing",
+  "slug": "climbing",
+  "description": "While climbing, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain). At the DM's option, climbing a slippery surface requires a successful DC 15 Strength (Athletics) check.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

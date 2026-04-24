@@ -1,0 +1,17 @@
+{
+  "name": "Spirit Board",
+  "cost": {
+    "amount": 20,
+    "denomination": "GP"
+  },
+  "weight": 2,
+  "description": "An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus. A Spirit Board is a flat board inscribed with letters, numbers, and symbols, used with a planchette to channel arcane magic.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

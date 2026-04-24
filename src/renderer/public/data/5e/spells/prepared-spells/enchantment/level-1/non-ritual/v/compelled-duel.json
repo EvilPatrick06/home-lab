@@ -1,0 +1,42 @@
+{
+  "name": "Compelled Duel",
+  "level": 1,
+  "school": "Enchantment",
+  "classes": ["Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You try to compel a creature into a duel. One creature that you can see within range makes a Wisdom saving throw. On a failed save, the target has Disadvantage on attack rolls against creatures other than you, and it can't willingly move to a space that is more than 30 feet away from you. The spell ends if you make an attack roll against a creature other than the target, if you cast a spell on an enemy other than the target, if an ally of yours damages the target, or if you end your turn more than 30 feet away from the target.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The target has Disadvantage on attack rolls against creatures other than the caster and can't willingly move to a space that is more than 30 feet away from the caster."
+  },
+  "disadvantagesImposed": [
+    {
+      "on": "attackRolls",
+      "condition": "against creatures other than the caster"
+    }
+  ],
+  "tags": ["duel", "single-target", "debuff", "movement-restriction"]
+}

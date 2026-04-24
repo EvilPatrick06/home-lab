@@ -1,0 +1,40 @@
+{
+  "name": "Giant Crab",
+  "slug": "giant-crab",
+  "size": "Medium",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 15,
+  "hp": 13,
+  "hpFormula": "3d8",
+  "speed": "30 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 13,
+    "dex": 15,
+    "con": 11,
+    "int": 1,
+    "wis": 9,
+    "cha": 3
+  },
+  "skills": "Stealth +4",
+  "senses": "Blindsight 30 ft., Passive Perception 9",
+  "languages": "—",
+  "cr": "1/8",
+  "xp": "25 XP",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "Can breathe air and water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "*Melee:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) Bludgeoning, and the target has the Grappled condition (escape DC 11). The crab has two claws, each of which can grapple only one target."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

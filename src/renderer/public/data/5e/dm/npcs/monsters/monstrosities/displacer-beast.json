@@ -1,0 +1,131 @@
+{
+  "name": "Displacer Beast",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Lawful Evil",
+  "habitat": ["Forest", "Underdark"],
+  "treasure": ["None"],
+  "lore": "A displacer beast resembles a lithe, six-legged panther with two muscular tentacles growing from its shoulders. Each tentacle ends in a pad of barbed flesh. The creature's most fearsome trait is its ability to bend light, projecting a magical illusion that makes it appear to be standing a short distance from its actual position. Displacer beasts are cunning predators that lurk in dark forests and subterranean passages, hunting prey with pack-like coordination.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 85,
+    "dice": {
+      "count": 10,
+      "die": "d10",
+      "modifier": 30
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Avoidance",
+      "description": "If the displacer beast is subjected to an effect that allows it to make a saving throw to take only half damage, it instead takes no damage if it succeeds on the saving throw and only half damage if it fails."
+    },
+    {
+      "name": "Displacement",
+      "description": "The displacer beast projects a magical illusion that makes it appear to be standing near its actual location, causing attack rolls against it to have Disadvantage. If the displacer beast takes damage, this trait is disrupted until the end of its next turn. This trait is also disrupted while the displacer beast has the Incapacitated condition or has a Speed of 0."
+    }
+  ],
+  "multiattack": {
+    "description": "The displacer beast makes two Tentacle attacks.",
+    "attacks": [
+      {
+        "actionName": "Tentacle",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Tentacle",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 7 (1d6 + 4) Bludgeoning damage plus 3 (1d6) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

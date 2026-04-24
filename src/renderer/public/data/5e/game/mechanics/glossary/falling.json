@@ -1,0 +1,11 @@
+{
+  "name": "Falling",
+  "slug": "falling",
+  "description": "A creature falls when there is nothing holding it up. A falling creature drops up to 500 feet per turn. At the end of a fall, a creature takes 1d6 Bludgeoning damage for every 10 feet it fell, to a maximum of 20d6. The creature has the Prone condition when it lands, unless it avoids taking damage from the fall.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

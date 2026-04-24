@@ -1,0 +1,17 @@
+{
+  "name": "Chain Shirt",
+  "slug": "chain-shirt",
+  "category": "Medium",
+  "ac": "13 + Dex modifier (max 2)",
+  "strength": null,
+  "stealthDisadvantage": false,
+  "weight": "20 lb.",
+  "cost": "50 GP",
+  "donTime": "5 Minutes",
+  "doffTime": "1 Minute",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

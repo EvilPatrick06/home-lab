@@ -1,0 +1,77 @@
+{
+  "name": "Alchemist's Supplies Recipes",
+  "slug": "alchemist-recipes",
+  "tool": "Alchemist's Supplies",
+  "recipes": [
+    {
+      "id": "craft-acid",
+      "name": "Acid",
+      "dc": 15,
+      "time": "1 day",
+      "cost": "12 GP 5 SP",
+      "components": ["Mineral acids", "Glass vial"],
+      "result": "Acid (1 vial)",
+      "resultSlug": "acid",
+      "description": "Distill corrosive acid into a throwable vial."
+    },
+    {
+      "id": "craft-alchemists-fire",
+      "name": "Alchemist's Fire",
+      "dc": 15,
+      "time": "2 days",
+      "cost": "25 GP",
+      "components": ["Ite powder", "Naphtha", "Flask"],
+      "result": "Alchemist's Fire (1 flask)",
+      "resultSlug": "alchemists-fire",
+      "description": "Brew a sticky, volatile compound that ignites when exposed to air."
+    },
+    {
+      "id": "craft-antitoxin",
+      "name": "Antitoxin",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "25 GP",
+      "components": ["Charcoal", "Herbs", "Vial"],
+      "result": "Antitoxin (1 vial)",
+      "resultSlug": "antitoxin",
+      "description": "Brew a compound that grants Advantage on saving throws against poison for 1 hour."
+    },
+    {
+      "id": "craft-perfume",
+      "name": "Perfume",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "2 GP 5 SP",
+      "components": ["Flower petals", "Essential oils", "Vial"],
+      "result": "Perfume (1 vial)",
+      "resultSlug": "perfume",
+      "description": "Distill fragrant oils into a pleasant perfume."
+    },
+    {
+      "id": "craft-soap",
+      "name": "Soap",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "1 CP",
+      "components": ["Animal fat", "Lye"],
+      "result": "Soap (1 bar)",
+      "description": "Render fat and lye into a bar of cleansing soap."
+    },
+    {
+      "id": "craft-oil",
+      "name": "Oil",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "5 SP",
+      "components": ["Plant oils", "Flask"],
+      "result": "Oil (1 flask)",
+      "resultSlug": "oil",
+      "description": "Press and refine plant oils into lamp oil."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "name": "Aarakocra",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "alignment": "Neutral Good",
+  "habitat": ["Mountain"],
+  "treasure": ["Individual"],
+  "lore": "Aarakocra are winged humanoids resembling great birds of prey that hail from the Elemental Plane of Air. On the Material Plane, they dwell atop the highest mountains, where they keep watch over the skies and guard against elemental threats. Fierce warriors and loyal scouts, aarakocra prefer to dive from great heights to strike their foes with devastating speed.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 13,
+    "dice": {
+      "count": 3,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    }
+  ],
+  "gear": [
+    {
+      "name": "Javelin",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Aarakocra", "Auran"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Dive Attack",
+      "description": "If the aarakocra is flying and dives at least 30 feet straight toward a target and then hits it with a Talon attack on the same turn, the attack deals an extra 3 (1d6) Slashing damage."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Talon",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Javelin",
+      "description": "Melee or Ranged Attack Roll: +2, reach 5 ft. or range 30/120 ft. Hit: 3 (1d6) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 2,
+        "reach": 5,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

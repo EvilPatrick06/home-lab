@@ -1,0 +1,1154 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Dominant",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Model",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "astral-plane",
+      "name": "Astral Plane",
+      "alternateNames": ["Astral Sea"],
+      "category": "Transitive Plane",
+      "subcategory": "Astral",
+      "alignments": [],
+      "philosophicalEssence": "A realm of thought and dream, where visitors travel as disembodied souls to reach the Outer Planes.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "thought_based",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A great silvery sea, the same above and below, with swirling wisps of white and gray streaking among motes of light",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Creatures on the Astral Plane don't age or suffer from hunger or thirst.",
+        "temperature": {
+          "category": "temperate",
+          "description": "No specific temperature mentioned; the plane is a silvery void"
+        }
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "stopped",
+        "ratioToMaterialPlane": "subjective",
+        "agingOccurs": false,
+        "hungerThirstApplies": false,
+        "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst. For this reason, creatures that live on the Astral Plane (such as githyanki) establish outposts on other planes, often the Material Plane, so their children can grow to maturity."
+      },
+      "hazards": [
+        {
+          "id": "astral-psychic-wind",
+          "name": "Psychic Wind",
+          "description": "A psychic wind is a storm of thought that batters travelers' minds rather than their bodies. The storm is made of lost memories, forgotten ideas, and subconscious fears that went astray in the Astral Plane and conglomerated into this powerful force. A psychic wind is first sensed as a rapid darkening of the silver-gray sky. After 1d4 minutes, the area becomes as dark as a moonless night. As the sky darkens, the traveler feels buffeting and shaking. As quickly as it comes, the psychic wind passes, and the sky returns to normal in 1 minute.",
+          "category": "psychic",
+          "severity": "major",
+          "savingThrowToTraverse": {
+            "ability": "Intelligence",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "on_trigger",
+            "triggerDescription": "Each traveler caught in a psychic wind makes a DC 15 Intelligence saving throw.",
+            "onFailure": {
+              "description": "On a failed save, the traveler suffers a random effect from the Psychic Wind Psychic Effects table.",
+              "duration": "Varies by effect"
+            },
+            "onSuccess": {
+              "description": "The traveler avoids the psychic effect.",
+              "endsEffect": true
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": [],
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": 0,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.7,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "locationTableRoll": {
+            "die": 20,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 8,
+                "effect": "Diverted",
+                "description": "Add 1d6 days to travel time"
+              },
+              {
+                "rangeLow": 9,
+                "rangeHigh": 12,
+                "effect": "Blown astray",
+                "description": "Add 3d10 days to travel time"
+              },
+              {
+                "rangeLow": 13,
+                "rangeHigh": 16,
+                "effect": "Lost",
+                "description": "At the end of the travel time, the characters arrive at a location other than the intended destination"
+              },
+              {
+                "rangeLow": 17,
+                "rangeHigh": 20,
+                "effect": "Sent through a random color pool",
+                "description": "Roll on the Astral Color Pools table to determine which plane the travelers are sent to"
+              }
+            ]
+          },
+          "psychicEffectTableRoll": {
+            "die": 20,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 8,
+                "effect": "Stunned",
+                "conditionApplied": "Stunned",
+                "durationDescription": "Stunned for 1 minute; repeat the saving throw at the end of each of your turns, ending the effect on yourself on a success."
+              },
+              {
+                "rangeLow": 9,
+                "rangeHigh": 12,
+                "effect": "Psychic Damage (2d10)",
+                "damage": {
+                  "count": 2,
+                  "die": 10,
+                  "modifier": 0,
+                  "expression": "2d10",
+                  "averageResult": 11
+                },
+                "damageType": "Psychic",
+                "durationDescription": "Instantaneous"
+              },
+              {
+                "rangeLow": 13,
+                "rangeHigh": 17,
+                "effect": "Psychic Damage (4d10)",
+                "damage": {
+                  "count": 4,
+                  "die": 10,
+                  "modifier": 0,
+                  "expression": "4d10",
+                  "averageResult": 22
+                },
+                "damageType": "Psychic",
+                "durationDescription": "Instantaneous"
+              },
+              {
+                "rangeLow": 18,
+                "rangeHigh": 20,
+                "effect": "Unconscious",
+                "conditionApplied": "Unconscious",
+                "durationDescription": "Unconscious for 5 (1d10) hours; the effect ends if you take damage or if another creature takes an action to shake you awake."
+              }
+            ]
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Astral Plane"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "astral-no-aging",
+          "name": "Timeless Body",
+          "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst.",
+          "mechanicalEffect": "No aging, no hunger, no thirst. Creatures that live on the Astral Plane establish outposts on other planes so their children can grow to maturity.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "While on the Astral Plane",
+          "removalMethods": ["Leaving the Astral Plane"],
+          "sourceReference": "Chapter 6: Cosmology - Astral Plane"
+        },
+        {
+          "id": "astral-thought-movement",
+          "name": "Thought-Based Movement",
+          "description": "A traveler in the Astral Plane can move by simply thinking about moving. In combat, a creature has a Fly Speed (in feet) equal to 5 times its Intelligence score and can hover.",
+          "mechanicalEffect": "Fly Speed = 5 × Intelligence score (in feet), with hover. Distance has little meaning outside combat.",
+          "isOptional": false,
+          "movementPenalty": {
+            "type": "speed_override",
+            "overrideSpeed": {
+              "formula": "5 * Intelligence score",
+              "multiplierAbility": "Intelligence",
+              "multiplierCoefficient": 5,
+              "movementType": "fly",
+              "canHover": true
+            },
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "thought_directed",
+              "description": "No gravity; creatures move by thinking about the desired direction of travel.",
+              "affectsFloatingObjects": true,
+              "driftSpeed": "Stationary unless propelled by thought"
+            },
+            "distanceMeaningless": true
+          },
+          "affectsEmotions": false,
+          "duration": "While on the Astral Plane",
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Astral Plane"
+        },
+        {
+          "id": "astral-thought-navigation",
+          "name": "Thought-Based Navigation",
+          "description": "All that is required to find one's destination is to think about it. As long as the destination is somewhere in the Astral Plane or in Wildspace, thinking about a place makes the creature aware of the most direct route to that location. The creature doesn't know how long the journey will take or how perilous it will be, just which direction to go in.",
+          "mechanicalEffect": "Thinking about a destination reveals the most direct route. Travel to a specific location takes 4d6 days. Travel to a general location such as a color pool leading to a specified plane takes 1d4 × 10 hours.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "duration": "While on the Astral Plane",
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Astral Plane"
+        }
+      ],
+      "portals": [
+        {
+          "id": "astral-color-pool-abyss",
+          "type": "color_pool",
+          "name": "Color Pool to the Abyss",
+          "destination": "Abyss",
+          "destinationPlane": "Abyss",
+          "bidirectional": true,
+          "colorOrAppearance": "Amethyst",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-acheron",
+          "type": "color_pool",
+          "name": "Color Pool to Acheron",
+          "destination": "Acheron",
+          "destinationPlane": "Acheron",
+          "bidirectional": true,
+          "colorOrAppearance": "Flame red",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-arborea",
+          "type": "color_pool",
+          "name": "Color Pool to Arborea",
+          "destination": "Arborea",
+          "destinationPlane": "Arborea",
+          "bidirectional": true,
+          "colorOrAppearance": "Sapphire blue",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-arcadia",
+          "type": "color_pool",
+          "name": "Color Pool to Arcadia",
+          "destination": "Arcadia",
+          "destinationPlane": "Arcadia",
+          "bidirectional": true,
+          "colorOrAppearance": "Saffron",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-beastlands",
+          "type": "color_pool",
+          "name": "Color Pool to the Beastlands",
+          "destination": "Beastlands",
+          "destinationPlane": "Beastlands",
+          "bidirectional": true,
+          "colorOrAppearance": "Emerald green",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-bytopia",
+          "type": "color_pool",
+          "name": "Color Pool to Bytopia",
+          "destination": "Bytopia",
+          "destinationPlane": "Bytopia",
+          "bidirectional": true,
+          "colorOrAppearance": "Amber",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-carceri",
+          "type": "color_pool",
+          "name": "Color Pool to Carceri",
+          "destination": "Carceri",
+          "destinationPlane": "Carceri",
+          "bidirectional": true,
+          "colorOrAppearance": "Olive",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-elysium",
+          "type": "color_pool",
+          "name": "Color Pool to Elysium",
+          "destination": "Elysium",
+          "destinationPlane": "Elysium",
+          "bidirectional": true,
+          "colorOrAppearance": "Orange",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-ethereal",
+          "type": "color_pool",
+          "name": "Color Pool to the Ethereal Plane",
+          "destination": "Ethereal Plane",
+          "destinationPlane": "Ethereal Plane",
+          "bidirectional": true,
+          "colorOrAppearance": "Spiraling white",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-gehenna",
+          "type": "color_pool",
+          "name": "Color Pool to Gehenna",
+          "destination": "Gehenna",
+          "destinationPlane": "Gehenna",
+          "bidirectional": true,
+          "colorOrAppearance": "Russet",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-hades",
+          "type": "color_pool",
+          "name": "Color Pool to Hades",
+          "destination": "Hades",
+          "destinationPlane": "Hades",
+          "bidirectional": true,
+          "colorOrAppearance": "Rust",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-limbo",
+          "type": "color_pool",
+          "name": "Color Pool to Limbo",
+          "destination": "Limbo",
+          "destinationPlane": "Limbo",
+          "bidirectional": true,
+          "colorOrAppearance": "Jet black",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-material",
+          "type": "color_pool",
+          "name": "Color Pool to the Material Plane",
+          "destination": "Material Plane",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "colorOrAppearance": "Silver",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-mechanus",
+          "type": "color_pool",
+          "name": "Color Pool to Mechanus",
+          "destination": "Mechanus",
+          "destinationPlane": "Mechanus",
+          "bidirectional": true,
+          "colorOrAppearance": "Diamond blue",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-mount-celestia",
+          "type": "color_pool",
+          "name": "Color Pool to Mount Celestia",
+          "destination": "Mount Celestia",
+          "destinationPlane": "Mount Celestia",
+          "bidirectional": true,
+          "colorOrAppearance": "Gold",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-nine-hells",
+          "type": "color_pool",
+          "name": "Color Pool to the Nine Hells",
+          "destination": "Nine Hells",
+          "destinationPlane": "Nine Hells",
+          "bidirectional": true,
+          "colorOrAppearance": "Ruby",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-outlands",
+          "type": "color_pool",
+          "name": "Color Pool to the Outlands",
+          "destination": "Outlands",
+          "destinationPlane": "Outlands",
+          "bidirectional": true,
+          "colorOrAppearance": "Leather brown",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-pandemonium",
+          "type": "color_pool",
+          "name": "Color Pool to Pandemonium",
+          "destination": "Pandemonium",
+          "destinationPlane": "Pandemonium",
+          "bidirectional": true,
+          "colorOrAppearance": "Magenta",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        },
+        {
+          "id": "astral-color-pool-ysgard",
+          "type": "color_pool",
+          "name": "Color Pool to Ysgard",
+          "destination": "Ysgard",
+          "destinationPlane": "Ysgard",
+          "bidirectional": true,
+          "colorOrAppearance": "Indigo",
+          "sizeRange": {
+            "formula": "1d6 × 10 feet in diameter",
+            "minFeet": 10,
+            "maxFeet": 60
+          },
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial", "Fiend", "Aberration", "Humanoid"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Githyanki",
+            "race": "Githyanki",
+            "description": "Creatures that live on the Astral Plane, establishing outposts on other planes so their children can grow to maturity.",
+            "location": "Various outposts, including Tu'narath built on a dead god's corpse"
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "astral-color-pool-identification",
+          "name": "Color Pool Identification",
+          "description": "Gateways leading from the Astral Plane to other planes appear as two-dimensional pools of rippling colors, 1d6 × 10 feet in diameter. Color, as with everything in the Astral Plane, is a matter of metaphor; since these portals are perceived by the Astral self and not by physical eyes, their colors are understood rather than seen. Traveling to another plane requires locating a color pool that leads to the desired plane. These gateways can be identified by color, as shown on the Astral Color Pools table.",
+          "mechanicalEffect": "Color pools are two-dimensional, rippling, colored gateways. Size: 1d6 × 10 feet in diameter (10 to 60 feet). Each color corresponds to a specific destination plane and can be identified on sight. Colors are perceived metaphorically by the Astral self rather than by physical eyes. Roll d20 on the Astral Color Pools table to determine a random color pool's destination.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "astral-color-pool-navigation",
+          "name": "Color Pool Navigation via Thought",
+          "description": "As long as the destination is somewhere in the Astral Plane, such as 'the nearest color pool leading to the Abyss,' thinking about a place makes the creature aware of the most direct route to that location. The creature doesn't know how long the journey will take or how perilous it will be, just which direction to go in.",
+          "mechanicalEffect": "Thinking about a color pool leading to a specified plane reveals the most direct route. Travel time to a general destination such as a color pool takes 1d4 × 10 hours. Travel to a specific location takes 4d6 days.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "astral-psychic-wind-color-pool-redirect",
+          "name": "Psychic Wind Color Pool Redirect",
+          "description": "A psychic wind location effect (d20 roll 17-20) can send travelers through a random color pool. Roll on the Astral Color Pools table to determine the destination.",
+          "mechanicalEffect": "On a Psychic Wind Location Effects roll of 17-20, travelers are sent through a random color pool. Roll d20 on the Astral Color Pools table to determine the destination plane.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "colorPoolColor": "N/A",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Spelljammer: Adventures in Space",
+          "description": "Contains extensive information about Wildspace and Astral travel."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "astral-color-pools-travel",
+      "name": "Astral Color Pools",
+      "type": "portal",
+      "description": "Gateways leading from the Astral Plane to other planes appear as two-dimensional pools of rippling colors, 1d6 × 10 feet in diameter. Color is a matter of metaphor, perceived by the Astral self and not by physical eyes—their colors are understood rather than seen. Traveling to another plane requires locating a color pool that leads to the desired plane. These gateways can be identified by color as shown on the Astral Color Pools table (d20).",
+      "requirements": [
+        "Must be on the Astral Plane",
+        "Must locate a color pool of the appropriate color for the desired destination"
+      ],
+      "associatedSpells": ["Astral Projection", "Gate", "Plane Shift"],
+      "risks": [
+        "Psychic wind may divert travelers or send them through a random color pool",
+        "Travel time is uncertain (1d4 × 10 hours to reach a color pool leading to a specified plane)"
+      ],
+      "destinations": [
+        "Abyss",
+        "Acheron",
+        "Arborea",
+        "Arcadia",
+        "Beastlands",
+        "Bytopia",
+        "Carceri",
+        "Elysium",
+        "Ethereal Plane",
+        "Gehenna",
+        "Hades",
+        "Limbo",
+        "Material Plane",
+        "Mechanus",
+        "Mount Celestia",
+        "Nine Hells",
+        "Outlands",
+        "Pandemonium",
+        "Ysgard"
+      ]
+    },
+    {
+      "id": "astral-projection-spell",
+      "name": "Astral Projection",
+      "type": "spell",
+      "description": "Astral Projection lets adventurers project themselves into the Astral Plane and from there travel to the Outer Planes.",
+      "requirements": ["Spell: Astral Projection"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["Psychic winds", "Encounters with Astral denizens"],
+      "destinations": ["Astral Plane", "Outer Planes via color pools"]
+    }
+  ],
+  "infernalHierarchy": [
+    {
+      "rank": 1,
+      "title": "Lemure",
+      "category": "Least Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": [],
+      "promotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 2,
+      "title": "Imp",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Spined devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 3,
+      "title": "Spined devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Bearded devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 4,
+      "title": "Bearded devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Barbed devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 5,
+      "title": "Barbed devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Chain devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 6,
+      "title": "Chain devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 7,
+      "title": "Bone devil",
+      "category": "Lesser Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Horned devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils or greater devils"
+    },
+    {
+      "rank": 8,
+      "title": "Horned devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Erinyes"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 9,
+      "title": "Erinyes",
+      "category": "Greater Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Ice devil"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 10,
+      "title": "Ice devil",
+      "category": "Greater Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Pit fiend"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 11,
+      "title": "Pit fiend",
+      "category": "Greater Devils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Duke/duchess"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 12,
+      "title": "Duke/duchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend",
+      "canPromoteTo": ["Archduke/archduchess"],
+      "canDemoteTo": ["Any lesser or greater devil form"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    },
+    {
+      "rank": 13,
+      "title": "Archduke/archduchess",
+      "category": "Archdevils",
+      "creatureType": "Fiend",
+      "canPromoteTo": [],
+      "canDemoteTo": ["Any lesser or greater devil form"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    }
+  ],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds an additional 1d4 subtracted from D20 Tests.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        }
+      },
+      "onSuccess": {
+        "description": "The creature resists the dissonance for this rest period.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": true,
+      "repeatSaveTiming": "After each Long Rest on the opposed plane",
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 1,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.4,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

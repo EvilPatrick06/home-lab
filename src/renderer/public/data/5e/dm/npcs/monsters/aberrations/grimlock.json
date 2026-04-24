@@ -1,0 +1,50 @@
+{
+  "name": "Grimlock",
+  "slug": "grimlock",
+  "size": "Medium",
+  "type": "Aberration",
+  "alignment": "Neutral Evil",
+  "ac": "11",
+  "initiative": "+1 (11)",
+  "hp": "11",
+  "hpFormula": "2d8 + 2",
+  "speed": "30 ft., Climb 30 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 12,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 1,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Athletics +5, Perception +3, Stealth +5",
+  "senses": "Blindsight 30 ft.; Passive Perception 13",
+  "languages": "None",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bone Cudgel",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Bludgeoning damage plus 2 (1d4) Psychic damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Puppet of the Mind Flayer Menace*\n**Habitat:** Underdark; **Treasure:** Any\nGrimlocks are victims of biological manipulation by mind flayers. To create grimlocks, illithids capture Humanoids, expose them to strange forms of Underdark radiation, and implant new directives into their brains. The process of creating a grimlock rends the creature's mind such that no semblance of the individual's former personality remains.\nGrimlocks have shallow depressions rather than eyes. A sixth sense allows grimlocks to perceive their surroundings. Psychic energies from their transformations linger in grimlocks' bodies, and they channel these eerie forces into their attacks.\nRoll on or choose a result from the Grimlock Tasks table to inspire how grimlocks serve illithids.\n> \"We thought we'd discovered a new people living deeper than we believed possible. The truth was something far worse.\" -- Aljayera, Underdark Seer",
+  "habitat": "Underdark",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

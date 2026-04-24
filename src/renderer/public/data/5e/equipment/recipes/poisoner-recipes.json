@@ -1,0 +1,67 @@
+{
+  "name": "Poisoner's Kit Recipes",
+  "slug": "poisoner-recipes",
+  "tool": "Poisoner's Kit",
+  "recipes": [
+    {
+      "id": "craft-basic-poison",
+      "name": "Basic Poison",
+      "dc": 10,
+      "time": "1 day",
+      "cost": "50 GP",
+      "components": ["Toxic herbs", "Vial"],
+      "result": "Poison, Basic (1 vial)",
+      "resultSlug": "poison-basic",
+      "description": "Craft a basic contact poison. As a Bonus Action, coat one weapon or up to 3 pieces of ammunition. Adds 1d4 Poison damage for 1 minute or until damage is dealt."
+    },
+    {
+      "id": "craft-serpent-venom",
+      "name": "Serpent Venom",
+      "dc": 15,
+      "time": "3 days",
+      "cost": "100 GP",
+      "components": ["Serpent venom glands", "Distilling agents", "Vial"],
+      "result": "Serpent Venom (1 dose)",
+      "resultSlug": "serpent-venom",
+      "description": "Refine raw serpent venom into a potent injury poison. DC 11 Constitution save or 10 (3d6) Poison damage."
+    },
+    {
+      "id": "craft-assassins-blood",
+      "name": "Assassin's Blood",
+      "dc": 15,
+      "time": "3 days",
+      "cost": "75 GP",
+      "components": ["Toxic berries", "Alchemical solvent", "Vial"],
+      "result": "Assassin's Blood (1 dose)",
+      "resultSlug": "assassins-blood",
+      "description": "Brew an ingested poison. DC 10 Constitution save or 6 (1d12) Poison damage and Poisoned for 24 hours."
+    },
+    {
+      "id": "craft-drow-poison",
+      "name": "Drow Poison",
+      "dc": 18,
+      "time": "5 days",
+      "cost": "100 GP",
+      "components": ["Underdark fungi", "Rare minerals", "Vial"],
+      "result": "Drow Poison (1 dose)",
+      "resultSlug": "drow-poison",
+      "description": "Extract and refine toxins used by the Drow. DC 13 Constitution save or Poisoned for 1 hour; Unconscious if save fails by 5+."
+    },
+    {
+      "id": "craft-crawler-mucus",
+      "name": "Crawler Mucus",
+      "dc": 18,
+      "time": "5 days",
+      "cost": "100 GP",
+      "components": ["Carrion crawler tentacles", "Preserving agents", "Vial"],
+      "result": "Crawler Mucus (1 dose)",
+      "resultSlug": "crawler-mucus",
+      "description": "Process carrion crawler secretions into a contact poison. DC 13 Constitution save or Poisoned and Paralyzed for 1 minute."
+    }
+  ],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poisons"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "name": "Flame Blade",
+  "level": 2,
+  "school": "Evocation",
+  "classes": ["Druid", "Sorcerer"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a sumac leaf",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "You evoke a fiery blade in your free hand. The blade is similar in size and shape to a scimitar, and it lasts for the duration. If you let go of the blade, it disappears, but you can evoke it again as a Bonus Action.\n\nAs a Magic action, you can make a melee spell attack with the fiery blade. On a hit, the target takes Fire damage equal to 3d6 plus your spellcasting ability modifier.\n\nThe flaming blade sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet.\n\nUsing a Higher-Level Spell Slot. The damage increases by 1d6 for each spell slot level above 2.",
+  "attackType": "MeleeSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 6,
+        "addCasterMod": true
+      },
+      "type": "Fire",
+      "applicationType": "onHit"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "Make a melee spell attack with the fiery blade. On a hit, the target takes Fire damage equal to 3d6 plus your spellcasting ability modifier.",
+    "damage": {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 6,
+        "addCasterMod": true
+      },
+      "type": "Fire",
+      "applicationType": "onHit"
+    }
+  },
+  "light": {
+    "brightRadiusFeet": 10,
+    "dimRadiusFeet": 20
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 2,
+        "description": "The damage increases by 1d6 for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["creates-weapon", "fire", "melee-spell-attack"]
+}

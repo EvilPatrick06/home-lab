@@ -1,0 +1,459 @@
+import { useEffect, useRef, useState } from 'react'
+import { addToast } from '../../../../hooks/use-toast'
+import { load5eEncounterBudgets, load5eMonsters } from '../../../../services/data-provider'
+import { logger } from '../../../../utils/logger'
+
+interface EncounterBuilderModalProps {
+  onClose: () => void
+  onBroadcastResult: (message: string) => void
+}
+
+interface MonsterEntry {
+  id: string
+  name: string
+  cr: string
+  xp: number
+  count: number
+}
+
+interface BudgetEntry {
+  level: number
+  low: number
+  moderate: number
+  high: number
+}
+
+interface MonsterData {
+  name: string
+  cr: string
+  xp: number
+  [key: string]: unknown
+}
+
+const CR_XP_MAP: Record<string, number> = {
+  '0': 10,
+  '1/8': 25,
+  '1/4': 50,
+  '1/2': 100,
+  '1': 200,
+  '2': 450,
+  '3': 700,
+  '4': 1100,
+  '5': 1800,
+  '6': 2300,
+  '7': 2900,
+  '8': 3900,
+  '9': 5000,
+  '10': 5900,
+  '11': 7200,
+  '12': 8400,
+  '13': 10000,
+  '14': 11500,
+  '15': 13000,
+  '16': 15000,
+  '17': 18000,
+  '18': 20000,
+  '19': 22000,
+  '20': 25000,
+  '21': 33000,
+  '22': 41000,
+  '23': 50000,
+  '24': 62000,
+  '25': 75000,
+  '26': 90000,
+  '27': 105000,
+  '28': 120000,
+  '29': 135000,
+  '30': 155000
+}
+
+const DEFAULT_BUDGETS: BudgetEntry[] = [
+  { level: 1, low: 50, moderate: 75, high: 100 },
+  { level: 2, low: 100, moderate: 150, high: 200 },
+  { level: 3, low: 150, moderate: 225, high: 400 },
+  { level: 4, low: 250, moderate: 375, high: 500 },
+  { level: 5, low: 500, moderate: 750, high: 1100 },
+  { level: 6, low: 600, moderate: 1000, high: 1400 },
+  { level: 7, low: 750, moderate: 1300, high: 1700 },
+  { level: 8, low: 1000, moderate: 1700, high: 2100 },
+  { level: 9, low: 1300, moderate: 2000, high: 2600 },
+  { level: 10, low: 1600, moderate: 2300, high: 3100 },
+  { level: 11, low: 1900, moderate: 2900, high: 4100 },
+  { level: 12, low: 2200, moderate: 3700, high: 4700 },
+  { level: 13, low: 2600, moderate: 4200, high: 5400 },
+  { level: 14, low: 2900, moderate: 4900, high: 6200 },
+  { level: 15, low: 3300, moderate: 5400, high: 7800 },
+  { level: 16, low: 3800, moderate: 6100, high: 9800 },
+  { level: 17, low: 4500, moderate: 7200, high: 11700 },
+  { level: 18, low: 5000, moderate: 8700, high: 14200 },
+  { level: 19, low: 5500, moderate: 10700, high: 17200 },
+  { level: 20, low: 6400, moderate: 13200, high: 22000 }
+]
+
+export default function EncounterBuilderModal({ onClose, onBroadcastResult }: EncounterBuilderModalProps): JSX.Element {
+  const [partySize, setPartySize] = useState(4)
+  const [partyLevel, setPartyLevel] = useState(1)
+  const [monsterSearch, setMonsterSearch] = useState('')
+  const [searchResults, setSearchResults] = useState<MonsterData[]>([])
+  const [selectedMonsters, setSelectedMonsters] = useState<MonsterEntry[]>([])
+  const [budgetData, setBudgetData] = useState<BudgetEntry[]>(DEFAULT_BUDGETS)
+  const [allMonsters, setAllMonsters] = useState<MonsterData[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [presetName, setPresetName] = useState('')
+  const [showSavePreset, setShowSavePreset] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    load5eMonsters()
+      .then((data) => setAllMonsters(data as unknown as MonsterData[]))
+      .catch((err) => {
+        logger.error('Failed to load monsters', err)
+        addToast('Failed to load monsters', 'error')
+        setAllMonsters([])
+      })
+
+    load5eEncounterBudgets()
+      .then((data) => {
+        const entries = data as unknown as BudgetEntry[]
+        if (Array.isArray(entries) && entries.length > 0) setBudgetData(entries)
+      })
+      .catch((err) => {
+        logger.error('[EncounterBuilder] Failed to load budget data', err)
+        addToast('Failed to load encounter budget data', 'error')
+      })
+  }, [])
+
+  useEffect(() => {
+    if (monsterSearch.trim().length < 2) {
+      setSearchResults([])
+      setShowDropdown(false)
+      return
+    }
+    const query = monsterSearch.toLowerCase()
+    const results = allMonsters.filter((m) => m.name.toLowerCase().includes(query)).slice(0, 15)
+    setSearchResults(results)
+    setShowDropdown(results.length > 0)
+  }, [monsterSearch, allMonsters])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent): void {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const getMonsterXp = (cr: string): number => {
+    return CR_XP_MAP[cr] ?? 0
+  }
+
+  const addMonster = (monster: MonsterData): void => {
+    const existing = selectedMonsters.find((m) => m.name === monster.name && m.cr === monster.cr)
+    if (existing) {
+      setSelectedMonsters((prev) => prev.map((m) => (m.id === existing.id ? { ...m, count: m.count + 1 } : m)))
+    } else {
+      setSelectedMonsters((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          name: monster.name,
+          cr: monster.cr,
+          xp: monster.xp ?? getMonsterXp(monster.cr),
+          count: 1
+        }
+      ])
+    }
+    setMonsterSearch('')
+    setShowDropdown(false)
+  }
+
+  const updateCount = (id: string, delta: number): void => {
+    setSelectedMonsters((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, count: Math.max(0, m.count + delta) } : m)).filter((m) => m.count > 0)
+    )
+  }
+
+  const removeMonster = (id: string): void => {
+    setSelectedMonsters((prev) => prev.filter((m) => m.id !== id))
+  }
+
+  const totalXp = selectedMonsters.reduce((sum, m) => sum + m.xp * m.count, 0)
+  const totalMonsterCount = selectedMonsters.reduce((sum, m) => sum + m.count, 0)
+
+  const budget = budgetData.find((b) => b.level === partyLevel) ?? (budgetData.length > 0 ? budgetData[0] : undefined)
+  const partyLow = (budget?.low ?? 0) * partySize
+  const partyModerate = (budget?.moderate ?? 0) * partySize
+  const partyHigh = (budget?.high ?? 0) * partySize
+
+  const getDifficultyRating = (): { label: string; color: string } => {
+    if (totalXp === 0) return { label: 'None', color: 'text-gray-500' }
+    if (totalXp <= partyLow) return { label: 'Low', color: 'text-green-400' }
+    if (totalXp <= partyModerate) return { label: 'Moderate', color: 'text-amber-400' }
+    if (totalXp <= partyHigh) return { label: 'High', color: 'text-orange-400' }
+    return { label: 'Over Budget', color: 'text-red-400' }
+  }
+
+  const difficulty = getDifficultyRating()
+
+  const budgetBarMax = partyHigh * 1.3
+  const lowPct = Math.min((partyLow / budgetBarMax) * 100, 100)
+  const modPct = Math.min(((partyModerate - partyLow) / budgetBarMax) * 100, 100 - lowPct)
+  const highPct = Math.min(((partyHigh - partyModerate) / budgetBarMax) * 100, 100 - lowPct - modPct)
+  const xpPct = Math.min((totalXp / budgetBarMax) * 100, 100)
+
+  const handleStartInitiative = (): void => {
+    const monsterList = selectedMonsters
+      .flatMap((m) => Array.from({ length: m.count }, (_, i) => (m.count > 1 ? `${m.name} ${i + 1}` : m.name)))
+      .join(', ')
+    onBroadcastResult(
+      `Encounter started! Monsters: ${monsterList} (Total XP: ${totalXp.toLocaleString()}, Difficulty: ${difficulty.label})`
+    )
+    onClose()
+  }
+
+  const handleSavePreset = (): void => {
+    if (!presetName.trim()) return
+    const preset = {
+      name: presetName,
+      partySize,
+      partyLevel,
+      monsters: selectedMonsters
+    }
+    let saved: unknown[] = []
+    try {
+      saved = JSON.parse(localStorage.getItem('encounter-presets') ?? '[]')
+    } catch {
+      /* corrupted data, reset */
+    }
+    saved.push(preset)
+    localStorage.setItem('encounter-presets', JSON.stringify(saved))
+    setPresetName('')
+    setShowSavePreset(false)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={onClose}>
+      <div
+        className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
+          <h2 className="text-lg font-bold text-amber-400">Encounter Builder</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white text-xl leading-none px-1"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          {/* Party Config */}
+          <div className="flex gap-4 items-end">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Party Size</label>
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={partySize}
+                onChange={(e) => setPartySize(Math.max(1, Math.min(10, Number(e.target.value))))}
+                className="w-20 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Party Level</label>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={partyLevel}
+                onChange={(e) => setPartyLevel(Math.max(1, Math.min(20, Number(e.target.value))))}
+                className="w-20 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-white"
+              />
+            </div>
+            <div className="text-xs text-gray-500 pb-1">
+              Budgets: Low {partyLow.toLocaleString()} / Moderate {partyModerate.toLocaleString()} / High{' '}
+              {partyHigh.toLocaleString()} XP
+            </div>
+          </div>
+
+          {/* XP Budget Bar */}
+          <div>
+            <div className="text-xs text-gray-400 mb-1">XP Budget</div>
+            <div className="relative h-6 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+              <div className="absolute top-0 left-0 h-full bg-green-700/60" style={{ width: `${lowPct}%` }} />
+              <div
+                className="absolute top-0 h-full bg-amber-700/60"
+                style={{ left: `${lowPct}%`, width: `${modPct}%` }}
+              />
+              <div
+                className="absolute top-0 h-full bg-red-700/60"
+                style={{ left: `${lowPct + modPct}%`, width: `${highPct}%` }}
+              />
+              {/* XP marker */}
+              {totalXp > 0 && (
+                <div className="absolute top-0 h-full w-0.5 bg-white shadow-lg" style={{ left: `${xpPct}%` }}>
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] text-white whitespace-nowrap bg-gray-900 px-1 rounded">
+                    {totalXp.toLocaleString()} XP
+                  </div>
+                </div>
+              )}
+              {/* Labels */}
+              <div className="absolute inset-0 flex items-center text-[10px] text-white/70 pointer-events-none">
+                <span className="flex-1 text-center">Low</span>
+                <span className="flex-1 text-center">Moderate</span>
+                <span className="flex-1 text-center">High</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Monster Search */}
+          <div ref={searchRef} className="relative">
+            <label className="block text-xs text-gray-400 mb-1">Search Monsters</label>
+            <input
+              type="text"
+              value={monsterSearch}
+              onChange={(e) => setMonsterSearch(e.target.value)}
+              placeholder="Type monster name..."
+              className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
+            />
+            {showDropdown && (
+              <div className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto">
+                {searchResults.map((m, i) => (
+                  <button
+                    key={`${m.name}-${i}`}
+                    onClick={() => addMonster(m)}
+                    className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-700 flex justify-between"
+                  >
+                    <span>{m.name}</span>
+                    <span className="text-gray-500">
+                      CR {m.cr} ({(m.xp ?? getMonsterXp(m.cr)).toLocaleString()} XP)
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Selected Monsters Table */}
+          {selectedMonsters.length > 0 && (
+            <div className="border border-gray-700 rounded overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-800 text-gray-400 text-xs">
+                    <th className="text-left px-3 py-2">Monster</th>
+                    <th className="text-center px-2 py-2">CR</th>
+                    <th className="text-center px-2 py-2">XP</th>
+                    <th className="text-center px-2 py-2">Count</th>
+                    <th className="text-center px-2 py-2">Total XP</th>
+                    <th className="px-2 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedMonsters.map((m) => (
+                    <tr key={m.id} className="border-t border-gray-700/50 text-gray-200">
+                      <td className="px-3 py-1.5">{m.name}</td>
+                      <td className="text-center px-2 py-1.5 text-gray-400">{m.cr}</td>
+                      <td className="text-center px-2 py-1.5 text-gray-400">{m.xp.toLocaleString()}</td>
+                      <td className="text-center px-2 py-1.5">
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => updateCount(m.id, -1)}
+                            className="w-5 h-5 rounded bg-gray-700 hover:bg-gray-600 text-white text-xs flex items-center justify-center"
+                          >
+                            -
+                          </button>
+                          <span className="w-6 text-center">{m.count}</span>
+                          <button
+                            onClick={() => updateCount(m.id, 1)}
+                            className="w-5 h-5 rounded bg-gray-700 hover:bg-gray-600 text-white text-xs flex items-center justify-center"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </td>
+                      <td className="text-center px-2 py-1.5 text-amber-400">{(m.xp * m.count).toLocaleString()}</td>
+                      <td className="text-center px-2 py-1.5">
+                        <button onClick={() => removeMonster(m.id)} className="text-red-500 hover:text-red-400 text-xs">
+                          &times;
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Summary */}
+          <div className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3 border border-gray-700">
+            <div className="text-sm text-gray-300">
+              <span className="text-gray-500">Monsters:</span>{' '}
+              <span className="text-white font-medium">{totalMonsterCount}</span>
+              <span className="mx-3 text-gray-600">|</span>
+              <span className="text-gray-500">Total XP:</span>{' '}
+              <span className="text-amber-400 font-bold">{totalXp.toLocaleString()}</span>
+            </div>
+            <div className={`text-sm font-bold ${difficulty.color}`}>{difficulty.label}</div>
+          </div>
+
+          {/* Save Preset */}
+          {showSavePreset && (
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+                placeholder="Preset name..."
+                className="flex-1 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
+              />
+              <button
+                onClick={handleSavePreset}
+                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setShowSavePreset(false)}
+                className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-5 py-3 border-t border-gray-700">
+          <button
+            onClick={() => setShowSavePreset(true)}
+            className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded"
+          >
+            Save Preset
+          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={onClose}
+              className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleStartInitiative}
+              disabled={selectedMonsters.length === 0}
+              className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded font-medium"
+            >
+              Place All &amp; Start Initiative
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

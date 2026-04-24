@@ -1,0 +1,181 @@
+{
+  "name": "Bugbear",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Goblinoid"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Forest", "Grassland", "Hill", "Underdark"],
+  "treasure": ["Armaments"],
+  "lore": "Bugbears are the largest of the goblinoids—hulking, hairy brutes that move with surprising stealth. They rely on ambush tactics and overwhelming force, striking hard from the shadows before their prey can react. Despite their brutishness, bugbears are cunning predators, and they bully smaller goblinoids into service. In the hierarchy of goblinoid bands, bugbears often serve as enforcers and shock troops.",
+  "armorClass": {
+    "value": 16,
+    "sources": ["Hide Armor", "Shield"]
+  },
+  "hitPoints": {
+    "average": 27,
+    "dice": {
+      "count": 5,
+      "die": "d8",
+      "modifier": 5
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 6
+    },
+    {
+      "skill": "Survival",
+      "bonus": 2
+    }
+  ],
+  "gear": [
+    {
+      "name": "Hide Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    },
+    {
+      "name": "Morningstar",
+      "quantity": 1
+    },
+    {
+      "name": "Javelin",
+      "quantity": 3
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Common", "Goblin"]
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Surprise Attack",
+      "description": "If the bugbear hits a creature that hasn't taken a turn yet in the current combat, the target takes an extra 7 (2d6) damage from the attack."
+    }
+  ],
+  "multiattack": {
+    "description": "The bugbear makes two Morningstar attacks or two Javelin attacks.",
+    "attacks": [
+      {
+        "actionName": "Morningstar",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Morningstar",
+        "replaceCount": 2,
+        "with": "Javelin"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Morningstar",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 6 (1d8 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Javelin",
+      "description": "Melee or Ranged Attack Roll: +4, reach 5 ft. or range 30/120 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 4,
+        "reach": 5,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

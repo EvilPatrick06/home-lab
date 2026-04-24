@@ -1,0 +1,56 @@
+{
+  "name": "Elephant",
+  "slug": "elephant",
+  "size": "Huge",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "12",
+  "initiative": "−1 (9)",
+  "hp": "76",
+  "hpFormula": "8d12 + 24",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 22,
+    "dex": 9,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 6,
+    "dex": -1,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 10",
+  "languages": "None",
+  "cr": "4 (XP 1,100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The elephant makes two Gore attacks."
+    },
+    {
+      "name": "Gore",
+      "description": "*Melee Attack Roll:* +8, reach 5 ft. *Hit:* 15 (2d8 + 6) Piercing damage. If the target is a Huge or smaller creature and the elephant moved 20+ feet straight toward it immediately before the hit, the target has the Prone condition."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Trample",
+      "description": "*Dexterity Saving Throw:* DC 16, one creature within 5 feet that has the Prone condition. *Failure:* 17 (2d10 + 6) Bludgeoning damage. *Success:* Half damage."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

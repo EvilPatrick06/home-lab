@@ -1,0 +1,61 @@
+{
+  "name": "Giant Crocodile",
+  "slug": "giant-crocodile",
+  "size": "Huge",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "14",
+  "initiative": "−1 (9)",
+  "hp": "85",
+  "hpFormula": "9d12 + 27",
+  "speed": "30 ft., Swim 50 ft.",
+  "abilityScores": {
+    "str": 21,
+    "dex": 9,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 5,
+    "dex": -1,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +5",
+  "senses": "Passive Perception 10",
+  "languages": "None",
+  "cr": "5 (XP 1,800; PB +3)",
+  "traits": [
+    {
+      "name": "Hold Breath",
+      "description": "The crocodile can hold its breath for 1 hour."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The crocodile makes one Bite attack and one Tail attack."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +8, reach 5 ft. *Hit:* 21 (3d10 + 5) Piercing damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 15). While Grappled, the target has the Restrained condition and can't be targeted by the crocodile's Tail."
+    },
+    {
+      "name": "Tail",
+      "description": "*Melee Attack Roll:* +8, reach 10 ft. *Hit:* 18 (3d8 + 5) Bludgeoning damage. If the target is a Large or smaller creature, it has the Prone condition."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

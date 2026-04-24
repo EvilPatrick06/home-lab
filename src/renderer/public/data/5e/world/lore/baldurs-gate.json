@@ -1,0 +1,10 @@
+{
+  "name": "Baldur's Gate",
+  "slug": "baldurs-gate",
+  "description": "The city of Baldur's Gate *(BAWL-durz GATE)*, in the Forgotten Realms setting, is a teeming metropolis haunted by the lingering influence of three evil gods (Bane, Bhaal, and Myrkul) who refuse to stay dead. It's a place where a sword for hire can find a rich patron, join a secret guild, pursue killers for a bounty, or aid desperate citizens. The city offers opportunities for good-hearted champions to fight against corruption and bring murderers to justice, while less moral mercenaries find a good price for their services. Baldur's Gate hosts the most reliable and ruthless market on the **Sword Coast**. Information, treasures, secrets, and souls can be bought or sold for the right price.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Appendix A",
+    "section": "Lore Glossary"
+  }
+}

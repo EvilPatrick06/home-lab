@@ -1,0 +1,30 @@
+{
+  "id": "lathander",
+  "name": "Lathander",
+  "title": "God of Dawn and Renewal",
+  "alignment": "Neutral Good",
+  "domains": ["Life", "Light"],
+  "symbol": "Road traveling into a sunrise",
+  "description": "Lathander, the Morninglord, is the god of dawn, spring, birth, and renewal. He favors optimism, creativity, and new beginnings. His radiant warmth drives back the undead and inspires artists, athletes, and all who seek to better themselves. Lathander's temples are oriented to catch the first light of dawn, and his clergy begin each day with a sunrise prayer.",
+  "piety": {
+    "thresholds": [
+      {
+        "score": 3,
+        "benefit": "You can cast Faerie Fire once without expending a spell slot. You regain this ability at dawn."
+      },
+      { "score": 10, "benefit": "You have advantage on saving throws against being blinded or frightened." },
+      {
+        "score": 25,
+        "benefit": "When you restore HP to a creature with a spell, the creature regains additional HP equal to your proficiency bonus."
+      },
+      {
+        "score": 50,
+        "benefit": "You shed bright light in a 10-foot radius and dim light for an additional 10 feet. Undead in the bright light have disadvantage on attack rolls against you."
+      }
+    ]
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Deities of the Multiverse"
+  }
+}

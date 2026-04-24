@@ -1,0 +1,13 @@
+{
+  "name": "Charlatan's Die",
+  "slug": "charlatans-die",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": true,
+  "description": "Whenever you roll this six-sided die, you can control which number it rolls.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

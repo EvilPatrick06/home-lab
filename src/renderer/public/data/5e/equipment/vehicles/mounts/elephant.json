@@ -1,0 +1,15 @@
+{
+  "name": "Elephant",
+  "slug": "elephant",
+  "category": "Mount",
+  "cost": "200 GP",
+  "speed": "40 ft.",
+  "carryCapacity": 1320,
+  "size": "Huge",
+  "description": "A massive mount used in exotic campaigns. Elephants can carry enormous loads and serve as mobile platforms.",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

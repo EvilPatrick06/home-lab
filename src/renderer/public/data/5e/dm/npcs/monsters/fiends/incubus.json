@@ -1,0 +1,223 @@
+{
+  "name": "Incubus",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Urban"],
+  "treasure": ["Any"],
+  "lore": "An incubus is a fiend that feeds on the life energy of mortals, draining victims through intimate contact. Using charm magic and shapeshifting, an incubus assumes a pleasing form to seduce and manipulate its prey. After sapping a victim's vitality with a draining kiss, the incubus moves on, leaving ruin in its wake. Incubi and succubi are the same kind of fiend; an incubus can become a succubus and vice versa.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 66,
+    "dice": {
+      "count": 12,
+      "die": "d8",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 20,
+      "modifier": 5,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 9
+    },
+    {
+      "skill": "Insight",
+      "bonus": 5
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 9
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 7
+    }
+  ],
+  "resistances": ["Cold, Fire, Lightning, and Poison", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common", "Infernal"],
+    "telepathy": 60
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The incubus has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Telepathic Bond",
+      "description": "The incubus ignores the range restriction on its telepathy when communicating with a creature it has Charmed. The two don't even need to be on the same plane of existence."
+    }
+  ],
+  "multiattack": {
+    "description": "The incubus makes two Psychic Touch attacks. It can replace one attack with Draining Kiss if available.",
+    "attacks": [
+      {
+        "actionName": "Psychic Touch",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Psychic Touch",
+        "replaceCount": 1,
+        "with": "Draining Kiss"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Psychic Touch",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 12 (2d6 + 5) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 5
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Draining Kiss",
+      "description": "Melee Attack Roll: +7, reach 5 ft., one Willing creature or a creature that has the Charmed or Grappled condition. Hit: 22 (5d8) Psychic damage, and the target's Hit Point maximum is reduced by an amount equal to the Psychic damage taken. This reduction lasts until the target finishes a Long Rest. The target dies if its Hit Point maximum is reduced to 0.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one Willing creature or a creature that has the Charmed or Grappled condition",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 5,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ],
+          "additionalEffects": "The target's Hit Point maximum is reduced by an amount equal to the Psychic damage taken. This reduction lasts until the target finishes a Long Rest. The target dies if its Hit Point maximum is reduced to 0."
+        }
+      }
+    },
+    {
+      "name": "Etherealness",
+      "description": "The incubus magically enters the Ethereal Plane from the Material Plane, or vice versa."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The incubus shape-shifts into a Medium or Small Humanoid or back into its true form (Fiend). Without wings, it loses its Fly Speed. Its statistics, other than its size and Speed, are the same in each form. It reverts to its true form if it dies."
+    },
+    {
+      "name": "Charm",
+      "description": "One Humanoid the incubus can see within 30 feet makes a DC 15 Wisdom saving throw. On a failed save, the target has the Charmed condition for 1 day. While Charmed, the target obeys the incubus's commands. A target that is commanded to do something against its nature gets to repeat the save, ending the effect on a success. If a target's save is successful or the effect ends, the target is immune to this incubus's Charm for 24 hours. The incubus can have only one creature Charmed at a time. If it Charms another, the previous Charm ends.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 15,
+        "targets": "one Humanoid the incubus can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "1 day"
+            }
+          ],
+          "effects": "While Charmed, the target obeys the incubus's commands. A target that is commanded to do something against its nature gets to repeat the save, ending the effect on a success."
+        },
+        "onSuccess": {
+          "effects": "The target is immune to this incubus's Charm for 24 hours."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Charmed",
+          "duration": "1 day",
+          "savingThrow": {
+            "ability": "WIS",
+            "dc": 15,
+            "targets": "a Charmed target commanded to act against its nature",
+            "onSuccess": {
+              "effects": "The Charmed condition ends on the target."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

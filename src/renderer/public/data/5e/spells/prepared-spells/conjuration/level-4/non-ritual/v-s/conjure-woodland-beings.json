@@ -1,0 +1,61 @@
+{
+  "name": "Conjure Woodland Beings",
+  "level": 4,
+  "school": "Conjuration",
+  "classes": ["Druid", "Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "You conjure nature spirits that flit around you in a 10-foot Emanation for the duration. Whenever the Emanation enters the space of a creature you can see and whenever a creature you can see enters the Emanation or ends its turn there, you can force that creature to make a Wisdom saving throw. The creature takes 5d8 Force damage on a failed save or half as much damage on a successful one. A creature makes this save only once per turn. In addition, you can take the Disengage action as a Bonus Action for the spell's duration.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 10,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 8
+      },
+      "type": "Force",
+      "halfOnSave": true,
+      "applicationType": "onEntry"
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 8,
+        "baseSpellLevel": 4,
+        "description": "The damage increases by 1d8 for each spell slot level above 4."
+      }
+    ]
+  },
+  "tags": ["disengage_as_bonus_action", "area_damage", "emanation", "nature_spirits"]
+}

@@ -1,0 +1,72 @@
+{
+  "name": "Ice Devil",
+  "slug": "ice-devil",
+  "size": "Large",
+  "type": "Fiend",
+  "alignment": "Lawful Evil",
+  "ac": "18",
+  "initiative": "+7 (17)",
+  "hp": "228",
+  "hpFormula": "24d10 + 96",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 21,
+    "dex": 14,
+    "con": 18,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 5,
+    "dex": 7,
+    "con": 9,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Insight +7, Perception +7, Persuasion +9",
+  "immunities": "Cold, Fire, Poison; Poisoned",
+  "senses": "Blindsight 60 ft. (unimpeded by magical Darkness), Darkvision 120 ft.; Passive Perception 17",
+  "languages": "Infernal; telepathy 120 ft.",
+  "cr": "14 (XP 11,500; PB +5)",
+  "traits": [
+    {
+      "name": "Diabolical Restoration",
+      "description": "If the devil dies outside the Nine Hells, its body disappears in sulfurous smoke, and it gains a new body instantly, reviving with all its Hit Points somewhere in the Nine Hells."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The devil makes three Ice Spear attacks. It can replace one attack with a Tail attack."
+    },
+    {
+      "name": "Ice Spear",
+      "description": "*Melee or Ranged Attack Roll:* +10, reach 5 ft. or range 30/120 ft. *Hit:* 14 (2d8 + 5) Piercing damage plus 10 (3d6) Cold damage. Until the end of its next turn, the target can't take a Bonus Action or Reaction, its Speed decreases by 10 feet, and it can move or take one action on its turn, not both. *Hit or Miss:* The spear magically returns to the devil's hand immediately after a ranged attack."
+    },
+    {
+      "name": "Tail",
+      "description": "*Melee Attack Roll:* +10, reach 10 ft. *Hit:* 15 (3d6 + 5) Bludgeoning damage plus 18 (4d8) Cold damage."
+    },
+    {
+      "name": "Ice Wall (Recharge 6)",
+      "description": "The devil casts *Wall of Ice* (level 8 version), requiring no spell components and using Intelligence as the spellcasting ability (spell save DC 17)."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Devil of Antipathy and Intellectual Arrogance*\n**Habitat:** Planar (Nine Hells); **Treasure:** Arcana\nHeartless strategists of the Nine Hells, ice devils — also known as gelugons — forsake emotion to indulge in their own malicious interpretations of logic. For them, the multiverse is a puzzle that must be solved to benefit them, their masters, and the Nine Hells.\nIce devils act maliciously, disguising their whims as reason and strategy. In the service of evil masters, these insectile devils patiently plot the movements of infernal armies and scheme ways to fulfill wicked goals. They might also serve as guardians, owing to their martial prowess and ability to reshape battlefields with walls of ice.\nWhen indulging their own schemes, ice devils tempt mortals to forsake empathy and social connections to embrace selfish, destructive visions of intellectualism. After isolating victims, these devils drain them of their secrets or send them forth to spread fractious dogmas cloaked as reason.\nIce devils usually lurk in frozen realms, particularly the frigid layer of Cania in the Nine Hells.\n> \"Part of the charm of ice devils is that they always think they're smarter than you. Mmm — there are few pleasures sweeter than proving a devil wrong.\" — Tasha",
+  "habitat": "Planar (Nine Hells)",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Devils",
+    "file": "Devils.md"
+  }
+}

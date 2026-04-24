@@ -1,0 +1,100 @@
+{
+  "name": "Musical Instrument",
+  "category": "Other Tools",
+  "cost": null,
+  "weight": null,
+  "ability": "Charisma",
+  "utilize": [
+    {
+      "description": "Play a known tune",
+      "dc": 10
+    },
+    {
+      "description": "Improvise a song",
+      "dc": 15
+    }
+  ],
+  "craft": [],
+  "variants": [
+    {
+      "name": "Bagpipes",
+      "cost": {
+        "amount": 30,
+        "denomination": "GP"
+      },
+      "weight": 6
+    },
+    {
+      "name": "Drum",
+      "cost": {
+        "amount": 6,
+        "denomination": "GP"
+      },
+      "weight": 3
+    },
+    {
+      "name": "Dulcimer",
+      "cost": {
+        "amount": 25,
+        "denomination": "GP"
+      },
+      "weight": 10
+    },
+    {
+      "name": "Flute",
+      "cost": {
+        "amount": 2,
+        "denomination": "GP"
+      },
+      "weight": 1
+    },
+    {
+      "name": "Horn",
+      "cost": {
+        "amount": 3,
+        "denomination": "GP"
+      },
+      "weight": 2
+    },
+    {
+      "name": "Lute",
+      "cost": {
+        "amount": 35,
+        "denomination": "GP"
+      },
+      "weight": 2
+    },
+    {
+      "name": "Lyre",
+      "cost": {
+        "amount": 30,
+        "denomination": "GP"
+      },
+      "weight": 2
+    },
+    {
+      "name": "Pan Flute",
+      "cost": {
+        "amount": 12,
+        "denomination": "GP"
+      },
+      "weight": 2
+    },
+    {
+      "name": "Shawm",
+      "cost": {
+        "amount": 2,
+        "denomination": "GP"
+      },
+      "weight": 1
+    },
+    {
+      "name": "Viol",
+      "cost": {
+        "amount": 30,
+        "denomination": "GP"
+      },
+      "weight": 1
+    }
+  ]
+}

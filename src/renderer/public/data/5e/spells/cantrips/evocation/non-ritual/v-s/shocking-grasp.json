@@ -1,0 +1,58 @@
+{
+  "name": "Shocking Grasp",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Lightning springs from you to a creature that you try to touch. Make a melee spell attack against the target. On a hit, the target takes 1d8 Lightning damage, and it can't make Opportunity Attacks until the start of its next turn.",
+  "targetType": "creature",
+  "attackType": "MeleeSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": "Lightning",
+      "applicationType": "onHit"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 8,
+        "description": "The damage increases to 2d8 Lightning damage."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 8,
+        "description": "The damage increases to 3d8 Lightning damage."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 8,
+        "description": "The damage increases to 4d8 Lightning damage."
+      }
+    ]
+  },
+  "tags": ["cantrip", "attack", "melee", "prevents-opportunity-attacks"]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "Giant Goat",
+  "slug": "giant-goat",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 11,
+  "hp": 19,
+  "hpFormula": "3d10 + 3",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 17,
+    "dex": 11,
+    "con": 12,
+    "int": 3,
+    "wis": 12,
+    "cha": 6
+  },
+  "senses": "Passive Perception 11",
+  "languages": "—",
+  "cr": "1/2",
+  "xp": "100 XP",
+  "traits": [
+    {
+      "name": "Charge",
+      "description": "If the goat moves at least 20 ft. straight toward a target and then hits it with a Ram attack on the same turn, the target takes an extra 5 (2d4) Bludgeoning damage. If the target is a creature, it must succeed on a DC 13 Strength saving throw or have the Prone condition."
+    },
+    {
+      "name": "Sure-Footed",
+      "description": "Advantage on Strength and Dexterity saving throws against effects that would give it the Prone condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Ram",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 8 (2d4 + 3) Bludgeoning."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

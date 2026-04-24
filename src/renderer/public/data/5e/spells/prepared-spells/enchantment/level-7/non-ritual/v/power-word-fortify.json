@@ -1,0 +1,33 @@
+{
+  "name": "Power Word Fortify",
+  "level": 7,
+  "school": "Enchantment",
+  "classes": ["Bard", "Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You fortify up to six creatures you can see within range. The spell bestows 120 Temporary Hit Points, which you divide among the spell's recipients.",
+  "targetCount": 6,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "temporaryHitPoints": {
+    "flat": 120,
+    "divisible": true
+  },
+  "tags": ["temporary hit points", "support", "power word"]
+}

@@ -1,0 +1,152 @@
+{
+  "name": "Gelatinous Cube",
+  "sizes": ["Large"],
+  "creatureType": "Ooze",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "A gelatinous cube is a transparent ooze composed of acid that dissolves organic material on contact. These mindless predators lurk in dungeon corridors and caverns, filling passages from floor to ceiling as they slowly patrol for prey. A gelatinous cube's body is difficult to see, and creatures that stumble into one are quickly engulfed and dissolved. Bones, coins, and other inorganic remnants are sometimes visible suspended within the cube's transparent form.",
+  "armorClass": {
+    "value": 6
+  },
+  "hitPoints": {
+    "average": 84,
+    "dice": {
+      "count": 8,
+      "die": "d10",
+      "modifier": 40
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 15
+    }
+  ],
+  "initiative": {
+    "modifier": -3,
+    "score": 5
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 4,
+      "modifier": -3,
+      "save": -3
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    }
+  },
+  "conditionImmunities": ["Blinded", "Charmed", "Deafened", "Exhaustion", "Frightened", "Prone"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {},
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Ooze Cube",
+      "description": "The cube takes up its entire space. Other creatures can enter the space, but a creature that does so is subjected to the cube's Engulf and has Disadvantage on the saving throw. Creatures inside the cube can be seen but have Total Cover. A creature within 5 feet of the cube can take an action to pull a creature or object out of the cube. Doing so requires a successful DC 12 Strength (Athletics) check, and the creature making the attempt takes 10 (3d6) Acid damage. The cube can hold only one Large creature or up to four Medium or smaller creatures inside it at a time."
+    },
+    {
+      "name": "Transparent",
+      "description": "Even when the cube is in plain sight, it takes a successful DC 15 Wisdom (Perception) check to spot a cube that has neither moved nor attacked and has no visible remains inside it. A creature that tries to enter the cube's space while unaware of the cube is surprised by the cube."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 10 (3d6) Acid damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Engulf",
+      "description": "The cube moves up to its Speed. While doing so, it can enter Large or smaller creatures' spaces. Whenever the cube enters a creature's space, the creature must make a DC 12 Dexterity saving throw. On a successful save, the creature can choose to be pushed 5 feet back or to the side of the cube. A creature that chooses not to be pushed is subjected to the consequences of a failed save. On a failed save, the cube enters the creature's space, and the creature takes 10 (3d6) Acid damage and has the Engulfed condition (escape DC 12). An Engulfed creature can't breathe, has the Restrained condition, and has Total Cover against attacks and other effects outside the cube. An Engulfed creature takes 21 (6d6) Acid damage at the start of each of the cube's turns.",
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 12,
+        "targets": "each creature whose space the cube enters",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "duration": "until the creature escapes the Engulfed condition",
+              "escapeDC": 12
+            }
+          ],
+          "effects": "The creature has the Engulfed condition. An Engulfed creature can't breathe, has Total Cover against attacks and other effects outside the cube, and takes 21 (6d6) Acid damage at the start of each of the cube's turns."
+        },
+        "onSuccess": {
+          "effects": "The creature can choose to be pushed 5 feet back or to the side of the cube. A creature that chooses not to be pushed is subjected to the consequences of a failed save."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Restrained",
+          "duration": "until the creature escapes the Engulfed condition",
+          "escapeDC": 12
+        }
+      ]
+    }
+  ]
+}

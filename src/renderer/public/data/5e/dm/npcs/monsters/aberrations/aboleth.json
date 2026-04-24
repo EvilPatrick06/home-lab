@@ -1,0 +1,377 @@
+{
+  "name": "Aboleth",
+  "sizes": ["Large"],
+  "creatureType": "Aberration",
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar", "Underdark", "Underwater"],
+  "treasure": ["Any"],
+  "lore": "Aboleths are ancient aquatic aberrations that lurk in subterranean lakes and the depths of the ocean. These creatures predate the gods and remember a time before mortal races walked the world. An aboleth's vast intellect and psionic power allow it to dominate other creatures, bending them to its alien will. Aboleths never forget—their memories stretch back to the dawn of existence, passed down through generations in a continuous chain of consciousness.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 150,
+    "dice": {
+      "count": 20,
+      "die": "d10",
+      "modifier": 40
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 21,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 6
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 6
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    }
+  },
+  "skills": [
+    {
+      "skill": "History",
+      "bonus": 12
+    },
+    {
+      "skill": "Perception",
+      "bonus": 10
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 20
+  },
+  "languages": {
+    "spoken": ["Deep Speech"],
+    "telepathy": 120
+  },
+  "challengeRating": "10",
+  "experiencePoints": 5900,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The aboleth can breathe air and water."
+    },
+    {
+      "name": "Probing Telepathy",
+      "description": "If a creature the aboleth can see communicates telepathically with the aboleth, the aboleth learns the creature's greatest desires."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting (Psionics)",
+      "ability": "INT",
+      "spellSaveDC": 16,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Project Image",
+              "level": 7
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Hypnotic Pattern",
+              "level": 3
+            },
+            {
+              "name": "Phantasmal Force",
+              "level": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The aboleth makes two Tentacle attacks and one Psychic Bolt attack.",
+    "attacks": [
+      {
+        "actionName": "Tentacle",
+        "count": 2
+      },
+      {
+        "actionName": "Psychic Bolt",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Tentacle",
+      "description": "Melee Attack Roll: +9, reach 10 ft. Hit: 12 (2d6 + 5) Bludgeoning damage plus 7 (2d6) Psychic damage. If the target is a creature, it must succeed on a DC 14 Constitution saving throw or become Diseased. The disease has no effect for 1 minute and can be removed by any magic that cures disease. After 1 minute, the diseased creature's skin becomes translucent and slimy, the creature can't regain Hit Points unless it is underwater, and the disease can be removed only by Heal or another disease-curing spell of level 6 or higher. When the creature is outside a body of water, it takes 6 (1d12) Acid damage every 10 minutes unless moisture is applied to the skin before 10 minutes have passed.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 5
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 14,
+            "targets": "the target (if it is a creature)",
+            "onFailure": {
+              "effects": "The target becomes Diseased. The disease has no effect for 1 minute and can be removed by any magic that cures disease. After 1 minute, the diseased creature's skin becomes translucent and slimy, the creature can't regain Hit Points unless it is underwater, and the disease can be removed only by Heal or another disease-curing spell of level 6 or higher. When the creature is outside a body of water, it takes 6 (1d12) Acid damage every 10 minutes unless moisture is applied to the skin before 10 minutes have passed."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Psychic Bolt",
+      "description": "Ranged Attack Roll: +8, range 120 ft. Hit: 17 (3d8 + 4) Psychic damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 8,
+        "range": {
+          "normal": 120,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Enslave",
+      "description": "The aboleth targets one creature it can see within 30 feet of itself. The target must succeed on a DC 16 Wisdom saving throw or have the Charmed condition for 24 hours or until the aboleth does anything harmful to the target. A Charmed target obeys the aboleth's telepathic commands. Whenever a Charmed target takes damage, it repeats the saving throw, ending the effect on itself on a success. The target can also repeat the saving throw at the end of each of its turns.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      },
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 16,
+        "targets": "one creature the aboleth can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "24 hours or until the aboleth does anything harmful to the target",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 16,
+                "targets": "the Charmed target",
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ],
+          "effects": "The Charmed target obeys the aboleth's telepathic commands. The target repeats the save whenever it takes damage and at the end of each of its turns."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Charmed",
+          "duration": "24 hours or until the aboleth does anything harmful to the target",
+          "savingThrow": {
+            "ability": "WIS",
+            "dc": 16
+          }
+        }
+      ]
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Psychic Lash",
+        "description": "One creature Charmed by the aboleth takes 10 (3d6) Psychic damage. The aboleth doesn't need to see the creature.",
+        "cost": 1,
+        "damage": [
+          {
+            "average": 10,
+            "dice": {
+              "count": 3,
+              "die": "d6",
+              "modifier": 0
+            },
+            "type": "Psychic",
+            "notes": "Only affects a creature Charmed by the aboleth"
+          }
+        ]
+      },
+      {
+        "name": "Swim",
+        "description": "The aboleth moves up to its Swim Speed without provoking Opportunity Attacks.",
+        "cost": 1
+      },
+      {
+        "name": "Tentacle Strike",
+        "description": "The aboleth makes one Tentacle attack.",
+        "cost": 2
+      }
+    ]
+  },
+  "lair": {
+    "description": "An aboleth's lair is usually a subterranean lake or the ruins of an ancient aboleth city. The lair might also be in a flooded ruin or beneath the ocean.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Phantasmal Terrain",
+        "description": "The aboleth casts Hallucinatory Terrain, requiring no spell components and using Intelligence as the spellcasting ability. The aboleth doesn't need to maintain Concentration on this casting, and it can dismiss the terrain as a Bonus Action."
+      },
+      {
+        "name": "Psychic Grip",
+        "description": "The aboleth targets one creature it can see within 60 feet of itself. The target must succeed on a DC 16 Wisdom saving throw or be pulled up to 30 feet toward the aboleth and have the Restrained condition until initiative count 20 of the next round.",
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 16,
+          "targets": "one creature the aboleth can see within 60 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Restrained",
+                "duration": "until initiative count 20 of the next round"
+              }
+            ],
+            "effects": "The target is pulled up to 30 feet toward the aboleth."
+          }
+        },
+        "conditions": [
+          {
+            "condition": "Restrained",
+            "duration": "until initiative count 20 of the next round"
+          }
+        ]
+      },
+      {
+        "name": "Slime Pool",
+        "description": "A 10-foot-radius pool of slime appears centered on a point on the ground that the aboleth can see within 120 feet of itself. The pool is Difficult Terrain and lasts until the aboleth uses this lair action again or dies. Each creature that enters the pool for the first time on a turn or starts its turn there must succeed on a DC 16 Constitution saving throw or have the Poisoned condition until the end of its next turn.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 16,
+          "targets": "each creature that enters the pool for the first time on a turn or starts its turn there",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Poisoned",
+                "duration": "until the end of its next turn"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 10
+        },
+        "conditions": [
+          {
+            "condition": "Poisoned",
+            "duration": "until the end of its next turn"
+          }
+        ]
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Water sources within 1 mile of the lair are supernaturally fouled. Creatures that drink such water vomit it within minutes.",
+        "radius": 1,
+        "endCondition": "If the aboleth dies, this effect fades over 3d10 days."
+      },
+      {
+        "description": "Aquatic creatures within 1 mile of the lair are subject to the aboleth's Probing Telepathy, whether or not the aboleth can see them.",
+        "radius": 1,
+        "endCondition": "If the aboleth dies, this effect ends immediately."
+      },
+      {
+        "description": "Underground surfaces within 1 mile of the lair are slimy and wet, creating Difficult Terrain.",
+        "radius": 1,
+        "endCondition": "If the aboleth dies, this effect fades over 3d10 days."
+      }
+    ]
+  }
+}

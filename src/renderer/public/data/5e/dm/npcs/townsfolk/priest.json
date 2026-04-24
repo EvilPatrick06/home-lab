@@ -1,0 +1,46 @@
+{
+  "id": "priest",
+  "name": "Priest",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Alignment",
+  "ac": 13,
+  "acSource": "chain shirt",
+  "hp": 27,
+  "hpFormula": "5d8 + 5",
+  "speed": "30 ft.",
+  "stats": { "str": 10, "dex": 10, "con": 12, "int": 13, "wis": 16, "cha": 13 },
+  "skills": "Medicine +7, Persuasion +3, Religion +5",
+  "senses": "Passive Perception 13",
+  "languages": "Any two languages",
+  "cr": "2",
+  "xp": "450 XP",
+  "traits": [
+    {
+      "name": "Divine Eminence",
+      "description": "As a bonus action, the priest can expend a spell slot to cause its melee weapon attacks to magically deal an extra 10 (3d6) radiant damage on a hit. This benefit lasts until the end of the turn. If the priest expends a spell slot of 2nd level or higher, the extra damage increases by 1d6 for each level above 1st."
+    }
+  ],
+  "spellcasting": {
+    "level": 5,
+    "ability": "Wisdom",
+    "saveDC": 13,
+    "attackBonus": 5,
+    "cantrips": ["Light", "Sacred Flame", "Thaumaturgy"],
+    "slots": {
+      "1st": { "slots": 4, "spells": ["Cure Wounds", "Guiding Bolt", "Sanctuary"] },
+      "2nd": { "slots": 3, "spells": ["Lesser Restoration", "Spiritual Weapon"] },
+      "3rd": { "slots": 2, "spells": ["Dispel Magic", "Spirit Guardians"] }
+    }
+  },
+  "actions": [
+    {
+      "name": "Mace",
+      "description": "*Melee Weapon Attack:* +2 to hit, reach 5 ft., one target. *Hit:* 3 (1d6) bludgeoning damage."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

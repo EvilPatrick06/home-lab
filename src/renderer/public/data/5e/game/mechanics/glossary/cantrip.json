@@ -1,0 +1,11 @@
+{
+  "name": "Cantrip",
+  "slug": "cantrip",
+  "description": "A cantrip is a spell that can be cast at will, without using a spell slot and without being prepared. Repeated practice has fixed the spell in the caster's mind.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

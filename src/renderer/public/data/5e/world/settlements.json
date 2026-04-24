@@ -1,0 +1,309 @@
+{
+  "sizes": [
+    {
+      "id": "village",
+      "name": "Village",
+      "populationMin": 1,
+      "populationMax": 500,
+      "maxItemValue": 20,
+      "description": "A small settlement surrounded by farmland. Most villagers are commoners who farm the land or make simple goods.",
+      "typicalGovernment": ["Village Elder", "Council of Elders"],
+      "defenses": ["Militia", "Wooden Palisade"],
+      "availableServices": ["General Store", "Inn", "Shrine", "Blacksmith"],
+      "availableShops": ["General Store", "Blacksmith"],
+      "availableTemples": ["Shrine"],
+      "maxSpellLevel": 1
+    },
+    {
+      "id": "town",
+      "name": "Town",
+      "populationMin": 501,
+      "populationMax": 5000,
+      "maxItemValue": 2000,
+      "description": "A busy settlement with defined streets, a marketplace, and some fortifications. Towns often serve as hubs for surrounding villages.",
+      "typicalGovernment": ["Mayor", "Town Council", "Lord/Lady"],
+      "defenses": ["Town Guard", "Stone Walls", "Watchtower"],
+      "availableServices": ["General Store", "Inn", "Tavern", "Temple", "Blacksmith", "Apothecary", "Stable", "Market"],
+      "availableShops": ["General Store", "Blacksmith", "Apothecary", "Weaponsmith", "Armorer", "Jeweler"],
+      "availableTemples": ["Temple", "Shrine"],
+      "maxSpellLevel": 3
+    },
+    {
+      "id": "city",
+      "name": "City",
+      "populationMin": 5001,
+      "populationMax": null,
+      "maxItemValue": 200000,
+      "description": "A large, walled settlement with defined districts, multiple temples, and a variety of shops and services. Cities are centers of trade, culture, and governance.",
+      "typicalGovernment": ["Lord/Lady", "City Council", "Monarch"],
+      "defenses": ["City Guard", "Fortified Walls", "Towers", "Moat"],
+      "availableServices": [
+        "General Store",
+        "Inn",
+        "Tavern",
+        "Temple",
+        "Blacksmith",
+        "Apothecary",
+        "Stable",
+        "Market",
+        "Guild Hall",
+        "Library",
+        "Court",
+        "Bank",
+        "Theater"
+      ],
+      "availableShops": [
+        "General Store",
+        "Blacksmith",
+        "Apothecary",
+        "Weaponsmith",
+        "Armorer",
+        "Jeweler",
+        "Alchemist",
+        "Magic Shop",
+        "Bookstore",
+        "Tailor"
+      ],
+      "availableTemples": ["Temple", "Cathedral", "Shrine"],
+      "maxSpellLevel": 5
+    }
+  ],
+  "governmentTypes": [
+    {
+      "id": "autocracy",
+      "name": "Autocracy",
+      "description": "One individual holds absolute authority. Typically a king, queen, warlord, or other ruler."
+    },
+    {
+      "id": "bureaucracy",
+      "name": "Bureaucracy",
+      "description": "Various departments compose the government, each responsible for an aspect of rule."
+    },
+    {
+      "id": "confederacy",
+      "name": "Confederacy",
+      "description": "Multiple allied settlements share governance through representatives."
+    },
+    {
+      "id": "democracy",
+      "name": "Democracy",
+      "description": "Citizens vote on issues or elect representatives to make decisions."
+    },
+    {
+      "id": "dictatorship",
+      "name": "Dictatorship",
+      "description": "One individual rules by force, having seized power through military strength or political maneuvering."
+    },
+    {
+      "id": "feudalism",
+      "name": "Feudalism",
+      "description": "A lord or noble owns the land and grants fiefs to vassals, who provide military service and tribute."
+    },
+    {
+      "id": "gerontocracy",
+      "name": "Gerontocracy",
+      "description": "A council of elders rules, typically the oldest and wisest members of the community."
+    },
+    {
+      "id": "hierarchy",
+      "name": "Hierarchy",
+      "description": "A structured chain of command runs from a supreme authority down through layers of subordinates."
+    },
+    {
+      "id": "magocracy",
+      "name": "Magocracy",
+      "description": "Spellcasters rule, using magical power as the basis of authority."
+    },
+    {
+      "id": "matriarchy-patriarchy",
+      "name": "Matriarchy/Patriarchy",
+      "description": "The eldest or most prominent member of one gender holds authority."
+    },
+    {
+      "id": "militocracy",
+      "name": "Militocracy",
+      "description": "The highest-ranking military officer holds power, and the government is run like an army."
+    },
+    {
+      "id": "monarchy",
+      "name": "Monarchy",
+      "description": "A hereditary ruler, typically a king or queen, holds authority that passes through bloodlines."
+    },
+    {
+      "id": "oligarchy",
+      "name": "Oligarchy",
+      "description": "A small group of powerful figures rules, such as nobles, merchants, or guild leaders."
+    },
+    {
+      "id": "plutocracy",
+      "name": "Plutocracy",
+      "description": "The wealthiest citizens rule, with power derived from commercial success."
+    },
+    {
+      "id": "republic",
+      "name": "Republic",
+      "description": "The people elect representatives who make governing decisions on their behalf."
+    },
+    {
+      "id": "theocracy",
+      "name": "Theocracy",
+      "description": "Religious leaders hold power, claiming divine authority. Laws are based on religious doctrine."
+    }
+  ],
+  "definingTraits": {
+    "die": "d20",
+    "entries": [
+      { "roll": "1–2", "trait": "Fortified outer wall" },
+      { "roll": "3–4", "trait": "Lots of gardens, parks, and greenery" },
+      { "roll": "5–6", "trait": "Lots of mud, filth, and litter" },
+      { "roll": "7–8", "trait": "Sprawling cemetery" },
+      { "roll": "9–10", "trait": "Lingering fog" },
+      { "roll": "11–12", "trait": "Noise and smoke from smithies and forges" },
+      { "roll": "13", "trait": "Canals and bridges" },
+      { "roll": "14", "trait": "Cliffs on one or more sides" },
+      { "roll": "15–16", "trait": "Clean streets and well-maintained buildings" },
+      { "roll": "17–18", "trait": "Ancient ruins within the settlement" },
+      {
+        "roll": "19–20",
+        "trait": "Impressive structure (such as a keep, temple, circle of standing stones, or ziggurat)"
+      }
+    ]
+  },
+  "claimsToFame": {
+    "die": "d20",
+    "entries": [
+      { "roll": 1, "claim": "Delicious food" },
+      { "roll": 2, "claim": "Rude people" },
+      { "roll": 3, "claim": "Friendly folk" },
+      { "roll": 4, "claim": "Artists or writers" },
+      { "roll": 5, "claim": "Great hero/savior" },
+      { "roll": 6, "claim": "Flowers" },
+      { "roll": 7, "claim": "Seasonal festival" },
+      { "roll": 8, "claim": "Hauntings" },
+      { "roll": 9, "claim": "Spellcasters" },
+      { "roll": 10, "claim": "Decadence" },
+      { "roll": 11, "claim": "Piety" },
+      { "roll": 12, "claim": "Gambling" },
+      { "roll": 13, "claim": "Godlessness" },
+      { "roll": 14, "claim": "Education" },
+      { "roll": 15, "claim": "Wines" },
+      { "roll": 16, "claim": "High fashion" },
+      { "roll": 17, "claim": "Political intrigue" },
+      { "roll": 18, "claim": "Powerful guilds" },
+      { "roll": 19, "claim": "Patriotism" },
+      { "roll": 20, "claim": "Ancient ruins" }
+    ]
+  },
+  "currentCalamities": {
+    "die": "d12",
+    "entries": [
+      { "roll": 1, "calamity": "Monsters infest the settlement." },
+      { "roll": 2, "calamity": "A key figure died; murder is suspected." },
+      { "roll": 3, "calamity": "War brews between rival guilds or gangs." },
+      { "roll": 4, "calamity": "A plague or famine sparks riots." },
+      { "roll": 5, "calamity": "Monsters attack anyone who approaches or leaves the settlement." },
+      { "roll": 6, "calamity": "Trade disputes cause economic hardship." },
+      { "roll": 7, "calamity": "A natural disaster threatens the settlement." },
+      { "roll": 8, "calamity": "A prophecy of doom has residents on edge." },
+      { "roll": 9, "calamity": "Locals are being drafted to fight in a war." },
+      { "roll": 10, "calamity": "Political or religious strife threatens violence." },
+      { "roll": 11, "calamity": "The settlement is under siege." },
+      { "roll": 12, "calamity": "Scandal threatens powerful local families." }
+    ]
+  },
+  "localLeaders": {
+    "die": "d12",
+    "entries": [
+      { "roll": 1, "leader": "Respected, fair, and just leader or council" },
+      { "roll": 2, "leader": "Feared tyrant" },
+      { "roll": 3, "leader": "Coward manipulated by others" },
+      { "roll": 4, "leader": "Illegitimate leader causing civil unrest" },
+      { "roll": 5, "leader": "Powerful monster" },
+      { "roll": 6, "leader": "Mysterious, anonymous conspirators" },
+      { "roll": 7, "leader": "Contested leadership (with open fighting)" },
+      { "roll": 8, "leader": "Acrimonious council unable to make decisions" },
+      { "roll": 9, "leader": "Doltish lout" },
+      { "roll": 10, "leader": "Dying leader (with disputed succession)" },
+      { "roll": 11, "leader": "Iron-willed and respected leader or council" },
+      { "roll": 12, "leader": "Religious leader or council" }
+    ]
+  },
+  "randomShops": {
+    "die": "d20",
+    "entries": [
+      { "roll": 1, "type": "Pawnshop" },
+      { "roll": 2, "type": "Apothecary" },
+      { "roll": 3, "type": "Grocer" },
+      { "roll": 4, "type": "Delicatessen" },
+      { "roll": 5, "type": "Potter" },
+      { "roll": 6, "type": "Undertaker" },
+      { "roll": 7, "type": "Bookstore" },
+      { "roll": 8, "type": "Moneylender" },
+      { "roll": 9, "type": "Armorer" },
+      { "roll": 10, "type": "Chandler" },
+      { "roll": 11, "type": "Smithy" },
+      { "roll": 12, "type": "Carpenter" },
+      { "roll": 13, "type": "Weaver" },
+      { "roll": 14, "type": "Jeweler" },
+      { "roll": 15, "type": "Baker" },
+      { "roll": 16, "type": "Mapmaker" },
+      { "roll": 17, "type": "Tailor" },
+      { "roll": 18, "type": "Ropemaker" },
+      { "roll": 19, "type": "Mason" },
+      { "roll": 20, "type": "Scribe" }
+    ]
+  },
+  "tavernNameGenerator": {
+    "description": "Roll a d20 for each part to generate a tavern name (400 possible combinations).",
+    "firstPart": {
+      "die": "d20",
+      "entries": [
+        { "roll": 1, "value": "The Golden" },
+        { "roll": 2, "value": "The Silver" },
+        { "roll": 3, "value": "The Beardless" },
+        { "roll": 4, "value": "The Laughing" },
+        { "roll": 5, "value": "The Dancing" },
+        { "roll": 6, "value": "The Gilded" },
+        { "roll": 7, "value": "The Stumbling" },
+        { "roll": 8, "value": "The Wolf and" },
+        { "roll": 9, "value": "The Fallen" },
+        { "roll": 10, "value": "The Leering" },
+        { "roll": 11, "value": "The Drunken" },
+        { "roll": 12, "value": "The Wine and" },
+        { "roll": 13, "value": "The Roaring" },
+        { "roll": 14, "value": "The Frowning" },
+        { "roll": 15, "value": "The Barrel and" },
+        { "roll": 16, "value": "The Thirsty" },
+        { "roll": 17, "value": "The Wandering" },
+        { "roll": 18, "value": "The Barking" },
+        { "roll": 19, "value": "The Happy" },
+        { "roll": 20, "value": "The Witch and" }
+      ]
+    },
+    "secondPart": {
+      "die": "d20",
+      "entries": [
+        { "roll": 1, "value": "Lyre" },
+        { "roll": 2, "value": "Dolphin" },
+        { "roll": 3, "value": "Dwarf" },
+        { "roll": 4, "value": "Pegasus" },
+        { "roll": 5, "value": "Hut" },
+        { "roll": 6, "value": "Rose" },
+        { "roll": 7, "value": "Stag" },
+        { "roll": 8, "value": "Duck" },
+        { "roll": 9, "value": "Lamb" },
+        { "roll": 10, "value": "Demon" },
+        { "roll": 11, "value": "Goat" },
+        { "roll": 12, "value": "Spirit" },
+        { "roll": 13, "value": "Horde" },
+        { "roll": 14, "value": "Jester" },
+        { "roll": 15, "value": "Bucket" },
+        { "roll": 16, "value": "Crow" },
+        { "roll": 17, "value": "Satyr" },
+        { "roll": 18, "value": "Dog" },
+        { "roll": 19, "value": "Spider" },
+        { "roll": 20, "value": "Dragon" }
+      ]
+    }
+  }
+}

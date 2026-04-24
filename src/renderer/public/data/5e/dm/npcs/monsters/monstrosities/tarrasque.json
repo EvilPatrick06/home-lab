@@ -1,0 +1,275 @@
+{
+  "name": "Tarrasque",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Monstrosity",
+  "descriptiveTags": ["Titan"],
+  "alignment": "Unaligned",
+  "habitat": ["Any"],
+  "treasure": ["None"],
+  "lore": "The tarrasque is the most dreaded monster in the Material Plane. When the tarrasque emerges from its subterranean slumber, volcanoes erupt, tidal waves crash against coastlines, and civilizations collapse. A tarrasque is a force of nature—virtually unstobbable and with no known way to permanently slay it. It exists only to feed and destroy, oblivious to the devastation it causes.",
+  "armorClass": {
+    "value": 25,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 850,
+    "dice": {
+      "count": 50,
+      "die": "d20",
+      "modifier": 300
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Burrow",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 30,
+      "modifier": 10,
+      "save": 19
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 9
+    },
+    "CON": {
+      "score": 30,
+      "modifier": 10,
+      "save": 19
+    },
+    "INT": {
+      "score": 3,
+      "modifier": -4,
+      "save": 5
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 9
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 9
+    }
+  },
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Charmed", "Frightened", "Paralyzed", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "30",
+  "experiencePoints": 155000,
+  "proficiencyBonus": 9,
+  "traits": [
+    {
+      "name": "Legendary Resistance",
+      "description": "If the tarrasque fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 5
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The tarrasque has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Reflective Carapace",
+      "description": "Any time the tarrasque is targeted by a Magic Missile spell, a line spell, or a spell that requires a ranged attack roll, roll 1d6. On a 1 to 5, the tarrasque is unaffected. On a 6, the tarrasque is unaffected, and the effect is reflected back at the caster as though it originated from the tarrasque, turning the caster into the target."
+    },
+    {
+      "name": "Siege Monster",
+      "description": "The tarrasque deals double damage to objects and structures."
+    }
+  ],
+  "multiattack": {
+    "description": "The tarrasque makes one Bite attack and four Claw attacks. It can replace one of those attacks with Swallow.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 4
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Swallow"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +19, reach 10 ft. Hit: 36 (4d12 + 10) Piercing damage. If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 20). Until this grapple ends, the target has the Restrained condition, and the tarrasque can't Bite another target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 19,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 36,
+              "dice": {
+                "count": 4,
+                "die": "d12",
+                "modifier": 10
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 20). Until this grapple ends, the target has the Restrained condition, and the tarrasque can't Bite another target.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 20,
+              "duration": "until escaped"
+            },
+            {
+              "condition": "Restrained",
+              "duration": "until the grapple ends"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +19, reach 15 ft. Hit: 28 (4d8 + 10) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 19,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 28,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 10
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Swallow",
+      "description": "The tarrasque makes one Bite attack against a Large or smaller creature it is grappling. On a hit, the target is swallowed, and the grapple ends. The swallowed target has the Blinded and Restrained conditions, it has Total Cover against attacks and other effects outside the tarrasque, and it takes 56 (16d6) Acid damage at the start of each of the tarrasque's turns. If the tarrasque takes 60 or more damage on a single turn from a creature inside it, the tarrasque must succeed on a DC 20 Constitution saving throw at the end of that turn or regurgitate all swallowed creatures, each of which falls in a space within 10 feet of the tarrasque with the Prone condition. If the tarrasque dies, a swallowed creature is no longer Restrained by it and can escape from the corpse using 30 feet of movement, exiting with the Prone condition.",
+      "damage": [
+        {
+          "average": 56,
+          "dice": {
+            "count": 16,
+            "die": "d6",
+            "modifier": 0
+          },
+          "type": "Acid",
+          "notes": "At the start of each of the tarrasque's turns while swallowed"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "Blinded",
+          "duration": "while swallowed"
+        },
+        {
+          "condition": "Restrained",
+          "duration": "while swallowed"
+        }
+      ]
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +19, reach 20 ft. Hit: 24 (4d6 + 10) Bludgeoning damage. If the target is a creature, it must succeed on a DC 20 Strength saving throw or have the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 19,
+        "reach": 20,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 24,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 10
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "savingThrow": {
+            "ability": "STR",
+            "dc": 20,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Prone"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "savingThrow": {
+        "ability": "STR",
+        "dc": 20,
+        "targets": "the target (if a creature)",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Prone"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Attack",
+        "description": "The tarrasque makes one Claw or Tail attack.",
+        "cost": 1
+      },
+      {
+        "name": "Chomp",
+        "description": "The tarrasque makes one Bite attack or uses Swallow.",
+        "cost": 2
+      }
+    ]
+  }
+}

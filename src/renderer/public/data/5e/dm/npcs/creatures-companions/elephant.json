@@ -1,0 +1,43 @@
+{
+  "name": "Elephant",
+  "slug": "elephant",
+  "size": "Huge",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 12,
+  "hp": 76,
+  "hpFormula": "8d12 + 24",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 22,
+    "dex": 9,
+    "con": 17,
+    "int": 3,
+    "wis": 11,
+    "cha": 6
+  },
+  "senses": "Passive Perception 10",
+  "languages": "—",
+  "cr": "4",
+  "xp": "1,100 XP",
+  "traits": [
+    {
+      "name": "Charge",
+      "description": "If the elephant moves at least 20 ft. straight toward a target and then hits it with a Gore attack on the same turn, the target takes an extra 7 (2d6) Piercing damage. If the target is a creature, it must succeed on a DC 12 Strength saving throw or have the Prone condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Gore",
+      "description": "*Melee:* +8, reach 5 ft. *Hit:* 19 (3d8 + 6) Piercing."
+    },
+    {
+      "name": "Stomp",
+      "description": "*Melee:* +8, reach 5 ft. *Hit:* 19 (3d8 + 6) Bludgeoning. Can only target a Prone creature."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

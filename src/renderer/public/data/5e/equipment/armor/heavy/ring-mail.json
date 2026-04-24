@@ -1,0 +1,17 @@
+{
+  "name": "Ring Mail",
+  "slug": "ring-mail",
+  "category": "Heavy",
+  "ac": "14",
+  "strength": null,
+  "stealthDisadvantage": false,
+  "weight": "40 lb.",
+  "cost": "30 GP",
+  "donTime": "10 Minutes",
+  "doffTime": "5 Minutes",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

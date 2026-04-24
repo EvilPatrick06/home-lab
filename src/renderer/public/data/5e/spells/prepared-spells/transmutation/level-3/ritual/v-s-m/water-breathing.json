@@ -1,0 +1,35 @@
+{
+  "name": "Water Breathing",
+  "level": 3,
+  "school": "Transmutation",
+  "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+  "ritual": true,
+  "castingTime": {
+    "type": "Action",
+    "ritual": true
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a short reed",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 24,
+    "unit": "hours"
+  },
+  "description": "This spell grants up to ten willing creatures of your choice within range the ability to breathe underwater until the spell ends. Affected creatures also retain their normal mode of respiration.",
+  "targetCount": 10,
+  "targetType": "creature",
+  "targetMustBeWilling": true,
+  "tags": ["utility", "underwater", "breathing"]
+}

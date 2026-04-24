@@ -1,0 +1,171 @@
+{
+  "name": "Spined Devil",
+  "sizes": ["Small"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["The Nine Hells"],
+  "treasure": ["None"],
+  "lore": "Spined devils, also called spinagons, are lesser devils that serve as scouts, messengers, and aerial sentries in the Nine Hells. Their bodies bristle with sharp spines, which they can hurl at enemies before swooping away. Spinagons are craven and spiteful, delighting in tormenting creatures weaker than themselves while groveling before more powerful fiends.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 5,
+      "die": "d6",
+      "modifier": 5
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 4
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "resistances": ["Cold"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the devil's Darkvision."
+    },
+    {
+      "name": "Flyby",
+      "description": "The devil doesn't provoke Opportunity Attacks when it flies out of an enemy's reach."
+    }
+  ],
+  "multiattack": {
+    "description": "The devil makes two Spine attacks.",
+    "attacks": [
+      {
+        "actionName": "Spine",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Spine",
+      "description": "Melee or Ranged Attack Roll: +4, reach 5 ft. or range 20/80 ft. Hit: 5 (1d6 + 2) Piercing damage plus 3 (1d6) Fire damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 4,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 80
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Deathly Sting",
+      "description": "One creature within 5 feet of the devil makes a DC 11 Constitution saving throw, taking 5 (2d4) Poison damage on a failed save, or half as much damage on a successful one.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 11,
+        "targets": "one creature within 5 feet of the devil",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ]
+}

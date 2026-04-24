@@ -1,0 +1,11 @@
+{
+  "name": "Search",
+  "slug": "search",
+  "description": "The Search action lets you make a Wisdom check (Insight, Medicine, Perception, or Survival) to find or discern something.\n\n### Areas of Knowledge (Study Action)\n\n| Skill | Areas |\n|---|---|\n| Arcana | Spells, magic items, eldritch symbols, magical traditions, planes of existence, certain creatures (Aberrations, Constructs, Elementals, Fey, Monstrosities) |\n| History | Historic events and people, ancient civilizations, wars, legends, cultural customs |\n| Investigation | Traps, ciphers, riddles, gadgetry |\n| Nature | Terrain, plants, animals, weather, natural cycles, certain creatures (Beasts, Dragons, Oozes, Plants) |\n| Religion | Deities, holy symbols, sacred rites, religious hierarchies, certain creatures (Celestials, Fiends, Undead) |",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

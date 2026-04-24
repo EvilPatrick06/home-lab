@@ -1,0 +1,160 @@
+{
+  "name": "Manticore",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Lawful Evil",
+  "habitat": ["Hill", "Mountain"],
+  "treasure": ["Armaments"],
+  "lore": "A manticore is a savage predator with a vaguely humanoid head, a lion's body, bat-like wings, and a tail of iron spikes. It attacks with raking claws and volleys of tail spikes, and it delights in tormenting prey before devouring it. Manticores roam desolate hills and mountains, sometimes allying with other evil creatures in exchange for food.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 68,
+    "dice": {
+      "count": 8,
+      "die": "d10",
+      "modifier": 24
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Tail Spike Regrowth",
+      "description": "The manticore has twenty-four tail spikes. Used spikes regrow when the manticore finishes a Long Rest."
+    }
+  ],
+  "multiattack": {
+    "description": "The manticore makes two Claw attacks and one Tail Spike attack. Alternatively, it makes three Tail Spike attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      },
+      {
+        "actionName": "Tail Spike",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 2,
+        "with": "Tail Spike"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 6 (1d6 + 3) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail Spike",
+      "description": "Melee or Ranged Attack Roll: +5, reach 5 ft. or range 100/200 ft. Hit: 7 (1d8 + 3) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 5,
+        "reach": 5,
+        "range": {
+          "normal": 100,
+          "long": 200
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Mounted Combat",
+  "slug": "mounted-combat",
+  "description": "A willing creature at least one size larger than you that has an appropriate anatomy can serve as a mount. While mounted, you can choose whether the mount acts independently or you control it. A controlled mount shares your Initiative count and can only take the Dash, Disengage, or Dodge action.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

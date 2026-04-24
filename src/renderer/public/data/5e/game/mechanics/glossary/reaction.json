@@ -1,0 +1,11 @@
+{
+  "name": "Reaction",
+  "slug": "reaction",
+  "description": "A Reaction is an instant response to a trigger. You can take one Reaction per round — you regain your Reaction at the start of each of your turns.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

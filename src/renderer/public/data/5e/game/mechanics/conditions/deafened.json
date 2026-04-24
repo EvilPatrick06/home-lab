@@ -1,0 +1,11 @@
+{
+  "name": "Deafened",
+  "slug": "deafened",
+  "description": "A Deafened creature can't hear and automatically fails any ability check that requires hearing.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Dread Helm",
+  "slug": "dread-helm",
+  "type": "Wondrous Item",
+  "rarity": "Common",
+  "attunement": false,
+  "description": "While you're wearing this fearsome steel helm, your eyes glow red and the rest of your face is hidden in shadow.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

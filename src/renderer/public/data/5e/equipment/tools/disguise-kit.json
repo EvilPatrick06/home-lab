@@ -1,0 +1,15 @@
+{
+  "name": "Disguise Kit",
+  "cost": "25 GP",
+  "weight": "3 lb.",
+  "ability": "Charisma",
+  "utilize": "Apply makeup (DC 10)",
+  "craft": "Costume",
+  "slug": "disguise-kit",
+  "category": "Other Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

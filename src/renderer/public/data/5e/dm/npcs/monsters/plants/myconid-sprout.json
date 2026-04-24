@@ -1,0 +1,112 @@
+{
+  "name": "Myconid Sprout",
+  "sizes": ["Small"],
+  "creatureType": "Plant",
+  "alignment": "Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "Myconids are intelligent fungal creatures that inhabit the Underdark. They communicate through spores rather than speech and tend toward peaceful communities led by a sovereign. Sprouts are the youngest myconids, small and still developing their rapport with the colony.",
+  "armorClass": {
+    "value": 10
+  },
+  "hitPoints": {
+    "average": 11,
+    "dice": {
+      "count": 2,
+      "die": "d6",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "notes": "No languages; see Rapport Spores"
+  },
+  "challengeRating": "0",
+  "experiencePoints": 10,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Rapport Spores",
+      "description": "A creature that willingly inhales spores released by the myconid or that is a Myconid can communicate telepathically with the myconid, provided the creature and the myconid are within 30 feet of each other. The communication consists of shared emotions, basic ideas, and simple concepts."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Fist",
+      "description": "Melee Attack Roll: +1, reach 5 ft. Hit: 1 (1d4 − 1) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 1,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 1,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": -1
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Distress Spores",
+      "description": "Each Myconid within 240 feet of this myconid senses a distress signal from this myconid, learning the myconid's location and general emotional state."
+    }
+  ]
+}

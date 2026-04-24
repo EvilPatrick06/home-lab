@@ -1,0 +1,74 @@
+{
+  "name": "Mind Flayer Arcanist",
+  "slug": "mind-flayer-arcanist",
+  "size": "Medium",
+  "type": "Aberration",
+  "alignment": "Lawful Evil",
+  "ac": "16",
+  "initiative": "+6 (16)",
+  "hp": "143",
+  "hpFormula": "26d8 + 26",
+  "speed": "30 ft., Fly 30 ft. (hover)",
+  "abilityScores": {
+    "str": 11,
+    "dex": 14,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 6,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Arcana +13, Insight +7, Perception +7, Stealth +6",
+  "immunities": "Psychic; Charmed, Frightened",
+  "gear": "Breastplate",
+  "senses": "Darkvision 120 ft.; Passive Perception 17",
+  "languages": "Deep Speech, Undercommon; telepathy 120 ft.",
+  "cr": "11 (XP 7,200; PB +4)",
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The mind flayer has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The mind flayer makes three Arcane Tentacles attacks."
+    },
+    {
+      "name": "Arcane Tentacles",
+      "description": "*Melee or Ranged Attack Roll:* +9, reach 5 ft. or range 120 ft. *Hit:* 27 (4d10 + 5) Psychic damage, and the mind flayer can teleport the target up to 30 feet to an unoccupied space the mind flayer can see on a surface or liquid large enough to support the target. If this damage reduces the target to 0 Hit Points, the mind flayer kills it and magically devours its brain."
+    },
+    {
+      "name": "Mind Burst (Recharge 5–6)",
+      "description": "*Intelligence Saving Throw:* DC 17, each creature in a 40-foot Emanation originating from the mind flayer. *Failure:* 41 (8d8 + 5) Psychic damage, and the target has the Stunned condition until the end of the mind flayer's next turn. *Success:* Half damage only."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The mind flayer casts one of the following spells, requiring no spell components and using Intelligence as the spellcasting ability (spell save DC 17):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Shield (2/Day)",
+      "description": "The mind flayer casts *Shield* in response to that spell's trigger, using the same spellcasting ability as Spellcasting."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "*Brain-Eating Underdark Tyrants*\n**Habitat:** Underdark; **Treasure:** Arcana\nScattered survivors of a world-ruining, multiversal empire, mind flayers lurk in secret conclaves hidden deep within Material Plane worlds. Within their alien sanctuaries, these wicked masterminds—also known as illithids—reshape the Underdark and its inhabitants to serve their unfathomable whims. Mind flayers are feared for their psionic powers, which allow them to stun and control other creatures, and for their horrific method of feeding: using their four slimy tentacles to extract the brains of their victims.\nMind flayers are infamous plotters and manipulators, concocting plans that reach beyond their subterranean realms. Aside from using their psionic powers to control others, mind flayers often experiment with their own bizarre life cycles, implanting other creatures with illithid young to create unnatural servants. Creatures such as grimlocks and intellect devourers result from mind flayers' biological tampering, while other Underdark-dwelling monsters—including kuo-toa, quaggoths, and troglodytes—often serve illithid masters. Githyanki and githzerai have a long adversarial history with mind flayers and bear the scars of illithid manipulation.\nMind flayers work as lone schemers, in mysterious cabals, or as part of worlds-spanning illithid conspiracies. In groups, mind flayers work toward bizarre agendas organized by an elder brain—a massive, brain-like being with incredible psionic powers. Without such a leader, groups of mind flayers fall to self-destructive squabbling. Roll on or choose a result from the Mind Flayer Machinations table to inspire an illithid conclave's plots.\n*Brain-Eating Body Thief*\n**Habitat:** Underdark; **Treasure:** None\nIntellect devourers serve their mind flayer creators by consuming other creatures' brains and puppetizing the mindless bodies. These quadrupedal brains seek to ambush sapient beings, then drain their thoughts until they're mindless. Then, if their victims are Humanoids, they enter the creatures' skulls. With access to the victims' knowledge and control of their bodies, intellect devourers use their perfect disguises to pass as the people they've replaced and further mind flayer plots.\n> \"I know Durgan, and that wasn't Durgan. It was like something was wearing Durgan... like some sort of suit... a Durgan suit.\" — Johana Grethe, Account of the Stormport Shock\nA mind flayer's hunger for brains is outmeasured only by its thirst for dominance, and it embraces any plot that allows it to indulge both.\nMind flayer arcanists enhance their psionic abilities with magic. Other mind flayers view those that undertake such experiments with disgust and fear.",
+  "habitat": "Underdark",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Mind-Flayers",
+    "file": "Mind-Flayers.md"
+  }
+}

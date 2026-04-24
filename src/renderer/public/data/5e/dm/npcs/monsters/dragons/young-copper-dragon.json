@@ -1,0 +1,63 @@
+{
+  "name": "Young Copper Dragon",
+  "slug": "young-copper-dragon",
+  "size": "Large",
+  "type": "Dragon",
+  "alignment": "Chaotic Good",
+  "ac": "17",
+  "initiative": "+4 (14)",
+  "hp": "119",
+  "hpFormula": "14d10 + 42",
+  "speed": "40 ft., Climb 40 ft., Fly 80 ft.",
+  "abilityScores": {
+    "str": 19,
+    "dex": 12,
+    "con": 17,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 4,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Deception +5, Perception +7, Stealth +4",
+  "immunities": "Acid",
+  "senses": "Blindsight 30 ft., Darkvision 120 ft.; Passive Perception 17",
+  "languages": "Common, Draconic",
+  "cr": "7 (XP 2,900; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The dragon makes three Rend attacks. It can replace one attack with a use of Slowing Breath."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 15 (2d10 + 4) Slashing damage."
+    },
+    {
+      "name": "Acid Breath (Recharge 5--6)",
+      "description": "*Dexterity Saving Throw:* DC 14, each creature in a 40-foot-long, 5-foot-wide Line. *Failure:* 40 (9d8) Acid damage. *Success:* Half damage."
+    },
+    {
+      "name": "Slowing Breath",
+      "description": "*Constitution Saving Throw:* DC 14, each creature in a 30-foot Cone. *Failure:* The target can't take Reactions; its Speed is halved; and it can take either an action or a Bonus Action on its turn, not both. This effect lasts until the end of its next turn."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Dragon of Curiosity and Community*\n**Habitat:** Hill; **Treasure:** Arcana\nRelentlessly friendly and curious, most copper dragons view the world as a place of endless wonder and possibility. These gregarious dragons are fonts of patience, hospitality, and humor, and they seek to improve the lives -- or, at least, the mood -- of those they interact with. If forced to fight to defend themselves or their friends, these dragons favor using their slowing breath and physical attacks to subdue antagonists. Only in cases of extreme peril or emotion do they use their deadly acid breath.\nCopper dragons typically live in caverns amid picturesque hills and rock formations -- particularly those that are prominent landmarks. These dragons collect gifts, though they have little interest in treasure without meaning, no matter how valuable it is. To them, thoughtfully given presents and the feelings or memories they symbolize are more important than masterpieces or magical relics.\nCopper dragon wyrmlings venture into the world seeking to make friends and discover wonders. They sometimes get into trouble, but those who help them can become their friends for life.\nYoung copper dragons forge strong connections with a community or group of friends while flitting from one artistic fixation to the next.\nAdult copper dragons use their influence to better the world. With broad circles of friends, adult copper dragons delight in introducing people to one another and helping people find places where they can flourish. When disaster strikes, these dragons draw on their family of contacts to offer support, right wrongs, and rebuild stronger than before.\nAncient copper dragons use warmth and reliability to effect change over time. They open their cozy lairs to their friends as havens of learning and laughter for the young and those in need. These dragons watch for and oppose future threats while fostering sanctuaries of simple goodness.\n> ### Copper Dragon Lairs\n>\n> Copper dragons typically inhabit multichamber caves and renovated ruins.\n>\n> The region containing an adult or ancient copper dragon's lair is changed by its presence, creating the following effects:\n>\n> ***Chatty Critters.*** Tiny Beasts magically gain the ability to speak and understand Draconic while within 6 miles of the lair.\n>\n> ***Giggle Fits.*** Whenever a creature other than the dragon and its allies is within 1 mile of the lair and rolls a 1 on a D20 Test, it must succeed on a DC 15 Wisdom saving throw or have the Incapacitated condition until the end of its next turn, as it is wracked with laughter.\n>\n> If the dragon dies or moves its lair elsewhere, these effects end immediately.",
+  "habitat": "Hill",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Dragons-Metallic",
+    "file": "Dragons-Metallic.md"
+  }
+}

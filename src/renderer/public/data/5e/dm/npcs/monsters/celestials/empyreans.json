@@ -1,0 +1,337 @@
+{
+  "name": "Empyrean",
+  "sizes": ["Huge"],
+  "creatureType": "Celestial",
+  "descriptiveTags": ["Titan"],
+  "alignment": "Chaotic Good",
+  "habitat": ["Planar"],
+  "treasure": ["Any"],
+  "lore": "Empyreans are the colossal offspring of deities, born amid the splendor of the Upper Planes. These titanic celestials embody the raw power of divinity, and their moods can alter the very weather around them. While most empyreans are beings of benevolence and beauty, some fall from grace and become creatures of terrible wrath, serving dark powers in the Lower Planes.",
+  "armorClass": {
+    "value": 22,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 313,
+    "dice": {
+      "count": 19,
+      "die": "d12",
+      "modifier": 190
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    },
+    {
+      "type": "Fly",
+      "distance": 50
+    },
+    {
+      "type": "Swim",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 15
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 30,
+      "modifier": 10,
+      "save": 17
+    },
+    "DEX": {
+      "score": 21,
+      "modifier": 5,
+      "save": 12
+    },
+    "CON": {
+      "score": 30,
+      "modifier": 10,
+      "save": 17
+    },
+    "INT": {
+      "score": 21,
+      "modifier": 5,
+      "save": 12
+    },
+    "WIS": {
+      "score": 22,
+      "modifier": 6,
+      "save": 13
+    },
+    "CHA": {
+      "score": 27,
+      "modifier": 8,
+      "save": 15
+    }
+  },
+  "skills": [
+    {
+      "skill": "Insight",
+      "bonus": 13
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 15
+    }
+  ],
+  "damageImmunities": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Poisoned", "Stunned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["All"],
+    "telepathy": 120
+  },
+  "challengeRating": "23",
+  "experiencePoints": 50000,
+  "proficiencyBonus": 7,
+  "traits": [
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the empyrean fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The empyrean has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Immortal Nature",
+      "description": "The empyrean doesn't require food, drink, or sleep."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 23,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Greater Restoration",
+              "level": 5
+            },
+            {
+              "name": "Pass without Trace",
+              "level": 2
+            },
+            {
+              "name": "Water Breathing",
+              "level": 3
+            },
+            {
+              "name": "Water Walk",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Commune",
+              "level": 5
+            },
+            {
+              "name": "Dispel Evil and Good",
+              "level": 5
+            },
+            {
+              "name": "Earthquake",
+              "level": 8
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The empyrean makes two Maul attacks. It can replace one of those attacks with a use of Bolts from the Heavens.",
+    "attacks": [
+      {
+        "actionName": "Maul",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Maul",
+        "replaceCount": 1,
+        "with": "Bolts from the Heavens"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Maul",
+      "description": "Melee Attack Roll: +17, reach 10 ft. Hit: 31 (6d6 + 10) Force damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 31,
+              "dice": {
+                "count": 6,
+                "die": "d6",
+                "modifier": 10
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bolts from the Heavens",
+      "description": "The empyrean hurls a bolt of divine energy at a point it can see within 600 feet of itself. Each creature in a 30-foot-radius Sphere centered on that point must make a DC 23 Dexterity saving throw, taking 35 (10d6) Radiant damage on a failed save or half as much damage on a successful one.",
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 23,
+        "targets": "each creature in a 30-foot-radius Sphere centered on that point",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 35,
+              "dice": {
+                "count": 10,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Radiant"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Sphere",
+        "size": 30
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Attack",
+        "description": "The empyrean makes one Maul attack.",
+        "cost": 1,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 17,
+          "reach": 10,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 31,
+                "dice": {
+                  "count": 6,
+                  "die": "d6",
+                  "modifier": 10
+                },
+                "type": "Force"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Bolts from the Heavens",
+        "description": "The empyrean uses Bolts from the Heavens.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 23,
+          "targets": "each creature in a 30-foot-radius Sphere centered on that point",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 35,
+                "dice": {
+                  "count": 10,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Radiant"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 30
+        }
+      },
+      {
+        "name": "Trembling Strike",
+        "description": "The empyrean strikes the ground, sending a shockwave through the area. Each creature of the empyrean's choice that is on the ground within 60 feet of the empyrean must succeed on a DC 25 Strength saving throw or take 26 (4d12) Force damage and have the Prone condition.",
+        "cost": 3,
+        "savingThrow": {
+          "ability": "STR",
+          "dc": 25,
+          "targets": "each creature of the empyrean's choice on the ground within 60 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 26,
+                "dice": {
+                  "count": 4,
+                  "die": "d12",
+                  "modifier": 0
+                },
+                "type": "Force"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 60,
+          "centered": true
+        }
+      }
+    ]
+  }
+}

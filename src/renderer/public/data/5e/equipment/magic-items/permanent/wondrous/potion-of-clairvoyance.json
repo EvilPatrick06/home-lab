@@ -1,0 +1,8 @@
+{
+  "name": "Potion of Clairvoyance",
+  "itemType": "Potion",
+  "rarity": "Rare",
+  "requiresAttunement": false,
+  "description": "When you drink this potion, you gain the effect of the *Clairvoyance* spell (no Concentration required).\n\nAn eyeball bobs in this potion's yellowish liquid but vanishes when the potion is opened.",
+  "source": "DMG 2024"
+}

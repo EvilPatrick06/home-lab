@@ -1,0 +1,56 @@
+{
+  "name": "Giant Constrictor Snake",
+  "slug": "giant-constrictor-snake",
+  "size": "Huge",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "60",
+  "hpFormula": "8d12 + 8",
+  "speed": "30 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 19,
+    "dex": 14,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 2,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +2",
+  "senses": "Blindsight 10 ft.; Passive Perception 12",
+  "languages": "None",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The snake makes one Bite attack and uses Constrict."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +6, reach 10 ft. *Hit:* 11 (2d6 + 4) Piercing damage."
+    },
+    {
+      "name": "Constrict",
+      "description": "*Strength Saving Throw:* DC 14, one Large or smaller creature the snake can see within 10 feet. *Failure:* 13 (2d8 + 4) Bludgeoning damage, and the target has the Grappled condition (escape DC 14)."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

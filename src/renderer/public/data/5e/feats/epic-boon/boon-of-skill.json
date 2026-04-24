@@ -1,0 +1,28 @@
+{
+  "name": "Boon of Skill",
+  "category": "Epic Boon",
+  "prerequisites": {
+    "level": 19
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": "any",
+        "amount": 1,
+        "maximum": 30,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "All-Around Adept",
+      "description": "You gain proficiency in all skills."
+    },
+    {
+      "name": "Expertise",
+      "description": "Choose one skill in which you lack Expertise. You gain Expertise in that skill."
+    }
+  ],
+  "source": "PHB 2024"
+}

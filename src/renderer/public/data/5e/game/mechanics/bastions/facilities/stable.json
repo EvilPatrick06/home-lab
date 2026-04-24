@@ -1,0 +1,15 @@
+{
+  "name": "Stable",
+  "slug": "stable",
+  "type": "",
+  "level": "",
+  "space": "Roomy",
+  "hirelings": "1",
+  "order": "Trade",
+  "description": "*Level 9 Bastion Facility*\n\n**Prerequisite:** None\n**Space:** Roomy\n**Hirelings:** 1\n**Order:** Trade\n\nA Bastion can have more than one Stable. Each Stable you add to your Bastion comes with one **Riding Horse** or **Camel** and two **Ponies** or **Mules**; see the *Player's Handbook* or the *Monster Manual* for these creatures' stat blocks. The facility is big enough to house three Large animals. Two Medium creatures occupy the same space as one Large creature there. The facility's hireling looks after these creatures.\n\nAfter a Beast that can serve as a mount spends at least 14 days in this facility, all Wisdom (Animal Handling) checks made with respect to it have Advantage.\n\n***Trade: Animals.*** When you issue the Trade order to this facility, you commission the facility's hireling to buy or sell one or more mounts at normal cost, keeping the ones you buy in your Stable. The work takes 7 days, and the DM decides what types of animals are available for purchase--horses, ponies, and mules being the most common. The Mounts and Other Animals table in the *Player's Handbook* gives standard prices for various mounts. You bear the total cost of any purchases.\n\nWhen you sell a mount from your Stable, the buyer pays you 20 percent more than the standard price; this profit increases to 50 percent when you reach level 13 and 100 percent when you reach level 17.\n\n***Enlarging the Facility.*** You can enlarge your Stable to a Vast facility by spending 2,000 GP. If you do so, the Stable is large enough to house six Large animals.\n\n---",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

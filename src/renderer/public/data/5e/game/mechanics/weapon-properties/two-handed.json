@@ -1,0 +1,6 @@
+{
+  "id": "two-handed",
+  "name": "Two-Handed",
+  "description": "A Two-Handed weapon requires two hands when you attack with it. This property is relevant only when you attack with the weapon, not when you simply hold it.",
+  "mechanicalEffect": "Requires two hands to attack. Can be held in one hand when not attacking."
+}

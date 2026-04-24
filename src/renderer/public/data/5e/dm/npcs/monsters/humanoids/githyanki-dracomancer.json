@@ -1,0 +1,263 @@
+{
+  "name": "Githyanki Dracomancer",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Gith", "Wizard"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Astral Plane"],
+  "treasure": ["Arcana"],
+  "lore": "Githyanki dracomancers are powerful spellcasters who have forged pacts with red dragons. These wizard-warriors wield draconic fire alongside their psionic abilities, serving as elite agents of the githyanki empire. A dracomancer's connection to dragonkind grants it the ability to exhale gouts of flame like the red dragons their people ride into battle.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Plate Armor"]
+  },
+  "hitPoints": {
+    "average": 130,
+    "dice": {
+      "count": 20,
+      "die": "d8",
+      "modifier": 40
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 6
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 9
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    }
+  ],
+  "gear": [
+    {
+      "name": "Plate Armor",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic", "Gith"]
+  },
+  "challengeRating": "12",
+  "experiencePoints": 8400,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The githyanki has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "INT",
+      "spellSaveDC": 17,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Mage Hand",
+              "level": 0
+            },
+            {
+              "name": "Message",
+              "level": 0
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Counterspell",
+              "level": 3
+            },
+            {
+              "name": "Fireball",
+              "level": 3
+            },
+            {
+              "name": "Nondetection",
+              "level": 3
+            },
+            {
+              "name": "Tongues",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            },
+            {
+              "name": "Telekinesis",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The githyanki makes three Arcane Blade attacks. It can replace one attack with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Arcane Blade",
+        "count": 3
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Arcane Blade",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Arcane Blade",
+      "description": "Melee Attack Roll: +9, reach 5 ft. Hit: 10 (1d10 + 5) Slashing damage plus 18 (4d8) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 18,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Dragon Breath",
+      "description": "The githyanki exhales a blast of fire in a 30-foot Cone. Each creature in that area makes a DC 17 Dexterity saving throw, taking 45 (10d8) Fire damage on a failed save or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 17,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 45,
+              "dice": {
+                "count": 10,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 30
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The githyanki casts one of the following spells, using Intelligence as the spellcasting ability (spell save DC 17), requiring no spell components:\n\nAt will: Mage Hand, Message, Minor Illusion\n\n2/day each: Counterspell, Fireball, Nondetection, Tongues\n\n1/day each: Plane Shift (self only), Telekinesis"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Astral Step",
+      "description": "The githyanki teleports, along with any equipment it is wearing or carrying, up to 30 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 30,
+        "notes": "Along with any equipment it is wearing or carrying, to an unoccupied space it can see"
+      }
+    }
+  ]
+}

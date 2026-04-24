@@ -1,0 +1,173 @@
+{
+  "name": "Ghast",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "descriptiveTags": ["Ghoul"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Swamp", "Underdark", "Urban"],
+  "treasure": ["Individual"],
+  "lore": "A ghast is a ghoul blessed by the demon lord Doresain with a greater measure of cunning and power. The stench of death and corruption that surrounds a ghast is so overwhelming it can sicken the hardiest warrior. Like ghouls, ghasts feast on the dead and attack the living with paralyzing claws. Ghasts can command lesser ghouls, rallying them to fight with greater ferocity and resistance to those who would turn the undead.",
+  "armorClass": {
+    "value": 13
+  },
+  "hitPoints": {
+    "average": 36,
+    "dice": {
+      "count": 8,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Exhaustion", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Stench",
+      "description": "Any creature (other than an Undead) that starts its turn within 5 feet of the ghast must succeed on a DC 10 Constitution saving throw or have the Poisoned condition until the start of the creature's next turn. On a successful saving throw, the creature is immune to this ghast's Stench for 24 hours."
+    },
+    {
+      "name": "Turning Defiance",
+      "description": "The ghast and any Ghouls within 30 feet of it have Advantage on saving throws against effects that turn Undead."
+    }
+  ],
+  "multiattack": {
+    "description": "The ghast makes one Bite attack and one Claws attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claws",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 12 (2d8 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 10 (2d6 + 3) Slashing damage. If the target is a creature other than an Undead, the target must succeed on a DC 10 Constitution saving throw or have the Paralyzed condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ],
+          "additionalEffects": "If the target is a creature other than an Undead, the target must succeed on a DC 10 Constitution saving throw or have the Paralyzed condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 10,
+            "targets": "the target (if not an Undead)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Paralyzed",
+                  "duration": "1 minute",
+                  "savingThrow": {
+                    "ability": "CON",
+                    "dc": 10,
+                    "targets": "the target",
+                    "onSuccess": {
+                      "effects": "The effect ends on the target."
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

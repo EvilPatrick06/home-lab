@@ -1,0 +1,106 @@
+{
+  "name": "Stirge",
+  "sizes": ["Tiny"],
+  "creatureType": "Beast",
+  "alignment": "Unaligned",
+  "habitat": ["Forest", "Grassland", "Hill", "Mountain", "Swamp", "Underdark", "Urban"],
+  "treasure": ["None"],
+  "lore": "Stirges are bat-like blood-drinking pests with long, needle-like proboscises. They lurk in dark places and descend in swarms to latch onto warm-blooded creatures, draining their blood until sated or slain. Though individually feeble, a swarm of stirges can bleed even a hardy adventurer dry.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 2,
+    "dice": {
+      "count": 1,
+      "die": "d4",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 4,
+      "modifier": -3,
+      "save": -3
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 9
+  },
+  "languages": {},
+  "challengeRating": "1/8",
+  "experiencePoints": 25,
+  "proficiencyBonus": 2,
+  "actions": [
+    {
+      "name": "Blood Drain",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 5 (1d4 + 3) Piercing damage, and the stirge attaches to the target. While attached, the stirge doesn't attack. Instead, at the start of each of the stirge's turns, the target loses 5 (1d4 + 3) Hit Points from blood loss. The stirge can detach itself as a Bonus Action. It does so after it drains 10 Hit Points of blood or the target dies. A creature, including the target, can take an action to detach the stirge.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "The stirge attaches to the target. While attached, the stirge doesn't attack. Instead, at the start of each of the stirge's turns, the target loses 5 (1d4 + 3) Hit Points from blood loss. The stirge can detach itself as a Bonus Action. It does so after it drains 10 Hit Points of blood or the target dies. A creature, including the target, can take an action to detach the stirge."
+        }
+      }
+    }
+  ]
+}

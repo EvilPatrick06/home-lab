@@ -1,0 +1,17 @@
+{
+  "name": "Crystal Ball of True Seeing",
+  "cost": {
+    "amount": 50000,
+    "denomination": "GP"
+  },
+  "weight": 3,
+  "description": "This magic item is not detailed in the 2024 Player's Handbook Chapter 6: Equipment. The text states: 'Hundreds of magic items are detailed in the Dungeon Master's Guide, since the DM decides when you find such an item.' Crystal Ball of True Seeing is a Legendary wondrous item (requires attunement) found in the Dungeon Master's Guide. It is a variant of the Crystal Ball that additionally grants the Truesight sense while using the ball to scry.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

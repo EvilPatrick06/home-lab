@@ -1,0 +1,54 @@
+{
+  "name": "Merfolk Skirmisher",
+  "slug": "merfolk-skirmisher",
+  "size": "Medium",
+  "type": "Elemental",
+  "alignment": "Neutral",
+  "ac": "11",
+  "initiative": "+1 (11)",
+  "hp": "11",
+  "hpFormula": "2d8 + 2",
+  "speed": "10 ft., Swim 40 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 13,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 1,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 12",
+  "languages": "Common, Primordial (Aquan)",
+  "cr": "1/8 (XP 25; PB +2)",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The merfolk can breathe air and water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Ocean Spear",
+      "description": "*Melee or Ranged Attack Roll:* +2, reach 5 ft. or range 20/60 ft. *Hit:* 3 (1d6) Piercing damage plus 2 (1d4) Cold damage. If the target is a creature, its Speed decreases by 10 feet until the end of its next turn. *Hit or Miss:* The spear magically returns to the merfolk's hand immediately after a ranged attack."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Protectors and Explorers of the Seas*\n**Habitat:** Coastal, Underwater; **Treasure:** Individual\nBeneath the waves dwell merfolk, mysterious creatures that merge the features of humans and sea creatures. Some are curious about land dwellers, while others view them with suspicion.\nMerfolk skirmishers defend their homes from aquatic monsters and invaders from the surface.\nThese merfolk mages use magic to manipulate water, storms, and sea creatures to aid them.",
+  "habitat": "Coastal, Underwater",
+  "treasure": "Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

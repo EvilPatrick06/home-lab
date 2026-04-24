@@ -1,0 +1,13 @@
+{
+  "name": "Cloak of Billowing",
+  "itemType": "Wondrous",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "While wearing this cloak, you can take a Bonus Action to make it billow dramatically for 1 minute.",
+  "weight": null,
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

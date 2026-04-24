@@ -1,0 +1,35 @@
+{
+  "name": "Trebuchet",
+  "slug": "trebuchet",
+  "category": "Siege Weapon",
+  "size": "Huge",
+  "ac": 15,
+  "hp": 150,
+  "cost": "—",
+  "description": "A massive counterweight siege engine that hurls heavy projectiles over great distances. The Trebuchet can't hit targets within 60 feet of it. It takes two actions to load and fire: Load (action), Fire (action).",
+  "attack": {
+    "toHit": 5,
+    "damage": "8d10",
+    "damageType": "Bludgeoning",
+    "averageDamage": 44,
+    "range": {
+      "normal": 300,
+      "long": 1200
+    },
+    "minimumRange": 60
+  },
+  "crew": 5,
+  "actionsToOperate": [
+    {
+      "action": "Load",
+      "description": "Two creatures use their actions to winch the throwing arm into firing position and load a stone into the sling."
+    },
+    { "action": "Fire", "description": "One creature uses its action to release the counterweight." }
+  ],
+  "immunities": ["Poison", "Psychic"],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

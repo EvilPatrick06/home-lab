@@ -1,0 +1,1176 @@
+[
+  {
+    "id": "lost-mines",
+    "name": "Lost Mine of Phandelver",
+    "system": "dnd5e",
+    "description": "A classic introductory adventure for D&D 5th Edition. Escort a wagon to Phandalin, rescue a kidnapped dwarf, and uncover the legendary Lost Mine of Phandelver.",
+    "icon": "pick",
+    "levelRange": { "min": 1, "max": 5 },
+    "chapters": [
+      {
+        "title": "Goblin Arrows",
+        "description": "The adventurers are ambushed by goblins while escorting a supply wagon to Phandalin. They must track the goblins to their hideout, Cragmaw Hideout, to rescue Sildar Hallwinter.",
+        "readAloudText": "You've been on the Triboar Trail for about half a day. As you come around a bend, you spot two dead horses sprawled about fifty feet ahead of you, blocking the path. Each has several black-feathered arrows sticking out of it. The woods press close to the trail here, with a steep embankment and dense thickets on either side.",
+        "maps": ["caravan-encampment", "dungeon-hideout"],
+        "encounters": ["goblin-ambush", "cragmaw-hideout"],
+        "locations": ["Triboar Trail", "Cragmaw Hideout"],
+        "levelRange": { "min": 1, "max": 1 },
+        "keyEvents": ["Goblin ambush on the trail", "Rescue Sildar from Cragmaw Hideout", "Learn about Cragmaw Castle"]
+      },
+      {
+        "title": "Phandalin",
+        "description": "Explore the frontier town of Phandalin. The townsfolk are terrorized by the Redbrands, a gang of ruffians led by Glasstaff. The adventurers clear out the Redbrand Hideout beneath Tresendar Manor.",
+        "readAloudText": "The rutted track emerges from a wooded hillside, and you catch your first glimpse of Phandalin. The town consists of forty or fifty simple log buildings, some built on old fieldstone foundations. More old ruins — Loss stone walls covered in ivy and briars — surround the newer houses and shops.",
+        "maps": ["crossroads-village", "manor"],
+        "encounters": ["redbrand-ruffians", "redbrand-hideout", "nothic-encounter"],
+        "locations": ["Phandalin", "Stonehill Inn", "Tresendar Manor", "Redbrand Hideout"],
+        "levelRange": { "min": 2, "max": 3 },
+        "keyEvents": [
+          "Redbrand confrontation",
+          "Clear Redbrand Hideout",
+          "Rescue the Dendrar family",
+          "Learn about Wave Echo Cave"
+        ]
+      },
+      {
+        "title": "The Spider's Web",
+        "description": "Follow leads to various locations: Old Owl Well, Wyvern Tor, Thundertree, and Cragmaw Castle. The Black Spider's web of intrigue extends across the region.",
+        "readAloudText": "The lands around Phandalin are dotted with ruins, old mines, and forgotten places. As you venture out to investigate the various threats, you realize the Black Spider's agents are everywhere.",
+        "maps": ["farmstead", "keep"],
+        "encounters": ["thundertree-dragon", "cragmaw-castle", "old-owl-well"],
+        "locations": ["Old Owl Well", "Wyvern Tor", "Thundertree", "Cragmaw Castle"],
+        "levelRange": { "min": 3, "max": 4 },
+        "keyEvents": [
+          "Defeat the dragon cultists at Thundertree",
+          "Storm Cragmaw Castle",
+          "Rescue Gundren Rockseeker",
+          "Obtain the map to Wave Echo Cave"
+        ]
+      },
+      {
+        "title": "Wave Echo Cave",
+        "description": "The legendary lost mine of the Phandelver's Pact awaits deep underground. Navigate dangerous caverns, face undead guardians, and confront the Black Spider in his lair near the Forge of Spells.",
+        "readAloudText": "The entrance to Wave Echo Cave is concealed behind a thick curtain of vines. A narrow tunnel leads into darkness. You can hear the faint sound of waves crashing in the distance — the source of the cave's name.",
+        "maps": ["mine"],
+        "encounters": ["wave-echo-stirges", "wave-echo-undead", "spectator-forge", "black-spider-final"],
+        "locations": ["Wave Echo Cave", "Forge of Spells"],
+        "levelRange": { "min": 4, "max": 5 },
+        "keyEvents": [
+          "Navigate the dangerous mine",
+          "Defeat the Spectator at the Forge of Spells",
+          "Confront the Black Spider",
+          "Claim the Forge of Spells"
+        ]
+      }
+    ],
+    "npcs": [
+      {
+        "id": "gundren",
+        "name": "Gundren Rockseeker",
+        "description": "A dwarf entrepreneur who hired the party to escort his supply wagon. He's discovered the entrance to the legendary Wave Echo Cave.",
+        "location": "Phandalin",
+        "role": "ally",
+        "statBlockId": "commoner",
+        "personality": "Enthusiastic and adventurous, speaks quickly when excited about the mine",
+        "motivation": "Reclaim Wave Echo Cave and restore the Forge of Spells to its former glory"
+      },
+      {
+        "id": "sildar",
+        "name": "Sildar Hallwinter",
+        "description": "A human warrior and agent of the Lords' Alliance, traveling with Gundren. Captured by goblins at the start of the adventure.",
+        "location": "Cragmaw Hideout",
+        "role": "ally",
+        "statBlockId": "warrior-veteran",
+        "personality": "Honorable and duty-bound, speaks in measured tones",
+        "motivation": "Establish order in Phandalin and find his colleague Iarno Albrek"
+      },
+      {
+        "id": "glasstaff",
+        "name": "Glasstaff (Iarno Albrek)",
+        "description": "A wizard who leads the Redbrand ruffians from beneath Tresendar Manor. Secretly working for the Black Spider.",
+        "location": "Redbrand Hideout",
+        "role": "enemy",
+        "statBlockId": "mage",
+        "personality": "Arrogant and condescending, speaks with false politeness",
+        "motivation": "Accumulate power and wealth by controlling Phandalin for the Black Spider"
+      },
+      {
+        "id": "black-spider",
+        "name": "The Black Spider (Nezznar)",
+        "description": "A drow wizard seeking to harness the magical power of the Forge of Spells in Wave Echo Cave.",
+        "location": "Wave Echo Cave",
+        "role": "enemy",
+        "statBlockId": "mage",
+        "personality": "Cold, calculating, and patient. Speaks softly but with menace",
+        "motivation": "Seize the Forge of Spells and use its power to dominate the region"
+      },
+      {
+        "id": "elmar",
+        "name": "Elmar Barthen",
+        "description": "Owner of Barthen's Provisions, the biggest trading post in Phandalin. Hired the party to deliver supplies.",
+        "location": "Phandalin",
+        "role": "ally",
+        "statBlockId": "commoner",
+        "personality": "Friendly shopkeeper, worried about the Redbrands",
+        "motivation": "Protect his business and see Phandalin prosper"
+      },
+      {
+        "id": "toblen",
+        "name": "Toblen Stonehill",
+        "description": "Owner and proprietor of the Stonehill Inn, the center of social life in Phandalin.",
+        "location": "Phandalin",
+        "role": "ally",
+        "statBlockId": "commoner",
+        "personality": "Genial innkeeper, loves sharing local gossip",
+        "motivation": "Keep his inn running and his family safe from the Redbrands"
+      },
+      {
+        "id": "halia",
+        "name": "Halia Thornton",
+        "description": "An ambitious and manipulative woman who runs the Phandalin Miner's Exchange. Secretly a Zhentarim agent.",
+        "location": "Phandalin",
+        "role": "neutral",
+        "statBlockId": "spy",
+        "personality": "Shrewd, calculating, offers quests with ulterior motives",
+        "motivation": "Take over the Redbrands for herself and expand Zhentarim influence"
+      },
+      {
+        "id": "garaele",
+        "name": "Sister Garaele",
+        "description": "An elf cleric of Tymora who runs the Shrine of Luck in Phandalin. Member of the Harpers.",
+        "location": "Phandalin",
+        "role": "ally",
+        "statBlockId": "priest",
+        "personality": "Kind but mysterious, clearly keeping secrets for the Harpers",
+        "motivation": "Learn the location of Bowgentle's spellbook from the banshee Agatha"
+      },
+      {
+        "id": "klarg",
+        "name": "Klarg",
+        "description": "A bugbear who leads the goblin ambush party at Cragmaw Hideout. Serves King Grol.",
+        "location": "Cragmaw Hideout",
+        "role": "enemy",
+        "statBlockId": "bugbear-warrior",
+        "personality": "Brutish and boastful, bullies the goblins under his command",
+        "motivation": "Impress King Grol and gain more power among the Cragmaw tribe"
+      },
+      {
+        "id": "king-grol",
+        "name": "King Grol",
+        "description": "A bugbear chief who rules from Cragmaw Castle. Holds Gundren Rockseeker prisoner.",
+        "location": "Cragmaw Castle",
+        "role": "enemy",
+        "statBlockId": "bugbear-chief",
+        "personality": "Cunning for a bugbear, paranoid about losing his position",
+        "motivation": "Maintain his rule and bargain with the Black Spider for power"
+      },
+      {
+        "id": "droop",
+        "name": "Droop",
+        "description": "A cowardly goblin found in the Redbrand Hideout who can become an unlikely ally if treated kindly.",
+        "location": "Redbrand Hideout",
+        "role": "neutral",
+        "statBlockId": "goblin-warrior",
+        "personality": "Fearful and pathetic, eager to please anyone who doesn't hurt him",
+        "motivation": "Survive and find a safe place to live"
+      }
+    ],
+    "encounters": [
+      {
+        "id": "goblin-ambush",
+        "name": "Goblin Ambush",
+        "description": "Four goblins ambush the party on the Triboar Trail near two dead horses.",
+        "readAloudText": "The woods erupt with activity as four small, green-skinned creatures leap from the underbrush, screeching and loosing arrows!",
+        "monsters": [{ "monsterId": "goblin-warrior", "count": 4 }],
+        "difficulty": "easy",
+        "levelRange": { "min": 1, "max": 1 },
+        "tactics": "The goblins attack from ambush positions in the trees and bushes. Two fire arrows while two rush in with scimitars. They flee to the hideout if two or more are killed.",
+        "environment": "Forest road with dense undergrowth on both sides",
+        "totalXP": 200
+      },
+      {
+        "id": "cragmaw-hideout",
+        "name": "Cragmaw Hideout",
+        "description": "The goblin hideout in a cave system. Multiple rooms with goblin guards, wolves, and the bugbear leader Klarg.",
+        "monsters": [
+          { "monsterId": "goblin-warrior", "count": 6 },
+          { "monsterId": "goblin-boss", "count": 1, "notes": "Yeemik, the second-in-command" },
+          { "monsterId": "bugbear-warrior", "count": 1, "notes": "Klarg" },
+          { "monsterId": "wolf", "count": 2 }
+        ],
+        "difficulty": "moderate",
+        "levelRange": { "min": 1, "max": 1 },
+        "tactics": "Goblins use the narrow cave passages and flood trap to slow intruders. Klarg fights to the death to defend his position.",
+        "environment": "Cave system with a stream, bridges, and a flood mechanism",
+        "loot": {
+          "currency": { "gp": 110, "sp": 160 },
+          "items": [
+            {
+              "name": "Supplies stamped with Lionshield Coster mark",
+              "quantity": 1,
+              "description": "Crates of stolen goods worth 50 gp if returned"
+            }
+          ]
+        },
+        "mapId": "dungeon-hideout",
+        "totalXP": 675
+      },
+      {
+        "id": "redbrand-ruffians",
+        "name": "Redbrand Ruffians",
+        "description": "A group of Redbrand thugs harass the party on the streets of Phandalin.",
+        "monsters": [{ "monsterId": "thug", "count": 4, "notes": "Wearing scarlet cloaks" }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 2, "max": 2 },
+        "tactics": "The Redbrands are overconfident bullies. They try to intimidate first, then attack together.",
+        "environment": "Town street in Phandalin",
+        "totalXP": 400
+      },
+      {
+        "id": "redbrand-hideout",
+        "name": "Redbrand Hideout",
+        "description": "The underground hideout beneath Tresendar Manor, filled with Redbrand ruffians and their prisoners.",
+        "monsters": [
+          { "monsterId": "thug", "count": 9, "notes": "Redbrand ruffians scattered across multiple rooms" },
+          { "monsterId": "bugbear-warrior", "count": 3, "notes": "Mosk, bodyguards in the barracks" },
+          { "monsterId": "skeleton", "count": 3, "notes": "In the crypt beneath the manor" }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 2, "max": 3 },
+        "tactics": "Ruffians respond to alarms, Glasstaff tries to flee via a secret tunnel if warned.",
+        "environment": "Underground stone cellar complex with multiple rooms",
+        "loot": {
+          "currency": { "gp": 180, "sp": 130, "ep": 15 },
+          "items": [
+            {
+              "name": "Glasstaff's Staff of Defense",
+              "quantity": 1,
+              "description": "+1 AC while held, can cast Shield and Mage Armor"
+            }
+          ]
+        },
+        "mapId": "manor",
+        "totalXP": 1800
+      },
+      {
+        "id": "nothic-encounter",
+        "name": "The Nothic",
+        "description": "A nothic lurks in the crevasse beneath the Redbrand Hideout. It can be negotiated with or fought.",
+        "monsters": [{ "monsterId": "nothic", "count": 1 }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 2, "max": 3 },
+        "tactics": "The nothic uses Weird Insight to learn secrets, and may be bribed with food. Fights with Rotting Gaze from cover.",
+        "environment": "Deep crevasse with narrow bridges",
+        "totalXP": 450
+      },
+      {
+        "id": "thundertree-dragon",
+        "name": "Venomfang at Thundertree",
+        "description": "A young green dragon named Venomfang has taken up residence in the ruined tower of Thundertree.",
+        "monsters": [
+          { "monsterId": "young-green-dragon", "count": 1, "notes": "Venomfang" },
+          { "monsterId": "twig-blight", "count": 8 },
+          { "monsterId": "zombie", "count": 6, "notes": "Ash zombies in the ruined village" }
+        ],
+        "difficulty": "deadly",
+        "levelRange": { "min": 3, "max": 4 },
+        "tactics": "Venomfang opens with Poison Breath, then uses the tower for cover. It may negotiate if significantly injured.",
+        "environment": "Ruined village with a crumbling stone tower",
+        "totalXP": 5700
+      },
+      {
+        "id": "cragmaw-castle",
+        "name": "Cragmaw Castle",
+        "description": "Storm King Grol's stronghold to rescue Gundren Rockseeker and retrieve the map to Wave Echo Cave.",
+        "monsters": [
+          { "monsterId": "goblin-warrior", "count": 7 },
+          { "monsterId": "hobgoblin-warrior", "count": 4 },
+          { "monsterId": "bugbear-chief", "count": 1, "notes": "King Grol" },
+          { "monsterId": "wolf", "count": 1, "notes": "King Grol's pet" },
+          { "monsterId": "doppelganger", "count": 1, "notes": "Disguised as a female drow" },
+          { "monsterId": "owlbear", "count": 1, "notes": "In the chapel" }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 3, "max": 4 },
+        "tactics": "Goblins use hit-and-run tactics through arrow slits. King Grol negotiates or fights depending on party approach.",
+        "environment": "Crumbling stone castle partially overgrown with plants",
+        "loot": {
+          "currency": { "gp": 220, "sp": 160 }
+        },
+        "mapId": "keep",
+        "totalXP": 2950
+      },
+      {
+        "id": "old-owl-well",
+        "name": "Old Owl Well",
+        "description": "A necromancer named Hamun Kost has set up camp at the ruined watchtower, using zombies as laborers.",
+        "monsters": [
+          { "monsterId": "mage", "count": 1, "notes": "Hamun Kost, the necromancer" },
+          { "monsterId": "zombie", "count": 12 }
+        ],
+        "difficulty": "moderate",
+        "levelRange": { "min": 3, "max": 4 },
+        "tactics": "Hamun Kost prefers to negotiate. If attacked, he commands zombies while casting from a distance.",
+        "environment": "Ruined stone watchtower with a well",
+        "totalXP": 1500
+      },
+      {
+        "id": "wave-echo-stirges",
+        "name": "Wave Echo Cave - Stirge Swarm",
+        "description": "A swarm of stirges attacks in the first large cavern of Wave Echo Cave.",
+        "monsters": [{ "monsterId": "stirge", "count": 10 }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 4, "max": 5 },
+        "tactics": "Stirges swarm the party from the ceiling when they enter the cavern.",
+        "environment": "Large cavern with a high ceiling and phosphorescent fungi",
+        "totalXP": 250
+      },
+      {
+        "id": "wave-echo-undead",
+        "name": "Wave Echo Cave - Undead Miners",
+        "description": "Undead miners from the original battle still haunt the tunnels of Wave Echo Cave.",
+        "monsters": [
+          { "monsterId": "skeleton", "count": 9 },
+          { "monsterId": "zombie", "count": 4 },
+          { "monsterId": "ghoul", "count": 4 },
+          { "monsterId": "flameskull", "count": 1 }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 4, "max": 5 },
+        "tactics": "Undead patrol in scattered groups. The flameskull is the most dangerous, using Fireball in tight spaces.",
+        "environment": "Narrow mine tunnels with mining equipment and old bones",
+        "totalXP": 1850
+      },
+      {
+        "id": "spectator-forge",
+        "name": "The Forge of Spells",
+        "description": "A spectator guards the Forge of Spells, bound by an ancient pact to protect it.",
+        "monsters": [{ "monsterId": "spectator", "count": 1, "notes": "Bound guardian of the Forge" }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 4, "max": 5 },
+        "tactics": "The spectator negotiates first, attacking only if intruders try to take forge items. Uses eye rays from a distance.",
+        "environment": "Ancient forge room with magical green flames and glowing anvil",
+        "loot": {
+          "items": [
+            {
+              "name": "Lightbringer (mace +1)",
+              "quantity": 1,
+              "description": "Glows as bright as a torch on command, deals extra 1d6 radiant to undead"
+            },
+            {
+              "name": "Dragonguard (breastplate)",
+              "quantity": 1,
+              "description": "Gives advantage on saves vs dragon breath weapons"
+            }
+          ]
+        },
+        "totalXP": 700
+      },
+      {
+        "id": "black-spider-final",
+        "name": "The Black Spider's Lair",
+        "description": "The final confrontation with Nezznar the Black Spider and his minions in the depths of Wave Echo Cave.",
+        "monsters": [
+          { "monsterId": "mage", "count": 1, "notes": "Nezznar the Black Spider (drow)" },
+          { "monsterId": "giant-spider", "count": 4 },
+          { "monsterId": "bugbear-warrior", "count": 2, "notes": "Nezznar's bodyguards" }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 4, "max": 5 },
+        "tactics": "Nezznar commands spiders and bugbears while casting spells. Tries to flee if reduced to half HP.",
+        "environment": "Large cavern near the Forge of Spells with webs and natural pillars",
+        "loot": {
+          "currency": { "gp": 130, "sp": 230, "pp": 4 },
+          "items": [
+            {
+              "name": "Spider Staff",
+              "quantity": 1,
+              "description": "Can cast Spider Climb and Web using the staff's charges"
+            }
+          ]
+        },
+        "totalXP": 2750
+      }
+    ],
+    "lore": [
+      {
+        "id": "phandalin-history",
+        "title": "Phandalin",
+        "content": "Once a prosperous mining town, Phandalin was destroyed by orcs five hundred years ago. Over the last three to four years, hardy settlers have begun to rebuild the town. Now a rough frontier settlement.",
+        "category": "location"
+      },
+      {
+        "id": "wave-echo-cave",
+        "title": "Wave Echo Cave",
+        "content": "More than five hundred years ago, clans of dwarves and gnomes made an agreement known as the Phandelver's Pact, by which they would share the rich mine and its magical forge. The mine was lost when orcs swept through the area, and its location was forgotten.",
+        "category": "location"
+      },
+      {
+        "id": "lords-alliance",
+        "title": "Lords' Alliance",
+        "content": "A coalition of rulers from cities and towns across Faerûn who have banded together for mutual security and prosperity. Sildar Hallwinter is an agent seeking to bring order to Phandalin.",
+        "category": "faction"
+      },
+      {
+        "id": "zhentarim",
+        "title": "The Zhentarim",
+        "content": "A shadowy network of merchants and mercenaries who seek to expand their economic control. Halia Thornton is their agent in Phandalin.",
+        "category": "faction"
+      },
+      {
+        "id": "forge-of-spells",
+        "title": "The Forge of Spells",
+        "content": "An ancient forge powered by magical energy channeled through Wave Echo Cave. It was used to craft powerful magical items. It still works but at diminished capacity.",
+        "category": "item"
+      }
+    ],
+    "mapAssignments": [
+      { "chapterIndex": 0, "mapId": "cragmaw-hideout-map", "builtInMapId": "dungeon-hideout" },
+      { "chapterIndex": 1, "mapId": "phandalin-map", "builtInMapId": "crossroads-village" },
+      { "chapterIndex": 1, "mapId": "tresendar-manor-map", "builtInMapId": "manor" },
+      { "chapterIndex": 2, "mapId": "cragmaw-castle-map", "builtInMapId": "keep" },
+      { "chapterIndex": 3, "mapId": "wave-echo-cave-map", "builtInMapId": "mine" }
+    ]
+  },
+  {
+    "id": "dragon-icespire",
+    "name": "Dragon of Icespire Peak",
+    "system": "dnd5e",
+    "description": "A young white dragon has claimed Icespire Peak, driving dangerous creatures into the surrounding area. Take on quests from the Phandalin job board to protect the town and eventually confront the dragon.",
+    "icon": "dragon",
+    "levelRange": { "min": 1, "max": 6 },
+    "chapters": [
+      {
+        "title": "Starting Quests",
+        "description": "Take on starter quests from the job board: Umbrage Hill (rescue a midwife from a manticore), Dwarven Excavation (help dwarves with an earthquake-damaged site), and Gnomengarde (visit a gnome settlement gone haywire).",
+        "readAloudText": "The job board outside the Townmaster's Hall has several notices pinned to it. Harbin Wester, the nervous townmaster, encourages adventurers to take on these quests to help the beleaguered town.",
+        "maps": ["crossroads-village", "farmstead"],
+        "encounters": ["umbrage-hill-manticore", "gnomengarde-mimic"],
+        "locations": ["Phandalin", "Umbrage Hill", "Dwarven Excavation", "Gnomengarde"],
+        "levelRange": { "min": 1, "max": 2 },
+        "keyEvents": [
+          "Rescue Adabra Gwynn from the manticore",
+          "Explore the wacky gnome inventors",
+          "Learn of the dragon's growing threat"
+        ]
+      },
+      {
+        "title": "Follow-Up Quests",
+        "description": "Investigate the growing threat: Butterskull Ranch (rescue a rancher), Logger's Camp (deal with anchorites of Talos), Mountain's Toe Gold Mine (clear out wererats), and Axeholm (reclaim a dwarven fortress from undead).",
+        "readAloudText": "New quests have appeared on the job board. The dragon's presence has stirred up dangerous creatures throughout the region. The townsfolk need your help more than ever.",
+        "maps": ["farmstead", "mine"],
+        "encounters": ["butterskull-orcs", "loggers-anchorites", "mountain-toe-wererats", "axeholm-undead"],
+        "locations": ["Butterskull Ranch", "Logger's Camp", "Mountain's Toe Gold Mine", "Axeholm"],
+        "levelRange": { "min": 3, "max": 4 },
+        "keyEvents": [
+          "Discover Orc raiders at Butterskull Ranch",
+          "Confront the Anchorites of Talos",
+          "Clear the wererats from the mine"
+        ]
+      },
+      {
+        "title": "Advanced Quests",
+        "description": "Take on the most dangerous quests: Dragon Barrow (obtain a magic weapon), Woodland Manse (face a green hag), and Tower of Storms (deal with evil cultists and harpies).",
+        "readAloudText": "The final quests on the board are marked with red ink — warnings that these missions are extremely dangerous. But they may hold the key to defeating the dragon.",
+        "maps": ["barrow-crypt", "wizards-tower"],
+        "encounters": ["dragon-barrow-undead", "woodland-manse-hag", "tower-storms-harpies"],
+        "locations": ["Dragon Barrow", "Woodland Manse", "Tower of Storms"],
+        "levelRange": { "min": 4, "max": 5 },
+        "keyEvents": [
+          "Obtain a dragon-slaying weapon from Dragon Barrow",
+          "Defeat the green hag at Woodland Manse",
+          "Clear the Tower of Storms"
+        ]
+      },
+      {
+        "title": "Icespire Hold",
+        "description": "Climb to the dragon's lair at Icespire Hold and face Cryovain, the young white dragon, in a final showdown.",
+        "readAloudText": "The path to Icespire Peak grows steeper and colder. Frost clings to the rocks, and the wind carries the faint scent of ozone. High above, you can see the ruins of an old fortress — Icespire Hold. This is where the dragon lairs.",
+        "maps": ["dragons-lair"],
+        "encounters": ["icespire-orcs", "cryovain-final"],
+        "locations": ["Icespire Hold"],
+        "levelRange": { "min": 5, "max": 6 },
+        "keyEvents": ["Battle through orc defenders", "Confront Cryovain the young white dragon"]
+      }
+    ],
+    "npcs": [
+      {
+        "id": "townmaster",
+        "name": "Harbin Wester",
+        "description": "The nervous and cowardly townmaster of Phandalin who posts quests on the job board.",
+        "location": "Phandalin",
+        "role": "neutral",
+        "statBlockId": "noble",
+        "personality": "Nervous, cowardly, and prone to panic. Hides in his office when danger is near.",
+        "motivation": "Keep the peace without putting himself at risk"
+      },
+      {
+        "id": "adabra",
+        "name": "Adabra Gwynn",
+        "description": "A midwife and healer living at Umbrage Hill who needs rescue from a manticore.",
+        "location": "Umbrage Hill",
+        "role": "ally",
+        "statBlockId": "priest",
+        "personality": "Stubborn and independent, refuses to abandon her home despite the danger",
+        "motivation": "Continue her healing work and protect her herb garden"
+      },
+      {
+        "id": "cryovain",
+        "name": "Cryovain",
+        "description": "A young white dragon that has claimed Icespire Peak as its lair, terrorizing the region.",
+        "location": "Icespire Hold",
+        "role": "enemy",
+        "statBlockId": "young-white-dragon",
+        "personality": "Cruel and territorial, driven by hunger and hoarding instinct",
+        "motivation": "Establish dominance over the region and amass a treasure hoard"
+      },
+      {
+        "id": "don-nightstone",
+        "name": "Don-Jon Raskin",
+        "description": "A retired adventurer who now prospects for gold at Mountain's Toe mine.",
+        "location": "Mountain's Toe Gold Mine",
+        "role": "ally",
+        "statBlockId": "warrior-veteran",
+        "personality": "Gruff but fair, tells tall tales of his adventuring days",
+        "motivation": "Strike it rich and retire in comfort"
+      },
+      {
+        "id": "falcon",
+        "name": "Falcon the Hunter",
+        "description": "A human ranger who patrols the area around Phandalin and tracks the dragon's movements.",
+        "location": "Phandalin",
+        "role": "ally",
+        "statBlockId": "scout",
+        "personality": "Quiet and observant, speaks only when necessary",
+        "motivation": "Protect the wilderness and the people of Phandalin from the dragon"
+      }
+    ],
+    "encounters": [
+      {
+        "id": "umbrage-hill-manticore",
+        "name": "Manticore at Umbrage Hill",
+        "description": "A manticore has taken up residence near Adabra's windmill and is terrorizing the area.",
+        "monsters": [{ "monsterId": "manticore", "count": 1 }],
+        "difficulty": "hard",
+        "levelRange": { "min": 1, "max": 2 },
+        "tactics": "The manticore fires tail spikes from a distance, then swoops in with bite and claws.",
+        "environment": "Open hillside near a stone windmill",
+        "totalXP": 700
+      },
+      {
+        "id": "gnomengarde-mimic",
+        "name": "Gnomengarde Mimic",
+        "description": "A mimic disguised as a barrel lurks in the gnome settlement, having already eaten a gnome inventor.",
+        "monsters": [{ "monsterId": "mimic", "count": 1 }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 1, "max": 2 },
+        "tactics": "The mimic waits in adhesive form until someone touches it, then attacks.",
+        "environment": "Gnome workshop filled with inventions and machinery",
+        "totalXP": 450
+      },
+      {
+        "id": "butterskull-orcs",
+        "name": "Orcs at Butterskull Ranch",
+        "description": "A war band of orcs has raided Butterskull Ranch, capturing the rancher Big Al.",
+        "monsters": [{ "monsterId": "orc", "count": 6 }, { "monsterId": "orc-war-chief", "count": 1 }],
+        "difficulty": "hard",
+        "levelRange": { "min": 3, "max": 4 },
+        "tactics": "Orcs use Aggressive to close distance quickly. War chief rallies them with Gruumsh's Fury.",
+        "environment": "Ranch buildings and fenced pastures",
+        "mapId": "farmstead",
+        "totalXP": 1300
+      },
+      {
+        "id": "loggers-anchorites",
+        "name": "Anchorites of Talos",
+        "description": "Cult followers of Talos, the storm god, have been terrorizing the loggers' camp.",
+        "monsters": [{ "monsterId": "cultist-fanatic", "count": 2 }, { "monsterId": "cultist", "count": 4 }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 3, "max": 4 },
+        "tactics": "Fanatics cast spells while cultists engage in melee. They fight fanatically to the death.",
+        "environment": "Woodland clearing with tents and logging equipment",
+        "totalXP": 700
+      },
+      {
+        "id": "mountain-toe-wererats",
+        "name": "Wererats at Mountain's Toe",
+        "description": "A pack of wererats has infested the gold mine, preventing the miners from working.",
+        "monsters": [{ "monsterId": "wererat", "count": 5 }],
+        "difficulty": "hard",
+        "levelRange": { "min": 3, "max": 4 },
+        "tactics": "Wererats use their shapechanger ability to disguise as miners. They attack from ambush in rat form.",
+        "environment": "Underground mine tunnels with mining carts and rails",
+        "mapId": "mine",
+        "totalXP": 2250
+      },
+      {
+        "id": "axeholm-undead",
+        "name": "Undead of Axeholm",
+        "description": "The abandoned dwarven fortress of Axeholm is haunted by the undead remains of its former inhabitants.",
+        "monsters": [
+          { "monsterId": "skeleton", "count": 6 },
+          { "monsterId": "ghoul", "count": 3 },
+          { "monsterId": "banshee", "count": 1, "notes": "The spirit of a dwarven priestess" }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 3, "max": 4 },
+        "tactics": "Undead patrol the halls. The banshee uses her Wail from a central chamber.",
+        "environment": "Ancient dwarven fortress with stone corridors and great halls",
+        "totalXP": 1600
+      },
+      {
+        "id": "dragon-barrow-undead",
+        "name": "Dragon Barrow",
+        "description": "An ancient barrow containing a legendary weapon, guarded by undead.",
+        "monsters": [{ "monsterId": "wight", "count": 1 }, { "monsterId": "skeleton", "count": 4 }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 4, "max": 5 },
+        "tactics": "The wight commands the skeletons and uses Life Drain on the strongest party member.",
+        "environment": "Underground burial chamber with stone sarcophagi",
+        "loot": {
+          "items": [
+            {
+              "name": "Dragon Slayer Longsword",
+              "quantity": 1,
+              "description": "+1 longsword that deals extra 3d6 damage to dragons"
+            }
+          ]
+        },
+        "mapId": "barrow-crypt",
+        "totalXP": 900
+      },
+      {
+        "id": "woodland-manse-hag",
+        "name": "Woodland Manse",
+        "description": "A green hag named Grannoc has taken over the woodland manse and is corrupting the surrounding forest.",
+        "monsters": [
+          { "monsterId": "green-hag", "count": 1, "notes": "Grannoc" },
+          { "monsterId": "twig-blight", "count": 6 },
+          { "monsterId": "needle-blight", "count": 4 }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 4, "max": 5 },
+        "tactics": "Grannoc uses Invisible Passage and Illusory Appearance to deceive, then attacks with claws.",
+        "environment": "Overgrown stone manor with corrupted gardens",
+        "totalXP": 1150
+      },
+      {
+        "id": "tower-storms-harpies",
+        "name": "Tower of Storms",
+        "description": "Harpies and evil cultists have occupied an abandoned lighthouse on the coast.",
+        "monsters": [
+          { "monsterId": "harpy", "count": 3 },
+          { "monsterId": "cultist-fanatic", "count": 1, "notes": "Anchorite of Talos" }
+        ],
+        "difficulty": "moderate",
+        "levelRange": { "min": 4, "max": 5 },
+        "tactics": "Harpies use Luring Song from the tower top while the anchorite casts spells from cover.",
+        "environment": "Coastal lighthouse tower with multiple floors",
+        "mapId": "wizards-tower",
+        "totalXP": 850
+      },
+      {
+        "id": "icespire-orcs",
+        "name": "Icespire Hold Defenders",
+        "description": "Orcs and other creatures serve as the dragon's unwitting guards at Icespire Hold.",
+        "monsters": [{ "monsterId": "orc", "count": 8 }, { "monsterId": "ogre", "count": 2 }],
+        "difficulty": "hard",
+        "levelRange": { "min": 5, "max": 6 },
+        "tactics": "Orcs charge with Aggressive. Ogres throw javelins from elevated positions.",
+        "environment": "Ruined mountain fortress with icy passages",
+        "totalXP": 1800
+      },
+      {
+        "id": "cryovain-final",
+        "name": "Cryovain the Young White Dragon",
+        "description": "The final confrontation with Cryovain in its lair at the top of Icespire Hold.",
+        "monsters": [{ "monsterId": "young-white-dragon", "count": 1, "notes": "Cryovain" }],
+        "difficulty": "deadly",
+        "levelRange": { "min": 5, "max": 6 },
+        "tactics": "Cryovain opens with Cold Breath, then uses flight to stay out of melee range, swooping in for bite-claw attacks before retreating to the air.",
+        "environment": "Open-roofed chamber at the peak of Icespire Hold, snow and ice everywhere",
+        "loot": {
+          "currency": { "gp": 500, "sp": 1200, "pp": 15 },
+          "items": [
+            {
+              "name": "Sending Stones (pair)",
+              "quantity": 1,
+              "description": "Allows sending a 25-word message once per day"
+            }
+          ]
+        },
+        "mapId": "dragons-lair",
+        "totalXP": 2300
+      }
+    ],
+    "lore": [
+      {
+        "id": "icespire-peak",
+        "title": "Icespire Peak",
+        "content": "A tall, snow-capped mountain northeast of Phandalin. Recently claimed by a young white dragon named Cryovain, who drove out the orcs that previously inhabited its summit fortress.",
+        "category": "location"
+      },
+      {
+        "id": "phandalin-doip",
+        "title": "Phandalin",
+        "content": "A frontier town nestled in the foothills of the Sword Mountains. The townmaster posts quests on a job board outside the Townmaster's Hall.",
+        "category": "location"
+      },
+      {
+        "id": "talos-cult",
+        "title": "Cult of Talos",
+        "content": "Anchorites of Talos, the storm god, have been causing trouble in the wilderness. They see the dragon's arrival as a sign of divine favor.",
+        "category": "faction"
+      }
+    ],
+    "mapAssignments": [
+      { "chapterIndex": 0, "mapId": "phandalin-doip-map", "builtInMapId": "crossroads-village" },
+      { "chapterIndex": 1, "mapId": "butterskull-map", "builtInMapId": "farmstead" },
+      { "chapterIndex": 1, "mapId": "mountain-toe-map", "builtInMapId": "mine" },
+      { "chapterIndex": 2, "mapId": "dragon-barrow-map", "builtInMapId": "barrow-crypt" },
+      { "chapterIndex": 2, "mapId": "tower-storms-map", "builtInMapId": "wizards-tower" },
+      { "chapterIndex": 3, "mapId": "icespire-hold-map", "builtInMapId": "dragons-lair" }
+    ]
+  },
+  {
+    "id": "death-house",
+    "name": "Curse of Strahd: Death House",
+    "system": "dnd5e",
+    "description": "An introductory adventure leading into the dark realm of Barovia. Explore a haunted townhouse with a terrible secret in its basement. Designed for levels 1-3.",
+    "icon": "skull",
+    "levelRange": { "min": 1, "max": 3 },
+    "chapters": [
+      {
+        "title": "The Durst Manor - Ground Floor",
+        "description": "Two ghostly children, Rose and Thorn, beckon the heroes into their home, begging them to save their baby brother from the monster in the basement. The ground floor seems normal at first, but subtle wrongness pervades everything.",
+        "readAloudText": "You stand before a tall, dreary-looking townhouse. No light spills from its tall, narrow windows. The stench of death and decay hangs in the air. Two children stand before the front door — a girl and a boy. The girl says, 'There's a monster in our house!'",
+        "maps": ["spooky-house"],
+        "encounters": ["durst-animated-armor"],
+        "locations": ["Durst Manor - Ground Floor", "Main Hall", "Den of Wolves", "Kitchen"],
+        "levelRange": { "min": 1, "max": 1 },
+        "keyEvents": [
+          "Meet Rose and Thorn",
+          "Explore the deceptively normal ground floor",
+          "Find the first clues about the Durst family's dark past"
+        ]
+      },
+      {
+        "title": "Upper Floors",
+        "description": "Explore the increasingly disturbing upper floors of the manor, uncovering the dark history of the Durst family. The attic holds the remains of Rose and Thorn, who starved to death locked in their room.",
+        "readAloudText": "As you ascend the stairs, the house seems to close in around you. The wallpaper peels, the carpets fray, and the air grows thick with the smell of old death. Something is very wrong here.",
+        "maps": ["spooky-house"],
+        "encounters": ["durst-specters", "animated-broom"],
+        "locations": ["Second Floor", "Third Floor", "Attic", "Children's Room"],
+        "levelRange": { "min": 1, "max": 2 },
+        "keyEvents": [
+          "Discover the nursemaid's specter",
+          "Find letters revealing the Durst family's cult activities",
+          "Discover Rose and Thorn's remains in the attic"
+        ]
+      },
+      {
+        "title": "The Dungeon Level",
+        "description": "Descend into the hidden cult dungeon beneath the house, where the Dursts once performed dark rituals to appease Strahd. The ritual chamber demands a sacrifice. The Shambling Mound rises if the party refuses.",
+        "readAloudText": "A stone staircase descends into darkness beneath the house. The walls are damp stone, and the air is thick with the stench of decay. Distant chanting seems to echo through the tunnels below.",
+        "maps": ["barrow-crypt"],
+        "encounters": ["durst-ghouls", "durst-shadows", "durst-shambling-mound"],
+        "locations": ["Cult Quarters", "Reliquary", "Ritual Chamber", "Hidden Shrine"],
+        "levelRange": { "min": 2, "max": 3 },
+        "keyEvents": [
+          "Navigate the cult dungeon",
+          "Discover the ritual altar",
+          "Face the Shambling Mound or make a sacrifice",
+          "Escape the collapsing house"
+        ]
+      }
+    ],
+    "npcs": [
+      {
+        "id": "rosavalda",
+        "name": "Rose Durst",
+        "description": "The ghost of Rose Durst, the eldest daughter. She and her brother Thorn were locked in the attic and starved to death by their parents. She can possess a willing character.",
+        "location": "Durst Manor",
+        "role": "neutral",
+        "personality": "Brave for her age, protective of her brother, desperate for help",
+        "motivation": "Free herself and Thorn from the house and stop the monster in the basement"
+      },
+      {
+        "id": "thorn",
+        "name": "Thorn Durst",
+        "description": "The ghost of Thorn Durst, Rose's younger brother. Shy and scared, he clings to his sister.",
+        "location": "Durst Manor",
+        "role": "neutral",
+        "personality": "Timid and fearful, rarely speaks, clutches a stuffed bear",
+        "motivation": "Stay with Rose and escape the terrible house"
+      },
+      {
+        "id": "strahd-hint",
+        "name": "Strahd von Zarovich (Referenced)",
+        "description": "The vampire lord of Barovia. His dark influence permeates the mists. Referenced in letters found in the house. The Dursts worshipped him as a god.",
+        "location": "Castle Ravenloft",
+        "role": "enemy",
+        "statBlockId": "vampire",
+        "personality": "Charming, cruel, and ancient. Treats mortals as playthings.",
+        "motivation": "Eternal dominion over Barovia and obsession with finding a worthy successor or bride"
+      }
+    ],
+    "encounters": [
+      {
+        "id": "durst-animated-armor",
+        "name": "Animated Armor",
+        "description": "A suit of armor on display in the main hall animates and attacks intruders.",
+        "monsters": [{ "monsterId": "animated-armor", "count": 1 }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 1, "max": 1 },
+        "tactics": "The armor attacks whoever comes closest, pursuing relentlessly through the ground floor.",
+        "environment": "Main hall of the Durst Manor",
+        "totalXP": 200
+      },
+      {
+        "id": "durst-specters",
+        "name": "Nursemaid's Specter",
+        "description": "The specter of the Durst family's nursemaid haunts the upper floors, driven mad by guilt.",
+        "monsters": [{ "monsterId": "specter", "count": 1 }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 1, "max": 2 },
+        "tactics": "The specter phases through walls, using Life Drain and retreating into solid objects.",
+        "environment": "Nursery and hallways of the upper floors",
+        "totalXP": 200
+      },
+      {
+        "id": "animated-broom",
+        "name": "Animated Broom",
+        "description": "An animated broom attacks anyone who opens the broom closet on the upper floor.",
+        "monsters": [
+          { "monsterId": "animated-flying-sword", "count": 1, "notes": "Animated broom, use Flying Sword stats" }
+        ],
+        "difficulty": "easy",
+        "levelRange": { "min": 1, "max": 1 },
+        "tactics": "The broom flies at the face of whoever opened the closet.",
+        "environment": "Broom closet on the second floor",
+        "totalXP": 50
+      },
+      {
+        "id": "durst-ghouls",
+        "name": "Dungeon Ghouls",
+        "description": "Ghouls and ghasts lurk in the dungeon level, the reanimated remains of cult victims.",
+        "monsters": [{ "monsterId": "ghoul", "count": 4 }, { "monsterId": "ghast", "count": 1 }],
+        "difficulty": "hard",
+        "levelRange": { "min": 2, "max": 3 },
+        "tactics": "Ghouls attempt to paralyze targets while the ghast uses its Stench to nauseate the party.",
+        "environment": "Damp stone tunnels and chambers beneath the house",
+        "totalXP": 650
+      },
+      {
+        "id": "durst-shadows",
+        "name": "Creeping Shadows",
+        "description": "Shadows of former cult members creep along the dungeon walls.",
+        "monsters": [{ "monsterId": "shadow", "count": 5 }],
+        "difficulty": "hard",
+        "levelRange": { "min": 2, "max": 3 },
+        "tactics": "Shadows hide in dim light and attack with Strength Drain, retreating into walls when damaged.",
+        "environment": "Dark corridors with flickering torchlight",
+        "totalXP": 500
+      },
+      {
+        "id": "durst-shambling-mound",
+        "name": "The Shambling Mound",
+        "description": "If the party refuses to make a sacrifice at the ritual altar, a shambling mound rises from the muck beneath the altar to attack.",
+        "readAloudText": "The chanting grows louder: 'One must die! One must die!' As you refuse the altar's demand, the ground before you heaves and splits open. A massive, plant-like creature hauls itself from the earth, dripping with muck and rot.",
+        "monsters": [{ "monsterId": "shambling-mound", "count": 1 }],
+        "difficulty": "deadly",
+        "levelRange": { "min": 2, "max": 3 },
+        "tactics": "The shambling mound pursues the party relentlessly. It uses Engulf on small targets. The party can flee — the mound cannot climb.",
+        "trigger": "Refusing to make a sacrifice at the ritual altar",
+        "environment": "Underground ritual chamber with a blood-stained altar",
+        "totalXP": 1800
+      }
+    ],
+    "lore": [
+      {
+        "id": "durst-family",
+        "title": "The Durst Family",
+        "content": "Gustav and Elisabeth Durst were prominent citizens who secretly led a cult devoted to Strahd. They sacrificed innocents in their basement. When their children discovered the truth, Gustav locked Rose and Thorn in the attic to prevent them from revealing the secret. The children starved to death.",
+        "category": "location"
+      },
+      {
+        "id": "barovia",
+        "title": "Barovia",
+        "content": "A demiplane of dread ruled by the vampire Strahd von Zarovich. The mists of Barovia trap all who enter. Death House serves as an introduction to the horrors that await.",
+        "category": "world"
+      },
+      {
+        "id": "cult-of-strahd",
+        "title": "Cult of Strahd",
+        "content": "The Dursts led a cult that worshipped Strahd von Zarovich, performing dark rituals in their basement to gain his favor. The cult's chanting can still be heard echoing through the dungeon.",
+        "category": "faction"
+      }
+    ],
+    "mapAssignments": [
+      { "chapterIndex": 0, "mapId": "durst-upper-map", "builtInMapId": "spooky-house" },
+      { "chapterIndex": 1, "mapId": "durst-upper-map-2", "builtInMapId": "spooky-house" },
+      { "chapterIndex": 2, "mapId": "durst-dungeon-map", "builtInMapId": "barrow-crypt" }
+    ]
+  },
+  {
+    "id": "sunless-citadel",
+    "name": "The Sunless Citadel",
+    "system": "dnd5e",
+    "description": "A classic dungeon crawl into a ruined fortress that has sunk into the earth. Goblins, kobolds, and a corrupted druid guard its depths. Designed for levels 1-3.",
+    "icon": "fortress",
+    "levelRange": { "min": 1, "max": 3 },
+    "chapters": [
+      {
+        "title": "Into the Ravine",
+        "description": "Descend into the ravine via a knotted rope to find the sunken citadel. Navigate traps and encounter kobold sentries at the entrance. Giant rats infest the upper approach.",
+        "readAloudText": "You peer over the edge of the ravine. The walls drop away into darkness, though you can make out a narrow staircase of crumbling stone carved into the cliff face. Far below, you can see the broken towers and battlements of a ruined fortress, now part of the ravine floor.",
+        "maps": ["underdark-warren"],
+        "encounters": ["ravine-rats", "kobold-sentries"],
+        "locations": ["Oakhurst", "The Ravine", "Citadel Entrance"],
+        "levelRange": { "min": 1, "max": 1 },
+        "keyEvents": [
+          "Learn about the missing adventurers (Talgen and Sharwyn Hucrele)",
+          "Descend into the ravine",
+          "Meet kobold guards"
+        ]
+      },
+      {
+        "title": "The Fortress Level",
+        "description": "Explore the upper level of the citadel, currently divided between warring goblin and kobold factions. Meepo, a kobold keeper, has lost his charge — the dragon wyrmling Calcryx — to the goblins.",
+        "readAloudText": "The corridors of the sunken citadel are dark and damp. The sound of dripping water echoes through the stone halls. You can hear faint voices arguing in the distance — the two factions that have claimed this place as their own.",
+        "maps": ["dungeon-hideout", "keep"],
+        "encounters": ["kobold-territory", "goblin-territory", "calcryx-encounter"],
+        "locations": ["Kobold Territory", "Dragon Pen", "Goblin Territory", "Goblin Chief's Chamber"],
+        "levelRange": { "min": 1, "max": 2 },
+        "keyEvents": [
+          "Meet Meepo the kobold",
+          "Choose to help kobolds or goblins (or neither)",
+          "Recover the white dragon wyrmling Calcryx",
+          "Find clues about the missing adventurers"
+        ]
+      },
+      {
+        "title": "The Grove Level",
+        "description": "Descend to the underground grove where the Gulthias Tree grows, tended by the mad druid Belak. Twig blights patrol the fungal gardens. The missing adventurers have been transformed into Belak's thralls.",
+        "readAloudText": "The stairs descend deeper than you expected, finally opening into a vast underground cavern lit by phosphorescent fungus. At the center grows a massive, twisted tree with blood-red bark — the Gulthias Tree. Its roots spread everywhere like veins. A wild-eyed figure in tattered robes tends to the tree.",
+        "maps": ["volcanic-caves"],
+        "encounters": ["twilight-grove-blights", "belak-final"],
+        "locations": ["Twilight Grove", "Fungal Garden", "Gulthias Tree Chamber"],
+        "levelRange": { "min": 2, "max": 3 },
+        "keyEvents": [
+          "Navigate the fungal gardens",
+          "Discover the fate of the missing adventurers",
+          "Confront Belak the Outcast",
+          "Destroy the Gulthias Tree"
+        ]
+      }
+    ],
+    "npcs": [
+      {
+        "id": "meepo",
+        "name": "Meepo",
+        "description": "A forlorn kobold who has lost his clan's dragon wyrmling, Calcryx. He begs the adventurers for help retrieving the dragon from the goblins. He is fiercely loyal to anyone who helps.",
+        "location": "Kobold Territory",
+        "role": "ally",
+        "statBlockId": "kobold-warrior",
+        "personality": "Desperately eager to please, speaks in broken Common, cries when scared",
+        "motivation": "Recover Calcryx and regain honor with his clan"
+      },
+      {
+        "id": "yusdrayl",
+        "name": "Yusdrayl",
+        "description": "The kobold queen of the Sunless Citadel. She is pragmatic and willing to negotiate with the party for the return of Calcryx.",
+        "location": "Kobold Territory",
+        "role": "neutral",
+        "statBlockId": "kobold-scale-sorcerer",
+        "personality": "Regal despite her small stature, shrewd negotiator",
+        "motivation": "Protect her clan and maintain power over the kobold territory"
+      },
+      {
+        "id": "belak",
+        "name": "Belak the Outcast",
+        "description": "A mad druid who tends the corrupted Gulthias Tree deep within the citadel. He has transformed the missing adventurers into his thralls through the tree's dark power.",
+        "location": "The Grove",
+        "role": "enemy",
+        "statBlockId": "druid",
+        "personality": "Madly devoted to the Gulthias Tree, speaks reverently about its 'gifts'",
+        "motivation": "Spread the Gulthias Tree's influence to the surface world using its corrupted fruit"
+      },
+      {
+        "id": "calcryx",
+        "name": "Calcryx",
+        "description": "A white dragon wyrmling captured by goblins from the kobolds. She is bad-tempered and might attack anyone who tries to handle her.",
+        "location": "Goblin Territory",
+        "role": "neutral",
+        "statBlockId": "white-dragon-wyrmling",
+        "personality": "Fierce, snappy, and uncooperative. Hisses and bites at everyone.",
+        "motivation": "Freedom and food"
+      },
+      {
+        "id": "durnn",
+        "name": "Durnn",
+        "description": "The hobgoblin chief of the goblin faction in the Sunless Citadel. He commands goblins and has captured the dragon wyrmling.",
+        "location": "Goblin Territory",
+        "role": "enemy",
+        "statBlockId": "hobgoblin-captain",
+        "personality": "Disciplined and militaristic, despises the chaotic kobolds",
+        "motivation": "Control the citadel and exploit the Gulthias Tree's fruit for profit"
+      },
+      {
+        "id": "erky",
+        "name": "Erky Timbers",
+        "description": "A gnome acolyte captured by goblins. If rescued, he can provide healing and background information about the citadel.",
+        "location": "Goblin Territory",
+        "role": "ally",
+        "statBlockId": "priest-acolyte",
+        "personality": "Grateful and helpful once freed, provides information about the grove below",
+        "motivation": "Escape the goblins and help defeat the evil in the citadel"
+      }
+    ],
+    "encounters": [
+      {
+        "id": "ravine-rats",
+        "name": "Giant Rat Infestation",
+        "description": "Giant rats infest the upper levels near the ravine entrance.",
+        "monsters": [
+          { "monsterId": "giant-rat", "count": 6 },
+          { "monsterId": "rat", "count": 3, "notes": "Swarm of regular rats" }
+        ],
+        "difficulty": "easy",
+        "levelRange": { "min": 1, "max": 1 },
+        "tactics": "Giant rats attack in a swarm, using Pack Tactics for advantage. They flee if half are killed.",
+        "environment": "Crumbling stone corridors near the ravine entrance",
+        "totalXP": 175
+      },
+      {
+        "id": "kobold-sentries",
+        "name": "Kobold Sentries",
+        "description": "Kobold guards patrol the entrance to the citadel, ready to alert their clan.",
+        "monsters": [{ "monsterId": "kobold-warrior", "count": 3 }],
+        "difficulty": "easy",
+        "levelRange": { "min": 1, "max": 1 },
+        "tactics": "Kobolds use traps and ranged attacks from behind cover. They may negotiate if approached peacefully.",
+        "environment": "Narrow corridors with trap triggers and murder holes",
+        "totalXP": 75
+      },
+      {
+        "id": "kobold-territory",
+        "name": "Kobold Territory",
+        "description": "Navigating through the kobold-controlled section of the citadel.",
+        "monsters": [
+          { "monsterId": "kobold-warrior", "count": 8 },
+          { "monsterId": "kobold-dragonshield", "count": 2 },
+          { "monsterId": "kobold-scale-sorcerer", "count": 1, "notes": "Yusdrayl" }
+        ],
+        "difficulty": "moderate",
+        "levelRange": { "min": 1, "max": 2 },
+        "tactics": "Kobolds prefer traps and ambushes. Dragonshields protect Yusdrayl. Only hostile if party attacks first.",
+        "environment": "Fortified kobold lair with crude barricades and traps",
+        "totalXP": 625
+      },
+      {
+        "id": "goblin-territory",
+        "name": "Goblin Territory",
+        "description": "The goblin-controlled section, led by the hobgoblin chief Durnn. Goblins are more aggressive than kobolds.",
+        "monsters": [
+          { "monsterId": "goblin-warrior", "count": 10 },
+          { "monsterId": "goblin-boss", "count": 1 },
+          { "monsterId": "hobgoblin-captain", "count": 1, "notes": "Chief Durnn" },
+          { "monsterId": "hobgoblin-warrior", "count": 3 }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 1, "max": 2 },
+        "tactics": "Goblins use Nimble Escape to harass. Hobgoblins form a disciplined line. Chief Durnn calls for reinforcements.",
+        "environment": "Larger chambers converted to goblin barracks and throne room",
+        "totalXP": 1125
+      },
+      {
+        "id": "calcryx-encounter",
+        "name": "Recovering Calcryx",
+        "description": "The white dragon wyrmling Calcryx is chained in the goblin territory. Freeing her is dangerous — she may attack the party.",
+        "monsters": [{ "monsterId": "white-dragon-wyrmling", "count": 1, "notes": "Calcryx, may be hostile" }],
+        "difficulty": "moderate",
+        "levelRange": { "min": 1, "max": 2 },
+        "tactics": "Calcryx uses Cold Breath immediately when freed, then attacks the nearest creature regardless of allegiance.",
+        "environment": "Goblin trophy room with chains and crude cage",
+        "totalXP": 450
+      },
+      {
+        "id": "twilight-grove-blights",
+        "name": "Twilight Grove Blights",
+        "description": "Twig blights and vine blights patrol the underground grove, spawned by the Gulthias Tree.",
+        "monsters": [
+          { "monsterId": "twig-blight", "count": 10 },
+          { "monsterId": "needle-blight", "count": 4 },
+          { "monsterId": "vine-blight", "count": 2 }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 2, "max": 3 },
+        "tactics": "Blights ambush from among the fungal gardens. Vine blights use Entangling Plants to immobilize targets while twig blights swarm.",
+        "environment": "Underground fungal garden with phosphorescent light",
+        "totalXP": 600
+      },
+      {
+        "id": "belak-final",
+        "name": "Belak the Outcast - Final Battle",
+        "description": "The final confrontation with Belak the druid and his thralls near the Gulthias Tree. The missing adventurers, now bark-covered thralls, fight alongside him.",
+        "monsters": [
+          { "monsterId": "druid", "count": 1, "notes": "Belak the Outcast" },
+          { "monsterId": "twig-blight", "count": 4 },
+          { "monsterId": "giant-frog", "count": 2, "notes": "Belak's pets" },
+          {
+            "monsterId": "skeleton-warrior",
+            "count": 2,
+            "notes": "Sir Braford and Sharwyn (bark thralls, use skeleton warrior stats)"
+          }
+        ],
+        "difficulty": "hard",
+        "levelRange": { "min": 2, "max": 3 },
+        "tactics": "Belak casts spells from behind the Gulthias Tree while his thralls and blights engage in melee. Destroying the tree may weaken the blights.",
+        "environment": "The Gulthias Tree chamber — a massive cavern with the blood-red tree at its center",
+        "loot": {
+          "items": [
+            {
+              "name": "Shatterspike (longsword +1)",
+              "quantity": 1,
+              "description": "+1 longsword that can sunder nonmagical weapons and shields"
+            }
+          ]
+        },
+        "totalXP": 1400
+      }
+    ],
+    "lore": [
+      {
+        "id": "sunless-citadel-history",
+        "title": "The Sunless Citadel",
+        "content": "An ancient fortress that sank into the earth during a cataclysm. Now inhabited by kobolds and goblins who war over its upper levels. The deeper grove level holds the source of the citadel's dark power.",
+        "category": "location"
+      },
+      {
+        "id": "gulthias-tree",
+        "title": "The Gulthias Tree",
+        "content": "A corrupted tree that grew from a stake driven through a vampire's heart. It produces magical fruit: a single ruby-red apple each midsummer that heals any disease, and a single pale white apple each midwinter that poisons whoever eats it. It also spawns twig blights.",
+        "category": "item"
+      },
+      {
+        "id": "oakhurst",
+        "title": "Oakhurst",
+        "content": "A small town near the ravine where the adventure begins. The townsfolk know about the magical fruit from the tree below and hire adventurers to investigate when the fruit stops appearing.",
+        "category": "location"
+      },
+      {
+        "id": "hucrele-family",
+        "title": "The Hucrele Family",
+        "content": "A wealthy family from Oakhurst. Two of their children, Talgen and Sharwyn, went into the Sunless Citadel to find the magical fruit and never returned. They were captured by Belak and transformed into bark thralls.",
+        "category": "other"
+      }
+    ],
+    "mapAssignments": [
+      { "chapterIndex": 0, "mapId": "ravine-entrance-map", "builtInMapId": "underdark-warren" },
+      { "chapterIndex": 1, "mapId": "fortress-level-map", "builtInMapId": "dungeon-hideout" },
+      { "chapterIndex": 1, "mapId": "fortress-keep-map", "builtInMapId": "keep" },
+      { "chapterIndex": 2, "mapId": "grove-level-map", "builtInMapId": "volcanic-caves" }
+    ]
+  }
+]

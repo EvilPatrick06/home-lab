@@ -1,0 +1,79 @@
+{
+  "name": "Djinni",
+  "slug": "djinni",
+  "size": "Large",
+  "type": "Elemental",
+  "alignment": "Neutral",
+  "ac": "17",
+  "initiative": "+2 (12)",
+  "hp": "218",
+  "hpFormula": "19d10 + 114",
+  "speed": "30 ft., Fly 90 ft. (hover)",
+  "abilityScores": {
+    "str": 21,
+    "dex": 15,
+    "con": 22,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 5,
+    "dex": 6,
+    "con": 6,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Lightning, Thunder",
+  "senses": "Darkvision 120 ft.; Passive Perception 13",
+  "languages": "Primordial (Auran)",
+  "cr": "11 (XP 7,200; PB +4)",
+  "traits": [
+    {
+      "name": "Elemental Restoration",
+      "description": "If the djinni dies outside the Elemental Plane of Air, its body dissolves into mist, and it gains a new body in 1d4 days, reviving with all its Hit Points somewhere on the Plane of Air."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The djinni has Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Wishes",
+      "description": "The djinni has a 30 percent chance of knowing the *Wish* spell. If the djinni knows it, the djinni can cast it only on behalf of a non-genie creature who communicates a wish in a way the djinni can understand. If the djinni casts the spell for the creature, the djinni suffers none of the spell's stress. Once the djinni has cast it three times, the djinni can't do so again for 365 days."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The djinni makes three attacks, using Storm Blade or Storm Bolt in any combination."
+    },
+    {
+      "name": "Storm Blade",
+      "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 12 (2d6 + 5) Slashing damage plus 7 (2d6) Lightning damage."
+    },
+    {
+      "name": "Storm Bolt",
+      "description": "*Ranged Attack Roll:* +9, range 120 ft. *Hit:* 13 (3d8) Thunder damage. If the target is a Large or smaller creature, it has the Prone condition."
+    },
+    {
+      "name": "Create Whirlwind",
+      "description": "The djinni conjures a whirlwind at a point it can see within 120 feet. The whirlwind fills a 20-foot-radius, 60-foot-high Cylinder centered on that point. The whirlwind lasts until the djinni's Concentration on it ends. The djinni can move the whirlwind up to 20 feet at the start of each of its turns."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The djinni casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 17):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Genie of the Air*\n**Habitat:** Coastal, Planar (Elemental Plane of Air); **Treasure:** Arcana\nAs genies of wind and skies, djinn personify freedom and might. They can control wind and travel as swiftly as a breeze. They might be as serene as drifting clouds or as tempestuous as storms, but most djinn relish their freedom and desire to discover the wonders of the multiverse. Djinn often know many stories, and they might share such lore with those who offer their own exciting stories in trade.\nWhile many djinn create airy palaces on stormy coasts or high in the clouds, untold numbers dwell on the Elemental Plane of Air. In floating cities, djinn collect tales and experiences from across the planes of existence, sharing them in fabulous forums, libraries, and theaters. The greatest of these cities is the Citadel of Ice and Steel, in which wind-sculpted towers contain a city-size trove of incredible knowledge and treasures that defy belief.",
+  "habitat": "Coastal, Planar (Elemental Plane of Air)",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Genies",
+    "file": "Genies.md"
+  }
+}

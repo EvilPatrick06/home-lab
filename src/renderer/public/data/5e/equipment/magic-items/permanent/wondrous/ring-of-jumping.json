@@ -1,0 +1,11 @@
+{
+  "name": "Ring of Jumping",
+  "itemType": "Ring",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "attunementRequirements": ["Attunement"],
+  "description": "While wearing this ring, you can cast *Jump* from it, but can target only yourself when you do so.",
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

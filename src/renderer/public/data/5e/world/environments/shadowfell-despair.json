@@ -1,0 +1,358 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Shadowfell is a material echo plane overlapping the Material Plane.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "The Material Plane and its two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "shadowfell",
+      "name": "Shadowfell",
+      "alternateNames": ["Plane of Shadow"],
+      "category": "Material Realm",
+      "subcategory": "Shadowfell",
+      "alignments": [],
+      "philosophicalEssence": "A gloomy dimension of death, shadow, and despair that echoes the Material Plane in distorted, sinister forms.",
+      "emotionalInfluence": "A melancholic atmosphere pervades the Shadowfell, and extended forays to this plane can afflict characters with despair.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true,
+        "shape": "Parallel echo of the Material Plane with distorted, sinister landmarks",
+        "temperature": {
+          "category": "cold",
+          "description": "A gloomy, bleak landscape under a black vault sky with neither sun nor stars."
+        }
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "Time flows normally on the Shadowfell, though its oppressive gloom can make time feel distorted.",
+        "agingOccurs": true,
+        "hungerThirstApplies": true
+      },
+      "hazards": [
+        {
+          "id": "shadowfell-despair",
+          "name": "Shadowfell Despair",
+          "description": "A melancholic atmosphere pervades the Shadowfell, and extended forays to this plane can afflict characters with despair. When the DM deems it appropriate, though usually not more than once per day, a character not from the Shadowfell must make a DC 10 Wisdom saving throw. On a failed save, the character is affected by despair. Roll on the Shadowfell Despair table to determine the effects. If a character is already suffering a despair effect and fails the saving throw, the new despair effect replaces the old one. After finishing a Long Rest, a character can attempt to overcome the despair with a DC 15 Wisdom saving throw. On a successful save, the despair effect ends for that character. A Calm Emotions spell or magic that removes curses cures the despair.",
+          "category": "emotional",
+          "severity": "moderate",
+          "savingThrowToTraverse": {
+            "ability": "Wisdom",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "per_day",
+            "triggerDescription": "When the DM deems it appropriate, though usually not more than once per day, a character not from the Shadowfell must make this saving throw.",
+            "onFailure": {
+              "description": "The character is affected by despair. Roll on the Shadowfell Despair table (d6) to determine the effect: 1-3 Apathy (Disadvantage on Death Saving Throws and Initiative rolls), 4-5 Dread (Disadvantage on all saving throws), 6 Delusion (Disadvantage on ability checks and saving throws that use Intelligence, Wisdom, or Charisma). If already suffering a despair effect, the new effect replaces the old one.",
+              "customCondition": "Despair (Apathy, Dread, or Delusion as determined by d6 roll)",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "duration": "Until removed by a successful DC 15 Wisdom saving throw after a Long Rest, a Calm Emotions spell, or magic that removes curses",
+              "cumulative": false,
+              "cumulativeDescription": "If a character is already suffering a despair effect and fails the saving throw, the new despair effect replaces the old one. Despair effects do not stack.",
+              "preventsDeath": false
+            },
+            "onSuccess": {
+              "description": "The character resists the melancholic influence of the Shadowfell and is not affected by despair.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": ["Native to the Shadowfell"],
+            "repeatSaveAllowed": true,
+            "repeatSaveTiming": "After finishing a Long Rest, the character can attempt a DC 15 Wisdom saving throw to overcome the despair.",
+            "recoveryDC": 15,
+            "recoveryTrigger": "After finishing a Long Rest",
+            "recoveryMethods": [
+              "DC 15 Wisdom saving throw after finishing a Long Rest",
+              "Calm Emotions spell",
+              "Magic that removes curses"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 10,
+              "noModifierFailChance": 0.45,
+              "commonModifierRange": {
+                "low": -1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.5,
+              "failChanceAtHighMod": 0.2
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "psychicEffectTableRoll": {
+            "die": 6,
+            "entries": [
+              {
+                "rangeLow": 1,
+                "rangeHigh": 3,
+                "effect": "Apathy",
+                "durationDescription": "Until removed by DC 15 Wisdom save after Long Rest, Calm Emotions spell, or curse-removal magic"
+              },
+              {
+                "rangeLow": 4,
+                "rangeHigh": 5,
+                "effect": "Dread",
+                "durationDescription": "Until removed by DC 15 Wisdom save after Long Rest, Calm Emotions spell, or curse-removal magic"
+              },
+              {
+                "rangeLow": 6,
+                "rangeHigh": 6,
+                "effect": "Delusion",
+                "durationDescription": "Until removed by DC 15 Wisdom save after Long Rest, Calm Emotions spell, or curse-removal magic"
+              }
+            ]
+          },
+          "encounterProbability": {
+            "perDay": 1,
+            "description": "The DM can require the saving throw when deemed appropriate, though usually not more than once per day."
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology, Shadowfell section"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "shadowfell-despair-apathy",
+          "name": "Shadowfell Despair: Apathy",
+          "description": "Apathy effect from the Shadowfell Despair table (d6 result 1-3). The character has Disadvantage on Death Saving Throws and Initiative rolls.",
+          "mechanicalEffect": "The character has Disadvantage on Death Saving Throws and Initiative rolls.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "The character is overcome by apathy, losing the will to fight for survival and the alertness to react to danger.",
+          "duration": "Until removed by a successful DC 15 Wisdom saving throw after a Long Rest, a Calm Emotions spell, or magic that removes curses.",
+          "removalMethods": [
+            "DC 15 Wisdom saving throw after finishing a Long Rest",
+            "Calm Emotions spell",
+            "Magic that removes curses"
+          ],
+          "sourceReference": "Chapter 6: Cosmology, Shadowfell Despair table"
+        },
+        {
+          "id": "shadowfell-despair-dread",
+          "name": "Shadowfell Despair: Dread",
+          "description": "Dread effect from the Shadowfell Despair table (d6 result 4-5). The character has Disadvantage on all saving throws.",
+          "mechanicalEffect": "The character has Disadvantage on all saving throws.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "The character is gripped by dread, making them less capable of resisting any threat or hazard.",
+          "duration": "Until removed by a successful DC 15 Wisdom saving throw after a Long Rest, a Calm Emotions spell, or magic that removes curses.",
+          "removalMethods": [
+            "DC 15 Wisdom saving throw after finishing a Long Rest",
+            "Calm Emotions spell",
+            "Magic that removes curses"
+          ],
+          "sourceReference": "Chapter 6: Cosmology, Shadowfell Despair table"
+        },
+        {
+          "id": "shadowfell-despair-delusion",
+          "name": "Shadowfell Despair: Delusion",
+          "description": "Delusion effect from the Shadowfell Despair table (d6 result 6). The character has Disadvantage on ability checks and saving throws that use Intelligence, Wisdom, or Charisma.",
+          "mechanicalEffect": "The character has Disadvantage on ability checks and saving throws that use Intelligence, Wisdom, or Charisma.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "The character succumbs to delusions, impairing their mental faculties and judgment.",
+          "duration": "Until removed by a successful DC 15 Wisdom saving throw after a Long Rest, a Calm Emotions spell, or magic that removes curses.",
+          "removalMethods": [
+            "DC 15 Wisdom saving throw after finishing a Long Rest",
+            "Calm Emotions spell",
+            "Magic that removes curses"
+          ],
+          "sourceReference": "Chapter 6: Cosmology, Shadowfell Despair table"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "uncommon",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Undead", "Monstrosity"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "shadowfell-despair-replacement-rule",
+          "name": "Despair Replacement Rule",
+          "description": "If a character is already suffering a despair effect and fails the Shadowfell Despair saving throw, the new despair effect replaces the old one rather than stacking.",
+          "mechanicalEffect": "New despair effect from the Shadowfell Despair table replaces any existing despair effect. Despair effects never stack or accumulate simultaneously.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "shadowfell-despair-recovery-rule",
+          "name": "Despair Recovery Rule",
+          "description": "After finishing a Long Rest, a character can attempt to overcome the despair with a DC 15 Wisdom saving throw. The DC is higher than the initial DC 10 because it is harder to shake off despair once it has taken hold. On a successful save, the despair effect ends for that character. A Calm Emotions spell or magic that removes curses also cures the despair.",
+          "mechanicalEffect": "DC 15 Wisdom saving throw after Long Rest to end despair. Calm Emotions spell or curse-removal magic also ends the effect. The recovery DC (15) is higher than the initial save DC (10).",
+          "savingThrow": {
+            "ability": "Wisdom",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "per_long_rest",
+            "triggerDescription": "After finishing a Long Rest, the affected character may attempt this saving throw.",
+            "onFailure": {
+              "description": "The despair effect persists. The character may attempt the saving throw again after their next Long Rest.",
+              "exhaustionLevels": 0,
+              "exhaustionIsRemovable": true,
+              "cumulative": false,
+              "preventsDeath": false
+            },
+            "onSuccess": {
+              "description": "The despair effect ends for that character.",
+              "endsEffect": true
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": true,
+            "repeatSaveTiming": "After each Long Rest",
+            "recoveryDC": 15,
+            "recoveryTrigger": "After finishing a Long Rest",
+            "recoveryMethods": [
+              "DC 15 Wisdom saving throw after finishing a Long Rest",
+              "Calm Emotions spell",
+              "Magic that removes curses"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": -1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.75,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "shadowfell-despair-dm-discretion",
+          "name": "DM Discretion Trigger",
+          "description": "The DM decides when to require the Shadowfell Despair saving throw. The text states 'When you deem it appropriate, though usually not more than once per day.' The DM can also substitute different despair effects of their own creation.",
+          "mechanicalEffect": "The trigger for the DC 10 Wisdom saving throw is at the DM's discretion, with a recommended maximum frequency of once per day. Custom despair effects may be substituted for the table entries.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [
+        {
+          "id": "domains-of-dread",
+          "name": "Domains of Dread",
+          "type": "Domain of Dread",
+          "description": "In a far-flung corner of the Shadowfell drifts a hidden expanse of roiling mist and vague semireality. Mysterious entities known as the Dark Powers collect the most wicked beings from across ages and worlds within inescapable, mist-shrouded demiplanes. The villainous beings become Darklords, able to exercise great power but confined to realms that twist their desires, capturing them in cycles of dread and despair.",
+          "hazards": ["Mist barriers between domains", "Dark Powers manipulation"]
+        }
+      ],
+      "adventureThemes": [
+        "Encounters with Undead",
+        "Explorations of distorted mirror-landscapes",
+        "Descents into mist-shrouded Domains of Dread",
+        "Horror and despair",
+        "Confronting melancholy and hopelessness"
+      ],
+      "adventureSituations": [],
+      "etherealCurtainColor": "Dusky gray",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Van Richten's Guide to Ravenloft",
+          "description": "Domains of Dread are described in more detail in Van Richten's Guide to Ravenloft."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

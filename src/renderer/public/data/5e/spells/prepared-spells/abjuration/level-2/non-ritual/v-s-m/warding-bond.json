@@ -1,0 +1,63 @@
+{
+  "name": "Warding Bond",
+  "level": 2,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a pair of platinum rings worth 50+ GP each, which you and the target must wear for the duration",
+      "cost": 50,
+      "currency": "GP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You touch another creature that is willing and create a mystic connection between you and the target until the spell ends. While the target is within 60 feet of you, it gains a +1 bonus to AC and saving throws, and it has Resistance to all damage. Also, each time it takes damage, you take the same amount of damage. The spell ends if you drop to 0 Hit Points or if you and the target become separated by more than 60 feet. It also ends if the spell is cast again on either of the connected creatures.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "acModifier": {
+    "type": "bonus",
+    "value": 1
+  },
+  "d20Modifiers": [
+    {
+      "appliesTo": "savingThrows",
+      "fixedBonus": 1,
+      "isBonus": true
+    }
+  ],
+  "resistancesGranted": {
+    "damageTypes": [
+      "Acid",
+      "Bludgeoning",
+      "Cold",
+      "Fire",
+      "Force",
+      "Lightning",
+      "Necrotic",
+      "Piercing",
+      "Poison",
+      "Psychic",
+      "Radiant",
+      "Slashing",
+      "Thunder"
+    ]
+  },
+  "tags": ["buff", "protective", "shared_damage", "link"]
+}

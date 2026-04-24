@@ -1,0 +1,25 @@
+{
+  "name": "Quarterstaff",
+  "category": "Simple",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 2,
+    "denomination": "SP"
+  },
+  "damage": {
+    "count": 1,
+    "die": 6,
+    "type": "Bludgeoning"
+  },
+  "weight": 4,
+  "properties": [
+    {
+      "property": "Versatile",
+      "twoHandedDamage": {
+        "count": 1,
+        "die": 8
+      }
+    }
+  ],
+  "mastery": "Topple"
+}

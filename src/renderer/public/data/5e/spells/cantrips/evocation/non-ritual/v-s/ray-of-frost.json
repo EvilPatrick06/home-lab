@@ -1,0 +1,67 @@
+{
+  "name": "Ray of Frost",
+  "level": 0,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A frigid beam of blue-white light streaks toward a creature within range. Make a ranged spell attack against the target. On a hit, it takes 1d8 Cold damage, and its Speed is reduced by 10 feet until the start of your next turn.",
+  "targetType": "creature",
+  "attackType": "RangedSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": "Cold",
+      "applicationType": "onHit"
+    }
+  ],
+  "speedModifiers": [
+    {
+      "type": "reduce",
+      "value": 10,
+      "speedType": "all"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 8,
+        "description": "The damage increases to 2d8 Cold damage."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 8,
+        "description": "The damage increases to 3d8 Cold damage."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 8,
+        "description": "The damage increases to 4d8 Cold damage."
+      }
+    ]
+  },
+  "tags": ["cantrip", "attack", "cold", "speed-reduction"]
+}

@@ -1,0 +1,171 @@
+{
+  "name": "Fomorian",
+  "sizes": ["Huge"],
+  "creatureType": "Giant",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Feywild", "Underdark"],
+  "treasure": ["Any"],
+  "lore": "Fomorians are hideous, deformed giants cursed by the archfey for their arrogance and cruelty. Once beautiful residents of the Feywild, they now lurk in the Underdark, nursing their hatred and bitterness. Their baleful evil eye can curse those who meet their gaze.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 149,
+    "dice": {
+      "count": 13,
+      "die": "d12",
+      "modifier": 65
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 23,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 8
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "gear": [
+    {
+      "name": "Greatclub",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Giant", "Undercommon"]
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Legendary Resistance (1/Day)",
+      "description": "If the fomorian fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      }
+    }
+  ],
+  "multiattack": {
+    "description": "The fomorian makes two attacks, using Greatclub or Evil Eye in any combination.",
+    "attacks": [
+      {
+        "actionName": "Greatclub",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greatclub",
+        "replaceCount": 2,
+        "with": "Evil Eye"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greatclub",
+      "description": "Melee Attack Roll: +9, reach 15 ft. Hit: 19 (3d8 + 6) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Evil Eye",
+      "description": "The fomorian targets one creature it can see within 60 feet of it. The target must make a DC 14 Charisma saving throw. On a failed save, the target takes 27 (6d8) Psychic damage, and its Speed is halved until the end of its next turn. On a successful save, the target takes half as much damage only.",
+      "savingThrow": {
+        "ability": "CHA",
+        "dc": 14,
+        "targets": "one creature the fomorian can see within 60 feet",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 27,
+              "dice": {
+                "count": 6,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ],
+          "effects": "The target's Speed is halved until the end of its next turn."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    }
+  ]
+}

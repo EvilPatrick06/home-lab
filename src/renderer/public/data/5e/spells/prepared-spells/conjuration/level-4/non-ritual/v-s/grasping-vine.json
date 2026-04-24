@@ -1,0 +1,75 @@
+{
+  "name": "Grasping Vine",
+  "level": 4,
+  "school": "Conjuration",
+  "classes": ["Druid", "Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You conjure a vine that sprouts from a surface in an unoccupied space that you can see within range. The vine lasts for the duration.\n\nMake a melee spell attack against a creature within 30 feet of the vine. On a hit, the target takes 4d8 Bludgeoning damage and is pulled up to 30 feet toward the vine; if the target is Huge or smaller, it has the Grappled condition (escape DC equal to your spell save DC). The vine can grapple only one creature at a time, and you can cause the vine to release a Grappled creature (no action required).\n\nAs a Bonus Action on your later turns, you can repeat the attack against a creature within 30 feet of the vine.\n\nUsing a Higher-Level Spell Slot. The number of creatures the vine can grapple increases by one for each spell slot level above 4.",
+  "targetType": "creature",
+  "attackType": "MeleeSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 8
+      },
+      "type": "Bludgeoning",
+      "applicationType": "onHit"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Grappled",
+      "trigger": "onHit",
+      "duration": "Until the vine releases or spell ends; target must be Huge or smaller"
+    }
+  ],
+  "forcedMovement": [
+    {
+      "type": "pull",
+      "distanceFeet": 30,
+      "direction": "toward"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "BonusAction",
+    "description": "Repeat the melee spell attack against a creature within 30 feet of the vine, dealing 4d8 Bludgeoning damage on a hit with the same pull and grapple effects.",
+    "damage": {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 8
+      },
+      "type": "Bludgeoning",
+      "applicationType": "onHit"
+    }
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "custom",
+        "baseSpellLevel": 4,
+        "flatPerLevel": 1,
+        "description": "The number of creatures the vine can grapple increases by one for each spell slot level above 4."
+      }
+    ]
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+  "name": "Multiclassing",
+  "slug": "multiclassing",
+  "category": "GeneralRule",
+  "subcategory": "Character Advancement",
+  "tags": ["optional-rule", "character-creation", "level-up", "class-features", "spellcasting", "proficiency"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 2: Creating a Character",
+    "section": "Multiclassing"
+  },
+  "gameEdition": "2024",
+  "description": "Multiclassing allows a character to gain levels in multiple classes. It is an optional rule that requires DM permission. To qualify, a character must meet minimum ability score prerequisites for both the current class and the new class. Each time a character gains a level, the player chooses which class gains that level, and gains hit points and class features accordingly. Spellcasters who multiclass combine spell slots using the Multiclass Spellcaster table, but learn and prepare spells as though single-classed in each individual class. Certain features such as Extra Attack and Unarmored Defense do not stack across multiple classes.",
+  "shortDescription": "Optional rule allowing characters to gain levels in more than one class, subject to ability score prerequisites and DM approval.",
+  "rulesAsWritten": "Multiclassing is an optional rule that requires DM permission. To multiclass, a character must have a score of 13 or higher in the primary ability of both the current class and the new class. When gaining a level, the character chooses which class the new level is in and gains features of that class for the new level. Hit Points gained use the Hit Die of the class in which the new level is taken. Proficiencies gained from a multiclass dip are limited compared to a first-level character of that class. Multiclass spellcasters combine their spell slots using the Multiclass Spellcaster table but learn and prepare spells separately for each class. Extra Attack from multiple classes does not stack. Unarmored Defense from multiple classes cannot be used simultaneously; the character must choose one. Channel Divinity uses do not combine across classes unless a feature says otherwise.",
+  "isVariantRule": false,
+  "isOptionalRule": true,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-0001-4000-a000-000000000001",
+      "order": 0,
+      "name": "Ability Score Prerequisites",
+      "description": "To multiclass, a character must have a score of 13 or higher in the primary ability score of both their current class and the class they wish to gain a level in. If a class has multiple primary abilities, the character must meet all of them. For example, a Fighter (STR or DEX 13) who wants to take a level of Wizard must have INT 13.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character attempts to gain a level in a new class"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Character must have 13 or higher in the primary ability score(s) of both their current class and the new class. Barbarian: STR 13; Bard: CHA 13; Cleric: WIS 13; Druid: WIS 13; Fighter: STR 13 or DEX 13; Monk: DEX 13 and WIS 13; Paladin: STR 13 and CHA 13; Ranger: DEX 13 and WIS 13; Rogue: DEX 13; Sorcerer: CHA 13; Warlock: CHA 13; Wizard: INT 13.",
+          "mechanicalNote": "If the prerequisite is not met for either the current class or the target class, the character cannot multiclass into that class."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "a1b2c3d4-0002-4000-a000-000000000002",
+      "order": 1,
+      "name": "Hit Points and Hit Dice",
+      "description": "When a character gains a level in a new class, they gain Hit Points using the Hit Die of that class. For the first level in any class other than the character's original 1st-level class, the character uses the per-level Hit Point formula (Hit Die roll or fixed value plus CON modifier), not the 1st-level maximum.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character gains a level in a multiclass"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Hit Points gained per level use the Hit Die of the class in which the new level is taken. The character gains additional Hit Dice of the type associated with the new class level. For example, a Fighter 5/Wizard 1 would have 5d10 + 1d6 Hit Dice.",
+          "mechanicalNote": "The character does NOT gain the first-level HP maximum of the new class; they use the standard per-level formula (die roll or fixed value + CON modifier)."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0003-4000-a000-000000000003",
+      "order": 2,
+      "name": "Limited Proficiency Gains",
+      "description": "When multiclassing into a new class, the character gains only a limited subset of that class's starting proficiencies—not the full set a 1st-level character of that class would receive. Armor and weapon proficiencies gained vary by class. The character does not gain the new class's saving throw proficiencies.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character gains their first level in a new class via multiclassing"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Multiclass proficiency gains by class: Barbarian: Shields, Martial Weapons; Bard: one Skill, one Musical Instrument; Cleric: Light and Medium Armor, Shields; Druid: Light and Medium Armor, Shields; Fighter: Light and Medium Armor, Shields, Martial Weapons; Monk: Martial Weapons; Paladin: Light and Medium Armor, Shields, Martial Weapons; Ranger: Light and Medium Armor, Shields, one Skill from the Ranger list, Martial Weapons; Rogue: Light Armor, one Skill from the Rogue list, Thieves' Tools; Sorcerer: none; Warlock: Light Armor; Wizard: none.",
+          "mechanicalNote": "Saving throw proficiencies are NOT gained from multiclassing. Proficiency bonus is based on total character level, not individual class level."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0004-4000-a000-000000000004",
+      "order": 3,
+      "name": "Multiclass Spellcasting — Spell Slots",
+      "description": "If a character has multiple spellcasting classes, spell slots are determined by combining levels according to the Multiclass Spellcaster table. Full casters (Bard, Cleric, Druid, Sorcerer, Wizard) contribute their full class level. Half casters (Paladin, Ranger) contribute half their class level rounded down. Warlock Pact Magic slots remain separate and are not combined into the multiclass spellcaster pool.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character has levels in two or more spellcasting classes"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Determine the character's combined spellcaster level: add full levels from Bard, Cleric, Druid, Sorcerer, or Wizard; add half levels (rounded down) from Paladin or Ranger. Use this combined level on the Multiclass Spellcaster table to determine total spell slot availability. Warlock Pact Magic slots are tracked separately and recover on a Short Rest as normal.",
+          "mechanicalNote": "Spells known or prepared are determined separately for each class as if single-classed. A Cleric 3/Wizard 2 prepares Cleric spells as a 3rd-level Cleric and Wizard spells as a 2nd-level Wizard, but has the spell slots of a 5th-level caster."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0005-4000-a000-000000000005",
+      "order": 4,
+      "name": "Spells Known and Prepared — Per Class",
+      "description": "Each class's spells are learned and prepared independently, as if the character were a single-classed member of that class at the relevant class level. The character can use any available spell slot to cast any spell they know or have prepared, regardless of which class provided the spell.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character prepares or casts spells as a multiclass character"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "A character prepares and learns spells for each class separately, using their level in that class alone (not total character level). However, once a spell is prepared or known, it can be cast using any available spell slot of sufficient level from the multiclass spellcaster table or from Pact Magic.",
+          "mechanicalNote": "A spell's casting ability is determined by the class that provides the spell. A Cleric/Wizard uses WIS for Cleric spells and INT for Wizard spells."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0006-4000-a000-000000000006",
+      "order": 5,
+      "name": "Extra Attack Does Not Stack",
+      "description": "If a character gains the Extra Attack feature from more than one class, the features do not stack. The character cannot make more than two attacks with the Attack action via Extra Attack (unless a specific feature, such as the Fighter's additional Extra Attack improvements, says otherwise).",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character has Extra Attack from more than one class"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Extra Attack features from different classes do not add together. A character with Extra Attack from two classes still makes only two attacks per Attack action, not three.",
+          "mechanicalNote": "The Fighter's improved Extra Attack at higher Fighter levels (e.g., three or four attacks) functions only based on Fighter level."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0007-4000-a000-000000000007",
+      "order": 6,
+      "name": "Unarmored Defense Does Not Stack",
+      "description": "If a character gains Unarmored Defense from more than one class (e.g., Barbarian and Monk), the character must choose which version to use. The AC formulas do not combine.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character has Unarmored Defense from more than one class"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "A character who gains Unarmored Defense from multiple classes chooses one version. They cannot combine or stack the AC calculation formulas from different Unarmored Defense features.",
+          "mechanicalNote": "Barbarian: 10 + DEX mod + CON mod. Monk: 10 + DEX mod + WIS mod. Choose one."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0008-4000-a000-000000000008",
+      "order": 7,
+      "name": "Channel Divinity Uses",
+      "description": "If a character gains Channel Divinity from more than one class, the uses per rest do not combine unless a feature explicitly says otherwise. Each class's Channel Divinity options are available, but the total number of uses equals the highest granted by any single class.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character has Channel Divinity from more than one class"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Channel Divinity uses do not stack across classes. The character gains access to all Channel Divinity options from each class, but the number of uses per rest is the highest value from a single class, not the sum.",
+          "mechanicalNote": "A Cleric 6/Paladin 3 with 2 Channel Divinity uses (Cleric) and 1 (Paladin) has 2 total uses, not 3."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0009-4000-a000-000000000009",
+      "order": 8,
+      "name": "Proficiency Bonus Based on Total Level",
+      "description": "A multiclass character's Proficiency Bonus is always determined by total character level, not individual class levels.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Proficiency Bonus is determined by total character level: levels 1–4 = +2, levels 5–8 = +3, levels 9–12 = +4, levels 13–16 = +5, levels 17–20 = +6.",
+          "mechanicalNote": "This applies regardless of how levels are distributed among classes."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-0010-4000-a000-000000000010",
+      "order": 9,
+      "name": "Class Features Based on Class Level",
+      "description": "Class features, subclass features, and class-level-based improvements are determined by the character's level in that specific class, not total character level. Epic Boon features at level 20 are gained when a character reaches 20th level in a single class.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character gains a level in a multiclass"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "When a character gains a level in a class, they receive the class features listed for that class level. Ability Score Improvements and feats from class features are based on class level, not character level. A Fighter 4/Wizard 4 gets one ASI from Fighter (at Fighter 4) and one from Wizard (at Wizard 4), for two total.",
+          "mechanicalNote": "Cantrip scaling and similar features that reference 'character level' use total character level, not class level."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": null,
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Multiclassing itself is not a stackable effect. A character can multiclass into multiple classes (up to 20 total levels across all classes). Duplicate features from multiple classes follow the non-stacking rules described in the application logic."
+  },
+  "dmNotes": "Multiclassing is an optional rule that requires explicit DM permission. DMs should consider whether multiclassing fits the tone and balance of their campaign. Some class combinations can produce very powerful synergies (e.g., Paladin/Sorcerer for smite-slot generation, Fighter/spellcaster for Action Surge + spellcasting). DMs may wish to require a narrative justification for multiclassing, such as a mentor, training period, or significant story event. Note that multiclassing delays higher-level features, which is the primary balancing factor.",
+  "commonRulings": [
+    {
+      "question": "Does a multiclass character get the full starting equipment of each class?",
+      "ruling": "No. Starting equipment is only gained at 1st character level. When multiclassing into a new class, the character does not gain that class's starting equipment or gold.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a Warlock's Pact Magic slots be used to cast spells from other classes?",
+      "ruling": "Yes. Pact Magic spell slots can be used to cast any spell the character knows or has prepared from any class, and vice versa—multiclass spell slots can be used for Warlock spells. However, Pact Magic slots are tracked and recover separately (on a Short Rest).",
+      "isOfficial": true
+    },
+    {
+      "question": "Do cantrips scale with total character level or class level?",
+      "ruling": "Cantrip damage scales with total character level, not class level. A Wizard 1/Fighter 4 casts cantrips at 5th character level scaling.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a character take the same subclass from two different classes?",
+      "ruling": "No. Subclasses are specific to their parent class. A character cannot take the same subclass twice, and subclass options are unique to each class.",
+      "isOfficial": true
+    },
+    {
+      "question": "When does a multiclass character qualify for an Ability Score Improvement?",
+      "ruling": "ASIs are class features gained at specific class levels (e.g., Fighter 4, Wizard 4). They are based on the character's level in that specific class, not total character level.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-09-20T00:00:00Z",
+  "updatedAt": "2024-09-20T00:00:00Z",
+  "version": "1.0.0"
+}

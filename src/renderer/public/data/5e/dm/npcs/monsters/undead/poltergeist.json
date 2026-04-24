@@ -1,0 +1,181 @@
+{
+  "name": "Poltergeist",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Urban"],
+  "treasure": ["None"],
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 5,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 50,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "resistances": [
+    "Acid, Cold, Fire, Lightning, and Thunder",
+    "Bludgeoning, Piercing, and Slashing from nonmagical attacks"
+  ],
+  "damageImmunities": ["Necrotic and Poison"],
+  "conditionImmunities": [
+    "Charmed",
+    "Exhaustion",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Restrained",
+    "Unconscious"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "notes": "Understands the languages it knew in life but can't speak"
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Incorporeal Movement",
+      "description": "The poltergeist can move through other creatures and objects as if they were Difficult Terrain. It takes 5 (1d10) Force damage if it ends its turn inside an object."
+    },
+    {
+      "name": "Invisibility",
+      "description": "The poltergeist has the Invisible condition."
+    }
+  ],
+  "multiattack": {
+    "description": "The poltergeist makes two Telekinetic Shove attacks.",
+    "attacks": [
+      {
+        "actionName": "Telekinetic Shove",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Telekinetic Shove",
+      "description": "Melee or Ranged Attack Roll: +4, reach 5 ft. or range 30 ft. Hit: 7 (2d4 + 2) Force damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 4,
+        "reach": 5,
+        "range": {
+          "normal": 30,
+          "long": 30
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Telekinetic Burst",
+      "description": "Each creature within a 15-foot Emanation originating from the poltergeist must make a DC 12 Strength saving throw. On a failed save, a creature takes 12 (4d4 + 2) Force damage and is pushed up to 10 feet straight away from the poltergeist. On a successful save, a creature takes half damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "STR",
+        "dc": 12,
+        "targets": "each creature within a 15-foot Emanation",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 4,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Force"
+            }
+          ],
+          "effects": "The creature is pushed up to 10 feet straight away from the poltergeist."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 15,
+        "centered": true
+      }
+    }
+  ]
+}

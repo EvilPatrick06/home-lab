@@ -1,0 +1,14 @@
+{
+  "error": "EXTRACTION_NOT_APPLICABLE",
+  "target": "History Of The Gith",
+  "reason": "'History of the Gith' is a narrative lore section within the Gith monster entry in the 2024 Monster Manual, not a creature stat block. It contains no AC, HP, ability scores, CR, or any other mechanical data required by the BestiarySchema. It provides background fiction about the gith race's enslavement by mind flayers, their rebellion led by Gith, and the subsequent schism between the Githyanki (followers of Gith and later Vlaakith) and the Githzerai (followers of Zerthimon). This content would map to the optional 'lore' string field on an actual Gith creature stat block (e.g., Githyanki Warrior, Githyanki Knight, Githzerai Monk, Githzerai Zerth, etc.) rather than constituting a standalone BestiarySchema entry. Please specify a specific Gith creature stat block for extraction, such as 'Githyanki Warrior' or 'Githzerai Zerth'.",
+  "validExtractionTargets": [
+    "Githyanki Buccaneer",
+    "Githyanki Knight",
+    "Githyanki Warrior",
+    "Githyanki Supreme Commander",
+    "Githzerai Monk",
+    "Githzerai Zerth",
+    "Githzerai Anarch"
+  ]
+}

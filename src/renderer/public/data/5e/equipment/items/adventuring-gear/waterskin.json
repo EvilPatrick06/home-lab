@@ -1,0 +1,13 @@
+{
+  "name": "Waterskin",
+  "cost": "2 SP",
+  "weight": "5 lb. (full)",
+  "description": "Holds up to 4 pints.",
+  "slug": "waterskin",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

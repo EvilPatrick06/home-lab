@@ -1,0 +1,143 @@
+{
+  "name": "Doppelganger",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Neutral",
+  "habitat": ["Urban"],
+  "treasure": ["Any"],
+  "lore": "Doppelgangers are devious shapeshifters that assume the appearance of other Humanoids, infiltrating communities to steal secrets, wealth, and power. In their true form, doppelgangers are gaunt, gray-skinned creatures with gangly limbs, bulging eyes, and flattened features. They prefer to avoid combat, using guile and deception to achieve their goals. When discovered, a doppelganger fights to escape, using its mind-reading ability to anticipate its foes' actions.",
+  "armorClass": {
+    "value": 14
+  },
+  "hitPoints": {
+    "average": 52,
+    "dice": {
+      "count": 8,
+      "die": "d8",
+      "modifier": 16
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 6,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 6
+    },
+    {
+      "skill": "Insight",
+      "bonus": 3
+    }
+  ],
+  "conditionImmunities": ["Charmed"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Common"],
+    "notes": "plus two other languages"
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "multiattack": {
+    "description": "The doppelganger makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 7 (1d6 + 4) Bludgeoning damage plus 3 (1d6) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Read Thoughts",
+      "description": "The doppelganger magically reads the surface thoughts of one creature within 60 feet of it. The effect can penetrate barriers, but 3 feet of wood or dirt, 2 feet of stone, 2 inches of metal, or a thin sheet of lead blocks it. While the target is in range, the doppelganger can continue reading its thoughts, as long as the doppelganger's Concentration isn't broken (as if concentrating on a spell). While reading the target's mind, the doppelganger has Advantage on Wisdom (Insight) and Charisma (Deception, Intimidation, and Persuasion) checks against the target."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The doppelganger shape-shifts to resemble a Medium or Small Humanoid it has seen or back to its true form. Its game statistics, other than its size, don't change. Any equipment it's wearing or carrying isn't transformed. It reverts to its true form if it dies."
+    }
+  ]
+}

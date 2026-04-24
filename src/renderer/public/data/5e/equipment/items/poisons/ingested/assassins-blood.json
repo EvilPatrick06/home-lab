@@ -1,0 +1,22 @@
+{
+  "name": "Assassin's Blood",
+  "slug": "assassins-blood",
+  "category": "Poison",
+  "type": "Ingested",
+  "cost": "150 GP",
+  "weight": "—",
+  "description": "A creature subjected to this poison must make a DC 10 Constitution saving throw. On a failed save, it takes 6 (1d12) Poison damage and has the Poisoned condition for 24 hours. On a successful save, the creature takes half damage and isn't Poisoned.",
+  "saveDC": 10,
+  "saveAbility": "Constitution",
+  "damage": "1d12",
+  "damageType": "Poison",
+  "averageDamage": 6,
+  "effect": "Poisoned",
+  "duration": "24 hours",
+  "halfDamageOnSave": true,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poisons"
+  }
+}

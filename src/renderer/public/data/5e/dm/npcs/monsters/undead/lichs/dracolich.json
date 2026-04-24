@@ -1,0 +1,315 @@
+{
+  "name": "Dracolich",
+  "sizes": ["Huge"],
+  "creatureType": "Undead",
+  "descriptiveTags": ["Dragon"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Any"],
+  "treasure": ["Any"],
+  "lore": "A dracolich is a dragon that has forsaken its natural death cycle through dark rituals, binding its soul to a phylactery. In undeath, the dragon retains its fearsome intellect and magical power, becoming a skeletal horror wreathed in necrotic energy. Dracoliches seek to hoard not only treasure but forbidden knowledge, bending minions and lesser undead to their will from lairs steeped in death. If its body is destroyed, the dracolich's spirit returns to its phylactery to await a new corpse.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 225,
+    "dice": {
+      "count": 18,
+      "die": "d12",
+      "modifier": 108
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 25,
+      "modifier": 7,
+      "save": 7
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 7
+    },
+    "CON": {
+      "score": 23,
+      "modifier": 6,
+      "save": 12
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 8
+    },
+    "CHA": {
+      "score": 19,
+      "modifier": 4,
+      "save": 10
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 8
+    }
+  ],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "17",
+  "experiencePoints": 18000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Legendary Resistance",
+      "description": "If the dracolich fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The dracolich has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The dracolich makes one Bite attack and two Claw attacks. It can replace one of those attacks with a use of Frightful Presence.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Frightful Presence"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +13, reach 10 ft. Hit: 18 (2d10 + 7) Piercing damage plus 9 (2d8) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 18,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 7
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +13, reach 5 ft. Hit: 14 (2d6 + 7) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 13,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 7
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the dracolich's choice within 120 feet of it must succeed on a DC 18 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature repeats the save at the end of each of its turns, ending the effect on itself on a success. A creature that succeeds on the save is immune to this dracolich's Frightful Presence for 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 18,
+        "targets": "each creature of the dracolich's choice within 120 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 18,
+                "onSuccess": {
+                  "effects": "The Frightened condition ends on the creature."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature is immune to this dracolich's Frightful Presence for 24 hours."
+        }
+      }
+    },
+    {
+      "name": "Breath Weapon",
+      "description": "The dracolich exhales necrotic energy in a 60-foot Cone. Each creature in that area must make a DC 20 Dexterity saving throw, taking 58 (13d8) Necrotic damage on a failed save, or half as much damage on a successful one. A Humanoid killed by this damage rises at the start of the dracolich's next turn as a Zombie under the dracolich's control.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 20,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 58,
+              "dice": {
+                "count": 13,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ],
+          "effects": "A Humanoid killed by this damage rises at the start of the dracolich's next turn as a Zombie under the dracolich's control."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 60
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Detect",
+        "description": "The dracolich makes a Wisdom (Perception) check.",
+        "cost": 1
+      },
+      {
+        "name": "Tail Attack",
+        "description": "Melee Attack Roll: +13, reach 15 ft. Hit: 16 (2d8 + 7) Bludgeoning damage.",
+        "cost": 1,
+        "attack": {
+          "type": "Melee",
+          "attackBonus": 13,
+          "reach": 15,
+          "targets": "one target",
+          "hit": {
+            "damage": [
+              {
+                "average": 16,
+                "dice": {
+                  "count": 2,
+                  "die": "d8",
+                  "modifier": 7
+                },
+                "type": "Bludgeoning"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Wing Attack",
+        "description": "Each creature within 15 feet of the dracolich must succeed on a DC 21 Dexterity saving throw or take 14 (2d6 + 7) Bludgeoning damage and have the Prone condition. The dracolich can then fly up to half its Fly Speed without provoking Opportunity Attacks.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 21,
+          "targets": "each creature within 15 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 14,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 7
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 15,
+          "centered": true
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "name": "Awakened Shrub",
+  "sizes": ["Small"],
+  "creatureType": "Plant",
+  "alignment": "Unaligned",
+  "habitat": ["Forest", "Grassland", "Hill", "Swamp"],
+  "treasure": ["None"],
+  "lore": "An awakened shrub is an ordinary shrub given sentience and animation through magic such as the Awaken spell. It follows the instructions of its creator, carrying out simple tasks and defending the areas it is placed to guard. When motionless, it is nearly impossible to distinguish from a mundane shrub.",
+  "armorClass": {
+    "value": 9
+  },
+  "hitPoints": {
+    "average": 10,
+    "dice": {
+      "count": 3,
+      "die": "d6",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 3,
+      "modifier": -4,
+      "save": -4
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "vulnerabilities": ["Fire"],
+  "resistances": ["Piercing"],
+  "senses": {
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["One language known by its creator"],
+    "notes": "Can't speak"
+  },
+  "challengeRating": "0",
+  "experiencePoints": 10,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "While the shrub remains motionless, it is indistinguishable from an ordinary shrub."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Rake",
+      "description": "Melee Attack Roll: +1, reach 5 ft. Hit: 1 (1d4 - 1) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 1,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 1,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": -1
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

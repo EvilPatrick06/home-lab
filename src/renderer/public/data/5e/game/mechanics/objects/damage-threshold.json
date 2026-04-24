@@ -1,0 +1,102 @@
+{
+  "id": "d1a3f8e2-7c4b-4e3a-b1d9-6f2e8a9c0b5d",
+  "name": "Damage Threshold",
+  "slug": "damage-threshold",
+  "category": "VariantRule",
+  "subcategory": "Objects and Durability",
+  "tags": ["damage", "objects", "creatures", "immunity", "threshold", "durability"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  },
+  "gameEdition": "2024",
+  "description": "A creature or object that has a damage threshold has Immunity to all damage unless it takes an amount of damage from a single attack or effect equal to or greater than its damage threshold, in which case it takes that damage. This mechanic represents extremely durable or resilient entities that shrug off minor blows entirely but can be harmed by sufficiently powerful strikes.",
+  "shortDescription": "Immunity to all damage unless a single attack or effect deals damage equal to or greater than the threshold value.",
+  "rulesAsWritten": "A creature or object has Immunity to all damage unless it takes an amount of damage from a single attack or effect equal to or greater than its damage threshold, in which case it takes that damage.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [
+    {
+      "id": "a2b3c4d5-e6f7-4890-ab12-cd34ef56gh78",
+      "immunityType": "Effect",
+      "value": "All damage from any single attack or effect that deals less than the damage threshold value",
+      "note": "The creature or object is immune to all damage unless a single attack or effect equals or exceeds its damage threshold"
+    }
+  ],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "b3c4d5e6-f7a8-4901-bc23-de45fg67hi89",
+      "order": 0,
+      "name": "Damage Threshold Evaluation",
+      "description": "When a creature or object with a damage threshold takes damage from a single attack or effect, compare the total damage from that single attack or effect against the damage threshold value. If the damage is less than the threshold, the damage is completely negated (treated as Immunity). If the damage equals or exceeds the threshold, the full damage amount is applied.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "The creature or object has a damage threshold value assigned to it"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "If the damage from a single attack or effect is less than the damage threshold, the damage is reduced to 0 (Immunity). If the damage from a single attack or effect equals or exceeds the damage threshold, the full damage amount is dealt to the creature or object.",
+          "mechanicalNote": "The threshold is evaluated per single attack or per single effect instance. Multiple small attacks that individually fall below the threshold each deal 0 damage, even if their combined total would exceed the threshold. When the threshold is met or exceeded, the entire damage amount is applied, not just the amount exceeding the threshold."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "A creature or object has a single damage threshold value. The threshold interacts with other damage modifiers according to the standard order of application: adjustments (bonuses, penalties, multipliers) are applied first, then Resistance, then Vulnerability, and then the resulting damage is compared against the damage threshold."
+  },
+  "dmNotes": "Damage Threshold is typically assigned to objects or creatures of exceptional durability, such as vehicles, fortifications, or massive constructs. The specific threshold value is defined in the creature's stat block or the object's description. When assigning a damage threshold, consider that it makes the entity completely immune to chip damage from weak attacks. This mechanic pairs with the Object Armor Class and Object Hit Points rules for breaking objects. The threshold is evaluated against the final damage from each individual attack or effect, meaning area-of-effect spells that force saving throws are compared as a single effect per target.",
+  "commonRulings": [
+    {
+      "question": "Does damage that exceeds the threshold deal only the excess, or the full amount?",
+      "ruling": "The full damage amount is dealt. The rules state that the creature or object 'takes that damage,' meaning the entire damage from the attack or effect, not just the portion exceeding the threshold.",
+      "isOfficial": true
+    },
+    {
+      "question": "How does Damage Threshold interact with Resistance and Vulnerability?",
+      "ruling": "Per the standard order of application for damage modifiers, adjustments (bonuses, penalties, multipliers) apply first, then Resistance halves the damage, then Vulnerability doubles it. The final resulting damage value is then compared against the damage threshold to determine if the creature or object takes damage.",
+      "isOfficial": false
+    },
+    {
+      "question": "If multiple attacks each deal less than the threshold, does the damage accumulate?",
+      "ruling": "No. Each attack or effect is evaluated individually against the damage threshold. Multiple attacks that each fall below the threshold each deal 0 damage, regardless of their combined total.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does the damage threshold apply to both creatures and objects?",
+      "ruling": "Yes. The rule explicitly states that 'A creature or object' can have a damage threshold.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-06-20T12:00:00Z",
+  "updatedAt": "2025-06-20T12:00:00Z",
+  "version": "1.0.0"
+}

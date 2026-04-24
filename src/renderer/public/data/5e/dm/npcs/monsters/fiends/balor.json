@@ -1,0 +1,188 @@
+{
+  "name": "Balor",
+  "sizes": ["Huge"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar"],
+  "treasure": ["Any"],
+  "lore": "Among the most fearsome demons of the Abyss, balors are towering engines of destruction wreathed in flame. They serve as generals in the armies of demon lords, leading vast hordes against the forces of the Upper Planes and rival Abyssal powers. A balor's death is as devastating as its life, for when it falls, it erupts in a fiery explosion that can destroy everything nearby.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 262,
+    "dice": {
+      "count": 21,
+      "die": "d12",
+      "modifier": 126
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 26,
+      "modifier": 8,
+      "save": 14
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 8
+    },
+    "CON": {
+      "score": 22,
+      "modifier": 6,
+      "save": 12
+    },
+    "INT": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 9
+    },
+    "CHA": {
+      "score": 22,
+      "modifier": 6,
+      "save": 12
+    }
+  },
+  "resistances": ["Cold and Lightning"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 120
+  },
+  "challengeRating": "19",
+  "experiencePoints": 22000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Death Throes",
+      "description": "When the balor dies, it explodes, and each creature within 30 feet of it must make a DC 20 Dexterity saving throw, taking 70 (20d6) Fire damage on a failed save or half as much damage on a successful one. The explosion destroys the balor's weapons and ignites flammable objects in that area that aren't being worn or carried."
+    },
+    {
+      "name": "Fire Aura",
+      "description": "At the start of each of the balor's turns, each creature within 5 feet of it takes 13 (3d8) Fire damage. A creature also takes 13 (3d8) Fire damage if it hits the balor with a melee attack. Flammable objects that aren't being worn or carried and that touch the balor's body catch fire."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The balor has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The balor makes one Longsword attack and one Whip attack.",
+    "attacks": [
+      {
+        "actionName": "Longsword",
+        "count": 1
+      },
+      {
+        "actionName": "Whip",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +14, reach 10 ft. Hit: 21 (3d8 + 8) Slashing damage plus 13 (3d8) Lightning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 21,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 8
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Lightning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Whip",
+      "description": "Melee Attack Roll: +14, reach 30 ft. Hit: 15 (3d4 + 8) Slashing damage plus 11 (2d10) Fire damage, and if the target is a Huge or smaller creature, the balor pulls the target up to 25 feet straight toward itself.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 30,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 3,
+                "die": "d4",
+                "modifier": 8
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ],
+          "additionalEffects": "If the target is a Huge or smaller creature, the balor pulls the target up to 25 feet straight toward itself."
+        }
+      }
+    },
+    {
+      "name": "Teleport",
+      "description": "The balor teleports, along with any equipment it is wearing or carrying, up to 120 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 120
+      }
+    }
+  ]
+}

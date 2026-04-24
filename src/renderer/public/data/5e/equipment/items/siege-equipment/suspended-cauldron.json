@@ -1,0 +1,15 @@
+{
+  "name": "Suspended Cauldron",
+  "ac": 19,
+  "hp": 20,
+  "attack": "DC 15 Dex save",
+  "damage": "10 (3d6) Fire",
+  "description": "Requires a Full Cauldron. Spills hot oil in 10-foot-square area. Creatures in area take damage, and the area is Difficult Terrain for 10 minutes.",
+  "slug": "suspended-cauldron",
+  "category": "Siege Equipment",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

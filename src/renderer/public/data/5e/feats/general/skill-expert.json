@@ -1,0 +1,28 @@
+{
+  "name": "Skill Expert",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": "any",
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Skill Proficiency",
+      "description": "You gain proficiency in one skill of your choice."
+    },
+    {
+      "name": "Expertise",
+      "description": "Choose one skill in which you have proficiency but lack Expertise. You gain Expertise in that skill."
+    }
+  ],
+  "source": "PHB 2024"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Cook's Utensils",
+  "cost": "1 GP",
+  "weight": "8 lb.",
+  "ability": "Wisdom",
+  "utilize": "Improve food's flavor (DC 10), or detect spoiled or poisoned food (DC 15)",
+  "craft": "Rations",
+  "slug": "cooks-utensils",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

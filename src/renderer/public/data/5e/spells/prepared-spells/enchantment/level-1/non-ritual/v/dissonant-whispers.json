@@ -1,0 +1,64 @@
+{
+  "name": "Dissonant Whispers",
+  "level": 1,
+  "school": "Enchantment",
+  "classes": ["Bard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "One creature of your choice that you can see within range hears a discordant melody in its mind. The target makes a Wisdom saving throw. On a failed save, it takes 3d6 Psychic damage and must immediately use its Reaction, if available, to move as far away from you as it can, using the safest route. On a successful save, the target takes half as much damage only.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "halfDamageOnSuccess": true,
+    "effectOnFailure": "The target must immediately use its Reaction, if available, to move as far away from the caster as it can, using the safest route."
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 6
+      },
+      "type": "Psychic",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "forcedMovement": [
+    {
+      "type": "push",
+      "distanceFeet": 0,
+      "direction": "away",
+      "onFailedSave": true
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 1,
+        "description": "The damage increases by 1d6 for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["damage", "control", "psychic", "forced-movement"]
+}

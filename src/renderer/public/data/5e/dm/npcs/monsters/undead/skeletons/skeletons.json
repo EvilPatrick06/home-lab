@@ -1,0 +1,146 @@
+{
+  "name": "Skeleton",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Lawful Evil",
+  "habitat": ["Dungeon", "Planar (Shadowfell)", "Ruins", "Urban"],
+  "treasure": ["None"],
+  "lore": "Skeletons are the reanimated bones of the dead, animated by dark magic. Mindless and obedient, they carry out the commands of their creators without question. When not commanded, skeletons guard the places where they were animated, attacking any living creature that draws near. Necromancers and other wielders of dark power create skeletons to serve as tireless sentinels, laborers, and soldiers.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Armor Scraps"]
+  },
+  "hitPoints": {
+    "average": 13,
+    "dice": {
+      "count": 2,
+      "die": "d8",
+      "modifier": 4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "vulnerabilities": ["Bludgeoning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Exhaustion", "Poisoned"],
+  "gear": [
+    {
+      "name": "Shortsword",
+      "quantity": 1
+    },
+    {
+      "name": "Shortbow",
+      "quantity": 1
+    },
+    {
+      "name": "Arrows",
+      "quantity": 20
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 9
+  },
+  "languages": {
+    "notes": "understands the languages it knew in life but can't speak"
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "actions": [
+    {
+      "name": "Shortsword",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shortbow",
+      "description": "Ranged Attack Roll: +4, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 4,
+        "range": {
+          "normal": 80,
+          "long": 320
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

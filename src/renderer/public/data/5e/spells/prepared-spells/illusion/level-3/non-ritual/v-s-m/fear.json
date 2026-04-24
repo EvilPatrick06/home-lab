@@ -1,0 +1,60 @@
+{
+  "name": "Fear",
+  "level": 3,
+  "school": "Illusion",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a white feather",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Each creature in a 30-foot Cone must succeed on a Wisdom saving throw or drop whatever it is holding and have the Frightened condition for the duration. A Frightened creature takes the Dash action and moves away from you by the safest route on each of its turns unless there is nowhere to move. If the creature ends its turn in a space where it doesn't have line of sight to you, the creature makes a Wisdom saving throw. On a successful save, the spell ends on that creature.",
+  "areaOfEffect": [
+    {
+      "shape": "Cone",
+      "lengthFeet": 30,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The creature drops whatever it is holding and has the Frightened condition for the duration. It must take the Dash action and move away from the caster by the safest route on each of its turns unless there is nowhere to move.",
+    "repeatSave": {
+      "timing": "custom",
+      "endsEffectOnSuccess": true,
+      "customTiming": "End of the creature's turn, only if it ends its turn in a space where it doesn't have line of sight to the caster"
+    }
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Frightened",
+      "trigger": "onFailedSave",
+      "duration": "For the spell's duration",
+      "savingThrowToEnd": {
+        "ability": "Wisdom",
+        "timing": "custom",
+        "customTiming": "End of the creature's turn, only if it ends its turn without line of sight to the caster"
+      }
+    }
+  ],
+  "tags": ["crowd-control", "fear", "cone", "aoe"]
+}

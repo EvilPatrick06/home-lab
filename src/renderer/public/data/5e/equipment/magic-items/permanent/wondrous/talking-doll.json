@@ -1,0 +1,17 @@
+{
+  "name": "Talking Doll",
+  "cost": {
+    "amount": 100,
+    "denomination": "GP"
+  },
+  "weight": 0.5,
+  "description": "Wondrous Item (Common, Requires Attunement). While this stuffed doll is within 5 feet of you, you can spend a Short Rest telling it to say up to six short phrases of your choice. You set an observable condition under which the doll speaks each phrase. Each phrase must be six words or fewer. The phrases reset after the doll has spoken all of them. If you don't set a condition, the doll speaks the phrase at a random time.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

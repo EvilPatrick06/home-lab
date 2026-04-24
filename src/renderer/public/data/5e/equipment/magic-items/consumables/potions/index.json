@@ -1,0 +1,105 @@
+[
+  {
+    "id": "potion-of-healing",
+    "name": "Potion of Healing",
+    "rarity": "Common",
+    "path": "../common/potion-of-healing.json"
+  },
+  {
+    "id": "potion-of-greater-healing",
+    "name": "Potion of Greater Healing",
+    "rarity": "Uncommon",
+    "path": "../uncommon/potion-of-greater-healing.json"
+  },
+  {
+    "id": "potion-of-superior-healing",
+    "name": "Potion of Superior Healing",
+    "rarity": "Rare",
+    "path": "../rare/potion-of-superior-healing.json"
+  },
+  { "id": "potion-of-supreme-healing", "name": "Potion of Supreme Healing", "rarity": "Very Rare" },
+  {
+    "id": "potion-of-climbing",
+    "name": "Potion of Climbing",
+    "rarity": "Common",
+    "path": "../common/potion-of-climbing.json"
+  },
+  {
+    "id": "potion-of-fire-breath",
+    "name": "Potion of Fire Breath",
+    "rarity": "Uncommon",
+    "path": "../uncommon/potion-of-fire-breath.json"
+  },
+  {
+    "id": "potion-of-resistance",
+    "name": "Potion of Resistance",
+    "rarity": "Uncommon",
+    "path": "../uncommon/potion-of-resistance.json"
+  },
+  {
+    "id": "potion-of-heroism",
+    "name": "Potion of Heroism",
+    "rarity": "Rare",
+    "path": "../rare/potion-of-heroism.json"
+  },
+  { "id": "potion-of-flying", "name": "Potion of Flying", "rarity": "Very Rare" },
+  { "id": "potion-of-invisibility", "name": "Potion of Invisibility", "rarity": "Very Rare" },
+  { "id": "potion-of-speed", "name": "Potion of Speed", "rarity": "Very Rare" },
+  {
+    "id": "potion-of-giant-strength-hill",
+    "name": "Potion of Hill Giant Strength",
+    "rarity": "Uncommon",
+    "path": "../uncommon/potion-of-hill-giant-strength.json"
+  },
+  {
+    "id": "potion-of-giant-strength-frost",
+    "name": "Potion of Frost Giant Strength",
+    "rarity": "Rare",
+    "path": "../rare/potion-of-frost-giant-strength.json"
+  },
+  {
+    "id": "potion-of-giant-strength-stone",
+    "name": "Potion of Stone Giant Strength",
+    "rarity": "Rare",
+    "path": "../rare/potion-of-stone-giant-strength.json"
+  },
+  {
+    "id": "potion-of-giant-strength-fire",
+    "name": "Potion of Fire Giant Strength",
+    "rarity": "Rare",
+    "path": "../rare/potion-of-fire-giant-strength.json"
+  },
+  { "id": "potion-of-giant-strength-cloud", "name": "Potion of Cloud Giant Strength", "rarity": "Very Rare" },
+  {
+    "id": "potion-of-giant-strength-storm",
+    "name": "Potion of Storm Giant Strength",
+    "rarity": "Legendary",
+    "path": "../legendary/potion-of-storm-giant-strength.json"
+  },
+  {
+    "id": "potion-of-diminution",
+    "name": "Potion of Diminution",
+    "rarity": "Rare",
+    "path": "../rare/potion-of-diminution.json"
+  },
+  {
+    "id": "potion-of-growth",
+    "name": "Potion of Growth",
+    "rarity": "Uncommon",
+    "path": "../uncommon/potion-of-growth.json"
+  },
+  {
+    "id": "potion-of-animal-friendship",
+    "name": "Potion of Animal Friendship",
+    "rarity": "Uncommon",
+    "path": "../uncommon/potion-of-animal-friendship.json"
+  },
+  {
+    "id": "potion-of-mind-reading",
+    "name": "Potion of Mind Reading",
+    "rarity": "Rare",
+    "path": "../rare/potion-of-mind-reading.json"
+  },
+  { "id": "potion-of-vitality", "name": "Potion of Vitality", "rarity": "Very Rare" },
+  { "id": "potion-of-longevity", "name": "Potion of Longevity", "rarity": "Very Rare" }
+]

@@ -1,0 +1,115 @@
+{
+  "mcp": {
+    "servers": {
+      "dnd_data": {
+        "transport": "stdio",
+        "command": "python3",
+        "args": ["/home/patrick/bmo/mcp_servers/dnd_data_server.py"],
+        "env": {
+          "DND_MARKDOWN_ROOT": "/home/patrick/bmo/data/5e-references",
+          "DND_JSON_ROOT": "/home/patrick/bmo/data/5e",
+          "RAG_DATA_DIR": "/home/patrick/bmo/data/rag_data"
+        },
+        "description": "D&D 5.5e reference data, structured JSON, and RAG knowledge base"
+      },
+      "filesystem": {
+        "transport": "stdio",
+        "command": "npx",
+        "args": [
+          "-y", "@modelcontextprotocol/server-filesystem",
+          "/home/patrick/bmo",
+          "/home/patrick/bmo/data"
+        ],
+        "description": "File read/write/edit within BMO directories (explicit permission required for writes)"
+      },
+      "web_search": {
+        "transport": "stdio",
+        "command": "npx",
+        "args": ["-y", "@anthropic/mcp-server-brave-search"],
+        "env": {
+          "BRAVE_API_KEY": ""
+        },
+        "lazy": true,
+        "description": "Web search via Brave Search API (requires explicit DM approval)"
+      },
+      "ssh": {
+        "transport": "stdio",
+        "command": "npx",
+        "args": ["-y", "@anthropic/mcp-server-ssh"],
+        "env": {
+          "SSH_KEY_PATH": "/home/patrick/.ssh/id_ed25519"
+        },
+        "lazy": true,
+        "description": "SSH access to remote hosts (requires explicit permission)"
+      }
+    },
+    "agent_tools": {
+      "dnd_dm": [
+        "mcp__dnd_data__*"
+      ],
+      "code": [
+        "mcp__filesystem__*",
+        "mcp__ssh__*"
+      ],
+      "research": [
+        "mcp__web_search__*",
+        "mcp__dnd_data__search_books",
+        "mcp__dnd_data__rag_search"
+      ],
+      "smart_home": [
+        "mcp__filesystem__read_file",
+        "mcp__filesystem__list_directory"
+      ]
+    },
+    "readonly_tools": [
+      "mcp__*__list*",
+      "mcp__*__get*",
+      "mcp__*__read*",
+      "mcp__*__search*",
+      "mcp__*__rag_search",
+      "mcp__web_search__*"
+    ],
+    "output_max_tokens": 25000
+  },
+  "tools": {
+    "allow": [],
+    "deny": [],
+    "require_confirmation": [
+      "mcp__filesystem__write_file",
+      "mcp__filesystem__edit_file",
+      "mcp__filesystem__create_directory",
+      "mcp__filesystem__move_file",
+      "mcp__filesystem__delete_file",
+      "mcp__ssh__*",
+      "execute_command",
+      "write_file",
+      "edit_file",
+      "ssh_command"
+    ]
+  },
+  "hooks": {
+    "preToolUse": [
+      {
+        "matcher": "mcp__ssh__*",
+        "type": "require_confirmation",
+        "message": "SSH access requested — approve this remote command?"
+      },
+      {
+        "matcher": "mcp__filesystem__write_file",
+        "type": "require_confirmation",
+        "message": "File write requested — approve this modification?"
+      },
+      {
+        "matcher": "mcp__filesystem__edit_file",
+        "type": "require_confirmation",
+        "message": "File edit requested — approve this modification?"
+      },
+      {
+        "matcher": "mcp__filesystem__delete_file",
+        "type": "require_confirmation",
+        "message": "File deletion requested — approve this destructive action?"
+      }
+    ],
+    "postToolUse": []
+  }
+}

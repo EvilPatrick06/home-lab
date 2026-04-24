@@ -1,0 +1,18 @@
+{
+  "name": "Nick",
+  "slug": "nick",
+  "category": "Weapon Mastery",
+  "description": "When you make the extra attack of the Light property, you can make it as part of the Attack action instead of as a Bonus Action. You can make this extra attack only once per turn.",
+  "mechanicalEffect": {
+    "trigger": "lightPropertyAttack",
+    "type": "actionEconomy",
+    "benefit": "Light property extra attack is part of Attack action instead of Bonus Action",
+    "limitation": "Once per turn"
+  },
+  "weaponsWithMastery": ["Dagger", "Light Hammer", "Sickle", "Scimitar"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapon Mastery"
+  }
+}

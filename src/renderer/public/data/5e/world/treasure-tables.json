@@ -1,0 +1,279 @@
+{
+  "individual": [
+    { "crRange": "0-4", "amount": "3d6", "unit": "gp", "average": 10 },
+    { "crRange": "5-10", "amount": "2d8x10", "unit": "gp", "average": 90 },
+    { "crRange": "11-16", "amount": "2d10x10", "unit": "pp", "average": 110 },
+    { "crRange": "17+", "amount": "2d8x100", "unit": "pp", "average": 900 }
+  ],
+  "hoard": [
+    { "crRange": "0-4", "coins": "2d4x100", "coinsUnit": "gp", "coinsAverage": 500, "magicItems": "1d4-1" },
+    { "crRange": "5-10", "coins": "8d10x100", "coinsUnit": "gp", "coinsAverage": 4400, "magicItems": "1d3" },
+    { "crRange": "11-16", "coins": "8d8x10000", "coinsUnit": "gp", "coinsAverage": 36000, "magicItems": "1d4" },
+    { "crRange": "17+", "coins": "6d10x10000", "coinsUnit": "gp", "coinsAverage": 330000, "magicItems": "1d6" }
+  ],
+  "magicItemRarities": [
+    { "d100Min": 1, "d100Max": 50, "rarity": "Common" },
+    { "d100Min": 51, "d100Max": 70, "rarity": "Uncommon" },
+    { "d100Min": 71, "d100Max": 85, "rarity": "Rare" },
+    { "d100Min": 86, "d100Max": 95, "rarity": "Very Rare" },
+    { "d100Min": 96, "d100Max": 100, "rarity": "Legendary" }
+  ],
+  "gems": {
+    "10gp": [
+      "Azurite",
+      "Blue Quartz",
+      "Eye Agate",
+      "Hematite",
+      "Lapis Lazuli",
+      "Malachite",
+      "Moss Agate",
+      "Obsidian",
+      "Rhodochrosite",
+      "Tiger Eye",
+      "Turquoise"
+    ],
+    "50gp": [
+      "Bloodstone",
+      "Carnelian",
+      "Chalcedony",
+      "Chrysoprase",
+      "Citrine",
+      "Jasper",
+      "Moonstone",
+      "Onyx",
+      "Quartz",
+      "Sardonyx",
+      "Star Rose Quartz",
+      "Zircon"
+    ],
+    "100gp": ["Amber", "Amethyst", "Chrysoberyl", "Coral", "Garnet", "Jade", "Jet", "Pearl", "Spinel", "Tourmaline"],
+    "500gp": ["Alexandrite", "Aquamarine", "Black Pearl", "Blue Spinel", "Peridot", "Topaz"],
+    "1000gp": [
+      "Black Opal",
+      "Blue Sapphire",
+      "Emerald",
+      "Fire Opal",
+      "Opal",
+      "Star Ruby",
+      "Star Sapphire",
+      "Yellow Sapphire"
+    ],
+    "5000gp": ["Black Sapphire", "Diamond", "Jacinth", "Ruby"]
+  },
+  "art": {
+    "25gp": [
+      "Silver ewer",
+      "Carved bone statuette",
+      "Small gold bracelet",
+      "Cloth-of-gold vestments",
+      "Black velvet mask stitched with silver thread",
+      "Copper chalice with silver filigree",
+      "Pair of engraved bone dice",
+      "Handheld mirror set in a painted wooden frame",
+      "Embroidered silk handkerchief",
+      "Gold locket with a painted portrait inside"
+    ],
+    "250gp": [
+      "Gold ring set with bloodstones",
+      "Carved ivory statuette",
+      "Bejeweled gold bracelet",
+      "Silver necklace with a gemstone pendant",
+      "Bronze crown",
+      "Silk vestments with gold embroidery",
+      "Well-made tapestry that is 10 feet by 10 feet",
+      "Brass mug with jade inlay",
+      "Box of turquoise animal figurines",
+      "Gold bird cage with electrum filigree"
+    ],
+    "750gp": [
+      "Silver chalice set with moonstones",
+      "Bundle of sheet music representing the lost dirges of a famous composer",
+      "Carved wooden harp with ivory inlay and zircon gems",
+      "Small gold idol",
+      "Gold dragon comb set with red garnets as eyes",
+      "Bottle stopper cork embossed with gold leaf and set with amethysts",
+      "Detailed, life-sized dragonborn skull cast in electrum",
+      "Silver and gold brooch",
+      "Obsidian statuette with gold fittings and inlay",
+      "Painted gold war mask"
+    ],
+    "2500gp": [
+      "Fine gold chain set with a fire opal",
+      "Old masterpiece painting",
+      "Embroidered silk and velvet mantle set with numerous moonstones",
+      "Platinum bracelet set with an emerald",
+      "Embroidered glove set with jewel chips",
+      "Jeweled anklet",
+      "Gold music box",
+      "Gold circlet set with four aquamarines",
+      "Eye patch decorated with tiny blue sapphires and moonstones",
+      "A necklace string of small pink pearls"
+    ],
+    "7500gp": [
+      "Jeweled gold crown",
+      "Jeweled platinum ring",
+      "Gold statuette set with rubies",
+      "Gold cup set with emeralds",
+      "Gold jewelry box with platinum filigree",
+      "Set of gold nesting dolls",
+      "Painted gold child's sarcophagus",
+      "Jade game board with solid gold playing pieces",
+      "Gilded royal coach or funeral barge",
+      "Bejeweled ivory drinking horn with gold filigree",
+      "Ceremonial gold armor with black pearls"
+    ]
+  },
+  "magicItemTables": {
+    "A": [
+      { "d100Min": 1, "d100Max": 15, "itemName": "Potion of Healing" },
+      { "d100Min": 16, "d100Max": 25, "itemName": "Spell Scroll (Cantrip)" },
+      { "d100Min": 26, "d100Max": 40, "itemName": "Potion of Climbing" },
+      { "d100Min": 41, "d100Max": 50, "itemName": "Spell Scroll (1st level)" },
+      { "d100Min": 51, "d100Max": 60, "itemName": "Spell Scroll (2nd level)" },
+      { "d100Min": 61, "d100Max": 65, "itemName": "Potion of Greater Healing" },
+      { "d100Min": 66, "d100Max": 70, "itemName": "Bag of Holding" },
+      { "d100Min": 71, "d100Max": 75, "itemName": "Driftglobe" },
+      { "d100Min": 76, "d100Max": 80, "itemName": "Spell Scroll (3rd level)" },
+      { "d100Min": 81, "d100Max": 85, "itemName": "Potion of Resistance" },
+      { "d100Min": 86, "d100Max": 90, "itemName": "Weapon +1" },
+      { "d100Min": 91, "d100Max": 95, "itemName": "Shield +1" },
+      { "d100Min": 96, "d100Max": 100, "itemName": "Armor +1 (scale mail)" }
+    ],
+    "B": [
+      { "d100Min": 1, "d100Max": 10, "itemName": "Potion of Greater Healing" },
+      { "d100Min": 11, "d100Max": 15, "itemName": "Potion of Fire Breath" },
+      { "d100Min": 16, "d100Max": 20, "itemName": "Spell Scroll (4th level)" },
+      { "d100Min": 21, "d100Max": 30, "itemName": "Adamantine Armor (chain shirt)" },
+      { "d100Min": 31, "d100Max": 35, "itemName": "Bag of Tricks" },
+      { "d100Min": 36, "d100Max": 40, "itemName": "Cloak of Protection" },
+      { "d100Min": 41, "d100Max": 45, "itemName": "Gauntlets of Ogre Power" },
+      { "d100Min": 46, "d100Max": 50, "itemName": "Hat of Disguise" },
+      { "d100Min": 51, "d100Max": 55, "itemName": "Boots of Elvenkind" },
+      { "d100Min": 56, "d100Max": 60, "itemName": "Cloak of Elvenkind" },
+      { "d100Min": 61, "d100Max": 65, "itemName": "Eyes of Minute Seeing" },
+      { "d100Min": 66, "d100Max": 70, "itemName": "Goggles of Night" },
+      { "d100Min": 71, "d100Max": 75, "itemName": "Javelin of Lightning" },
+      { "d100Min": 76, "d100Max": 80, "itemName": "Pearl of Power" },
+      { "d100Min": 81, "d100Max": 85, "itemName": "Sword of Wounding" },
+      { "d100Min": 86, "d100Max": 90, "itemName": "Trident of Fish Command" },
+      { "d100Min": 91, "d100Max": 95, "itemName": "Wand of Magic Missiles" },
+      { "d100Min": 96, "d100Max": 100, "itemName": "Weapon +2" }
+    ],
+    "C": [
+      { "d100Min": 1, "d100Max": 10, "itemName": "Potion of Superior Healing" },
+      { "d100Min": 11, "d100Max": 15, "itemName": "Spell Scroll (5th level)" },
+      { "d100Min": 16, "d100Max": 20, "itemName": "Amulet of Health" },
+      { "d100Min": 21, "d100Max": 25, "itemName": "Armor of Resistance" },
+      { "d100Min": 26, "d100Max": 30, "itemName": "Belt of Hill Giant Strength" },
+      { "d100Min": 31, "d100Max": 35, "itemName": "Boots of Speed" },
+      { "d100Min": 36, "d100Max": 40, "itemName": "Bracers of Defense" },
+      { "d100Min": 41, "d100Max": 45, "itemName": "Cloak of Displacement" },
+      { "d100Min": 46, "d100Max": 50, "itemName": "Flame Tongue" },
+      { "d100Min": 51, "d100Max": 55, "itemName": "Helm of Teleportation" },
+      { "d100Min": 56, "d100Max": 60, "itemName": "Ring of Spell Storing" },
+      { "d100Min": 61, "d100Max": 65, "itemName": "Ring of X-ray Vision" },
+      { "d100Min": 66, "d100Max": 70, "itemName": "Robe of Eyes" },
+      { "d100Min": 71, "d100Max": 75, "itemName": "Rod of the Pact Keeper +2" },
+      { "d100Min": 76, "d100Max": 80, "itemName": "Staff of Withering" },
+      { "d100Min": 81, "d100Max": 85, "itemName": "Sun Blade" },
+      { "d100Min": 86, "d100Max": 90, "itemName": "Armor +1 (half plate)" },
+      { "d100Min": 91, "d100Max": 95, "itemName": "Shield +2" },
+      { "d100Min": 96, "d100Max": 100, "itemName": "Weapon +2" }
+    ],
+    "D": [
+      { "d100Min": 1, "d100Max": 10, "itemName": "Potion of Supreme Healing" },
+      { "d100Min": 11, "d100Max": 15, "itemName": "Spell Scroll (6th level)" },
+      { "d100Min": 16, "d100Max": 20, "itemName": "Spell Scroll (7th level)" },
+      { "d100Min": 21, "d100Max": 25, "itemName": "Animated Shield" },
+      { "d100Min": 26, "d100Max": 30, "itemName": "Belt of Fire Giant Strength" },
+      { "d100Min": 31, "d100Max": 35, "itemName": "Cloak of Arachnida" },
+      { "d100Min": 36, "d100Max": 40, "itemName": "Dancing Sword" },
+      { "d100Min": 41, "d100Max": 45, "itemName": "Demon Armor" },
+      { "d100Min": 46, "d100Max": 50, "itemName": "Dragon Scale Mail" },
+      { "d100Min": 51, "d100Max": 55, "itemName": "Ring of Regeneration" },
+      { "d100Min": 56, "d100Max": 60, "itemName": "Ring of Shooting Stars" },
+      { "d100Min": 61, "d100Max": 65, "itemName": "Rod of Alertness" },
+      { "d100Min": 66, "d100Max": 70, "itemName": "Staff of Fire" },
+      { "d100Min": 71, "d100Max": 75, "itemName": "Staff of Power" },
+      { "d100Min": 76, "d100Max": 80, "itemName": "Frost Brand" },
+      { "d100Min": 81, "d100Max": 85, "itemName": "Armor +2 (plate)" },
+      { "d100Min": 86, "d100Max": 90, "itemName": "Weapon +3" },
+      { "d100Min": 91, "d100Max": 95, "itemName": "Ioun Stone (Mastery)" },
+      { "d100Min": 96, "d100Max": 100, "itemName": "Vorpal Sword" }
+    ],
+    "E": [
+      { "d100Min": 1, "d100Max": 15, "itemName": "Spell Scroll (8th level)" },
+      { "d100Min": 16, "d100Max": 25, "itemName": "Potion of Storm Giant Strength" },
+      { "d100Min": 26, "d100Max": 35, "itemName": "Armor +3 (half plate)" },
+      { "d100Min": 36, "d100Max": 45, "itemName": "Belt of Storm Giant Strength" },
+      { "d100Min": 46, "d100Max": 55, "itemName": "Cloak of Invisibility" },
+      { "d100Min": 56, "d100Max": 65, "itemName": "Crystal Ball" },
+      { "d100Min": 66, "d100Max": 70, "itemName": "Holy Avenger" },
+      { "d100Min": 71, "d100Max": 75, "itemName": "Iron Flask" },
+      { "d100Min": 76, "d100Max": 80, "itemName": "Ring of Djinni Summoning" },
+      { "d100Min": 81, "d100Max": 85, "itemName": "Ring of Three Wishes" },
+      { "d100Min": 86, "d100Max": 90, "itemName": "Staff of the Magi" },
+      { "d100Min": 91, "d100Max": 95, "itemName": "Sphere of Annihilation" },
+      { "d100Min": 96, "d100Max": 100, "itemName": "Luck Blade" }
+    ]
+  },
+  "magicItemRarityByLevel": [
+    {
+      "levelRange": "1-4",
+      "distribution": [
+        { "d100Min": 1, "d100Max": 54, "rarity": "Common" },
+        { "d100Min": 55, "d100Max": 91, "rarity": "Uncommon" },
+        { "d100Min": 92, "d100Max": 100, "rarity": "Rare" }
+      ]
+    },
+    {
+      "levelRange": "5-10",
+      "distribution": [
+        { "d100Min": 1, "d100Max": 30, "rarity": "Common" },
+        { "d100Min": 31, "d100Max": 81, "rarity": "Uncommon" },
+        { "d100Min": 82, "d100Max": 98, "rarity": "Rare" },
+        { "d100Min": 99, "d100Max": 100, "rarity": "Very Rare" }
+      ]
+    },
+    {
+      "levelRange": "11-16",
+      "distribution": [
+        { "d100Min": 1, "d100Max": 11, "rarity": "Common" },
+        { "d100Min": 12, "d100Max": 34, "rarity": "Uncommon" },
+        { "d100Min": 35, "d100Max": 70, "rarity": "Rare" },
+        { "d100Min": 71, "d100Max": 93, "rarity": "Very Rare" },
+        { "d100Min": 94, "d100Max": 100, "rarity": "Legendary" }
+      ]
+    },
+    {
+      "levelRange": "17-20",
+      "distribution": [
+        { "d100Min": 1, "d100Max": 20, "rarity": "Rare" },
+        { "d100Min": 21, "d100Max": 64, "rarity": "Very Rare" },
+        { "d100Min": 65, "d100Max": 100, "rarity": "Legendary" }
+      ]
+    }
+  ],
+  "hoardDetails": {
+    "0-4": {
+      "gemTier": "50gp",
+      "artTier": "25gp",
+      "magicTable": "A"
+    },
+    "5-10": {
+      "gemTier": "100gp",
+      "artTier": "250gp",
+      "magicTable": "B"
+    },
+    "11-16": {
+      "gemTier": "500gp",
+      "artTier": "750gp",
+      "magicTable": "C"
+    },
+    "17+": {
+      "gemTier": "1000gp",
+      "artTier": "2500gp",
+      "magicTable": "D"
+    }
+  }
+}

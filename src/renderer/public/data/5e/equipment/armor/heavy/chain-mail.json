@@ -1,0 +1,17 @@
+{
+  "name": "Chain Mail",
+  "slug": "chain-mail",
+  "category": "Heavy",
+  "ac": "16",
+  "strength": "Str 13",
+  "stealthDisadvantage": true,
+  "weight": "55 lb.",
+  "cost": "75 GP",
+  "donTime": "10 Minutes",
+  "doffTime": "5 Minutes",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

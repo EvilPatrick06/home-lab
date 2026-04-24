@@ -1,0 +1,62 @@
+{
+  "name": "Destructive Wave",
+  "level": 5,
+  "school": "Evocation",
+  "classes": ["Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Destructive energy ripples outward from you in a 30-foot Emanation. Each creature you choose in the Emanation makes a Constitution saving throw. On a failed save, a target takes 5d6 Thunder damage and 5d6 Radiant or Necrotic damage (your choice) and has the Prone condition. On a successful save, a target takes half as much damage only.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 30,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Constitution",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 6
+      },
+      "type": "Thunder",
+      "applicationType": "onFailedSave",
+      "halfOnSave": true
+    },
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 6
+      },
+      "type": ["Radiant", "Necrotic"],
+      "applicationType": "onFailedSave",
+      "halfOnSave": true
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Prone",
+      "trigger": "onFailedSave"
+    }
+  ],
+  "tags": ["damage", "area", "prone", "thunder", "radiant", "necrotic", "choice"]
+}

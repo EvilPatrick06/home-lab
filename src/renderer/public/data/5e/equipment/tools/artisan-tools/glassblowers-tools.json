@@ -1,0 +1,15 @@
+{
+  "name": "Glassblower's Tools",
+  "cost": "30 GP",
+  "weight": "5 lb.",
+  "ability": "Intelligence",
+  "utilize": "Discern what a glass object held in the past 24 hours (DC 15)",
+  "craft": "Glass Bottle, Magnifying Glass, Spyglass, Vial",
+  "slug": "glassblowers-tools",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

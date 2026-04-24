@@ -1,0 +1,230 @@
+{
+  "name": "Vrock",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Demon"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Planar (Abyss)"],
+  "treasure": ["None"],
+  "lore": "Vrocks are vulture-headed demons spawned from the entropic evil of the Abyss. Driven by an insatiable hunger for carnage, they swoop into battle with terrible screeches, stunning their prey before tearing into it with razor-sharp talons. In close quarters, a vrock exudes clouds of toxic spores that sap the vitality of living creatures.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 104,
+    "dice": {
+      "count": 11,
+      "die": "d10",
+      "modifier": 44
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 5
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 7
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 4
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Abyssal"],
+    "telepathy": 120
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The vrock has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The vrock makes two Talon attacks.",
+    "attacks": [
+      {
+        "actionName": "Talon",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Talon",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 10 (2d6 + 3) Slashing damage plus 3 (1d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spores",
+      "description": "Constitution Saving Throw: DC 15, each creature in a 15-foot Emanation. Failure: 14 (4d6) Poison damage, and the target has the Poisoned condition for 1 minute. While Poisoned in this way, the target takes 3 (1d6) Poison damage at the start of each of its turns. Success: Half damage only. A Poisoned creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 15,
+        "targets": "each creature in a 15-foot Emanation",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Poisoned",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 15,
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ],
+          "effects": "While Poisoned in this way, the target takes 3 (1d6) Poison damage at the start of each of its turns."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 15,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Poisoned",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 15,
+            "onSuccess": {
+              "effects": "The effect ends on the target."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stunning Screech",
+      "description": "Constitution Saving Throw: DC 15, each creature within 20 feet that isn't a Fiend. Failure: The target has the Stunned condition until the end of the vrock's next turn.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 15,
+        "targets": "each creature within 20 feet that isn't a Fiend",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Stunned",
+              "duration": "until the end of the vrock's next turn"
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 20,
+        "centered": true
+      },
+      "conditions": [
+        {
+          "condition": "Stunned",
+          "duration": "until the end of the vrock's next turn"
+        }
+      ]
+    }
+  ]
+}

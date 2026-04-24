@@ -1,0 +1,12 @@
+{
+  "name": "5-pound silver bar",
+  "slug": "5-pound-silver-bar",
+  "value": "25 GP",
+  "dimensions": "6 in. long x 2 in. wide x 1 in. thick",
+  "category": "Trade Bar",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

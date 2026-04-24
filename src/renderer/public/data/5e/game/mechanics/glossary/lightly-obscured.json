@@ -1,0 +1,11 @@
+{
+  "name": "Lightly Obscured",
+  "slug": "lightly-obscured",
+  "description": "You have Disadvantage on Wisdom (Perception) checks to see something in a Lightly Obscured area. A Lightly Obscured area — such as Dim Light, patchy fog, or moderate foliage — makes details harder to see.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

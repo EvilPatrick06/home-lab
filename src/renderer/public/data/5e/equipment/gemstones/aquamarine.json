@@ -1,0 +1,13 @@
+{
+  "name": "Aquamarine",
+  "slug": "aquamarine",
+  "value": "500 GP",
+  "category": "Gemstone",
+  "description": "pale blue-green",
+  "dieValue": "2",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

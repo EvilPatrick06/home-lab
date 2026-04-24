@@ -1,0 +1,810 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Above Elemental Below",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "limbo",
+      "name": "Limbo",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Neutral Plane",
+      "alignments": ["Chaotic Neutral"],
+      "philosophicalEssence": "Limbo is a plane of pure chaos, embodying constant change and the impermanence of all matter and energy. The key to success on this plane—both in shaping the physical environment and in mastering the internal landscape of chaos—is asserting one's sense of self, identifying what is unchanging amid the storm of constant change.",
+      "emotionalInfluence": "Visitors to the plane find themselves caught up in a storm of intrusive thoughts and unruly emotions, forcing them to confront the transient nature of so much of what they think of as their identity. Those who visit Limbo and other chaotic planes might become temporarily more independent or self-absorbed.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "highly_morphic",
+        "shape": "Roiling soup of impermanent matter and energy with no stable form. Fragments of more ordinary landscapes—bits of forest, meadow, ruined castles, and even burbling streams—drift through the disorder.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "The atmosphere is unstable and constantly changing like everything else on the plane. Stone melts into water that freezes into metal, then turns into diamond that burns up into smoke that becomes snow, and on and on.",
+        "temperature": {
+          "category": "variable",
+          "description": "Temperature is constantly shifting and unpredictable as all matter and energy transform endlessly."
+        },
+        "hasSurface": false,
+        "dominantElement": "Chaos - all elements intermingle and transform constantly",
+        "weatherPatterns": "No stable weather patterns exist. The whole plane is a nightmarish riot of impermanent matter and energy in constant flux."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "Time flow is not specifically altered on Limbo according to the source material. Distance is virtually meaningless on the Outer Planes."
+      },
+      "hazards": [
+        {
+          "id": "limbo-chaos-environment",
+          "name": "Chaotic Matter Transformation",
+          "description": "Limbo is a plane of pure chaos, a roiling soup of impermanent matter and energy. Stone melts into water that freezes into metal, then turns into diamond that burns up into smoke that becomes snow, and on and on in an endless, unpredictable process of change. The whole plane is a nightmarish riot. A nonsapient creature such as a fish might have less than a minute before the pocket of water surrounding it freezes, vanishes, or turns to glass.",
+          "category": "planar_trait",
+          "severity": "severe",
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Limbo"
+        },
+        {
+          "id": "limbo-no-gravity",
+          "name": "Absence of Gravity",
+          "description": "Limbo has no gravity, so creatures visiting the plane float in place. A creature can move up to its Speed in any direction by merely thinking of the desired direction of travel.",
+          "category": "gravitational",
+          "severity": "moderate",
+          "movementSpeedPenalty": {
+            "type": "thought_based",
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "none",
+              "description": "Limbo has no gravity. Creatures float in place and can move up to their Speed in any direction by merely thinking of the desired direction of travel.",
+              "affectsFloatingObjects": true,
+              "driftSpeed": "Objects and nonsapient creatures drift and are subject to the chaotic transformations of the plane"
+            },
+            "effectiveSpeedReductionPercent": 0,
+            "distanceMeaningless": false
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Limbo"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "limbo-emotional-chaos",
+          "name": "Storm of Intrusive Thoughts",
+          "description": "Visitors to the plane find themselves caught up in a storm of intrusive thoughts and unruly emotions, forcing them to confront the transient nature of so much of what they think of as their identity.",
+          "mechanicalEffect": "This is a roleplaying suggestion rather than a mechanical effect. The DM might award Heroic Inspiration to characters who bring the characteristic of becoming temporarily more independent or self-absorbed to life in their characters.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Those who visit Limbo and other chaotic planes might become temporarily more independent or self-absorbed. These tendencies are best handled as DM suggestions and then roleplayed by the players.",
+          "removalMethods": ["Leaving the plane", "Asserting one's sense of self"],
+          "sourceReference": "Chapter 6: Cosmology - Alignment and the Outer Planes"
+        }
+      ],
+      "portals": [
+        {
+          "id": "limbo-xaos-gate",
+          "type": "gate_town",
+          "name": "Gate of Xaos",
+          "destination": "Xaos",
+          "destinationPlane": "Outlands",
+          "bidirectional": true
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Aberration", "Humanoid"],
+        "notableEntities": [
+          {
+            "name": "Slaadi",
+            "creatureType": "Aberration",
+            "description": "Slaadi live here and swim amid this chaos, creating nothing. Slaadi are Aberrations that thrive in Limbo."
+          },
+          {
+            "name": "Githzerai",
+            "creatureType": "Humanoid",
+            "description": "Githzerai build entire monasteries with their minds on Limbo, creating sanctuaries of order within the chaos."
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Githzerai Monasteries",
+            "race": "Githzerai",
+            "description": "The githzerai build entire monasteries with their minds, creating sanctuaries of order. These are among the few havens that adventurers can hope to find on this tumultuous plane. Although githzerai aren't generally hostile to visitors who come in peace, they don't welcome those who bring the chaos of Limbo with them: a tumultuous heart brought into a refuge can unravel the entire sanctuary.",
+            "location": "Various stabilized areas throughout Limbo"
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "limbo-power-of-mind-move",
+          "name": "Power of the Mind - Move Object",
+          "description": "As a Magic action, a creature in Limbo can make an Intelligence check to mentally move an object within 30 feet of itself that is on the plane and isn't being worn or carried. The DC depends on the object's size: DC 5 for Tiny, DC 10 for Small, DC 15 for Medium, DC 20 for Large, and DC 25 for Huge or larger. On a successful check, the creature moves the object 5 feet plus a number of feet equal to how much the total exceeded the DC.",
+          "mechanicalEffect": "Intelligence check as a Magic action. DC by size: Tiny 5, Small 10, Medium 15, Large 20, Huge or larger 25. On success, move object 5 + (check total - DC) feet.",
+          "interactionCheck": {
+            "id": "limbo-move-object-check",
+            "name": "Move Object on Limbo",
+            "description": "Make an Intelligence check to mentally move an object within 30 feet that isn't being worn or carried. DC varies by object size.",
+            "checkType": "ability_check",
+            "ability": "Intelligence",
+            "baseDC": 15,
+            "actionCost": "magic_action",
+            "scalingDCs": {
+              "bySize": {
+                "Tiny": 5,
+                "Small": 10,
+                "Medium": 15,
+                "Large": 20,
+                "Huge": 25,
+                "Gargantuan": 25
+              }
+            },
+            "onSuccess": {
+              "description": "The creature moves the object 5 feet plus a number of feet equal to how much the check total exceeded the DC.",
+              "movementGrantedFeet": 5,
+              "bonusMovementFormula": "5 + (check total - DC) feet"
+            },
+            "onFailure": {
+              "description": "The object is not moved.",
+              "noEffect": true
+            },
+            "repeatable": true,
+            "requiresConcentration": false,
+            "endsOnConcentrationBreak": false,
+            "successProbabilityModel": {
+              "atModifierZero": 0.3,
+              "atModifierFive": 0.55,
+              "atModifierTen": 0.8
+            }
+          },
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "limbo-power-of-mind-alter",
+          "name": "Power of the Mind - Alter Object",
+          "description": "A creature can take a Magic action to make an Intelligence check to alter a nonmagical object within 30 feet of itself that isn't being worn or carried. The DC is based on the object's size: DC 10 for Tiny, DC 15 for Small, DC 20 for Medium, and DC 25 for Large or larger. On a successful check, the creature changes the object into another nonliving form of the same size, such as turning a boulder into a ball of fire.",
+          "mechanicalEffect": "Intelligence check as a Magic action. DC by size: Tiny 10, Small 15, Medium 20, Large or larger 25. On success, change the object into another nonliving form of the same size.",
+          "interactionCheck": {
+            "id": "limbo-alter-object-check",
+            "name": "Alter Object on Limbo",
+            "description": "Make an Intelligence check to alter a nonmagical object within 30 feet that isn't being worn or carried. The object changes into another nonliving form of the same size.",
+            "checkType": "ability_check",
+            "ability": "Intelligence",
+            "baseDC": 20,
+            "actionCost": "magic_action",
+            "scalingDCs": {
+              "bySize": {
+                "Tiny": 10,
+                "Small": 15,
+                "Medium": 20,
+                "Large": 25,
+                "Huge": 25,
+                "Gargantuan": 25
+              }
+            },
+            "onSuccess": {
+              "description": "The creature changes the object into another nonliving form of the same size, such as turning a boulder into a ball of fire.",
+              "transformsObject": true,
+              "transformationConstraints": "Must be another nonliving form of the same size. Object must be nonmagical and not worn or carried."
+            },
+            "onFailure": {
+              "description": "The object is not altered.",
+              "noEffect": true
+            },
+            "repeatable": true,
+            "requiresConcentration": false,
+            "endsOnConcentrationBreak": false,
+            "successProbabilityModel": {
+              "atModifierZero": 0.05,
+              "atModifierFive": 0.3,
+              "atModifierTen": 0.55
+            }
+          },
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "limbo-power-of-mind-stabilize",
+          "name": "Power of the Mind - Stabilize Area",
+          "description": "A creature in Limbo can take a Magic action to make a DC 20 Intelligence check to stabilize an area within a 30-foot-radius Sphere centered on a point it can see on the plane. On a successful check, the creature prevents the area from being altered by the plane for 24 hours or until the creature takes this Magic action again.",
+          "mechanicalEffect": "DC 20 Intelligence check as a Magic action. On success, stabilize a 30-foot-radius Sphere for 24 hours or until the creature takes this Magic action again.",
+          "interactionCheck": {
+            "id": "limbo-stabilize-area-check",
+            "name": "Stabilize Area on Limbo",
+            "description": "Make a DC 20 Intelligence check to stabilize a 30-foot-radius Sphere centered on a point you can see on the plane, preventing the area from being altered by the plane.",
+            "checkType": "ability_check",
+            "ability": "Intelligence",
+            "baseDC": 20,
+            "actionCost": "magic_action",
+            "onSuccess": {
+              "description": "The creature prevents the area from being altered by the plane for 24 hours or until the creature takes this Magic action again.",
+              "stabilizesArea": true,
+              "stabilizationRadiusFeet": 30,
+              "durationHours": 24
+            },
+            "onFailure": {
+              "description": "The area is not stabilized and continues to shift chaotically.",
+              "noEffect": true
+            },
+            "repeatable": true,
+            "requiresConcentration": false,
+            "endsOnConcentrationBreak": false,
+            "successProbabilityModel": {
+              "atModifierZero": 0.05,
+              "atModifierFive": 0.3,
+              "atModifierTen": 0.55
+            }
+          },
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "limbo-thought-movement",
+          "name": "Thought-Based Movement",
+          "description": "Limbo has no gravity, so creatures visiting the plane float in place. A creature can move up to its Speed in any direction by merely thinking of the desired direction of travel.",
+          "mechanicalEffect": "Creatures float in place due to lack of gravity. Movement up to Speed in any direction is accomplished by thought alone. No walking surface is required.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "limbo-conformity-to-will",
+          "name": "Limbo Conforms to Will",
+          "description": "Limbo conforms to the will of the creatures inhabiting it. Creative imaginations can create whole islands of their own invention within the plane, sometimes maintaining those places for years. A nonsapient creature such as a fish, though, might have less than a minute before the pocket of water surrounding it freezes, vanishes, or turns to glass.",
+          "mechanicalEffect": "Sapient creatures with creative imaginations can create and maintain stable areas through force of will. Nonsapient creatures have less than a minute before their environment transforms unpredictably. Slaadi create nothing while githzerai build entire monasteries with their minds.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [
+        {
+          "id": "limbo-xaos-gatetown",
+          "name": "Xaos",
+          "type": "Gate-town",
+          "description": "The gate-town in the Outlands that contains the portal leading to Limbo. Like other gate-towns, Xaos shares many of the characteristics of Limbo.",
+          "portalDestination": "Limbo"
+        },
+        {
+          "id": "limbo-spawning-stone",
+          "name": "Spawning Stone",
+          "type": "Realm",
+          "description": "Said to have been created by Primus, the overlord of the modrons, the Spawning Stone absorbs chaotic energy and makes it possible to shape enclaves of order in Limbo, but the chaotic energy it absorbs is responsible for the creation of slaadi."
+        }
+      ],
+      "adventureThemes": [
+        "Confronting the transient nature of identity",
+        "Asserting one's sense of self amid constant change",
+        "Mastering the internal landscape of chaos",
+        "Exploring the secrets of the Spawning Stone",
+        "Finding refuge in githzerai monasteries",
+        "Shaping physical environment through force of will"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Jet black",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3: Environmental Effects - referenced for planar traits"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 6: Cosmology - Outer Planes alignment table, Astral Color Pools table, Outlands gate-towns table"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "infinite-staircase",
+      "name": "Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": ["All planes"],
+      "description": "The Infinite Staircase is an extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down. It changes appearance as it climbs and descends.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Any creature that can climb stairs or navigate ramps and platforms"]
+    },
+    {
+      "id": "river-styx",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium.",
+      "hazards": ["Memory-draining waters"],
+      "isOneWay": false,
+      "navigableBy": ["Sinister ferries crewed by skilled pilots"]
+    },
+    {
+      "id": "river-oceanus",
+      "name": "River Oceanus",
+      "type": "river",
+      "connectedPlanes": ["Elysium", "Beastlands", "Arborea"],
+      "description": "The water of the Oceanus is sweet and fragrant, as befits its headwaters in the Blessed Fields of Elysium. It flows through each of Elysium's layers, passes through the top layer of the Beastlands, streams across the top layer of Arborea, and finally drains away somewhere in Arborea's second layer.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Trading vessels", "Boats for hire"]
+    },
+    {
+      "id": "yggdrasil",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Astral Plane", "Material Plane"],
+      "description": "The World Tree, Yggdrasil, is a cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Most of its massive trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Climbers among roots and branches", "Expert guides"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "portal-travel",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some function like doorways, others are locations that exist on multiple planes at once or flicker from one plane to another.",
+      "requirements": [
+        "Finding a portal leading to desired destination",
+        "Meeting portal requirements (command, key item, random timing, situation, or time-based)",
+        "Possibly bypassing guardians"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portal guardians", "Limited open times", "One-way portals in some cases"],
+      "destinations": ["Any plane connected by a specific portal"]
+    },
+    {
+      "id": "spell-travel",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Ability to cast the relevant spell", "Appropriate spell components"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in destination"],
+      "destinations": ["Any plane depending on the spell"]
+    },
+    {
+      "id": "astral-color-pool",
+      "name": "Astral Color Pools",
+      "type": "portal",
+      "description": "Gateways leading from the Astral Plane to other planes appear as two-dimensional pools of rippling colors, 1d6 × 10 feet in diameter. Traveling to another plane requires locating a color pool that leads to the desired plane, identifiable by color.",
+      "requirements": ["Access to the Astral Plane", "Locating the correct color pool"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["Psychic winds", "Misidentifying pool colors"],
+      "destinations": ["All Outer Planes", "Material Plane", "Ethereal Plane"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 subtracted from all D20 Tests",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "exhaustionLevels": 0
+      },
+      "onSuccess": {
+        "description": "The creature resists the planar dissonance for this rest period.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 2,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.35,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

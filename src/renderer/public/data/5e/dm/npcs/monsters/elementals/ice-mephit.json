@@ -1,0 +1,216 @@
+{
+  "name": "Ice Mephit",
+  "sizes": ["Small"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral Evil",
+  "habitat": ["Arctic", "Planar (Elemental)"],
+  "treasure": ["None"],
+  "lore": "Ice mephits are cackling, mischievous creatures formed from the combined forces of air and water. They delight in cruelty, tormenting others with biting cold and icy malice. These small elementals often serve more powerful beings from the Elemental Planes of Air and Water.",
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 21,
+    "dice": {
+      "count": 6,
+      "die": "d6",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 3
+    }
+  ],
+  "vulnerabilities": ["Bludgeoning and Fire"],
+  "damageImmunities": ["Cold and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Aquan", "Auran"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Death Burst",
+      "description": "When the mephit dies, it explodes in a burst of jagged ice. Each creature within 5 feet of it must make a DC 10 Dexterity saving throw, taking 4 (1d8) Slashing damage on a failed save, or half as much damage on a successful one."
+    },
+    {
+      "name": "False Appearance",
+      "description": "While the mephit remains motionless, it is indistinguishable from an ordinary shard of ice."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 11,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Fog Cloud",
+              "level": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 3 (1d4 + 1) Slashing damage plus 2 (1d4) Cold damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 2,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Frost Breath",
+      "description": "The mephit exhales a 15-foot Cone of cold air. Each creature in that area must make a DC 10 Dexterity saving throw, taking 5 (2d4) Cold damage on a failed save, or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 10,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 15
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The mephit casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 11):\nAt will: Fog Cloud"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Deathly Chill",
+      "description": "The mephit targets one creature it can see within 60 feet of itself that has taken Cold damage since the end of the mephit's last turn. The target must succeed on a DC 11 Constitution saving throw or have the Restrained condition until the end of the mephit's next turn.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 11,
+        "targets": "one creature within 60 feet that has taken Cold damage since the end of the mephit's last turn",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "duration": "until the end of the mephit's next turn"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

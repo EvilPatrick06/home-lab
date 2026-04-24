@@ -1,0 +1,53 @@
+{
+  "name": "Giant Eagle",
+  "slug": "giant-eagle",
+  "size": "Large",
+  "type": "Celestial",
+  "alignment": "Neutral Good",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "26",
+  "hpFormula": "4d10 + 4",
+  "speed": "10 ft., Fly 80 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 17,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 3,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +6",
+  "resistances": "Necrotic, Radiant",
+  "senses": "Passive Perception 16",
+  "languages": "Celestial; understands Common and Primordial (Auran) but can't speak them",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The eagle makes two Rend attacks."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) Slashing damage plus 3 (1d6) Radiant damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "id": "egyptian-pantheon",
+  "name": "Egyptian Pantheon",
+  "description": "These gods are a young dynasty of an ancient divine family, heirs to the rulership of the cosmos and the maintenance of the divine principle of Ma'at — the fundamental order of truth, justice, law, and order that puts gods, mortal pharaohs, and ordinary men and women in their logical and rightful place in the universe.",
+  "deities": [
+    {
+      "name": "Re-Horakhty",
+      "title": "God of the Sun, Ruler of the Gods",
+      "alignment": "Lawful Good",
+      "domains": ["Life", "Light"],
+      "symbol": "Solar disk encircled by serpent"
+    },
+    {
+      "name": "Anubis",
+      "title": "God of Judgment and Death",
+      "alignment": "Lawful Neutral",
+      "domains": ["Death"],
+      "symbol": "Black jackal"
+    },
+    {
+      "name": "Apep",
+      "title": "God of Evil, Fire, and Serpents",
+      "alignment": "Neutral Evil",
+      "domains": ["Trickery"],
+      "symbol": "Flaming snake"
+    },
+    {
+      "name": "Bast",
+      "title": "Goddess of Cats and Vengeance",
+      "alignment": "Chaotic Good",
+      "domains": ["War"],
+      "symbol": "Cat"
+    },
+    {
+      "name": "Bes",
+      "title": "God of Luck and Music",
+      "alignment": "Chaotic Neutral",
+      "domains": ["Trickery"],
+      "symbol": "Image of the misshapen deity"
+    },
+    {
+      "name": "Hathor",
+      "title": "Goddess of Love, Music, and Motherhood",
+      "alignment": "Neutral Good",
+      "domains": ["Life", "Light"],
+      "symbol": "Horned cow's head with lunar disk"
+    },
+    {
+      "name": "Imhotep",
+      "title": "God of Crafts and Medicine",
+      "alignment": "Neutral Good",
+      "domains": ["Knowledge"],
+      "symbol": "Step pyramid"
+    },
+    {
+      "name": "Isis",
+      "title": "Goddess of Fertility and Magic",
+      "alignment": "Neutral Good",
+      "domains": ["Knowledge", "Life"],
+      "symbol": "Ankh and star"
+    },
+    {
+      "name": "Nephthys",
+      "title": "Goddess of Death and Grief",
+      "alignment": "Chaotic Good",
+      "domains": ["Death"],
+      "symbol": "Horns around a lunar disk"
+    },
+    {
+      "name": "Osiris",
+      "title": "God of Nature and the Underworld",
+      "alignment": "Lawful Good",
+      "domains": ["Life", "Nature"],
+      "symbol": "Crook and flail"
+    },
+    {
+      "name": "Ptah",
+      "title": "God of Crafts, Knowledge, and Secrets",
+      "alignment": "Lawful Neutral",
+      "domains": ["Knowledge"],
+      "symbol": "Bull"
+    },
+    {
+      "name": "Set",
+      "title": "God of Darkness and Desert Storms",
+      "alignment": "Chaotic Evil",
+      "domains": ["Death", "Tempest", "Trickery"],
+      "symbol": "Coiled cobra"
+    },
+    {
+      "name": "Sobek",
+      "title": "God of Water and Crocodiles",
+      "alignment": "Lawful Evil",
+      "domains": ["Nature", "Tempest"],
+      "symbol": "Crocodile head with horns and plumes"
+    },
+    {
+      "name": "Thoth",
+      "title": "God of Knowledge and Wisdom",
+      "alignment": "Neutral",
+      "domains": ["Knowledge"],
+      "symbol": "Ibis"
+    }
+  ],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "section": "Appendix B: Gods of the Multiverse"
+  }
+}

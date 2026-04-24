@@ -1,0 +1,58 @@
+{
+  "name": "Wind Walk",
+  "level": 6,
+  "school": "Transmutation",
+  "classes": ["Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "minutes",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 30,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a candle",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "You and up to ten willing creatures of your choice within range assume gaseous forms for the duration, appearing as wisps of cloud. While in this cloud form, a target has a Fly Speed of 300 feet and can hover; it has Immunity to the Prone condition; and it has Resistance to Bludgeoning, Piercing, and Slashing damage. The only actions a target can take in this form are the Dash action or a Magic action to begin reverting to its normal form. Reverting takes 1 minute, during which the target has the Stunned condition. Until the spell ends, the target can revert to cloud form, which also requires a Magic action followed by a 1-minute transformation. If a target is in cloud form and flying when the effect ends, the target descends 60 feet per round for 1 minute until it lands, which it does safely. If it can't land after 1 minute, it falls the remaining distance.",
+  "targetType": "creature",
+  "targetCount": 10,
+  "targetMustBeWilling": true,
+  "speedModifiers": [
+    {
+      "type": "set",
+      "value": 300,
+      "speedType": "fly",
+      "canHover": true
+    }
+  ],
+  "resistancesGranted": {
+    "damageTypes": ["Bludgeoning", "Piercing", "Slashing"]
+  },
+  "immunitiesGranted": {
+    "conditions": ["Prone"]
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Stunned",
+      "trigger": "custom",
+      "duration": "1 minute while reverting to normal form"
+    }
+  ],
+  "tags": ["transformation", "movement", "utility", "gaseous_form", "cloud_form"]
+}

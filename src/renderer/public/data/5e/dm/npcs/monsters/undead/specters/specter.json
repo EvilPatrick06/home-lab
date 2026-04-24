@@ -1,0 +1,135 @@
+{
+  "name": "Specter",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Ruins", "Underdark", "Urban"],
+  "treasure": ["None"],
+  "lore": "A specter is the hateful, incorporeal remnant of a creature whose life was cut short by violence or anguish. Disembodied and restless, specters haunt the places of their demise, draining the life force of the living.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 5,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Fly",
+      "distance": 50,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "resistances": [
+    "Acid, Cold, Fire, Lightning, and Thunder",
+    "Bludgeoning, Piercing, and Slashing from nonmagical attacks"
+  ],
+  "damageImmunities": ["Necrotic and Poison"],
+  "conditionImmunities": [
+    "Charmed",
+    "Exhaustion",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Restrained",
+    "Unconscious"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Common"],
+    "notes": "Understands the languages it knew in life but can't speak"
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Incorporeal Movement",
+      "description": "The specter can move through other creatures and objects as if they were Difficult Terrain. It takes 5 (1d10) Force damage if it ends its turn inside an object."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the specter has Disadvantage on attack rolls and on Wisdom (Perception) checks."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Life Drain",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 10 (3d6) Necrotic damage, and the target's Hit Point maximum is reduced by an amount equal to the damage taken. This reduction lasts until the target finishes a Long Rest. The target dies if its Hit Point maximum is reduced to 0.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ],
+          "additionalEffects": "The target's Hit Point maximum is reduced by an amount equal to the Necrotic damage taken. This reduction lasts until the target finishes a Long Rest. The target dies if its Hit Point maximum is reduced to 0."
+        }
+      }
+    }
+  ]
+}

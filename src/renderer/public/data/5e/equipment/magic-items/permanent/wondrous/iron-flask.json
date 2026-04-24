@@ -1,0 +1,17 @@
+{
+  "name": "Flask",
+  "cost": {
+    "amount": 2,
+    "denomination": "CP"
+  },
+  "weight": 1,
+  "description": "A Flask holds up to 1 pint.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": false,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": "Holds up to 1 pint"
+}

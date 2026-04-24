@@ -1,0 +1,67 @@
+{
+  "id": "wilderness-chase-complications",
+  "name": "Wilderness Chase Complications",
+  "description": "At the end of each round during a chase through wilderness, roll a d20 for each participant to determine if a complication occurs. A result of 1-10 means no complication.",
+  "complications": [
+    { "roll": 1, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 2, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 3, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 4, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 5, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 6, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 7, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 8, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 9, "complication": "No complication", "effect": "No additional effect this round." },
+    { "roll": 10, "complication": "No complication", "effect": "No additional effect this round." },
+    {
+      "roll": 11,
+      "complication": "Uneven ground",
+      "effect": "The ground is uneven with roots and rocks. DC 10 Dexterity saving throw or fall Prone."
+    },
+    {
+      "roll": 12,
+      "complication": "Thorny brambles",
+      "effect": "A patch of thorns or briars blocks the path. DC 10 Dexterity saving throw or take 1d4 Piercing damage. The brambles count as 5 feet of Difficult Terrain whether or not the save succeeds."
+    },
+    {
+      "roll": 13,
+      "complication": "Stream or creek",
+      "effect": "A stream or creek crosses the path. DC 10 Strength (Athletics) check to cross. On failure, the stream counts as 10 feet of Difficult Terrain."
+    },
+    {
+      "roll": 14,
+      "complication": "Dense undergrowth",
+      "effect": "Thick bushes and foliage block the way. DC 10 Strength (Athletics) check to push through. On failure, the area counts as 15 feet of Difficult Terrain."
+    },
+    {
+      "roll": 15,
+      "complication": "Ravine or ditch",
+      "effect": "A sudden drop of 1d4 x 5 feet. DC 10 Dexterity (Acrobatics) check to jump across or scramble down and up. On failure, fall and take 1d6 Bludgeoning damage per 10 feet fallen."
+    },
+    {
+      "roll": 16,
+      "complication": "Stampeding animals",
+      "effect": "A herd of animals stampedes through the area. DC 12 Dexterity saving throw or take 1d6 Bludgeoning damage and be knocked Prone."
+    },
+    {
+      "roll": 17,
+      "complication": "Low-hanging branches",
+      "effect": "Low branches threaten to clothesline runners. DC 10 Dexterity saving throw. On failure, take 1d6 Bludgeoning damage and spend 5 extra feet of movement."
+    },
+    {
+      "roll": 18,
+      "complication": "Swampy ground",
+      "effect": "The ground becomes muddy and waterlogged. DC 12 Constitution saving throw or your speed is reduced by 5 feet until the end of your next turn."
+    },
+    {
+      "roll": 19,
+      "complication": "Hidden pit or sinkhole",
+      "effect": "A concealed hole in the ground. DC 12 Wisdom (Perception) check to notice it, or DC 12 Dexterity saving throw to avoid falling in. On failure, fall 1d4 x 5 feet and take appropriate falling damage."
+    },
+    {
+      "roll": 20,
+      "complication": "Cliff or steep hill",
+      "effect": "A sheer drop or very steep incline appears ahead. DC 15 Strength (Athletics) check to navigate safely. On failure, slide or fall 2d6 x 5 feet, taking 1d6 Bludgeoning damage per 10 feet."
+    }
+  ]
+}

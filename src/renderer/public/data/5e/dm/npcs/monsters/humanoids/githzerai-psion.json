@@ -1,0 +1,204 @@
+{
+  "name": "Githzerai Psion",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Gith"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Planar"],
+  "treasure": ["Arcana"],
+  "lore": "Githzerai psions are powerful psychic adepts who dwell in the roiling chaos of Limbo, shaping reality through sheer mental discipline. They channel psionic energy to devastate foes, shield allies, and bend space to their will. Among the githzerai, psions serve as leaders and guardians, their mastery of the mind a living testament to the race's rejection of servitude.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Psychic Defense"]
+  },
+  "hitPoints": {
+    "average": 90,
+    "dice": {
+      "count": 12,
+      "die": "d8",
+      "modifier": 36
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 7,
+    "score": 17
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 8
+    },
+    "WIS": {
+      "score": 18,
+      "modifier": 4,
+      "save": 8
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 8
+    },
+    {
+      "skill": "Insight",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    }
+  ],
+  "resistances": ["Psychic"],
+  "conditionImmunities": ["Charmed", "Frightened"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 30
+      }
+    ],
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common", "Gith"]
+  },
+  "challengeRating": "10",
+  "experiencePoints": 5900,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Psychic Defense",
+      "description": "While the psion isn't wearing armor, its AC includes its Wisdom modifier."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting (Psionics)",
+      "ability": "INT",
+      "spellSaveDC": 16,
+      "spellAttackBonus": 8,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Mage Hand",
+              "level": 0,
+              "notes": "The hand is Invisible"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Globe of Invulnerability",
+              "level": 6
+            },
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            },
+            {
+              "name": "Telekinesis",
+              "level": 5
+            },
+            {
+              "name": "Wall of Force",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The psion makes three Psychic Burst attacks.",
+    "attacks": [
+      {
+        "actionName": "Psychic Burst",
+        "count": 3
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Psychic Burst",
+      "description": "Melee or Ranged Attack Roll: +8, reach 5 ft. or range 120 ft. Hit: 22 (4d8 + 4) Psychic damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 8,
+        "reach": 5,
+        "range": {
+          "normal": 120,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Psychic Parry",
+      "description": "The psion adds 4 to the AC of itself or one creature it can see within 30 feet of it against that attack, potentially causing the attack to miss.",
+      "trigger": "The psion or a creature it can see within 30 feet of it is hit by an attack roll."
+    }
+  ]
+}

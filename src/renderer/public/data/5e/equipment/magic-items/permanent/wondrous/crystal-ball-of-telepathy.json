@@ -1,0 +1,20 @@
+{
+  "name": "Crystal Ball of Telepathy",
+  "cost": {
+    "amount": 50000,
+    "denomination": "GP"
+  },
+  "weight": 3,
+  "description": "This Crystal Ball is a legendary magic item that requires attunement. It can be used as a normal Crystal Ball for scrying, and while scrying with it you can cast Detect Thoughts (save DC 17) targeting creatures you can see within the spell's range within the crystal ball's image. You don't need to concentrate on this Detect Thoughts to maintain it during its duration, but it ends if scrying ends. While using Detect Thoughts on a target while scrying with the Crystal Ball, you can also cast Suggestion (save DC 17) through the sensor on the target. Once used to cast Suggestion, the property can't be used again until the next dawn. Detailed properties of this legendary magic item are found in the Dungeon Master's Guide, not in the Player's Handbook Chapter 6: Equipment.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "None",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "dcFormula": "17"
+  },
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

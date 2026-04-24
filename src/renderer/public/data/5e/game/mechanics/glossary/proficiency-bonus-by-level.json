@@ -1,0 +1,11 @@
+{
+  "name": "Proficiency Bonus by Level",
+  "slug": "proficiency-bonus-by-level",
+  "description": "| Level | Bonus |\n|---|---|\n| 1-4 | +2 |\n| 5-8 | +3 |\n| 9-12 | +4 |\n| 13-16 | +5 |\n| 17-20 | +6 |\n**Proficiency.** If you have proficiency with something — a weapon, tool, skill, saving throw, etc. — you can add your Proficiency Bonus to relevant D20 Tests. You gain proficiencies from your species, background, class, and feats.\n**Ranged Attack.** A ranged attack is an attack made against a target at a distance using a ranged weapon or spell. You have Disadvantage on a ranged attack roll if you are within 5 feet of a Hostile creature that can see you and doesn't have the Incapacitated condition.\n**Reaction.** A Reaction is an instant response to a trigger. You can take one Reaction per round — you regain your Reaction at the start of each of your turns.\n**Resistance.** If you have Resistance to a damage type, damage of that type is halved against you (round down). Resistance applies after all other modifiers to damage. Multiple instances of Resistance don't stack.\n**Ritual.** If a spell has the Ritual tag, you can cast it as a Ritual. Casting a spell as a Ritual adds 10 minutes to its casting time, and the spell doesn't expend a spell slot.\n**Round.** A round represents about 6 seconds in the game world, during which every participant in combat takes a turn.\n**Saving Throw.** A saving throw — also called a save — is a D20 Test that represents an attempt to resist or avoid a threat. You don't normally decide to make a saving throw; you are forced to make one because your character or monster is at risk of harm.\n**Search.** The Search action lets you make a Wisdom check (Insight, Medicine, Perception, or Survival) to find or discern something.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

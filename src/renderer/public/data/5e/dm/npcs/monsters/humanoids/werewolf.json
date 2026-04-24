@@ -1,0 +1,222 @@
+{
+  "name": "Werewolf",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Forest", "Hill", "Urban"],
+  "treasure": ["Armaments"],
+  "lore": "Werewolves are lycanthropes that transform into wolf-humanoid hybrids or wolves. Savage and territorial, they hunt under the light of the moon, spreading their curse to humanoids they bite. Many werewolves revel in their bestial nature, forming vicious packs that terrorize settlements at the edge of the wilderness.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 58,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks that aren't silvered"],
+  "gear": [
+    {
+      "name": "Rapier",
+      "quantity": 1
+    },
+    {
+      "name": "Longbow",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Heightened Hearing and Smell",
+      "description": "The werewolf's Perception is 19 when perceiving by hearing or smell."
+    },
+    {
+      "name": "Pack Tactics",
+      "description": "The werewolf has Advantage on an attack roll against a creature if at least one of the werewolf's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    },
+    {
+      "name": "Regeneration",
+      "description": "The werewolf regains 7 Hit Points at the start of each of its turns. If the werewolf takes damage from a Silvered weapon, this trait doesn't function at the start of the werewolf's next turn. The werewolf dies only if it starts its turn with 0 Hit Points and doesn't regenerate."
+    }
+  ],
+  "multiattack": {
+    "description": "The werewolf makes two Claw attacks, two Rapier attacks, or two Longbow attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claw",
+        "replaceCount": 2,
+        "with": "Rapier"
+      },
+      {
+        "replace": "Claw",
+        "replaceCount": 2,
+        "with": "Longbow"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Wolf or Hybrid Form Only. Melee Attack Roll: +5, reach 5 ft. Hit: 8 (2d4 + 3) Slashing damage. If the target is a Humanoid, it must succeed on a DC 12 Constitution saving throw or be cursed with werewolf lycanthropy.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 12,
+            "targets": "the target if it is a Humanoid",
+            "onFailure": {
+              "effects": "The target is cursed with werewolf lycanthropy."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Rapier",
+      "description": "Humanoid or Hybrid Form Only. Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Longbow",
+      "description": "Humanoid or Hybrid Form Only. Ranged Attack Roll: +4, range 150/600 ft. Hit: 6 (1d8 + 2) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 4,
+        "range": {
+          "normal": 150,
+          "long": 600
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The werewolf shape-shifts into a Wolf-Humanoid hybrid, a Medium wolf, or back into its true form, which is Humanoid. Its game statistics, other than its Speed (40 ft. in Wolf or Hybrid form), are the same in each form. Any equipment it is wearing or carrying isn't transformed."
+    }
+  ]
+}

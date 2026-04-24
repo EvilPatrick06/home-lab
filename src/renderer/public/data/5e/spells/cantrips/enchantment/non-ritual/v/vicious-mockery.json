@@ -1,0 +1,70 @@
+{
+  "name": "Vicious Mockery",
+  "level": 0,
+  "school": "Enchantment",
+  "classes": ["Bard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You unleash a string of insults laced with subtle enchantments at one creature you can see or hear within range. The target must succeed on a Wisdom saving throw or take 1d6 Psychic damage and have Disadvantage on the next attack roll it makes before the end of its next turn.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Psychic",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "disadvantagesImposed": [
+    {
+      "on": "attackRolls",
+      "condition": "Next attack roll the target makes before the end of its next turn; only on failed save"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 6,
+        "description": "The damage increases to 2d6."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 6,
+        "description": "The damage increases to 3d6."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 6,
+        "description": "The damage increases to 4d6."
+      }
+    ]
+  },
+  "tags": ["cantrip", "damage", "debuff", "psychic", "wisdom-save"]
+}

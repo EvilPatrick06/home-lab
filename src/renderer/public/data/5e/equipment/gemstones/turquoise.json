@@ -1,0 +1,13 @@
+{
+  "name": "Turquoise",
+  "slug": "turquoise",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "light blue-green",
+  "dieValue": "12",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

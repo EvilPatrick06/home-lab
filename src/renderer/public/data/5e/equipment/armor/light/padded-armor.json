@@ -1,0 +1,17 @@
+{
+  "name": "Padded Armor",
+  "slug": "padded-armor",
+  "category": "Light",
+  "ac": "11 + Dex modifier",
+  "strength": null,
+  "stealthDisadvantage": true,
+  "weight": "8 lb.",
+  "cost": "5 GP",
+  "donTime": "1 Minute",
+  "doffTime": "1 Minute",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

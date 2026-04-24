@@ -1,0 +1,38 @@
+{
+  "name": "Stoneskin",
+  "level": 4,
+  "school": "Transmutation",
+  "classes": ["Druid", "Ranger", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "diamond dust worth 100+ GP, which the spell consumes",
+      "cost": 100,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "Until the spell ends, one willing creature you touch has Resistance to Bludgeoning, Piercing, and Slashing damage.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "targetMustBeWilling": true,
+  "resistancesGranted": {
+    "damageTypes": ["Bludgeoning", "Piercing", "Slashing"]
+  },
+  "tags": ["buff", "resistance", "defensive"]
+}

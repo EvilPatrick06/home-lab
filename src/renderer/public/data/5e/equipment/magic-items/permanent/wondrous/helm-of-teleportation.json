@@ -1,0 +1,22 @@
+{
+  "name": "Helm of Teleportation",
+  "itemType": "Wondrous Item",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "This helm has 3 charges. While wearing it, you can expend 1 charge to cast *Teleport* from it. The helm regains 1d3 expended charges daily at dawn.",
+  "properties": null,
+  "weight": null,
+  "cost": null,
+  "charges": 3,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d3",
+  "spells": [
+    {
+      "name": "Teleport",
+      "chargeCost": 1
+    }
+  ],
+  "damage": null,
+  "source": "DMG 2024"
+}

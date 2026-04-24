@@ -1,0 +1,66 @@
+{
+  "name": "True Strike",
+  "level": 0,
+  "school": "Divination",
+  "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": false,
+    "somatic": true,
+    "material": {
+      "description": "a weapon with which you have proficiency and that is worth 1+ CP",
+      "cost": 1,
+      "currency": "CP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Guided by a flash of magical insight, you make one attack with the weapon used in the spell's casting. The attack uses your spellcasting ability for the attack and damage rolls instead of using Strength or Dexterity. If the attack deals damage, it can be Radiant damage or the weapon's normal damage type (your choice).",
+  "targetType": "self",
+  "damage": [
+    {
+      "type": ["Radiant"],
+      "applicationType": "onHit",
+      "condition": "Optional; caster may choose Radiant or the weapon's normal damage type"
+    }
+  ],
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "extraDamage": {
+          "diceCount": 1,
+          "diceValue": 6
+        },
+        "description": "The attack deals an extra 1d6 Radiant damage"
+      },
+      {
+        "level": 11,
+        "extraDamage": {
+          "diceCount": 2,
+          "diceValue": 6
+        },
+        "description": "The attack deals an extra 2d6 Radiant damage"
+      },
+      {
+        "level": 17,
+        "extraDamage": {
+          "diceCount": 3,
+          "diceValue": 6
+        },
+        "description": "The attack deals an extra 3d6 Radiant damage"
+      }
+    ]
+  },
+  "tags": ["weapon-attack", "uses-spellcasting-ability", "damage-type-choice", "cantrip"]
+}

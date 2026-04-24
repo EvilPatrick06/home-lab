@@ -1,0 +1,33 @@
+{
+  "id": "hireling-mercenary",
+  "name": "Mercenary Hireling",
+  "dailyCost": "2 gp (minimum, varies by skill and danger)",
+  "description": "A mercenary is a combat-capable hireling who fights for pay. Their daily rate varies depending on their skill, the danger involved, and market conditions. Mercenaries expect a share of loot in addition to their daily wage and will leave if payment is withheld or if the danger far exceeds what they agreed to.",
+  "capabilities": [
+    "Proficient with martial weapons and medium armor",
+    "Will engage in combat as directed",
+    "Follows tactical orders from their employer",
+    "Expects hazard pay for especially dangerous missions",
+    "May negotiate for a share of treasure (typically 1/2 share)"
+  ],
+  "examples": [
+    {
+      "role": "Guard",
+      "statBlockRef": "dm/npcs/townsfolk/guard.json",
+      "dailyCost": "2 gp",
+      "description": "Basic security, watches, and escort duty"
+    },
+    {
+      "role": "Veteran Soldier",
+      "statBlockRef": "dm/npcs/townsfolk/veteran.json",
+      "dailyCost": "5 gp",
+      "description": "Experienced combatant for dangerous missions"
+    },
+    {
+      "role": "Bodyguard",
+      "statBlockRef": "dm/npcs/townsfolk/knight.json",
+      "dailyCost": "10 gp",
+      "description": "Elite protection, willing to put their life on the line"
+    }
+  ]
+}

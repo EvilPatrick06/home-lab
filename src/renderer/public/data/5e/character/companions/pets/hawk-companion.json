@@ -1,0 +1,21 @@
+{
+  "id": "hawk-companion",
+  "name": "Hawk",
+  "statBlockRef": "dm/npcs/creatures-companions/hawk.json",
+  "type": "pet",
+  "loyalty": "A trained hawk is loyal to its handler and returns when called. It can be used for hunting small game and carrying messages. It requires daily feeding and gentle handling to maintain its bond.",
+  "specialAbilities": [
+    {
+      "name": "Keen Sight",
+      "description": "The hawk has advantage on Wisdom (Perception) checks that rely on sight. It can spot prey or danger from great distances."
+    },
+    {
+      "name": "Trained Hunter",
+      "description": "Can be trained to hunt small game, returning with rabbits, mice, or similar prey. Can supplement rations during wilderness travel."
+    },
+    {
+      "name": "Message Carrier",
+      "description": "Can carry a small written message (up to 1 oz.) to a known location within 50 miles, arriving in approximately 1 hour per 10 miles."
+    }
+  ]
+}

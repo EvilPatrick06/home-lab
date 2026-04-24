@@ -1,0 +1,27 @@
+{
+  "name": "Dungeon Delver",
+  "category": "General",
+  "prerequisites": {
+    "level": 4
+  },
+  "description": "You have significant experience exploring dangerous dungeons, caverns, and ruins, giving you the following benefits.",
+  "benefits": [
+    {
+      "name": "Trap Awareness",
+      "description": "You have Advantage on Wisdom (Perception) and Intelligence (Investigation) checks made to detect or avoid traps."
+    },
+    {
+      "name": "Trap Resistance",
+      "description": "You have Resistance to the damage dealt by traps."
+    },
+    {
+      "name": "Surprise Proficiency",
+      "description": "You have proficiency with the Perception skill."
+    },
+    {
+      "name": "Unassuming Blend",
+      "description": "If you are in your natural underground environment, you can take the Hide action as a Bonus Action."
+    }
+  ],
+  "source": "PHB 2024"
+}

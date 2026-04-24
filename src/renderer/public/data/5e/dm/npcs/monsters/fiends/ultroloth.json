@@ -1,0 +1,246 @@
+{
+  "name": "Ultroloth",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Yugoloth"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Gehenna", "Hades"],
+  "treasure": ["Any"],
+  "lore": "Ultroloths serve as the generals and overlords of yugoloth armies, commanding legions of lesser fiends in campaigns across the Lower Planes. They are cunning manipulators, capable of weaving intricate plots and bending others to their will. An ultroloth's hypnotic gaze can stun even strong-willed foes, and its mastery of dark magic makes it a fearsome adversary. These fiends trade their services to archdevils and demon lords alike, always negotiating the best terms for themselves.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 199,
+    "dice": {
+      "count": 21,
+      "die": "d8",
+      "modifier": 105
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 14
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 19,
+      "modifier": 4,
+      "save": 9
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 7
+    },
+    "CHA": {
+      "score": 21,
+      "modifier": 5,
+      "save": 10
+    }
+  },
+  "skills": [
+    {
+      "skill": "Intimidation",
+      "bonus": 10
+    },
+    {
+      "skill": "Perception",
+      "bonus": 7
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 9
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Acid and Poison"],
+  "conditionImmunities": ["Charmed", "Frightened", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 17
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "13",
+  "experiencePoints": 10000,
+  "proficiencyBonus": 5,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The ultroloth has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 18,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Alter Self",
+              "level": 2
+            },
+            {
+              "name": "Darkness",
+              "level": 2
+            },
+            {
+              "name": "Detect Thoughts",
+              "level": 2
+            },
+            {
+              "name": "Disguise Self",
+              "level": 1
+            },
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Dimension Door",
+              "level": 4
+            },
+            {
+              "name": "Fireball",
+              "level": 3
+            },
+            {
+              "name": "Wall of Fire",
+              "level": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The ultroloth makes two Enervating Longsword attacks and uses Hypnotic Gaze.",
+    "attacks": [
+      {
+        "actionName": "Enervating Longsword",
+        "count": 2
+      },
+      {
+        "actionName": "Hypnotic Gaze",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Enervating Longsword",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 7 (1d8 + 3) Slashing damage plus 18 (4d8) Necrotic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 18,
+              "dice": {
+                "count": 4,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Necrotic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hypnotic Gaze",
+      "description": "The ultroloth targets one creature it can see within 30 feet of itself. The target makes a DC 18 Wisdom saving throw. On a failed save, the target has the Charmed condition until the start of the ultroloth's next turn. While Charmed in this way, the target also has the Stunned condition.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 18,
+        "targets": "one creature the ultroloth can see within 30 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "until the start of the ultroloth's next turn"
+            },
+            {
+              "condition": "Stunned",
+              "duration": "until the start of the ultroloth's next turn"
+            }
+          ],
+          "effects": "While Charmed in this way, the target also has the Stunned condition."
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The ultroloth casts one of the following spells, requiring no Material components. Spell save DC 18. At will: Alter Self, Darkness, Detect Thoughts, Disguise Self, Invisibility (self only). 3/day each: Dimension Door, Fireball, Wall of Fire."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Teleport",
+      "description": "The ultroloth teleports, along with any equipment it is wearing or carrying, up to 60 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 60
+      }
+    }
+  ]
+}

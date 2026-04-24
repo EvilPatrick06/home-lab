@@ -1,0 +1,194 @@
+{
+  "name": "Mezzoloth",
+  "sizes": ["Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Yugoloth"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Lower Planes"],
+  "treasure": ["None"],
+  "lore": "Mezzoloths are hulking, insectoid yugoloth foot soldiers that serve as the rank-and-file combatants in yugoloth armies. They fight with savage claws and can call upon limited magical abilities to sow confusion on the battlefield. Though individually not brilliant, mezzoloths are fearless and relentless in battle, driven by their obedience to more powerful yugoloths.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 75,
+    "dice": {
+      "count": 10,
+      "die": "d8",
+      "modifier": 30
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 5
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Acid and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      }
+    ],
+    "passivePerception": 15
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Infernal"],
+    "telepathy": 60
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The mezzoloth has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 11,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Darkness",
+              "level": 2
+            },
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Cloudkill",
+              "level": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The mezzoloth makes two Claws attacks. It can replace one of the attacks with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Claws",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Claws",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 9 (2d4 + 4) Slashing damage plus 7 (2d6) Force damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Force"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The mezzoloth casts one of the following spells, requiring no Material components (spell save DC 11):\n\nAt Will: Darkness, Dispel Magic\n1/Day: Cloudkill"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Teleport",
+      "description": "The mezzoloth teleports, along with any equipment it is wearing or carrying, up to 60 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 60
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "name": "Produce Flame",
+  "level": 0,
+  "school": "Conjuration",
+  "classes": ["Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "A flickering flame appears in your hand and remains there for the duration. While there, the flame emits no heat and ignites nothing, and it sheds Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. The spell ends if you cast it again. Until the spell ends, you can take a Magic action to hurl fire at a creature or an object within 60 feet of you. Make a ranged spell attack. On a hit, the target takes 1d8 Fire damage.",
+  "targetType": "creatureOrObject",
+  "attackType": "RangedSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": "Fire",
+      "applicationType": "onHit"
+    }
+  ],
+  "light": {
+    "brightRadiusFeet": 20,
+    "dimRadiusFeet": 40
+  },
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "You can take a Magic action to hurl fire at a creature or an object within 60 feet of you. Make a ranged spell attack. On a hit, the target takes 1d8 Fire damage.",
+    "damage": {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "type": "Fire",
+      "applicationType": "onHit"
+    }
+  },
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 8,
+        "description": "The damage increases to 2d8 Fire damage."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 8,
+        "description": "The damage increases to 3d8 Fire damage."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 8,
+        "description": "The damage increases to 4d8 Fire damage."
+      }
+    ]
+  },
+  "tags": ["light", "fire", "attack", "cantrip"]
+}

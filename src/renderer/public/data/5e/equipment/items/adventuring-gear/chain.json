@@ -1,0 +1,13 @@
+{
+  "name": "Chain",
+  "cost": "5 GP",
+  "weight": "10 lb.",
+  "description": "As a Utilize action, wrap around a Grappled/Incapacitated/Restrained creature within 5 feet (DC 13 Athletics). Escape: DC 18 Acrobatics. Burst: DC 20 Athletics.",
+  "slug": "chain",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

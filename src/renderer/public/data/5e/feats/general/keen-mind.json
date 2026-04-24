@@ -1,0 +1,34 @@
+{
+  "name": "Keen Mind",
+  "category": "General",
+  "prerequisites": {
+    "abilityScores": [
+      {
+        "abilities": ["Intelligence"],
+        "minimum": 13
+      }
+    ],
+    "level": 4
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Intelligence"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Lore Knowledge",
+      "description": "Choose one of the following skills: Arcana, History, Investigation, Nature, or Religion. If you lack proficiency in the chosen skill, you gain proficiency in it, and if you already have proficiency in it, you gain Expertise in it."
+    },
+    {
+      "name": "Quick Study",
+      "description": "You can take the Study action as a Bonus Action."
+    }
+  ],
+  "source": "PHB 2024"
+}

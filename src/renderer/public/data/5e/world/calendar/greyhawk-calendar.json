@@ -1,0 +1,103 @@
+{
+  "name": "Greyhawk Calendar",
+  "slug": "greyhawk-calendar",
+  "yearLength": 364,
+  "daysPerMonth": 28,
+  "daysPerWeek": 7,
+  "daysOfWeek": ["Starday", "Sunday", "Moonday", "Godsday", "Waterday", "Earthday", "Freeday"],
+  "months": [
+    {
+      "order": 1,
+      "name": "Fireseek",
+      "season": "Winter"
+    },
+    {
+      "order": 0,
+      "name": "Needfest",
+      "season": "Winter",
+      "type": "festival",
+      "days": 7
+    },
+    {
+      "order": 2,
+      "name": "Readying",
+      "season": "Spring"
+    },
+    {
+      "order": 3,
+      "name": "Coldeven",
+      "season": "Spring"
+    },
+    {
+      "order": 0,
+      "name": "Growfest",
+      "season": "Spring",
+      "type": "festival",
+      "days": 7
+    },
+    {
+      "order": 4,
+      "name": "Planting",
+      "season": "Low Summer"
+    },
+    {
+      "order": 5,
+      "name": "Flocktime",
+      "season": "Low Summer"
+    },
+    {
+      "order": 6,
+      "name": "Wealsun",
+      "season": "Low Summer"
+    },
+    {
+      "order": 0,
+      "name": "Richfest",
+      "season": "Midsummer",
+      "type": "festival",
+      "days": 7
+    },
+    {
+      "order": 7,
+      "name": "Reaping",
+      "season": "High Summer"
+    },
+    {
+      "order": 8,
+      "name": "Goodmonth",
+      "season": "High Summer"
+    },
+    {
+      "order": 9,
+      "name": "Harvester",
+      "season": "High Summer"
+    },
+    {
+      "order": 0,
+      "name": "Brewfest",
+      "season": "Autumn",
+      "type": "festival",
+      "days": 7
+    },
+    {
+      "order": 10,
+      "name": "Patchwall",
+      "season": "Autumn"
+    },
+    {
+      "order": 11,
+      "name": "Ready'reat",
+      "season": "Autumn"
+    },
+    {
+      "order": 12,
+      "name": "Sunsebb",
+      "season": "Winter"
+    }
+  ],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 5",
+    "section": "Greyhawk Calendar"
+  }
+}

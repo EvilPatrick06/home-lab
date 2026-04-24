@@ -1,0 +1,41 @@
+{
+  "biome": "Dungeon",
+  "legendaryEffects": [
+    {
+      "source": "Beholder",
+      "effects": [
+        "The lair warps reality; surfaces become uneven and passages shift subtly, making navigation difficult.",
+        "Creatures within the lair have disadvantage on initiative rolls due to the disorienting environment.",
+        "Small vermin and aberrant creatures proliferate in the tunnels surrounding the lair."
+      ],
+      "radius": "1 mile"
+    },
+    {
+      "source": "Lich",
+      "effects": [
+        "The ambient temperature drops noticeably within the lair, and a faint aura of dread pervades the area.",
+        "Undead within 1 mile of the lair have advantage on saving throws against features that turn undead.",
+        "Creatures that take a short rest within 1 mile of the lair must succeed on a DC 15 Wisdom saving throw or gain no benefit from the rest due to disturbing visions."
+      ],
+      "radius": "1 mile"
+    }
+  ],
+  "naturalHazards": [
+    {
+      "name": "Cave-In",
+      "description": "Unstable ceilings can collapse when disturbed by loud noises, explosions, or certain spells. Each creature in a 20-foot-radius area must make a DC 15 Dexterity saving throw, taking 4d10 bludgeoning damage on a failure and half as much on a success. Failed saves also result in being buried under rubble (Restrained, requiring a DC 20 Strength check to escape)."
+    },
+    {
+      "name": "Flooding",
+      "description": "Underground water sources can flood chambers and passages. Rising water fills a room at a rate of 1 foot per round. Creatures caught in flooded passages may need to swim (Athletics check against current DC) or risk drowning."
+    },
+    {
+      "name": "Bad Air",
+      "description": "Some dungeon areas contain pockets of toxic or depleted air. A creature that enters a bad air zone must succeed on a DC 12 Constitution saving throw or be Poisoned for 1 hour. In areas with no breathable air, creatures begin suffocating."
+    },
+    {
+      "name": "Slippery Surfaces",
+      "description": "Water, slime, or ice makes dungeon floors treacherous. Affected areas are difficult terrain, and a creature that moves more than half its speed in the area must succeed on a DC 10 Dexterity (Acrobatics) check or fall Prone."
+    }
+  ]
+}

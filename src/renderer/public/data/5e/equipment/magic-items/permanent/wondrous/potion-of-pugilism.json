@@ -1,0 +1,23 @@
+{
+  "name": "Potion of Pugilism",
+  "itemType": "Potion",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "description": "After you drink this potion, each Unarmed Strike you make deals an extra 1d6 Force damage on a hit. This effect lasts 10 minutes.",
+  "properties": [
+    {
+      "type": "Damage",
+      "dice": {
+        "count": 1,
+        "die": 6,
+        "type": "Force"
+      }
+    }
+  ],
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

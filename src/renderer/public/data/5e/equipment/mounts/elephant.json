@@ -1,0 +1,12 @@
+{
+  "name": "Elephant",
+  "cost": "200 GP",
+  "carryingCapacity": "1,320 lb.",
+  "slug": "elephant",
+  "category": "Mount",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

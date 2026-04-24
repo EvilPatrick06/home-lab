@@ -1,0 +1,13 @@
+{
+  "name": "Potion of Resistance",
+  "slug": "potion-of-resistance",
+  "type": "Potion",
+  "rarity": "Uncommon",
+  "attunement": false,
+  "description": "When you drink this potion, you have Resistance to one type of damage for 1 hour. The DM chooses the type or determines it randomly by rolling on the following table.\n\n| 1d10 | Damage Type | 1d10 | Damage Type |\n|------|-------------|------|-------------|\n| 1 | Acid | 6 | Necrotic |\n| 2 | Cold | 7 | Poison |\n| 3 | Fire | 8 | Psychic |\n| 4 | Force | 9 | Radiant |\n| 5 | Lightning | 10 | Thunder |",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

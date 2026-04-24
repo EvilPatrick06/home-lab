@@ -1,0 +1,13 @@
+{
+  "name": "Moss agate",
+  "slug": "moss-agate",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "pink or yellow-white with mossy gray or green markings",
+  "dieValue": "8",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

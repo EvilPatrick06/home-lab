@@ -1,0 +1,12 @@
+{
+  "name": "Silvered Weapon",
+  "itemType": "Weapon",
+  "rarity": "Common",
+  "description": "An alchemical process has bonded silver to this magic weapon. When you score a Critical Hit with it against a creature that is shape-shifted, the weapon deals one additional die of damage.",
+  "weight": 0,
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

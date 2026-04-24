@@ -1,0 +1,13 @@
+{
+  "name": "Common",
+  "script": "Common",
+  "origin": "Widely spoken across the Material Plane",
+  "speakers": "Humans, and most other peoples",
+  "slug": "common",
+  "category": "Standard",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

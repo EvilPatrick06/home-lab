@@ -1,0 +1,21 @@
+{
+  "id": "inspired",
+  "name": "Heroic Inspiration",
+  "source": "Heroic Inspiration (D&D 2024 core mechanic)",
+  "duration": "Until used or until you gain another instance of Heroic Inspiration",
+  "description": "Heroic Inspiration is a special resource in D&D 2024 that allows a character to reroll any d20 Test (attack roll, ability check, or saving throw). You must use the new roll. A character can have only one instance of Heroic Inspiration at a time.",
+  "effects": [{ "type": "reroll", "target": "any d20 Test", "value": "Reroll the d20, must use new result" }],
+  "howToGain": [
+    "Rolling a 1 on a d20 Test (natural 1) grants Heroic Inspiration in 2024 rules",
+    "DM award for excellent roleplaying, clever problem-solving, or heroic actions",
+    "Certain class features and backgrounds may grant it",
+    "Human species trait grants Heroic Inspiration when you finish a Long Rest"
+  ],
+  "rules": [
+    "You can have only one instance of Heroic Inspiration at a time",
+    "If you gain Heroic Inspiration when you already have it, you can give it to another player character",
+    "You decide to use it after rolling the d20 but before the DM announces the outcome",
+    "You must use the new roll"
+  ],
+  "notes": "Heroic Inspiration replaces the Inspiration mechanic from the 2014 rules. The key difference is you reroll (must use new result) rather than gaining Advantage."
+}

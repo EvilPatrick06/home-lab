@@ -1,0 +1,27 @@
+{
+  "id": "proficiency-bonus",
+  "name": "Proficiency Bonus by Level",
+  "description": "Your Proficiency Bonus is determined by your character level, as shown in the table. This bonus applies to ability checks, attack rolls, and saving throws for which you have proficiency.",
+  "bonusByLevel": [
+    { "levelRange": "1-4", "minLevel": 1, "maxLevel": 4, "bonus": 2 },
+    { "levelRange": "5-8", "minLevel": 5, "maxLevel": 8, "bonus": 3 },
+    { "levelRange": "9-12", "minLevel": 9, "maxLevel": 12, "bonus": 4 },
+    { "levelRange": "13-16", "minLevel": 13, "maxLevel": 16, "bonus": 5 },
+    { "levelRange": "17-20", "minLevel": 17, "maxLevel": 20, "bonus": 6 }
+  ],
+  "applications": [
+    "Attack rolls using weapons or spells you are proficient with",
+    "Ability checks using skills or tools you are proficient with",
+    "Saving throws you are proficient in",
+    "Saving throw DCs for spells you cast (8 + proficiency bonus + spellcasting ability modifier)",
+    "Spell attack modifier (proficiency bonus + spellcasting ability modifier)"
+  ],
+  "expertiseMultiplier": {
+    "description": "Some features, such as Expertise, let you double your Proficiency Bonus for certain checks. In such cases, you add twice your Proficiency Bonus to the roll.",
+    "multiplier": 2
+  },
+  "halfProficiency": {
+    "description": "Some features let you add half your Proficiency Bonus (rounded down) to checks you are not proficient in. Jack of All Trades (Bard) is an example.",
+    "multiplier": 0.5
+  }
+}

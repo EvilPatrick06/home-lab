@@ -1,0 +1,13 @@
+{
+  "id": "thunder",
+  "name": "Thunder",
+  "description": "A concussive burst of sound, such as the effect of the Thunderwave spell, deals Thunder damage. Thunder damage represents sonic booms and powerful sound waves.",
+  "commonSources": [
+    "Thunderwave spell",
+    "Shatter spell",
+    "Thunderclap cantrip",
+    "Destructive Wave spell",
+    "Androsphinx roar"
+  ],
+  "resistanceNotes": "Thunder is relatively uncommon as both a damage source and a resistance. It can affect objects and structures more readily than some other damage types."
+}

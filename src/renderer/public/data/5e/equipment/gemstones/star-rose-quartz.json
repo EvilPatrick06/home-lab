@@ -1,0 +1,13 @@
+{
+  "name": "Star rose quartz",
+  "slug": "star-rose-quartz",
+  "value": "50 GP",
+  "category": "Gemstone",
+  "description": "rosy stone with white star-shaped center",
+  "dieValue": "11",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Automatic Rifle",
+  "slug": "automatic-rifle",
+  "category": "Martial",
+  "type": "Ranged",
+  "era": "Modern",
+  "damage": "2d8",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Burst Fire", "Reload (30)", "Two-Handed"],
+  "weight": "8 lb.",
+  "cost": "—",
+  "range": {
+    "normal": 80,
+    "long": 240
+  },
+  "ammunitionType": "Modern Bullet",
+  "reloadCapacity": 30,
+  "burstFire": {
+    "description": "As an action, spray a 10-foot-cube area within normal range. Each creature in the area must succeed on a DC 15 Dexterity saving throw or take the weapon's normal damage. This uses ten pieces of ammunition.",
+    "area": 10,
+    "saveDC": 15,
+    "saveAbility": "Dexterity",
+    "ammoUsed": 10
+  },
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Firearms"
+  }
+}

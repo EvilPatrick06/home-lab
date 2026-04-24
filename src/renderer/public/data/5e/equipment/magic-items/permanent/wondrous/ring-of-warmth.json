@@ -1,0 +1,15 @@
+{
+  "name": "Ring of Warmth",
+  "itemType": "Ring",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "attunementRequirements": [],
+  "description": "If you take Cold damage while wearing this ring, the ring reduces the damage you take by 2d8.\n\nIn addition, while wearing this ring, you and everything you wear and carry are unharmed by temperatures of 0 degrees Fahrenheit or lower.",
+  "properties": [],
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "source": "DMG 2024"
+}

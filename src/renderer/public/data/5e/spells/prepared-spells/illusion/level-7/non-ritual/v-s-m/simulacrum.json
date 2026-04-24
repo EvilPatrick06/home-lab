@@ -1,0 +1,54 @@
+{
+  "name": "Simulacrum",
+  "level": 7,
+  "school": "Illusion",
+  "classes": ["Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 12,
+    "timeUnit": "hours",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "powdered ruby worth 1,500+ GP, which the spell consumes",
+      "cost": 1500,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "UntilDispelled",
+    "concentration": false
+  },
+  "description": "You create a simulacrum of one Beast or Humanoid that is within 10 feet of you for the entire casting of the spell. You finish the casting by touching both the creature and a pile of ice or snow that is the same size as that creature, and the pile turns into the simulacrum, which is a creature. It uses the game statistics of the original creature at the time of casting, except it is a Construct, its Hit Point maximum is half as much, and it can't cast this spell. The simulacrum is Friendly to you and creatures you designate. It obeys your commands and acts on your turn in combat. The simulacrum can't gain levels, and it can't take Short or Long Rests. If the simulacrum takes damage, the only way to restore its Hit Points is to repair it as you take a Long Rest, during which you expend components worth 100 GP per Hit Point restored. The simulacrum must stay within 5 feet of you for the repair. The simulacrum lasts until it drops to 0 Hit Points, at which point it reverts to snow and melts away. If you cast this spell again, any simulacrum you created with this spell is instantly destroyed.",
+  "targetType": "creature",
+  "targetCreatureTypes": ["Beast", "Humanoid"],
+  "mustSeeTarget": false,
+  "summonsCreature": {
+    "statBlockName": "Simulacrum (copy of original creature)",
+    "creatureType": "Construct",
+    "count": 1,
+    "scalesWithSpellLevel": false,
+    "description": "Uses the game statistics of the original Beast or Humanoid at the time of casting, except it is a Construct, its Hit Point maximum is half as much, and it can't cast Simulacrum. It is Friendly to you and creatures you designate, obeys your commands, and acts on your turn in combat. It can't gain levels, and it can't take Short or Long Rests. Damage can only be repaired during a Long Rest by expending components worth 100 GP per Hit Point restored while the simulacrum is within 5 feet of you. It lasts until it drops to 0 Hit Points (at which point it reverts to snow and melts away). Casting this spell again instantly destroys any existing simulacrum you created with it."
+  },
+  "hpMaxModifier": {
+    "type": "reduce"
+  },
+  "tags": [
+    "creation",
+    "construct",
+    "duplicate",
+    "friendly",
+    "obeys_commands",
+    "no_rests",
+    "no_leveling",
+    "destroyed_on_recast"
+  ]
+}

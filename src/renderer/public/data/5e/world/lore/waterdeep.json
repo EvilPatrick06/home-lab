@@ -1,0 +1,10 @@
+{
+  "name": "Waterdeep",
+  "slug": "waterdeep",
+  "description": "Waterdeep is the most famous and cosmopolitan city in the Forgotten Realms setting. It's a center of wealth and influence where people come to make their dreams come true. The city is home to the **Yawning Portal**, the best-known point of access to the sprawling dungeon of **Undermountain**.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Appendix A",
+    "section": "Lore Glossary"
+  }
+}

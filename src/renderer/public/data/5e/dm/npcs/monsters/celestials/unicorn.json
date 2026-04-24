@@ -1,0 +1,210 @@
+{
+  "name": "Unicorn",
+  "sizes": ["Large"],
+  "creatureType": "Celestial",
+  "alignment": "Lawful Good",
+  "habitat": ["Forest", "Feywild"],
+  "treasure": ["Arcana"],
+  "lore": "A unicorn is a majestic celestial creature that dwells in enchanted forests and blessed glades. Sacred and elusive, unicorns are symbols of purity, grace, and benevolence. They use powerful magic to protect their woodland domains and the innocent creatures within. A unicorn's horn can heal wounds, cure diseases, and neutralize poisons, making these creatures living fonts of restorative power. Unicorns rarely reveal themselves to mortals, appearing only to those whose hearts are pure and whose intentions are noble.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 67,
+    "dice": {
+      "count": 9,
+      "die": "d10",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 17,
+      "modifier": 3,
+      "save": 6
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    }
+  },
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Celestial", "Elvish", "Sylvan"],
+    "telepathy": 60
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The unicorn has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 14,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true,
+        "ignoresMaterialWithCost": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Druidcraft",
+              "level": 0
+            },
+            {
+              "name": "Pass without Trace",
+              "level": 2
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Calm Emotions",
+              "level": 2
+            },
+            {
+              "name": "Dispel Magic",
+              "level": 3
+            },
+            {
+              "name": "Entangle",
+              "level": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The unicorn makes two Hooves attacks. It can replace one of these attacks with a use of Healing Touch or Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Hooves",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Hooves",
+        "replaceCount": 1,
+        "with": "Healing Touch"
+      },
+      {
+        "replace": "Hooves",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Hooves",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 11 (2d6 + 4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Healing Touch",
+      "description": "The unicorn touches another creature with its horn. The target regains 11 (2d8 + 2) Hit Points. The touch also removes all diseases and neutralizes all poisons affecting the target.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      },
+      "healing": {
+        "average": 11,
+        "dice": {
+          "count": 2,
+          "die": "d8",
+          "modifier": 2
+        }
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Hooves",
+        "description": "The unicorn makes one Hooves attack.",
+        "cost": 1
+      },
+      {
+        "name": "Shimmering Shield",
+        "description": "The unicorn creates a shimmering, magical field around itself or another creature it can see within 60 feet of itself. The target gains a +2 bonus to AC until the end of the unicorn's next turn.",
+        "cost": 2
+      }
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "name": "Flesh Golem",
+  "sizes": ["Medium"],
+  "creatureType": "Construct",
+  "descriptiveTags": ["Golem"],
+  "alignment": "Neutral",
+  "habitat": ["Urban"],
+  "treasure": ["None"],
+  "lore": "A flesh golem is a grisly assembly of humanoid body parts stitched together into a single composite form. Dark magic and the application of lightning fuse the disparate pieces into a lumbering construct obedient to its creator. Though it follows commands without question, the magic that animates a flesh golem is unstable; when severely damaged, the golem can go berserk, lashing out at anything nearby until calmed or destroyed. The resemblance to its component creatures is a haunting reminder of the cost of its creation.",
+  "armorClass": {
+    "value": 9
+  },
+  "hitPoints": {
+    "average": 93,
+    "dice": {
+      "count": 11,
+      "die": "d8",
+      "modifier": 44
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 19,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "damageImmunities": ["Lightning and Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Frightened", "Paralyzed", "Petrified", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Languages of its creator"],
+    "notes": "understands the languages of its creator but can't speak"
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Berserk",
+      "description": "Whenever the golem starts its turn with 40 Hit Points or fewer, roll 1d6. On a 6, the golem goes berserk. On each of its turns while berserk, the golem attacks the nearest creature it can see. If no creature is near enough to move to and attack, the golem attacks an object, with preference for an object smaller than itself. Once the golem goes berserk, it continues to do so until it is destroyed or regains all its Hit Points. The golem's creator, if within 60 feet of the berserk golem, can try to calm it by taking an action to make a DC 15 Charisma (Persuasion) check. If the check succeeds, the golem ceases being berserk. If it takes damage while still at 40 Hit Points or fewer, the golem might go berserk again."
+    },
+    {
+      "name": "Immutable Form",
+      "description": "The golem is immune to any spell or effect that would alter its form."
+    },
+    {
+      "name": "Lightning Absorption",
+      "description": "Whenever the golem is subjected to Lightning damage, it takes no damage and instead regains a number of Hit Points equal to the Lightning damage dealt."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The golem has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The golem makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 13 (2d8 + 4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

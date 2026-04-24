@@ -1,0 +1,11 @@
+{
+  "name": "Spell Slot",
+  "slug": "spell-slot",
+  "description": "A spell slot represents a character's capacity to cast a spell. Casting a spell of level 1 or higher expends a slot of the spell's level or higher. You regain all expended spell slots when you finish a Long Rest.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

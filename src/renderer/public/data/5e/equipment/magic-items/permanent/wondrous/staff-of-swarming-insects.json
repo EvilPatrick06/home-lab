@@ -1,0 +1,29 @@
+{
+  "name": "Staff of Swarming Insects",
+  "itemType": "Staff",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": ["Bard", "Cleric", "Druid", "Sorcerer", "Warlock", "Wizard"],
+  "description": "This staff has 10 charges.\n\nInsect Cloud. While holding the staff, you can take a Magic action and expend 1 charge to cause a swarm of harmless flying insects to fill a 30-foot Emanation originating from you. The insects remain for 10 minutes, making the area Heavily Obscured for creatures other than you. A strong wind (like that created by *Gust of Wind*) disperses the swarm and ends the effect.\n\nSpells. While holding the staff, you can cast one of the spells on the following table from it, using your spell save DC and spell attack modifier. The table indicates how many charges you must expend to cast the spell.",
+  "properties": [
+    {
+      "name": "Spells",
+      "spells": [
+        {
+          "name": "Giant Insect",
+          "cost": 4
+        },
+        {
+          "name": "Insect Plague",
+          "cost": 5
+        }
+      ]
+    }
+  ],
+  "weight": null,
+  "cost": null,
+  "charges": 10,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d6 + 4",
+  "source": "DMG 2024"
+}

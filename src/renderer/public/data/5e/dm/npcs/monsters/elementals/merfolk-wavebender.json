@@ -1,0 +1,69 @@
+{
+  "name": "Merfolk Wavebender",
+  "slug": "merfolk-wavebender",
+  "size": "Medium",
+  "type": "Elemental",
+  "alignment": "Neutral",
+  "ac": "14",
+  "initiative": "+4 (14)",
+  "hp": "97",
+  "hpFormula": "15d8 + 30",
+  "speed": "10 ft., Swim 40 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 18,
+    "con": 14,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 7,
+    "con": 5,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +7",
+  "resistances": "Cold",
+  "senses": "Passive Perception 17",
+  "languages": "Common, Primordial (Aquan)",
+  "cr": "6 (XP 2,300; PB +3)",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The merfolk can breathe air and water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The merfolk makes two Aquatic Burst attacks."
+    },
+    {
+      "name": "Aquatic Burst",
+      "description": "*Melee or Ranged Attack Roll:* +7, reach 5 ft. or range 60 ft. *Hit:* 20 (3d10 + 4) Cold damage. If the target is a Large or smaller creature, it has the Prone condition."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The merfolk casts one of the following spells, requiring no Material components and using Wisdom as the spellcasting ability (spell save DC 15):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Watery Rebuke",
+      "description": "*Trigger:* An enemy the merfolk can see enters a space within 5 feet of the merfolk. *Response -- Strength Saving Throw:* DC 15, the triggering enemy. *Failure:* 14 (4d6) Cold damage. If the target is Large or smaller, it is pushed up to 30 feet straight away from the merfolk by conjured water."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "*Protectors and Explorers of the Seas*\n**Habitat:** Coastal, Underwater; **Treasure:** Individual\nBeneath the waves dwell merfolk, mysterious creatures that merge the features of humans and sea creatures. Some are curious about land dwellers, while others view them with suspicion.\nMerfolk skirmishers defend their homes from aquatic monsters and invaders from the surface.\nThese merfolk mages use magic to manipulate water, storms, and sea creatures to aid them.",
+  "habitat": "Coastal, Underwater",
+  "treasure": "Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

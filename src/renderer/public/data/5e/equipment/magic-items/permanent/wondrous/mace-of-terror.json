@@ -1,0 +1,18 @@
+{
+  "name": "Mace",
+  "category": "Simple",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 5,
+    "denomination": "GP"
+  },
+  "damage": {
+    "count": 1,
+    "die": 6,
+    "type": "Bludgeoning"
+  },
+  "weight": 4,
+  "properties": [],
+  "mastery": "Sap",
+  "_note": "'Mace of Terror' is a magic item detailed in the Dungeon Master's Guide, not in PHB Chapter 6: Equipment. The base Mace weapon is extracted here as the only mace present in the source text."
+}

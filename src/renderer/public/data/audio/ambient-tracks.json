@@ -1,0 +1,21 @@
+{
+  "ambientTracks": [
+    { "id": "ambient-tavern", "label": "Tavern", "icon": "\uD83C\uDFBA" },
+    { "id": "ambient-dungeon", "label": "Dungeon", "icon": "\uD83D\uDD33" },
+    { "id": "ambient-forest", "label": "Forest", "icon": "\uD83C\uDF32" },
+    { "id": "ambient-cave", "label": "Cave", "icon": "\u26F0\uFE0F" },
+    { "id": "ambient-city", "label": "City", "icon": "\uD83C\uDFD9\uFE0F" },
+    { "id": "ambient-battle", "label": "Battle", "icon": "\u2694\uFE0F" },
+    { "id": "ambient-tension", "label": "Tension", "icon": "\uD83D\uDE28" },
+    { "id": "ambient-victory", "label": "Victory", "icon": "\uD83C\uDFC6" },
+    { "id": "ambient-defeat", "label": "Defeat", "icon": "\uD83D\uDC80" }
+  ],
+  "quickSfx": [
+    { "event": "door-open", "label": "Door" },
+    { "event": "trap-triggered", "label": "Trap" },
+    { "event": "loot-found", "label": "Loot" },
+    { "event": "announcement", "label": "Announce" },
+    { "event": "initiative-start", "label": "Initiative" },
+    { "event": "death", "label": "Death" }
+  ]
+}

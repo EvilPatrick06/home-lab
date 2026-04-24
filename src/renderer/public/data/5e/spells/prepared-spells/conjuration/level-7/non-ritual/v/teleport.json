@@ -1,0 +1,46 @@
+{
+  "name": "Teleport",
+  "level": 7,
+  "school": "Conjuration",
+  "classes": ["Bard", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 10,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "This spell instantly transports you and up to eight willing creatures that you can see within range, or a single object that you can see within range, to a destination you select. If you target an object, it must be Large or smaller, and it can't be held or carried by an unwilling creature. The destination you choose must be known to you, and it must be on the same plane of existence as you. Your familiarity with the destination determines whether you arrive there successfully. The DM rolls 1d100 and consults the Teleportation Outcome table. Permanent circle and Linked object always arrive On Target. Very familiar: Mishap 01-05, Similar Area 06-13, Off Target 14-24, On Target 25-00. Seen casually: Mishap 01-33, Similar Area 34-43, Off Target 44-53, On Target 54-00. Viewed once or described: Mishap 01-43, Similar Area 44-53, Off Target 54-73, On Target 74-00. False destination: Mishap 01-50, Similar Area 51-00. On a Mishap, each teleporting creature or the target object takes 3d10 Force damage, and the DM rerolls. On Similar Area, you appear in a different but visually or thematically similar location. On Off Target, you appear 2d12 miles away in a random direction.",
+  "targetType": "creatureOrObject",
+  "targetCount": 8,
+  "mustSeeTarget": true,
+  "targetMustBeWilling": true,
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 3,
+        "diceValue": 10
+      },
+      "type": "Force",
+      "applicationType": "onCast",
+      "condition": "On a Mishap teleportation result; multiple mishaps can occur, dealing damage each time"
+    }
+  ],
+  "teleportation": {
+    "selfOnly": false,
+    "additionalCreatures": 8,
+    "description": "Instantly transports you and up to eight willing creatures or a single Large or smaller object to a known destination on the same plane. Outcome depends on familiarity: Permanent circle or Linked object always succeeds. Very familiar, Seen casually, Viewed once or described, and False destination have increasing chances of Mishap, Similar Area, or Off Target results determined by a d100 roll. Off Target lands 2d12 miles away in a random direction. Mishap deals 3d10 Force damage and rerolls."
+  },
+  "tags": ["teleportation", "transport", "utility", "d100", "familiarity"]
+}

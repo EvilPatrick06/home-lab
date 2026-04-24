@@ -1,0 +1,113 @@
+{
+  "name": "Pegasus",
+  "sizes": ["Large"],
+  "creatureType": "Celestial",
+  "alignment": "Chaotic Good",
+  "habitat": ["Hill", "Mountain"],
+  "treasure": ["None"],
+  "lore": "Pegasi are magnificent winged horses native to the Upper Planes. They serve as noble steeds to the forces of good and are sometimes found in the mortal world, dwelling in remote mountain regions. Pegasi are intelligent and fiercely loyal to those they bond with, but they never willingly serve evil creatures.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 59,
+    "dice": {
+      "count": 7,
+      "die": "d10",
+      "modifier": 21
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 60
+    },
+    {
+      "type": "Fly",
+      "distance": 90
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 4
+    },
+    "CHA": {
+      "score": 13,
+      "modifier": 1,
+      "save": 3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "senses": {
+    "passivePerception": 14
+  },
+  "languages": {
+    "understood": ["Celestial", "Common", "Elvish"],
+    "notes": "understands Celestial, Common, and Elvish but can't speak"
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Flyby",
+      "description": "The pegasus doesn't provoke Opportunity Attacks when it flies out of an enemy's reach."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Hooves",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 11 (2d6 + 4) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

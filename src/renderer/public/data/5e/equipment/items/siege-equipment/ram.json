@@ -1,0 +1,15 @@
+{
+  "name": "Ram",
+  "ac": 15,
+  "hp": 100,
+  "attack": "+8, reach 5 ft.",
+  "damage": "16 (3d10) Bludgeoning",
+  "description": "Requires Position action. Deals double damage to objects and structures.",
+  "slug": "ram",
+  "category": "Siege Equipment",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

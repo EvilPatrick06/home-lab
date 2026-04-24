@@ -1,0 +1,13 @@
+{
+  "name": "Tiger eye",
+  "slug": "tiger-eye",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "brown with golden center",
+  "dieValue": "11",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

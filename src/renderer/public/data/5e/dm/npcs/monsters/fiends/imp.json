@@ -1,0 +1,180 @@
+{
+  "name": "Imp",
+  "sizes": ["Tiny"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar (Nine Hells)", "Urban"],
+  "treasure": ["None"],
+  "lore": "Imps are found throughout the Lower Planes, serving as scouts, messengers, and attendants for more powerful devils. They are duplicitous creatures that delight in tormenting mortals. An imp can be bound to serve a mortal spellcaster as a familiar, reporting to a devil lord on its master's activities while doing so.",
+  "armorClass": {
+    "value": 13
+  },
+  "hitPoints": {
+    "average": 10,
+    "dice": {
+      "count": 3,
+      "die": "d4",
+      "modifier": 3
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 5,
+    "score": 15
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 4
+    },
+    {
+      "skill": "Insight",
+      "bonus": 3
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "resistances": ["Cold", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Common", "Infernal"]
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the imp's Darkvision."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The imp has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Imp Spellcasting",
+      "ability": "CHA",
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Invisibility",
+              "level": 2,
+              "restriction": "self only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Sting (Bite in Beast Form)",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 5 (1d4 + 3) Piercing damage plus 3 (1d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Invisibility",
+      "description": "The imp casts Invisibility on itself, requiring no spell components and using Charisma as the spellcasting ability."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Shape-Shift",
+      "description": "The imp shape-shifts to resemble a rat (Small), a raven (Tiny), or a spider (Tiny), or it returns to its true form (Tiny). Its game statistics are the same in each form, except for its size. Any equipment it's wearing or carrying isn't transformed. The imp reverts to its true form if it dies."
+    }
+  ]
+}

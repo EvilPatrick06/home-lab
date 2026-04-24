@@ -1,0 +1,181 @@
+{
+  "name": "Minotaur of Baphomet",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Abyss", "Underdark"],
+  "treasure": ["Armaments"],
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 94,
+    "dice": {
+      "count": 9,
+      "die": "d10",
+      "modifier": 45
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 7
+    },
+    {
+      "skill": "Survival",
+      "bonus": 5
+    }
+  ],
+  "gear": [
+    {
+      "name": "Greataxe",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 17
+  },
+  "languages": {
+    "spoken": ["Abyssal"]
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Labyrinthine Recall",
+      "description": "The minotaur can perfectly recall any path it has traveled."
+    },
+    {
+      "name": "Reckless",
+      "description": "At the start of its turn, the minotaur can gain Advantage on all melee attack rolls it makes during that turn, but attack rolls against it have Advantage until the start of its next turn."
+    }
+  ],
+  "multiattack": {
+    "description": "The minotaur makes one Gore attack and one Greataxe attack.",
+    "attacks": [
+      {
+        "actionName": "Gore",
+        "count": 1
+      },
+      {
+        "actionName": "Greataxe",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Gore",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 13 (2d8 + 4) Piercing damage. If the minotaur moved at least 10 feet straight toward the target immediately before the hit, the target takes an extra 9 (2d8) Piercing damage, and if the target is a Large or smaller creature, the target has the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Piercing",
+              "notes": "if the minotaur moved at least 10 feet straight toward the target immediately before the hit"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Prone",
+              "duration": "until the target uses movement to stand up"
+            }
+          ],
+          "additionalEffects": "The extra Piercing damage and the Prone condition apply only if the minotaur moved at least 10 feet straight toward the target immediately before the hit. The Prone condition applies only if the target is a Large or smaller creature."
+        }
+      }
+    },
+    {
+      "name": "Greataxe",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 17 (2d12 + 4) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d12",
+                "modifier": 4
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,394 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Above Elemental Below",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them. Bytopia is an Upper Plane positioned between Mount Celestia and Elysium on the Great Wheel.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "bytopia",
+      "name": "Bytopia",
+      "alternateNames": ["Twin Paradises"],
+      "category": "Outer Plane",
+      "subcategory": "Upper Plane",
+      "alignments": ["Lawful Good", "Neutral Good"],
+      "philosophicalEssence": "Personal achievement alongside social interdependence. Bytopia is the heaven of productive work and the satisfaction of a job well done.",
+      "emotionalInfluence": "The goodness flowing through the plane creates feelings of goodwill and happiness in creatures dwelling there.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "multiple_surfaces",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "Two layers whose surfaces face each other like the covers of a closed book, approximately one mile apart. Looking up from Dothion, the top layer, a traveler can see Shurrock overhead.",
+        "breathableAtmosphere": true,
+        "temperature": {
+          "category": "variable",
+          "description": "Dothion has pastoral, temperate conditions. Shurrock has rough country and harsh weather."
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Dothion has mild pastoral weather. Shurrock experiences harsh weather conditions."
+      },
+      "layers": [
+        {
+          "name": "Dothion",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "Farms nestled among well-tamed woods are hubs of pastoral activity and individual industry. Dothion is the 'top' layer of Bytopia and rewards those who seek a quiet life.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Farms nestled among well-tamed woods are hubs of pastoral activity and individual industry.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Shurrock",
+          "alternateNames": [],
+          "layerNumber": 2,
+          "description": "Small communities thrive around quarries and mills amid rough country and harsh weather. Shurrock is the paradise of those who continually challenge and better themselves.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Small communities thrive around quarries and mills amid rough country and harsh weather.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 2,
+      "timeFlow": {
+        "type": "normal",
+        "description": "Time flows normally on Bytopia as is typical for Outer Planes unless specific effects intervene. Distance is virtually meaningless on the Outer Planes; a perceptible region might seem small on one visit and stretch to infinity on another."
+      },
+      "hazards": [],
+      "environmentalEffects": [
+        {
+          "id": "bytopia-goodwill-happiness",
+          "name": "Goodwill and Happiness",
+          "description": "The goodness flowing through the plane creates feelings of goodwill and happiness in creatures dwelling there.",
+          "mechanicalEffect": "The goodness flowing through the plane creates feelings of goodwill and happiness in creatures dwelling there. This is a DM-directed environmental effect referenced in chapter 3 Environmental Effects.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Feelings of goodwill and happiness pervade creatures dwelling on Bytopia.",
+          "sourceReference": "Chapter 3: Environmental Effects"
+        },
+        {
+          "id": "bytopia-mirrored-reactions",
+          "name": "Mirrored Reactions Between Layers",
+          "description": "Every action carried out on one layer has repercussions on the other—an equal and opposite reaction, though more metaphorical than physical.",
+          "mechanicalEffect": "Every action carried out on one layer of Bytopia has repercussions on the other layer—an equal and opposite reaction, described as more metaphorical than physical. This can be used as a narrative tool to challenge characters to recognize the impact their actions have on the world.",
+          "isOptional": true,
+          "affectsEmotions": false,
+          "sourceReference": "Chapter 6: Cosmology - Bytopia Adventures"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": [],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Fiend"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on Bytopia, a Fiend makes a DC 10 Constitution saving throw because Bytopia is an Upper Plane and opposed to its nature.",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "customCondition": "Planar Dissonance",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            },
+            "cumulative": true,
+            "cumulativeDescription": "The d4 penalty is cumulative with each failed save. After multiple failed saves the creature subtracts multiple d4s from D20 Tests.",
+            "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature"
+          },
+          "onSuccess": {
+            "description": "The creature avoids gaining an additional cumulative d4 penalty to D20 Tests.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": ["Celestial"],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": true,
+          "repeatSaveTiming": "After finishing each Long Rest on Bytopia",
+          "recoveryTrigger": "Finishing a Long Rest on a plane that isn't opposed to the creature's nature",
+          "recoveryMethods": ["Finishing a Long Rest on a plane that is not an Upper Plane (for Fiends)"],
+          "failureProbabilityAtDC": {
+            "dc": 10,
+            "noModifierFailChance": 0.45,
+            "commonModifierRange": {
+              "low": 1,
+              "high": 5
+            },
+            "failChanceAtLowMod": 0.4,
+            "failChanceAtHighMod": 0.2
+          }
+        },
+        "description": "Fiends who visit Bytopia (an Upper Plane) experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on Bytopia, a Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Recognizing the impact of one's actions by witnessing mirrored reactions on the opposite layer",
+        "The satisfaction of productive work and a job well done",
+        "Personal achievement alongside social interdependence",
+        "Challenging characters to see the consequences of their deeds"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Amber",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3: Environmental Effects - referenced for goodwill and happiness effect on Bytopia"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "bytopia-color-pool",
+      "name": "Astral Color Pool to Bytopia",
+      "type": "portal",
+      "description": "An amber-colored pool in the Astral Plane leads to Bytopia. Color pools appear as two-dimensional pools of rippling colors, 1d6 × 10 feet in diameter.",
+      "requirements": ["Access to the Astral Plane", "Locating an amber-colored pool"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["Psychic Wind"],
+      "destinations": ["Bytopia"]
+    },
+    {
+      "id": "bytopia-gate-town-tradegate",
+      "name": "Tradegate Gate-Town",
+      "type": "portal",
+      "description": "Tradegate is the gate-town in the Outlands that contains a portal leading to Bytopia. Each gate-town shares many of the characteristics of the plane where its gate leads.",
+      "requirements": ["Travel to Tradegate in the Outlands"],
+      "associatedSpells": [],
+      "risks": [],
+      "destinations": ["Bytopia"]
+    },
+    {
+      "id": "bytopia-spells",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "Spells such as Gate and Plane Shift can directly transport adventurers to Bytopia.",
+      "requirements": ["Ability to cast the appropriate spell", "Proper tuning fork for Plane Shift"],
+      "associatedSpells": ["Gate", "Plane Shift"],
+      "risks": [],
+      "destinations": ["Bytopia"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    }
+  ],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane alien to the creature's nature",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "cumulative": true,
+        "cumulativeDescription": "The d4 subtraction is cumulative with each failed save.",
+        "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature"
+      },
+      "onSuccess": {
+        "description": "The creature avoids gaining an additional cumulative d4 penalty.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": true,
+      "repeatSaveTiming": "After finishing each Long Rest on the opposed plane",
+      "recoveryTrigger": "Finishing a Long Rest on a plane that is not opposed to the creature's nature",
+      "recoveryMethods": ["Finishing a Long Rest on a plane not opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 1,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.4,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

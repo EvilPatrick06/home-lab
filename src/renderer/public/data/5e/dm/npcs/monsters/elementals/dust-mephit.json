@@ -1,0 +1,195 @@
+{
+  "name": "Dust Mephit",
+  "sizes": ["Small"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral Evil",
+  "habitat": ["Desert"],
+  "treasure": ["None"],
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 17,
+    "dice": {
+      "count": 5,
+      "die": "d6",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Exhaustion", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Auran", "Terran"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Death Burst",
+      "description": "When the mephit dies, it explodes in a burst of dust. Each creature within 5 feet of it must succeed on a DC 10 Constitution saving throw or have the Blinded condition for 1 minute. A Blinded creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 10,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Sleep",
+              "level": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Blinding Breath",
+      "description": "The mephit exhales blinding dust in a 15-foot Cone. Each creature in that area must succeed on a DC 10 Dexterity saving throw or have the Blinded condition for 1 minute. A Blinded creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 10,
+        "targets": "each creature in that area",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Blinded",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "DEX",
+                "dc": 10,
+                "targets": "the Blinded creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 15
+      },
+      "conditions": [
+        {
+          "condition": "Blinded",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "DEX",
+            "dc": 10,
+            "targets": "the Blinded creature",
+            "onSuccess": {
+              "effects": "The effect ends on the creature."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

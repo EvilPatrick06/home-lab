@@ -1,0 +1,66 @@
+{
+  "name": "Psychic Gray Ooze",
+  "slug": "psychic-gray-ooze",
+  "size": "Medium",
+  "type": "Ooze",
+  "alignment": "Unaligned",
+  "ac": "9",
+  "initiative": "−1 (14)",
+  "hp": "37",
+  "hpFormula": "5d8 + 15",
+  "speed": "10 ft., Climb 10 ft.",
+  "abilityScores": {
+    "str": 12,
+    "dex": 8,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": -1,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +3",
+  "immunities": "Blinded, Charmed, Deafened, Exhaustion, Frightened, Grappled, Prone, Restrained",
+  "resistances": "Acid, Cold, Fire, Psychic",
+  "senses": "Blindsight 60 ft.; Passive Perception 8",
+  "languages": "None",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Amorphous",
+      "description": "The ooze can move through a space as narrow as 1 inch without expending extra movement to do so."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 11 (3d6 + 1) Acid damage, and the target has Disadvantage on Intelligence saving throws until the end of the ooze's next turn."
+    },
+    {
+      "name": "Psychic Crush",
+      "description": "*Intelligence Saving Throw:* DC 10, one creature the ooze can see within 60 feet. *Failure:* 13 (3d8) Psychic damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Mind Corrosion",
+      "description": "*Trigger:* The ooze fails a saving throw against a spell or another magical effect created by a creature. *Response:* The triggering creature takes 3 (1d6) Psychic damage."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "*Hungry Slimes and Magical Failures*\n**Habitat:** Underdark; **Treasure:** None\nGray oozes are predatory, corrosive slimes that blend in with stony surroundings.\nGray oozes appear in areas affected by unpredictable magic. Magic-users who fail in their attempts to bind elemental spirits to the bodies of Constructs might also accidentally create gray oozes.\nPsychic gray oozes exhibit violent psionic abilities. These oozes sometimes result from failed attempts to summon or create creatures linked to the Elemental Plane of Earth, like gargoyles or homunculi.",
+  "habitat": "Underdark",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Oozes",
+    "file": "Oozes.md"
+  }
+}

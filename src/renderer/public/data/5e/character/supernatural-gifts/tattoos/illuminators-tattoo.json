@@ -1,0 +1,26 @@
+{
+  "id": "illuminators-tattoo",
+  "name": "Illuminator's Tattoo",
+  "rarity": "Common",
+  "attunement": true,
+  "description": "This tattoo contains beautiful calligraphy, images of writing implements, or similar googly imagery. While this tattoo is on your skin, you can write with your fingertip as if it were an ink pen that never runs out of ink. As a Magic action, you can touch a piece of writing up to one page in length and speak a creature's name. The writing becomes Invisible to everyone other than you and the named creature for 24 hours. Either of you can dismiss the invisibility by touching the script. Once used, this Magic action can't be used again until the next dawn.",
+  "properties": {
+    "type": "Magical Tattoo",
+    "needleRequired": "Common or higher",
+    "bodyLocation": "Any"
+  },
+  "effects": [
+    {
+      "name": "Ink Finger",
+      "description": "Write with your fingertip as if it were an ink pen that never runs out of ink.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Invisible Ink",
+      "description": "Touch writing up to one page and speak a creature's name. The writing becomes invisible to all except you and the named creature for 24 hours.",
+      "activation": "MagicAction",
+      "usesPerDay": 1
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

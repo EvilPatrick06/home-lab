@@ -1,0 +1,167 @@
+{
+  "id": "dnd-terms",
+  "name": "D&D 5e Terminology Reference",
+  "description": "Common D&D terminology for AI parsing and natural language understanding. Each term includes its definition and common aliases players might use.",
+  "terms": [
+    {
+      "term": "Ability Check",
+      "definition": "A d20 roll + ability modifier + proficiency bonus (if proficient in the relevant skill). Used to determine success or failure for non-combat tasks.",
+      "aliases": ["skill check", "check", "ability roll"]
+    },
+    {
+      "term": "Saving Throw",
+      "definition": "A d20 roll + ability modifier + proficiency bonus (if proficient). Used to resist spells, traps, poisons, diseases, and similar threats.",
+      "aliases": ["save", "saving throw", "make a save"]
+    },
+    {
+      "term": "Attack Roll",
+      "definition": "A d20 roll + ability modifier + proficiency bonus. Compared against the target's AC to determine if an attack hits.",
+      "aliases": ["attack", "to hit", "swing", "shoot", "strike"]
+    },
+    {
+      "term": "Armor Class",
+      "definition": "A number representing how hard a creature is to hit. An attack roll must meet or exceed the target's AC to hit.",
+      "aliases": ["AC", "armor", "defense"]
+    },
+    {
+      "term": "Hit Points",
+      "definition": "A numerical representation of a creature's vitality. When HP reaches 0, the creature falls unconscious or dies.",
+      "aliases": ["HP", "health", "hit points", "life", "health points"]
+    },
+    {
+      "term": "Proficiency Bonus",
+      "definition": "A bonus that increases with character level (+2 at level 1, up to +6 at level 17). Added to attack rolls, ability checks, saving throws, and spell DCs when the character is proficient.",
+      "aliases": ["proficiency", "prof bonus", "prof"]
+    },
+    {
+      "term": "Advantage",
+      "definition": "Roll two d20s and take the higher result. Granted by favorable circumstances, spells, or abilities.",
+      "aliases": ["adv", "with advantage", "roll twice take higher"]
+    },
+    {
+      "term": "Disadvantage",
+      "definition": "Roll two d20s and take the lower result. Imposed by unfavorable circumstances, conditions, or abilities.",
+      "aliases": ["disadv", "dis", "with disadvantage", "roll twice take lower"]
+    },
+    {
+      "term": "Critical Hit",
+      "definition": "A natural 20 on an attack roll. Automatically hits and doubles the number of damage dice rolled.",
+      "aliases": ["crit", "nat 20", "natural 20", "critical"]
+    },
+    {
+      "term": "Difficulty Class",
+      "definition": "The target number for a saving throw or ability check. Set by the DM or defined by a spell/ability.",
+      "aliases": ["DC", "difficulty", "target number"]
+    },
+    {
+      "term": "Initiative",
+      "definition": "A Dexterity check that determines the order of turns in combat. Higher initiative goes first.",
+      "aliases": ["init", "turn order", "combat order", "roll initiative"]
+    },
+    {
+      "term": "Concentration",
+      "definition": "Some spells require ongoing focus. Taking damage forces a Constitution saving throw (DC 10 or half damage, whichever is higher) to maintain. Only one concentration spell at a time.",
+      "aliases": ["concentrating", "conc", "maintaining concentration"]
+    },
+    {
+      "term": "Action",
+      "definition": "The main thing a character does on their turn: Attack, Cast a Spell, Dash, Disengage, Dodge, Help, Hide, Ready, Search, or Use an Object.",
+      "aliases": ["main action", "standard action"]
+    },
+    {
+      "term": "Bonus Action",
+      "definition": "An extra action available only when a class feature, spell, or ability specifically grants one. Limited to one per turn.",
+      "aliases": ["BA", "bonus", "off-hand"]
+    },
+    {
+      "term": "Reaction",
+      "definition": "An instant response to a trigger, taken on another creature's turn. Limited to one per round. Examples: Opportunity Attack, Shield spell, Counterspell.",
+      "aliases": ["react", "opportunity attack", "AoO"]
+    },
+    {
+      "term": "Spell Slot",
+      "definition": "A resource expended to cast a spell of that level or lower. Recovered on a long rest (short rest for Warlocks).",
+      "aliases": ["slot", "spell slots", "slots"]
+    },
+    {
+      "term": "Cantrip",
+      "definition": "A spell that can be cast at will without expending a spell slot. Damage cantrips scale with character level.",
+      "aliases": ["at-will spell", "0-level spell"]
+    },
+    {
+      "term": "Short Rest",
+      "definition": "A period of at least 1 hour during which a character does nothing more strenuous than eating, drinking, reading, and tending wounds. Can spend Hit Dice to heal.",
+      "aliases": ["short rest", "SR", "take a breather"]
+    },
+    {
+      "term": "Long Rest",
+      "definition": "A period of at least 8 hours during which a character sleeps for at least 6 hours and performs no more than 2 hours of light activity. Restores all HP, recovers half of spent Hit Dice, and resets most abilities.",
+      "aliases": ["long rest", "LR", "sleep", "camp", "full rest"]
+    },
+    {
+      "term": "Hit Dice",
+      "definition": "Dice representing a creature's vitality. A character has one hit die per level. Can be spent during a short rest to recover HP.",
+      "aliases": ["HD", "hit die", "healing dice"]
+    },
+    {
+      "term": "Temporary Hit Points",
+      "definition": "Extra HP that are lost first before regular HP. Do not stack (take the highest value). Cannot be healed back once lost.",
+      "aliases": ["temp HP", "THP", "temporary HP", "temp hit points"]
+    },
+    {
+      "term": "Death Saving Throw",
+      "definition": "A d20 roll with no modifiers made when a creature starts its turn with 0 HP. DC 10: success. Three successes = stabilized. Three failures = death. Natural 20 = regain 1 HP. Natural 1 = two failures.",
+      "aliases": ["death save", "death saves", "dying"]
+    },
+    {
+      "term": "Opportunity Attack",
+      "definition": "A reaction melee attack made when a hostile creature moves out of your reach without Disengaging.",
+      "aliases": ["OA", "AoO", "attack of opportunity", "opportunity"]
+    },
+    {
+      "term": "Difficult Terrain",
+      "definition": "Terrain that costs 2 feet of movement for every 1 foot traveled. Examples: rubble, ice, undergrowth, stairs.",
+      "aliases": ["rough terrain", "hard terrain", "slow terrain"]
+    },
+    {
+      "term": "Exhaustion",
+      "definition": "A cumulative condition with increasing penalties. Each level imposes a -2 penalty to d20 rolls. At 6 levels, the creature dies. Levels are removed one at a time by long rests.",
+      "aliases": ["exhausted", "fatigue", "exhaustion levels"]
+    },
+    {
+      "term": "Resistance",
+      "definition": "A creature with resistance to a damage type takes half damage from that type (rounded down).",
+      "aliases": ["resist", "half damage"]
+    },
+    {
+      "term": "Vulnerability",
+      "definition": "A creature with vulnerability to a damage type takes double damage from that type.",
+      "aliases": ["vulnerable", "double damage", "weakness"]
+    },
+    {
+      "term": "Immunity",
+      "definition": "A creature with immunity to a damage type or condition takes no damage of that type or is unaffected by that condition.",
+      "aliases": ["immune", "no damage", "unaffected"]
+    },
+    {
+      "term": "Attunement",
+      "definition": "A magical bond between a creature and a magic item, requiring a short rest to establish. A creature can attune to a maximum of three items at once.",
+      "aliases": ["attune", "attuned", "attunement slots"]
+    },
+    {
+      "term": "Spellcasting Focus",
+      "definition": "An item (arcane focus, holy symbol, druidic focus, or component pouch) that can be used in place of non-costly, non-consumed material components for spells.",
+      "aliases": ["focus", "arcane focus", "holy symbol", "component pouch"]
+    },
+    {
+      "term": "Multiclass",
+      "definition": "A character that takes levels in more than one class. Requires meeting ability score prerequisites (usually 13 in the primary ability of both classes).",
+      "aliases": ["multi-class", "dual class", "multiclassing"]
+    },
+    {
+      "term": "Heroic Inspiration",
+      "definition": "A DM reward (or rolled on a natural 20) that allows a player to reroll one d20 test before the outcome is determined. A creature can have only one instance of Heroic Inspiration at a time.",
+      "aliases": ["inspiration", "heroic", "reroll"]
+    }
+  ]
+}

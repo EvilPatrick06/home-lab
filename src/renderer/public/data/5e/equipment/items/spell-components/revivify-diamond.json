@@ -1,0 +1,15 @@
+{
+  "name": "Diamond (300 GP)",
+  "slug": "revivify-diamond",
+  "category": "Spell Component",
+  "cost": "300 GP",
+  "weight": "—",
+  "consumed": true,
+  "description": "A diamond worth at least 300 GP, consumed by the spell.",
+  "usedBy": ["Revivify"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 7",
+    "section": "Spell Descriptions"
+  }
+}

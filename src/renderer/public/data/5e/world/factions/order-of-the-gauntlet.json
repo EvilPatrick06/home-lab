@@ -1,0 +1,45 @@
+{
+  "id": "order-of-the-gauntlet",
+  "name": "Order of the Gauntlet",
+  "symbol": "An upright gauntlet on a golden sun",
+  "beliefs": "The Order of the Gauntlet is a militant order of paladins and clerics who serve as the righteous fist of the gods. They believe that evil must be met head-on, not through subterfuge but through direct and noble confrontation.",
+  "goals": [
+    "Be armed and vigilant against evil",
+    "Identify evil threats such as undead and fiends",
+    "Enforce justice and punish the wicked",
+    "Protect the innocent from harm"
+  ],
+  "ranks": [
+    { "rank": 1, "title": "Chevall", "renownRequired": 1, "description": "Newly sworn member of the Order." },
+    { "rank": 2, "title": "Marcheon", "renownRequired": 3, "description": "Proven warrior who has defeated evil." },
+    {
+      "rank": 3,
+      "title": "Whitehawk",
+      "renownRequired": 10,
+      "description": "Trusted operative who leads small squads."
+    },
+    {
+      "rank": 4,
+      "title": "Vindicator",
+      "renownRequired": 25,
+      "description": "Champion of the Order, leading crusades."
+    },
+    {
+      "rank": 5,
+      "title": "Righteous Hand",
+      "renownRequired": 50,
+      "description": "One of the Order's supreme commanders."
+    }
+  ],
+  "benefits": [
+    { "rank": 1, "benefit": "Access to Order armories for basic weapons and armor at cost." },
+    { "rank": 2, "benefit": "Healing services at Order temples at no cost." },
+    { "rank": 3, "benefit": "Can request a squad of 1d4 + 1 knights for a mission." },
+    { "rank": 4, "benefit": "Holy weapon provided on loan for a quest (e.g., +1 weapon with radiant damage)." },
+    { "rank": 5, "benefit": "Can mobilize the Order for a large-scale military operation." }
+  ],
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Factions"
+  }
+}

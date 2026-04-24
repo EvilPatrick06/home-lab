@@ -1,0 +1,22 @@
+{
+  "id": "coiling-grasp-tattoo",
+  "name": "Coiling Grasp Tattoo",
+  "rarity": "Uncommon",
+  "attunement": true,
+  "description": "This tattoo has long, intertwining lines. As a Magic action while the tattoo is on your skin, you can cause the tattoo to extrude into inky tendrils that reach for a creature you can see within 15 feet of you. The creature must succeed on a DC 14 Strength saving throw or take 3d6 Force damage and have the Grappled condition (escape DC 14). Until the grapple ends, you can't use the tattoo on another target. Each time the grappled creature attempts to escape, it takes 1d6 Force damage.",
+  "properties": {
+    "type": "Magical Tattoo",
+    "needleRequired": "Uncommon or higher",
+    "bodyLocation": "Any"
+  },
+  "effects": [
+    {
+      "name": "Grasping Tendrils",
+      "description": "Target within 15 feet must make DC 14 Strength save or take 3d6 Force damage and become Grappled (escape DC 14). Each escape attempt deals 1d6 Force damage.",
+      "activation": "MagicAction",
+      "saveDC": 14,
+      "saveAbility": "Strength"
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

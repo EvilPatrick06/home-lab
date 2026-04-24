@@ -1,0 +1,64 @@
+{
+  "name": "Searing Smite",
+  "level": 1,
+  "school": "Evocation",
+  "classes": ["Paladin"],
+  "ritual": false,
+  "castingTime": {
+    "type": "BonusAction",
+    "ritual": false,
+    "trigger": "immediately after hitting a target with a Melee weapon or an Unarmed Strike"
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "As you hit the target, it takes an extra 1d6 Fire damage from the attack. At the start of each of its turns until the spell ends, the target takes 1d6 Fire damage and then makes a Constitution saving throw. On a failed save, the spell continues. On a successful save, the spell ends.",
+  "targetType": "creature",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Fire",
+      "applicationType": "onHit"
+    },
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 6
+      },
+      "type": "Fire",
+      "applicationType": "onTurnStart"
+    }
+  ],
+  "savingThrow": {
+    "ability": "Constitution",
+    "repeatSave": {
+      "timing": "startOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 1,
+        "description": "All the damage increases by 1d6 for each spell slot level above 1."
+      }
+    ]
+  },
+  "tags": ["smite", "fire", "recurring-damage"]
+}

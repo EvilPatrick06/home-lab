@@ -1,0 +1,11 @@
+{
+  "name": "Object Armor Class",
+  "slug": "object-armor-class",
+  "description": "| Object Material | AC |\n|---|---|\n| Cloth, paper, rope | 11 |\n| Crystal, glass, ice | 13 |\n| Wood, bone | 15 |\n| Iron, steel | 19 |\n| Mithral | 21 |\n| Adamantine | 23 |",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

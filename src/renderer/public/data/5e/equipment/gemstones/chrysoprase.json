@@ -1,0 +1,13 @@
+{
+  "name": "Chrysoprase",
+  "slug": "chrysoprase",
+  "value": "50 GP",
+  "category": "Gemstone",
+  "description": "green",
+  "dieValue": "4",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "name": "Flesh to Stone",
+  "level": 6,
+  "school": "Transmutation",
+  "classes": ["Druid", "Sorcerer", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a cockatrice feather",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You attempt to turn one creature that you can see within range into stone. The target makes a Constitution saving throw. On a failed save, it has the Restrained condition for the duration. On a successful save, its Speed is 0 until the start of your next turn. Constructs automatically succeed on the save.\n\nA Restrained target makes another Constitution saving throw at the end of each of its turns. If it successfully saves against this spell three times, the spell ends. If it fails its saves three times, it is turned to stone and has the Petrified condition for the duration. The successes and failures needn't be consecutive; keep track of both until the target collects three of a kind.\n\nIf you maintain your Concentration on this spell for the entire possible duration, the target is Petrified until the condition is ended by Greater Restoration or similar magic.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Constitution",
+    "effectOnSuccess": "Target's Speed is 0 until the start of the caster's next turn",
+    "effectOnFailure": "Target has the Restrained condition for the duration",
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": false,
+      "threeSuccessesRequired": true,
+      "threeFailuresEffect": "Target is turned to stone and has the Petrified condition for the duration. If Concentration is maintained for the entire possible duration, the Petrified condition lasts until ended by Greater Restoration or similar magic."
+    },
+    "autoSucceedCondition": "Target is a Construct"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Restrained",
+      "trigger": "onFailedSave",
+      "duration": "For the spell's duration"
+    },
+    {
+      "condition": "Petrified",
+      "trigger": "custom",
+      "duration": "For the spell's duration; permanent if Concentration is maintained for the full duration, until ended by Greater Restoration or similar magic",
+      "savingThrowToEnd": {
+        "ability": "Constitution",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "speedModifiers": [
+    {
+      "type": "set",
+      "value": 0,
+      "speedType": "all"
+    }
+  ],
+  "tags": ["petrification", "control", "debuff", "concentration"]
+}

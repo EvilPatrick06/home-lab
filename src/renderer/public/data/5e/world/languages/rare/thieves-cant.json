@@ -1,0 +1,13 @@
+{
+  "name": "Thieves' Cant",
+  "script": "None (coded jargon)",
+  "origin": "Thieves guilds",
+  "speakers": "Rogues, criminals",
+  "slug": "thieves-cant",
+  "category": "Rare",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

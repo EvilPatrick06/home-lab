@@ -1,0 +1,52 @@
+{
+  "id": "d7f3c1a2-8e4b-4c9f-b6d1-3a2e5f7c8d90",
+  "name": "Harvesting",
+  "slug": "harvesting",
+  "category": "GeneralRule",
+  "subcategory": "Exploration",
+  "tags": ["crafting", "exploration", "tools", "poison", "herbalism"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Appendix A",
+    "section": "Lore Glossary"
+  },
+  "gameEdition": "2024",
+  "description": "Harvesting is not defined as a standalone mechanic in Appendix A: Lore Glossary of the 2024 Player's Handbook. This appendix provides brief lore descriptions for the game's most famous heroes, villains, creatures, locations, and materials (such as Adamantine and Mithral). References to material harvesting exist elsewhere in the 2024 Player's Handbook under tool proficiency descriptions (e.g., Poisoner's Kit for harvesting poison, Herbalism Kit for gathering reagents). No discrete mechanical rule block titled 'Harvesting' appears in this source appendix.",
+  "shortDescription": "Lore Glossary appendix does not contain a discrete Harvesting mechanic; material references (Adamantine, Mithral) are lore-only.",
+  "rulesAsWritten": "No rules-as-written text for a mechanic named 'Harvesting' exists in Appendix A: Lore Glossary. Adamantine is described as 'one of the hardest substances in existence, a dark metal found in meteorites and extraordinary mineral veins,' and Mithral as 'a light, flexible metal that resembles silver but is much more durable.' Neither entry provides extraction or harvesting mechanics.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [],
+  "duration": null,
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true
+  },
+  "dmNotes": "Appendix A: Lore Glossary does not define harvesting rules. The appendix mentions rare materials—Adamantine (found in meteorites and extraordinary mineral veins; see Adamantine Armor and Adamantine Weapon magic items in chapter 7) and Mithral (a light, flexible metal; see Mithral Armor magic item in chapter 7)—but provides no mechanical procedures for obtaining them. DMs seeking harvesting mechanics should consult the Dungeon Master's Guide or tool proficiency descriptions (Poisoner's Kit, Herbalism Kit) found in the equipment chapter of the Player's Handbook.",
+  "commonRulings": [
+    {
+      "question": "Does the 2024 Player's Handbook Appendix A contain harvesting rules for Adamantine or Mithral?",
+      "ruling": "No. Appendix A provides only lore descriptions for these materials and directs readers to chapter 7 for the corresponding magic items. No extraction, mining, or harvesting procedure is specified.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-03T00:00:00Z",
+  "updatedAt": "2025-01-03T00:00:00Z",
+  "version": "1.0.0"
+}

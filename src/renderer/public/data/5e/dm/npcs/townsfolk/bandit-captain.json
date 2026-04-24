@@ -1,0 +1,44 @@
+{
+  "id": "bandit-captain",
+  "name": "Bandit Captain",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Non-Lawful Alignment",
+  "ac": 15,
+  "acSource": "studded leather armor",
+  "hp": 65,
+  "hpFormula": "10d8 + 20",
+  "speed": "30 ft.",
+  "stats": { "str": 15, "dex": 16, "con": 14, "int": 14, "wis": 11, "cha": 14 },
+  "savingThrows": "Str +4, Dex +5, Wis +2",
+  "skills": "Athletics +4, Deception +4",
+  "senses": "Passive Perception 10",
+  "languages": "Any two languages",
+  "cr": "2",
+  "xp": "450 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The captain makes three melee attacks: two with its scimitar and one with its dagger. Or the captain makes two ranged attacks with its daggers."
+    },
+    {
+      "name": "Scimitar",
+      "description": "*Melee Weapon Attack:* +5 to hit, reach 5 ft., one target. *Hit:* 6 (1d6 + 3) slashing damage."
+    },
+    {
+      "name": "Dagger",
+      "description": "*Melee or Ranged Weapon Attack:* +5 to hit, reach 5 ft. or range 20/60 ft., one target. *Hit:* 5 (1d4 + 3) piercing damage."
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Parry",
+      "description": "The captain adds 2 to its AC against one melee attack that would hit it. To do so, the captain must see the attacker and be wielding a melee weapon."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

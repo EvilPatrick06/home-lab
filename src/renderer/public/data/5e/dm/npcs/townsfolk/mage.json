@@ -1,0 +1,44 @@
+{
+  "id": "mage",
+  "name": "Mage",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Alignment",
+  "ac": 12,
+  "acSource": "15 with Mage Armor",
+  "hp": 40,
+  "hpFormula": "9d8",
+  "speed": "30 ft.",
+  "stats": { "str": 9, "dex": 14, "con": 11, "int": 17, "wis": 12, "cha": 11 },
+  "savingThrows": "Int +6, Wis +4",
+  "skills": "Arcana +6, History +6",
+  "senses": "Passive Perception 11",
+  "languages": "Any four languages",
+  "cr": "6",
+  "xp": "2300 XP",
+  "spellcasting": {
+    "level": 9,
+    "ability": "Intelligence",
+    "saveDC": 14,
+    "attackBonus": 6,
+    "cantrips": ["Fire Bolt", "Light", "Mage Hand", "Prestidigitation"],
+    "slots": {
+      "1st": { "slots": 4, "spells": ["Detect Magic", "Mage Armor", "Magic Missile", "Shield"] },
+      "2nd": { "slots": 3, "spells": ["Misty Step", "Suggestion"] },
+      "3rd": { "slots": 3, "spells": ["Counterspell", "Fireball", "Fly"] },
+      "4th": { "slots": 3, "spells": ["Greater Invisibility", "Ice Storm"] },
+      "5th": { "slots": 1, "spells": ["Cone of Cold"] }
+    }
+  },
+  "traits": [],
+  "actions": [
+    {
+      "name": "Dagger",
+      "description": "*Melee or Ranged Weapon Attack:* +5 to hit, reach 5 ft. or range 20/60 ft., one target. *Hit:* 4 (1d4 + 2) piercing damage."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Armor of Gleaming",
+  "slug": "armor-of-gleaming",
+  "type": "Armor (Any Light",
+  "rarity": "Medium, or Heavy), Common",
+  "attunement": false,
+  "description": "This armor never gets dirty.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

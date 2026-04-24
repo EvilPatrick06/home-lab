@@ -1,0 +1,241 @@
+[
+  {
+    "tool": "Smith's Tools",
+    "items": [
+      { "name": "Dagger", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Handaxe", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Javelin", "rawMaterialCost": "2 SP 5 CP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Light hammer", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Mace", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Sickle", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Spear", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Battleaxe", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Flail", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Glaive", "rawMaterialCost": "10 GP", "craftingTimeDays": 2, "category": "weapon" },
+      { "name": "Greataxe", "rawMaterialCost": "15 GP", "craftingTimeDays": 3, "category": "weapon" },
+      { "name": "Greatsword", "rawMaterialCost": "25 GP", "craftingTimeDays": 5, "category": "weapon" },
+      { "name": "Halberd", "rawMaterialCost": "10 GP", "craftingTimeDays": 2, "category": "weapon" },
+      { "name": "Lance", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Longsword", "rawMaterialCost": "7 GP 5 SP", "craftingTimeDays": 2, "category": "weapon" },
+      { "name": "Maul", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Morningstar", "rawMaterialCost": "7 GP 5 SP", "craftingTimeDays": 2, "category": "weapon" },
+      { "name": "Pike", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Rapier", "rawMaterialCost": "12 GP 5 SP", "craftingTimeDays": 3, "category": "weapon" },
+      { "name": "Scimitar", "rawMaterialCost": "12 GP 5 SP", "craftingTimeDays": 3, "category": "weapon" },
+      { "name": "Shortsword", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Trident", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "War pick", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Warhammer", "rawMaterialCost": "7 GP 5 SP", "craftingTimeDays": 2, "category": "weapon" },
+      { "name": "Chain shirt", "rawMaterialCost": "25 GP", "craftingTimeDays": 5, "category": "armor" },
+      { "name": "Scale mail", "rawMaterialCost": "25 GP", "craftingTimeDays": 5, "category": "armor" },
+      { "name": "Breastplate", "rawMaterialCost": "200 GP", "craftingTimeDays": 40, "category": "armor" },
+      { "name": "Half plate", "rawMaterialCost": "375 GP", "craftingTimeDays": 75, "category": "armor" },
+      { "name": "Ring mail", "rawMaterialCost": "15 GP", "craftingTimeDays": 3, "category": "armor" },
+      { "name": "Chain mail", "rawMaterialCost": "37 GP 5 SP", "craftingTimeDays": 8, "category": "armor" },
+      { "name": "Splint", "rawMaterialCost": "100 GP", "craftingTimeDays": 20, "category": "armor" },
+      { "name": "Plate", "rawMaterialCost": "750 GP", "craftingTimeDays": 150, "category": "armor" },
+      { "name": "Shield", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "armor" },
+      { "name": "Ball Bearings", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Bucket", "rawMaterialCost": "2 SP 5 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Caltrops", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Chain (10 feet)", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Crowbar", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Firearm Bullets (10)", "rawMaterialCost": "1 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Grappling Hook", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Iron Pot", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Spikes, Iron", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Sling Bullets (20)", "rawMaterialCost": "2 CP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Carpenter's Tools",
+    "items": [
+      { "name": "Club", "rawMaterialCost": "5 CP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Greatclub", "rawMaterialCost": "1 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Quarterstaff", "rawMaterialCost": "1 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Barrel", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Chest", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Ladder", "rawMaterialCost": "5 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Pole", "rawMaterialCost": "3 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Ram, Portable", "rawMaterialCost": "2 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Torch", "rawMaterialCost": "1 CP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Leatherworker's Tools",
+    "items": [
+      { "name": "Sling", "rawMaterialCost": "5 CP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Whip", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Leather", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "armor" },
+      { "name": "Studded leather", "rawMaterialCost": "22 GP 5 SP", "craftingTimeDays": 5, "category": "armor" },
+      { "name": "Hide", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "armor" },
+      { "name": "Backpack", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Pouch", "rawMaterialCost": "2 SP 5 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Waterskin", "rawMaterialCost": "1 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Case, Crossbow Bolt", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Case, Map or Scroll", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Parchment", "rawMaterialCost": "5 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Quiver", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Weaver's Tools",
+    "items": [
+      { "name": "Padded", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "armor" },
+      { "name": "Basket", "rawMaterialCost": "2 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Bedroll", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Blanket", "rawMaterialCost": "2 SP 5 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Clothes, Fine", "rawMaterialCost": "7 GP 5 SP", "craftingTimeDays": 2, "category": "gear" },
+      { "name": "Net", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Robe", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Rope", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Sack", "rawMaterialCost": "1 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "String", "rawMaterialCost": "5 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Tent, two-person", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Clothes, Traveler's", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Tinker's Tools",
+    "items": [
+      { "name": "Musket", "rawMaterialCost": "250 GP", "craftingTimeDays": 50, "category": "weapon" },
+      { "name": "Pistol", "rawMaterialCost": "125 GP", "craftingTimeDays": 25, "category": "weapon" },
+      { "name": "Bell", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Flask", "rawMaterialCost": "1 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Hunting Trap", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Lantern, bullseye", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Lantern, hooded", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Lock", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Manacles", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Mirror, steel", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Shovel", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Signal Whistle", "rawMaterialCost": "3 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Tinderbox", "rawMaterialCost": "2 SP 5 CP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Herbalism Kit",
+    "items": [
+      { "name": "Antitoxin", "rawMaterialCost": "25 GP", "craftingTimeDays": 5, "category": "gear" },
+      { "name": "Candle", "rawMaterialCost": "1 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Healer's kit", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Potion of healing", "rawMaterialCost": "25 GP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Calligrapher's Supplies",
+    "items": [
+      { "name": "Ink (1 ounce bottle)", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Spell Scroll (Cantrip)", "rawMaterialCost": "15 GP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Alchemist's Supplies",
+    "items": [
+      { "name": "Acid", "rawMaterialCost": "12 GP 5 SP", "craftingTimeDays": 3, "category": "gear" },
+      { "name": "Alchemist's Fire", "rawMaterialCost": "25 GP", "craftingTimeDays": 5, "category": "gear" },
+      { "name": "Component Pouch", "rawMaterialCost": "12 GP 5 SP", "craftingTimeDays": 3, "category": "gear" },
+      { "name": "Oil (flask)", "rawMaterialCost": "5 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Paper (one sheet)", "rawMaterialCost": "1 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Perfume", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Brewer's Supplies",
+    "items": [{ "name": "Antitoxin", "rawMaterialCost": "25 GP", "craftingTimeDays": 5, "category": "gear" }]
+  },
+  {
+    "tool": "Cobbler's Tools",
+    "items": [{ "name": "Climber's kit", "rawMaterialCost": "12 GP 5 SP", "craftingTimeDays": 3, "category": "gear" }]
+  },
+  {
+    "tool": "Cook's Utensils",
+    "items": [{ "name": "Rations (1 day)", "rawMaterialCost": "2 SP 5 CP", "craftingTimeDays": 1, "category": "gear" }]
+  },
+  {
+    "tool": "Glassblower's Tools",
+    "items": [
+      { "name": "Bottle, Glass", "rawMaterialCost": "1 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Magnifying Glass", "rawMaterialCost": "50 GP", "craftingTimeDays": 10, "category": "gear" },
+      { "name": "Spyglass", "rawMaterialCost": "500 GP", "craftingTimeDays": 100, "category": "gear" },
+      { "name": "Vial", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Jeweler's Tools",
+    "items": [
+      { "name": "Arcane Focus (crystal)", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Arcane Focus (orb)", "rawMaterialCost": "10 GP", "craftingTimeDays": 2, "category": "gear" },
+      { "name": "Holy Symbol", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Mason's Tools",
+    "items": [{ "name": "Block and Tackle", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" }]
+  },
+  {
+    "tool": "Painter's Supplies",
+    "items": [
+      {
+        "name": "Druidic Focus (wooden staff)",
+        "rawMaterialCost": "2 GP 5 SP",
+        "craftingTimeDays": 1,
+        "category": "gear"
+      },
+      { "name": "Holy Symbol", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Potter's Tools",
+    "items": [
+      { "name": "Jug", "rawMaterialCost": "1 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Lamp", "rawMaterialCost": "2 SP 5 CP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Woodcarver's Tools",
+    "items": [
+      { "name": "Club", "rawMaterialCost": "5 CP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Greatclub", "rawMaterialCost": "1 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Quarterstaff", "rawMaterialCost": "1 SP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Dart (x20)", "rawMaterialCost": "2 SP 5 CP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Shortbow", "rawMaterialCost": "12 GP 5 SP", "craftingTimeDays": 3, "category": "weapon" },
+      { "name": "Longbow", "rawMaterialCost": "25 GP", "craftingTimeDays": 5, "category": "weapon" },
+      { "name": "Light crossbow", "rawMaterialCost": "12 GP 5 SP", "craftingTimeDays": 3, "category": "weapon" },
+      { "name": "Heavy crossbow", "rawMaterialCost": "25 GP", "craftingTimeDays": 5, "category": "weapon" },
+      { "name": "Hand crossbow", "rawMaterialCost": "37 GP 5 SP", "craftingTimeDays": 8, "category": "weapon" },
+      { "name": "Blowgun", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "weapon" },
+      { "name": "Arcane Focus (staff)", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Arcane Focus (wand)", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Arcane Focus (rod)", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Arrows (20)", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Crossbow Bolts (20)", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Blowgun Needles (50)", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Druidic Focus (sprig)", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Druidic Focus (yew wand)", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Ink Pen", "rawMaterialCost": "1 CP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Needles (10)", "rawMaterialCost": "3 CP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  },
+  {
+    "tool": "Cartographer's Tools",
+    "items": [{ "name": "Map", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" }]
+  },
+  {
+    "tool": "Disguise Kit",
+    "items": [{ "name": "Costume", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" }]
+  },
+  {
+    "tool": "Poisoner's Kit",
+    "items": [{ "name": "Poison, Basic", "rawMaterialCost": "50 GP", "craftingTimeDays": 10, "category": "gear" }]
+  },
+  {
+    "tool": "Thieves' Tools",
+    "items": [
+      { "name": "Hunting Trap", "rawMaterialCost": "2 GP 5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Lock Pick Set", "rawMaterialCost": "5 GP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Caltrops", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" },
+      { "name": "Manacles Key", "rawMaterialCost": "5 SP", "craftingTimeDays": 1, "category": "gear" }
+    ]
+  }
+]

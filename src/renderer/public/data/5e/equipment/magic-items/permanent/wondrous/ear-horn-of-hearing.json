@@ -1,0 +1,10 @@
+{
+  "name": "Ear Horn of Hearing",
+  "itemType": "Wondrous Item",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "While held up to your ear, this horn suppresses the effects of the Deafened condition on you.",
+  "weight": null,
+  "cost": null,
+  "source": "DMG 2024"
+}

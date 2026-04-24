@@ -1,0 +1,66 @@
+{
+  "name": "Giant Squid",
+  "slug": "giant-squid",
+  "size": "Huge",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "12",
+  "initiative": "+2 (12)",
+  "hp": "120",
+  "hpFormula": "16d12 + 16",
+  "speed": "5 ft., Swim 80 ft.",
+  "abilityScores": {
+    "str": 23,
+    "dex": 14,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 9,
+    "dex": 5,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +6",
+  "senses": "Darkvision 120 ft.; Passive Perception 16",
+  "languages": "None",
+  "cr": "6 (XP 2,300; PB +3)",
+  "traits": [
+    {
+      "name": "Water Breathing",
+      "description": "The squid can breathe only underwater."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The squid makes one Bite attack and one Tentacle attack."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 28 (4d10 + 6) Piercing damage."
+    },
+    {
+      "name": "Tentacle",
+      "description": "*Melee Attack Roll:* +9, reach 15 ft. *Hit:* 19 (3d8 + 6) Bludgeoning damage. If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 16) from one of two tentacles, and the squid can pull the target up to 10 feet straight toward itself."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Ink Cloud (1/Day)",
+      "description": "*Trigger:* The squid takes damage while underwater. *Response:* The squid releases ink that fills a 15-foot Cube centered on itself, and the squid moves up to its Swim Speed. The Cube is Heavily Obscured for 1 minute or until a strong current or similar effect disperses the ink."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

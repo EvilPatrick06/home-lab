@@ -1,0 +1,601 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Above Elemental Below",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven, where good deities and Celestials dwell; and an Underworld, where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Lower Planes",
+        "description": "The Outer Planes with an element of evil in their nature. Hades is among the Lower Planes as a Neutral Evil plane.",
+        "memberPlanes": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "hades",
+      "name": "Hades",
+      "alternateNames": ["The Three Glooms", "The Gray Wastes", "Gray Wastes of Hades"],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Neutral Evil"],
+      "philosophicalEssence": "Hades embodies despair manifested as apathy. Pure, undiluted evil is like an inescapable force of gravity, dragging all creatures down—not in body, but in spirit. Even the consuming rage of the Abyss and the devious plotting of the Nine Hells are subjugated to hopelessness in the Gray Wastes of Hades.",
+      "emotionalInfluence": "Leaching away color and emotion, the gloom on this plane is more than most visitors can stand. The plane slowly kills dreams and desires, draining hope and optimism from formerly fiery spirits.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "A gray land with an ashen sky. The plane lacks a sun, a moon, stars, or seasons.",
+        "temperature": {
+          "category": "temperate",
+          "description": "No specific temperature extremes are described; the plane's danger is spiritual and emotional rather than thermal."
+        },
+        "hasSurface": true,
+        "weatherPatterns": "No seasons exist on the plane. The environment is uniformly gray and gloomy."
+      },
+      "layers": [
+        {
+          "name": "Oinos",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "A land of dead-gray ash, stunted trees, and virulent disease is stalked by roving bands of Fiends looking for a fight or recruits for the Blood War.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [
+            {
+              "name": "Virulent Disease",
+              "description": "Oinos is a land of virulent disease, stalked by roving bands of Fiends."
+            },
+            {
+              "name": "Blood War Incursions",
+              "description": "Roving bands of Fiends look for a fight or recruits for the Blood War on this layer."
+            }
+          ],
+          "environmentalDescription": "A land of dead-gray ash, stunted trees, and virulent disease.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Niflheim",
+          "alternateNames": [],
+          "layerNumber": 2,
+          "description": "Gray pine trees blanket rolling hills and rocky bluffs, and thick mists coil around their trunks.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Gray pine trees blanket rolling hills and rocky bluffs, and thick mists coil around their trunks.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Pluton",
+          "alternateNames": [],
+          "layerNumber": 3,
+          "description": "Shriveled willows, olive trees, and poplars contribute to the gloom of this concentration of the deepest despair in the multiverse.",
+          "notableLocations": [],
+          "notableInhabitants": [],
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Shriveled willows, olive trees, and poplars contribute to the gloom of this concentration of the deepest despair in the multiverse.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 3,
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "variable",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Distance is a virtually meaningless concept on the Outer Planes. The perceptible region of a plane might seem quite small on one visit, and on another trip can stretch on to what seems like infinity. No specific time distortion is noted for Hades, but Outer Planes in general can have subjective distances."
+      },
+      "hazards": [
+        {
+          "id": "hades-plane-of-gloom",
+          "name": "Plane of Gloom",
+          "description": "At the end of each Long Rest taken on the plane, a visitor makes a DC 10 Wisdom saving throw. On a failed save, the creature gains 1 Exhaustion level that can't be removed while the creature is in Hades. If the creature reaches 6 Exhaustion levels, it doesn't die. Instead, it permanently transforms into a Larva, whereupon all Exhaustion levels afflicting the creature are removed.",
+          "category": "emotional",
+          "severity": "lethal",
+          "savingThrowToTraverse": {
+            "ability": "Wisdom",
+            "dc": 10,
+            "proficiencyApplies": true,
+            "trigger": "per_long_rest",
+            "triggerDescription": "At the end of each Long Rest taken on the plane.",
+            "onFailure": {
+              "description": "The creature gains 1 Exhaustion level that can't be removed while the creature is in Hades. If the creature reaches 6 Exhaustion levels, it doesn't die. Instead, it permanently transforms into a Larva, whereupon all Exhaustion levels afflicting the creature are removed.",
+              "exhaustionLevels": 1,
+              "exhaustionIsRemovable": false,
+              "duration": "Permanent while on Hades; Exhaustion levels gained from this effect cannot be removed while the creature remains on the plane.",
+              "cumulative": true,
+              "cumulativeMaxStacks": 6,
+              "cumulativeDescription": "Each failed save adds 1 Exhaustion level. Exhaustion levels from this effect cannot be removed while on Hades. They accumulate with each failed Long Rest save.",
+              "terminalEffect": "Permanently transforms into a Larva. All Exhaustion levels afflicting the creature are removed upon transformation.",
+              "terminalAtExhaustionLevel": 6,
+              "preventsDeath": true
+            },
+            "onSuccess": {
+              "description": "The creature resists the plane's gloom for that Long Rest and does not gain an Exhaustion level.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": [],
+            "repeatSaveAllowed": true,
+            "repeatSaveTiming": "At the end of each Long Rest taken on the plane.",
+            "recoveryMethods": [
+              "Leaving the plane of Hades (Exhaustion levels can then be removed normally by finishing Long Rests)"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 10,
+              "noModifierFailChance": 0.45,
+              "commonModifierRange": {
+                "low": 0,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.45,
+              "failChanceAtHighMod": 0.2
+            }
+          },
+          "lightLevelModification": {
+            "baseLevel": "no_natural_light",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": null,
+              "unit": "feet"
+            },
+            "magicalProperties": {
+              "obscuresVision": false
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none",
+              "description": "Hades lacks a sun, a moon, stars, or seasons. There is no day-night cycle."
+            },
+            "colorDescription": "Gray. The plane leaches away color and emotion. A gray land with an ashen sky.",
+            "illuminationModifierPercent": -80
+          },
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Hades, Plane of Gloom"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "hades-despair-aura",
+          "name": "Apathetic Despair",
+          "description": "The plane slowly kills dreams and desires, draining hope and optimism from formerly fiery spirits. Pure, undiluted evil is like an inescapable force of gravity, dragging all creatures down—not in body, but in spirit. Even the consuming rage of the Abyss and the devious plotting of the Nine Hells are subjugated to hopelessness in the Gray Wastes of Hades.",
+          "mechanicalEffect": "This emotional effect is embodied mechanically by the Plane of Gloom hazard (DC 10 Wisdom saving throw at end of each Long Rest, gaining Exhaustion on failure). The pervasive apathy challenges characters to find an answer to the question: why bother?",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "Despair manifested as apathy. Leaching away color and emotion, draining hope and optimism.",
+          "removalMethods": ["Leaving the plane of Hades"],
+          "sourceReference": "Chapter 6: Cosmology — Hades"
+        },
+        {
+          "id": "hades-color-leaching",
+          "name": "Color and Emotion Leaching",
+          "description": "Leaching away color and emotion, the gloom on this plane is more than most visitors can stand. The plane is a gray land with an ashen sky, places without joy, hope, or passion.",
+          "mechanicalEffect": "The plane leaches color and emotion from visitors, contributing to the mechanical exhaustion effect of the Plane of Gloom hazard.",
+          "isOptional": false,
+          "affectsEmotions": true,
+          "emotionalEffect": "All joy, hope, and passion are drained. The environment appears uniformly gray and devoid of vibrant color.",
+          "removalMethods": ["Leaving the plane of Hades"],
+          "sourceReference": "Chapter 6: Cosmology — Hades"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "hades-river-styx",
+          "name": "River Styx",
+          "type": "river",
+          "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+          "description": "The River Styx churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries of the Styx snake through lower layers of these planes. Sinister ferries float on the waters of the Styx, crewed by pilots skilled in negotiating the unpredictable currents and eddies of the river.",
+          "hazards": [
+            "The ill effects of the Styx are described under Hazards in chapter 3. The Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks."
+          ],
+          "isOneWay": false,
+          "navigableBy": [
+            "Sinister ferries crewed by skilled pilots",
+            "Fiend-crewed vessels",
+            "Vessels crewed by souls of dead creatures from the Material Plane"
+          ]
+        },
+        {
+          "id": "hades-yggdrasil",
+          "name": "Yggdrasil, the World Tree",
+          "type": "world_tree",
+          "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Material Plane"],
+          "description": "The World Tree, Yggdrasil, is a cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": [
+            "Planar travelers who climb among the roots and branches",
+            "Expert guides who study the ever-changing paths"
+          ]
+        },
+        {
+          "id": "hades-gate-town-hopeless",
+          "name": "Gate-town of Hopeless",
+          "type": "portal_network",
+          "connectedPlanes": ["Outlands", "Hades"],
+          "description": "Hopeless is one of the sixteen gate-towns evenly spaced around the outside edge of the Outlands. It is built around a portal leading to Hades and shares many of the characteristics of that plane.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["Any traveler who reaches the gate-town of Hopeless in the Outlands"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend", "Undead"],
+        "notableEntities": [
+          {
+            "name": "Larvae",
+            "creatureType": "Fiend",
+            "description": "Souls unclaimed by gods or Fiends become larvae and spend eternity in Hades. Hags, liches, and other evil spellcasters come to Hades to collect larvae for vile purposes."
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Celestial"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on a plane that is alien to its nature (Celestials on Lower Planes like Hades).",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "customCondition": "Planar Dissonance",
+            "exhaustionLevels": 0,
+            "exhaustionIsRemovable": true,
+            "cumulative": true,
+            "cumulativeDescription": "The d4 penalty is cumulative with each failed save. Each additional failed save adds another 1d4 subtracted from D20 Tests.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            }
+          },
+          "onSuccess": {
+            "description": "The Celestial resists the planar dissonance for that Long Rest and does not gain an additional penalty.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": [],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": true,
+          "repeatSaveTiming": "After finishing each Long Rest on the opposed plane.",
+          "recoveryMethods": [
+            "Finishing a Long Rest on a plane that isn't opposed to its nature ends the cumulative effect."
+          ],
+          "failureProbabilityAtDC": {
+            "dc": 10,
+            "noModifierFailChance": 0.45,
+            "commonModifierRange": {
+              "low": 2,
+              "high": 7
+            },
+            "failChanceAtLowMod": 0.35,
+            "failChanceAtHighMod": 0.1
+          }
+        },
+        "description": "Celestials who visit Hades (a Lower Plane) experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on the plane, a Celestial makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [
+        {
+          "id": "hades-hopeless-gate-town",
+          "name": "Hopeless",
+          "type": "Gate-town",
+          "description": "The gate-town of Hopeless in the Outlands is built around a portal leading to Hades. It shares many of the characteristics of Hades.",
+          "hazards": [],
+          "portalDestination": "Hades"
+        }
+      ],
+      "adventureThemes": [
+        "Confronting apathy and despair",
+        "Finding purpose and rekindling passion in the face of hopelessness",
+        "Pursuing evil spellcasters collecting larvae",
+        "Resisting the plane's soul-draining influence",
+        "Blood War encounters amid the Gray Wastes"
+      ],
+      "adventureSituations": [],
+      "colorPoolColor": "Rust",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Environmental Effects referenced in chapter 3 for the Plane of Gloom hazard."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3 describes the ill effects of the River Styx, which flows through Hades."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "river-styx-global",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries snake through lower layers of these planes.",
+      "hazards": ["Ill effects of the Styx described in chapter 3"],
+      "isOneWay": false,
+      "navigableBy": [
+        "Sinister ferries crewed by skilled pilots",
+        "Fiend-crewed vessels",
+        "Vessels crewed by souls of dead creatures"
+      ]
+    },
+    {
+      "id": "yggdrasil-global",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Material Plane"],
+      "description": "The World Tree, Yggdrasil, is a cosmic ash tree that spans the Outer Planes. Its roots stretch into the Lower Planes, touching Hades and Pandemonium. Most of its massive trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Planar travelers climbing roots and branches", "Expert guides"]
+    }
+  ],
+  "bloodWar": {
+    "description": "Throughout history, the teeming demon hordes of the Abyss and the regimented legions of devils from the Nine Hells have battled for supremacy in the cosmos. The Blood War has raged for millennia, ravaging the Lower Planes. A simple quest to find a treasure lost in Hades becomes much less simple when the treasure is located in the midst of a raging battle!",
+    "primaryBattlefields": ["Nine Hells", "Abyss"],
+    "factions": [
+      {
+        "name": "Demon Hordes",
+        "planeOfOrigin": "Abyss",
+        "creatureType": "Fiend (Demon)",
+        "role": "Chaotic attackers seeking supremacy through overwhelming numbers and destructive fury"
+      },
+      {
+        "name": "Devil Legions",
+        "planeOfOrigin": "Nine Hells",
+        "creatureType": "Fiend (Devil)",
+        "role": "Regimented defenders and conquerors seeking supremacy through law, hierarchy, and strategy"
+      }
+    ],
+    "spilloverPlanes": ["Material Plane", "Acheron", "Gehenna", "Hades", "Carceri"],
+    "adventureImplications": "Roving bands of Fiends on Oinos (Hades' first layer) look for a fight or recruits for the Blood War. Adventures in Hades risk encountering Blood War combatants, turning simple quests into dangerous encounters amid raging battles."
+  },
+  "planarTravelMethods": [
+    {
+      "id": "gate-spell",
+      "name": "Gate",
+      "type": "spell",
+      "description": "The Gate spell can directly transport adventurers to Hades or any other plane with precision.",
+      "requirements": ["9th-level spell slot", "Knowledge of the destination plane"],
+      "associatedSpells": ["Gate"],
+      "risks": [],
+      "destinations": ["Hades", "Any plane of existence"]
+    },
+    {
+      "id": "plane-shift-spell",
+      "name": "Plane Shift",
+      "type": "spell",
+      "description": "Plane Shift can directly transport adventurers to Hades with varying degrees of precision.",
+      "requirements": ["7th-level spell slot", "Tuning fork attuned to Hades"],
+      "associatedSpells": ["Plane Shift"],
+      "risks": ["Arrival point may not be precise"],
+      "destinations": ["Hades", "Any plane of existence"]
+    },
+    {
+      "id": "astral-color-pool-hades",
+      "name": "Astral Color Pool to Hades",
+      "type": "portal",
+      "description": "In the Astral Plane, rust-colored pools of rippling color serve as gateways leading to Hades. These pools are 1d6 × 10 feet in diameter.",
+      "requirements": ["Access to the Astral Plane", "Locating a rust-colored pool"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["Psychic wind encounters in the Astral Plane"],
+      "destinations": ["Hades"]
+    },
+    {
+      "id": "hopeless-gate-town",
+      "name": "Gate-town of Hopeless",
+      "type": "portal",
+      "description": "The gate-town of Hopeless in the Outlands contains a portal leading directly to Hades.",
+      "requirements": ["Travel to the Outlands", "Reach the gate-town of Hopeless"],
+      "associatedSpells": [],
+      "risks": ["The gate-town shares characteristics of Hades"],
+      "destinations": ["Hades"]
+    },
+    {
+      "id": "river-styx-to-hades",
+      "name": "River Styx Passage",
+      "type": "planar_pathway",
+      "description": "The River Styx flows through the top layer of Hades. Sinister ferries can carry passengers to Hades from neighboring planes.",
+      "requirements": ["Hire a ferry pilot", "Payment for passage"],
+      "associatedSpells": [],
+      "risks": ["Ill effects of the River Styx", "Unpredictable currents and eddies"],
+      "destinations": ["Hades", "Acheron", "Nine Hells", "Gehenna", "Carceri", "Abyss", "Pandemonium"]
+    },
+    {
+      "id": "yggdrasil-roots-to-hades",
+      "name": "Yggdrasil Roots to Hades",
+      "type": "planar_pathway",
+      "description": "The roots of Yggdrasil, the World Tree, stretch into the Lower Planes, touching Hades. Planar travelers can climb among the roots to travel to Hades.",
+      "requirements": ["Access to Yggdrasil's roots", "Knowledge of the ever-changing paths"],
+      "associatedSpells": [],
+      "risks": ["Ever-changing paths", "Creatures guarding the routes"],
+      "destinations": ["Hades", "Pandemonium", "Other Lower Planes"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    }
+  ],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "exhaustionLevels": 0,
+        "exhaustionIsRemovable": true,
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another cumulative 1d4 penalty subtracted from all D20 Tests.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        }
+      },
+      "onSuccess": {
+        "description": "The creature resists the planar dissonance for that Long Rest and does not gain an additional penalty.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": true,
+      "repeatSaveTiming": "After each Long Rest on the opposed plane.",
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature."],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 2,
+          "high": 7
+        },
+        "failChanceAtLowMod": 0.35,
+        "failChanceAtHighMod": 0.1
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "id": "aberrant-sorcery",
+  "name": "Aberrant Sorcery",
+  "className": "Sorcerer",
+  "level": 3,
+  "description": "Wield Unnatural Psionic Power",
+  "features": [
+    {
+      "name": "Psionic Spells",
+      "level": 3,
+      "description": "When you reach a Sorcerer level specified in the Psionic Spells table, you thereafter always have the listed spells prepared."
+    },
+    {
+      "name": "Telepathic Speech",
+      "level": 3,
+      "description": "You can form a telepathic connection between your mind and the mind of another. As a Bonus Action, choose one creature you can see within 30 feet of yourself. You and the chosen creature can communicate telepathically with each other while the two of you are within a number of miles of each other equal to your Charisma modifier (minimum of 1 mile)."
+    },
+    {
+      "name": "Psionic Sorcery",
+      "level": 6,
+      "description": "When you cast any level 1+ spell from your Psionic Spells feature, you can cast it by expending a spell slot as normal or by spending a number of Sorcery Points equal to the spell's level. If you cast the spell using Sorcery Points, it requires no Verbal or Somatic components, and it requires no Material components unless they are consumed by the spell or have a cost specified in it."
+    },
+    {
+      "name": "Psychic Defenses",
+      "level": 6,
+      "description": "You have Resistance to Psychic damage, and you have Advantage on saving throws to avoid or end the Charmed or Frightened condition."
+    },
+    {
+      "name": "Revelation in Flesh",
+      "level": 14,
+      "description": "You can unleash the aberrant truth hidden within yourself. As a Bonus Action, you can spend 1 Sorcery Point or more to magically alter your body for 10 minutes."
+    },
+    {
+      "name": "Warping Implosion",
+      "level": 18,
+      "description": "You can unleash a space-warping anomaly. As a Magic action, you teleport to an unoccupied space you can see within 120 feet of yourself. Immediately after you disappear, each creature within 30 feet of the space you left must make a Strength saving throw against your spell save DC."
+    }
+  ]
+}

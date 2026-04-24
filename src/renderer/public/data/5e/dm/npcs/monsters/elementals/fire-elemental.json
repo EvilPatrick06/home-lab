@@ -1,0 +1,138 @@
+{
+  "name": "Fire Elemental",
+  "sizes": ["Large"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "lore": "Fire elementals are fierce, animated pillars of living flame that roar and crackle with elemental fury. Summoned from the Elemental Plane of Fire, these beings burn everything they touch and leave charred ruin in their wake. They are drawn to combustible material and leave trails of ash and smoke wherever they go.",
+  "armorClass": {
+    "value": 13
+  },
+  "hitPoints": {
+    "average": 102,
+    "dice": {
+      "count": 12,
+      "die": "d10",
+      "modifier": 36
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "resistances": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": [
+    "Exhaustion",
+    "Grappled",
+    "Paralyzed",
+    "Petrified",
+    "Poisoned",
+    "Prone",
+    "Restrained",
+    "Unconscious"
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Primordial"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Fire Form",
+      "description": "The elemental can move through a space as narrow as 1 inch wide without squeezing. A creature that touches the elemental or hits it with a melee attack while within 5 feet of it takes 5 (1d10) Fire damage. In addition, the elemental can enter a Hostile creature's space and stop there. The first time it enters a creature's space on a turn, that creature takes 5 (1d10) Fire damage and catches fire; until a creature takes an action to douse the fire, the burning creature takes 5 (1d10) Fire damage at the start of each of its turns."
+    },
+    {
+      "name": "Illumination",
+      "description": "The elemental sheds Bright Light in a 30-foot radius and Dim Light for an additional 30 feet."
+    },
+    {
+      "name": "Water Susceptibility",
+      "description": "For every 5 feet the elemental moves in water, or for every gallon of water splashed on it, it takes 1 Cold damage."
+    }
+  ],
+  "multiattack": {
+    "description": "The elemental makes two Touch attacks.",
+    "attacks": [
+      {
+        "actionName": "Touch",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Touch",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 10 (2d6 + 3) Fire damage. If the target is a creature or a flammable object, it ignites. Until a creature takes an action to douse the fire, the target takes 5 (1d10) Fire damage at the start of each of its turns.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Fire"
+            }
+          ],
+          "additionalEffects": "If the target is a creature or a flammable object, it ignites. Until a creature takes an action to douse the fire, the target takes 5 (1d10) Fire damage at the start of each of its turns."
+        }
+      }
+    }
+  ]
+}

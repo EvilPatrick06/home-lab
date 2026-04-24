@@ -1,0 +1,13 @@
+{
+  "name": "Ring of Swimming",
+  "slug": "ring-of-swimming",
+  "type": "Ring",
+  "rarity": "Uncommon",
+  "attunement": false,
+  "description": "You have a Swim Speed of 40 feet while wearing this ring.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "name": "Gargoyle",
+  "sizes": ["Medium"],
+  "creatureType": "Elemental",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Mountain", "Underdark", "Urban"],
+  "treasure": ["None"],
+  "lore": "Gargoyles are vicious predators of elemental earth that resemble grotesque statues. They lurk among the stone figures adorning castles and cathedrals, remaining perfectly still until prey wanders near. Patient beyond measure, a gargoyle can wait for years in a single pose, indistinguishable from inanimate stone, before launching a deadly ambush. Cruel and territorial, gargoyles attack without mercy, delighting in the fear of their victims.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 52,
+    "dice": {
+      "count": 7,
+      "die": "d8",
+      "modifier": 21
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "resistances": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Exhaustion", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Terran"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "If the gargoyle is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the gargoyle move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern that the gargoyle is animate."
+    }
+  ],
+  "multiattack": {
+    "description": "The gargoyle makes one Bite attack and one Claw attack.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 1
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

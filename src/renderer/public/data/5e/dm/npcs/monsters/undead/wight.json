@@ -1,0 +1,223 @@
+{
+  "name": "Wight",
+  "sizes": ["Medium"],
+  "creatureType": "Undead",
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar", "Ruins", "Underdark", "Urban"],
+  "treasure": ["Armaments"],
+  "lore": "Wights are undead warriors sustained by dark willpower. Once proud soldiers, knights, or other martial figures, they were animated by necromantic energy or a curse and now haunt ruins and tombs, guarding ancient treasures or enacting the will of dark masters. Wights retain fragments of their former intelligence and can command lesser undead, particularly zombies they create with their life-draining touch. They shun sunlight but are relentless in darkness, leading packs of undead in raids against the living.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Studded Leather"]
+  },
+  "hitPoints": {
+    "average": 45,
+    "dice": {
+      "count": 6,
+      "die": "d8",
+      "modifier": 18
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 4
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 3
+    },
+    "CHA": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "resistances": ["Necrotic", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "gear": [
+    {
+      "name": "Studded Leather Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Longsword",
+      "quantity": 1
+    },
+    {
+      "name": "Longbow",
+      "quantity": 1
+    },
+    {
+      "name": "Arrows",
+      "quantity": 20
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": [],
+    "understood": [],
+    "notes": "The languages it knew in life"
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the wight has Disadvantage on attack rolls and on Wisdom (Perception) checks that rely on sight."
+    }
+  ],
+  "multiattack": {
+    "description": "The wight makes two attacks using Longsword, Longbow, or a combination of them. It can replace one of those attacks with a Life Drain attack.",
+    "attacks": [
+      {
+        "actionName": "Longsword",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Longsword",
+        "replaceCount": 2,
+        "with": "Longbow"
+      },
+      {
+        "replace": "Longsword",
+        "replaceCount": 1,
+        "with": "Life Drain"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Life Drain",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Necrotic damage. The target must succeed on a DC 13 Constitution saving throw or its Hit Point maximum is reduced by an amount equal to the Necrotic damage taken. This reduction lasts until the target finishes a Long Rest. The target dies if its Hit Point maximum is reduced to 0. A Humanoid slain by this attack rises 24 hours later as a Zombie under the wight's control, unless the Humanoid is restored to life or its body is destroyed. The wight can have no more than twelve Zombies under its control at one time.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Necrotic"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 13,
+            "targets": "the target",
+            "onFailure": {
+              "effects": "The target's Hit Point maximum is reduced by an amount equal to the Necrotic damage taken. This reduction lasts until the target finishes a Long Rest. The target dies if its Hit Point maximum is reduced to 0. A Humanoid slain by this attack rises 24 hours later as a Zombie under the wight's control, unless the Humanoid is restored to life or its body is destroyed. The wight can have no more than twelve Zombies under its control at one time."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Longsword",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 6 (1d8 + 2) Slashing damage, or 7 (1d10 + 2) Slashing damage if used with two hands.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ],
+          "additionalEffects": "Or 7 (1d10 + 2) Slashing damage if used with two hands."
+        }
+      }
+    },
+    {
+      "name": "Longbow",
+      "description": "Ranged Attack Roll: +4, range 150/600 ft. Hit: 6 (1d8 + 2) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 4,
+        "range": {
+          "normal": 150,
+          "long": 600
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [],
+  "reactions": []
+}

@@ -1,0 +1,240 @@
+{
+  "id": "e7a3c1d2-5f4b-4e8a-9b1c-3d6f2a8e4b70",
+  "name": "Heroic Inspiration",
+  "slug": "heroic-inspiration",
+  "category": "VariantRule",
+  "subcategory": "Inspiration",
+  "tags": ["heroic-inspiration", "reroll", "advantage", "d20-test", "human-species", "dm-reward"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "Advantage/Disadvantage"
+  },
+  "gameEdition": "2024",
+  "description": "Sometimes the DM or a rule gives you Heroic Inspiration. If you have Heroic Inspiration, you can expend it to reroll any die immediately after rolling it, and you must use the new roll. You can never have more than one instance of Heroic Inspiration. If something gives you Heroic Inspiration and you already have it, you can give it to a player character in your group who lacks it. Your DM can give you Heroic Inspiration for a variety of reasons. Typically, DMs award it when you do something particularly heroic, in character, or entertaining. It's a reward for making the game more fun for everyone playing. Other rules might allow your character to gain Heroic Inspiration independent of the DM's decision. For example, Human characters start each day with Heroic Inspiration.",
+  "shortDescription": "Expend Heroic Inspiration to reroll any die immediately after rolling it, using the new roll. You can hold only one instance at a time.",
+  "flavorText": "A reward for making the game more fun for everyone playing.",
+  "rulesAsWritten": "If you have Heroic Inspiration, you can expend it to reroll any die immediately after rolling it, and you must use the new roll. You can never have more than one instance of Heroic Inspiration. If something gives you Heroic Inspiration and you already have it, you can give it to a player character in your group who lacks it. (Chapter 1 sidebar). Glossary definition: If you have Heroic Inspiration, you can expend it when you make a D20 Test to give yourself Advantage on the roll. You either have Heroic Inspiration or you don't; you can't stockpile multiple instances. If you have it when you gain it, you can give it to another character in your group.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-1111-4aaa-bbbb-000000000001",
+      "order": 0,
+      "name": "Expend Heroic Inspiration to Reroll",
+      "description": "When you have Heroic Inspiration, you can expend it to reroll any die immediately after rolling it. You must use the new roll. Per the rules glossary, when expended on a D20 Test this grants Advantage on the roll instead.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "You have Heroic Inspiration and have just rolled a die. Applies to any die roll per Chapter 1 sidebar; limited to D20 Tests per the glossary."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Expend Heroic Inspiration to reroll any die immediately after rolling it, and you must use the new roll. The glossary alternatively states: expend it when you make a D20 Test to give yourself Advantage on the roll.",
+          "mechanicalNote": "Chapter 1 sidebar describes a reroll-any-die mechanic; the Rules Glossary describes granting Advantage on a D20 Test. Both are printed rules for 2024 edition."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-2222-4aaa-bbbb-000000000002",
+      "order": 1,
+      "name": "Only One Instance at a Time",
+      "description": "You can never have more than one instance of Heroic Inspiration. You either have it or you don't; you can't stockpile multiple instances.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "A character can hold at most one instance of Heroic Inspiration at any time. It is a binary state: you either have Heroic Inspiration or you do not.",
+          "mechanicalNote": "No stacking of Heroic Inspiration is permitted under any circumstances."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-3333-4aaa-bbbb-000000000003",
+      "order": 2,
+      "name": "Transfer Heroic Inspiration When Already Held",
+      "description": "If something gives you Heroic Inspiration and you already have it, you can give it to a player character in your group who lacks it.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "You already have Heroic Inspiration when you would gain another instance of it."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "When you gain Heroic Inspiration while already possessing it, you may give it to a player character in your group who currently lacks Heroic Inspiration.",
+          "mechanicalNote": "Transfer is optional and can only go to a player character in the group who does not already have Heroic Inspiration."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-4444-4aaa-bbbb-000000000004",
+      "order": 3,
+      "name": "Interaction with Advantage and Disadvantage Rerolls",
+      "description": "When you have Advantage or Disadvantage and something in the game lets you reroll or replace the d20, you can reroll or replace only one die, not both. You choose which one. For example, if you have Heroic Inspiration and roll a 3 and an 18 on an ability check that has Advantage or Disadvantage, you could expend your Heroic Inspiration to reroll one of those dice, not both of them.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "You expend Heroic Inspiration on a roll that has Advantage or Disadvantage."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "When rerolling via Heroic Inspiration on a roll that has Advantage or Disadvantage (where two d20s are rolled), you can reroll or replace only one of the two d20s, not both. You choose which one to reroll.",
+          "mechanicalNote": "This is a general reroll interaction rule stated in the Advantage/Disadvantage section, using Heroic Inspiration as the example."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-5555-4aaa-bbbb-000000000005",
+      "order": 4,
+      "name": "DM Awards Heroic Inspiration",
+      "description": "Your DM can give you Heroic Inspiration for a variety of reasons. Typically, DMs award it when you do something particularly heroic, in character, or entertaining. It's a reward for making the game more fun for everyone playing.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "The DM decides to award Heroic Inspiration based on player actions."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The DM awards Heroic Inspiration at their discretion, typically for heroic actions, strong roleplaying in character, or entertaining contributions to the game.",
+          "mechanicalNote": "DM discretion is the primary method of gaining Heroic Inspiration."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "a1b2c3d4-6666-4aaa-bbbb-000000000006",
+      "order": 5,
+      "name": "Rules-Based Heroic Inspiration Gain",
+      "description": "Other rules might allow your character to gain Heroic Inspiration independent of the DM's decision. For example, Human characters start each day with Heroic Inspiration.",
+      "trigger": {
+        "event": "OnLongRest",
+        "condition": "Specific rules grant Heroic Inspiration, such as the Human species trait granting it at the start of each day."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Certain game rules grant Heroic Inspiration automatically, independent of DM discretion. The Human species trait grants Heroic Inspiration at the start of each day.",
+          "mechanicalNote": "Human species: start each day with Heroic Inspiration. Other features may also grant it per their descriptions."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-7777-4aaa-bbbb-000000000007",
+      "order": 6,
+      "name": "Outer Planes Roleplaying Award",
+      "description": "When visiting Outer Planes, the DM might award Heroic Inspiration to characters who bring alignment-influenced characteristics to life in their roleplaying, such as feeling urges toward kindness on Upper Planes or cruelty on Lower Planes.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Characters roleplay alignment-influenced behavior while visiting Outer Planes."
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The DM might award Heroic Inspiration to characters who bring alignment-influenced characteristics to life in their characters while visiting Outer Planes, such as performing deeds of kindness on Upper Planes or feeling drawn to acts of cruelty on Lower Planes.",
+          "mechanicalNote": "This is a DM guidance note from the Cosmology chapter regarding Outer Plane alignment influence on visitors."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "UntilConditionMet",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "b1c2d3e4-1111-4bbb-cccc-000000000001",
+      "method": "SpecialAction",
+      "description": "Heroic Inspiration is expended when the character uses it to reroll a die (Chapter 1) or gain Advantage on a D20 Test (Glossary). Once expended, the character no longer has Heroic Inspiration.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": false,
+    "maxStacks": 1,
+    "stackingNote": "You can never have more than one instance of Heroic Inspiration. You either have Heroic Inspiration or you don't; you can't stockpile multiple instances. If you gain it while already having it, you can give it to a player character in your group who lacks it."
+  },
+  "dmNotes": "Award Heroic Inspiration when players do something particularly heroic, stay in character, or make the game more entertaining for the group. It is a reward for making the game more fun for everyone. On Outer Planes, consider awarding it when characters roleplay alignment-influenced tendencies. Note the discrepancy between Chapter 1 (reroll any die, must use new roll) and the Rules Glossary (Advantage on a D20 Test). Adjudicate consistently at your table.",
+  "commonRulings": [
+    {
+      "question": "Can Heroic Inspiration be used on damage rolls or other non-D20 rolls?",
+      "ruling": "Per the Chapter 1 sidebar, Heroic Inspiration allows you to reroll any die immediately after rolling it, which would include damage rolls and other non-D20 dice. However, the Rules Glossary states it can be expended when you make a D20 Test to give yourself Advantage on the roll, limiting it to D20 Tests. The DM should decide which version to use at their table.",
+      "isOfficial": false
+    },
+    {
+      "question": "What happens if you roll a natural 20 on the reroll from Heroic Inspiration?",
+      "ruling": "You must use the new roll. If the new roll is a natural 20 on an attack roll, it is a Critical Hit per normal rules.",
+      "isOfficial": false
+    },
+    {
+      "question": "Can you give Heroic Inspiration to any creature, or only player characters?",
+      "ruling": "You can give it only to a player character in your group who lacks it. NPCs, familiars, and other non-player creatures cannot receive transferred Heroic Inspiration.",
+      "isOfficial": false
+    },
+    {
+      "question": "When using Heroic Inspiration with Advantage or Disadvantage, which die can you reroll?",
+      "ruling": "You choose which of the two d20s to reroll. You cannot reroll both dice. After the reroll, you still use the higher roll for Advantage or the lower roll for Disadvantage as normal.",
+      "isOfficial": false
+    },
+    {
+      "question": "Do Human characters gain Heroic Inspiration at the start of each day even if they already have it?",
+      "ruling": "Humans start each day with Heroic Inspiration. If they already have it, the transfer rule applies: they can give it to a player character in their group who lacks it.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

@@ -1,0 +1,65 @@
+{
+  "name": "Darkness",
+  "level": 2,
+  "school": "Evocation",
+  "classes": ["Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false,
+    "material": {
+      "description": "bat fur and a piece of coal",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "For the duration, magical Darkness spreads from a point within range and fills a 15-foot-radius Sphere. Darkvision can't see through it, and nonmagical light can't illuminate it. Alternatively, you cast the spell on an object that isn't being worn or carried, causing the Darkness to fill a 15-foot Emanation originating from that object. Covering that object with something opaque, such as a bowl or helm, blocks the Darkness. If any of this spell's area overlaps with an area of Bright Light or Dim Light created by a spell of level 2 or lower, that other spell is dispelled.",
+  "targetType": "point",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 15
+    }
+  ],
+  "spellOptions": [
+    {
+      "name": "Point of Darkness",
+      "description": "Magical Darkness spreads from a point within range and fills a 15-foot-radius Sphere. Darkvision can't see through it, and nonmagical light can't illuminate it.",
+      "areaOfEffect": {
+        "shape": "Sphere",
+        "radiusFeet": 15
+      }
+    },
+    {
+      "name": "Object of Darkness",
+      "description": "You cast the spell on an object that isn't being worn or carried, causing the Darkness to fill a 15-foot Emanation originating from that object. Covering that object with something opaque, such as a bowl or helm, blocks the Darkness.",
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "radiusFeet": 15
+      }
+    }
+  ],
+  "light": {
+    "isDarkness": true
+  },
+  "obscurement": "Heavily",
+  "countersOrDispels": {
+    "maxSpellLevel": 2,
+    "description": "If any of this spell's area overlaps with an area of Bright Light or Dim Light created by a spell of level 2 or lower, that other spell is dispelled."
+  },
+  "tags": ["darkness", "control", "utility"]
+}

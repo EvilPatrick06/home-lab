@@ -1,0 +1,24 @@
+{
+  "id": "barrier-tattoo",
+  "name": "Barrier Tattoo",
+  "rarity": "Varies",
+  "attunement": true,
+  "description": "This tattoo depicts protective imagery and uses ink that resembles liquid metal. While you aren't wearing armor, the tattoo grants you an Armor Class depending on the tattoo's rarity. You can use a Shield and still gain this benefit.",
+  "variants": [
+    { "rarity": "Uncommon", "ac": 12, "acFormula": "12 + DEX modifier", "needleRequired": "Uncommon or higher" },
+    { "rarity": "Rare", "ac": 15, "acFormula": "15 + DEX modifier (max 2)", "needleRequired": "Rare or higher" },
+    { "rarity": "Very Rare", "ac": 18, "acFormula": "18", "needleRequired": "Very Rare or higher" }
+  ],
+  "properties": {
+    "type": "Magical Tattoo",
+    "bodyLocation": "Any"
+  },
+  "effects": [
+    {
+      "name": "Magical Protection",
+      "description": "While not wearing armor, the tattoo grants an AC based on its rarity. Compatible with shields.",
+      "activation": "Passive"
+    }
+  ],
+  "source": { "book": "2024 Dungeon Master's Guide", "section": "Magic Items" }
+}

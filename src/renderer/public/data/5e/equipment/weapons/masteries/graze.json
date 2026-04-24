@@ -1,0 +1,19 @@
+{
+  "name": "Graze",
+  "slug": "graze",
+  "category": "Weapon Mastery",
+  "description": "If your attack roll with this weapon misses a creature, you can deal damage to that creature equal to the ability modifier you used to make the attack roll. This damage is the same type dealt by the weapon, and the damage can be increased only by increasing the ability modifier.",
+  "mechanicalEffect": {
+    "trigger": "miss",
+    "type": "damageOnMiss",
+    "damage": "Ability modifier used for the attack roll",
+    "damageType": "Same as weapon",
+    "limitation": "Cannot be increased except by increasing the ability modifier"
+  },
+  "weaponsWithMastery": ["Glaive", "Greatsword"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapon Mastery"
+  }
+}

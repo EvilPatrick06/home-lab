@@ -1,0 +1,13 @@
+{
+  "name": "Potion of Longevity",
+  "slug": "potion-of-longevity",
+  "type": "Potion",
+  "rarity": "Very Rare",
+  "attunement": false,
+  "description": "When you drink this potion, your physical age is reduced by 1d6 + 6 years, to a minimum of 13 years. Each time you subsequently drink a *Potion of Longevity*, there is 10 percent cumulative chance that you instead age by 1d6 + 6 years.\n\nSuspended in this amber liquid is a tiny heart that, against all reason, is still beating. These ingredients vanish when the potion is opened.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

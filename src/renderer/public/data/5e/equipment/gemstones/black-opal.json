@@ -1,0 +1,13 @@
+{
+  "name": "Black opal",
+  "slug": "black-opal",
+  "value": "1,000 GP",
+  "category": "Gemstone",
+  "description": "dark green with black mottling and golden flecks",
+  "dieValue": "1",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

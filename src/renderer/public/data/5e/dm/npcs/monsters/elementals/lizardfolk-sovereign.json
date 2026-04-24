@@ -1,0 +1,64 @@
+{
+  "name": "Lizardfolk Sovereign",
+  "slug": "lizardfolk-sovereign",
+  "size": "Medium",
+  "type": "Elemental",
+  "alignment": "Neutral",
+  "ac": "15",
+  "initiative": "+1 (11)",
+  "hp": "78",
+  "hpFormula": "12d8 + 24",
+  "speed": "30 ft., Burrow 20 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 17,
+    "dex": 12,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 1,
+    "con": 4,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4, Stealth +5",
+  "immunities": "Frightened",
+  "senses": "Darkvision 60 ft.; Passive Perception 14",
+  "languages": "Draconic, Primordial (Terran)",
+  "cr": "4 (XP 1,100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The lizardfolk makes one Bite attack and one Earthen Maul attack."
+    },
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 8 (1d10 + 3) Piercing damage. If the target is a creature that isn't a Construct or an Undead, the lizardfolk gains Temporary Hit Points equal to the damage dealt."
+    },
+    {
+      "name": "Earthen Maul",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 10 (2d6 + 3) Bludgeoning damage. If the target is a Medium or smaller creature, it has the Prone condition."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Charge",
+      "description": "The lizardfolk moves up to its Speed or Swim Speed straight toward an enemy it can see."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Reptilian Defenders of the Land*\n**Habitat:** Forest, Swamp; **Treasure:** Individual\nLizardfolk dwell in wildernesses suffused with primal magic. While many lizardfolk are Humanoids with varied skills, some forge powerful bonds with the Elemental Plane of Earth, granting them magical connections to the cycle of growth and rebirth.\nLizardfolk geomancers draw magic from the natural world, using it to protect their people and territories.\nLizardfolk sovereigns undergo magical rites that imbue them with fantastic strength and magic from the Elemental Plane of Earth. In some, though, it also unlocks a primal viciousness.",
+  "habitat": "Forest, Swamp",
+  "treasure": "Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

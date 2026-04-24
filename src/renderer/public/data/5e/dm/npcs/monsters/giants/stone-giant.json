@@ -1,0 +1,190 @@
+{
+  "name": "Stone Giant",
+  "sizes": ["Huge"],
+  "creatureType": "Giant",
+  "alignment": "Neutral",
+  "habitat": ["Hill", "Mountain", "Underdark"],
+  "treasure": ["Relics"],
+  "lore": "Stone giants are reclusive artists who dwell deep within mountains and vast cavern systems. They prize sculpture, stonework, and quiet contemplation above all else, viewing the surface world as a realm of fleeting dreams. Despite their peaceful demeanor, stone giants are formidable combatants who hurl boulders with devastating accuracy and catch projectiles in midair.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 126,
+    "dice": {
+      "count": 11,
+      "die": "d12",
+      "modifier": 55
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 23,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 5
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 8
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 4
+    },
+    "CHA": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Athletics",
+      "bonus": 9
+    },
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "gear": [
+    {
+      "name": "Greatclub",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Giant"]
+  },
+  "challengeRating": "7",
+  "experiencePoints": 2900,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Stone Camouflage",
+      "description": "The giant has Advantage on Dexterity (Stealth) checks made to hide in rocky terrain."
+    }
+  ],
+  "multiattack": {
+    "description": "The giant makes two Greatclub or Rock attacks.",
+    "attacks": [
+      {
+        "actionName": "Greatclub",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greatclub",
+        "replaceCount": 2,
+        "with": "Rock"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greatclub",
+      "description": "Melee Attack Roll: +9, reach 15 ft. Hit: 19 (3d8 + 6) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rock",
+      "description": "Ranged Attack Roll: +9, range 60/240 ft. Hit: 28 (4d10 + 6) Bludgeoning damage. If the target is a creature, it makes a DC 17 Strength saving throw, and on a failed save, the target has the Prone condition.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 9,
+        "range": {
+          "normal": 60,
+          "long": 240
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 28,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "savingThrow": {
+            "ability": "STR",
+            "dc": 17,
+            "targets": "the target (if a creature)",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Prone"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Rock Catching",
+      "description": "The giant reduces the damage by 33 (6d10). If the damage is reduced to 0, the giant catches the projectile and takes no damage from it.",
+      "trigger": "The giant is hit by a ranged attack that deals Bludgeoning damage."
+    }
+  ]
+}

@@ -1,0 +1,1723 @@
+{
+  "name": "Druid",
+  "description": "Druids belong to ancient orders that call on the forces of nature. Harnessing the magic of animals, plants, and the four elements, Druids heal, transform into animals, and wield elemental destruction. Revering nature above all, individual Druids gain their magic from nature, a nature deity, or both, and they typically unite with other Druids to perform rites that mark the passage of the seasons and other natural cycles. Druids are concerned with the delicate ecological balance that sustains plant and animal life and with the need for people to live in harmony with nature. Druids often guard sacred sites or watch over regions of unspoiled nature, but when a significant danger arises, Druids take a more active role as adventurers who combat the threat.",
+  "coreTraits": {
+    "primaryAbility": ["Wisdom"],
+    "hitPointDie": "D8",
+    "savingThrowProficiencies": ["Intelligence", "Wisdom"],
+    "skillProficiencies": {
+      "count": 2,
+      "from": ["Arcana", "Animal Handling", "Insight", "Medicine", "Nature", "Perception", "Religion", "Survival"]
+    },
+    "weaponProficiencies": [
+      {
+        "category": "Simple"
+      }
+    ],
+    "toolProficiencies": [
+      {
+        "type": "specific",
+        "name": "Herbalism Kit"
+      }
+    ],
+    "armorTraining": ["Light", "Shields"],
+    "startingEquipment": [
+      {
+        "label": "A",
+        "items": [
+          "Leather Armor",
+          "Shield",
+          "Sickle",
+          "Druidic Focus (Quarterstaff)",
+          "Explorer's Pack",
+          "Herbalism Kit"
+        ],
+        "gp": 9
+      },
+      {
+        "label": "B",
+        "items": [],
+        "gp": 50
+      }
+    ]
+  },
+  "multiclassing": {
+    "hitPointDie": true,
+    "armorTraining": ["Light", "Shields"],
+    "spellcastingNote": "See the multiclassing rules in chapter 2 to determine your available spell slots."
+  },
+  "spellcasting": {
+    "type": "full",
+    "ability": "Wisdom",
+    "focus": ["Druidic Focus"],
+    "ritualCasting": "fromPrepared",
+    "cantripsKnown": true,
+    "preparedSpellsMechanic": "anyFromListOnLongRest",
+    "usesSpellbook": false,
+    "pactMagic": false,
+    "initialCantrips": 2,
+    "initialPreparedSpells": 4
+  },
+  "levelProgression": [
+    {
+      "level": 1,
+      "proficiencyBonus": 2,
+      "features": ["Spellcasting", "Druidic", "Primal Order"],
+      "cantrips": 2,
+      "preparedSpells": 4,
+      "spellSlots": {
+        "slot1": 2,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 0
+    },
+    {
+      "level": 2,
+      "proficiencyBonus": 2,
+      "features": ["Wild Shape", "Wild Companion"],
+      "cantrips": 2,
+      "preparedSpells": 5,
+      "spellSlots": {
+        "slot1": 3,
+        "slot2": 0,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 2
+    },
+    {
+      "level": 3,
+      "proficiencyBonus": 2,
+      "features": ["Druid Subclass"],
+      "cantrips": 2,
+      "preparedSpells": 6,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 2,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 2
+    },
+    {
+      "level": 4,
+      "proficiencyBonus": 2,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 3,
+      "preparedSpells": 7,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 0,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 2
+    },
+    {
+      "level": 5,
+      "proficiencyBonus": 3,
+      "features": ["Wild Resurgence"],
+      "cantrips": 3,
+      "preparedSpells": 9,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 2,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 2
+    },
+    {
+      "level": 6,
+      "proficiencyBonus": 3,
+      "features": ["Subclass feature"],
+      "cantrips": 3,
+      "preparedSpells": 10,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 0,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 7,
+      "proficiencyBonus": 3,
+      "features": ["Elemental Fury"],
+      "cantrips": 3,
+      "preparedSpells": 11,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 1,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 8,
+      "proficiencyBonus": 3,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 3,
+      "preparedSpells": 12,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 2,
+        "slot5": 0,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 9,
+      "proficiencyBonus": 4,
+      "features": [],
+      "cantrips": 3,
+      "preparedSpells": 14,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 1,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 10,
+      "proficiencyBonus": 4,
+      "features": ["Subclass feature"],
+      "cantrips": 4,
+      "preparedSpells": 15,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 0,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 11,
+      "proficiencyBonus": 4,
+      "features": [],
+      "cantrips": 4,
+      "preparedSpells": 16,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 12,
+      "proficiencyBonus": 4,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 4,
+      "preparedSpells": 16,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 0,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 13,
+      "proficiencyBonus": 5,
+      "features": [],
+      "cantrips": 4,
+      "preparedSpells": 17,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 14,
+      "proficiencyBonus": 5,
+      "features": ["Subclass feature"],
+      "cantrips": 4,
+      "preparedSpells": 17,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 0,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 15,
+      "proficiencyBonus": 5,
+      "features": ["Improved Elemental Fury"],
+      "cantrips": 4,
+      "preparedSpells": 18,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 16,
+      "proficiencyBonus": 5,
+      "features": ["Ability Score Improvement"],
+      "cantrips": 4,
+      "preparedSpells": 18,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 0
+      },
+      "wildShape": 3
+    },
+    {
+      "level": 17,
+      "proficiencyBonus": 6,
+      "features": [],
+      "cantrips": 4,
+      "preparedSpells": 19,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 2,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      },
+      "wildShape": 4
+    },
+    {
+      "level": 18,
+      "proficiencyBonus": 6,
+      "features": ["Beast Spells"],
+      "cantrips": 4,
+      "preparedSpells": 20,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 1,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      },
+      "wildShape": 4
+    },
+    {
+      "level": 19,
+      "proficiencyBonus": 6,
+      "features": ["Epic Boon"],
+      "cantrips": 4,
+      "preparedSpells": 21,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 2,
+        "slot7": 1,
+        "slot8": 1,
+        "slot9": 1
+      },
+      "wildShape": 4
+    },
+    {
+      "level": 20,
+      "proficiencyBonus": 6,
+      "features": ["Archdruid"],
+      "cantrips": 4,
+      "preparedSpells": 22,
+      "spellSlots": {
+        "slot1": 4,
+        "slot2": 3,
+        "slot3": 3,
+        "slot4": 3,
+        "slot5": 3,
+        "slot6": 2,
+        "slot7": 2,
+        "slot8": 1,
+        "slot9": 1
+      },
+      "wildShape": 4
+    }
+  ],
+  "classFeatures": [
+    {
+      "name": "Spellcasting",
+      "level": 1,
+      "description": "You have learned to cast spells through studying the mystical forces of nature. You know two cantrips of your choice from the Druid spell list. Whenever you gain a Druid level, you can replace one of your cantrips with another cantrip of your choice from the Druid spell list. When you reach Druid levels 4 and 10, you learn another cantrip of your choice from the Druid spell list. You prepare the list of level 1+ spells that are available for you to cast. To start, choose four level 1 spells from the Druid spell list. The number of spells on your list increases as you gain Druid levels, as shown in the Prepared Spells column of the Druid Features table. Whenever you finish a Long Rest, you can change your list of prepared spells, replacing any of the spells there with other Druid spells for which you have spell slots. Wisdom is your spellcasting ability for your Druid spells. You can use a Druidic Focus as a Spellcasting Focus for your Druid spells.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Druidic",
+      "level": 1,
+      "description": "You know Druidic, the secret language of Druids. While learning this ancient tongue, you also unlocked the magic of communicating with animals; you always have the Speak with Animals spell prepared. You can use Druidic to leave hidden messages. You and others who know Druidic automatically spot such a message. Others spot the message's presence with a successful DC 15 Intelligence (Investigation) check but can't decipher it without magic.",
+      "activation": "Passive",
+      "grantsSpells": [
+        {
+          "spell": "Speak with Animals",
+          "alwaysPrepared": true
+        }
+      ],
+      "grantsProficiencies": {
+        "languages": ["Druidic"]
+      }
+    },
+    {
+      "name": "Primal Order",
+      "level": 1,
+      "description": "You have dedicated yourself to one of the following sacred roles of your choice.",
+      "activation": "Passive",
+      "options": [
+        {
+          "name": "Magician",
+          "description": "You know one extra cantrip from the Druid spell list. In addition, your mystical connection to nature gives you a bonus to your Intelligence (Arcana or Nature) checks. The bonus equals your Wisdom modifier (minimum bonus of +1)."
+        },
+        {
+          "name": "Warden",
+          "description": "Trained for battle, you gain proficiency with Martial weapons and training with Medium armor."
+        }
+      ]
+    },
+    {
+      "name": "Wild Shape",
+      "level": 2,
+      "description": "The power of nature allows you to assume the form of an animal. As a Bonus Action, you shape-shift into a Beast form that you have learned for this feature. You stay in that form for a number of hours equal to half your Druid level or until you use Wild Shape again, have the Incapacitated condition, or die. You can also leave the form early as a Bonus Action. You can use Wild Shape twice. You regain one expended use when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest. You know four Beast forms for this feature, chosen from among Beast stat blocks that have a maximum Challenge Rating of 1/4 and that lack a Fly Speed. When you assume a Wild Shape form, you gain a number of Temporary Hit Points equal to your Druid level. Your game statistics are replaced by the Beast's stat block, but you retain your creature type; Hit Points; Hit Point Dice; Intelligence, Wisdom, and Charisma scores; class features; languages; and feats. You also retain your skill and saving throw proficiencies. You can't cast spells, but shape-shifting doesn't break your Concentration. Your ability to handle objects is determined by the form's limbs rather than your own.",
+      "activation": "BonusAction",
+      "usesPerRest": {
+        "uses": 2,
+        "restType": "Long",
+        "rechargeAlternative": "Regain one use on Short Rest"
+      },
+      "scalingValues": {
+        "uses": [
+          {
+            "level": 2,
+            "value": 2
+          },
+          {
+            "level": 6,
+            "value": 3
+          },
+          {
+            "level": 17,
+            "value": 4
+          }
+        ],
+        "knownForms": [
+          {
+            "level": 2,
+            "value": 4
+          },
+          {
+            "level": 4,
+            "value": 6
+          },
+          {
+            "level": 8,
+            "value": 8
+          }
+        ],
+        "maxCR": [
+          {
+            "level": 2,
+            "value": "1/4"
+          },
+          {
+            "level": 4,
+            "value": "1/2"
+          },
+          {
+            "level": 8,
+            "value": "1"
+          }
+        ],
+        "flySpeedAllowed": [
+          {
+            "level": 2,
+            "value": "No"
+          },
+          {
+            "level": 8,
+            "value": "Yes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Wild Companion",
+      "level": 2,
+      "description": "You can summon a nature spirit that assumes an animal form to aid you. As a Magic action, you can expend a spell slot or a use of Wild Shape to cast the Find Familiar spell without Material components. When you cast the spell in this way, the familiar is Fey and disappears when you finish a Long Rest.",
+      "activation": "MagicAction",
+      "grantsSpells": [
+        {
+          "spell": "Find Familiar",
+          "alwaysPrepared": false
+        }
+      ]
+    },
+    {
+      "name": "Druid Subclass",
+      "level": 3,
+      "description": "You gain a Druid subclass of your choice. The Circle of the Land, Circle of the Moon, Circle of the Sea, and Circle of the Stars subclasses are detailed after this class's description. A subclass is a specialization that grants you features at certain Druid levels. For the rest of your career, you gain each of your subclass's features that are of your Druid level or lower.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 4,
+      "description": "You gain the Ability Score Improvement feat (see chapter 5) or another feat of your choice for which you qualify. You gain this feature again at Druid levels 8, 12, and 16.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Wild Resurgence",
+      "level": 5,
+      "description": "Once on each of your turns, if you have no uses of Wild Shape left, you can give yourself one use by expending a spell slot (no action required). In addition, you can expend one use of Wild Shape (no action required) to give yourself a level 1 spell slot, but you can't do so again until you finish a Long Rest.",
+      "activation": "Free"
+    },
+    {
+      "name": "Elemental Fury",
+      "level": 7,
+      "description": "The might of the elements flows through you. You gain one of the following options of your choice.",
+      "activation": "Passive",
+      "options": [
+        {
+          "name": "Potent Spellcasting",
+          "description": "Add your Wisdom modifier to the damage you deal with any Druid cantrip."
+        },
+        {
+          "name": "Primal Strike",
+          "description": "Once on each of your turns when you hit a creature with an attack roll using a weapon or a Beast form's attack in Wild Shape, you can cause the target to take an extra 1d8 Cold, Fire, Lightning, or Thunder damage (choose when you hit).",
+          "damageType": ["Cold", "Fire", "Lightning", "Thunder"]
+        }
+      ]
+    },
+    {
+      "name": "Improved Elemental Fury",
+      "level": 15,
+      "description": "The option you chose for Elemental Fury grows more powerful.",
+      "activation": "Passive",
+      "replacesOrImproves": "Elemental Fury",
+      "options": [
+        {
+          "name": "Potent Spellcasting",
+          "description": "When you cast a Druid cantrip with a range of 10 feet or greater, the spell's range increases by 300 feet."
+        },
+        {
+          "name": "Primal Strike",
+          "description": "The extra damage of your Primal Strike increases to 2d8.",
+          "damageType": ["Cold", "Fire", "Lightning", "Thunder"]
+        }
+      ]
+    },
+    {
+      "name": "Beast Spells",
+      "level": 18,
+      "description": "While using Wild Shape, you can cast spells in Beast form, except for any spell that has a Material component with a cost specified or that consumes its Material component.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Epic Boon",
+      "level": 19,
+      "description": "You gain an Epic Boon feat (see chapter 5) or another feat of your choice for which you qualify. Boon of Dimensional Travel is recommended.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Archdruid",
+      "level": 20,
+      "description": "The vitality of nature constantly blooms within you, granting you the following benefits. Evergreen Wild Shape: Whenever you roll Initiative and have no uses of Wild Shape left, you regain one expended use of it. Nature Magician: You can convert uses of Wild Shape into a spell slot (no action required). Choose a number of your unexpended uses of Wild Shape and convert them into a single spell slot, with each use contributing 2 spell levels. For example, if you convert two uses of Wild Shape, you produce a level 4 spell slot. Once you use this benefit, you can't do so again until you finish a Long Rest. Longevity: The primal magic that you wield causes you to age more slowly. For every ten years that pass, your body ages only one year.",
+      "activation": "Passive"
+    }
+  ],
+  "subclassLabel": "Druid Subclass",
+  "subclassFeatureLevels": [3, 6, 10, 14],
+  "subclasses": [
+    {
+      "name": "Circle of the Land",
+      "description": "The Circle of the Land comprises mystics and sages who safeguard ancient knowledge and rites. These Druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of their communities.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Circle of the Land Spells",
+          "level": 3,
+          "description": "Whenever you finish a Long Rest, choose one type of land: arid, polar, temperate, or tropical. Consult the table that corresponds to the chosen type; you have the spells listed for your Druid level and lower prepared.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Land's Aid",
+          "level": 3,
+          "description": "As a Magic action, you can expend a use of your Wild Shape and choose a point within 60 feet of yourself. Vitality-giving flowers and life-draining thorns appear for a moment in a 10-foot-radius Sphere centered on that point. Each creature of your choice in the Sphere must make a Constitution saving throw against your spell save DC, taking 2d6 Necrotic damage on a failed save or half as much damage on a successful one. One creature of your choice in that area regains 2d6 Hit Points. The damage and healing increase by 1d6 when you reach Druid levels 10 (3d6) and 14 (4d6).",
+          "activation": "MagicAction",
+          "savingThrow": {
+            "ability": "Wisdom",
+            "formula": "spell save DC"
+          },
+          "scalingValues": {
+            "damageAndHealing": [
+              {
+                "level": 3,
+                "value": "2d6"
+              },
+              {
+                "level": 10,
+                "value": "3d6"
+              },
+              {
+                "level": 14,
+                "value": "4d6"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Natural Recovery",
+          "level": 6,
+          "description": "You can cast one of the level 1+ spells that you have prepared from your Circle Spells feature without expending a spell slot, and you must finish a Long Rest before you do so again. In addition, when you finish a Short Rest, you can choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your Druid level (round up), and none of them can be level 6+. Once you recover spell slots with this feature, you can't do so again until you finish a Long Rest.",
+          "activation": "Special",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long"
+          }
+        },
+        {
+          "name": "Nature's Ward",
+          "level": 10,
+          "description": "You are immune to the Poisoned condition, and you have Resistance to a damage type associated with your current land choice in the Circle Spells feature: Arid — Fire, Polar — Cold, Temperate — Lightning, Tropical — Poison.",
+          "activation": "Passive",
+          "conditionImmunities": ["Poisoned"]
+        },
+        {
+          "name": "Nature's Sanctuary",
+          "level": 14,
+          "description": "As a Magic action, you can expend a use of your Wild Shape and cause spectral trees and vines to appear in a 15-foot Cube on the ground within 120 feet of yourself. They last there for 1 minute or until you have the Incapacitated condition or die. You and your allies have Half Cover while in that area, and your allies gain the current Resistance of your Nature's Ward while there. As a Bonus Action, you can move the Cube up to 60 feet to ground within 120 feet of yourself.",
+          "activation": "MagicAction"
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Arid Land Spells",
+          "condition": "Chosen when you finish a Long Rest by selecting Arid land type",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Blur", "Burning Hands", "Fire Bolt"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Fireball"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Blight"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Wall of Stone"]
+            }
+          ]
+        },
+        {
+          "name": "Polar Land Spells",
+          "condition": "Chosen when you finish a Long Rest by selecting Polar land type",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Fog Cloud", "Hold Person", "Ray of Frost"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Sleet Storm"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Ice Storm"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Cone of Cold"]
+            }
+          ]
+        },
+        {
+          "name": "Temperate Land Spells",
+          "condition": "Chosen when you finish a Long Rest by selecting Temperate land type",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Misty Step", "Shocking Grasp", "Sleep"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Lightning Bolt"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Freedom of Movement"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Tree Stride"]
+            }
+          ]
+        },
+        {
+          "name": "Tropical Land Spells",
+          "condition": "Chosen when you finish a Long Rest by selecting Tropical land type",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Acid Splash", "Ray of Sickness", "Web"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Stinking Cloud"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Polymorph"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Insect Plague"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Circle of the Moon",
+      "description": "Druids of the Circle of the Moon draw on lunar magic to transform themselves. Their order gathers under the moon to share news and perform rituals. Changeable as the moon, a Druid of this circle might prowl as a great cat one night, soar over the treetops as an eagle the next day, and then crash through undergrowth as a bear to drive off a trespassing monster. The wild is in the Druid's blood.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Circle Forms",
+          "level": 3,
+          "description": "You can channel lunar magic when you assume a Wild Shape form, granting you the following benefits. Challenge Rating: The maximum Challenge Rating for the form equals your Druid level divided by 3 (round down). Armor Class: Until you leave the form, your AC equals 13 plus your Wisdom modifier if that total is higher than the Beast's AC. Temporary Hit Points: You gain a number of Temporary Hit Points equal to three times your Druid level.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Circle of the Moon Spells",
+          "level": 3,
+          "description": "When you reach a Druid level specified in the Circle of the Moon Spells table, you thereafter always have the listed spells prepared. In addition, you can cast the spells from this feature while you're in a Wild Shape form.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Cure Wounds",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Moonbeam",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Starry Wisp",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Improved Circle Forms",
+          "level": 6,
+          "description": "While in a Wild Shape form, you gain the following benefits. Lunar Radiance: Each of your attacks in a Wild Shape form can deal its normal damage type or Radiant damage. You make this choice each time you hit with those attacks. Increased Toughness: You can add your Wisdom modifier to your Constitution saving throws.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Moonlight Step",
+          "level": 10,
+          "description": "You magically transport yourself, reappearing amid a burst of moonlight. As a Bonus Action, you teleport up to 30 feet to an unoccupied space you can see, and you have Advantage on the next attack roll you make before the end of this turn. You can use this feature a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. You can also regain uses by expending a level 2+ spell slot for each use you want to restore (no action required).",
+          "activation": "BonusAction",
+          "usesPerRest": {
+            "uses": "Wisdom modifier (minimum of once)",
+            "restType": "Long",
+            "rechargeAlternative": "Expend a level 2+ spell slot per use restored"
+          }
+        },
+        {
+          "name": "Lunar Form",
+          "level": 14,
+          "description": "The power of the moon suffuses you, granting you the following benefits. Improved Lunar Radiance: Once per turn, you can deal an extra 2d10 Radiant damage to a target you hit with a Wild Shape form's attack. Shared Moonlight: Whenever you use Moonlight Step, you can also teleport one willing creature. That creature must be within 10 feet of you, and you teleport it to an unoccupied space you can see within 10 feet of your destination space.",
+          "activation": "Passive"
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Circle of the Moon Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Cure Wounds", "Moonbeam", "Starry Wisp"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Conjure Animals"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Fount of Moonlight"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Mass Cure Wounds"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Circle of the Sea",
+      "description": "Druids of the Circle of the Sea draw on the tempestuous forces of oceans and storms. Some view themselves as embodiments of nature's wrath, seeking vengeance against those who despoil nature. Others seek mystical unity with nature by attuning themselves to the ebb and flow of the tides, following the rush of currents and waves and listening to the inscrutable whispers and roars of the winds.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Circle of the Sea Spells",
+          "level": 3,
+          "description": "When you reach a Druid level specified in the Circle of the Sea Spells table, you thereafter always have the listed spells prepared.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Fog Cloud",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Gust of Wind",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Ray of Frost",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Shatter",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Thunderwave",
+              "alwaysPrepared": true
+            }
+          ]
+        },
+        {
+          "name": "Wrath of the Sea",
+          "level": 3,
+          "description": "As a Bonus Action, you can expend a use of your Wild Shape to manifest a 5-foot Emanation that takes the form of ocean spray that surrounds you for 10 minutes. It ends early if you dismiss it (no action required), manifest it again, or have the Incapacitated condition. When you manifest the Emanation and as a Bonus Action on your subsequent turns, you can choose another creature you can see in the Emanation. The target must succeed on a Constitution saving throw against your spell save DC or take Cold damage and, if the creature is Large or smaller, be pushed up to 15 feet away from you. To determine this damage, roll a number of d6s equal to your Wisdom modifier (minimum of one die).",
+          "activation": "BonusAction",
+          "savingThrow": {
+            "ability": "Wisdom",
+            "formula": "spell save DC"
+          }
+        },
+        {
+          "name": "Aquatic Affinity",
+          "level": 6,
+          "description": "The size of the Emanation created by your Wrath of the Sea increases to 10 feet. In addition, you gain a Swim Speed equal to your Speed.",
+          "activation": "Passive",
+          "replacesOrImproves": "Wrath of the Sea"
+        },
+        {
+          "name": "Stormborn",
+          "level": 10,
+          "description": "Your Wrath of the Sea confers two more benefits while active. Flight: You gain a Fly Speed equal to your Speed. Resistance: You have Resistance to Cold, Lightning, and Thunder damage.",
+          "activation": "Passive",
+          "replacesOrImproves": "Wrath of the Sea",
+          "damageResistances": ["Cold", "Lightning", "Thunder"]
+        },
+        {
+          "name": "Oceanic Gift",
+          "level": 14,
+          "description": "Instead of manifesting the Emanation of Wrath of the Sea around yourself, you can manifest it around one willing creature within 60 feet of yourself. That creature gains all the benefits of the Emanation and uses your spell save DC and Wisdom modifier for it. In addition, you can manifest the Emanation around both the other creature and yourself if you expend two uses of your Wild Shape instead of one when manifesting it.",
+          "activation": "Passive",
+          "replacesOrImproves": "Wrath of the Sea"
+        }
+      ],
+      "subclassSpellTables": [
+        {
+          "name": "Circle of the Sea Spells",
+          "entries": [
+            {
+              "classLevel": 3,
+              "spells": ["Fog Cloud", "Gust of Wind", "Ray of Frost", "Shatter", "Thunderwave"]
+            },
+            {
+              "classLevel": 5,
+              "spells": ["Lightning Bolt", "Water Breathing"]
+            },
+            {
+              "classLevel": 7,
+              "spells": ["Control Water", "Ice Storm"]
+            },
+            {
+              "classLevel": 9,
+              "spells": ["Conjure Elemental", "Hold Monster"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Circle of the Stars",
+      "description": "The Circle of the Stars has tracked heavenly patterns since time immemorial, discovering secrets hidden amid the constellations. By understanding these secrets, the Druids of this circle seek to harness the powers of the cosmos.",
+      "featureLevels": [3, 6, 10, 14],
+      "features": [
+        {
+          "name": "Star Map",
+          "level": 3,
+          "description": "You've created a star chart as part of your heavenly studies. It is a Tiny object, and you can use it as a Spellcasting Focus for your Druid spells. You determine its form by rolling on the Star Map table or by choosing one. While holding the map, you have the Guidance and Guiding Bolt spells prepared, and you can cast Guiding Bolt without expending a spell slot. You can cast it in that way a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest. If you lose the map, you can perform a 1-hour ceremony to magically create a replacement. This ceremony can be performed during a Short or Long Rest, and it destroys the previous map.",
+          "activation": "Passive",
+          "grantsSpells": [
+            {
+              "spell": "Guidance",
+              "alwaysPrepared": true
+            },
+            {
+              "spell": "Guiding Bolt",
+              "alwaysPrepared": true,
+              "freeUses": "Wisdom modifier (minimum of once)",
+              "freeUseRestType": "Long"
+            }
+          ],
+          "randomTables": [
+            {
+              "name": "Star Map",
+              "die": "1d6",
+              "entries": [
+                {
+                  "roll": "1",
+                  "effect": "A scroll bearing depictions of constellations"
+                },
+                {
+                  "roll": "2",
+                  "effect": "A stone tablet with fine holes drilled through it"
+                },
+                {
+                  "roll": "3",
+                  "effect": "An owlbear hide tooled with stellar symbols"
+                },
+                {
+                  "roll": "4",
+                  "effect": "A collection of maps bound in an ebony cover"
+                },
+                {
+                  "roll": "5",
+                  "effect": "A crystal engraved with starry patterns"
+                },
+                {
+                  "roll": "6",
+                  "effect": "A glass disk etched with constellations"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Starry Form",
+          "level": 3,
+          "description": "As a Bonus Action, you can expend a use of your Wild Shape feature to take on a starry form rather than shape-shifting. While in your starry form, you retain your game statistics, but your body becomes luminous, your joints glimmer like stars, and glowing lines connect them as on a star chart. This form sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet. The form lasts for 10 minutes. It ends early if you dismiss it (no action required), have the Incapacitated condition, or use this feature again. Whenever you assume your starry form, choose which of the following constellations glimmers on your body; your choice gives you certain benefits while in the form.",
+          "activation": "BonusAction",
+          "options": [
+            {
+              "name": "Archer",
+              "description": "A constellation of an archer appears on you. When you activate this form and as a Bonus Action on your subsequent turns while it lasts, you can make a ranged spell attack, hurling a luminous arrow that targets one creature within 60 feet of yourself. On a hit, the attack deals Radiant damage equal to 1d8 plus your Wisdom modifier."
+            },
+            {
+              "name": "Chalice",
+              "description": "A constellation of a life-giving goblet appears on you. Whenever you cast a spell using a spell slot that restores Hit Points to a creature, you or another creature within 30 feet of you can regain Hit Points equal to 1d8 plus your Wisdom modifier."
+            },
+            {
+              "name": "Dragon",
+              "description": "A constellation of a wise dragon appears on you. When you make an Intelligence or a Wisdom check or a Constitution saving throw to maintain Concentration, you can treat a roll of 9 or lower on the d20 as a 10."
+            }
+          ]
+        },
+        {
+          "name": "Cosmic Omen",
+          "level": 6,
+          "description": "Whenever you finish a Long Rest, you can consult your Star Map for omens and roll a die. Until you finish your next Long Rest, you gain access to a special Reaction based on whether you rolled an even or an odd number on the die. You can use this Reaction a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.",
+          "activation": "Reaction",
+          "usesPerRest": {
+            "uses": "Wisdom modifier (minimum of once)",
+            "restType": "Long"
+          },
+          "options": [
+            {
+              "name": "Weal (Even)",
+              "description": "Whenever a creature you can see within 30 feet of you is about to make a D20 Test, you can take a Reaction to roll 1d6 and add the number rolled to the total."
+            },
+            {
+              "name": "Woe (Odd)",
+              "description": "Whenever a creature you can see within 30 feet of you is about to make a D20 Test, you can take a Reaction to roll 1d6 and subtract the number rolled from the total."
+            }
+          ]
+        },
+        {
+          "name": "Twinkling Constellations",
+          "level": 10,
+          "description": "The constellations of your Starry Form improve. The 1d8 of the Archer and the Chalice becomes 2d8, and while the Dragon is active, you have a Fly Speed of 20 feet and can hover. Moreover, at the start of each of your turns while in your Starry Form, you can change which constellation glimmers on your body.",
+          "activation": "Passive",
+          "replacesOrImproves": "Starry Form"
+        },
+        {
+          "name": "Full of Stars",
+          "level": 14,
+          "description": "While in your Starry Form, you become partially incorporeal, giving you Resistance to Bludgeoning, Piercing, and Slashing damage.",
+          "activation": "Passive",
+          "damageResistances": ["Bludgeoning", "Piercing", "Slashing"]
+        }
+      ]
+    }
+  ],
+  "spellList": {
+    "cantrips": [
+      {
+        "name": "Druidcraft",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Elementalism",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Guidance",
+        "school": "Divination",
+        "concentration": true
+      },
+      {
+        "name": "Mending",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Message",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Poison Spray",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Produce Flame",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Resistance",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Shillelagh",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Spare the Dying",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Starry Wisp",
+        "school": "Evocation"
+      },
+      {
+        "name": "Thorn Whip",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Thunderclap",
+        "school": "Evocation"
+      }
+    ],
+    "level1": [
+      {
+        "name": "Animal Friendship",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Charm Person",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Create or Destroy Water",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Cure Wounds",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Detect Magic",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true
+      },
+      {
+        "name": "Detect Poison and Disease",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true
+      },
+      {
+        "name": "Entangle",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Faerie Fire",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Fog Cloud",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Goodberry",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Healing Word",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Ice Knife",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Jump",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Longstrider",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Protection from Evil and Good",
+        "school": "Abjuration",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Purify Food and Drink",
+        "school": "Transmutation",
+        "ritual": true
+      },
+      {
+        "name": "Speak with Animals",
+        "school": "Divination",
+        "ritual": true
+      },
+      {
+        "name": "Thunderwave",
+        "school": "Evocation"
+      }
+    ],
+    "level2": [
+      {
+        "name": "Aid",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Animal Messenger",
+        "school": "Enchantment",
+        "ritual": true
+      },
+      {
+        "name": "Augury",
+        "school": "Divination",
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Barkskin",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Beast Sense",
+        "school": "Divination",
+        "concentration": true,
+        "ritual": true
+      },
+      {
+        "name": "Continual Flame",
+        "school": "Evocation",
+        "materialComponent": true
+      },
+      {
+        "name": "Darkvision",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Enhance Ability",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Enlarge/Reduce",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Find Traps",
+        "school": "Divination"
+      },
+      {
+        "name": "Flame Blade",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Flaming Sphere",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Gust of Wind",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Heat Metal",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Hold Person",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Lesser Restoration",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Locate Animals or Plants",
+        "school": "Divination",
+        "ritual": true
+      },
+      {
+        "name": "Locate Object",
+        "school": "Divination",
+        "concentration": true
+      },
+      {
+        "name": "Moonbeam",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Pass without Trace",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Protection from Poison",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Spike Growth",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Summon Beast",
+        "school": "Conjuration",
+        "concentration": true,
+        "materialComponent": true
+      }
+    ],
+    "level3": [
+      {
+        "name": "Aura of Vitality",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Call Lightning",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Conjure Animals",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Daylight",
+        "school": "Evocation"
+      },
+      {
+        "name": "Dispel Magic",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Elemental Weapon",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Feign Death",
+        "school": "Necromancy",
+        "ritual": true
+      },
+      {
+        "name": "Meld into Stone",
+        "school": "Transmutation",
+        "ritual": true
+      },
+      {
+        "name": "Plant Growth",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Protection from Energy",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Revivify",
+        "school": "Necromancy",
+        "materialComponent": true
+      },
+      {
+        "name": "Sleet Storm",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Speak with Plants",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Summon Fey",
+        "school": "Conjuration",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Water Breathing",
+        "school": "Transmutation",
+        "ritual": true
+      },
+      {
+        "name": "Water Walk",
+        "school": "Transmutation",
+        "ritual": true
+      },
+      {
+        "name": "Wind Wall",
+        "school": "Evocation",
+        "concentration": true
+      }
+    ],
+    "level4": [
+      {
+        "name": "Blight",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Charm Monster",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Confusion",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Conjure Minor Elementals",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Conjure Woodland Beings",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Control Water",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Divination",
+        "school": "Divination",
+        "ritual": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Dominate Beast",
+        "school": "Enchantment",
+        "concentration": true
+      },
+      {
+        "name": "Fire Shield",
+        "school": "Evocation"
+      },
+      {
+        "name": "Fount of Moonlight",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Freedom of Movement",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Giant Insect",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Grasping Vine",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Hallucinatory Terrain",
+        "school": "Illusion"
+      },
+      {
+        "name": "Ice Storm",
+        "school": "Evocation"
+      },
+      {
+        "name": "Locate Creature",
+        "school": "Divination",
+        "concentration": true
+      },
+      {
+        "name": "Polymorph",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Stone Shape",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Stoneskin",
+        "school": "Transmutation",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Summon Elemental",
+        "school": "Conjuration",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Wall of Fire",
+        "school": "Evocation",
+        "concentration": true
+      }
+    ],
+    "level5": [
+      {
+        "name": "Antilife Shell",
+        "school": "Abjuration",
+        "concentration": true
+      },
+      {
+        "name": "Awaken",
+        "school": "Transmutation",
+        "materialComponent": true
+      },
+      {
+        "name": "Commune with Nature",
+        "school": "Divination",
+        "ritual": true
+      },
+      {
+        "name": "Cone of Cold",
+        "school": "Evocation"
+      },
+      {
+        "name": "Conjure Elemental",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Contagion",
+        "school": "Necromancy"
+      },
+      {
+        "name": "Geas",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Greater Restoration",
+        "school": "Abjuration",
+        "materialComponent": true
+      },
+      {
+        "name": "Insect Plague",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Mass Cure Wounds",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Planar Binding",
+        "school": "Abjuration",
+        "materialComponent": true
+      },
+      {
+        "name": "Reincarnate",
+        "school": "Necromancy",
+        "materialComponent": true
+      },
+      {
+        "name": "Scrying",
+        "school": "Divination",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Tree Stride",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Wall of Stone",
+        "school": "Evocation",
+        "concentration": true
+      }
+    ],
+    "level6": [
+      {
+        "name": "Conjure Fey",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Find the Path",
+        "school": "Divination",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Flesh to Stone",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Heal",
+        "school": "Abjuration"
+      },
+      {
+        "name": "Heroes' Feast",
+        "school": "Conjuration",
+        "materialComponent": true
+      },
+      {
+        "name": "Move Earth",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Sunbeam",
+        "school": "Evocation",
+        "concentration": true
+      },
+      {
+        "name": "Transport via Plants",
+        "school": "Conjuration"
+      },
+      {
+        "name": "Wall of Thorns",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Wind Walk",
+        "school": "Transmutation"
+      }
+    ],
+    "level7": [
+      {
+        "name": "Fire Storm",
+        "school": "Evocation"
+      },
+      {
+        "name": "Mirage Arcane",
+        "school": "Illusion"
+      },
+      {
+        "name": "Plane Shift",
+        "school": "Conjuration",
+        "materialComponent": true
+      },
+      {
+        "name": "Regenerate",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Reverse Gravity",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Symbol",
+        "school": "Abjuration",
+        "materialComponent": true
+      }
+    ],
+    "level8": [
+      {
+        "name": "Animal Shapes",
+        "school": "Transmutation"
+      },
+      {
+        "name": "Antipathy/Sympathy",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Befuddlement",
+        "school": "Enchantment"
+      },
+      {
+        "name": "Control Weather",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Earthquake",
+        "school": "Transmutation",
+        "concentration": true
+      },
+      {
+        "name": "Incendiary Cloud",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "Sunburst",
+        "school": "Evocation"
+      },
+      {
+        "name": "Tsunami",
+        "school": "Conjuration",
+        "concentration": true
+      }
+    ],
+    "level9": [
+      {
+        "name": "Foresight",
+        "school": "Divination"
+      },
+      {
+        "name": "Shapechange",
+        "school": "Transmutation",
+        "concentration": true,
+        "materialComponent": true
+      },
+      {
+        "name": "Storm of Vengeance",
+        "school": "Conjuration",
+        "concentration": true
+      },
+      {
+        "name": "True Resurrection",
+        "school": "Necromancy",
+        "materialComponent": true
+      }
+    ]
+  }
+}

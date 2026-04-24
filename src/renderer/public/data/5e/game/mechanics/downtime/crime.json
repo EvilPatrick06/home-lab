@@ -1,0 +1,36 @@
+{
+  "id": "crime",
+  "name": "Crime",
+  "description": "Sometimes it pays to be bad. A character who wants to engage in criminal activity -- whether burglary, robbery, or some other crime -- can do so as a downtime activity.",
+  "costPerDay": "25 GP for bribes, equipment, and expenses",
+  "costPerDayGP": 25,
+  "minimumDuration": "1 workweek (5 days)",
+  "resolution": "The character makes three checks: Dexterity (Stealth), Dexterity using Thieves' Tools, and the character's choice of Intelligence (Investigation), Wisdom (Perception), or Charisma (Deception). Compare successes to failures.",
+  "checks": [
+    {
+      "check": "Dexterity (Stealth)",
+      "description": "Represents the character's ability to avoid detection during the crime."
+    },
+    {
+      "check": "Dexterity (Thieves' Tools)",
+      "description": "Represents the ability to bypass locks, traps, and other security measures."
+    },
+    {
+      "check": "Choice: Investigation, Perception, or Deception",
+      "description": "Represents casing the target, spotting guards, or talking your way out of trouble."
+    }
+  ],
+  "dcBase": 15,
+  "results": [
+    {
+      "successes": 0,
+      "result": "The character is caught and jailed. The character must pay a fine equal to the potential earnings to avoid jail time, or spend time in jail (DM determines)."
+    },
+    {
+      "successes": 1,
+      "result": "The heist is a partial failure. Earnings: 5d10 GP, but a witness or clue may lead to complications later."
+    },
+    { "successes": 2, "result": "The crime goes well. Earnings: 10d10 GP." },
+    { "successes": 3, "result": "A perfect crime. Earnings: 15d10 GP, and no evidence is left behind." }
+  ]
+}

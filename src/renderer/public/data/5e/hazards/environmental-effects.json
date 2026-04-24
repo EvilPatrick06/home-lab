@@ -1,0 +1,154 @@
+[
+  {
+    "id": "extreme-cold",
+    "name": "Extreme Cold",
+    "category": "weather",
+    "effect": "At the end of each hour, a creature exposed to extreme cold must succeed on a DC 10 Constitution saving throw or gain 1 level of Exhaustion. Creatures with Cold resistance or immunity automatically succeed. Creatures wearing cold weather clothing have Advantage on the save.",
+    "mechanicalEffect": "DC 10 CON save each hour or gain 1 Exhaustion level",
+    "saveDC": 10,
+    "saveAbility": "CON",
+    "description": "Temperatures at or below 0 degrees Fahrenheit (-18 Celsius). Unprotected creatures must make periodic Constitution saves to resist exhaustion."
+  },
+  {
+    "id": "extreme-heat",
+    "name": "Extreme Heat",
+    "category": "weather",
+    "effect": "At the end of each hour, a creature exposed to extreme heat with no water must succeed on a Constitution saving throw or gain 1 level of Exhaustion. The DC starts at 5 and increases by 1 for each subsequent hour. Creatures wearing medium or heavy armor have Disadvantage.",
+    "mechanicalEffect": "CON save (DC 5+) each hour without water or gain 1 Exhaustion level",
+    "saveDC": 5,
+    "saveAbility": "CON",
+    "description": "Temperatures at or above 100 degrees Fahrenheit (38 Celsius). Dehydration is the primary danger."
+  },
+  {
+    "id": "heavy-precipitation",
+    "name": "Heavy Precipitation",
+    "category": "weather",
+    "effect": "Heavy rain or snow creates Lightly Obscured conditions. Ranged weapon attacks and Wisdom (Perception) checks that rely on sight have Disadvantage. Heavy rain extinguishes open flames and imposes Disadvantage on Wisdom (Perception) checks that rely on hearing.",
+    "mechanicalEffect": "Lightly Obscured; Disadvantage on ranged attacks and sight-based Perception",
+    "description": "Heavy rain, sleet, or snowfall reduces visibility and hampers ranged attacks."
+  },
+  {
+    "id": "strong-wind",
+    "name": "Strong Wind",
+    "category": "weather",
+    "effect": "Strong wind imposes Disadvantage on ranged weapon attack rolls and Wisdom (Perception) checks that rely on hearing. A strong wind also extinguishes open flames, disperses fog, and makes flying by nonmagical means nearly impossible. A flying creature in a strong wind must land at the end of its turn or fall.",
+    "mechanicalEffect": "Disadvantage on ranged attacks and hearing-based Perception; extinguishes open flames",
+    "description": "Winds of 20+ mph that disrupt ranged combat and make flying dangerous."
+  },
+  {
+    "id": "high-altitude",
+    "name": "High Altitude",
+    "category": "terrain",
+    "effect": "A creature at high altitude (above 10,000 feet) must make a DC 15 Constitution saving throw for each hour of travel. On a failure, it gains 1 level of Exhaustion. Creatures acclimated to high altitude automatically succeed. Spending 30 days at high altitude grants acclimation.",
+    "mechanicalEffect": "DC 15 CON save per hour of travel or gain 1 Exhaustion level",
+    "saveDC": 15,
+    "saveAbility": "CON",
+    "description": "The thin air at high altitudes makes physical exertion dangerous for unacclimated creatures."
+  },
+  {
+    "id": "slippery-ice",
+    "name": "Slippery Ice",
+    "category": "terrain",
+    "effect": "Slippery ice is Difficult Terrain. When a creature moves onto slippery ice for the first time on a turn, it must succeed on a DC 10 Dexterity (Acrobatics) check or fall Prone.",
+    "mechanicalEffect": "Difficult Terrain; DC 10 Acrobatics or fall Prone on entry",
+    "saveDC": 10,
+    "saveAbility": "DEX",
+    "description": "A sheet of smooth ice that makes movement treacherous."
+  },
+  {
+    "id": "deep-water",
+    "name": "Deep Water",
+    "category": "terrain",
+    "effect": "After each hour of swimming in deep water, a creature that lacks a Swim Speed must succeed on a DC 10 Constitution saving throw or gain 1 level of Exhaustion. Creatures that can't breathe underwater begin suffocating after running out of breath (1 + CON modifier minutes, minimum 30 seconds).",
+    "mechanicalEffect": "DC 10 CON save per hour of swimming or gain 1 Exhaustion level",
+    "saveDC": 10,
+    "saveAbility": "CON",
+    "description": "Water deep enough that creatures can't stand. Swimming and drowning rules apply."
+  },
+  {
+    "id": "dead-magic-zone",
+    "name": "Dead Magic Zone",
+    "category": "magical",
+    "effect": "Spells and magical effects don't function within the area. Magic items become mundane. Summoned creatures disappear. Areas of effect from spells outside the zone don't extend into it. Creatures with innate spellcasting can't use those abilities.",
+    "mechanicalEffect": "All magic suppressed; magic items become mundane",
+    "description": "An area where the Weave is damaged or absent, suppressing all magical effects."
+  },
+  {
+    "id": "wild-magic-zone",
+    "name": "Wild Magic Zone",
+    "category": "magical",
+    "effect": "Whenever a creature casts a spell of 1st level or higher in a wild magic zone, the DM rolls a d20. On a 20, the caster rolls on the Wild Magic Surge table. Additionally, any spell with a duration of 1 minute or longer has a 50% chance of ending early (check each round).",
+    "mechanicalEffect": "Spells may trigger Wild Magic Surge on d20 roll of 20; duration spells may end early",
+    "description": "An area where magical energy is unstable, causing unpredictable effects when spells are cast."
+  },
+  {
+    "id": "ethereal-curtain",
+    "name": "Ethereal Curtain",
+    "category": "planar",
+    "effect": "A shimmering curtain separates the Material Plane from the Ethereal Plane. A creature that passes through the curtain is transported to the corresponding location on the Ethereal Plane (or back). Objects pass through normally.",
+    "mechanicalEffect": "Passing through transports to Ethereal Plane (or back)",
+    "description": "A visible boundary between the Material and Ethereal Planes, allowing passage between them."
+  },
+  {
+    "id": "psychic-wind",
+    "name": "Psychic Wind",
+    "category": "planar",
+    "effect": "A creature caught in a psychic wind must make a DC 15 Intelligence saving throw. On a failure, the creature takes 3d6 Psychic damage and is stunned for 1 minute. On a success, the creature takes half damage and isn't stunned. A stunned creature can repeat the save at the end of each of its turns.",
+    "mechanicalEffect": "DC 15 INT save or 3d6 Psychic damage + Stunned for 1 minute",
+    "saveDC": 15,
+    "saveAbility": "INT",
+    "description": "A storm of raw psychic energy that sweeps through the Astral Plane and sometimes bleeds into other planes."
+  },
+  {
+    "id": "magical-darkness",
+    "name": "Magical Darkness",
+    "category": "magical",
+    "effect": "The area is filled with magical darkness that can't be dispelled by nonmagical light. Darkvision doesn't function in magical darkness. Creatures in the area are Blinded. A Dispel Magic spell targeting the darkness can end it.",
+    "mechanicalEffect": "Heavily Obscured; Darkvision doesn't work; creatures are Blinded",
+    "description": "Supernatural darkness that defies normal light sources and even darkvision."
+  },
+  {
+    "id": "acheronian-bloodlust",
+    "name": "Acheronian Bloodlust",
+    "category": "planar",
+    "effect": "A creature gains Temporary Hit Points equal to half its Hit Point maximum whenever it reduces another creature to 0 Hit Points.",
+    "mechanicalEffect": "Gain temp HP equal to half max HP when reducing a creature to 0 HP",
+    "description": "The battlefields of Acheron reward aggression, granting vitality to those who slay."
+  },
+  {
+    "id": "arcadian-vitality",
+    "name": "Arcadian Vitality",
+    "category": "planar",
+    "effect": "Creatures in this area have Immunity to the Frightened and Poisoned conditions.",
+    "mechanicalEffect": "Immunity to Frightened and Poisoned conditions",
+    "description": "The peaceful perfection of Arcadia shields creatures from fear and toxins."
+  },
+  {
+    "id": "blessed-beneficence",
+    "name": "Blessed Beneficence",
+    "category": "planar",
+    "effect": "Creatures in this area that are not Fiends or Undead gain the benefit of the Bless spell. Additionally, finishing a Long Rest in this area grants the benefit of a Lesser Restoration spell.",
+    "mechanicalEffect": "Bless effect on non-Fiend/non-Undead creatures; Long Rest grants Lesser Restoration",
+    "description": "The radiant grace of the Upper Planes empowers the righteous and heals ailments."
+  },
+  {
+    "id": "gehennan-cruelty",
+    "name": "Gehennan Cruelty",
+    "category": "planar",
+    "effect": "Whenever a creature subject to Gehennan cruelty casts a spell that restores Hit Points or removes a condition other than Invisible, the caster must succeed on a DC 10 Charisma saving throw, or the spell fails and is wasted.",
+    "mechanicalEffect": "DC 10 CHA save when casting healing/condition-removal spells or spell fails",
+    "saveDC": 10,
+    "saveAbility": "CHA",
+    "description": "The treacherous slopes of Gehenna corrupt benevolence, causing healing and restorative magic to fail."
+  },
+  {
+    "id": "winds-of-pandemonium",
+    "name": "Winds of Pandemonium",
+    "category": "planar",
+    "effect": "After each hour spent in this area, a creature must succeed on a DC 10 Wisdom saving throw or gain 1 level of Exhaustion. A creature's Exhaustion level can't increase above 3 from this effect. Finishing a Long Rest doesn't reduce a creature's Exhaustion level unless the creature can somehow escape the winds.",
+    "mechanicalEffect": "DC 10 WIS save per hour or gain 1 Exhaustion (max 3); Long Rest doesn't reduce Exhaustion",
+    "saveDC": 10,
+    "saveAbility": "WIS",
+    "description": "The endless, maddening winds of Pandemonium deny rest and erode sanity."
+  }
+]

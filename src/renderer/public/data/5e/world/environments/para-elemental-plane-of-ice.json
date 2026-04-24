@@ -1,0 +1,402 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Above Elemental Below",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "para-elemental-plane-of-ice",
+      "name": "Para-elemental Plane of Ice",
+      "alternateNames": ["Frostfell", "Plane of Ice"],
+      "category": "Para-elemental Plane",
+      "subcategory": "Para-elemental Ice",
+      "alignments": [],
+      "philosophicalEssence": "The interaction and contrast between elemental air and elemental water, manifesting as an endless frozen expanse of bitter cold, raging blizzards, and relentless survival.",
+      "emotionalInfluence": "The inhabitants engage in a never-ending battle to prove their strength and ensure their survival. The plane embodies the harshness of extreme cold and the relentless challenge of enduring a hostile frozen environment.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "shape": "A seemingly endless glacier swept by constant, raging blizzards with frozen caverns winding through it",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Air is breathable but filled with constant raging blizzards, powerful winds, and driving snow. Conditions are extremely harsh for non-native creatures.",
+        "temperature": {
+          "category": "extreme_cold",
+          "description": "The Frostfell is a seemingly endless glacier swept by constant, raging blizzards. Bitter cold makes it a dangerous place to travel."
+        },
+        "hasSurface": true,
+        "dominantElement": "Ice (combination of Air and Water)",
+        "weatherPatterns": "Constant raging blizzards with powerful winds and driving snow"
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "description": "Time flows normally on the Inner Planes unless otherwise specified."
+      },
+      "hazards": [
+        {
+          "id": "ice-bitter-cold",
+          "name": "Bitter Cold",
+          "description": "The Frostfell's bitter cold makes it a dangerous place to travel. The extreme cold environment poses a constant threat to non-native creatures.",
+          "category": "elemental",
+          "severity": "severe",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "affectedMovementTypes": ["walk"],
+            "unaffectedMovementTypes": ["fly"],
+            "gravityModel": {
+              "type": "normal",
+              "description": "Normal gravity on the glacier surface"
+            },
+            "hazardousTerrainPercentage": 100,
+            "effectiveSpeedReductionPercent": 50,
+            "windForce": {
+              "category": "severe",
+              "opposesMovement": true
+            },
+            "distanceMeaningless": false
+          },
+          "immuneCreatureTypes": ["creatures of cold", "yetis", "white dragons"],
+          "immuneDamageTypes": ["Cold"],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Para-elemental Planes"
+        },
+        {
+          "id": "ice-raging-blizzards",
+          "name": "Constant Raging Blizzards",
+          "description": "The Plane of Ice is swept by constant, raging blizzards with powerful winds and driving snow. Most planar voyagers keep to the air, braving the powerful winds and driving snow to avoid setting foot on the great glacier.",
+          "category": "weather",
+          "severity": "major",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "affectedMovementTypes": ["walk", "fly"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "windForce": {
+              "category": "severe",
+              "opposesMovement": true
+            },
+            "distanceMeaningless": false
+          },
+          "lightLevelModification": {
+            "baseLevel": "variable",
+            "naturalLightSource": null,
+            "visibilityRange": {
+              "standard": null,
+              "unit": "feet",
+              "minimumVisibility": 0
+            },
+            "magicalProperties": {
+              "obscuresVision": true,
+              "obscuringMedium": "snow"
+            },
+            "dayNightCycle": {
+              "exists": false,
+              "transitionType": "none"
+            },
+            "colorDescription": "White-out conditions from driving snow"
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Para-elemental Planes"
+        },
+        {
+          "id": "ice-native-monsters",
+          "name": "Dangerous Native Creatures",
+          "description": "Frozen caverns wind through the Plane of Ice, home to yetis, white dragons, and other creatures of cold. The Frostfell's monsters and bitter cold make it a dangerous place to travel.",
+          "category": "physical",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Para-elemental Planes"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "ice-survival-struggle",
+          "name": "Never-Ending Battle for Survival",
+          "description": "The inhabitants of the plane engage in a never-ending battle to prove their strength and ensure their survival.",
+          "mechanicalEffect": "All creatures on the plane face constant environmental pressure from extreme cold, blizzards, and hostile native creatures, requiring ongoing vigilance and resource management.",
+          "isOptional": false,
+          "affectsEmotions": false,
+          "removalMethods": ["Leave the plane"],
+          "sourceReference": "Chapter 6: Cosmology - Para-elemental Planes"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "ice-to-air-connection",
+          "name": "Border with Elemental Plane of Air",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Air", "Para-elemental Plane of Ice"],
+          "description": "The Para-elemental Plane of Ice forms the border between the Plane of Air and the Plane of Water. Near the Plane of Air, the Mistral Reach is a region of frigid winds and driving snowstorms. Rain and snow fall only in the part of the Plane of Air nearest to the Para-elemental Plane of Ice. Earth motes in the Mistral Reach are covered with snow and ice.",
+          "hazards": ["Frigid winds", "Driving snowstorms"],
+          "isOneWay": false,
+          "navigableBy": ["flight", "magical travel"]
+        },
+        {
+          "id": "ice-to-water-connection",
+          "name": "Border with Elemental Plane of Water",
+          "type": "other",
+          "connectedPlanes": ["Elemental Plane of Water", "Para-elemental Plane of Ice"],
+          "description": "Bordering the Para-elemental Plane of Ice is the Sea of Ice on the Elemental Plane of Water. The frigid water is choked with icebergs and sheet ice, which are inhabited by cold-loving creatures from the Plane of Ice. Drifting icebergs can carry these creatures farther into the Plane of Water to threaten ships and islands in warmer seas.",
+          "hazards": ["Icebergs", "Sheet ice", "Cold-loving creatures"],
+          "isOneWay": false,
+          "navigableBy": ["swimming", "sailing", "magical travel"]
+        },
+        {
+          "id": "ice-ethereal-curtain",
+          "name": "Ethereal Curtain to Plane of Ice",
+          "type": "other",
+          "connectedPlanes": ["Ethereal Plane", "Para-elemental Plane of Ice"],
+          "description": "An aquamarine-colored curtain in the Deep Ethereal leads to a region of the Border Ethereal connected to the Para-elemental Plane of Ice. The curtain is distinguishable by texture and temperature, reflecting the frigid nature of the Plane of Ice.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["ethereal travel"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Elemental", "Dragon", "Monstrosity"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Survival against extreme cold and hostile environment",
+        "Proving strength and endurance",
+        "Interaction and contrast between elemental air and elemental water",
+        "Braving powerful winds and driving snow",
+        "Exploration of frozen caverns"
+      ],
+      "adventureSituations": [],
+      "etherealCurtainColor": "Aquamarine",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Elemental Plane of Air section references the Mistral Reach near the Para-elemental Plane of Ice, a region of frigid winds and driving snowstorms with earth motes covered in snow and ice."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Elemental Plane of Water section references the Sea of Ice bordering the Para-elemental Plane of Ice, with frigid water choked with icebergs and sheet ice inhabited by cold-loving creatures from the Plane of Ice."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Ethereal Plane section lists the Para-elemental Plane of Ice as entry 10 on the d12 Ethereal Curtains table with an aquamarine curtain color."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3 referenced for Environmental Effects that may apply to extreme cold environments."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "portal-travel",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some portals are vortices joining an Elemental Plane with a similar location on the Material Plane.",
+      "requirements": [
+        "Finding the portal",
+        "Meeting portal requirements (command, key item, random, situation, or time)"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portals may have guardians", "Portals may not be open at all times", "One-way portals exist"],
+      "destinations": ["Any plane connected by the specific portal"]
+    },
+    {
+      "id": "spell-travel",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "Spells such as Gate and Plane Shift can directly transport adventurers to the Para-elemental Plane of Ice.",
+      "requirements": ["Ability to cast the relevant spell", "Proper tuning fork frequency for Plane Shift"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness"],
+      "risks": ["Arriving at an imprecise location", "Environmental hazards upon arrival"],
+      "destinations": ["Para-elemental Plane of Ice"]
+    },
+    {
+      "id": "ethereal-curtain-travel",
+      "name": "Ethereal Curtain",
+      "type": "natural_crossing",
+      "description": "Traveling through the Deep Ethereal, an aquamarine-colored curtain leads to the Border Ethereal connected to the Para-elemental Plane of Ice.",
+      "requirements": ["Access to the Deep Ethereal via Plane Shift, Gate, or magical portal"],
+      "associatedSpells": ["Plane Shift", "Gate"],
+      "risks": ["Ether cyclones in the Deep Ethereal", "Travel time of 1d10 × 10 hours between curtains"],
+      "destinations": ["Para-elemental Plane of Ice"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    }
+  ],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

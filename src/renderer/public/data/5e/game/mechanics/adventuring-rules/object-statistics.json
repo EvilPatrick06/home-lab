@@ -1,0 +1,264 @@
+{
+  "id": "e83c4a2f-7b19-4e6d-b3c1-5f6a8d2e1094",
+  "name": "Object Statistics",
+  "slug": "object-statistics",
+  "category": "GeneralRule",
+  "subcategory": "Objects",
+  "tags": ["object", "AC", "hit-points", "damage-threshold", "material", "size", "immunities", "saving-throws"],
+  "source": {
+    "book": "Player's Handbook (2024)",
+    "chapter": "Rules Glossary",
+    "section": "Object"
+  },
+  "gameEdition": "2024",
+  "description": "When time and specificity matter, objects use statistics just like creatures do. Objects have Armor Class (determined by the substance they are made of), Hit Points (determined by their size and resilience—Fragile or Resilient), damage immunities, condition immunities, and automatic saving throw outcomes. An object that drops to 0 Hit Points is destroyed. Objects cannot take actions or act on their own unless animated by magic.",
+  "shortDescription": "Rules governing Armor Class, Hit Points, immunities, and saving throws for objects in D&D 2024.",
+  "rulesAsWritten": "An object's Armor Class is determined by the material it is made of. A substance's AC is as follows: Cloth/Paper/Rope 11, Crystal/Glass/Ice 13, Wood/Bone 15, Stone 17, Iron/Steel 19, Mithral 21, Adamantine 23. An object's Hit Points are determined by its size and resilience (Fragile or Resilient). Tiny: 2 (Fragile) / 5 (Resilient); Small: 3 (Fragile) / 10 (Resilient); Medium: 4 (Fragile) / 18 (Resilient); Large: 5 (Fragile) / 27 (Resilient); Huge: 10 (Fragile) / 36 (Resilient); Gargantuan: 20 (Fragile) / 50 (Resilient). Objects are immune to Poison and Psychic damage and to all conditions. They automatically fail Strength and Dexterity saving throws. An object reduced to 0 HP is destroyed.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [
+    {
+      "id": "af1d3c70-49b8-4d5a-b5c3-eec1a7f0d231",
+      "rollType": "SavingThrow",
+      "outcome": "AutoFail",
+      "scope": {
+        "abilityScores": ["STR"],
+        "customScope": "All objects automatically fail Strength saving throws"
+      },
+      "note": "Objects automatically fail Strength saving throws unless magically animated"
+    },
+    {
+      "id": "bf2e4d81-5ac9-4e6b-c6d4-ffd2b8a1e342",
+      "rollType": "SavingThrow",
+      "outcome": "AutoFail",
+      "scope": {
+        "abilityScores": ["DEX"],
+        "customScope": "All objects automatically fail Dexterity saving throws"
+      },
+      "note": "Objects automatically fail Dexterity saving throws unless magically animated"
+    }
+  ],
+  "actionRestrictions": [
+    {
+      "id": "c93f5e92-6bda-4f7c-d7e5-aae3c9b2f453",
+      "restrictedAction": "Any",
+      "restrictionType": "Prohibited",
+      "note": "Objects cannot take actions or reactions unless animated by magic"
+    }
+  ],
+  "conditionsImposed": [],
+  "immunities": [
+    {
+      "id": "da405fa3-7ceb-4a8d-e8f6-bbf4dac3a564",
+      "immunityType": "DamageType",
+      "value": "Poison",
+      "note": "Objects are immune to Poison damage"
+    },
+    {
+      "id": "eb516ab4-8dfc-4b9e-f9a7-ccg5ebd4b675",
+      "immunityType": "DamageType",
+      "value": "Psychic",
+      "note": "Objects are immune to Psychic damage"
+    },
+    {
+      "id": "fc627bc5-9e0d-4caf-0ab8-dda6fce5c786",
+      "immunityType": "Condition",
+      "value": "Blinded",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "0d738cd6-af1e-4db0-1bc9-eeb7adf6d897",
+      "immunityType": "Condition",
+      "value": "Charmed",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "1e849de7-b02f-4ec1-2cda-ffc8bea7e9a8",
+      "immunityType": "Condition",
+      "value": "Deafened",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "2f95aef8-c130-4fd2-3deb-aad9cfb8fab9",
+      "immunityType": "Condition",
+      "value": "Exhaustion",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "3aa6bfa9-d241-40e3-4efc-bbead0c9abca",
+      "immunityType": "Condition",
+      "value": "Frightened",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "4bb7c0ba-e352-41f4-5f0d-ccfbe1dabcdb",
+      "immunityType": "Condition",
+      "value": "Grappled",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "5cc8d1cb-f463-42a5-6a1e-ddacd2ebcdec",
+      "immunityType": "Condition",
+      "value": "Incapacitated",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "6dd9e2dc-a574-43b6-7b2f-eebde3fcdefd",
+      "immunityType": "Condition",
+      "value": "Invisible",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "7eeaf3ed-b685-44c7-8c30-ffcef4adefa0",
+      "immunityType": "Condition",
+      "value": "Paralyzed",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "8ffba4fe-c796-45d8-9d41-aadfa5bef0b1",
+      "immunityType": "Condition",
+      "value": "Petrified",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "9aacb5af-d8a7-46e9-ae52-bbea06cfa1c2",
+      "immunityType": "Condition",
+      "value": "Poisoned",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "abbd06b0-e9b8-47fa-bf63-ccfb17d0b2d3",
+      "immunityType": "Condition",
+      "value": "Prone",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "bcce17c1-fac9-48ab-c074-ddac28e1c3e4",
+      "immunityType": "Condition",
+      "value": "Restrained",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "cddf28d2-abda-49bc-d185-eead39f2d4f5",
+      "immunityType": "Condition",
+      "value": "Stunned",
+      "note": "Objects are immune to all conditions"
+    },
+    {
+      "id": "deea39e3-bceb-4acd-e296-ffbe4a03e5a6",
+      "immunityType": "Condition",
+      "value": "Unconscious",
+      "note": "Objects are immune to all conditions"
+    }
+  ],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "ef0b4af4-cdfc-4bde-f3a7-aacf5b14f6b7",
+      "order": 0,
+      "name": "Determine Object Armor Class",
+      "description": "An object's Armor Class is determined by the substance it is primarily made of: Cloth/Paper/Rope = AC 11; Crystal/Glass/Ice = AC 13; Wood/Bone = AC 15; Stone = AC 17; Iron/Steel = AC 19; Mithral = AC 21; Adamantine = AC 23.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Object AC is set based on its primary material substance: Cloth/Paper/Rope 11, Crystal/Glass/Ice 13, Wood/Bone 15, Stone 17, Iron/Steel 19, Mithral 21, Adamantine 23.",
+          "mechanicalNote": "If an object is composed of multiple materials, use the most protective substance to determine AC."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "fa1c5ba5-dead-4cef-a4b8-bbda6c25a7c8",
+      "order": 1,
+      "name": "Determine Object Hit Points",
+      "description": "An object's Hit Points are determined by its size category and whether it is Fragile or Resilient. Fragile objects include bottles, glass items, and similar. Resilient objects include barrels, chests, and similar. Tiny: 2 (Fragile) / 5 (Resilient); Small: 3 (Fragile) / 10 (Resilient); Medium: 4 (Fragile) / 18 (Resilient); Large: 5 (Fragile) / 27 (Resilient); Huge: 10 (Fragile) / 36 (Resilient); Gargantuan: 20 (Fragile) / 50 (Resilient).",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Object HP is determined by cross-referencing size and resilience: Tiny Fragile 2 HP, Tiny Resilient 5 HP, Small Fragile 3 HP, Small Resilient 10 HP, Medium Fragile 4 HP, Medium Resilient 18 HP, Large Fragile 5 HP, Large Resilient 27 HP, Huge Fragile 10 HP, Huge Resilient 36 HP, Gargantuan Fragile 20 HP, Gargantuan Resilient 50 HP.",
+          "mechanicalNote": "The DM determines whether an object is Fragile or Resilient based on its construction."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "ab2d6cb6-efbe-4df0-b5c9-cceb7d36b8d9",
+      "order": 2,
+      "name": "Object Destruction",
+      "description": "An object that is reduced to 0 Hit Points is destroyed. A character can also attempt to break an object as an action by making a Strength check against a DC set by the DM.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Object is reduced to 0 Hit Points"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The object is destroyed and can no longer serve its intended function. At the DM's discretion, it may break into fragments or become useless debris.",
+          "mechanicalNote": "A destroyed object cannot be repaired except possibly through magical means such as Mending (for minor damage) or other restorative magic."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": null,
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Object statistics are intrinsic properties. Magical effects that modify an object's properties (e.g., Adamantine Armor giving immunity to critical hits) stack with the object's base statistics."
+  },
+  "dmNotes": "The DM decides an object's AC (by material), its size category, and whether it is Fragile or Resilient. Some objects may also have a Damage Threshold—a minimum amount of damage that must be dealt in a single hit to deal any damage at all. Damage at or below the threshold is considered superficial and does not reduce the object's Hit Points. The Adamantine and Mithral materials referenced in the Lore Glossary correspond to object ACs of 23 and 21 respectively.",
+  "commonRulings": [
+    {
+      "question": "Can a character attack an object?",
+      "ruling": "Yes. A character can attack an object and deal damage to it. Objects automatically fail Strength and Dexterity saving throws and are immune to effects that require other saves. If the damage meets or exceeds any Damage Threshold, the remaining damage is applied to the object's Hit Points.",
+      "isOfficial": true
+    },
+    {
+      "question": "Do critical hits apply to objects?",
+      "ruling": "Objects are immune to critical hits unless a rule or feature specifically states otherwise.",
+      "isOfficial": true
+    },
+    {
+      "question": "What happens when a magic item is reduced to 0 HP?",
+      "ruling": "A magic item is at least as durable as a Resilient item of its size. Many magic items have additional protections; an Artifact, for example, is typically indestructible except by specific means described in its properties.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can the Mending cantrip restore a destroyed object?",
+      "ruling": "Mending can repair a single break or tear in an object, but it cannot restore an object that has been completely destroyed (reduced to 0 HP). The DM has final say on what constitutes repairable damage.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-23T12:00:00Z",
+  "updatedAt": "2025-01-23T12:00:00Z",
+  "version": "1.0.0"
+}

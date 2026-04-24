@@ -1,0 +1,17 @@
+{
+  "name": "Amulet of Proof Against Detection and Location",
+  "cost": {
+    "amount": 200,
+    "denomination": "GP"
+  },
+  "weight": 1,
+  "description": "While wearing this amulet, you are hidden from Divination magic. You can't be targeted by such magic or perceived through magical scrying sensors.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

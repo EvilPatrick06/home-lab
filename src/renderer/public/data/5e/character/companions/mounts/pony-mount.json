@@ -1,0 +1,11 @@
+{
+  "id": "pony-mount",
+  "name": "Pony",
+  "statBlockRef": "dm/npcs/creatures-companions/pony.json",
+  "type": "mount",
+  "speed": "40 ft.",
+  "carryCapacity": 225,
+  "cost": "30 gp",
+  "description": "A small, sturdy mount favored by halflings and gnomes. Ponies are hardy and sure-footed, able to navigate rough terrain more confidently than full-sized horses. They are not trained for combat.",
+  "combatTrained": false
+}

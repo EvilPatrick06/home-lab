@@ -1,0 +1,59 @@
+{
+  "name": "Pixie",
+  "slug": "pixie",
+  "size": "Tiny",
+  "type": "Fey",
+  "alignment": "Neutral Good",
+  "ac": "15",
+  "initiative": "+5 (15)",
+  "hp": "9",
+  "hpFormula": "6d4 − 6",
+  "speed": "10 ft., Fly 30 ft.",
+  "abilityScores": {
+    "str": 2,
+    "dex": 20,
+    "con": 8,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -4,
+    "dex": 5,
+    "con": -1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4, Stealth +7",
+  "senses": "Passive Perception 14",
+  "languages": "Sylvan",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The pixie has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Faerie Dust",
+      "description": "*Melee or Ranged Attack:* +4, reach 5 ft. or range 60 ft. *Hit:* 1 Radiant damage, and the target has the Charmed or Poisoned condition (pixie's choice) until the start of the pixie's next turn."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The pixie casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 12):"
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Friends of the Forest*\n**Habitat:** Forest, Planar (Feywild); **Treasure:** Arcana\nBarely a foot tall, pixies resemble diminutive elves with gossamer wings. They invisibly observe those who enter their wooded homes, revealing themselves to those with friendly intentions. Those who are unfriendly become the targets of pixies' pranks.\nPixies spend their days frolicking and exploring and avoid direct conflict when they can.\nEnergetic entertainers, wonderbringers use their magic in defense of the wilderness when they must.",
+  "habitat": "Forest, Planar (Feywild)",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Fey",
+    "file": "Fey.md"
+  }
+}

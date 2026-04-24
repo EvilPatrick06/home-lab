@@ -1,0 +1,133 @@
+{
+  "name": "Earth Elemental",
+  "sizes": ["Large"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral",
+  "habitat": ["Cave", "Hill", "Mountain", "Underdark"],
+  "treasure": ["None"],
+  "lore": "Summoned from the Elemental Plane of Earth, an earth elemental is a hulking mass of rock and soil animated by primal magic. It moves through solid earth and stone as easily as a fish swims through water, leaving no tunnel or passage behind. In combat, it batters foes with fists of stone, and its sheer mass can demolish fortifications with ease.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 126,
+    "dice": {
+      "count": 12,
+      "die": "d10",
+      "modifier": 60
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Burrow",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": -1,
+    "score": 7
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "resistances": ["Piercing and Slashing"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Exhaustion", "Paralyzed", "Petrified", "Poisoned", "Unconscious"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      },
+      {
+        "type": "Tremorsense",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Terran"]
+  },
+  "challengeRating": "5",
+  "experiencePoints": 1800,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Earth Glide",
+      "description": "The elemental can burrow through nonmagical, unworked earth and stone. While doing so, the elemental doesn't disturb the material it moves through."
+    },
+    {
+      "name": "Siege Monster",
+      "description": "The elemental deals double damage to objects and structures."
+    }
+  ],
+  "multiattack": {
+    "description": "The elemental makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +8, reach 10 ft. Hit: 14 (2d8 + 5) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 5
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

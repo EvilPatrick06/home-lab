@@ -1,0 +1,11 @@
+{
+  "name": "Per Day",
+  "slug": "per-day",
+  "description": "A game feature that can be used a certain number of times per day regains all expended uses when you finish a Long Rest.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

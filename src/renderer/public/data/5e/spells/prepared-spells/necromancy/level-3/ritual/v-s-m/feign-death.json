@@ -1,0 +1,71 @@
+{
+  "name": "Feign Death",
+  "level": 3,
+  "school": "Necromancy",
+  "classes": ["Bard", "Cleric", "Druid", "Wizard"],
+  "ritual": true,
+  "castingTime": {
+    "type": "Action",
+    "ritual": true
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a pinch of graveyard dirt",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You touch a willing creature and put it into a cataleptic state that is indistinguishable from death. For the duration, the target appears dead to outward inspection and to spells used to determine the target's status. The target has the Blinded and Incapacitated conditions, and its Speed is 0. The target also has Resistance to all damage except Psychic damage, and it has Immunity to the Poisoned condition.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "conditionsApplied": [
+    {
+      "condition": "Blinded",
+      "trigger": "automatic",
+      "duration": "for the duration"
+    },
+    {
+      "condition": "Incapacitated",
+      "trigger": "automatic",
+      "duration": "for the duration"
+    }
+  ],
+  "speedModifiers": [
+    {
+      "type": "set",
+      "value": 0,
+      "speedType": "all"
+    }
+  ],
+  "resistancesGranted": {
+    "damageTypes": [
+      "Acid",
+      "Bludgeoning",
+      "Cold",
+      "Fire",
+      "Force",
+      "Lightning",
+      "Necrotic",
+      "Piercing",
+      "Poison",
+      "Radiant",
+      "Slashing",
+      "Thunder"
+    ]
+  },
+  "immunitiesGranted": {
+    "conditions": ["Poisoned"]
+  },
+  "tags": ["deception", "utility", "suspended animation", "appears dead"]
+}

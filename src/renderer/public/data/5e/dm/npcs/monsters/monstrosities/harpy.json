@@ -1,0 +1,147 @@
+{
+  "name": "Harpy",
+  "sizes": ["Medium"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Coastal", "Forest", "Hill", "Mountain", "Swamp"],
+  "treasure": ["Individual"],
+  "lore": "Harpies are cruel, predatory creatures that combine humanoid torsos with the wings, legs, and talons of vultures. They use enchanting songs to lure prey to their doom, drawing victims toward cliffsides, chasms, and other hazardous terrain. Harpies build crude nests from the bones and belongings of their victims in remote, elevated areas.",
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 38,
+    "dice": {
+      "count": 7,
+      "die": "d8",
+      "modifier": 7
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "senses": {
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Common"]
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "multiattack": {
+    "description": "The harpy makes two Claw attacks.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 6 (2d4 + 1) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 6,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Luring Song",
+      "description": "The harpy sings a magical melody. Every Humanoid and Giant within 300 feet of the harpy that can hear the song must succeed on a DC 11 Wisdom saving throw or have the Charmed condition until the start of the harpy's next turn. While Charmed, the target has the Incapacitated condition and, if more than 5 feet away from the harpy, must move on its turn toward the harpy by the most direct route, trying to get within 5 feet. The target doesn't avoid Opportunity Attacks, but before moving into damaging terrain, such as lava or a pit, and whenever it takes damage from a source other than the harpy, the target can repeat the saving throw, ending the effect on itself on a success. A target that successfully saves is immune to this harpy's Luring Song for the next 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 11,
+        "targets": "every Humanoid and Giant within 300 feet that can hear the song",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "until the start of the harpy's next turn"
+            }
+          ],
+          "effects": "While Charmed, the target has the Incapacitated condition and must move toward the harpy by the most direct route if more than 5 feet away. The target doesn't avoid Opportunity Attacks. Before moving into damaging terrain and whenever it takes damage from a source other than the harpy, the target can repeat the saving throw."
+        },
+        "onSuccess": {
+          "effects": "The target is immune to this harpy's Luring Song for the next 24 hours."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Charmed",
+          "duration": "until the start of the harpy's next turn"
+        },
+        {
+          "condition": "Incapacitated",
+          "duration": "while Charmed by this song"
+        }
+      ],
+      "areaOfEffect": {
+        "shape": "Emanation",
+        "size": 300,
+        "centered": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Camel",
+  "cost": "50 GP",
+  "carryingCapacity": "450 lb.",
+  "slug": "camel",
+  "category": "Mount",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

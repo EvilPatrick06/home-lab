@@ -1,0 +1,22 @@
+{
+  "name": "Sling",
+  "slug": "sling",
+  "category": "Simple",
+  "type": "Ranged",
+  "damage": "1d4",
+  "damageType": "Bludgeoning",
+  "properties": ["Ammunition"],
+  "mastery": "Slow",
+  "weight": "—",
+  "cost": "1 SP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 30,
+    "long": 120
+  },
+  "ammunitionType": "Bullet"
+}

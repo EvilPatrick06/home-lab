@@ -1,0 +1,13 @@
+{
+  "name": "Jeweled platinum ring",
+  "slug": "jeweled-platinum-ring",
+  "value": "7,500 GP",
+  "category": "Art Object",
+  "description": "",
+  "dieValue": "2",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

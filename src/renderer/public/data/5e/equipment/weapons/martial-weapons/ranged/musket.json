@@ -1,0 +1,22 @@
+{
+  "name": "Musket",
+  "slug": "musket",
+  "category": "Martial",
+  "type": "Ranged",
+  "damage": "1d12",
+  "damageType": "Piercing",
+  "properties": ["Ammunition", "Loading", "Two-Handed"],
+  "mastery": "Slow",
+  "weight": "10 lb.",
+  "cost": "500 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 40,
+    "long": 120
+  },
+  "ammunitionType": "Bullet"
+}

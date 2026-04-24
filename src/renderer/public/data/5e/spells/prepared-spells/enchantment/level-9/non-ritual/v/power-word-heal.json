@@ -1,0 +1,30 @@
+{
+  "name": "Power Word Heal",
+  "level": 9,
+  "school": "Enchantment",
+  "classes": ["Bard", "Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A wave of healing energy washes over one creature you can see within range. The target regains all its Hit Points. If the creature has the Charmed, Frightened, Paralyzed, Poisoned, or Stunned condition, the condition ends. If the creature has the Prone condition, it can use its Reaction to stand up.",
+  "targetCount": 1,
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "conditionsRemoved": ["Charmed", "Frightened", "Paralyzed", "Poisoned", "Stunned"],
+  "tags": ["healing", "condition-removal", "restores-all-hp", "prone-stand-reaction"]
+}

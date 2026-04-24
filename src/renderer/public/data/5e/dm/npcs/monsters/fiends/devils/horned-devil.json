@@ -1,0 +1,212 @@
+{
+  "name": "Horned Devil",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Devil"],
+  "alignment": "Lawful Evil",
+  "habitat": ["Planar (Nine Hells)"],
+  "treasure": ["Armaments"],
+  "lore": "Horned devils, also called malabranche, are the shock troops and forest hunters of the Nine Hells. They patrol and guard the infernal layers, flying on great leathery wings and savaging intruders with their barbed tails and wicked forks. A horned devil's tail leaves wounds that burn with infernal fire and refuse to close without magical aid.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 178,
+    "dice": {
+      "count": 17,
+      "die": "d10",
+      "modifier": 85
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 7,
+    "score": 17
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 22,
+      "modifier": 6,
+      "save": 10
+    },
+    "DEX": {
+      "score": 17,
+      "modifier": 3,
+      "save": 7
+    },
+    "CON": {
+      "score": 21,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    },
+    "CHA": {
+      "score": 17,
+      "modifier": 3,
+      "save": 7
+    }
+  },
+  "resistances": ["Cold", "Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Infernal"],
+    "telepathy": 120
+  },
+  "challengeRating": "11",
+  "experiencePoints": 7200,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the devil's Darkvision."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The devil makes two Fork attacks and one Tail attack. It can replace one attack with Hurl Flame.",
+    "attacks": [
+      {
+        "actionName": "Fork",
+        "count": 2
+      },
+      {
+        "actionName": "Tail",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Fork",
+        "replaceCount": 1,
+        "with": "Hurl Flame"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Fork",
+      "description": "Melee Attack Roll: +10, reach 10 ft. Hit: 15 (2d8 + 6) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 6
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +10, reach 10 ft. Hit: 10 (1d8 + 6) Piercing damage. If the target is a creature other than a Construct or an Undead, it must succeed on a DC 17 Constitution saving throw or take an Infernal Wound. While wounded, the target takes 10 (3d6) Fire damage at the start of each of its turns. The wound's damage increases by 10 (3d6) each time the devil hits the wounded creature with this attack. A creature can take an action to stanch the wound on itself or another creature within 5 feet by succeeding on a DC 12 Wisdom (Medicine) check. The wound also closes if the creature receives magical healing.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 10,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 6
+              },
+              "type": "Piercing"
+            }
+          ],
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 17,
+            "targets": "the target (if not a Construct or Undead)",
+            "onFailure": {
+              "damage": [
+                {
+                  "average": 10,
+                  "dice": {
+                    "count": 3,
+                    "die": "d6",
+                    "modifier": 0
+                  },
+                  "type": "Fire",
+                  "notes": "Infernal Wound: ongoing at the start of each of the target's turns; increases by 10 (3d6) per additional Tail hit; stanched by DC 12 Wisdom (Medicine) check action or magical healing"
+                }
+              ],
+              "effects": "The target takes an Infernal Wound. While wounded, the target takes 10 (3d6) Fire damage at the start of each of its turns. The wound's damage increases by 10 (3d6) each time the devil hits the wounded creature with this attack. A creature can take an action to stanch the wound by succeeding on a DC 12 Wisdom (Medicine) check. The wound also closes if the creature receives magical healing."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Hurl Flame",
+      "description": "Ranged Attack Roll: +7, range 150 ft. Hit: 14 (4d6) Fire damage. If the target is a flammable object that isn't being worn or carried, it also catches fire.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 7,
+        "range": {
+          "normal": 150,
+          "long": 150
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 14,
+              "dice": {
+                "count": 4,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ],
+          "additionalEffects": "If the target is a flammable object that isn't being worn or carried, it also catches fire."
+        }
+      }
+    }
+  ]
+}

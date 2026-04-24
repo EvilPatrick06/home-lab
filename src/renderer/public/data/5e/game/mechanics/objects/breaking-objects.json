@@ -1,0 +1,239 @@
+{
+  "id": "d7e3b1a4-5c2f-4e8d-9a1b-3f6c7d8e9a0b",
+  "name": "Breaking Objects",
+  "slug": "breaking-objects",
+  "category": "VariantRule",
+  "subcategory": "Objects",
+  "tags": [
+    "objects",
+    "breaking",
+    "destruction",
+    "attack-action",
+    "armor-class",
+    "hit-points",
+    "fragile",
+    "resilient",
+    "damage-threshold"
+  ],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Appendix C: Rules Glossary",
+    "section": "Breaking Objects"
+  },
+  "gameEdition": "2024",
+  "description": "When you take the Attack action, you can use your attack to try to destroy an object. Objects have an Armor Class based on their material and Hit Points based on their size and whether they are fragile or resilient. As an action, you can automatically break or otherwise destroy a fragile, nonmagical object, such as a glass container or a piece of paper. If you try to damage something more resilient, the DM might use the rules on breaking objects. For the purpose of the rules, an object is a discrete, inanimate item like a window, door, sword, book, table, chair, or stone. It isn't a building or a vehicle, which are composed of many objects.",
+  "shortDescription": "Rules for using the Attack action to destroy objects, with AC by material and HP by size and fragility.",
+  "rulesAsWritten": "When you take the Attack action, you can use your attack to try to destroy an object. As an action, you can automatically break or otherwise destroy a fragile, nonmagical object, such as a glass container or a piece of paper. If you try to damage something more resilient, the DM might use the rules on breaking objects in the rules glossary.",
+  "isVariantRule": true,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "order": 0,
+      "name": "Automatic Destruction of Fragile Nonmagical Objects",
+      "description": "As an action, you can automatically break or otherwise destroy a fragile, nonmagical object, such as a glass container or a piece of paper. No attack roll or damage roll is required.",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Creature takes the Attack action or uses an action to break a fragile nonmagical object"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "A fragile, nonmagical object such as a glass container or a piece of paper is automatically broken or destroyed when a creature uses an action to do so. No attack roll is needed.",
+          "mechanicalNote": "This automatic destruction applies only to fragile, nonmagical objects."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "order": 1,
+      "name": "Attack Action to Destroy Resilient Objects",
+      "description": "When you take the Attack action, you can use your attack to try to destroy a more resilient object. You make an attack roll against the object's Armor Class (determined by its material). On a hit, you deal damage and subtract it from the object's Hit Points (determined by its size and fragility category).",
+      "trigger": {
+        "event": "OnAttackRollMade",
+        "condition": "Creature takes the Attack action and targets an object"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Make an attack roll against the object's AC based on its material: Cloth/paper/rope AC 11, Crystal/glass/ice AC 13, Wood/bone AC 15, Iron/steel AC 19, Mithral AC 21, Adamantine AC 23. On a hit, deal damage and reduce the object's Hit Points. Object HP by size — Tiny (bottle, lock): Fragile 2 (1d4), Resilient 5 (2d4); Small (chest, lute): Fragile 3 (1d6), Resilient 10 (3d6); Medium (barrel, chandelier): Fragile 4 (1d8), Resilient 18 (4d8); Large (cart, 10x10 ft. window): Fragile 5 (1d10), Resilient 27 (5d10).",
+          "mechanicalNote": "Uses the Attack action. The attack replaces one of the creature's attacks. Object is destroyed when reduced to 0 HP."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 2,
+      "name": "Object Armor Class by Material",
+      "description": "An object's Armor Class is determined by its primary material composition. Cloth, paper, rope: AC 11. Crystal, glass, ice: AC 13. Wood, bone: AC 15. Iron, steel: AC 19. Mithral: AC 21. Adamantine: AC 23.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Object AC values by material — Cloth, paper, rope: 11; Crystal, glass, ice: 13; Wood, bone: 15; Iron, steel: 19; Mithral: 21; Adamantine: 23.",
+          "mechanicalNote": "These AC values are used as the target number for attack rolls made against objects."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "order": 3,
+      "name": "Object Hit Points by Size and Category",
+      "description": "An object's Hit Points are determined by its size and whether it is classified as Fragile or Resilient. Tiny (bottle, lock): Fragile 2 (1d4), Resilient 5 (2d4). Small (chest, lute): Fragile 3 (1d6), Resilient 10 (3d6). Medium (barrel, chandelier): Fragile 4 (1d8), Resilient 18 (4d8). Large (cart, 10x10 ft. window): Fragile 5 (1d10), Resilient 27 (5d10).",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Object HP — Tiny Fragile: 2 (1d4), Tiny Resilient: 5 (2d4); Small Fragile: 3 (1d6), Small Resilient: 10 (3d6); Medium Fragile: 4 (1d8), Medium Resilient: 18 (4d8); Large Fragile: 5 (1d10), Large Resilient: 27 (5d10).",
+          "mechanicalNote": "Objects are destroyed when reduced to 0 HP. The DM determines whether an object is Fragile or Resilient."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "order": 4,
+      "name": "Damage Threshold for Objects",
+      "description": "A creature or object that has a damage threshold has Immunity to all damage unless it takes an amount of damage from a single attack or effect equal to or greater than its damage threshold, in which case it takes that damage. This rule can apply to particularly sturdy or massive objects.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Object has a damage threshold assigned by the DM"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "An object with a damage threshold has Immunity to all damage unless it takes an amount of damage from a single attack or effect equal to or greater than its damage threshold, in which case it takes that entire amount of damage.",
+          "mechanicalNote": "Damage threshold is an optional property assigned by the DM to represent especially sturdy objects. Damage below the threshold is completely ignored."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "order": 5,
+      "name": "Object Definition",
+      "description": "For the purpose of the rules, an object is a discrete, inanimate item like a window, door, sword, book, table, chair, or stone. It isn't a building or a vehicle, which are composed of many objects.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "An object is a discrete, inanimate item. Buildings and vehicles are not single objects; they are composed of many objects.",
+          "mechanicalNote": "This definition determines what can be targeted by the Breaking Objects rules."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "06a7b8c9-d0e1-2345-fabc-567890123456",
+      "order": 6,
+      "name": "Object Resistance, Vulnerability, and Immunity",
+      "description": "Some objects have Resistance or Vulnerability to certain damage types, or Immunity to certain damage types. For example, anything underwater has Resistance to Fire damage. Objects can also have Immunity to damage types that logically would not affect them.",
+      "trigger": {
+        "event": "OnDamageTaken",
+        "condition": "Object has applicable Resistance, Vulnerability, or Immunity"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Objects can possess Resistance, Vulnerability, or Immunity to specific damage types. Resistance halves damage of that type (round down), Vulnerability doubles it, and Immunity negates it entirely. Multiple instances of Resistance or Vulnerability to the same damage type do not stack.",
+          "mechanicalNote": "The DM determines which Resistances, Vulnerabilities, or Immunities an object has based on its material and nature. For example, a rope would likely be Vulnerable to Fire but Immune to Psychic damage."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": null,
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true
+  },
+  "dmNotes": "The DM determines whether an object is Fragile or Resilient, and assigns its material category for AC purposes. The DM may also assign a Damage Threshold to particularly sturdy objects (such as castle walls or thick iron doors). Objects immune to a damage type (e.g., a rope being immune to Bludgeoning) take no damage from that type. Fragile nonmagical objects (glass containers, paper) can be automatically destroyed as an action without an attack roll. For more resilient objects, use the Attack action with attack rolls against the object's AC. The rules for object HP and AC provide a framework but the DM has final say on what constitutes an object and its properties. Remember that a building or vehicle is composed of many objects, not a single object.",
+  "commonRulings": [
+    {
+      "question": "Can you automatically destroy any fragile nonmagical object without rolling?",
+      "ruling": "Yes. As an action, you can automatically break or otherwise destroy a fragile, nonmagical object, such as a glass container or a piece of paper. No attack roll is needed for this.",
+      "isOfficial": true
+    },
+    {
+      "question": "How do you determine whether an object is Fragile or Resilient?",
+      "ruling": "The DM makes this determination. The Object Hit Points table provides examples: a bottle and lock are Tiny, a chest and lute are Small, a barrel and chandelier are Medium, and a cart and 10x10 ft. window are Large. Objects that are solidly built or made of tough materials are generally Resilient; thin or easily breakable objects are Fragile.",
+      "isOfficial": false
+    },
+    {
+      "question": "Does breaking an object use the Attack action?",
+      "ruling": "Yes. When you take the Attack action, you can use your attack to try to destroy an object. This means breaking a resilient object replaces one of your attacks within the Attack action.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can objects have a Damage Threshold?",
+      "ruling": "Yes. A creature or object with a damage threshold has Immunity to all damage unless it takes an amount of damage from a single attack or effect equal to or greater than its damage threshold. This is typically used for very sturdy objects like castle walls.",
+      "isOfficial": true
+    },
+    {
+      "question": "What qualifies as an object for these rules?",
+      "ruling": "An object is a discrete, inanimate item like a window, door, sword, book, table, chair, or stone. A building or vehicle is not a single object — it is composed of many objects.",
+      "isOfficial": true
+    },
+    {
+      "question": "Do objects benefit from Resistance or Immunity to damage types?",
+      "ruling": "Yes. Some objects have Resistance, Vulnerability, or Immunity to certain damage types. For example, anything underwater has Resistance to Fire damage. The DM determines applicable immunities and resistances based on the object's nature and material.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

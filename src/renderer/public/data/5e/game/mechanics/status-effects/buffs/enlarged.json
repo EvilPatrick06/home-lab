@@ -1,0 +1,23 @@
+{
+  "id": "enlarged",
+  "name": "Enlarged",
+  "source": "Enlarge/Reduce (2nd-level Transmutation spell)",
+  "duration": "Up to 1 minute (Concentration)",
+  "description": "The target's size increases by one category -- from Medium to Large, for example. If there isn't enough room for the target to increase in size, the creature attains the maximum possible size in the space available. Everything the target is wearing and carrying changes size with it. Any item dropped by an affected creature returns to normal size at once.",
+  "effects": [
+    { "type": "size", "target": "creature size", "value": "increase by one category" },
+    { "type": "advantage", "target": "Strength checks and Strength saving throws", "value": "Advantage" },
+    { "type": "bonus damage", "target": "weapon damage", "value": "+1d4" }
+  ],
+  "damageBonus": {
+    "description": "The target's weapons also grow to match its new size. While enlarged, the target's weapon attacks deal an extra 1d4 damage.",
+    "value": "+1d4",
+    "applicableTo": "Weapon attacks only"
+  },
+  "endConditions": [
+    "The spell's duration expires (1 minute)",
+    "The caster loses Concentration",
+    "The caster is incapacitated or dies"
+  ],
+  "notes": "If there isn't enough room, the creature attains the maximum possible size in the available space. The size increase affects grappling, shoving, and other mechanics that depend on creature size."
+}

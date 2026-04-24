@@ -1,0 +1,64 @@
+{
+  "id": "long-term-madness",
+  "name": "Long-Term Madness",
+  "description": "Long-term madness lasts 1d10 x 10 hours. A Greater Restoration spell or other magic can end long-term madness.",
+  "duration": "1d10 x 10 hours",
+  "durationDice": "1d10",
+  "durationMultiplier": 10,
+  "durationUnit": "hours",
+  "curedBy": ["Greater Restoration", "Any effect that removes a curse"],
+  "table": [
+    {
+      "rollMin": 1,
+      "rollMax": 10,
+      "effect": "The character feels compelled to repeat a specific activity over and over, such as washing hands, touching things, praying, or counting coins."
+    },
+    {
+      "rollMin": 11,
+      "rollMax": 20,
+      "effect": "The character experiences vivid hallucinations and has Disadvantage on ability checks."
+    },
+    {
+      "rollMin": 21,
+      "rollMax": 30,
+      "effect": "The character suffers extreme paranoia. The character has Disadvantage on Wisdom and Charisma checks."
+    },
+    {
+      "rollMin": 31,
+      "rollMax": 40,
+      "effect": "The character regards something (usually the source of madness) with intense revulsion, as if affected by the antipathy effect of the Antipathy/Sympathy spell."
+    },
+    {
+      "rollMin": 41,
+      "rollMax": 45,
+      "effect": "The character experiences a powerful delusion. Choose a potion. The character imagines that they are under its effects."
+    },
+    {
+      "rollMin": 46,
+      "rollMax": 55,
+      "effect": "The character becomes attached to a 'lucky charm,' such as a person or an object, and has Disadvantage on attack rolls, ability checks, and saving throws while more than 30 feet from it."
+    },
+    { "rollMin": 56, "rollMax": 65, "effect": "The character is Blinded (25%) or Deafened (75%)." },
+    {
+      "rollMin": 66,
+      "rollMax": 75,
+      "effect": "The character experiences uncontrollable tremors or tics, which impose Disadvantage on attack rolls, ability checks, and saving throws that involve Strength or Dexterity."
+    },
+    {
+      "rollMin": 76,
+      "rollMax": 85,
+      "effect": "The character suffers from partial amnesia. The character knows who they are and retains racial traits and class features, but doesn't recognize other people or remember anything before the madness took effect."
+    },
+    {
+      "rollMin": 86,
+      "rollMax": 90,
+      "effect": "Whenever the character takes damage, they must succeed on a DC 15 Wisdom saving throw or be affected as though they failed a saving throw against the Confusion spell. The effect lasts 1 minute."
+    },
+    { "rollMin": 91, "rollMax": 95, "effect": "The character loses the ability to speak." },
+    {
+      "rollMin": 96,
+      "rollMax": 100,
+      "effect": "The character falls Unconscious. No amount of jostling or damage can wake the character."
+    }
+  ]
+}

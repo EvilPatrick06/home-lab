@@ -1,0 +1,9 @@
+{
+  "id": "hill-dwarf",
+  "name": "Hill Dwarf",
+  "species": "dwarf",
+  "description": "Hill Dwarves have remarkable resilience.",
+  "traits": [{ "name": "Dwarven Toughness", "description": "HP max increases by 1, and by 1 every level." }],
+  "abilityScoreIncrease": { "wisdom": 1 },
+  "source": "PHB 2024"
+}

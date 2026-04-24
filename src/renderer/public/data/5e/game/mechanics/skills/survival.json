@@ -1,0 +1,15 @@
+{
+  "id": "survival",
+  "name": "Survival",
+  "ability": "wisdom",
+  "description": "The DM might ask you to make a Wisdom (Survival) check to follow tracks, hunt wild game, guide your group through frozen wastelands, identify signs that owlbears live nearby, predict the weather, or avoid quicksand and other natural hazards.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Follow tracks left by a creature",
+    "Hunt wild game or forage for food and water",
+    "Navigate through unfamiliar wilderness",
+    "Predict the weather or identify natural hazards",
+    "Identify signs of nearby creatures or settlements"
+  ]
+}

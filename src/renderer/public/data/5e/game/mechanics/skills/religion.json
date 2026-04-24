@@ -1,0 +1,15 @@
+{
+  "id": "religion",
+  "name": "Religion",
+  "ability": "intelligence",
+  "description": "Your Intelligence (Religion) check measures your ability to recall lore about deities, rites and prayers, religious hierarchies, holy symbols, and the practices of secret cults. This represents academic knowledge of religious traditions rather than personal faith.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Recall lore about a deity or divine being",
+    "Identify a holy symbol or religious artifact",
+    "Know the rites and practices of a religious order",
+    "Recognize the influence of a divine or fiendish power",
+    "Understand the tenets and beliefs of a cult or sect"
+  ]
+}

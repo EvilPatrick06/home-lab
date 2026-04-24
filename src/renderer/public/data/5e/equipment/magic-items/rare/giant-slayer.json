@@ -1,0 +1,13 @@
+{
+  "name": "Giant Slayer",
+  "slug": "giant-slayer",
+  "type": "Weapon (Any Simple or Martial)",
+  "rarity": "Rare",
+  "attunement": false,
+  "description": "You gain a +1 bonus to attack rolls and damage rolls made with this magic weapon.\n\nWhen you hit a Giant with this weapon, the Giant takes an extra 2d6 damage of the weapon's type and must succeed on a DC 15 Strength saving throw or have the Prone condition.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

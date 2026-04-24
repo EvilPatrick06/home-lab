@@ -1,0 +1,13 @@
+{
+  "name": "Boots of Levitation",
+  "slug": "boots-of-levitation",
+  "type": "Wondrous Item",
+  "rarity": "Rare",
+  "attunement": true,
+  "description": "While you wear these boots, you can cast *Levitate* on yourself.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

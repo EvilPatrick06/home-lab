@@ -1,0 +1,54 @@
+{
+  "name": "Giant Vulture",
+  "slug": "giant-vulture",
+  "size": "Large",
+  "type": "Monstrosity",
+  "alignment": "Neutral Evil",
+  "ac": "10",
+  "initiative": "+0 (10)",
+  "hp": "25",
+  "hpFormula": "3d10 + 9",
+  "speed": "10 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 15,
+    "dex": 10,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": 0,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +3",
+  "resistances": "Necrotic",
+  "senses": "Darkvision 60 ft.; Passive Perception 13",
+  "languages": "Understands Common but can't speak",
+  "cr": "1 (XP 200; PB +2)",
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The vulture has Advantage on an attack roll against a creature if at least one of the vulture's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Gouge",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 9 (2d6 + 2) Piercing damage, and the target has the Poisoned condition until the end of its next turn."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

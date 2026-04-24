@@ -1,0 +1,12 @@
+{
+  "name": "Yellow Mold",
+  "severity": "Level 1+",
+  "description": "Covers a 5-foot square. When touched, releases spores in 10-foot cube. DC 15 Con save or take 11 (2d10) Poison damage and be Poisoned for 1 minute. Repeat save each turn. Destroyed by sunlight or fire (5+ damage).",
+  "slug": "yellow-mold",
+  "category": "Hazard",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Hazards"
+  }
+}

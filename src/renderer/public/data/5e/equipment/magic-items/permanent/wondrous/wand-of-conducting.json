@@ -1,0 +1,19 @@
+{
+  "name": "Wand of Conducting",
+  "itemType": "Wand",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "This wand has 3 charges. While holding it, you can take a Magic action to expend 1 charge and create orchestral music by waving it around. The music can be heard out to 120 feet and ends when you stop waving the wand.",
+  "properties": [],
+  "weight": 0,
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "charges": 3,
+  "rechargeRate": "dawn",
+  "rechargeAmount": "all",
+  "spells": [],
+  "damage": null,
+  "source": "DMG 2024"
+}

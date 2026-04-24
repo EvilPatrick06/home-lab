@@ -1,0 +1,55 @@
+{
+  "name": "Gas Spore Fungus",
+  "slug": "gas-spore-fungus",
+  "size": "Large",
+  "type": "Plant",
+  "alignment": "Unaligned",
+  "ac": "8",
+  "initiative": "−5 (5)",
+  "hp": "13",
+  "hpFormula": "9d10 − 36",
+  "speed": "5 ft., Fly 10 ft. (hover)",
+  "abilityScores": {
+    "str": 5,
+    "dex": 1,
+    "con": 3,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -3,
+    "dex": -5,
+    "con": -4,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison; Blinded, Charmed, Deafened, Frightened, Paralyzed, Poisoned, Prone",
+  "senses": "Blindsight 30 ft.; Passive Perception 5",
+  "languages": "None",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [
+    {
+      "name": "Death Burst",
+      "description": "The gas spore bursts when it dies. *Constitution Saving Throw:* DC 10, each creature in a 20-foot Emanation originating from the gas spore. *Failure:* The target takes 10 (3d6) Poison damage and has the Poisoned condition for 1d12 hours. Unless the Poisoned condition is removed, the target dies at the end of that time and sprouts 2d4 Tiny Gas Spore Fungi (each with 1 Hit Point). After 2d6 days, they become Large and have 13 Hit Points."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Tendril",
+      "description": "*Melee Attack Roll:* +0, reach 5 ft. *Hit:* 3 (1d6) Poison damage, and the target has the Poisoned condition until the end of its next turn."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Deadly Spores and Predatory Polyps*\n**Habitat:** Underdark; **Treasure:** None\nThe dank, sunless Underdark is a fertile breeding ground for weird and dangerous fungi.\nGas spores are floating, orbicular fungi with rhizome growths and protuberances that resemble the stalks and eyes of beholders. If destroyed, a gas spore explodes in a poisonous burst that can infect creatures and slay them in hours. Infected corpses spawn more gas spores that grow to full size in a matter of days.\nIf exposed to light or otherwise disturbed, mushroomlike shriekers emit a high-pitched noise that gives them their name. This wailing might alert other creatures or attract predators.\nSlow but mobile, violet fungi rot any flesh they touch with their lashing tendrils.\nA violet fungus necrohulk forms when a violet fungus colony infests and animates an ample heap of decay. This necrohulk attacks prey and spreads fungal spores for the colony.",
+  "habitat": "Underdark",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Plants",
+    "file": "Plants.md"
+  }
+}

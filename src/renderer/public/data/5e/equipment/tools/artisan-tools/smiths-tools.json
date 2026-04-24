@@ -1,0 +1,15 @@
+{
+  "name": "Smith's Tools",
+  "cost": "20 GP",
+  "weight": "8 lb.",
+  "ability": "Strength",
+  "utilize": "Pry open a door or container (DC 20)",
+  "craft": "Any Melee weapon (except Club, Greatclub, Quarterstaff, and Whip), Medium armor (except Hide), Heavy armor, Ball Bearings, Bucket, Caltrops, Chain, Crowbar, Firearm Bullets, Grappling Hook, Iron Pot, Iron Spikes, Sling Bullets",
+  "slug": "smiths-tools",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

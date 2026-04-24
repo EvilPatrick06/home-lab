@@ -1,0 +1,176 @@
+{
+  "name": "Quadrone",
+  "sizes": ["Medium"],
+  "creatureType": "Construct",
+  "descriptiveTags": ["Modron"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Planar (Mechanus)"],
+  "treasure": ["None"],
+  "lore": "Quadrones are four-sided modrons that serve as field officers and artillery in the modron hierarchy. They can process four tasks simultaneously and are capable of autonomous initiative in combat situations. Quadrones coordinate tridrones and their subordinate units, and they are often assigned to patrol the boundaries of Mechanus or protect important installations.",
+  "armorClass": {
+    "value": 16,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 44,
+    "dice": {
+      "count": 8,
+      "die": "d8",
+      "modifier": 8
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 2
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Modron"]
+  },
+  "challengeRating": "1",
+  "experiencePoints": 200,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Axiomatic Mind",
+      "description": "The modron can't be compelled to act in a manner contrary to its nature or its instructions."
+    },
+    {
+      "name": "Disintegration",
+      "description": "If the modron dies, its body disintegrates into dust, leaving behind anything it was carrying."
+    }
+  ],
+  "multiattack": {
+    "description": "The quadrone makes four Shortbow attacks or four Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Shortbow",
+        "count": 4
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Shortbow",
+        "replaceCount": 4,
+        "with": "Slam"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Shortbow",
+      "description": "Ranged Attack Roll: +4, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 4,
+        "range": {
+          "normal": 80,
+          "long": 320
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 3 (1d4 + 1) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "gear": [
+    {
+      "name": "Shortbow",
+      "quantity": 1
+    },
+    {
+      "name": "Arrows",
+      "quantity": 20
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "warrior-of-the-open-hand",
+  "name": "Warrior of the Open Hand",
+  "className": "Monk",
+  "level": 3,
+  "description": "Master Unarmed Combat Techniques",
+  "features": [
+    {
+      "name": "Open Hand Technique",
+      "level": 3,
+      "description": "Whenever you hit a creature with an attack granted by your Flurry of Blows, you can impose one of the following effects on that target: Addle - The target can't make Opportunity Attacks until the start of its next turn. Push - The target must succeed on a Strength saving throw or be pushed up to 15 feet away from you. Topple - The target must succeed on a Dexterity saving throw or have the Prone condition."
+    },
+    {
+      "name": "Wholeness of Body",
+      "level": 6,
+      "description": "As a Bonus Action, you can roll your Martial Arts die and regain a number of Hit Points equal to the number rolled plus your Wisdom modifier (minimum of 1 Hit Point regained). You can use this feature a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest."
+    },
+    {
+      "name": "Fleet Step",
+      "level": 11,
+      "description": "When you take a Bonus Action other than Step of the Wind, you can also use Step of the Wind immediately after that Bonus Action."
+    },
+    {
+      "name": "Quivering Palm",
+      "level": 17,
+      "description": "When you hit a creature with an Unarmed Strike, you can expend 4 Focus Points to start imperceptible vibrations in the target's body that last for a number of days equal to your Monk level. When you take the Attack action on your turn, you can forgo one of the attacks to end the vibrations. The target must then make a Constitution saving throw, taking 10d12 Force damage on a failed save or half as much on a successful one."
+    }
+  ]
+}

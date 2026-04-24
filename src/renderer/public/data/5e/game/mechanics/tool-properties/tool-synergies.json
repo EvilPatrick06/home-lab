@@ -1,0 +1,168 @@
+{
+  "id": "tool-synergies",
+  "name": "Tool Synergies",
+  "description": "When you make an ability check that involves a tool you are proficient with, and a skill you are also proficient in that relates to the tool's use, you can gain Advantage on the check. The DM determines when this synergy applies.",
+  "tools": [
+    {
+      "id": "alchemists-supplies",
+      "name": "Alchemist's Supplies",
+      "associatedSkill": "Arcana",
+      "sampleDCs": { "identifyPotion": 15, "createAcid": 15, "identifyPoison": 10 },
+      "synergyRule": "Proficiency with Alchemist's Supplies allows you to produce useful concoctions. Combined with Arcana proficiency, you gain Advantage on checks to identify potions and alchemical substances."
+    },
+    {
+      "id": "brewers-supplies",
+      "name": "Brewer's Supplies",
+      "associatedSkill": "Medicine",
+      "sampleDCs": { "detectPoison": 10, "brewAle": 10, "identifyAlcohol": 10 },
+      "synergyRule": "Proficiency with Brewer's Supplies allows you to produce beverages. Combined with Medicine proficiency, you gain Advantage on checks to identify poisoned or tainted drinks."
+    },
+    {
+      "id": "calligraphers-supplies",
+      "name": "Calligrapher's Supplies",
+      "associatedSkill": "History",
+      "sampleDCs": { "identifyHandwriting": 10, "forgeDiplomaticDocument": 20, "copyMap": 15 },
+      "synergyRule": "Proficiency with Calligrapher's Supplies lets you create elegant writing. Combined with History proficiency, you gain Advantage on checks to identify or authenticate historical documents."
+    },
+    {
+      "id": "carpenters-tools",
+      "name": "Carpenter's Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "buildShelter": 10, "findWeakPoint": 15, "repairStructure": 15 },
+      "synergyRule": "Proficiency with Carpenter's Tools lets you craft and repair wooden structures. Combined with Investigation proficiency, you gain Advantage on checks to identify structural weaknesses in buildings."
+    },
+    {
+      "id": "cartographers-tools",
+      "name": "Cartographer's Tools",
+      "associatedSkill": "Survival",
+      "sampleDCs": { "createMap": 10, "determineTerrain": 15, "estimateDistance": 15 },
+      "synergyRule": "Proficiency with Cartographer's Tools lets you create and interpret maps. Combined with Survival proficiency, you gain Advantage on checks to avoid getting lost or to navigate unfamiliar terrain."
+    },
+    {
+      "id": "cobblers-tools",
+      "name": "Cobbler's Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "repairShoes": 10, "createHiddenCompartment": 15, "identifyFootwear": 10 },
+      "synergyRule": "Proficiency with Cobbler's Tools allows you to craft and repair footwear. Combined with Investigation proficiency, you gain Advantage on checks to identify tracks based on footwear impressions."
+    },
+    {
+      "id": "cooks-utensils",
+      "name": "Cook's Utensils",
+      "associatedSkill": "Medicine",
+      "sampleDCs": { "prepareMeal": 10, "detectPoison": 15, "createComfortFood": 10 },
+      "synergyRule": "Proficiency with Cook's Utensils allows you to prepare food. Combined with Medicine proficiency, you gain Advantage on checks to detect or neutralize poisons in food and to create nourishing meals that aid recovery."
+    },
+    {
+      "id": "glassblowers-tools",
+      "name": "Glassblower's Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "identifyGlasswork": 10, "createVial": 10, "findWeakPoints": 15 },
+      "synergyRule": "Proficiency with Glassblower's Tools lets you craft glass objects. Combined with Investigation proficiency, you gain Advantage on checks to identify glass-based clues or examine glass objects for hidden properties."
+    },
+    {
+      "id": "jewelers-tools",
+      "name": "Jeweler's Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "identifyGem": 10, "appraise": 15, "detectForgery": 15 },
+      "synergyRule": "Proficiency with Jeweler's Tools allows you to work with gemstones and precious metals. Combined with Investigation proficiency, you gain Advantage on checks to appraise jewelry or determine if gems are counterfeit."
+    },
+    {
+      "id": "leatherworkers-tools",
+      "name": "Leatherworker's Tools",
+      "associatedSkill": "Arcana",
+      "sampleDCs": { "repairLeather": 10, "identifyHide": 15, "craftArmor": 15 },
+      "synergyRule": "Proficiency with Leatherworker's Tools lets you work with hides and leather. Combined with Arcana proficiency, you gain Advantage on checks to identify magical properties of leather-based items or monster hides."
+    },
+    {
+      "id": "masons-tools",
+      "name": "Mason's Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "identifyCracks": 10, "findSecretDoor": 15, "repairStone": 15 },
+      "synergyRule": "Proficiency with Mason's Tools lets you work with stone. Combined with Investigation proficiency, you gain Advantage on checks to find secret passages or structural weaknesses in stone walls and buildings."
+    },
+    {
+      "id": "painters-supplies",
+      "name": "Painter's Supplies",
+      "associatedSkill": "Perception",
+      "sampleDCs": { "createPortrait": 10, "copyImage": 15, "detectForgery": 15 },
+      "synergyRule": "Proficiency with Painter's Supplies lets you create visual art. Combined with Perception proficiency, you gain Advantage on checks to notice fine visual details or identify forged paintings."
+    },
+    {
+      "id": "potters-tools",
+      "name": "Potter's Tools",
+      "associatedSkill": "History",
+      "sampleDCs": { "createPot": 10, "identifyOrigin": 15, "reconstructBroken": 20 },
+      "synergyRule": "Proficiency with Potter's Tools lets you craft ceramic objects. Combined with History proficiency, you gain Advantage on checks to identify the historical origin or cultural significance of ceramic artifacts."
+    },
+    {
+      "id": "smiths-tools",
+      "name": "Smith's Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "repairMetal": 10, "identifyOre": 15, "sharpenWeapon": 10 },
+      "synergyRule": "Proficiency with Smith's Tools lets you work with metal. Combined with Investigation proficiency, you gain Advantage on checks to identify the type and quality of metal objects or to detect flaws in metalwork."
+    },
+    {
+      "id": "tinkers-tools",
+      "name": "Tinker's Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "repairDevice": 10, "createGadget": 15, "disarmTrap": 15 },
+      "synergyRule": "Proficiency with Tinker's Tools lets you repair and create small mechanical devices. Combined with Investigation proficiency, you gain Advantage on checks to understand how a mechanical device or trap works."
+    },
+    {
+      "id": "weavers-tools",
+      "name": "Weaver's Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "repairCloth": 10, "createClothing": 10, "identifyFabric": 15 },
+      "synergyRule": "Proficiency with Weaver's Tools lets you work with textiles. Combined with Investigation proficiency, you gain Advantage on checks to identify the origin of cloth or detect hidden pockets and compartments in clothing."
+    },
+    {
+      "id": "woodcarvers-tools",
+      "name": "Woodcarver's Tools",
+      "associatedSkill": "Nature",
+      "sampleDCs": { "carveObject": 10, "identifyWood": 10, "createArrows": 15 },
+      "synergyRule": "Proficiency with Woodcarver's Tools lets you carve and shape wood. Combined with Nature proficiency, you gain Advantage on checks to identify types of wood and determine their properties or origins."
+    },
+    {
+      "id": "thieves-tools",
+      "name": "Thieves' Tools",
+      "associatedSkill": "Investigation",
+      "sampleDCs": { "pickLock": 15, "disarmTrap": 15, "assessSecurity": 10 },
+      "synergyRule": "Proficiency with Thieves' Tools lets you pick locks and disarm traps. Combined with Investigation proficiency, you gain Advantage on checks to find traps or assess the security of a lock before attempting to pick it."
+    },
+    {
+      "id": "herbalism-kit",
+      "name": "Herbalism Kit",
+      "associatedSkill": "Nature",
+      "sampleDCs": { "identifyPlant": 10, "createAntitoxin": 15, "createHealingPotion": 15 },
+      "synergyRule": "Proficiency with a Herbalism Kit lets you identify plants and create herbal remedies. Combined with Nature proficiency, you gain Advantage on checks to find and identify medicinal or poisonous plants."
+    },
+    {
+      "id": "navigators-tools",
+      "name": "Navigator's Tools",
+      "associatedSkill": "Survival",
+      "sampleDCs": { "plotCourse": 10, "determinePosition": 15, "predictWeather": 15 },
+      "synergyRule": "Proficiency with Navigator's Tools lets you chart courses and navigate. Combined with Survival proficiency, you gain Advantage on checks to avoid getting lost or to navigate using natural landmarks."
+    },
+    {
+      "id": "poisoners-kit",
+      "name": "Poisoner's Kit",
+      "associatedSkill": "Medicine",
+      "sampleDCs": { "identifyPoison": 10, "applyPoison": 10, "createPoison": 20 },
+      "synergyRule": "Proficiency with a Poisoner's Kit lets you handle and apply poisons. Combined with Medicine proficiency, you gain Advantage on checks to identify symptoms of poisoning and determine appropriate antidotes."
+    },
+    {
+      "id": "disguise-kit",
+      "name": "Disguise Kit",
+      "associatedSkill": "Deception",
+      "sampleDCs": { "createDisguise": 10, "mimicAppearance": 15, "disguiseAsSpecificPerson": 20 },
+      "synergyRule": "Proficiency with a Disguise Kit lets you create disguises. Combined with Deception proficiency, you gain Advantage on checks to maintain your cover when someone suspects your disguise."
+    },
+    {
+      "id": "forgery-kit",
+      "name": "Forgery Kit",
+      "associatedSkill": "Deception",
+      "sampleDCs": { "forgeDocument": 15, "duplicateSeal": 20, "mimicHandwriting": 15 },
+      "synergyRule": "Proficiency with a Forgery Kit lets you create fake documents. Combined with Deception proficiency, you gain Advantage on checks to pass off forged documents as authentic."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Blowgun Needles (50)",
+  "slug": "blowgun-needles",
+  "category": "Ammunition",
+  "cost": "1 GP",
+  "weight": "1 lb.",
+  "quantity": 50,
+  "description": "Ammunition for Blowguns. After a battle, you can spend 1 minute to recover half your expended ammunition.",
+  "compatibleWeapons": ["Blowgun"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Ring of Three Wishes",
+  "slug": "ring-of-three-wishes",
+  "type": "Ring",
+  "rarity": "Legendary",
+  "attunement": false,
+  "description": "While wearing this ring, you can expend 1 of its 3 charges to cast *Wish* from it. The ring becomes nonmagical when you use the last charge.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

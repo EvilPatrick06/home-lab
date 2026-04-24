@@ -1,0 +1,42 @@
+{
+  "name": "Greater Restoration",
+  "level": 5,
+  "school": "Abjuration",
+  "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "diamond dust worth 100+ GP, which the spell consumes",
+      "cost": 100,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You touch a creature and magically remove one of the following effects from it:\n\n- 1 Exhaustion level\n- The Charmed or Petrified condition\n- A curse, including the target's Attunement to a cursed magic item\n- Any reduction to one of the target's ability scores\n- Any reduction to the target's Hit Point maximum",
+  "targetType": "creature",
+  "targetCount": 1,
+  "mustSeeTarget": false,
+  "targetMustBeWilling": false,
+  "conditionsRemoved": ["Charmed", "Petrified", "Exhaustion"],
+  "tags": [
+    "removal",
+    "restoration",
+    "curse-removal",
+    "ability-score-restoration",
+    "hp-max-restoration",
+    "exhaustion-removal"
+  ]
+}

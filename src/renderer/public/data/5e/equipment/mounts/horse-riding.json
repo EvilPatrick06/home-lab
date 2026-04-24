@@ -1,0 +1,12 @@
+{
+  "name": "Horse, Riding",
+  "cost": "75 GP",
+  "carryingCapacity": "480 lb.",
+  "slug": "horse-riding",
+  "category": "Mount",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Mounts and Vehicles"
+  }
+}

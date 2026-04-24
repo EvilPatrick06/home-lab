@@ -1,0 +1,15 @@
+{
+  "id": "perception",
+  "name": "Perception",
+  "ability": "wisdom",
+  "description": "Your Wisdom (Perception) check lets you spot, hear, or otherwise detect the presence of something. It measures your general awareness of your surroundings and the keenness of your senses. A Perception check is used for noticing things in the environment rather than deducing conclusions from evidence (which is Investigation).",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Detect a hidden creature (contested vs Stealth)",
+    "Notice a sound or faint noise",
+    "Spot a concealed trap or hidden door",
+    "Overhear a whispered conversation",
+    "Notice subtle environmental changes"
+  ]
+}

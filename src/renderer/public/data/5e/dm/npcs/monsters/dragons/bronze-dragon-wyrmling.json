@@ -1,0 +1,68 @@
+{
+  "name": "Bronze Dragon Wyrmling",
+  "slug": "bronze-dragon-wyrmling",
+  "size": "Medium",
+  "type": "Dragon",
+  "alignment": "Lawful Good",
+  "ac": "15",
+  "initiative": "+2 (12)",
+  "hp": "39",
+  "hpFormula": "6d8 + 12",
+  "speed": "30 ft., Fly 60 ft., Swim 30 ft.",
+  "abilityScores": {
+    "str": 17,
+    "dex": 10,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 2,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Perception +4, Stealth +2",
+  "immunities": "Lightning",
+  "senses": "Blindsight 10 ft., Darkvision 60 ft.; Passive Perception 14",
+  "languages": "Draconic",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The dragon can breathe air and water."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The dragon makes two Rend attacks."
+    },
+    {
+      "name": "Rend",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 8 (1d10 + 3) Slashing damage."
+    },
+    {
+      "name": "Lightning Breath (Recharge 5--6)",
+      "description": "*Dexterity Saving Throw:* DC 12, each creature in a 40-foot-long, 5-foot-wide Line. *Failure:* 16 (3d10) Lightning damage. *Success:* Half damage."
+    },
+    {
+      "name": "Repulsion Breath",
+      "description": "*Strength Saving Throw:* DC 12, each creature in a 30-foot Cone. *Failure:* The target is pushed up to 30 feet straight away from the dragon and has the Prone condition."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Dragon of Potential and Preservation*\n**Habitat:** Coastal; **Treasure:** Implements\nWhere bronze dragons dwell, wonders flourish. Imaginative yet mindful, these metallic dragons work toward greatness and help others achieve all they can. They strive to preserve innovations, from the works of past civilizations to new discoveries, and they share such works widely. When dealing with shorter-lived beings, bronze dragons prefer to win them over through conversation and cultivation, but they don't shy from battle when villains keep others from achieving their potential.\nBronze dragons enjoy the power and endless possibilities of the sea, and they often make their lairs in places of natural beauty or communities they wish to preserve. Within their dwellings, bronze dragons hoard things they believe will be useful one day. They salvage treasure lost to the sea, reclaiming wealth or sunken ships.\nBronze dragon wyrmlings believe they can solve any problems, and they seek to prove it. They often fixate on local challenges, such as drought or rampant banditry. While their zeal can be charming, these wyrmlings can get in over their heads and might then need help correcting mistakes.\nMany young bronze dragons become experts in a type of problem, like driving off pirates or protecting communities from storms. Young bronze dragons collect friends with varied expertise, cultivating a community of experts they can rely on.\nAdult bronze dragons often dwell near places they defend or where they help others work toward goals. They might become patrons of whole cities, advising leaders and helping generations flourish.\nAncient bronze dragons develop dramatic patinas on their glimmering scales. These dragons strive to protect whole regions, continents, or planets from threats. They seek solutions to planes-spanning calamities or multiversal perils and oppose the evil of mighty chromatic dragons.\n> ### Bronze Dragon Lairs\n>\n> Bronze dragons usually make their homes near or under the sea.\n>\n> The region containing an adult or ancient bronze dragon's lair is changed by its presence, creating the following effects:\n>\n> ***Buoying Currents.*** Creatures within 1 mile of the lair that lack a Swim Speed ignore the extra cost of movement while swimming.\n>\n> ***Sun and Storms.*** While in its lair, the dragon can cast *Control Weather*, requiring no Material components and using the same spellcasting ability as its Spellcasting action. When casting the spell this way, the dragon can control the weather within 1 mile of its lair, regardless if the dragon is inside or outside.\n>\n> If the dragon dies or moves its lair elsewhere, these effects end immediately.",
+  "habitat": "Coastal",
+  "treasure": "Implements",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Dragons-Metallic",
+    "file": "Dragons-Metallic.md"
+  }
+}

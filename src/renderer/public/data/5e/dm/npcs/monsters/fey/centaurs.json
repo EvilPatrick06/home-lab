@@ -1,0 +1,193 @@
+{
+  "name": "Centaur",
+  "sizes": ["Large"],
+  "creatureType": "Fey",
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Forest", "Grassland", "Hill"],
+  "treasure": ["Armaments"],
+  "lore": "Centaurs are reclusive half-human, half-horse beings who gallop through vast forests and across open plains. They live in nomadic herds, guided by the stars and the wisdom of their elders. Though typically peaceful, centaurs are fierce warriors when their territory or kin are threatened.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 45,
+    "dice": {
+      "count": 6,
+      "die": "d10",
+      "modifier": 12
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 50
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Athletics",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 3
+    },
+    {
+      "skill": "Survival",
+      "bonus": 3
+    }
+  ],
+  "gear": [
+    {
+      "name": "Pike",
+      "quantity": 1
+    },
+    {
+      "name": "Shortbow",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 13
+  },
+  "languages": {
+    "spoken": ["Elvish", "Sylvan"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "multiattack": {
+    "description": "The centaur makes two Pike attacks, two Shortbow attacks, or one of each.",
+    "attacks": [
+      {
+        "actionName": "Pike",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Pike",
+        "replaceCount": 2,
+        "with": "Shortbow"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Pike",
+      "description": "Melee Attack Roll: +6, reach 10 ft. Hit: 9 (1d10 + 4) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 9,
+              "dice": {
+                "count": 1,
+                "die": "d10",
+                "modifier": 4
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shortbow",
+      "description": "Ranged Attack Roll: +4, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 4,
+        "range": {
+          "normal": 80,
+          "long": 320
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Trampling Charge",
+      "description": "Melee Attack Roll: +6, reach 5 ft. Hit: 7 (1d6 + 4) Bludgeoning damage. If the centaur moved at least 30 feet straight toward the target immediately before the hit, the target has the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 6,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the centaur moved at least 30 feet straight toward the target immediately before the hit, the target has the Prone condition.",
+          "conditions": [
+            {
+              "condition": "Prone"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

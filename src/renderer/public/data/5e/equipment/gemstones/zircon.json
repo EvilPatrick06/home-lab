@@ -1,0 +1,13 @@
+{
+  "name": "Zircon",
+  "slug": "zircon",
+  "value": "50 GP",
+  "category": "Gemstone",
+  "description": "pale blue-green",
+  "dieValue": "12",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "name": "Jackalwere",
+  "sizes": ["Small", "Medium"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Shapechanger"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Desert", "Grassland"],
+  "treasure": ["Individual"],
+  "lore": "Jackalweres are fiends that resemble jackals, humans, or jackal-humanoid hybrids. Created long ago by a demon lord, these shapechangers serve as spies and infiltrators, often lurking among caravans or near settlements. They use their Sleep Gaze to render victims helpless before attacking or robbing them. Jackalweres frequently associate with jackals, which they can command.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 18,
+    "dice": {
+      "count": 4,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 2
+    },
+    {
+      "skill": "Perception",
+      "bonus": 2
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks that aren't silvered"],
+  "gear": [
+    {
+      "name": "Scimitar",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Common"],
+    "notes": "can't speak in jackal form"
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Pack Tactics",
+      "description": "The jackalwere has Advantage on an attack roll against a creature if at least one of the jackalwere's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Bite (Jackal or Hybrid Form Only). Melee Attack Roll: +4, reach 5 ft. Hit: 4 (1d4 + 2) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Scimitar",
+      "description": "Scimitar (Humanoid or Hybrid Form Only). Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sleep Gaze",
+      "description": "The jackalwere targets one creature it can see within 30 feet of itself. The target must succeed on a DC 10 Wisdom saving throw or have the Unconscious condition for 10 minutes. The condition ends on the target if the target takes damage or if another creature takes an action to shake the target awake.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 10,
+        "targets": "one creature the jackalwere can see within 30 feet of itself",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Unconscious",
+              "duration": "10 minutes"
+            }
+          ],
+          "effects": "The condition ends on the target if the target takes damage or if another creature takes an action to shake the target awake."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Unconscious",
+          "duration": "10 minutes"
+        }
+      ]
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Change Shape",
+      "description": "The jackalwere shape-shifts into a Medium human, a Small jackal, or a Small or Medium jackal-humanoid hybrid, or it reverts to its true form (jackal). Other than its size, its statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed."
+    }
+  ]
+}

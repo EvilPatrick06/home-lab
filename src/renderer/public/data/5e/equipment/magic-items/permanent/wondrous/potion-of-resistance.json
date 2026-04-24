@@ -1,0 +1,55 @@
+{
+  "name": "Potion of Resistance",
+  "itemType": "Potion",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "description": "When you drink this potion, you have Resistance to one type of damage for 1 hour. The DM chooses the type or determines it randomly by rolling on the following table.",
+  "properties": [
+    {
+      "1d10": 1,
+      "damageType": "Acid"
+    },
+    {
+      "1d10": 2,
+      "damageType": "Cold"
+    },
+    {
+      "1d10": 3,
+      "damageType": "Fire"
+    },
+    {
+      "1d10": 4,
+      "damageType": "Force"
+    },
+    {
+      "1d10": 5,
+      "damageType": "Lightning"
+    },
+    {
+      "1d10": 6,
+      "damageType": "Necrotic"
+    },
+    {
+      "1d10": 7,
+      "damageType": "Poison"
+    },
+    {
+      "1d10": 8,
+      "damageType": "Psychic"
+    },
+    {
+      "1d10": 9,
+      "damageType": "Radiant"
+    },
+    {
+      "1d10": 10,
+      "damageType": "Thunder"
+    }
+  ],
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

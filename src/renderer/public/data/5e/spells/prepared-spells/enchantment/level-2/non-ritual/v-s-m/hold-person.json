@@ -1,0 +1,64 @@
+{
+  "name": "Hold Person",
+  "level": 2,
+  "school": "Enchantment",
+  "classes": ["Bard", "Cleric", "Druid", "Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a straight piece of iron",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Choose a Humanoid that you can see within range. The target must succeed on a Wisdom saving throw or have the Paralyzed condition for the duration. At the end of each of its turns, the target repeats the save, ending the spell on itself on a success. ***Using a Higher-Level Spell Slot.*** You can target one additional Humanoid for each spell slot level above 2.",
+  "targetCount": 1,
+  "targetCreatureTypes": ["Humanoid"],
+  "targetType": "creature",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Wisdom",
+    "noEffectOnSuccess": true,
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Paralyzed",
+      "trigger": "onFailedSave",
+      "duration": "for the duration",
+      "savingThrowToEnd": {
+        "ability": "Wisdom",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 2,
+        "description": "You can target one additional Humanoid for each spell slot level above 2."
+      }
+    ]
+  }
+}

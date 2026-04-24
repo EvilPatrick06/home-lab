@@ -1,0 +1,11 @@
+{
+  "name": "Alignment",
+  "slug": "alignment",
+  "description": "A creature's alignment broadly describes its ethical attitudes and ideals. Alignment is a combination of two factors: one identifies morality (Good, Evil, or Neutral), and the other describes attitudes toward society and order (Lawful, Chaotic, or Neutral). These factors create nine possible alignments.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

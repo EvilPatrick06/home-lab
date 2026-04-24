@@ -1,0 +1,1042 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. Then the Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Astral Above Elemental Below",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "nine-hells",
+      "name": "Nine Hells",
+      "alternateNames": [],
+      "category": "Outer Plane",
+      "subcategory": "Lower Plane",
+      "alignments": ["Lawful Evil"],
+      "philosophicalEssence": "The Nine Hells inflames the imaginations of travelers, the greed of treasure seekers, and the battle fury of all moral creatures. It is the ultimate plane of law and evil, and the epitome of premeditated cruelty.",
+      "emotionalInfluence": "The Nine Hells embodies the cruelty and corruption of law turned to evil ends. Every shred of evil is used in the Nine Hells, and each layer specializes in some way to accommodate and exploit the vices and weaknesses of mortals.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "divinely_morphic",
+        "shape": "Nine Hells is like a pit where the River Styx plunges down through nine tiers. Each layer must be descended through in order to reach the lowest layer, Nessus.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Atmosphere varies by layer. Avernus has clouds of biting flies and a darkened sky with fiery comets. Minauros has acid rain. Phlegethos has choking smoke and volcanic ash. Cania has ice storms that can tear flesh from bone.",
+        "temperature": {
+          "category": "layered",
+          "description": "Temperature varies dramatically by layer: Phlegethos features raging volcanoes and magma rivers; Stygia is a freezing realm of ice; Cania is a frozen hellscape whose ice storms can tear flesh from bone; Avernus is a rocky wasteland."
+        },
+        "hasSurface": true,
+        "weatherPatterns": "Varies by layer. Avernus features fiery comets falling from a darkened sky. Minauros has acid rain. Phlegethos has hurricanes of hot wind, choking smoke, and volcanic ash. Cania has ice storms."
+      },
+      "layers": [
+        {
+          "name": "Avernus",
+          "alternateNames": [],
+          "layerNumber": 1,
+          "description": "The Blood War rages across battlefields littered with corpses and the wreckage of hellish war machines. By Asmodeus's orders, no planar portals connect directly to the lower layers of the Nine Hells. Avernus is the arrival point for visitors, a rocky wasteland with rivers of blood and clouds of biting flies. Fiery comets occasionally fall from the darkened sky and carve out fuming impact craters. Empty battlefields are littered with weapons and bones.",
+          "notableLocations": [
+            {
+              "name": "Zariel's Flying Basalt Citadel",
+              "description": "A flying basalt citadel that rakes the battlefields of Avernus, serving as Zariel's seat of power.",
+              "ruler": "Zariel"
+            }
+          ],
+          "notableInhabitants": ["Zariel", "Bel", "Tiamat"],
+          "ruler": {
+            "name": "Zariel",
+            "title": "Archdevil of Avernus",
+            "creatureType": "Fiend",
+            "description": "Zariel appears as an angel whose skin and wings are scorched. Her eyes burn with a furious white light that can cause creatures looking upon her to burst into flame. She supplanted her rival Bel, who fell out of Asmodeus's favor and was forced to serve as Zariel's adviser."
+          },
+          "layerSpecificHazards": [
+            {
+              "name": "Fiery Comets",
+              "description": "Fiery comets occasionally fall from the darkened sky and carve out fuming impact craters."
+            },
+            {
+              "name": "Rivers of Blood",
+              "description": "Rivers of blood flow across the rocky wasteland."
+            },
+            {
+              "name": "Clouds of Biting Flies",
+              "description": "Clouds of biting flies plague the wasteland of Avernus."
+            },
+            {
+              "name": "Blood War Battlefields",
+              "description": "Empty battlefields are littered with weapons and bones, showing where the legions of the Nine Hells prevailed against invading enemies."
+            }
+          ],
+          "environmentalDescription": "A rocky wasteland with rivers of blood and clouds of biting flies under a darkened sky. Fiery comets occasionally fall.",
+          "isArrivalLayer": true
+        },
+        {
+          "name": "Dis",
+          "alternateNames": ["Iron City of Dis"],
+          "layerNumber": 2,
+          "description": "Dis is a labyrinth of canyons wedged between sheer mountains rich with iron ore. Iron roads span and wend through the canyons, watched over by the garrisons of iron fortresses perched atop jagged pinnacles.",
+          "notableLocations": [
+            {
+              "name": "Iron City of Dis",
+              "description": "A hideous metropolis where planar travelers come to conspire with devils and to close deals with night hags, rakshasas, incubi, succubi, and other Fiends. Contracts signed on this layer contain special provisions that allow Dispater to collect a cut of the deal.",
+              "ruler": "Dispater"
+            }
+          ],
+          "notableInhabitants": ["Dispater"],
+          "ruler": {
+            "name": "Dispater",
+            "title": "Archduke of Dis",
+            "creatureType": "Fiend",
+            "description": "A manipulator and deceiver, the archduke is devilishly handsome, bearing only small horns, a tail, and a cloven left hoof to distinguish him from a human. He is one of Asmodeus's most loyal and resourceful vassals. He is more obsessed than most devils with striking deals with mortals in exchange for their souls."
+          },
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Iron roads in deep canyons lead to the dreaded Iron City of Dis. Mountains rich with iron ore surround labyrinthine canyons, with iron fortresses perched atop jagged pinnacles.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Minauros",
+          "alternateNames": [],
+          "layerNumber": 3,
+          "description": "The third layer of the Nine Hells is a stench-ridden bog. Acidic rain spills from the layer's brown skies, thick layers of scum cover its putrid surface, and yawning pits lie in wait beneath the murk to engulf careless wanderers. Cyclopean cities of ornately carved stone rise up from the bog.",
+          "notableLocations": [
+            {
+              "name": "Minauros (city)",
+              "description": "A great city with slimy walls that rise hundreds of feet, protecting the flooded halls that are the lair of Mammon.",
+              "ruler": "Mammon"
+            }
+          ],
+          "notableInhabitants": ["Mammon"],
+          "ruler": {
+            "name": "Mammon",
+            "title": "Archduke of Minauros",
+            "creatureType": "Fiend",
+            "description": "Mammon resembles a massive serpent with the upper torso and head of a hairless, horned humanoid. Mammon's greed is legendary, and he is one of the few archdevils who will trade favors for gold instead of souls. His lair is piled high with treasures left behind by those who tried—and failed—to best him in a deal."
+          },
+          "layerSpecificHazards": [
+            {
+              "name": "Acid Rain",
+              "description": "Acidic rain spills from the layer's brown skies."
+            },
+            {
+              "name": "Yawning Pits",
+              "description": "Yawning pits lie in wait beneath the murk to engulf careless wanderers."
+            },
+            {
+              "name": "Stench-Ridden Bog",
+              "description": "Thick layers of scum cover the putrid surface of the bog."
+            }
+          ],
+          "environmentalDescription": "Acid falls like rain on putrid bogs and decaying cities. Brown skies, stench-ridden bogs, and cyclopean cities of ornately carved stone.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Phlegethos",
+          "alternateNames": [],
+          "layerNumber": 4,
+          "description": "Phlegethos is a fiery landscape whose seas of molten magma brew hurricanes of hot wind, choking smoke, and volcanic ash.",
+          "notableLocations": [
+            {
+              "name": "Abriymoch",
+              "description": "A fortress city made of obsidian and dark glass within the fire-filled caldera of Phlegethos's largest volcano. Rivers of molten lava pour down its outer walls, making it resemble a gigantic, hellish fountain.",
+              "ruler": "Belial and Fierna"
+            }
+          ],
+          "notableInhabitants": ["Belial", "Fierna"],
+          "ruler": {
+            "name": "Belial",
+            "title": "Archduke of Phlegethos (co-ruler)",
+            "creatureType": "Fiend",
+            "description": "Belial exudes civility, even as his words carry an undercurrent of threat. He and his daughter Fierna rule Phlegethos in tandem. Both are handsome devils who resemble tieflings, with red skin and small horns. Their alliance is unbreakable."
+          },
+          "layerSpecificHazards": [
+            {
+              "name": "Seas of Molten Magma",
+              "description": "Seas of molten magma cover the landscape."
+            },
+            {
+              "name": "Hurricanes of Hot Wind",
+              "description": "Hurricanes of hot wind, choking smoke, and volcanic ash are brewed by the seas of molten magma."
+            }
+          ],
+          "environmentalDescription": "Obsidian fortresses bask in the heat of raging volcanoes and magma rivers. A fiery landscape of molten magma, hot wind, choking smoke, and volcanic ash.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Stygia",
+          "alternateNames": [],
+          "layerNumber": 5,
+          "description": "The fifth layer of the Nine Hells is a freezing realm of ice within which cold flames burn. A frozen sea surrounds the layer, and its gloomy sky crackles with lightning.",
+          "notableLocations": [],
+          "notableInhabitants": ["Levistus", "Geryon"],
+          "ruler": {
+            "name": "Levistus",
+            "title": "Archduke of Stygia",
+            "creatureType": "Fiend",
+            "description": "Levistus once betrayed Asmodeus and is now encased deep in the ice of Stygia as punishment. He rules this layer all the same, communicating telepathically with his followers and servants, both in the Nine Hells and on the Material Plane."
+          },
+          "layerSpecificHazards": [
+            {
+              "name": "Freezing Ice",
+              "description": "A freezing realm of ice within which cold flames burn."
+            },
+            {
+              "name": "Frozen Sea",
+              "description": "A frozen sea surrounds the layer."
+            },
+            {
+              "name": "Lightning Sky",
+              "description": "The gloomy sky crackles with lightning."
+            }
+          ],
+          "environmentalDescription": "Levistus's prison is a frigid hellscape of jagged ice and cold fire. A frozen sea surrounds the layer under a gloomy sky that crackles with lightning.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Malbolge",
+          "alternateNames": [],
+          "layerNumber": 6,
+          "description": "Malbolge is a seemingly endless slope, like the sides of an impossibly huge mountain. Parts of the layer break off from time to time, creating deadly, booming avalanches. The inhabitants live in crumbling fortresses and great caves carved into the mountainside.",
+          "notableLocations": [
+            {
+              "name": "Osseia",
+              "description": "The citadel that serves as Glasya's domicile on the slopes of Malbolge, supported by cracked pillars and buttresses that are sturdy yet seem on the verge of collapse. Beneath the palace is a labyrinth lined with cells and torture chambers.",
+              "ruler": "Glasya"
+            }
+          ],
+          "notableInhabitants": ["Glasya", "Moloch"],
+          "ruler": {
+            "name": "Glasya",
+            "title": "Archduchess of Malbolge",
+            "creatureType": "Fiend",
+            "description": "Asmodeus's daughter. Her cruelty and love of wicked schemes rival those of her father. Previous rulers included Malagard the Hag Countess (struck down by Asmodeus) and Moloch (who still lingers somewhere on the sixth layer as an imp, plotting to regain Asmodeus's favor)."
+          },
+          "layerSpecificHazards": [
+            {
+              "name": "Deadly Avalanches",
+              "description": "Parts of the layer break off from time to time, creating deadly, booming avalanches."
+            },
+            {
+              "name": "Crumbling Terrain",
+              "description": "An ever-crumbling mountain threatens to bury visitors."
+            }
+          ],
+          "environmentalDescription": "An ever-crumbling mountain threatens to bury visitors. A seemingly endless slope with crumbling fortresses and great caves carved into the mountainside.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Maladomini",
+          "alternateNames": [],
+          "layerNumber": 7,
+          "description": "Maladomini is a ruin-covered wasteland. Dead cities form a desolate urban landscape, and between them are empty quarries, crumbling roads, slag heaps, the hollow shells of empty fortresses, and swarms of hungry flies.",
+          "notableLocations": [],
+          "notableInhabitants": ["Baalzebul"],
+          "ruler": {
+            "name": "Baalzebul",
+            "title": "Archduke of Maladomini, Lord of Flies",
+            "creatureType": "Fiend",
+            "description": "A tall, powerful devil with the compound eyes of a fly. He has long conspired to usurp Asmodeus, yet has failed at every turn. Asmodeus laid a curse on him that causes any deal made with him to lead to calamity."
+          },
+          "layerSpecificHazards": [
+            {
+              "name": "Swarms of Hungry Flies",
+              "description": "Swarms of hungry flies plague dead cities surrounded by utter desolation."
+            }
+          ],
+          "environmentalDescription": "Swarms of hungry flies plague dead cities surrounded by utter desolation. A ruin-covered wasteland of dead cities, empty quarries, crumbling roads, and slag heaps.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Cania",
+          "alternateNames": [],
+          "layerNumber": 8,
+          "description": "Cania is a frozen hellscape whose ice storms can tear flesh from bone. Cities embedded in the ice provide shelter for guests and prisoners of Cania's ruler, the brilliant and conniving archdevil Mephistopheles.",
+          "notableLocations": [
+            {
+              "name": "Mephistar",
+              "description": "The ice citadel where Mephistopheles dwells, plotting to seize the throne of the Nine Hells and conquer all the planes.",
+              "ruler": "Mephistopheles"
+            }
+          ],
+          "notableInhabitants": ["Mephistopheles"],
+          "ruler": {
+            "name": "Mephistopheles",
+            "title": "Archduke of Cania",
+            "creatureType": "Fiend",
+            "description": "Mephistopheles is a tall, striking devil with impressive horns and a cool demeanor. He is Asmodeus's greatest enemy and ally. He trades in souls but rarely gives his time to any creatures not worthy of his personal attention. He is also a godfather of sorts to Glasya. It is said that only Asmodeus has ever deceived or thwarted him."
+          },
+          "layerSpecificHazards": [
+            {
+              "name": "Ice Storms",
+              "description": "Ice storms that can tear flesh from bone ravage the frozen hellscape."
+            }
+          ],
+          "environmentalDescription": "Ice-trapped cities provide shelter in a realm cold enough to freeze the soul. A frozen hellscape whose ice storms can tear flesh from bone.",
+          "isArrivalLayer": false
+        },
+        {
+          "name": "Nessus",
+          "alternateNames": [],
+          "layerNumber": 9,
+          "description": "The lowest layer of the Nine Hells is a realm of dark pits whose walls are set with bleak fortresses. Pit fiend generals loyal to Asmodeus garrison their diabolical legions and plot the conquest of the multiverse. At the center of the layer stands a vast rift of unknown depth, out of which rises the great citadel-spire of Malsheem.",
+          "notableLocations": [
+            {
+              "name": "Malsheem",
+              "description": "The great citadel-spire that rises from a vast rift of unknown depth. It resembles a gigantic hollowed-out stalagmite. The citadel is also a prison for souls that Asmodeus has locked away for safekeeping. Convincing him to release even one of those souls comes at a steep price; it is rumored that Asmodeus has claimed whole kingdoms in exchange for such favor.",
+              "ruler": "Asmodeus"
+            }
+          ],
+          "notableInhabitants": ["Asmodeus"],
+          "ruler": {
+            "name": "Asmodeus",
+            "title": "Archduke of Nessus, Supreme Ruler of the Nine Hells",
+            "creatureType": "Fiend",
+            "description": "Asmodeus most often appears as a handsome, bearded man with four large horns, piercing red eyes, and flowing robes. He can also assume other forms and sometimes carries a ruby-tipped scepter. He is the most cunning and well-mannered of archdevils. On the surface, he seems warm, pleasant, and lighthearted, doling out wisdom and small acts of kindness like a caring father. The ultimate evil he represents can be seen only when he wills it so, or if he forgets himself and flies into a rage. He wields the power of a lesser god and is worshiped as such on the Material Plane."
+          },
+          "layerSpecificHazards": [],
+          "environmentalDescription": "Mighty fortresses stand watch over the deepest pits of the Nine Hells. A realm of dark pits with bleak fortresses and a vast rift of unknown depth.",
+          "isArrivalLayer": false
+        }
+      ],
+      "hasDistinctLayers": true,
+      "layerCount": 9,
+      "timeFlow": {
+        "type": "variable",
+        "ratioToMaterialPlane": "variable",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Distance is a virtually meaningless concept on the Outer Planes. Adventurers could take a guided tour of the Nine Hells, from the first layer to the ninth, in a single day—if the powers of the Nine Hells desire it. Or it could take weeks for travelers to make a grueling trek across a single layer."
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [
+        {
+          "id": "nh-portal-avernus-only",
+          "type": "location",
+          "name": "Avernus Arrival Restriction",
+          "destination": "Avernus (Layer 1)",
+          "destinationPlane": "Nine Hells",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "By Asmodeus's orders, no planar portals connect directly to the lower layers of the Nine Hells. The first layer, Avernus, is the arrival point for visitors.",
+            "situationCondition": "All planar portals to the Nine Hells connect only to Avernus, the first layer."
+          },
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "rare",
+      "planarConnections": [
+        {
+          "id": "nh-river-styx",
+          "name": "River Styx",
+          "type": "river",
+          "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+          "description": "The River Styx churns through the top layers of the Nine Hells. Tributaries of the Styx snake through lower layers. A tendril of the Styx winds through every layer of the Nine Hells, allowing passage from one layer of that plane to the next. Sinister ferries float on the waters, crewed by pilots who carry passengers from plane to plane for a price.",
+          "hazards": [
+            "Ill effects of the Styx (referenced in chapter 3)",
+            "Unpredictable currents and eddies",
+            "Grease, foul flotsam, and putrid remains"
+          ],
+          "isOneWay": false,
+          "navigableBy": ["Sinister ferries", "Vessels crewed by Fiend pilots", "Vessels crewed by souls of the dead"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Fiend"],
+        "notableEntities": [
+          {
+            "name": "Asmodeus",
+            "title": "Archduke of Nessus, Supreme Ruler of the Nine Hells",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "The supreme ruler of all devils who wields the power of a lesser god. Worshiped on the Material Plane, he inspires evil cults and sinister warlocks. He commands scores of pit fiend generals. A supreme tyrant, a brilliant deceiver, and a master of subtlety. Most often appears as a handsome, bearded man with four large horns, piercing red eyes, and flowing robes. Sometimes carries a ruby-tipped scepter.",
+            "rulesLayer": "Nessus",
+            "rulesLocation": "Malsheem"
+          },
+          {
+            "name": "Zariel",
+            "title": "Archdevil of Avernus",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "Appears as an angel whose skin and wings are scorched. Her eyes burn with a furious white light that can cause creatures looking upon her to burst into flame. Supplanted her rival Bel.",
+            "rulesLayer": "Avernus"
+          },
+          {
+            "name": "Bel",
+            "title": "Adviser to Zariel (former ruler of Avernus)",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "Fell out of Asmodeus's favor and was forced to serve as Zariel's adviser.",
+            "rulesLayer": "Avernus"
+          },
+          {
+            "name": "Tiamat",
+            "title": "Queen of Evil Dragons",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "A prisoner on Avernus, ruling her own domain but confined to the Nine Hells by Asmodeus in accordance with some ancient contract (the terms of which are known only to Tiamat and the Lords of the Nine).",
+            "rulesLayer": "Avernus"
+          },
+          {
+            "name": "Dispater",
+            "title": "Archduke of Dis",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "A manipulator and deceiver, devilishly handsome. One of Asmodeus's most loyal and resourceful vassals. Few beings in the multiverse can outwit him. More obsessed than most devils with striking deals with mortals in exchange for their souls.",
+            "rulesLayer": "Dis"
+          },
+          {
+            "name": "Mammon",
+            "title": "Archduke of Minauros",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "Resembles a massive serpent with the upper torso and head of a hairless, horned humanoid. His greed is legendary, and he is one of the few archdevils who will trade favors for gold instead of souls.",
+            "rulesLayer": "Minauros"
+          },
+          {
+            "name": "Belial",
+            "title": "Archduke of Phlegethos (co-ruler)",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "Exudes civility with an undercurrent of threat. Resembles a tiefling with red skin and small horns. Co-rules with his daughter Fierna.",
+            "rulesLayer": "Phlegethos"
+          },
+          {
+            "name": "Fierna",
+            "title": "Archduchess of Phlegethos (co-ruler)",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "Belial's daughter. Resembles a tiefling with red skin and small horns. Said to have the wickedest heart in the Nine Hells.",
+            "rulesLayer": "Phlegethos"
+          },
+          {
+            "name": "Levistus",
+            "title": "Archduke of Stygia",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "Once betrayed Asmodeus and is now encased deep in the ice of Stygia as punishment. Rules the layer telepathically, communicating with followers and servants in the Nine Hells and on the Material Plane.",
+            "rulesLayer": "Stygia"
+          },
+          {
+            "name": "Geryon",
+            "title": "Former ruler of Stygia",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "The serpentine archdevil was dismissed by Asmodeus to allow the imprisoned Levistus to retain his rule. Geryon's fall from grace has spurred much debate within the infernal courts.",
+            "rulesLayer": "Stygia"
+          },
+          {
+            "name": "Glasya",
+            "title": "Archduchess of Malbolge",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "Asmodeus's daughter. Her cruelty and love of wicked schemes rival those of her father.",
+            "rulesLayer": "Malbolge"
+          },
+          {
+            "name": "Moloch",
+            "title": "Former ruler of Malbolge (now an imp)",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "Lingers somewhere on the sixth layer as an imp, plotting to regain Asmodeus's favor.",
+            "rulesLayer": "Malbolge"
+          },
+          {
+            "name": "Baalzebul",
+            "title": "Archduke of Maladomini, Lord of Flies",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "A tall, powerful devil with the compound eyes of a fly. Has long conspired to usurp Asmodeus but failed at every turn. Asmodeus laid a curse on him that causes any deal made with him to lead to calamity.",
+            "rulesLayer": "Maladomini"
+          },
+          {
+            "name": "Mephistopheles",
+            "title": "Archduke of Cania",
+            "creatureType": "Fiend",
+            "alignment": "Lawful Evil",
+            "description": "A tall, striking devil with impressive horns and a cool demeanor. Asmodeus's greatest enemy and ally. Also a godfather of sorts to Glasya. Only Asmodeus has ever deceived or thwarted him.",
+            "rulesLayer": "Cania"
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "nh-no-direct-portals-lower-layers",
+          "name": "No Direct Portals to Lower Layers",
+          "description": "By Asmodeus's orders, no planar portals connect directly to the lower layers of the Nine Hells. The first layer, Avernus, is the arrival point for visitors to the plane.",
+          "mechanicalEffect": "All planar portals leading to the Nine Hells connect only to Avernus (Layer 1). To reach Nessus (Layer 9), one must descend through all eight layers above it in order. The most expeditious means of doing so is the River Styx, which plunges ever deeper as it flows from one layer to the next."
+        },
+        {
+          "id": "nh-rigid-hierarchy",
+          "name": "Infernal Hierarchy",
+          "description": "The Nine Hells has a rigid hierarchy that defines every aspect of its society. Devils are bound to obey the laws of their superiors but squabble within their individual castes. Most undertake any plot, no matter how foul, to advance themselves. At the top is Asmodeus, who has yet to be bested. If he were vanquished, the victor would rule the plane in turn. Such is the law of the Nine Hells.",
+          "mechanicalEffect": "Devils are organized into a strict caste system from Least Devils (lemures) through Lesser Devils, Greater Devils, and Archdevils. Promotion and demotion follow specific rules. When the soul of an evil mortal sinks into the Nine Hells, it takes the physical form of a wretched lemure. No devil can promote or demote another devil that hasn't sworn fealty to it. Since all devils swear fealty to Asmodeus, he can freely demote any other devil."
+        },
+        {
+          "id": "nh-promotion-rules",
+          "name": "Promotion and Demotion Rules",
+          "description": "Archdevils and greater devils can promote lemures to lesser devils. Archdevils can promote lesser devils to greater devils. Only Asmodeus can promote a greater devil to archdevil status. All diabolic promotions involve a brief, painful transformation, with the devil's memories passing intact from one form to the next. Low-level promotions are typically based on need; high-level promotions are almost always based on merit. A devil is seldom promoted more than one step at a time.",
+          "mechanicalEffect": "Demotion is the customary punishment for failure or disobedience. Archdevils or greater devils can demote a lesser devil to a lemure, which loses all memory of its prior existence. An archdevil can demote a greater devil to lesser devil status, but the demoted devil retains its memories. No devil can promote or demote another devil that hasn't sworn fealty to it."
+        },
+        {
+          "id": "nh-dispater-contract-cut",
+          "name": "Dispater's Contract Provisions",
+          "description": "Contracts signed on Dis (Layer 2) contain special provisions that allow Dispater to collect a cut of the deal.",
+          "mechanicalEffect": "Any contract signed on the second layer of the Nine Hells includes special provisions benefiting Dispater."
+        },
+        {
+          "id": "nh-baalzebul-curse",
+          "name": "Baalzebul's Curse",
+          "description": "Asmodeus laid a curse on Baalzebul that causes any deal made with him to lead to calamity.",
+          "mechanicalEffect": "Any deal made with Baalzebul leads to calamity due to Asmodeus's curse."
+        }
+      ],
+      "planarDissonance": {
+        "applies": true,
+        "affectedCreatureTypes": ["Celestial"],
+        "savingThrow": {
+          "ability": "Constitution",
+          "dc": 10,
+          "proficiencyApplies": true,
+          "trigger": "per_long_rest",
+          "triggerDescription": "After finishing a Long Rest on a plane that is alien to its nature (the Nine Hells is a Lower Plane, alien to Celestials).",
+          "onFailure": {
+            "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+            "customCondition": "Planar Dissonance",
+            "cumulative": true,
+            "cumulativeDescription": "The d4 subtraction is cumulative with each failed save.",
+            "penaltyDice": {
+              "dice": {
+                "count": 1,
+                "die": 4,
+                "modifier": 0,
+                "expression": "1d4",
+                "averageResult": 2.5
+              },
+              "appliesTo": "d20_tests",
+              "subtracted": true
+            },
+            "exhaustionLevels": 0
+          },
+          "onSuccess": {
+            "description": "No additional planar dissonance effect.",
+            "endsEffect": false
+          },
+          "autoSuccessCreatureTypes": ["Fiend"],
+          "autoSuccessTraits": [],
+          "autoSuccessConditions": [],
+          "repeatSaveAllowed": true,
+          "repeatSaveTiming": "After each Long Rest on the opposing plane",
+          "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to its nature"],
+          "failureProbabilityAtDC": {
+            "dc": 10,
+            "noModifierFailChance": 0.45,
+            "commonModifierRange": {
+              "low": 2,
+              "high": 5
+            },
+            "failChanceAtLowMod": 0.35,
+            "failChanceAtHighMod": 0.2
+          }
+        },
+        "description": "Celestials who visit the Lower Planes (including the Nine Hells) experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on the Nine Hells, a Celestial makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature."
+      },
+      "domainsOrRegions": [
+        {
+          "id": "nh-ribcage-gate-town",
+          "name": "Ribcage",
+          "type": "Gate-town",
+          "description": "The gate-town of Ribcage in the Outlands is built around a portal leading to the Nine Hells. Like other gate-towns, it shares many of the characteristics of the plane where its gate leads.",
+          "hazards": [],
+          "portalDestination": "Nine Hells"
+        }
+      ],
+      "adventureThemes": [
+        "Resistance to temptation and corruption",
+        "Descending through layers of evil",
+        "Confronting the cruelty of law turned to evil ends",
+        "Resisting insidious manipulation, deceit, and treachery of devils",
+        "Recovery of holy weapons or relics",
+        "Blood War encounters"
+      ],
+      "adventureSituations": [
+        {
+          "diceValue": 7,
+          "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved."
+        }
+      ],
+      "colorPoolColor": "Ruby",
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 3 references hazards of the River Styx and Environmental Effects that may apply on the Nine Hells."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Blood War description under Planar Adventuring section details conflicts between demons and devils with the Nine Hells as a primary battlefield."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "global-river-styx",
+      "name": "River Styx",
+      "type": "river",
+      "connectedPlanes": ["Acheron", "Nine Hells", "Gehenna", "Hades", "Carceri", "Abyss", "Pandemonium"],
+      "description": "The River Styx bubbles with grease, foul flotsam, and the putrid remains of battles along its banks. It churns through the top layers of Acheron, the Nine Hells, Gehenna, Hades, Carceri, the Abyss, and Pandemonium. Tributaries snake through lower layers of these planes. A tendril of the Styx winds through every layer of the Nine Hells, allowing passage from one layer to the next. Sinister ferries float on the waters, crewed by pilots skilled in negotiating the unpredictable currents and eddies. For a price, these pilots carry passengers from plane to plane.",
+      "hazards": ["Ill effects of the Styx (described in chapter 3)", "Unpredictable currents and eddies"],
+      "isOneWay": false,
+      "navigableBy": ["Sinister ferries", "Fiend pilots", "Souls of dead creatures from the Material Plane"]
+    },
+    {
+      "id": "global-infinite-staircase",
+      "name": "Infinite Staircase",
+      "type": "staircase",
+      "connectedPlanes": ["All planes"],
+      "description": "An extradimensional staircase that connects the planes. An entrance usually appears as a nondescript door. Beyond the portal lies a small landing with a stairway leading up and down. The staircase changes appearance as it climbs and descends. Doors to the Infinite Staircase are often tucked away in dusty, half-forgotten places.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Any creature"]
+    },
+    {
+      "id": "global-yggdrasil",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": ["Hades", "Pandemonium", "Ysgard", "Upper Planes", "Material Plane"],
+      "description": "A cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Most of its trunk rises through Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "hazards": [],
+      "isOneWay": false,
+      "navigableBy": ["Planar travelers", "Expert guides"]
+    }
+  ],
+  "bloodWar": {
+    "description": "Throughout history, the teeming demon hordes of the Abyss and the regimented legions of devils from the Nine Hells have battled for supremacy in the cosmos. The Blood War is a conflict that has raged for millennia, ravaging the Lower Planes. The battlefields are concentrated in the Nine Hells and the Abyss, though fighting also takes place on the Material Plane, on the planes between those realms on the Great Wheel, and anywhere else demons and devils congregate. A moment never goes by when demons and devils aren't battling each other somewhere in the multiverse.",
+    "primaryBattlefields": ["Nine Hells", "Abyss"],
+    "factions": [
+      {
+        "name": "Devils",
+        "planeOfOrigin": "Nine Hells",
+        "creatureType": "Fiend",
+        "role": "Regimented legions fighting for supremacy in the cosmos"
+      },
+      {
+        "name": "Demons",
+        "planeOfOrigin": "Abyss",
+        "creatureType": "Fiend",
+        "role": "Teeming hordes fighting for supremacy in the cosmos"
+      }
+    ],
+    "spilloverPlanes": ["Material Plane", "Acheron", "Gehenna", "Hades", "Carceri"],
+    "adventureImplications": "Many demons and devils are obsessed with finding some advantage for their side in the Blood War, and powerful mortal adventurers are sometimes drawn into tangled schemes to that end. Open conflict between Fiends is a constant threat on most of the Lower Planes. Natives of the Upper Planes also have roles to play; while most are content to watch evil feed on itself, they take steps to minimize the threat to the rest of the multiverse. Whenever the Blood War spills outside the Abyss and Nine Hells, angels and other emissaries of the gods stand ready to intervene."
+  },
+  "planarTravelMethods": [
+    {
+      "id": "travel-portal",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. Some portals function like doorways; others are locations that exist on multiple planes at once. Most portals from elsewhere reach the first layer of a multilayered plane. For the Nine Hells, all portals connect to Avernus by Asmodeus's orders.",
+      "requirements": [
+        "Finding a portal that leads to the Nine Hells",
+        "Meeting the portal's activation requirement (command, key item, random timing, situation, or time-based)"
+      ],
+      "associatedSpells": [],
+      "risks": ["Portal guardians", "One-way portals", "Random open/close cycles"],
+      "destinations": ["Nine Hells (Avernus only)"]
+    },
+    {
+      "id": "travel-spells",
+      "name": "Planar Travel Spells",
+      "type": "spell",
+      "description": "A number of spells allow direct or indirect access to different planes of existence.",
+      "requirements": ["Appropriate spell slot", "Spell components"],
+      "associatedSpells": ["Gate", "Plane Shift", "Etherealness", "Astral Projection"],
+      "risks": ["Varying degrees of precision in destination"],
+      "destinations": ["Nine Hells", "Any plane"]
+    },
+    {
+      "id": "travel-river-styx",
+      "name": "River Styx Navigation",
+      "type": "planar_pathway",
+      "description": "The River Styx provides passage through the Nine Hells and between other Lower Planes. A tendril of the Styx winds through every layer of the Nine Hells, allowing passage from one layer to the next. Sinister ferries carry passengers for a price.",
+      "requirements": ["Payment for ferry passage", "Resistance to the Styx's ill effects"],
+      "associatedSpells": [],
+      "risks": ["Ill effects of the Styx", "Unpredictable currents", "Dangerous ferry operators"],
+      "destinations": [
+        "All nine layers of the Nine Hells",
+        "Acheron",
+        "Gehenna",
+        "Hades",
+        "Carceri",
+        "Abyss",
+        "Pandemonium"
+      ]
+    },
+    {
+      "id": "travel-color-pool",
+      "name": "Astral Color Pool",
+      "type": "portal",
+      "description": "Color pools in the Astral Plane appear as two-dimensional pools of rippling colors, 1d6 × 10 feet in diameter. The pool leading to the Nine Hells is ruby in color.",
+      "requirements": ["Access to the Astral Plane", "Locating a ruby-colored pool"],
+      "associatedSpells": ["Astral Projection"],
+      "risks": ["Psychic wind", "Arriving at Avernus only"],
+      "destinations": ["Nine Hells (Avernus)"]
+    }
+  ],
+  "infernalHierarchy": [
+    {
+      "rank": 1,
+      "title": "Lemure",
+      "category": "Least Devils",
+      "creatureType": "Lemure",
+      "canPromoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": [],
+      "promotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 2,
+      "title": "Imp",
+      "category": "Lesser Devils",
+      "creatureType": "Imp",
+      "canPromoteTo": ["Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 3,
+      "title": "Spined devil",
+      "category": "Lesser Devils",
+      "creatureType": "Spined devil",
+      "canPromoteTo": ["Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 4,
+      "title": "Bearded devil",
+      "category": "Lesser Devils",
+      "creatureType": "Bearded devil",
+      "canPromoteTo": ["Barbed devil", "Chain devil", "Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 5,
+      "title": "Barbed devil",
+      "category": "Lesser Devils",
+      "creatureType": "Barbed devil",
+      "canPromoteTo": ["Chain devil", "Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 6,
+      "title": "Chain devil",
+      "category": "Lesser Devils",
+      "creatureType": "Chain devil",
+      "canPromoteTo": ["Bone devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils and greater devils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 7,
+      "title": "Bone devil",
+      "category": "Lesser Devils",
+      "creatureType": "Bone devil",
+      "canPromoteTo": ["Horned devil"],
+      "canDemoteTo": ["Lemure"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils and greater devils"
+    },
+    {
+      "rank": 8,
+      "title": "Horned devil",
+      "category": "Greater Devils",
+      "creatureType": "Horned devil",
+      "canPromoteTo": ["Erinyes"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 9,
+      "title": "Erinyes",
+      "category": "Greater Devils",
+      "creatureType": "Erinyes",
+      "canPromoteTo": ["Ice devil"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 10,
+      "title": "Ice devil",
+      "category": "Greater Devils",
+      "creatureType": "Ice devil",
+      "canPromoteTo": ["Pit fiend"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Archdevils",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 11,
+      "title": "Pit fiend",
+      "category": "Greater Devils",
+      "creatureType": "Pit fiend",
+      "canPromoteTo": ["Duke/duchess"],
+      "canDemoteTo": ["Imp", "Spined devil", "Bearded devil", "Barbed devil", "Chain devil", "Bone devil"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Archdevils"
+    },
+    {
+      "rank": 12,
+      "title": "Duke/duchess",
+      "category": "Archdevils",
+      "creatureType": "Archdevil",
+      "canPromoteTo": ["Archduke/archduchess"],
+      "canDemoteTo": ["Any lesser or greater devil form"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    },
+    {
+      "rank": 13,
+      "title": "Archduke/archduchess",
+      "category": "Archdevils",
+      "creatureType": "Archdevil",
+      "canPromoteTo": [],
+      "canDemoteTo": ["Any lesser or greater devil form"],
+      "promotionAuthority": "Asmodeus only",
+      "demotionAuthority": "Asmodeus only"
+    }
+  ],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    }
+  ],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature.",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "customCondition": "Planar Dissonance",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 penalty to all D20 Tests. The penalties stack.",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "exhaustionLevels": 0
+      },
+      "onSuccess": {
+        "description": "No additional planar dissonance effect.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": true,
+      "repeatSaveTiming": "After each Long Rest on the opposing plane",
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 2,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.35,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

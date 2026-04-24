@@ -1,0 +1,8 @@
+{
+  "name": "Necklace of Adaptation",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "description": "While wearing this necklace, you can breathe normally in any environment, and you have Advantage on saving throws made to avoid or end the Poisoned condition.",
+  "source": "DMG 2024"
+}

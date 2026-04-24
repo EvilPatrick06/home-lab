@@ -1,0 +1,11 @@
+{
+  "name": "Spell Save DC",
+  "slug": "spell-save-dc",
+  "description": "Spell save DC = 8 + spellcasting ability modifier + Proficiency Bonus.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

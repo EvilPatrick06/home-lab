@@ -1,0 +1,20 @@
+{
+  "name": "Horseshoes of a Zephyr",
+  "itemType": "Wondrous Item",
+  "rarity": "Very Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "These horseshoes negate the effects of difficult terrain. While wearing these magical horseshoes, you ignore difficult terrain and your mount's travel speed is not reduced by difficult terrain.",
+  "properties": [],
+  "weight": null,
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "charges": null,
+  "rechargeRate": null,
+  "rechargeAmount": null,
+  "spells": [],
+  "damage": null,
+  "source": "DMG 2024"
+}

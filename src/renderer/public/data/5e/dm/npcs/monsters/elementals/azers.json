@@ -1,0 +1,137 @@
+{
+  "name": "Azer",
+  "sizes": ["Medium"],
+  "creatureType": "Elemental",
+  "alignment": "Lawful Neutral",
+  "habitat": ["Elemental Plane of Fire"],
+  "treasure": ["Armaments"],
+  "lore": "Azers are fiery, dwarf-like beings native to the Elemental Plane of Fire. Forged from brass and wreathed in flame, they are master crafters renowned for their metalwork and dedication to order. They dwell in great foundries and forge-cities, laboring tirelessly to create weapons, armor, and other works of surpassing quality. Though not inherently hostile, azers brook no interference with their work and defend their forges with fierce determination.",
+  "armorClass": {
+    "value": 17,
+    "sources": ["Natural Armor", "Shield"]
+  },
+  "hitPoints": {
+    "average": 49,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 9
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "damageImmunities": ["Fire and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "gear": [
+    {
+      "name": "Warhammer",
+      "quantity": 1
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Ignan"]
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Heated Body",
+      "description": "A creature that hits the azer with a melee attack while within 5 feet of it takes 5 (1d10) Fire damage."
+    },
+    {
+      "name": "Illumination",
+      "description": "The azer sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet."
+    }
+  ],
+  "multiattack": {
+    "description": "The azer makes two Heated Warhammer attacks.",
+    "attacks": [
+      {
+        "actionName": "Heated Warhammer",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Heated Warhammer",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 7 (1d8 + 3) Bludgeoning damage plus 3 (1d6) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

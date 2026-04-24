@@ -1,0 +1,201 @@
+{
+  "id": "d3e8f2a1-7c4b-4e6d-9a1f-3b5c7d9e1a2b",
+  "name": "Senses",
+  "slug": "senses",
+  "category": "GeneralRule",
+  "subcategory": "Perception and Detection",
+  "tags": [
+    "senses",
+    "blindsight",
+    "darkvision",
+    "tremorsense",
+    "truesight",
+    "sight",
+    "hearing",
+    "perception",
+    "detection",
+    "special-senses"
+  ],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Rules Glossary",
+    "section": "Senses"
+  },
+  "gameEdition": "2024",
+  "description": "Senses represent the various ways creatures perceive their environment. In addition to normal sight and hearing, some creatures possess special senses—Blindsight, Darkvision, Tremorsense, and Truesight—that allow them to perceive their surroundings in extraordinary ways. Each special sense operates within a specified radius and follows its own rules for what can and cannot be detected. A creature's senses determine what it can perceive, which in turn affects ability checks, attack rolls, and other interactions governed by visibility and awareness.",
+  "shortDescription": "Rules governing how creatures perceive their environment, including special senses such as Blindsight, Darkvision, Tremorsense, and Truesight.",
+  "flavorText": "Not all perception relies on eyes. Some creatures feel the vibrations of the earth, pierce the veil of invisibility, or see clearly in utter darkness.",
+  "rulesAsWritten": "Blindsight: If a creature has Blindsight, it can see within a specific range without relying on physical sight. Within that range, the creature can effectively see anything that isn't behind Total Cover, even if the creature has the Blinded condition or is in Darkness. Moreover, the creature can see Invisible creatures and objects within that range.\n\nDarkvision: If a creature has Darkvision, it can see in Dim Light within a specified range as if it were Bright Light and in Darkness within that range as if it were Dim Light. The creature discerns colors in that Darkness only as shades of gray.\n\nTremorsense: A creature with Tremorsense can pinpoint the location of creatures and moving objects within a specific range, provided that the creature with Tremorsense and anything it is detecting are both in contact with the same surface (such as the ground, a wall, or a ceiling) or the same liquid.\n\nTruesight: If a creature has Truesight, its vision is enhanced within a specified range. Within that range, the creature's vision pierces through the following: Darkness, both normal and magical; Invisibility (see the Invisible condition); Visual illusions, which the creature automatically detects and succeeds on saving throws against; Transformations created by magic or other effects, allowing the creature to see a creature's or object's true form. Furthermore, within the same range, the creature can see into the Ethereal Plane.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Blinded",
+      "relationship": "MutuallyExclusive",
+      "isAutomatic": false,
+      "note": "Blindsight and Truesight allow a creature to perceive its surroundings even while Blinded, effectively negating the perception-related penalties of the Blinded condition within their range."
+    },
+    {
+      "conditionName": "Invisible",
+      "relationship": "MutuallyExclusive",
+      "isAutomatic": false,
+      "note": "Blindsight and Truesight allow a creature to see Invisible creatures and objects within range, negating the detection-related benefits of the Invisible condition."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-1111-4aaa-b111-111111111111",
+      "order": 0,
+      "name": "Blindsight Perception",
+      "description": "A creature with Blindsight can see within a specific radius without relying on physical sight. Within that range, it can see anything not behind Total Cover, even if the creature has the Blinded condition or is in Darkness. It can also see Invisible creatures and objects within that range.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature has Blindsight and target is within Blindsight radius"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature can perceive its surroundings without relying on sight within the specified Blindsight radius. It can see anything not behind Total Cover, including Invisible creatures and objects. The Blinded condition and Darkness do not impair perception within this range.",
+          "mechanicalNote": "Blindsight negates Disadvantage on attack rolls caused by Blinded condition or Darkness for targets within Blindsight radius. Invisible creatures and objects are visible within this range."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-2222-4bbb-b222-222222222222",
+      "order": 1,
+      "name": "Darkvision Perception",
+      "description": "A creature with Darkvision can see in Dim Light within a specified range as if it were Bright Light and in Darkness within that range as if it were Dim Light. Colors in that Darkness are discerned only as shades of gray.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature has Darkvision and is in Dim Light or Darkness within Darkvision radius"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Within the Darkvision radius, Dim Light is treated as Bright Light and Darkness is treated as Dim Light. In Darkness perceived as Dim Light, the creature can only discern shades of gray (no color). This mitigates Disadvantage on Wisdom (Perception) checks that rely on sight in Dim Light and allows perception in Darkness as though it were Dim Light.",
+          "mechanicalNote": "Darkvision does not grant the ability to see in magical Darkness. Perception checks in Darkness (treated as Dim Light) may still have Disadvantage on checks relying on sight. Colors cannot be discerned in Darkness within Darkvision range."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-3333-4ccc-b333-333333333333",
+      "order": 2,
+      "name": "Tremorsense Detection",
+      "description": "A creature with Tremorsense can pinpoint the location of creatures and moving objects within a specific range, provided the creature with Tremorsense and anything it detects are both in contact with the same surface or liquid.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature has Tremorsense, and both the creature and the target are in contact with the same ground, surface, or liquid within Tremorsense radius"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature can pinpoint the exact location of creatures and moving objects within its Tremorsense radius, provided both share contact with the same surface (ground, wall, ceiling) or liquid. This sense does not rely on sight or hearing.",
+          "mechanicalNote": "Tremorsense does not detect flying or hovering creatures that are not in contact with the same surface. Stationary objects that are not moving are not detected. Invisible creatures in contact with the same surface are detected."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "a1b2c3d4-4444-4ddd-b444-444444444444",
+      "order": 3,
+      "name": "Truesight Perception",
+      "description": "A creature with Truesight has enhanced vision within a specified range. It can see in normal and magical Darkness, see Invisible creatures and objects, automatically detect visual illusions and succeed on saving throws against them, perceive the true form of shapechangers or creatures transformed by magic, and see into the Ethereal Plane.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature has Truesight and target is within Truesight radius"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Within Truesight range, the creature can see through normal and magical Darkness, see Invisible creatures and objects, automatically detect visual illusions, perceive the true form of shapechangers or magically transformed creatures, and see into the Ethereal Plane.",
+          "mechanicalNote": "Truesight is the most comprehensive special sense. It subsumes the benefits of Darkvision and Blindsight for vision-based detection within its range and adds unique capabilities against illusions, shapechangers, and the Ethereal Plane."
+        },
+        {
+          "effectType": "AutomaticOutcome",
+          "outcome": {
+            "id": "b2c3d4e5-5555-4eee-b555-555555555555",
+            "rollType": "SavingThrow",
+            "outcome": "AutoSuccess",
+            "condition": "Saving throw is against a visual illusion and the illusion is within Truesight range",
+            "note": "Creatures with Truesight automatically succeed on saving throws against visual illusions within the Truesight radius."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "A creature can possess multiple special senses simultaneously (e.g., both Darkvision and Blindsight). Each sense operates independently within its own range. The ranges of different sense types do not combine; each applies its own rules within its own radius."
+  },
+  "dmNotes": "When adjudicating senses, remember that Blindsight and Truesight completely negate the benefits of Invisibility within their range. Darkvision is the most commonly granted special sense (many species grant it) but it does NOT penetrate magical Darkness. Tremorsense requires shared surface contact and does not detect creatures that are flying or hovering. Total Cover blocks Blindsight. Truesight is the rarest and most powerful sense, typically granted only by high-level spells or very powerful creatures.",
+  "commonRulings": [
+    {
+      "question": "Does Darkvision let you see in magical Darkness?",
+      "ruling": "No. Darkvision allows a creature to see in nonmagical Darkness as if it were Dim Light. Magical Darkness, such as that created by the Darkness spell, cannot be seen through with Darkvision alone. Truesight or Blindsight would be needed to perceive within magical Darkness.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can Blindsight see through walls or Total Cover?",
+      "ruling": "No. Blindsight allows a creature to see anything within its radius that is not behind Total Cover. Total Cover (such as a wall) blocks Blindsight.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does Tremorsense work against flying or hovering creatures?",
+      "ruling": "No. Tremorsense requires both the sensing creature and the target to be in contact with the same surface or liquid. Flying or hovering creatures that are not touching the surface are not detected by Tremorsense.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a creature with Blindsight still see while Blinded?",
+      "ruling": "Yes. Within its Blindsight radius, a creature can perceive its surroundings even while it has the Blinded condition. However, Blindsight does not grant sight beyond its specified radius, so the creature is effectively Blinded beyond that range.",
+      "isOfficial": true
+    },
+    {
+      "question": "If a creature has both Darkvision and Blindsight, do the ranges stack?",
+      "ruling": "No. Each sense operates independently within its own specified range. They do not combine into a single extended range.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2024-12-20T12:00:00Z",
+  "updatedAt": "2024-12-20T12:00:00Z",
+  "version": "1.0.0"
+}

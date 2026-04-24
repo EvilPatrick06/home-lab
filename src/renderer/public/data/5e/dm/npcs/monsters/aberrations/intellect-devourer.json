@@ -1,0 +1,172 @@
+{
+  "name": "Intellect Devourer",
+  "sizes": ["Tiny"],
+  "creatureType": "Aberration",
+  "alignment": "Lawful Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "An intellect devourer resembles a walking brain with bestial claws. This horrifying aberration consumes the minds of its victims and commandeers their bodies, serving as an infiltrator and spy for mind flayers. Intellect devourers are spawned from the brain matter of mind flayer colonies, and they are utterly loyal to their illithid masters.",
+  "armorClass": {
+    "value": 12
+  },
+  "hitPoints": {
+    "average": 21,
+    "dice": {
+      "count": 6,
+      "die": "d4",
+      "modifier": 6
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 3
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 4
+    }
+  ],
+  "resistances": ["Bludgeoning, Piercing, and Slashing"],
+  "conditionImmunities": ["Blinded"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "understood": ["Deep Speech"],
+    "telepathy": 60
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Detect Sentience",
+      "description": "The intellect devourer can sense the presence and location of any creature within 300 feet of itself that has an Intelligence of 3 or higher, regardless of interposing barriers, unless the creature is protected by a Mind Blank spell."
+    }
+  ],
+  "multiattack": {
+    "description": "The intellect devourer makes two Claws attacks.",
+    "attacks": [
+      {
+        "actionName": "Claws",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Claws",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 8 (2d6 + 1) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 8,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 1
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Devour Intellect",
+      "description": "Intelligence Saving Throw: DC 11, one creature the intellect devourer can sense within 10 feet. Failure: 11 (2d10) Psychic damage, and the target has the Stunned condition until the end of its next turn. If this damage reduces the target to 0 Hit Points, the intellect devourer can use Body Thief on the target as part of this action. Success: Half damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "INT",
+        "dc": 11,
+        "targets": "one creature the intellect devourer can sense within 10 feet",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Psychic"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Stunned",
+              "duration": "until the end of its next turn"
+            }
+          ],
+          "effects": "If this damage reduces the target to 0 Hit Points, the intellect devourer can use Body Thief on the target as part of this action."
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      }
+    },
+    {
+      "name": "Body Thief",
+      "description": "The intellect devourer teleports into the skull of an Incapacitated Humanoid within 5 feet of it that has an Intelligence of 3 or higher. The intellect devourer replaces the target's devoured brain and takes control of the body. The intellect devourer retains its Intelligence, Wisdom, and Charisma scores and its own traits and actions. It otherwise adopts the target's stat block. It knows everything the creature knew, including spells and languages. If the host body drops to 0 Hit Points, the intellect devourer must leave it. A Protection from Evil and Good spell cast on the body drives the intellect devourer out. The intellect devourer is also forced out if the target regains its devoured brain by means of a Wish spell. When the intellect devourer leaves the body, it teleports to an unoccupied space within 5 feet of the body.",
+      "teleport": {
+        "distance": 5,
+        "notes": "Teleports into the skull of an Incapacitated Humanoid within 5 feet; when forced out, teleports to an unoccupied space within 5 feet of the body"
+      }
+    }
+  ]
+}

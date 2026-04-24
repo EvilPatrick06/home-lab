@@ -1,0 +1,35 @@
+{
+  "name": "Continual Flame",
+  "level": 2,
+  "school": "Evocation",
+  "classes": ["Cleric", "Druid", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "ruby dust worth 50+ GP, which the spell consumes",
+      "cost": 50,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "UntilDispelled",
+    "concentration": false
+  },
+  "description": "A flame springs from an object that you touch. The effect casts Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. It looks like a regular flame, but it creates no heat and consumes no fuel. The flame can be covered or hidden but not smothered or quenched.",
+  "targetType": "object",
+  "light": {
+    "brightRadiusFeet": 20,
+    "dimRadiusFeet": 40
+  },
+  "tags": ["utility", "light", "no-heat", "permanent"]
+}

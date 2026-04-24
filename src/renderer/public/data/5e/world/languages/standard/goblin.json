@@ -1,0 +1,13 @@
+{
+  "name": "Goblin",
+  "script": "Dwarvish",
+  "origin": "Goblinoids",
+  "speakers": "Bugbears, goblins, hobgoblins",
+  "slug": "goblin",
+  "category": "Standard",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

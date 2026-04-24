@@ -1,0 +1,46 @@
+{
+  "name": "True Resurrection",
+  "level": 9,
+  "school": "Necromancy",
+  "classes": ["Cleric", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "hours",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "diamonds worth 25,000+ GP, which the spell consumes",
+      "cost": 25000,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You touch a creature that has been dead for no longer than 200 years and that died for any reason except old age. The creature is revived with all its Hit Points.\n\nThis spell closes all wounds, neutralizes any poison, cures all magical contagions, and lifts any curses affecting the creature when it died. The spell replaces damaged or missing organs and limbs. If the creature was Undead, it is restored to its non-Undead form.\n\nThe spell can provide a new body if the original no longer exists, in which case you must speak the creature's name. The creature then appears in an unoccupied space you choose within 10 feet of you.",
+  "targetType": "creature",
+  "resurrection": {
+    "maxDeadTime": "200 years",
+    "hpRestored": "all",
+    "restrictions": "Target must have died for any reason except old age. If the creature was Undead, it is restored to its non-Undead form. If the original body no longer exists, you must speak the creature's name and a new body is provided."
+  },
+  "tags": [
+    "resurrection",
+    "healing",
+    "removes curses",
+    "neutralizes poison",
+    "cures contagions",
+    "restores missing limbs",
+    "provides new body"
+  ]
+}

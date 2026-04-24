@@ -1,0 +1,13 @@
+{
+  "name": "Ball Bearings",
+  "cost": "1 GP",
+  "weight": "2 lb.",
+  "description": "As a Utilize action, spread to cover a 10-foot-square area within 10 feet. Creatures entering must succeed DC 10 Dex save or have Prone condition. 10 minutes to recover.",
+  "slug": "ball-bearings",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "ability": {
+    "strength": {
+      "high": ["Muscular", "Sinewy", "Protective", "Direct"],
+      "low": ["Weak", "Slight", "Self-conscious", "Indirect"]
+    },
+    "dexterity": {
+      "high": ["Lithe", "Dynamic", "Fidgety", "Poised"],
+      "low": ["Jittery", "Clumsy", "Hesitant", "Unsteady"]
+    },
+    "constitution": {
+      "high": ["Energetic", "Hale", "Hearty", "Stable"],
+      "low": ["Frail", "Squeamish", "Lethargic", "Fragile"]
+    },
+    "intelligence": {
+      "high": ["Decisive", "Logical", "Informative", "Curious"],
+      "low": ["Artless", "Illogical", "Uninformed", "Frivolous"]
+    },
+    "wisdom": {
+      "high": ["Serene", "Considerate", "Attentive", "Wary"],
+      "low": ["Rash", "Distracted", "Oblivious", "Naive"]
+    },
+    "charisma": {
+      "high": ["Charming", "Commanding", "Hilarious", "Inspiring"],
+      "low": ["Pedantic", "Humorless", "Reserved", "Tactless"]
+    }
+  },
+  "alignment": {
+    "Chaotic": ["Boastful", "Impulsive", "Rebellious", "Self-absorbed"],
+    "Good": ["Compassionate", "Helpful", "Honest", "Kind"],
+    "Evil": ["Dishonest", "Vengeful", "Cruel", "Greedy"],
+    "Lawful": ["Cooperative", "Loyal", "Judgmental", "Methodical"],
+    "Neutral": ["Selfish", "Disinterested", "Laconic", "Pragmatic"]
+  }
+}

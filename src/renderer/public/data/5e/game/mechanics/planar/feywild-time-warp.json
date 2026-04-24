@@ -1,0 +1,160 @@
+{
+  "id": "d4e2c1a7-8f3b-4d9e-a1b6-7c5e9f2d8a34",
+  "name": "Feywild Time Warp",
+  "slug": "feywild-time-warp",
+  "category": "VariantRule",
+  "subcategory": "Feywild Magic",
+  "tags": ["feywild", "planar", "time", "optional-rule", "d20-table", "wish"],
+  "source": {
+    "book": "Dungeon Master's Guide (2024)",
+    "chapter": "Chapter 6: Cosmology",
+    "section": "Feywild / Feywild Magic"
+  },
+  "gameEdition": "2024",
+  "description": "While time seems to pass normally in the Feywild, characters might spend a day there and realize, upon leaving the plane, that less or more time has elapsed everywhere else in the multiverse. Whenever a creature or group of creatures leaves the Feywild after spending at least 1 day on that plane, the DM can choose a time change that works best for the campaign, if any, or roll on the Feywild Time Warp table. A Wish spell can be used to remove the effect on up to ten creatures. Some powerful Fey have the ability to grant such wishes and might do so if the beneficiaries agree to subject themselves to a Geas spell and complete a quest after the Wish spell is cast.",
+  "shortDescription": "Optional rule: time passes differently in the Feywild. Upon leaving after at least 1 day, a d20 roll determines whether days became minutes, hours, weeks, months, or years.",
+  "flavorText": "Tales speak of children kidnapped by Fey creatures and spirited away to the Feywild, only to return to their parents years later without having aged a day and with no memories of their captors or the realm they came from.",
+  "rulesAsWritten": "While time seems to pass normally in the Feywild, characters might spend a day there and realize, upon leaving the plane, that less or more time has elapsed everywhere else in the multiverse. Whenever a creature or group of creatures leaves the Feywild after spending at least 1 day on that plane, you can choose a time change that works best for your campaign, if any, or roll on the Feywild Time Warp table. A Wish spell can be used to remove the effect on up to ten creatures. Some powerful Fey have the ability to grant such wishes and might do so if the beneficiaries agree to subject themselves to a Geas spell and complete a quest after the Wish spell is cast. Feywild Time Warp table (d20): 1-2 Days become minutes; 3-6 Days become hours; 7-13 No change; 14-17 Days become weeks; 18-19 Days become months; 20 Days become years.",
+  "isVariantRule": true,
+  "isOptionalRule": true,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "order": 0,
+      "name": "Time Warp Trigger Condition",
+      "description": "The Feywild Time Warp effect is triggered whenever a creature or group of creatures leaves the Feywild after spending at least 1 day on that plane. The DM can choose a time change that works best for the campaign, or roll on the Feywild Time Warp table. The DM may also choose no time change at all.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature or group of creatures leaves the Feywild after spending at least 1 day on that plane"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Roll d20 on the Feywild Time Warp table or DM chooses a result. 1-2: Days become minutes (time compression — each day spent in the Feywild corresponds to only 1 minute elapsed in the rest of the multiverse). 3-6: Days become hours (time compression — each day spent corresponds to 1 hour elsewhere). 7-13: No change (time passes normally). 14-17: Days become weeks (time dilation — each day spent corresponds to 1 week elsewhere). 18-19: Days become months (time dilation — each day spent corresponds to 1 month elsewhere). 20: Days become years (time dilation — each day spent corresponds to 1 year elsewhere).",
+          "mechanicalNote": "The effect applies to all creatures leaving the Feywild as a group. The d20 roll is made once for the entire group. This is an optional rule the DM can invoke or ignore as desired."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": false,
+      "appliesToArea": true,
+      "isOptional": true,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "order": 1,
+      "name": "Wish Spell Removal",
+      "description": "A Wish spell can be used to remove the Feywild Time Warp effect on up to ten creatures. The time warp itself (the elapsed time difference) cannot be undone, but the magical effect imposed on the creatures can be removed.",
+      "trigger": {
+        "event": "OnSpellCast",
+        "condition": "A Wish spell is cast targeting affected creatures"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "A Wish spell removes the Feywild Time Warp effect on up to 10 creatures. Some powerful Fey have the ability to grant such wishes and might do so if the beneficiaries agree to subject themselves to a Geas spell and complete a quest after the Wish spell is cast.",
+          "mechanicalNote": "This establishes a narrative hook: powerful Fey can grant Wish-equivalent effects to remove the time warp but require a Geas spell and quest completion as payment."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "order": 2,
+      "name": "Fey Creature Immunity to Time Warp Trigger",
+      "description": "The Time Warp is part of the Feywild Magic optional rules. Fey creatures are native to the Feywild and are not subject to the time warp in the same way visitors are, as the effect targets creatures leaving the Feywild after visiting it.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Creature is a Fey native to the Feywild"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The Feywild Time Warp table is rolled or chosen by the DM when non-native creatures leave the Feywild. Fey creatures native to the plane are accustomed to its mutability and are not typically subject to this effect.",
+          "mechanicalNote": "The rule specifies 'a creature or group of creatures leaves the Feywild' without explicit Fey immunity, but contextually the rule is described under optional effects that reflect the strange magic suffusing the plane as experienced by visitors."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "method": "SpellEffect",
+      "description": "A Wish spell can be used to remove the Feywild Time Warp effect on up to ten creatures.",
+      "automaticAfterDuration": false,
+      "spellsOrEffects": ["Wish"]
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "method": "Other",
+      "description": "Some powerful Fey have the ability to grant wishes equivalent to removing the time warp effect, but only if the beneficiaries agree to subject themselves to a Geas spell and complete a quest after the Wish spell is cast.",
+      "automaticAfterDuration": false,
+      "spellsOrEffects": ["Wish", "Geas"]
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "The time warp is determined once per departure from the Feywild. If a creature returns to the Feywild and leaves again after spending at least 1 day, a new time warp determination is made."
+  },
+  "dmNotes": "The Feywild Time Warp is an optional rule under the Feywild Magic section. The DM can choose a time change that works best for the campaign or roll on the table, and the DM may also choose to apply no time change at all. This rule pairs with the Memory Loss optional rule also under Feywild Magic. The minimum stay required to trigger the time warp is 1 day spent on the Feywild. The d20 table results: 1-2 (10% chance) Days become minutes; 3-6 (20% chance) Days become hours; 7-13 (35% chance) No change; 14-17 (20% chance) Days become weeks; 18-19 (10% chance) Days become months; 20 (5% chance) Days become years. There is a 30% chance time compresses (less time passed outside), a 35% chance of no change, and a 35% chance time dilates (more time passed outside).",
+  "commonRulings": [
+    {
+      "question": "Does the Feywild Time Warp affect all members of a group equally?",
+      "ruling": "Yes. The rule states 'a creature or group of creatures leaves the Feywild,' implying a single roll or choice applies to the entire group departing together.",
+      "isOfficial": false
+    },
+    {
+      "question": "What is the minimum time that must be spent in the Feywild before the Time Warp can apply?",
+      "ruling": "The rule explicitly states 'at least 1 day' must be spent on the Feywild before the Time Warp effect can occur upon leaving.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can the DM choose not to apply any time warp at all?",
+      "ruling": "Yes. The rule states the DM 'can choose a time change that works best for your campaign, if any,' explicitly allowing the DM to apply no time change.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does the time warp affect aging of the creatures who were in the Feywild?",
+      "ruling": "The creatures experience time normally while in the Feywild. The time difference is observed upon leaving — more or less time has elapsed everywhere else in the multiverse. The creatures age only by the time they actually experienced in the Feywild.",
+      "isOfficial": false
+    },
+    {
+      "question": "How does the Wish spell interact with the time warp — does it reverse the elapsed time?",
+      "ruling": "The Wish spell can remove the effect on up to ten creatures, but the rule does not state it reverses elapsed time in the rest of the multiverse. It removes the magical effect imposed on the creatures themselves.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-10T00:00:00Z",
+  "updatedAt": "2025-01-10T00:00:00Z",
+  "version": "1.0.0"
+}

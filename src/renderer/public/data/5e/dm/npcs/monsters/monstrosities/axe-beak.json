@@ -1,0 +1,49 @@
+{
+  "name": "Axe Beak",
+  "slug": "axe-beak",
+  "size": "Large",
+  "type": "Monstrosity",
+  "alignment": "Unaligned",
+  "ac": "11",
+  "initiative": "+1 (11)",
+  "hp": "19",
+  "hpFormula": "3d10 + 3",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 14,
+    "dex": 12,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 2,
+    "dex": 1,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Passive Perception 10",
+  "languages": "None",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Beak",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 6 (1d8 + 2) Slashing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Flightless Avian Predators*\n**Habitat:** Arctic, Grassland, Hill; **Treasure:** None\nAxe beaks are flightless, birdlike creatures with distinctive axe-shaped beaks. Swift predators, they chase down prey and use their beaks to hack through foliage protecting their quarry. Axe beaks live in varied environments. Colorfully plumed axe beaks race across tropical plains, while axe beaks with snowy feathers hunt the tundra.\nAxe beaks are difficult to train, but those hatched and raised in captivity can become reliable mounts.\nAlone or in small groups, axe beaks stalk prey to feed their flocks. When working together, axe beaks use rudimentary tactics, with some distracting threats while others strike vulnerable targets or rush young axe beaks to safety.\nGiant axe beaks typically dwell in secluded, primeval realms, such as isolated islands or underground wildernesses. They often compete with dinosaurs and other giant beasts for territory.\n> *The thing's got an axe for a face and a giant, angry rooster for everything else--of course I want to ride it!*\n>\n> --Batley Summerfoot, Adventurer",
+  "habitat": "Arctic, Grassland, Hill",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

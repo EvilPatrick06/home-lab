@@ -1,0 +1,13 @@
+{
+  "name": "Circlet of Blasting",
+  "slug": "circlet-of-blasting",
+  "type": "Wondrous Item",
+  "rarity": "Uncommon",
+  "attunement": false,
+  "description": "While wearing this circlet, you can cast *Scorching Ray* with it (+5 to hit). The circlet can't cast this spell again until the next dawn.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

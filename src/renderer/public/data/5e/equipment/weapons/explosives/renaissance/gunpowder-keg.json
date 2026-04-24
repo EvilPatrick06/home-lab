@@ -1,0 +1,27 @@
+{
+  "name": "Gunpowder Keg",
+  "slug": "gunpowder-keg",
+  "category": "Explosive",
+  "era": "Renaissance",
+  "cost": "250 GP",
+  "weight": "20 lb.",
+  "description": "A keg of gunpowder can be rigged with a fuse and set to detonate. When the keg detonates, each creature within 10 feet of it must make a DC 12 Dexterity saving throw, taking 24 (7d6) Fire damage on a failed save, or half as much on a successful one. Setting the fuse takes an action. Once lit, the fuse burns for a number of rounds determined by its length (1 foot per round).",
+  "attack": {
+    "damage": "7d6",
+    "damageType": "Fire",
+    "averageDamage": 24,
+    "saveDC": 12,
+    "saveAbility": "Dexterity",
+    "halfDamageOnSave": true,
+    "area": {
+      "shape": "Sphere",
+      "radius": 10
+    }
+  },
+  "destroysObjects": true,
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Explosives"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Saddle of the Cavalier",
+  "slug": "saddle-of-the-cavalier",
+  "type": "Wondrous Item",
+  "rarity": "Uncommon",
+  "attunement": false,
+  "description": "This saddle confers the following benefits while you are seated in it and astride a mount.\n\n**Protected Mount.** Attack rolls against the mount have Disadvantage.\n\n**Secure Rider.** You can't be dismounted against your will. This property is suppressed while you have the Incapacitated condition.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

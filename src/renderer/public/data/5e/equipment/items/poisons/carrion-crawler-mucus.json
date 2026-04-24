@@ -1,0 +1,16 @@
+{
+  "name": "Carrion Crawler Mucus",
+  "cost": "200 GP",
+  "type": "Contact",
+  "dc": 13,
+  "damage": "None",
+  "effect": "Poisoned and Paralyzed for 1 minute",
+  "description": "A creature subjected to this poison must succeed on a DC 13 Constitution saving throw or have the Poisoned condition and the Paralyzed condition for 1 minute. The Paralyzed creature repeats the save at the end of each of its turns, ending both conditions on a success.",
+  "slug": "carrion-crawler-mucus",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

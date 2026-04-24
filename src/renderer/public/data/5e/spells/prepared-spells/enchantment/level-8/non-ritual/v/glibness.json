@@ -1,0 +1,27 @@
+{
+  "name": "Glibness",
+  "level": 8,
+  "school": "Enchantment",
+  "classes": ["Bard", "Warlock"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "Until the spell ends, when you make a Charisma check, you can replace the number you roll with a 15. Additionally, no matter what you say, magic that would determine if you are telling the truth indicates that you are being truthful.",
+  "targetType": "self",
+  "tags": ["charisma", "deception", "social", "replace-roll-with-15", "anti-truth-detection"]
+}

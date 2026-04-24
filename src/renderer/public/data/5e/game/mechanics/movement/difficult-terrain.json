@@ -1,0 +1,407 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology. Difficult Terrain is a universal movement rule applicable across all planes and environments where terrain impedes movement.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realm",
+        "description": "Worlds of the Material Plane where Difficult Terrain most commonly applies in combat and exploration contexts.",
+        "memberPlanes": ["difficult-terrain-environments"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "difficult-terrain-environments",
+      "name": "Difficult Terrain",
+      "alternateNames": ["Hindered Ground", "Impeded Movement Area"],
+      "category": "Special",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": false,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal"
+      },
+      "hazards": [
+        {
+          "id": "difficult-terrain-base",
+          "name": "Difficult Terrain",
+          "description": "If a space is Difficult Terrain, every foot of movement in that space costs 1 extra foot, even if multiple things in a space count as Difficult Terrain. Examples include low furniture, rubble, undergrowth, steep stairs, snow, and shallow bogs.",
+          "category": "environmental",
+          "severity": "minor",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "multiplier": 0.5,
+            "affectedMovementTypes": ["walk", "swim", "climb"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 50,
+            "distanceMeaningless": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 1: Playing the Game, Combat > Movement and Position > Difficult Terrain; Appendix C: Rules Glossary > Difficult Terrain"
+        },
+        {
+          "id": "difficult-terrain-creature-space",
+          "name": "Another Creature's Space as Difficult Terrain",
+          "description": "Another creature's space is Difficult Terrain for you unless that creature is Tiny or your ally. You can pass through the space of an ally, a creature that has the Incapacitated condition, a Tiny creature, or a creature that is two sizes larger or smaller than you. You can't willingly end a move in a space occupied by another creature.",
+          "category": "environmental",
+          "severity": "minor",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "multiplier": 0.5,
+            "affectedMovementTypes": ["walk"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 50,
+            "distanceMeaningless": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 1: Playing the Game, Combat > Movement and Position > Moving Around Other Creatures"
+        },
+        {
+          "id": "difficult-terrain-climbing",
+          "name": "Climbing in Difficult Terrain",
+          "description": "While climbing, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain). At the DM's option, climbing a slippery surface requires a successful DC 15 Strength (Athletics) check.",
+          "category": "environmental",
+          "severity": "minor",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "multiplier": 0.33,
+            "affectedMovementTypes": ["climb"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 67,
+            "distanceMeaningless": false
+          },
+          "interactionCheck": {
+            "id": "climbing-slippery-surface-check",
+            "name": "Climbing Slippery Surface",
+            "description": "At the DM's option, climbing a slippery surface requires a successful DC 15 Strength (Athletics) check.",
+            "checkType": "ability_check",
+            "ability": "Strength",
+            "skill": "Athletics",
+            "baseDC": 15,
+            "actionCost": "no_action",
+            "onSuccess": {
+              "description": "The creature climbs successfully."
+            },
+            "onFailure": {
+              "description": "The creature fails to make progress climbing the slippery surface.",
+              "noEffect": true
+            },
+            "repeatable": true,
+            "requiresConcentration": false,
+            "endsOnConcentrationBreak": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary > Climbing"
+        },
+        {
+          "id": "difficult-terrain-crawling",
+          "name": "Crawling in Difficult Terrain",
+          "description": "While crawling, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain).",
+          "category": "environmental",
+          "severity": "minor",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "multiplier": 0.33,
+            "affectedMovementTypes": ["walk"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 67,
+            "distanceMeaningless": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary > Crawling"
+        },
+        {
+          "id": "difficult-terrain-swimming",
+          "name": "Swimming in Difficult Terrain",
+          "description": "While swimming, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain) unless a creature has a Swim Speed.",
+          "category": "environmental",
+          "severity": "minor",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "multiplier": 0.33,
+            "affectedMovementTypes": ["swim"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 67,
+            "distanceMeaningless": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": ["Swim Speed"],
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary > Swimming"
+        },
+        {
+          "id": "difficult-terrain-jumping-landing",
+          "name": "Landing in Difficult Terrain after a Jump",
+          "description": "If you land in Difficult Terrain, you must make a DC 10 Dexterity (Acrobatics) check or have the Prone condition.",
+          "category": "environmental",
+          "severity": "minor",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "affectedMovementTypes": ["walk"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 0,
+            "distanceMeaningless": false
+          },
+          "interactionCheck": {
+            "id": "jump-landing-difficult-terrain",
+            "name": "Landing in Difficult Terrain",
+            "description": "When you land in Difficult Terrain after a jump, you must make a DC 10 Dexterity (Acrobatics) check or have the Prone condition.",
+            "checkType": "ability_check",
+            "ability": "Dexterity",
+            "skill": "Acrobatics",
+            "baseDC": 10,
+            "actionCost": "no_action",
+            "onSuccess": {
+              "description": "You land safely without falling Prone."
+            },
+            "onFailure": {
+              "description": "You have the Prone condition.",
+              "conditionOnFailure": "Prone",
+              "noEffect": false
+            },
+            "repeatable": true,
+            "requiresConcentration": false,
+            "endsOnConcentrationBreak": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary > Jumping"
+        },
+        {
+          "id": "difficult-terrain-grid-square",
+          "name": "Difficult Terrain on a Grid",
+          "description": "When playing on a square grid, a square of Difficult Terrain costs 2 squares to enter (equivalent to 10 feet of movement per 5-foot square). Entering an unoccupied non-Difficult Terrain square costs 1 square of movement.",
+          "category": "environmental",
+          "severity": "minor",
+          "movementSpeedPenalty": {
+            "type": "difficult_terrain",
+            "multiplier": 0.5,
+            "affectedMovementTypes": ["walk"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 50,
+            "distanceMeaningless": false
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 1: Playing the Game, Combat > Movement and Position > Playing on a Grid sidebar"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "difficult-terrain-non-stacking",
+          "name": "Difficult Terrain Does Not Stack",
+          "description": "Every foot of movement in Difficult Terrain costs 1 extra foot, even if multiple things in a space count as Difficult Terrain. Multiple sources of Difficult Terrain in the same space do not compound; the extra cost remains 1 extra foot per foot moved.",
+          "mechanicalEffect": "Movement cost in Difficult Terrain is always 2 feet per 1 foot of actual movement regardless of the number of overlapping Difficult Terrain sources. On a grid, each square of Difficult Terrain costs 2 squares to enter.",
+          "isOptional": false,
+          "movementPenalty": {
+            "type": "difficult_terrain",
+            "multiplier": 0.5,
+            "affectedMovementTypes": ["all"],
+            "unaffectedMovementTypes": [],
+            "gravityModel": {
+              "type": "normal"
+            },
+            "effectiveSpeedReductionPercent": 50,
+            "distanceMeaningless": false
+          },
+          "sourceReference": "Chapter 1: Playing the Game, Combat > Movement and Position > Difficult Terrain"
+        },
+        {
+          "id": "difficult-terrain-other-effects-stacking",
+          "name": "Other Effects May Increase Square Entry Cost",
+          "description": "While the base Difficult Terrain rule states 1 extra foot per foot of movement, other effects might make a square cost even more. The grid sidebar notes: 'Other effects might make a square cost even more.' This allows specific features, spells, or environmental effects to exceed the standard Difficult Terrain movement penalty.",
+          "mechanicalEffect": "Specific game effects can increase the cost to enter a square beyond the standard 2 squares for Difficult Terrain. These are distinct from Difficult Terrain stacking and represent additional rule layers.",
+          "isOptional": false,
+          "sourceReference": "Chapter 1: Playing the Game, Combat > Movement and Position > Playing on a Grid sidebar"
+        },
+        {
+          "id": "difficult-terrain-examples",
+          "name": "Common Examples of Difficult Terrain",
+          "description": "Low furniture, rubble, undergrowth, steep stairs, snow, and shallow bogs are examples of Difficult Terrain. Another creature's space (unless Tiny or allied) also counts as Difficult Terrain.",
+          "mechanicalEffect": "Any space containing these environmental features is treated as Difficult Terrain, costing 1 extra foot of movement per foot traveled.",
+          "isOptional": false,
+          "sourceReference": "Chapter 1: Playing the Game, Combat > Movement and Position > Difficult Terrain"
+        }
+      ],
+      "specialRules": [
+        {
+          "id": "difficult-terrain-movement-interaction-climbing",
+          "name": "Difficult Terrain Interaction with Climbing",
+          "description": "Climbing already costs 1 extra foot per foot of movement. In Difficult Terrain, climbing costs 2 extra feet per foot of movement instead (total of 3 feet of movement per 1 foot climbed).",
+          "mechanicalEffect": "Base climbing cost: 2 feet of movement per 1 foot climbed. Climbing in Difficult Terrain: 3 feet of movement per 1 foot climbed.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "difficult-terrain-movement-interaction-crawling",
+          "name": "Difficult Terrain Interaction with Crawling",
+          "description": "Crawling already costs 1 extra foot per foot of movement. In Difficult Terrain, crawling costs 2 extra feet per foot of movement instead (total of 3 feet of movement per 1 foot crawled).",
+          "mechanicalEffect": "Base crawling cost: 2 feet of movement per 1 foot crawled. Crawling in Difficult Terrain: 3 feet of movement per 1 foot crawled.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "difficult-terrain-movement-interaction-swimming",
+          "name": "Difficult Terrain Interaction with Swimming",
+          "description": "Swimming without a Swim Speed costs 1 extra foot per foot of movement. In Difficult Terrain, swimming costs 2 extra feet per foot of movement (total of 3 feet of movement per 1 foot swum). Creatures with a Swim Speed are not subject to the extra swimming cost but are still subject to Difficult Terrain's extra cost.",
+          "mechanicalEffect": "Base swimming cost without Swim Speed: 2 feet per 1 foot swum. Swimming in Difficult Terrain without Swim Speed: 3 feet per 1 foot swum. With Swim Speed in Difficult Terrain: 2 feet per 1 foot swum.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "difficult-terrain-prone-on-jump-landing",
+          "name": "Prone on Landing in Difficult Terrain",
+          "description": "When a creature jumps and lands in Difficult Terrain, it must succeed on a DC 10 Dexterity (Acrobatics) check or have the Prone condition. This applies to both Long Jumps and High Jumps.",
+          "mechanicalEffect": "DC 10 Dexterity (Acrobatics) check on landing in Difficult Terrain; failure results in the Prone condition.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "difficult-terrain-creature-space-rule",
+          "name": "Creature Space as Difficult Terrain",
+          "description": "Another creature's space is Difficult Terrain for you unless that creature is Tiny or your ally. You can pass through the space of an ally, a creature with the Incapacitated condition, a Tiny creature, or a creature two sizes larger or smaller than you. You cannot willingly end your move in a space occupied by another creature. If you somehow end a turn in a space with another creature, you have the Prone condition unless you are Tiny or of a larger size than the other creature.",
+          "mechanicalEffect": "Non-allied, non-Tiny creature spaces cost 1 extra foot of movement to traverse. Ending a turn in an occupied space imposes the Prone condition (with size exceptions).",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "difficult-terrain-grid-entry-cost",
+          "name": "Grid-Based Difficult Terrain Entry Cost",
+          "description": "On a square grid where each square represents 5 feet, entering a square of Difficult Terrain costs 2 squares of movement instead of the normal 1 square. Speed is translated to squares by dividing by 5 (e.g., Speed 30 = 6 squares).",
+          "mechanicalEffect": "Each Difficult Terrain square costs 2 squares (10 feet equivalent) to enter on a grid. Normal squares cost 1 square (5 feet) to enter.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "none",
+      "planarConnections": [],
+      "inhabitants": {},
+      "domainsOrRegions": [],
+      "adventureThemes": ["Movement impediment", "Tactical positioning", "Terrain hazards"],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 1: Playing the Game; Appendix C: Rules Glossary",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game defines Difficult Terrain under Combat > Movement and Position, and the Playing on a Grid sidebar."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary defines Difficult Terrain, Climbing, Crawling, Swimming, and Jumping entries that reference Difficult Terrain interactions."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

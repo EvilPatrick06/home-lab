@@ -1,0 +1,22 @@
+{
+  "name": "Medallion of Thoughts",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "The medallion has 5 charges. While wearing it, you can expend 1 charge to cast *Detect Thoughts* (save DC 13) from it. The medallion regains 1d4 expended charges daily at dawn.",
+  "properties": null,
+  "weight": null,
+  "cost": null,
+  "charges": 5,
+  "rechargeRate": "daily",
+  "rechargeAmount": "1d4",
+  "spells": [
+    {
+      "name": "Detect Thoughts",
+      "savedc": 13
+    }
+  ],
+  "damage": null,
+  "source": "DMG 2024"
+}

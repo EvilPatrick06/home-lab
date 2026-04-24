@@ -1,0 +1,11 @@
+{
+  "name": "Breaking Objects",
+  "slug": "breaking-objects",
+  "description": "When you take the Attack action, you can use your attack to try to destroy an object.\n\n### Object Armor Class\n\n| Object Material | AC |\n|---|---|\n| Cloth, paper, rope | 11 |\n| Crystal, glass, ice | 13 |\n| Wood, bone | 15 |\n| Iron, steel | 19 |\n| Mithral | 21 |\n| Adamantine | 23 |\n\n### Object Hit Points\n\n| Size | Fragile | Resilient |\n|---|---|---|\n| Tiny (bottle, lock) | 2 (1d4) | 5 (2d4) |\n| Small (chest, lute) | 3 (1d6) | 10 (3d6) |\n| Medium (barrel, chandelier) | 4 (1d8) | 18 (4d8) |\n| Large (cart, 10x10 ft. window) | 5 (1d10) | 27 (5d10) |",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

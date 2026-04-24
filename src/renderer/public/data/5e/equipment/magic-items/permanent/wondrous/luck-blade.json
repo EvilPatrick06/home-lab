@@ -1,0 +1,48 @@
+{
+  "name": "Luck Blade",
+  "itemType": "Weapon",
+  "rarity": "Legendary",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "You gain a +1 bonus to attack rolls and damage rolls made with this magic weapon. While the weapon is on your person, you also gain a +1 bonus to saving throws.\n\n**Luck.** If the weapon is on your person, you can call on its luck (no action required) to reroll one failed D20 Test if you don't have the Incapacitated condition. You must use the second roll. Once used, this property can't be used again until the next dawn.\n\n**Wish.** The weapon has 1d3 charges. While holding it, you can expend 1 charge and cast *Wish* from it. Once used, this property can't be used again until the next dawn. The weapon loses this property if it has no charges.",
+  "properties": [
+    {
+      "name": "+1 to Attack and Damage Rolls",
+      "description": "You gain a +1 bonus to attack rolls and damage rolls made with this magic weapon."
+    },
+    {
+      "name": "+1 to Saving Throws",
+      "description": "While the weapon is on your person, you gain a +1 bonus to saving throws."
+    },
+    {
+      "name": "Luck",
+      "description": "If the weapon is on your person, you can call on its luck (no action required) to reroll one failed D20 Test if you don't have the Incapacitated condition. You must use the second roll. Once used, this property can't be used again until the next dawn."
+    },
+    {
+      "name": "Wish",
+      "description": "The weapon has 1d3 charges. While holding it, you can expend 1 charge and cast *Wish* from it. Once used, this property can't be used again until the next dawn. The weapon loses this property if it has no charges."
+    }
+  ],
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "charges": {
+    "currentCharges": null,
+    "maxCharges": 1,
+    "rechargeRate": "Daily at dawn",
+    "rechargeAmount": 1
+  },
+  "spells": [
+    {
+      "name": "Wish",
+      "castingTime": null,
+      "range": null,
+      "duration": null,
+      "components": null
+    }
+  ],
+  "damage": null,
+  "source": "DMG 2024"
+}

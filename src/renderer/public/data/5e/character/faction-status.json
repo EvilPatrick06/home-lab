@@ -1,0 +1,136 @@
+{
+  "id": "e3c7a1d2-4f8b-4e6a-9c3d-1b5a7f2e8d04",
+  "name": "Faction Status",
+  "slug": "faction-status",
+  "category": "VariantRule",
+  "subcategory": "Social Interaction",
+  "tags": ["faction", "renown", "social", "variant", "optional", "DM-discretion"],
+  "source": {
+    "book": "2024 Core Rules",
+    "chapter": "Chapter 1: Playing the Game",
+    "section": "Social Interaction"
+  },
+  "gameEdition": "2024",
+  "description": "Faction Status is a variant rule concept for tracking a character's standing, reputation, or rank within an organized group such as a guild, order, or political body. The 2024 core rules do not define an explicit Faction Status or Renown mechanical subsystem. However, the social interaction framework provides the mechanical foundation through NPC attitudes (Friendly, Indifferent, Hostile) and the Influence action, which uses Charisma (Deception, Intimidation, Performance, or Persuasion) or Wisdom (Animal Handling) checks to shift a creature's attitude. A DM can build a Faction Status system on top of these existing mechanics, using attitude shifts and ability checks as the primary resolution method for faction-related interactions.",
+  "shortDescription": "Variant framework for tracking a character's standing within organized groups, built on NPC attitude rules and the Influence action.",
+  "rulesAsWritten": "No explicit Faction Status or Renown rule appears in the 2024 core rules. The social interaction rules state: 'An NPC's attitude toward your character is Friendly, Indifferent, or Hostile. Friendly NPCs are predisposed to help, and Hostile ones are inclined to hinder.' The Influence action allows Charisma (Deception, Intimidation, Performance, or Persuasion) or Wisdom (Animal Handling) checks to alter a creature's attitude. Friendly attitude grants Advantage on Charisma checks to influence the NPC.",
+  "isVariantRule": true,
+  "isOptionalRule": true,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [
+    {
+      "id": "a1b2c3d4-5678-4abc-9def-1a2b3c4d5e6f",
+      "rollType": "AbilityCheck",
+      "scope": {
+        "skills": ["Deception", "Intimidation", "Performance", "Persuasion"],
+        "customScope": "When interacting with an NPC whose attitude is Friendly, including faction members disposed favorably toward the character"
+      },
+      "grantedTo": "Self",
+      "condition": "The NPC's attitude toward the character is Friendly",
+      "note": "Per core social interaction rules, Friendly NPCs grant Advantage on Charisma checks made to influence them. A DM using Faction Status may extend this to all members of a faction where the character has high standing."
+    }
+  ],
+  "disadvantageImposes": [],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [],
+  "applicationLogic": [
+    {
+      "id": "b2c3d4e5-6789-4bcd-aef0-2b3c4d5e6f7a",
+      "order": 0,
+      "name": "Influence Action for Faction Interactions",
+      "description": "A character takes the Influence action to alter a faction member NPC's attitude. The character makes a Charisma (Deception, Intimidation, Performance, or Persuasion) check or a Wisdom (Animal Handling) check. The DM determines the DC based on the NPC's current attitude and the faction's disposition toward the character. Friendly NPCs grant Advantage on the check. The DM uses the NPC's personality, the character's actions, and prior faction interactions to determine the outcome.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character attempts to interact with or influence a faction member NPC"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The Influence action uses a Charisma (Deception, Intimidation, Performance, or Persuasion) or Wisdom (Animal Handling) check to shift an NPC's attitude between Hostile, Indifferent, and Friendly. The DM sets the DC based on circumstances. A Friendly NPC is predisposed to help; a Hostile NPC is inclined to hinder.",
+          "mechanicalNote": "No standardized DC table for faction-based attitude shifts is provided in the 2024 core rules. The Typical Difficulty Classes table (Very Easy DC 5, Easy DC 10, Medium DC 15, Hard DC 20, Very Hard DC 25, Nearly Impossible DC 30) can serve as a guide for DMs adjudicating faction interactions."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": true
+    },
+    {
+      "id": "c3d4e5f6-789a-4cde-bf01-3c4d5e6f7a8b",
+      "order": 1,
+      "name": "NPC Attitude Baseline from Faction Standing",
+      "description": "The DM determines the starting attitude of faction NPCs (Friendly, Indifferent, or Hostile) based on the character's reputation and past deeds related to the faction. Characters who have performed services or upheld faction values may find faction members start as Friendly. Characters who have acted against faction interests may find members start as Hostile. This replaces or modifies the default NPC starting attitude.",
+      "trigger": {
+        "event": "Passive",
+        "condition": "Character encounters or interacts with a member of a faction in which they have established standing"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The DM assigns a starting NPC attitude (Friendly, Indifferent, or Hostile) based on the character's faction standing. Friendly attitude grants Advantage on Charisma checks to influence the NPC. Hostile attitude means the NPC is inclined to hinder the character. This determination is entirely at DM discretion and is informed by the character's past actions, completed missions, and roleplaying.",
+          "mechanicalNote": "The three-tier attitude system (Friendly, Indifferent, Hostile) is the only mechanical framework for NPC disposition in the 2024 core rules. A DM implementing Faction Status would layer a tracking system on top of these three attitudes."
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": true,
+      "requiresDMApproval": true
+    }
+  ],
+  "duration": {
+    "type": "Permanent",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "d4e5f6a7-89ab-4def-c012-4d5e6f7a8b9c",
+      "method": "Other",
+      "description": "Faction standing can change based on character actions, completed quests, betrayals, or other narrative developments as determined by the DM. There is no codified mechanical method for removal or reset of faction status in the 2024 core rules.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "A character can have standing with multiple factions simultaneously. Each faction's attitude toward the character is tracked independently by the DM."
+  },
+  "dmNotes": "The 2024 core rules do not include an explicit Faction Status, Renown, or Reputation mechanical subsystem. The foundational mechanics for adjudicating faction interactions are the NPC attitude system (Friendly, Indifferent, Hostile), the Influence action, and ability checks with DCs set using the Typical Difficulty Classes table (DC 5 to DC 30). DMs wishing to implement a Faction Status system should determine: (1) how faction standing is earned or lost (quests completed, services rendered, values upheld or violated), (2) what mechanical benefits or penalties correspond to different levels of standing (starting NPC attitudes, access to resources, pricing on goods and services), and (3) how standing changes over time. The Advantage granted by a Friendly NPC attitude on Charisma checks is the primary mechanical lever. The DM has final authority over NPC attitudes and their narrative consequences.",
+  "commonRulings": [
+    {
+      "question": "Is there an explicit Faction Status or Renown mechanic in the 2024 core rules?",
+      "ruling": "No. The 2024 Player's Handbook and rules glossary do not define a Faction Status, Renown, or Reputation point system. The social interaction rules provide a three-tier NPC attitude framework (Friendly, Indifferent, Hostile) and the Influence action as the mechanical basis for social interactions, including those involving factions.",
+      "isOfficial": false
+    },
+    {
+      "question": "How does a Friendly NPC attitude mechanically benefit a character during faction interactions?",
+      "ruling": "A Friendly NPC grants the character Advantage on Charisma checks made to influence that NPC. This is explicitly stated in the social interaction rules and demonstrated in the Social Interaction Example where Ismark's Friendly attitude gives Advantage on a Charisma (Persuasion) check.",
+      "isOfficial": true
+    },
+    {
+      "question": "What ability checks are used for the Influence action when interacting with faction members?",
+      "ruling": "The Influence action allows a Charisma (Deception, Intimidation, Performance, or Persuasion) check or a Wisdom (Animal Handling) check to alter a creature's attitude. The DM determines which skill is appropriate based on the approach taken.",
+      "isOfficial": true
+    },
+    {
+      "question": "Can a character have standing with multiple factions simultaneously?",
+      "ruling": "The rules impose no limit on how many NPCs or groups a character can have established relationships with. Each NPC's attitude is tracked independently. A DM implementing faction tracking would manage each faction's disposition separately.",
+      "isOfficial": false
+    }
+  ],
+  "createdAt": "2025-01-15T00:00:00Z",
+  "updatedAt": "2025-01-15T00:00:00Z",
+  "version": "1.0.0"
+}

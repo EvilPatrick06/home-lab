@@ -1,0 +1,38 @@
+{
+  "name": "Speedy",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "abilityScores": [
+      {
+        "abilities": ["Dexterity", "Constitution"],
+        "minimum": 13
+      }
+    ]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Dexterity", "Constitution"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Speed Increase",
+      "description": "Your Speed increases by 10 feet."
+    },
+    {
+      "name": "Dash over Difficult Terrain",
+      "description": "When you take the Dash action on your turn, Difficult Terrain doesn't cost you extra movement for the rest of that turn."
+    },
+    {
+      "name": "Agile Movement",
+      "description": "Opportunity Attacks have Disadvantage against you."
+    }
+  ],
+  "source": "PHB 2024"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Greatclub",
+  "category": "Simple",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 2,
+    "denomination": "SP"
+  },
+  "damage": {
+    "count": 1,
+    "die": 8,
+    "type": "Bludgeoning"
+  },
+  "weight": 10,
+  "properties": [
+    {
+      "property": "Two-Handed"
+    }
+  ],
+  "mastery": "Push"
+}

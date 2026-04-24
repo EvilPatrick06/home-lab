@@ -1,0 +1,145 @@
+{
+  "name": "Galeb Duhr",
+  "sizes": ["Medium"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral",
+  "habitat": ["Mountain", "Underdark"],
+  "treasure": ["Implements"],
+  "armorClass": {
+    "value": 16,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 85,
+    "dice": {
+      "count": 9,
+      "die": "d8",
+      "modifier": 45
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 15
+    },
+    {
+      "type": "Burrow",
+      "distance": 15
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "resistances": ["Bludgeoning, Piercing, and Slashing from nonmagical attacks"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Exhaustion", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      },
+      {
+        "type": "Tremorsense",
+        "range": 60
+      }
+    ],
+    "passivePerception": 11
+  },
+  "languages": {
+    "spoken": ["Terran"]
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "False Appearance",
+      "description": "If the galeb duhr is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the galeb duhr move or act, that creature must succeed on a DC 20 Intelligence (Investigation) check to discern that the galeb duhr is animate."
+    },
+    {
+      "name": "Rolling Charge",
+      "description": "If the galeb duhr moves at least 15 feet straight toward a target and then hits it with a Slam attack on the same turn, the target takes an extra 7 (2d6) Bludgeoning damage. If the target is a Large or smaller creature, it must succeed on a DC 16 Strength saving throw or have the Prone condition."
+    }
+  ],
+  "multiattack": {
+    "description": "The galeb duhr makes two Slam attacks.",
+    "attacks": [
+      {
+        "actionName": "Slam",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Slam",
+      "description": "Melee Attack Roll: +8, reach 5 ft. Hit: 12 (2d6 + 5) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 8,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 5
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Animate Boulders",
+      "description": "The galeb duhr magically animates up to two boulders it can see within 60 feet of itself. Each animated boulder uses the Galeb Duhr stat block, except it has Intelligence 1 (-5) and Charisma 1 (-5), it can't use Animate Boulders, and it reverts to an inanimate boulder if reduced to 0 Hit Points or after 1 minute.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "summon": {
+        "creatureName": "Galeb Duhr",
+        "fixedCount": 2,
+        "notes": "Each animated boulder uses the Galeb Duhr stat block with Intelligence 1 (-5) and Charisma 1 (-5), can't use Animate Boulders, and reverts to an inanimate boulder if reduced to 0 Hit Points or after 1 minute."
+      }
+    }
+  ]
+}

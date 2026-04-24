@@ -1,0 +1,472 @@
+{
+  "name": "Ancient White Dragon",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Chromatic"],
+  "alignment": "Chaotic Evil",
+  "habitat": ["Arctic"],
+  "treasure": ["Any"],
+  "lore": "White dragons are the most feral and animalistic of the chromatic dragons. They are creatures of primal fury that dwell in frigid wastelands and icy caverns, driven by hunger and territorial instinct above all else. An ancient white dragon commands a vast frozen domain, burying its hoard deep within a glacier or ice cavern. Though less cunning than other chromatic dragons, an ancient white is no less deadly, and its sheer ferocity and mastery of cold make it a terrifying predator.",
+  "armorClass": {
+    "value": 20,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 333,
+    "dice": {
+      "count": 18,
+      "die": "d20",
+      "modifier": 144
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Burrow",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    },
+    {
+      "type": "Swim",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 26,
+      "modifier": 8,
+      "save": 8
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 26,
+      "modifier": 8,
+      "save": 14
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 13,
+      "modifier": 1,
+      "save": 7
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 8
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 13
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 6
+    }
+  ],
+  "damageImmunities": ["Cold"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 23
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "20",
+  "experiencePoints": 25000,
+  "proficiencyBonus": 6,
+  "traits": [
+    {
+      "name": "Ice Walk",
+      "description": "The dragon can move across and climb icy surfaces without needing to make an ability check. Difficult Terrain composed of ice or snow doesn't cost it extra movement."
+    },
+    {
+      "name": "Legendary Resistance (3/Day)",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      }
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes one Bite attack and two Claw attacks. It can replace one of those attacks with a use of Cold Breath (if available) or Frightful Presence.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Cold Breath"
+      },
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Frightful Presence"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +14, reach 15 ft. Hit: 19 (2d10 + 8) Piercing damage plus 9 (2d8) Cold damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 8
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +14, reach 10 ft. Hit: 15 (2d6 + 8) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 15,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 8
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +14, reach 20 ft. Hit: 17 (2d8 + 8) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 14,
+        "reach": 20,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 8
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cold Breath",
+      "description": "The dragon exhales an icy blast in a 90-foot Cone. Each creature in that area must make a DC 22 Constitution saving throw, taking 72 (16d8) Cold damage on a failed save, or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 22,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 72,
+              "dice": {
+                "count": 16,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 90
+      }
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the dragon's choice within 120 feet of the dragon must succeed on a DC 16 Wisdom saving throw or have the Frightened condition for 1 minute. A creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to this dragon's Frightful Presence for 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 16,
+        "targets": "each creature of the dragon's choice within 120 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 16,
+                "targets": "the Frightened creature",
+                "onSuccess": {
+                  "effects": "The condition ends on the creature."
+                }
+              }
+            }
+          ]
+        },
+        "onSuccess": {
+          "effects": "The creature is immune to this dragon's Frightful Presence for 24 hours."
+        }
+      }
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Tail Attack",
+        "description": "The dragon makes one Tail attack.",
+        "cost": 1
+      },
+      {
+        "name": "Freezing Gust",
+        "description": "Each creature within a 15-foot Emanation originating from the dragon must succeed on a DC 22 Strength saving throw or be pushed up to 15 feet from the dragon and have the Prone condition.",
+        "cost": 1,
+        "savingThrow": {
+          "ability": "STR",
+          "dc": 22,
+          "targets": "each creature within a 15-foot Emanation",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ],
+            "effects": "The creature is pushed up to 15 feet from the dragon."
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Emanation",
+          "size": 15,
+          "centered": true
+        },
+        "conditions": [
+          {
+            "condition": "Prone"
+          }
+        ]
+      },
+      {
+        "name": "Frigid Gaze",
+        "description": "The dragon targets one creature it can see within 60 feet of itself. The target must succeed on a DC 22 Constitution saving throw or take 36 (8d8) Cold damage and have the Restrained condition until the end of its next turn. On a successful save, the target takes half as much damage only.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 22,
+          "targets": "one creature the dragon can see within 60 feet",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 36,
+                "dice": {
+                  "count": 8,
+                  "die": "d8",
+                  "modifier": 0
+                },
+                "type": "Cold"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Restrained",
+                "duration": "until the end of its next turn"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        }
+      }
+    ]
+  },
+  "lair": {
+    "description": "An ancient white dragon lairs in an ice cave or deep within a glacier. The floors and walls of the lair are coated in ice and snow, and frigid winds howl through its chambers. The dragon's hoard is frozen into the walls or buried beneath layers of permafrost.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Freezing Fog",
+        "description": "Freezing fog fills a 20-foot-radius Sphere centered on a point the dragon can see within 120 feet of itself. Each creature in the fog must succeed on a DC 22 Constitution saving throw or take 10 (3d6) Cold damage. The fog is Heavily Obscured and lasts until initiative count 20 of the next round.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 22,
+          "targets": "each creature in the fog",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 10,
+                "dice": {
+                  "count": 3,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Cold"
+              }
+            ]
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        },
+        "damage": [
+          {
+            "average": 10,
+            "dice": {
+              "count": 3,
+              "die": "d6",
+              "modifier": 0
+            },
+            "type": "Cold"
+          }
+        ]
+      },
+      {
+        "name": "Ice Wall",
+        "description": "An opaque wall of ice springs up from a solid surface within 120 feet of the dragon. The wall is up to 30 feet long, 10 feet high, and 5 feet thick. When the wall appears, each creature in its space is pushed to one side of the wall (dragon's choice). Each 5-foot section of the wall has AC 5, 15 HP, Vulnerability to Fire damage, and Immunity to Cold, Poison, and Psychic damage. The wall lasts until initiative count 20 on the next round or until destroyed."
+      },
+      {
+        "name": "Glacial Upheaval",
+        "description": "The dragon causes ice to erupt from a point on the ground it can see within 120 feet of itself. Each creature within 20 feet of that point must succeed on a DC 22 Dexterity saving throw or take 14 (4d6) Cold damage and have the Prone condition. On a successful save, a creature takes half as much damage only.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 22,
+          "targets": "each creature within 20 feet of the point",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 14,
+                "dice": {
+                  "count": 4,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Cold"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        },
+        "damage": [
+          {
+            "average": 14,
+            "dice": {
+              "count": 4,
+              "die": "d6",
+              "modifier": 0
+            },
+            "type": "Cold"
+          }
+        ],
+        "conditions": [
+          {
+            "condition": "Prone"
+          }
+        ]
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Chilling cold extends around the lair. Freezing precipitation is common, and bodies of water within the area are largely frozen over.",
+        "radius": 6,
+        "endCondition": "If the dragon dies, the cold recedes over 1d10 days."
+      },
+      {
+        "description": "Blizzards rage within the area around the lair, making overland travel difficult. Visibility is reduced, and the landscape is buried under deep snow.",
+        "radius": 6,
+        "endCondition": "If the dragon dies, the blizzards abate within 1 day."
+      },
+      {
+        "description": "Ice and frost cover surfaces within the area. Water freezes within minutes of being exposed, and icy hazards form on traveled paths.",
+        "radius": 6,
+        "endCondition": "If the dragon dies, these effects fade over 1d10 days."
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "performance",
+  "name": "Performance",
+  "ability": "charisma",
+  "description": "Your Charisma (Performance) check determines how well you can delight an audience with music, dance, acting, storytelling, or some other form of entertainment.",
+  "multiplier": 1,
+  "exampleDCs": { "easy": 10, "moderate": 15, "hard": 20, "veryHard": 25, "nearlyImpossible": 30 },
+  "typicalUses": [
+    "Perform music to entertain a crowd",
+    "Tell a compelling story or recite poetry",
+    "Act convincingly in a theatrical performance",
+    "Dance with grace and skill",
+    "Captivate an audience with oratory"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Mace",
+  "category": "Simple",
+  "rangeCategory": "Melee",
+  "cost": {
+    "amount": 5,
+    "denomination": "GP"
+  },
+  "damage": {
+    "count": 1,
+    "die": 6,
+    "type": "Bludgeoning"
+  },
+  "weight": 4,
+  "properties": [],
+  "mastery": "Sap"
+}

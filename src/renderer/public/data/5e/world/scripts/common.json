@@ -1,0 +1,6 @@
+{
+  "id": "common-script",
+  "name": "Common",
+  "description": "The most widely used script in the known world, derived from ancient human trading scripts. Its simple letterforms make it easy to learn and read, contributing to its widespread adoption.",
+  "usedByLanguages": ["Common", "Halfling"]
+}

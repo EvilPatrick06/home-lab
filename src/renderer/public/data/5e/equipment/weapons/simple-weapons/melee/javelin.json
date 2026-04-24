@@ -1,0 +1,21 @@
+{
+  "name": "Javelin",
+  "slug": "javelin",
+  "category": "Simple",
+  "type": "Melee",
+  "damage": "1d6",
+  "damageType": "Piercing",
+  "properties": ["Thrown"],
+  "mastery": "Slow",
+  "weight": "2 lb.",
+  "cost": "5 SP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 30,
+    "long": 120
+  }
+}

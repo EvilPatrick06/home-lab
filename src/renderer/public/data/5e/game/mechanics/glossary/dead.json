@@ -1,0 +1,11 @@
+{
+  "name": "Dead",
+  "slug": "dead",
+  "description": "A creature is dead if it has 0 Hit Points and has not been stabilized. Death can be reversed by certain spells, like *Revivify*.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

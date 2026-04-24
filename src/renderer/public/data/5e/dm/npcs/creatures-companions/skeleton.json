@@ -1,0 +1,42 @@
+{
+  "name": "Skeleton",
+  "slug": "skeleton",
+  "size": "Medium",
+  "type": "Undead",
+  "alignment": "Lawful Evil",
+  "ac": 13,
+  "acNote": "armor scraps",
+  "hp": 13,
+  "hpFormula": "2d8 + 4",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 14,
+    "con": 15,
+    "int": 6,
+    "wis": 8,
+    "cha": 5
+  },
+  "immunities": "Poison",
+  "conditionImmunities": "Exhaustion, Poisoned",
+  "vulnerabilities": "Bludgeoning",
+  "senses": "Darkvision 60 ft., Passive Perception 9",
+  "languages": "understands the languages it knew in life but can't speak",
+  "cr": "1/4",
+  "xp": "50 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Shortsword",
+      "description": "*Melee:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Piercing."
+    },
+    {
+      "name": "Shortbow",
+      "description": "*Ranged:* +4, range 80/320 ft. *Hit:* 5 (1d6 + 2) Piercing."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

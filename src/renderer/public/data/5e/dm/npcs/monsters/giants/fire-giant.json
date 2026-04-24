@@ -1,0 +1,169 @@
+{
+  "name": "Fire Giant",
+  "sizes": ["Huge"],
+  "creatureType": "Giant",
+  "alignment": "Lawful Evil",
+  "habitat": ["Mountain", "Underdark"],
+  "treasure": ["Armaments"],
+  "lore": "Fire giants are master smiths and ruthless conquerors who dwell in volcanic mountains and subterranean forges. They prize metalwork above all other crafts, measuring status by skill at the forge and strength of arms. Organized into rigid military hierarchies, fire giants view all other creatures as either useful servants or fuel for their furnaces.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Plate Armor"]
+  },
+  "hitPoints": {
+    "average": 162,
+    "dice": {
+      "count": 13,
+      "die": "d12",
+      "modifier": 78
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 25,
+      "modifier": 7,
+      "save": 11
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 4
+    },
+    "CON": {
+      "score": 23,
+      "modifier": 6,
+      "save": 10
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 13,
+      "modifier": 1,
+      "save": 5
+    }
+  },
+  "skills": [
+    {
+      "skill": "Athletics",
+      "bonus": 11
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    }
+  ],
+  "damageImmunities": ["Fire"],
+  "gear": [
+    {
+      "name": "Plate Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Greatsword",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Giant"]
+  },
+  "challengeRating": "9",
+  "experiencePoints": 5000,
+  "proficiencyBonus": 4,
+  "multiattack": {
+    "description": "The fire giant makes two attacks, using Greatsword, Rock, or a combination of them.",
+    "attacks": [
+      {
+        "actionName": "Greatsword",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greatsword",
+        "replaceCount": 2,
+        "with": "Rock"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greatsword",
+      "description": "Melee Attack Roll: +11, reach 10 ft. Hit: 28 (6d6 + 7) Slashing damage plus 7 (2d6) Fire damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 11,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 28,
+              "dice": {
+                "count": 6,
+                "die": "d6",
+                "modifier": 7
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Fire"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rock",
+      "description": "Ranged Attack Roll: +11, range 60/240 ft. Hit: 29 (4d10 + 7) Bludgeoning damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 11,
+        "range": {
+          "normal": 60,
+          "long": 240
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 29,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 7
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

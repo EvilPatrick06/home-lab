@@ -1,0 +1,38 @@
+{
+  "name": "Mislead",
+  "level": 5,
+  "school": "Illusion",
+  "classes": ["Bard", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": false,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You gain the Invisible condition at the same time that an illusory double of you appears where you are standing. The double lasts for the duration, but the invisibility ends immediately after you make an attack roll, deal damage, or cast a spell. As a Magic action, you can move the illusory double up to twice your Speed and make it gesture, speak, and behave in whatever way you choose. It is intangible and invulnerable. You can see through its eyes and hear through its ears as if you were located where it is.",
+  "targetType": "self",
+  "conditionsApplied": [
+    {
+      "condition": "Invisible",
+      "trigger": "onCast",
+      "duration": "Until you make an attack roll, deal damage, or cast a spell"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "MagicAction",
+    "description": "You can move the illusory double up to twice your Speed and make it gesture, speak, and behave in whatever way you choose."
+  },
+  "tags": ["invisibility", "illusory_double", "sensory_link"]
+}

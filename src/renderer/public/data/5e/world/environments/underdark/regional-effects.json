@@ -1,0 +1,41 @@
+{
+  "biome": "Underdark",
+  "legendaryEffects": [
+    {
+      "source": "Aboleth",
+      "effects": [
+        "Underground water sources within 1 mile of the lair are supernaturally fouled. A creature that drinks such water must succeed on a DC 14 Constitution saving throw or be diseased.",
+        "Surfaces within 1 mile of the lair become slimy and wet, making them difficult terrain.",
+        "The aboleth can project illusory images in pools of water within 1 mile of its lair, using them to communicate or deceive."
+      ],
+      "radius": "1 mile"
+    },
+    {
+      "source": "Elder Brain",
+      "effects": [
+        "Creatures within 5 miles of the lair feel a vague psychic unease. Wisdom saving throws made within this area have a -2 penalty.",
+        "The elder brain is aware of any creature with an Intelligence of 4 or higher within 5 miles.",
+        "Telepathic communication within 5 miles can be intercepted by the elder brain."
+      ],
+      "radius": "5 miles"
+    }
+  ],
+  "naturalHazards": [
+    {
+      "name": "Faerzress",
+      "description": "Faerzress is a magical radiation unique to the Underdark. In areas of faerzress, spells that allow teleportation or planar travel have a 50% chance of failing. Divination spells have a 50% chance of producing false results."
+    },
+    {
+      "name": "Unstable Caverns",
+      "description": "Cavern ceilings in the Underdark are prone to collapse, especially when disturbed by loud sounds or tremors. A collapse affects a 20-foot radius area; creatures must make a DC 15 Dexterity saving throw or take 4d10 bludgeoning damage and be buried."
+    },
+    {
+      "name": "Underground Rivers",
+      "description": "Fast-flowing underground rivers can sweep creatures away. A creature that enters the water must succeed on a DC 15 Strength (Athletics) check to swim against the current. On a failure, the creature is swept 60 feet downstream per round and may be carried over waterfalls or into underwater passages."
+    },
+    {
+      "name": "Bioluminescent Spores",
+      "description": "Certain fungi release clouds of spores when disturbed. Creatures in a 10-foot-radius cloud must succeed on a DC 11 Constitution saving throw or be illuminated with bioluminescent particles, shedding dim light in a 10-foot radius for 1d10 minutes. Creatures illuminated this way cannot benefit from invisibility and have disadvantage on Stealth checks."
+    }
+  ]
+}

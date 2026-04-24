@@ -1,0 +1,20 @@
+{
+  "name": "Warship",
+  "slug": "warship",
+  "category": "Waterborne Vehicle",
+  "type": "Ship",
+  "cost": "25000 GP",
+  "speed": "2.5 mph",
+  "crew": 60,
+  "passengers": 60,
+  "cargoTons": 200,
+  "ac": 15,
+  "hp": 500,
+  "damageThreshold": 20,
+  "description": "A large, heavily built sailing vessel designed for naval warfare. Warships typically feature reinforced hulls, siege weapon mounts, and room for soldiers.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Waterborne Vehicles"
+  }
+}

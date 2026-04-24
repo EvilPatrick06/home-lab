@@ -1,0 +1,67 @@
+{
+  "name": "Ray of Enfeeblement",
+  "level": 2,
+  "school": "Necromancy",
+  "classes": ["Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "A beam of enervating energy shoots from you toward a creature within range. The target must make a Constitution saving throw. On a successful save, the target has Disadvantage on the next attack roll it makes until the start of your next turn. On a failed save, the target has Disadvantage on Strength-based D20 Tests for the duration. During that time, it also subtracts 1d8 from all its damage rolls. The target repeats the save at the end of each of its turns, ending the spell on a success.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "savingThrow": {
+    "ability": "Constitution",
+    "effectOnSuccess": "Target has Disadvantage on the next attack roll it makes until the start of the caster's next turn",
+    "effectOnFailure": "Target has Disadvantage on Strength-based D20 Tests and subtracts 1d8 from all its damage rolls for the duration",
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "disadvantagesImposed": [
+    {
+      "on": "attackRolls",
+      "ability": "Strength",
+      "condition": "On failed save; applies to Strength-based attack rolls for the duration"
+    },
+    {
+      "on": "savingThrows",
+      "ability": "Strength",
+      "condition": "On failed save; applies to Strength-based saving throws for the duration"
+    },
+    {
+      "on": "abilityChecks",
+      "ability": "Strength",
+      "condition": "On failed save; applies to Strength-based ability checks for the duration"
+    }
+  ],
+  "d20Modifiers": [
+    {
+      "appliesTo": "attackRolls",
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 8
+      },
+      "isBonus": false,
+      "condition": "On failed save; subtracted from all damage rolls for the duration"
+    }
+  ],
+  "tags": ["debuff", "beam", "strength-debuff", "damage-reduction"]
+}

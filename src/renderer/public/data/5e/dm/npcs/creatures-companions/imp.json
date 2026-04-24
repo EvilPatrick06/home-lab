@@ -1,0 +1,51 @@
+{
+  "name": "Imp",
+  "slug": "imp",
+  "size": "Tiny",
+  "type": "Fiend",
+  "alignment": "Lawful Evil",
+  "ac": 13,
+  "hp": 10,
+  "hpFormula": "3d4 + 3",
+  "speed": "20 ft., Fly 40 ft.",
+  "abilityScores": {
+    "str": 6,
+    "dex": 17,
+    "con": 13,
+    "int": 11,
+    "wis": 12,
+    "cha": 14
+  },
+  "skills": "Deception +4, Insight +3, Persuasion +4, Stealth +5",
+  "resistances": "Cold; Bludgeoning, Piercing, and Slashing from nonmagical attacks that aren't silvered",
+  "immunities": "Fire, Poison",
+  "conditionImmunities": "Poisoned",
+  "senses": "Darkvision 120 ft., Passive Perception 11",
+  "languages": "Common, Infernal",
+  "cr": "1",
+  "xp": "200 XP",
+  "traits": [
+    {
+      "name": "Devil's Sight",
+      "description": "Magical Darkness doesn't impede the imp's Darkvision."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "Advantage on saving throws against spells and other magical effects."
+    },
+    {
+      "name": "Invisibility",
+      "description": "The imp turns Invisible until it attacks, it casts a spell, it uses its Sting, or its Concentration ends (as if concentrating on a spell). Equipment the imp wears or carries is also Invisible."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Sting (Bite in Beast Form)",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) Piercing plus 10 (3d6) Poison damage."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

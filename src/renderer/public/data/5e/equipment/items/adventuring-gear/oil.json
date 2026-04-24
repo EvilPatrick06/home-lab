@@ -1,0 +1,13 @@
+{
+  "name": "Oil",
+  "cost": "1 SP",
+  "weight": "1 lb.",
+  "description": "Douse creature (DC 8 + Dex + Prof, +5 Fire if ignited within 1 minute), douse 5-ft square (5 Fire damage), or fuel for Lamps/Lanterns (6 hours).",
+  "slug": "oil",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

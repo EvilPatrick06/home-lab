@@ -1,0 +1,11 @@
+{
+  "name": "Light",
+  "slug": "light",
+  "description": "Three categories of illumination:\n\n- **Bright Light.** Lets most creatures see normally.\n- **Dim Light.** Creates a Lightly Obscured area.\n- **Darkness.** Creates a Heavily Obscured area.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

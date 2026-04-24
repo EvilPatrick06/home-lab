@@ -1,0 +1,55 @@
+{
+  "name": "Befuddlement",
+  "level": 8,
+  "school": "Enchantment",
+  "classes": ["Bard", "Druid", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 150,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a key ring with no keys",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You blast the mind of a creature that you can see within range. The target makes an Intelligence saving throw. On a failed save, the target takes 10d12 Psychic damage and can't cast spells or take the Magic action. At the end of every 30 days, the target repeats the save, ending the effect on a success. The effect can also be ended by the Greater Restoration, Heal, or Wish spell. On a successful save, the target takes half as much damage only.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "mustSeeTarget": true,
+  "attackType": null,
+  "savingThrow": {
+    "ability": "Intelligence",
+    "halfDamageOnSuccess": true,
+    "effectOnFailure": "The target takes 10d12 Psychic damage and can't cast spells or take the Magic action. The effect can be ended by Greater Restoration, Heal, or Wish.",
+    "repeatSave": {
+      "timing": "endOf30Days",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 10,
+        "diceValue": 12
+      },
+      "type": "Psychic",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "preventsSpellcasting": true,
+  "tags": ["debuff", "control", "psychic", "long-term"]
+}

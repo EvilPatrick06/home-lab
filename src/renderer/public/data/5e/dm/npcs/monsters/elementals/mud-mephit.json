@@ -1,0 +1,153 @@
+{
+  "name": "Mud Mephit",
+  "sizes": ["Small"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "armorClass": {
+    "value": 11
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 4,
+      "die": "d6",
+      "modifier": 8
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 20
+    },
+    {
+      "type": "Fly",
+      "distance": 20
+    },
+    {
+      "type": "Swim",
+      "distance": 20
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "DEX": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 9,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    }
+  },
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Aquan", "Terran"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Death Burst",
+      "description": "When the mephit dies, it explodes in a burst of mud. Each creature within 5 feet of the mephit must succeed on a DC 12 Dexterity saving throw or have the Restrained condition until the end of the creature's next turn."
+    },
+    {
+      "name": "False Appearance",
+      "description": "If the mephit is motionless at the start of combat, it has Advantage on its Initiative roll. Moreover, if a creature hasn't observed the mephit move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern that the mephit is animate."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Mud Fist",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 3 (1d4 + 1) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Mud Breath",
+      "description": "The mephit exhales a 15-foot Cone of viscous mud. Each creature in that area must succeed on a DC 12 Dexterity saving throw or have the Restrained condition until the end of the mephit's next turn.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 12,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "duration": "until the end of the mephit's next turn"
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 15
+      },
+      "conditions": [
+        {
+          "condition": "Restrained",
+          "duration": "until the end of the mephit's next turn"
+        }
+      ]
+    }
+  ]
+}

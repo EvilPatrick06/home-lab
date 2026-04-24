@@ -1,0 +1,50 @@
+{
+  "name": "Animated Flying Sword",
+  "slug": "animated-flying-sword",
+  "size": "Small",
+  "type": "Construct",
+  "alignment": "Unaligned",
+  "ac": "17",
+  "initiative": "+4 (14)",
+  "hp": "14",
+  "hpFormula": "4d6",
+  "speed": "5 ft., Fly 50 ft. (hover)",
+  "abilityScores": {
+    "str": 12,
+    "dex": 15,
+    "con": 11,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 1,
+    "dex": 4,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison, Psychic; Charmed, Deafened, Exhaustion, Frightened, Paralyzed, Petrified, Poisoned",
+  "senses": "Blindsight 60 ft.; Passive Perception 7",
+  "languages": "None",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Slash",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 6 (1d8 + 2) Slashing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Mundane Objects Come to Life*\n**Habitat:** Urban; **Treasure:** None\nMagic can manipulate mundane items, compelling them to perform simple tasks. Such animate objects might be unassuming tools or decorations that can defend their creator. These objects follow simple instructions from whatever force or magic-user created them. If left unattended, they might defend an area for ages or repeat a task until they wear out.\nRoll on or choose a result from the Animated Object Catalysts table to inspire what sort of magic motivates an ambulatory item.\nAnimated suits of armor might move with steady deliberateness or awkward gaits. They're often constructed from plate armor, making them easy to mistake for soldiers or helmed horrors. Other types of armor or even metal statuary might also become animated armor.\nAnimated brooms keep their surroundings tidy and defend them when necessary. Launching into the air, these brooms dart about, attacking foes from unexpected angles. Other flying objects, like animated tools or staffs, might also use this stat block.\nAnimated flying swords move as if wielded by unseen warriors. Whether an animated blade is newly forged or a constellation of broken fragments, the object behaves the same. Other weapons from the *Player's Handbook* can also be animated and use game statistics similar to those here.\nAnimated rugs of smothering might attack any creature that steps on them, or they might be passed off as superficially similar magic items, such as *Carpets of Flying*, and attack those who speak a supposed command word. Deadly tapestries, furs, and similar items also use this stat block.",
+  "habitat": "Urban",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Constructs",
+    "file": "Constructs.md"
+  }
+}

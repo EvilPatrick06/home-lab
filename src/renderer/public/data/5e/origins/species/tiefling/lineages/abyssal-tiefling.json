@@ -1,0 +1,14 @@
+{
+  "id": "abyssal-tiefling",
+  "name": "Abyssal Tiefling",
+  "species": "tiefling",
+  "fiendishLegacy": "abyssal",
+  "description": "Lineage traces to the Abyss. Resistance to poison damage.",
+  "traits": [
+    {
+      "name": "Abyssal Legacy",
+      "description": "Poison Spray cantrip; Ray of Sickness at 3rd; Hold Person at 5th. Charisma spellcasting."
+    }
+  ],
+  "source": "PHB 2024"
+}

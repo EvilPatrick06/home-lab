@@ -1,0 +1,67 @@
+{
+  "name": "Lamia",
+  "slug": "lamia",
+  "size": "Large",
+  "type": "Fiend",
+  "alignment": "Chaotic Evil",
+  "ac": "13",
+  "initiative": "+1 (11)",
+  "hp": "97",
+  "hpFormula": "13d10 + 26",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 13,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 1,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Deception +7, Insight +4, Stealth +5",
+  "senses": "Darkvision 60 ft.; Passive Perception 12",
+  "languages": "Abyssal, Common",
+  "cr": "4 (XP 1,100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The lamia makes two Claw attacks. It can replace one attack with a use of Corrupting Touch."
+    },
+    {
+      "name": "Claw",
+      "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 7 (1d8 + 3) Slashing damage plus 7 (2d6) Psychic damage."
+    },
+    {
+      "name": "Corrupting Touch",
+      "description": "*Wisdom Saving Throw:* DC 13, one creature the lamia can see within 5 feet. *Failure:* 13 (3d8) Psychic damage, and the target is cursed for 1 hour. Until the curse ends, the target has the Charmed and Poisoned conditions."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The lamia casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 13):"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Leap",
+      "description": "The lamia jumps up to 30 feet by spending 10 feet of movement."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Accursed Bargainer and Ruin Raider*\n**Habitat:** Desert; **Treasure:** Arcana\nLegends say the first lamia was an ambitious ruler who made a sinister bargain with the demon lord Graz'zt for everlasting majesty. As a consequence, the ruler was transformed into a lamia, a monster with the body of a lion and an accursed touch.\nLamias either are descendants of that first lamia or have made similar deals. They often dwell near ruins, seeking mysterious magic they can use to gain riches and influence. Lamias use magical illusions and enchantments to trick others into serving them. They sometimes work with bandits to abduct travelers, releasing captives only if they accept a dangerous bargain. Roll on or choose a result from the Lamia Pacts table to inspire a lamia's desires.",
+  "habitat": "Desert",
+  "treasure": "Arcana",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

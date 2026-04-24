@@ -1,0 +1,11 @@
+{
+  "name": "Multiclassing",
+  "slug": "multiclassing",
+  "description": "Multiclassing lets you gain levels in multiple classes. You must meet the ability score prerequisites for both your current class and the new class.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

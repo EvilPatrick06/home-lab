@@ -1,0 +1,32 @@
+{
+  "id": "mummy-rot",
+  "name": "Mummy Rot",
+  "description": "Mummy Rot is a curse inflicted by a mummy's touch. The cursed creature can't regain Hit Points, and its Hit Point maximum decreases over time until the creature dies or the curse is removed.",
+  "source": "Mummy or Mummy Lord melee attack (Rotting Fist)",
+  "savingThrow": {
+    "ability": "Constitution",
+    "dc": 12,
+    "dcMummyLord": 17,
+    "timing": "When hit by the mummy's Rotting Fist attack"
+  },
+  "effects": [
+    {
+      "effect": "Cursed",
+      "description": "The cursed target can't regain Hit Points."
+    },
+    {
+      "effect": "Hit Point Maximum Reduction",
+      "description": "The target's Hit Point maximum decreases by 10 (3d6) for every 24 hours that elapse. This reduction lasts until the curse is removed.",
+      "reductionPer24Hours": "10 (3d6)",
+      "reductionDie": "3d6"
+    },
+    {
+      "effect": "Death",
+      "description": "If the curse reduces the target's Hit Point maximum to 0, the target dies, and its body turns to dust."
+    }
+  ],
+  "curing": {
+    "spells": ["Remove Curse", "Greater Restoration"],
+    "notes": "The curse can be ended by Remove Curse or similar magic. The Hit Point maximum reduction is permanent until cured. A creature that dies from Mummy Rot can only be restored by True Resurrection or Wish, as its body has turned to dust."
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "name": "Grick Ancient",
+  "slug": "grick-ancient",
+  "size": "Large",
+  "type": "Aberration",
+  "alignment": "Unaligned",
+  "ac": "18",
+  "initiative": "+3 (13)",
+  "hp": "135",
+  "hpFormula": "18d10 + 36",
+  "speed": "30 ft., Climb 30 ft.",
+  "abilityScores": {
+    "str": 18,
+    "dex": 16,
+    "con": 15,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 3,
+    "con": 2,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Stealth +6",
+  "senses": "Darkvision 60 ft.; Passive Perception 12",
+  "languages": "None",
+  "cr": "7 (XP 2,900; PB +3)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The grick makes one Beak attack, one Slam attack, and one Tentacles attack."
+    },
+    {
+      "name": "Beak",
+      "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 22 (4d8 + 4) Piercing damage."
+    },
+    {
+      "name": "Slam",
+      "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 7 (1d6 + 4) Bludgeoning damage. If the target is a Large or smaller creature, it has the *Prone* condition."
+    },
+    {
+      "name": "Tentacles",
+      "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 15 (2d10 + 4) Slashing damage. If the target is a Large or smaller creature, it has the *Grappled* condition (escape DC 14) from all four tentacles."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Worms That Hunt the Dark and Decaying*\n**Habitat:** Forest, Underdark; **Treasure:** Any\nGricks are wormlike predators that burst from hiding--flailing and snapping--to consume whatever prey passes near. They hide in cavernous crags or amid deadfalls, the scattered bones and possessions of past meals the only evidence of their threat.\nGricks' origins are unclear, but some suggest these creatures arise from natural worms or similar invertebrates mutated by magical phenomena. Many cite the presence of gricks in a region as evidence of portals to other planes of existence, legendary magic items, or powerful supernatural beings.\nGricks tend to be solitary hunters, but young gricks might lurk near dozens of their brood mates for years before gradually drifting apart.\nGricks can live for centuries, with the eldest growing to monstrous sizes. Grick ancients actively hunt more than they wait in ambush, and they have no qualms about devouring smaller gricks.",
+  "habitat": "Forest, Underdark",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

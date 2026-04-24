@@ -1,0 +1,28 @@
+{
+  "id": "crafting-items",
+  "name": "Crafting Nonmagical Items",
+  "description": "A character who has proficiency with the appropriate artisan's tools can craft nonmagical items during downtime. The character must have the raw materials and tools needed.",
+  "requirements": [
+    "Proficiency with the appropriate artisan's tools",
+    "Raw materials worth half the item's market value",
+    "A suitable workspace"
+  ],
+  "progressPerDay": {
+    "gpValuePerDay": 5,
+    "description": "For every day of downtime spent crafting, a character can craft items with a total market value of up to 5 GP. The character must spend raw materials worth half of that market value."
+  },
+  "multipleCharacters": "Multiple characters can combine their efforts to craft a single item, provided they all have proficiency with the requisite tools and are working together in the same location. Each character contributes 5 GP worth of crafting progress per day.",
+  "examples": [
+    { "item": "Chain Mail (75 GP)", "rawMaterialCost": "37 GP 5 SP", "daysToComplete": 15, "tools": "Smith's Tools" },
+    { "item": "Longbow (50 GP)", "rawMaterialCost": "25 GP", "daysToComplete": 10, "tools": "Woodcarver's Tools" },
+    { "item": "Plate Armor (1,500 GP)", "rawMaterialCost": "750 GP", "daysToComplete": 300, "tools": "Smith's Tools" },
+    { "item": "Rope, 50 ft (1 GP)", "rawMaterialCost": "5 SP", "daysToComplete": 1, "tools": "Weaver's Tools" },
+    {
+      "item": "Shield (10 GP)",
+      "rawMaterialCost": "5 GP",
+      "daysToComplete": 2,
+      "tools": "Carpenter's Tools or Smith's Tools"
+    }
+  ],
+  "notes": "While crafting, a character can maintain a modest lifestyle without paying the normal daily cost. Characters with higher lifestyle expectations must pay the difference."
+}

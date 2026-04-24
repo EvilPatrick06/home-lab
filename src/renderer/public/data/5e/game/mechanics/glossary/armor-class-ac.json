@@ -1,0 +1,11 @@
+{
+  "name": "Armor Class (AC)",
+  "slug": "armor-class-ac",
+  "description": "An Armor Class is the target number for an attack roll. AC represents how difficult it is to hit a target. Armor, shields, spells, and other factors can grant a bonus to AC or set AC to a specific number.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

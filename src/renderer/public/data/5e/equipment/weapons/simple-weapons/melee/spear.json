@@ -1,0 +1,22 @@
+{
+  "name": "Spear",
+  "slug": "spear",
+  "category": "Simple",
+  "type": "Melee",
+  "damage": "1d6",
+  "damageType": "Piercing",
+  "properties": ["Thrown", "Versatile"],
+  "mastery": "Sap",
+  "weight": "3 lb.",
+  "cost": "1 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 20,
+    "long": 60
+  },
+  "versatileDamage": "1d8"
+}

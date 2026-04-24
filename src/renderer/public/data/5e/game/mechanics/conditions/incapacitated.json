@@ -1,0 +1,11 @@
+{
+  "name": "Incapacitated",
+  "slug": "incapacitated",
+  "description": "An Incapacitated creature can't take actions or Reactions.",
+  "category": "Condition",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Costume",
+  "cost": "5 GP",
+  "weight": "4 lb.",
+  "description": "Advantage on ability checks to impersonate the person/type it represents.",
+  "slug": "costume",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Spyglass",
+  "cost": "1,000 GP",
+  "weight": "1 lb.",
+  "description": "Objects viewed are magnified to twice their size.",
+  "slug": "spyglass",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

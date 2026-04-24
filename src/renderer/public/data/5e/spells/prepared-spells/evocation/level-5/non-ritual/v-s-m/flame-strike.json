@@ -1,0 +1,80 @@
+{
+  "name": "Flame Strike",
+  "level": 5,
+  "school": "Evocation",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a pinch of sulfur",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "A vertical column of brilliant fire roars down from above. Each creature in a 10-foot-radius, 40-foot-high Cylinder centered on a point within range makes a Dexterity saving throw, taking 5d6 Fire damage and 5d6 Radiant damage on a failed save or half as much damage on a successful one.",
+  "areaOfEffect": [
+    {
+      "shape": "Cylinder",
+      "radiusFeet": 10,
+      "heightFeet": 40
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 6
+      },
+      "type": "Fire",
+      "applicationType": "onFailedSave",
+      "halfOnSave": true
+    },
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 6
+      },
+      "type": "Radiant",
+      "applicationType": "onFailedSave",
+      "halfOnSave": true
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 5,
+        "description": "The Fire damage increases by 1d6 for each spell slot level above 5."
+      },
+      {
+        "type": "damageIncrease",
+        "diceCountPerLevel": 1,
+        "diceValue": 6,
+        "baseSpellLevel": 5,
+        "description": "The Radiant damage increases by 1d6 for each spell slot level above 5."
+      }
+    ]
+  },
+  "tags": ["damage", "fire", "radiant", "area"]
+}

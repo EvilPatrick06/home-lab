@@ -1,0 +1,17 @@
+{
+  "name": "Manual of Bodily Health",
+  "cost": {
+    "amount": 50000,
+    "denomination": "GP"
+  },
+  "weight": 5,
+  "description": "This magic book contains health and diet tips, and its words are charged with magic. If you spend 48 hours over a period of 6 or fewer days studying the book's contents and practicing its guidelines, your Constitution score increases by 2, as does your maximum for that score. The manual then loses its magic but regains it in a century.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Pipes of Haunting",
+  "cost": {
+    "amount": 200,
+    "denomination": "GP"
+  },
+  "weight": 2,
+  "description": "You must be proficient with Wind Instruments to use these pipes. They have 3 charges. You can take a Use action to play them and expend 1 charge to create an eerie, spellbinding tune. Each creature within 30 feet of you that hears you play must succeed on a Wisdom saving throw or have the Frightened condition for 1 minute. If you wish, all creatures in the area that aren't hostile toward you automatically succeed on the saving throw. A Frightened creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. A creature that succeeds on its saving throw is immune to the effect of these pipes for 24 hours. The pipes regain 1d3 expended charges daily at dawn.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": "Utilize",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "dcFormula": "15"
+  },
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

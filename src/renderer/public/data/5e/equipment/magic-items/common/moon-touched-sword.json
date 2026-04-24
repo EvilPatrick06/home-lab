@@ -1,0 +1,13 @@
+{
+  "name": "Moon-Touched Sword",
+  "slug": "moon-touched-sword",
+  "type": "Weapon (Glaive",
+  "rarity": "Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Common",
+  "attunement": false,
+  "description": "In Darkness, the unsheathed blade of this weapon sheds moonlight, creating Bright Light in a 15-foot radius and Dim Light for an additional 15 feet.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

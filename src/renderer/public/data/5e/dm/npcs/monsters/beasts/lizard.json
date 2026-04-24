@@ -1,0 +1,52 @@
+{
+  "name": "Lizard",
+  "slug": "lizard",
+  "size": "Tiny",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": "10",
+  "initiative": "+0 (10)",
+  "hp": "2",
+  "hpFormula": "1d4",
+  "speed": "20 ft., Climb 20 ft.",
+  "abilityScores": {
+    "str": 2,
+    "dex": 11,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -4,
+    "dex": 0,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Darkvision 30 ft.; Passive Perception 9",
+  "languages": "None",
+  "cr": "0 (XP 10; PB +2)",
+  "traits": [
+    {
+      "name": "Spider Climb",
+      "description": "The lizard can climb difficult surfaces, including along ceilings, without needing to make an ability check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee Attack Roll:* +2, reach 5 ft. *Hit:* 1 Piercing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Appendix A: Animals",
+    "file": "Creatures.md"
+  }
+}

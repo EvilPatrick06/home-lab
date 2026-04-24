@@ -1,0 +1,180 @@
+{
+  "name": "Frost Giant",
+  "sizes": ["Huge"],
+  "creatureType": "Giant",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Arctic", "Mountain"],
+  "treasure": ["Armaments"],
+  "armorClass": {
+    "value": 15,
+    "sources": ["Patchwork Armor"]
+  },
+  "hitPoints": {
+    "average": 138,
+    "dice": {
+      "count": 12,
+      "die": "d12",
+      "modifier": 60
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 23,
+      "modifier": 6,
+      "save": 6
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 21,
+      "modifier": 5,
+      "save": 8
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 12,
+      "modifier": 1,
+      "save": 4
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Athletics",
+      "bonus": 9
+    },
+    {
+      "skill": "Perception",
+      "bonus": 4
+    }
+  ],
+  "damageImmunities": ["Cold"],
+  "gear": [
+    {
+      "name": "Greataxe",
+      "quantity": 1
+    },
+    {
+      "name": "Patchwork Armor",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Giant"]
+  },
+  "challengeRating": "8",
+  "experiencePoints": 3900,
+  "proficiencyBonus": 3,
+  "multiattack": {
+    "description": "The giant makes two attacks, using Greataxe, Rock, or a combination of them.",
+    "attacks": [
+      {
+        "actionName": "Greataxe",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greataxe",
+        "replaceCount": 2,
+        "with": "Rock"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greataxe",
+      "description": "Melee Attack Roll: +9, reach 10 ft. Hit: 19 (2d12 + 6) Slashing damage plus 4 (1d8) Cold damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 2,
+                "die": "d12",
+                "modifier": 6
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rock",
+      "description": "Ranged Attack Roll: +9, range 60/240 ft. Hit: 28 (4d10 + 6) Bludgeoning damage. If the target is a creature, it must succeed on a DC 17 Strength saving throw or have the Prone condition.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 9,
+        "range": {
+          "normal": 60,
+          "long": 240
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 28,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 6
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "savingThrow": {
+            "ability": "STR",
+            "dc": 17,
+            "targets": "the target if it is a creature",
+            "onFailure": {
+              "conditions": [
+                {
+                  "condition": "Prone"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

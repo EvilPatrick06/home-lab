@@ -1,0 +1,13 @@
+{
+  "name": "Scroll of Protection",
+  "slug": "scroll-of-protection",
+  "type": "Scroll",
+  "rarity": "Rare",
+  "attunement": false,
+  "description": "Each *Scroll of Protection* works against creatures of a specific creature type chosen by the DM or determined by rolling on the following table.\n\n| 1d100 | Creature Type | 1d100 | Creature Type |\n|-------|---------------|-------|---------------|\n| 01--10 | Aberrations | 51--60 | Fey |\n| 11--15 | Beasts | 61--70 | Fiends |\n| 16--20 | Celestials | 71--75 | Giants |\n| 21--25 | Constructs | 76--80 | Monstrosities |\n| 26--35 | Dragons | 81--85 | Oozes |\n| 36--45 | Elementals | 86--90 | Plants |\n| 46--50 | Humanoids | 91--00 | Undead |\n\nUsing a Magic action to read the scroll creates a 5-foot Emanation originating from you. For 5 minutes, creatures of the specified type can't enter or affect anything in the area. However, if you move in such a way that a creature of the specified type would be inside the area, the effect ends.\n\nAs a Magic action, a creature within 5 feet of the Emanation can attempt to overcome it, which forces the creature to make a DC 15 Charisma saving throw. On a successful save, the creature ceases to be affected by the Emanation.",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Magic Items"
+  }
+}

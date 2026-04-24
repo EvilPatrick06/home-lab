@@ -1,0 +1,68 @@
+{
+  "name": "Cockatrice Regent",
+  "slug": "cockatrice-regent",
+  "size": "Large",
+  "type": "Monstrosity",
+  "alignment": "Unaligned",
+  "ac": "15",
+  "initiative": "+2 (12)",
+  "hp": "136",
+  "hpFormula": "16d10 + 48",
+  "speed": "30 ft., Fly 60 ft.",
+  "abilityScores": {
+    "str": 19,
+    "dex": 14,
+    "con": 16,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 4,
+    "dex": 2,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Petrified",
+  "senses": "Darkvision 120 ft.; Passive Perception 13",
+  "languages": "None",
+  "cr": "8 (XP 3,900; PB +3)",
+  "traits": [
+    {
+      "name": "Flyby",
+      "description": "The cockatrice doesn't provoke an Opportunity Attack when it flies out of an enemy's reach."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The cockatrice makes one Petrifying Bite attack and two Talons attacks."
+    },
+    {
+      "name": "Petrifying Bite",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 13 (2d8 + 4) Piercing damage. If the target is a creature, it is subjected to the following effect. *Constitution Saving Throw:* DC 14. *First Failure:* The target has the *Restrained* condition and repeats the save at the end of its next turn if it is still Restrained, ending the effect on itself on a success. *Second Failure:* The target has the *Petrified* condition instead of the Restrained condition."
+    },
+    {
+      "name": "Talons",
+      "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 18 (4d6 + 4) Slashing damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [
+    {
+      "name": "Magical Backlash",
+      "description": "*Trigger:* A creature within 120 feet of the cockatrice deals damage to it. *Response--Dexterity Saving Throw:* DC 14, the triggering creature. *Failure:* 13 (3d6 + 3) Force damage."
+    }
+  ],
+  "legendaryActions": [],
+  "lore": "*Accursed Avians with the Power to Petrify*\n**Habitat:** Grassland; **Treasure:** None\nCockatrices combine the features of irate roosters and starving reptiles. They petrify those they bite, their slightest peck turning their prey to stone.\nCockatrices often try to claim eye-catching structures--such as ruins and secluded farms--as roosts.\nBolder than their smaller cousins, cockatrice regents brim with unstable magical energy they use to restrain distant foes.",
+  "habitat": "Grassland",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

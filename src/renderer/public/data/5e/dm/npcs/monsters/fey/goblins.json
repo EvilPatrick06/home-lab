@@ -1,0 +1,164 @@
+{
+  "name": "Goblin",
+  "sizes": ["Small"],
+  "creatureType": "Fey",
+  "descriptiveTags": ["Goblinoid"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Forest", "Hill", "Underdark"],
+  "treasure": ["Individual"],
+  "lore": "Goblins are small, cunning creatures linked to the Feywild. Found throughout the multiverse in dark caves, dungeons, and wild lands, goblins are as mischievous as they are dangerous. Individually weak, they gather in large numbers to torment other creatures and serve as scouts, raiders, and minions for more powerful masters.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Leather Armor", "Shield"]
+  },
+  "hitPoints": {
+    "average": 10,
+    "dice": {
+      "count": 4,
+      "die": "d6",
+      "modifier": -4
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "INT": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "CHA": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 6
+    }
+  ],
+  "gear": [
+    {
+      "name": "Leather Armor",
+      "quantity": 1
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    },
+    {
+      "name": "Scimitar",
+      "quantity": 1
+    },
+    {
+      "name": "Shortbow",
+      "quantity": 1
+    },
+    {
+      "name": "Arrows",
+      "quantity": 20
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 9
+  },
+  "languages": {
+    "spoken": ["Common", "Goblin"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "actions": [
+    {
+      "name": "Scimitar",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shortbow",
+      "description": "Ranged Attack Roll: +4, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 4,
+        "range": {
+          "normal": 80,
+          "long": 320
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 5,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Nimble Escape",
+      "description": "The goblin takes the Disengage or Hide action."
+    }
+  ]
+}

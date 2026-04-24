@@ -1,0 +1,61 @@
+{
+  "name": "Mordenkainen's Sword",
+  "level": 7,
+  "school": "Evocation",
+  "classes": ["Bard", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a miniature sword worth 250+ GP",
+      "cost": 250,
+      "currency": "GP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You create a spectral sword that hovers within range. It lasts for the duration. When the sword appears, you make a melee spell attack against a target within 5 feet of the sword. On a hit, the target takes Force damage equal to 4d12 plus your spellcasting ability modifier. On your later turns, you can take a Bonus Action to move the sword up to 30 feet to a spot you can see and repeat the attack against the same target or a different one.",
+  "targetType": "creature",
+  "attackType": "MeleeSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 12,
+        "addCasterMod": true
+      },
+      "type": "Force",
+      "applicationType": "onHit"
+    }
+  ],
+  "subsequentTurnAction": {
+    "actionType": "BonusAction",
+    "description": "Move the sword up to 30 feet to a spot you can see and repeat the melee spell attack against the same target or a different one.",
+    "damage": {
+      "dice": {
+        "diceCount": 4,
+        "diceValue": 12,
+        "addCasterMod": true
+      },
+      "type": "Force",
+      "applicationType": "onHit"
+    },
+    "movementFeet": 30
+  },
+  "tags": ["combat", "force", "spectral-object"]
+}

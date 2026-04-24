@@ -1,0 +1,8 @@
+{
+  "lightingLevels": [
+    { "level": "bright", "tip": "Normal illumination" },
+    { "level": "dim", "tip": "Lightly Obscured \u2014 Disadvantage on Perception (sight)" },
+    { "level": "darkness", "tip": "Heavily Obscured \u2014 Blinded condition without Darkvision" }
+  ],
+  "travelPaces": [null, "fast", "normal", "slow"]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Oil of Taggit",
+  "cost": "400 GP",
+  "type": "Contact",
+  "dc": 13,
+  "damage": "None",
+  "effect": "Poisoned and Unconscious for 24 hours",
+  "description": "A creature subjected to this poison must succeed on a DC 13 Constitution saving throw or have the Poisoned condition and the Unconscious condition for 24 hours. The creature wakes up if it takes damage.",
+  "slug": "oil-of-taggit",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

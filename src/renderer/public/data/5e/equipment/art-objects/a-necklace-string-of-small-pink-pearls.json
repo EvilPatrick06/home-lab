@@ -1,0 +1,13 @@
+{
+  "name": "A necklace string of small pink pearls",
+  "slug": "a-necklace-string-of-small-pink-pearls",
+  "value": "2,500 GP",
+  "category": "Art Object",
+  "description": "",
+  "dieValue": "10",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

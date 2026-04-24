@@ -1,0 +1,35 @@
+{
+  "id": "noble",
+  "name": "Noble",
+  "size": "Medium",
+  "type": "Humanoid",
+  "alignment": "Any Alignment",
+  "ac": 15,
+  "acSource": "breastplate",
+  "hp": 9,
+  "hpFormula": "2d8",
+  "speed": "30 ft.",
+  "stats": { "str": 11, "dex": 12, "con": 11, "int": 12, "wis": 14, "cha": 16 },
+  "skills": "Deception +5, Insight +4, Persuasion +5",
+  "senses": "Passive Perception 12",
+  "languages": "Any two languages",
+  "cr": "1/8",
+  "xp": "25 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Rapier",
+      "description": "*Melee Weapon Attack:* +3 to hit, reach 5 ft., one target. *Hit:* 5 (1d8 + 1) piercing damage."
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Parry",
+      "description": "The noble adds 2 to its AC against one melee attack that would hit it. To do so, the noble must see the attacker and be wielding a melee weapon."
+    }
+  ],
+  "source": {
+    "book": "2024 Monster Manual",
+    "section": "NPC Stat Blocks"
+  }
+}

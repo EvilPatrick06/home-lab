@@ -1,0 +1,13 @@
+{
+  "id": "piercing",
+  "name": "Piercing",
+  "description": "Puncturing and impaling attacks, including spears and monster bites, deal Piercing damage. This is one of the three physical damage types.",
+  "commonSources": [
+    "Rapiers and shortswords",
+    "Spears and javelins",
+    "Arrows and crossbow bolts",
+    "Bite attacks",
+    "Spike traps"
+  ],
+  "resistanceNotes": "Many creatures resist nonmagical Piercing damage. Were-creatures are immune to nonmagical, non-silvered Piercing damage."
+}

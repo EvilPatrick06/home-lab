@@ -1,0 +1,35 @@
+{
+  "id": "disarm",
+  "name": "Disarm",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "A creature can use a weapon attack to knock a weapon or another item from a target's grasp. The attacker makes an attack roll contested by the target's Strength (Athletics) or Dexterity (Acrobatics) check (target's choice). If the attacker wins the contest, the target drops the item.",
+  "mechanics": {
+    "action": "Uses one weapon attack (part of the Attack action or a similar feature that grants weapon attacks)",
+    "attackerRoll": "Attack roll (d20 + attack modifier)",
+    "defenderRoll": "Strength (Athletics) or Dexterity (Acrobatics) check (target's choice)",
+    "onSuccess": "The target drops the item. The item lands at the target's feet in its space.",
+    "onFailure": "No effect. The attack is expended.",
+    "modifiers": {
+      "advantage": "The attacker has Advantage on the attack roll if it is wielding a weapon with two hands",
+      "disadvantage": "The attacker has Disadvantage on the attack roll if the target is holding the item with two or more hands"
+    },
+    "sizeModifiers": {
+      "description": "The target has Advantage on its ability check if it is larger than the attacker, or Disadvantage if it is smaller"
+    },
+    "limitations": [
+      "The target must be holding an item that can be dropped (weapons, shields, spellcasting focuses, etc.)",
+      "Natural weapons (claws, teeth) and integrated weapons cannot be disarmed",
+      "The item drops in the target's space; the target can use its free object interaction on its turn to pick it up",
+      "This uses one attack, so a creature with Extra Attack can attempt to disarm and still make remaining attacks"
+    ]
+  },
+  "interactions": [
+    "Fighters and other martial classes with Extra Attack can attempt a disarm and still make additional attacks on the same turn",
+    "A disarmed creature can pick up the dropped item using its free object interaction on its turn, so allies should try to kick or grab the item",
+    "Shield Master and similar features do not apply since disarm uses an attack roll, not a shove",
+    "This is powerful against enemies relying on a single magic weapon or spellcasting focus",
+    "The Telekinetic feat or Mage Hand cantrip can be used to move the dropped item away from the disarmed creature",
+    "Two-handed weapon users are harder to disarm (Disadvantage for the attacker) but this also means two-handed attackers have Advantage when disarming"
+  ]
+}

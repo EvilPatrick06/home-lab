@@ -1,0 +1,68 @@
+{
+  "name": "Spined Devil",
+  "slug": "spined-devil",
+  "size": "Small",
+  "type": "Fiend",
+  "alignment": "Lawful Evil",
+  "ac": "13",
+  "initiative": "+2 (12)",
+  "hp": "45",
+  "hpFormula": "10d6 + 10",
+  "speed": "20 ft., Fly 40 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 15,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 2,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Fire, Poison; Poisoned",
+  "resistances": "Cold",
+  "senses": "Darkvision 120 ft. (unimpeded by magical Darkness); Passive Perception 12",
+  "languages": "Infernal; telepathy 120 ft.",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [
+    {
+      "name": "Flyby",
+      "description": "The devil doesn't provoke an Opportunity Attack when it flies out of an enemy's reach."
+    },
+    {
+      "name": "Magic Resistance",
+      "description": "The devil has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The devil makes two attacks, using Infernal Fork and Tail Spine in any combination."
+    },
+    {
+      "name": "Infernal Fork",
+      "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Piercing damage plus 3 (1d6) Fire damage."
+    },
+    {
+      "name": "Tail Spine",
+      "description": "*Ranged Attack Roll:* +4, range 20/80 ft. *Hit:* 4 (1d4 + 2) Piercing damage plus 3 (1d6) Fire damage."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Devil of Intrusion and Suspicion*\n**Habitat:** Planar (Nine Hells); **Treasure:** None\nSpined devils, also known as spinagons, lurk in the shadows of the Lower Planes, seeking secrets for their infernal lords. They prefer to attack from the air, flinging wicked barbs while staying out of reach of foes. Spined devils collect information to gain leverage over mortals or to entice powerful devils. Roll on or choose a result from the Spined Devil Intelligence table to inspire what information a spined devil seeks or already possesses.",
+  "habitat": "Planar (Nine Hells)",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Devils",
+    "file": "Devils.md"
+  }
+}

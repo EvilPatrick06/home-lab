@@ -1,0 +1,25 @@
+{
+  "name": "Heavy Armor Master",
+  "category": "General",
+  "prerequisites": {
+    "level": 4,
+    "features": ["Heavy Armor Training"]
+  },
+  "abilityScoreIncrease": {
+    "options": [
+      {
+        "abilities": ["Constitution", "Strength"],
+        "amount": 1,
+        "maximum": 20,
+        "count": 1
+      }
+    ]
+  },
+  "benefits": [
+    {
+      "name": "Damage Reduction",
+      "description": "When you're hit by an attack while you're wearing Heavy armor, any Bludgeoning, Piercing, and Slashing damage dealt to you by that attack is reduced by an amount equal to your Proficiency Bonus."
+    }
+  ],
+  "source": "PHB 2024"
+}

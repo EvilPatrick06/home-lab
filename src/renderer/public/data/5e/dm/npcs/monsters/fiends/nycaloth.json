@@ -1,0 +1,222 @@
+{
+  "name": "Nycaloth",
+  "sizes": ["Large"],
+  "creatureType": "Fiend",
+  "descriptiveTags": ["Yugoloth"],
+  "alignment": "Neutral Evil",
+  "habitat": ["Planar"],
+  "treasure": ["Any"],
+  "lore": "Nycaloths are powerful yugoloths that serve as elite aerial shock troops in the mercenary armies of the Lower Planes. These winged, gargoyle-like fiends are as ruthless as they are strong, wielding massive greataxes and raking foes with their acidic claws. Nycaloths delight in slaughter and are prized by archfiends for their ability to teleport across the battlefield, sowing chaos wherever they strike.",
+  "armorClass": {
+    "value": 18,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 157,
+    "dice": {
+      "count": 15,
+      "die": "d10",
+      "modifier": 75
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 20,
+      "modifier": 5,
+      "save": 9
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 20,
+      "modifier": 5,
+      "save": 5
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Intimidation",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 4
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 6
+    }
+  ],
+  "resistances": ["Cold, Fire, and Lightning"],
+  "damageImmunities": ["Acid and Poison"],
+  "conditionImmunities": ["Poisoned"],
+  "gear": [
+    {
+      "name": "Greataxe",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 14
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Infernal"],
+    "telepathy": 60
+  },
+  "challengeRating": "9",
+  "experiencePoints": 5000,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Magic Resistance",
+      "description": "The nycaloth has Advantage on saving throws against spells and other magical effects."
+    }
+  ],
+  "multiattack": {
+    "description": "The nycaloth makes two Greataxe attacks and one Claw attack. It can replace one of these attacks with Teleport.",
+    "attacks": [
+      {
+        "actionName": "Greataxe",
+        "count": 2
+      },
+      {
+        "actionName": "Claw",
+        "count": 1
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Greataxe",
+        "replaceCount": 1,
+        "with": "Teleport"
+      },
+      {
+        "replace": "Claw",
+        "replaceCount": 1,
+        "with": "Teleport"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Greataxe",
+      "description": "Melee Attack Roll: +9, reach 5 ft. Hit: 18 (2d12 + 5) Slashing damage plus 9 (2d8) Acid damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 18,
+              "dice": {
+                "count": 2,
+                "die": "d12",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +9, reach 5 ft. Hit: 12 (2d6 + 5) Slashing damage. If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 17).",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 9,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 5
+              },
+              "type": "Slashing"
+            }
+          ],
+          "additionalEffects": "If the target is a Medium or smaller creature, it has the Grappled condition (escape DC 17).",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 17
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Teleport",
+      "description": "The nycaloth teleports, along with any equipment it is wearing or carrying, up to 60 feet to an unoccupied space it can see.",
+      "teleport": {
+        "distance": 60
+      }
+    },
+    {
+      "name": "Summon Yugoloth",
+      "description": "The nycaloth has a 50 percent chance of summoning one nycaloth. A summoned yugoloth appears in an unoccupied space within 60 feet of the nycaloth, acts as an ally of the nycaloth, and can't summon other yugoloths. The summoned yugoloth remains for 1 minute, until it or the summoning nycaloth dies, or until the summoning nycaloth takes a Bonus Action to dismiss it.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 1
+      },
+      "summon": {
+        "creatureName": "Nycaloth",
+        "fixedCount": 1,
+        "notes": "50 percent chance of success; summoned yugoloth can't summon other yugoloths; lasts 1 minute or until either dies"
+      }
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "name": "Earthquake",
+  "level": 8,
+  "school": "Transmutation",
+  "classes": ["Cleric", "Druid", "Sorcerer"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 500,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a fractured rock",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Choose a point on the ground that you can see within range. For the duration, an intense tremor rips through the ground in a 100-foot-radius circle centered on that point. The ground there is Difficult Terrain. When you cast the spell and at the end of each of your turns during the duration, each creature on the ground in the area makes a Dexterity saving throw. On a failed save, a creature has the Prone condition, and its Concentration is broken. You can also cause the effects below. Fissures: A total of 1d6 fissures open in the spell's area at the end of the turn you cast it. You choose the fissures' locations, which can't be under structures. Each fissure is 1d10 x 10 feet deep and 10 feet wide, and it extends from one edge of the spell's area to another edge. A creature in the same space as a fissure must succeed on a Dexterity saving throw or fall in. A creature that successfully saves moves with the fissure's edge as it opens. Structures: The tremor deals 50 Bludgeoning damage to any structure in contact with the ground in the area when you cast the spell and at the end of each of your turns until the spell ends. If a structure drops to 0 Hit Points, it collapses. A creature within a distance from a collapsing structure equal to half the structure's height makes a Dexterity saving throw. On a failed save, the creature takes 12d6 Bludgeoning damage, has the Prone condition, and is buried in the rubble, requiring a DC 20 Strength (Athletics) check as an action to escape. On a successful save, the creature takes half as much damage only.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 100
+    }
+  ],
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "savingThrow": {
+    "ability": "Dexterity",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "Prone condition and Concentration is broken"
+  },
+  "conditionsApplied": [
+    {
+      "condition": "Prone",
+      "trigger": "onFailedSave"
+    }
+  ],
+  "createsDifficultTerrain": true,
+  "spellOptions": [
+    {
+      "name": "Fissures",
+      "description": "A total of 1d6 fissures open in the spell's area at the end of the turn you cast it. You choose the fissures' locations, which can't be under structures. Each fissure is 1d10 x 10 feet deep and 10 feet wide, and it extends from one edge of the spell's area to another edge. A creature in the same space as a fissure must succeed on a Dexterity saving throw or fall in. A creature that successfully saves moves with the fissure's edge as it opens.",
+      "savingThrow": {
+        "ability": "Dexterity",
+        "noEffectOnSuccess": true,
+        "effectOnFailure": "The creature falls into the fissure"
+      }
+    },
+    {
+      "name": "Structures",
+      "description": "The tremor deals 50 Bludgeoning damage to any structure in contact with the ground in the area when you cast the spell and at the end of each of your turns until the spell ends. If a structure drops to 0 Hit Points, it collapses. A creature within a distance from a collapsing structure equal to half the structure's height makes a Dexterity saving throw. On a failed save, the creature takes 12d6 Bludgeoning damage, has the Prone condition, and is buried in the rubble, requiring a DC 20 Strength (Athletics) check as an action to escape. On a successful save, the creature takes half as much damage only.",
+      "damage": [
+        {
+          "dice": {
+            "fixedBonus": 50
+          },
+          "type": "Bludgeoning",
+          "applicationType": "recurring",
+          "condition": "Damage to structures in contact with the ground, on cast and at end of each of your turns"
+        },
+        {
+          "dice": {
+            "diceCount": 12,
+            "diceValue": 6
+          },
+          "type": "Bludgeoning",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave",
+          "condition": "Creature near a collapsing structure within a distance equal to half the structure's height"
+        }
+      ],
+      "conditionsApplied": [
+        {
+          "condition": "Prone",
+          "trigger": "onFailedSave",
+          "duration": "Until freed from rubble (DC 20 Strength (Athletics) check as an action)"
+        }
+      ],
+      "savingThrow": {
+        "ability": "Dexterity",
+        "halfDamageOnSuccess": true,
+        "effectOnFailure": "12d6 Bludgeoning damage, Prone condition, and buried in rubble requiring a DC 20 Strength (Athletics) check as an action to escape"
+      }
+    }
+  ],
+  "tags": ["control", "area", "terrain", "destruction"]
+}

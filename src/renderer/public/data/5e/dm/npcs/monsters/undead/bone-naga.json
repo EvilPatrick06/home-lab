@@ -1,0 +1,178 @@
+{
+  "name": "Bone Naga",
+  "sizes": ["Large"],
+  "creatureType": "Undead",
+  "alignment": "Lawful Evil",
+  "habitat": ["Ruins"],
+  "treasure": ["None"],
+  "lore": "When a guardian naga or spirit naga dies, a dark god sometimes raises it as an undead servant known as a bone naga. A bone naga retains fragments of its former personality and the ability to cast spells, though the transformation strips away much of its former identity, leaving behind an undead horror that serves its dark master's will.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 58,
+    "dice": {
+      "count": 9,
+      "die": "d10",
+      "modifier": 9
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    }
+  },
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Charmed", "Exhaustion", "Paralyzed", "Poisoned"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 12
+  },
+  "languages": {
+    "spoken": ["Common"],
+    "notes": "plus one other language"
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Spellcasting",
+      "description": "The naga casts one of the following spells, requiring only Verbal components and using Charisma as the spellcasting ability (spell save DC 13):\n\nAt will: Mage Hand, Minor Illusion\n2/Day each: Command, Hold Person, Shield\n1/Day: Lightning Bolt"
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 13,
+      "componentOverrides": {
+        "ignoresSomatic": true,
+        "ignoresMaterial": true,
+        "ignoresMaterialWithCost": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Mage Hand",
+              "level": 0
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 2,
+          "each": true,
+          "spells": [
+            {
+              "name": "Command",
+              "level": 1
+            },
+            {
+              "name": "Hold Person",
+              "level": 2
+            },
+            {
+              "name": "Shield",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Lightning Bolt",
+              "level": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +5, reach 10 ft. Hit: 10 (2d6 + 3) Piercing damage plus 10 (3d6) Poison damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 10,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 10,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Poison"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

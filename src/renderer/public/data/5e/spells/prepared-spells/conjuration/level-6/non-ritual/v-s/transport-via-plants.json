@@ -1,0 +1,33 @@
+{
+  "name": "Transport via Plants",
+  "level": 6,
+  "school": "Conjuration",
+  "classes": ["Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 10,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "This spell creates a magical link between a Large or larger inanimate plant within range and another plant, at any distance, on the same plane of existence. You must have seen or touched the destination plant at least once before. For the duration, any creature can step into the target plant and exit from the destination plant by using 5 feet of movement.",
+  "targetType": "special",
+  "teleportation": {
+    "selfOnly": false,
+    "description": "Creates a magical link between a Large or larger inanimate plant within range and another plant at any distance on the same plane of existence. Any creature can step into the target plant and exit from the destination plant by using 5 feet of movement for the duration."
+  },
+  "tags": ["teleportation", "utility", "plant"]
+}

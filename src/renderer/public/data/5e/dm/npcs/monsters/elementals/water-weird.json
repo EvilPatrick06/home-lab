@@ -1,0 +1,141 @@
+{
+  "name": "Water Weird",
+  "sizes": ["Large"],
+  "creatureType": "Elemental",
+  "alignment": "Neutral",
+  "habitat": ["Planar", "Underwater"],
+  "treasure": ["None"],
+  "lore": "A water weird is an elemental creature that lurks in bodies of water such as pools, fountains, and wells. Bound to its watery home, it is sometimes placed by spellcasters to serve as a guardian. Invisible while submerged, it strikes without warning, grasping and drowning the unwary with its serpentine body of living water.",
+  "armorClass": {
+    "value": 13
+  },
+  "hitPoints": {
+    "average": 58,
+    "dice": {
+      "count": 9,
+      "die": "d10",
+      "modifier": 9
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 0
+    },
+    {
+      "type": "Swim",
+      "distance": 60
+    }
+  ],
+  "initiative": {
+    "modifier": 3,
+    "score": 13
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 17,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CON": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "resistances": ["Fire"],
+  "damageImmunities": ["Poison"],
+  "conditionImmunities": ["Exhaustion", "Grappled", "Paralyzed", "Poisoned", "Prone", "Restrained", "Unconscious"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 30
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "understood": ["Aquan"],
+    "notes": "understands Aquan but can't speak"
+  },
+  "challengeRating": "3",
+  "experiencePoints": 700,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Invisible in Water",
+      "description": "The water weird is Invisible while fully immersed in water."
+    },
+    {
+      "name": "Water Bound",
+      "description": "The water weird dies if it leaves the body of water in which it lairs or if that body of water is destroyed."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Constrict",
+      "description": "Melee Attack Roll: +5, reach 10 ft. Hit: 13 (3d6 + 3) Bludgeoning damage. If the target is Medium or smaller, it has the Grappled condition (escape DC 13) and is pulled into the water weird's space. Until this grapple ends, the target has the Restrained condition, the water weird tries to drown it, and the water weird can't Constrict another target.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 13,
+              "dice": {
+                "count": 3,
+                "die": "d6",
+                "modifier": 3
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the target is Medium or smaller, it is pulled into the water weird's space. Until the grapple ends, the water weird tries to drown the target, and the water weird can't Constrict another target.",
+          "conditions": [
+            {
+              "condition": "Grappled",
+              "escapeDC": 13
+            },
+            {
+              "condition": "Restrained",
+              "duration": "until the grapple ends"
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Grappled",
+          "escapeDC": 13
+        },
+        {
+          "condition": "Restrained",
+          "duration": "until the grapple ends"
+        }
+      ]
+    }
+  ]
+}

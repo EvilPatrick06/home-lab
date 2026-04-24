@@ -1,0 +1,894 @@
+{
+  "name": "Rogue",
+  "description": "Rogues rely on cunning, stealth, and their foes' vulnerabilities to get the upper hand in any situation. They have a knack for finding the solution to just about any problem. A few even learn magical tricks to supplement their other abilities. Many Rogues focus on stealth and deception, while others refine skills that help them in a dungeon environment, such as climbing, finding and disarming traps, and opening locks. In combat, Rogues prioritize subtle strikes over brute strength. They would rather make one precise strike than wear an opponent down with a barrage of blows.",
+  "coreTraits": {
+    "primaryAbility": ["Dexterity"],
+    "hitPointDie": "D8",
+    "savingThrowProficiencies": ["Dexterity", "Intelligence"],
+    "skillProficiencies": {
+      "count": 4,
+      "from": [
+        "Acrobatics",
+        "Athletics",
+        "Deception",
+        "Insight",
+        "Intimidation",
+        "Investigation",
+        "Perception",
+        "Persuasion",
+        "Sleight of Hand",
+        "Stealth"
+      ]
+    },
+    "weaponProficiencies": [
+      {
+        "category": "Simple"
+      },
+      {
+        "category": "Martial",
+        "restriction": "Finesse or Light property"
+      }
+    ],
+    "toolProficiencies": [
+      {
+        "type": "specific",
+        "name": "Thieves' Tools"
+      }
+    ],
+    "armorTraining": ["Light"],
+    "startingEquipment": [
+      {
+        "label": "A",
+        "items": [
+          "Leather Armor",
+          "2 Daggers",
+          "Shortsword",
+          "Shortbow",
+          "20 Arrows",
+          "Quiver",
+          "Thieves' Tools",
+          "Burglar's Pack"
+        ],
+        "gp": 8
+      },
+      {
+        "label": "B",
+        "items": [],
+        "gp": 100
+      }
+    ]
+  },
+  "multiclassing": {
+    "hitPointDie": true,
+    "armorTraining": ["Light"],
+    "skillProficiencies": {
+      "count": 1,
+      "from": [
+        "Acrobatics",
+        "Athletics",
+        "Deception",
+        "Insight",
+        "Intimidation",
+        "Investigation",
+        "Perception",
+        "Persuasion",
+        "Sleight of Hand",
+        "Stealth"
+      ]
+    },
+    "toolProficiencies": [
+      {
+        "type": "specific",
+        "name": "Thieves' Tools"
+      }
+    ]
+  },
+  "spellcasting": null,
+  "levelProgression": [
+    {
+      "level": 1,
+      "proficiencyBonus": 2,
+      "features": ["Expertise", "Sneak Attack", "Thieves' Cant", "Weapon Mastery"],
+      "sneakAttackDice": 1
+    },
+    {
+      "level": 2,
+      "proficiencyBonus": 2,
+      "features": ["Cunning Action"],
+      "sneakAttackDice": 1
+    },
+    {
+      "level": 3,
+      "proficiencyBonus": 2,
+      "features": ["Rogue Subclass", "Steady Aim"],
+      "sneakAttackDice": 2
+    },
+    {
+      "level": 4,
+      "proficiencyBonus": 2,
+      "features": ["Ability Score Improvement"],
+      "sneakAttackDice": 2
+    },
+    {
+      "level": 5,
+      "proficiencyBonus": 3,
+      "features": ["Cunning Strike", "Uncanny Dodge"],
+      "sneakAttackDice": 3
+    },
+    {
+      "level": 6,
+      "proficiencyBonus": 3,
+      "features": ["Expertise"],
+      "sneakAttackDice": 3
+    },
+    {
+      "level": 7,
+      "proficiencyBonus": 3,
+      "features": ["Evasion", "Reliable Talent"],
+      "sneakAttackDice": 4
+    },
+    {
+      "level": 8,
+      "proficiencyBonus": 3,
+      "features": ["Ability Score Improvement"],
+      "sneakAttackDice": 4
+    },
+    {
+      "level": 9,
+      "proficiencyBonus": 4,
+      "features": ["Subclass feature"],
+      "sneakAttackDice": 5
+    },
+    {
+      "level": 10,
+      "proficiencyBonus": 4,
+      "features": ["Ability Score Improvement"],
+      "sneakAttackDice": 5
+    },
+    {
+      "level": 11,
+      "proficiencyBonus": 4,
+      "features": ["Improved Cunning Strike"],
+      "sneakAttackDice": 6
+    },
+    {
+      "level": 12,
+      "proficiencyBonus": 4,
+      "features": ["Ability Score Improvement"],
+      "sneakAttackDice": 6
+    },
+    {
+      "level": 13,
+      "proficiencyBonus": 5,
+      "features": ["Subclass feature"],
+      "sneakAttackDice": 7
+    },
+    {
+      "level": 14,
+      "proficiencyBonus": 5,
+      "features": ["Devious Strikes"],
+      "sneakAttackDice": 7
+    },
+    {
+      "level": 15,
+      "proficiencyBonus": 5,
+      "features": ["Slippery Mind"],
+      "sneakAttackDice": 8
+    },
+    {
+      "level": 16,
+      "proficiencyBonus": 5,
+      "features": ["Ability Score Improvement"],
+      "sneakAttackDice": 8
+    },
+    {
+      "level": 17,
+      "proficiencyBonus": 6,
+      "features": ["Subclass feature"],
+      "sneakAttackDice": 9
+    },
+    {
+      "level": 18,
+      "proficiencyBonus": 6,
+      "features": ["Elusive"],
+      "sneakAttackDice": 9
+    },
+    {
+      "level": 19,
+      "proficiencyBonus": 6,
+      "features": ["Epic Boon"],
+      "sneakAttackDice": 10
+    },
+    {
+      "level": 20,
+      "proficiencyBonus": 6,
+      "features": ["Stroke of Luck"],
+      "sneakAttackDice": 10
+    }
+  ],
+  "classFeatures": [
+    {
+      "name": "Expertise",
+      "level": 1,
+      "description": "You gain Expertise in two of your skill proficiencies of your choice. Sleight of Hand and Stealth are recommended if you have proficiency in them. At Rogue level 6, you gain Expertise in two more of your skill proficiencies of your choice.",
+      "activation": "Passive",
+      "grantsProficiencies": {
+        "expertise": {
+          "count": 2,
+          "from": "proficient"
+        }
+      }
+    },
+    {
+      "name": "Sneak Attack",
+      "level": 1,
+      "description": "You know how to strike subtly and exploit a foe's distraction. Once per turn, you can deal an extra 1d6 damage to one creature you hit with an attack roll if you have Advantage on the roll and the attack uses a Finesse or a Ranged weapon. The extra damage's type is the same as the weapon's type. You don't need Advantage on the attack roll if at least one of your allies is within 5 feet of the target, the ally doesn't have the Incapacitated condition, and you don't have Disadvantage on the attack roll. The extra damage increases as you gain Rogue levels, as shown in the Sneak Attack column of the Rogue Features table.",
+      "activation": "Special",
+      "scalingValues": {
+        "sneakAttackDice": [
+          {
+            "level": 1,
+            "value": 1
+          },
+          {
+            "level": 3,
+            "value": 2
+          },
+          {
+            "level": 5,
+            "value": 3
+          },
+          {
+            "level": 7,
+            "value": 4
+          },
+          {
+            "level": 9,
+            "value": 5
+          },
+          {
+            "level": 11,
+            "value": 6
+          },
+          {
+            "level": 13,
+            "value": 7
+          },
+          {
+            "level": 15,
+            "value": 8
+          },
+          {
+            "level": 17,
+            "value": 9
+          },
+          {
+            "level": 19,
+            "value": 10
+          }
+        ]
+      }
+    },
+    {
+      "name": "Thieves' Cant",
+      "level": 1,
+      "description": "You picked up various languages in the communities where you plied your roguish talents. You know Thieves' Cant and one other language of your choice, which you choose from the language tables in chapter 2.",
+      "activation": "Passive",
+      "grantsProficiencies": {
+        "languages": [
+          "Thieves' Cant",
+          {
+            "count": 1,
+            "from": "language tables in chapter 2"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Weapon Mastery",
+      "level": 1,
+      "description": "Your training with weapons allows you to use the mastery properties of two kinds of weapons of your choice with which you have proficiency, such as Daggers and Shortbows. Whenever you finish a Long Rest, you can change the kinds of weapons you chose. For example, you could switch to using the mastery properties of Scimitars and Shortswords.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Cunning Action",
+      "level": 2,
+      "description": "Your quick thinking and agility allow you to move and act quickly. On your turn, you can take one of the following actions as a Bonus Action: Dash, Disengage, or Hide.",
+      "activation": "BonusAction"
+    },
+    {
+      "name": "Steady Aim",
+      "level": 3,
+      "description": "As a Bonus Action, you give yourself Advantage on your next attack roll on the current turn. You can use this feature only if you haven't moved during this turn, and after you use it, your Speed is 0 until the end of the current turn.",
+      "activation": "BonusAction"
+    },
+    {
+      "name": "Ability Score Improvement",
+      "level": 4,
+      "description": "You gain the Ability Score Improvement feat (see chapter 5) or another feat of your choice for which you qualify. You gain this feature again at Rogue levels 8, 10, 12, and 16.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Cunning Strike",
+      "level": 5,
+      "description": "You've developed cunning ways to use your Sneak Attack. When you deal Sneak Attack damage, you can add one of the following Cunning Strike effects. Each effect has a die cost, which is the number of Sneak Attack damage dice you must forgo to add the effect. You remove the die before rolling, and the effect occurs immediately after the attack's damage is dealt. If a Cunning Strike effect requires a saving throw, the DC equals 8 plus your Dexterity modifier and Proficiency Bonus.",
+      "activation": "Special",
+      "savingThrow": {
+        "ability": "Dexterity",
+        "formula": "8 + Dexterity modifier + Proficiency Bonus"
+      },
+      "options": [
+        {
+          "name": "Poison",
+          "description": "You add a toxin to your strike, forcing the target to make a Constitution saving throw. On a failed save, the target has the Poisoned condition for 1 minute. At the end of each of its turns, the Poisoned target repeats the save, ending the effect on itself on a success. To use this effect, you must have a Poisoner's Kit on your person.",
+          "cost": "1d6",
+          "conditions": ["Poisoned"]
+        },
+        {
+          "name": "Trip",
+          "description": "If the target is Large or smaller, it must succeed on a Dexterity saving throw or have the Prone condition.",
+          "cost": "1d6",
+          "conditions": ["Prone"]
+        },
+        {
+          "name": "Withdraw",
+          "description": "Immediately after the attack, you move up to half your Speed without provoking Opportunity Attacks.",
+          "cost": "1d6"
+        }
+      ]
+    },
+    {
+      "name": "Uncanny Dodge",
+      "level": 5,
+      "description": "When an attacker that you can see hits you with an attack roll, you can take a Reaction to halve the attack's damage against you (round down).",
+      "activation": "Reaction"
+    },
+    {
+      "name": "Expertise",
+      "level": 6,
+      "description": "You gain Expertise in two more of your skill proficiencies of your choice.",
+      "activation": "Passive",
+      "replacesOrImproves": "Expertise",
+      "grantsProficiencies": {
+        "expertise": {
+          "count": 2,
+          "from": "proficient"
+        }
+      }
+    },
+    {
+      "name": "Evasion",
+      "level": 7,
+      "description": "When you're subjected to an effect that allows you to make a Dexterity saving throw to take only half damage, you instead take no damage if you succeed on the saving throw and only half damage if you fail. You can't use this feature if you have the Incapacitated condition.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Reliable Talent",
+      "level": 7,
+      "description": "Whenever you make an ability check that uses one of your skill or tool proficiencies, you can treat a d20 roll of 9 or lower as a 10.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Improved Cunning Strike",
+      "level": 11,
+      "description": "You can use up to two Cunning Strike effects when you deal Sneak Attack damage, paying the die cost for each effect.",
+      "activation": "Passive",
+      "replacesOrImproves": "Cunning Strike"
+    },
+    {
+      "name": "Devious Strikes",
+      "level": 14,
+      "description": "You've practiced new ways to use your Sneak Attack deviously. The following effects are now among your Cunning Strike options.",
+      "activation": "Special",
+      "replacesOrImproves": "Cunning Strike",
+      "savingThrow": {
+        "ability": "Dexterity",
+        "formula": "8 + Dexterity modifier + Proficiency Bonus"
+      },
+      "options": [
+        {
+          "name": "Daze",
+          "description": "The target must succeed on a Constitution saving throw, or on its next turn, it can do only one of the following: move or take an action or a Bonus Action.",
+          "cost": "2d6"
+        },
+        {
+          "name": "Knock Out",
+          "description": "The target must succeed on a Constitution saving throw, or it has the Unconscious condition for 1 minute or until it takes any damage. The Unconscious target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+          "cost": "6d6",
+          "conditions": ["Unconscious"]
+        },
+        {
+          "name": "Obscure",
+          "description": "The target must succeed on a Dexterity saving throw, or it has the Blinded condition until the end of its next turn.",
+          "cost": "3d6",
+          "conditions": ["Blinded"]
+        }
+      ]
+    },
+    {
+      "name": "Slippery Mind",
+      "level": 15,
+      "description": "Your cunning mind is exceptionally difficult to control. You gain proficiency in Wisdom and Charisma saving throws.",
+      "activation": "Passive",
+      "grantsProficiencies": {
+        "savingThrows": ["Wisdom", "Charisma"]
+      }
+    },
+    {
+      "name": "Elusive",
+      "level": 18,
+      "description": "You're so evasive that attackers rarely gain the upper hand against you. No attack roll can have Advantage against you unless you have the Incapacitated condition.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Epic Boon",
+      "level": 19,
+      "description": "You gain an Epic Boon feat (see chapter 5) or another feat of your choice for which you qualify. Boon of the Night Spirit is recommended.",
+      "activation": "Passive"
+    },
+    {
+      "name": "Stroke of Luck",
+      "level": 20,
+      "description": "You have a marvelous knack for succeeding when you need to. If you fail a D20 Test, you can turn the roll into a 20. Once you use this feature, you can't use it again until you finish a Short or Long Rest.",
+      "activation": "Free",
+      "usesPerRest": {
+        "uses": 1,
+        "restType": "ShortOrLong"
+      }
+    }
+  ],
+  "subclassLabel": "Rogue Subclass",
+  "subclassFeatureLevels": [3, 9, 13, 17],
+  "subclasses": [
+    {
+      "name": "Arcane Trickster",
+      "description": "Some Rogues enhance their fine-honed skills of stealth and agility with spells, learning magical tricks to aid them in their trade. Some Arcane Tricksters use their talents as pickpockets and burglars, while others are pranksters.",
+      "featureLevels": [3, 9, 13, 17],
+      "features": [
+        {
+          "name": "Spellcasting",
+          "level": 3,
+          "description": "You have learned to cast spells. See chapter 7 for the rules on spellcasting. You know three cantrips: Mage Hand and two other cantrips of your choice from the Wizard spell list. Whenever you gain a Rogue level, you can replace one of your cantrips, except Mage Hand, with another Wizard cantrip of your choice. When you reach Rogue level 10, you learn another Wizard cantrip of your choice. You prepare level 1+ spells from the Wizard spell list. Intelligence is your spellcasting ability. You can use an Arcane Focus as a Spellcasting Focus. Whenever you gain a Rogue level, you can replace one spell on your list with another Wizard spell for which you have spell slots.",
+          "activation": "Special"
+        },
+        {
+          "name": "Mage Hand Legerdemain",
+          "level": 3,
+          "description": "When you cast Mage Hand, you can cast it as a Bonus Action, and you can make the spectral hand Invisible. You can control the hand as a Bonus Action, and through it, you can make Dexterity (Sleight of Hand) checks.",
+          "activation": "BonusAction"
+        },
+        {
+          "name": "Magical Ambush",
+          "level": 9,
+          "description": "If you have the Invisible condition when you cast a spell on a creature, it has Disadvantage on any saving throw it makes against the spell on the same turn.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Versatile Trickster",
+          "level": 13,
+          "description": "You gain the ability to distract targets with your Mage Hand. When you use the Trip option of your Cunning Strike on a creature, you can also use that option on another creature within 5 feet of the spectral hand.",
+          "activation": "Passive"
+        },
+        {
+          "name": "Spell Thief",
+          "level": 17,
+          "description": "You gain the ability to magically steal the knowledge of how to cast a spell from another spellcaster. Immediately after a creature casts a spell that targets you or includes you in its area of effect, you can take a Reaction to force the creature to make an Intelligence saving throw. The DC equals your spell save DC. On a failed save, you negate the spell's effect against you, and you steal the knowledge of the spell if it is at least level 1 and of a level you can cast (it doesn't need to be a Wizard spell). For the next 8 hours, you have the spell prepared. The creature can't cast it until the 8 hours have passed. Once you steal a spell with this feature, you can't use this feature again until you finish a Long Rest.",
+          "activation": "Reaction",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long"
+          }
+        }
+      ],
+      "subclassSpellcasting": {
+        "ability": "Intelligence",
+        "focus": "Arcane Focus",
+        "spellList": "Wizard",
+        "cantrips": {
+          "initial": 2,
+          "additionalAtLevels": [
+            {
+              "classLevel": 10,
+              "count": 1
+            }
+          ]
+        },
+        "requiredCantrips": ["Mage Hand"],
+        "spellSlotProgression": [
+          {
+            "classLevel": 3,
+            "preparedSpells": 3,
+            "slot1": 2,
+            "slot2": 0,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 4,
+            "preparedSpells": 4,
+            "slot1": 3,
+            "slot2": 0,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 5,
+            "preparedSpells": 4,
+            "slot1": 3,
+            "slot2": 0,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 6,
+            "preparedSpells": 4,
+            "slot1": 3,
+            "slot2": 0,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 7,
+            "preparedSpells": 5,
+            "slot1": 4,
+            "slot2": 2,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 8,
+            "preparedSpells": 6,
+            "slot1": 4,
+            "slot2": 2,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 9,
+            "preparedSpells": 6,
+            "slot1": 4,
+            "slot2": 2,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 10,
+            "preparedSpells": 7,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 11,
+            "preparedSpells": 8,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 12,
+            "preparedSpells": 8,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 0,
+            "slot4": 0
+          },
+          {
+            "classLevel": 13,
+            "preparedSpells": 9,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 2,
+            "slot4": 0
+          },
+          {
+            "classLevel": 14,
+            "preparedSpells": 10,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 2,
+            "slot4": 0
+          },
+          {
+            "classLevel": 15,
+            "preparedSpells": 10,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 2,
+            "slot4": 0
+          },
+          {
+            "classLevel": 16,
+            "preparedSpells": 11,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 3,
+            "slot4": 0
+          },
+          {
+            "classLevel": 17,
+            "preparedSpells": 11,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 3,
+            "slot4": 0
+          },
+          {
+            "classLevel": 18,
+            "preparedSpells": 11,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 3,
+            "slot4": 0
+          },
+          {
+            "classLevel": 19,
+            "preparedSpells": 12,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 3,
+            "slot4": 1
+          },
+          {
+            "classLevel": 20,
+            "preparedSpells": 13,
+            "slot1": 4,
+            "slot2": 3,
+            "slot3": 3,
+            "slot4": 1
+          }
+        ],
+        "changePreparedSpells": "onLevelUp"
+      }
+    },
+    {
+      "name": "Assassin",
+      "description": "An Assassin's training focuses on using stealth, poison, and disguise to eliminate foes with deadly efficiency. While some Rogues who follow this path are hired killers, spies, or bounty hunters, the capabilities of this subclass are equally useful for adventurers facing a variety of monstrous enemies.",
+      "featureLevels": [3, 9, 13, 17],
+      "features": [
+        {
+          "name": "Assassinate",
+          "level": 3,
+          "description": "You're adept at ambushing a target, granting you the following benefits. Initiative: You have Advantage on Initiative rolls. Surprising Strikes: During the first round of each combat, you have Advantage on attack rolls against any creature that hasn't taken a turn. If your Sneak Attack hits any target during that round, the target takes extra damage of the weapon's type equal to your Rogue level. Dreadful Strike uses: equal to your Wisdom modifier (minimum of once), regained on Long Rest.",
+          "activation": "Passive",
+          "options": [
+            {
+              "name": "Initiative",
+              "description": "You have Advantage on Initiative rolls."
+            },
+            {
+              "name": "Surprising Strikes",
+              "description": "During the first round of each combat, you have Advantage on attack rolls against any creature that hasn't taken a turn. If your Sneak Attack hits any target during that round, the target takes extra damage of the weapon's type equal to your Rogue level."
+            }
+          ]
+        },
+        {
+          "name": "Assassin's Tools",
+          "level": 3,
+          "description": "You gain a Disguise Kit and a Poisoner's Kit, and you have proficiency with them.",
+          "activation": "Passive",
+          "grantsProficiencies": {
+            "tools": ["Disguise Kit", "Poisoner's Kit"]
+          }
+        },
+        {
+          "name": "Infiltration Expertise",
+          "level": 9,
+          "description": "You are expert at the following techniques that aid your infiltrations. Masterful Mimicry: You can unerringly mimic another person's speech, handwriting, or both if you have spent at least 1 hour studying them. Roving Aim: Your Speed isn't reduced to 0 by using Steady Aim.",
+          "activation": "Passive",
+          "options": [
+            {
+              "name": "Masterful Mimicry",
+              "description": "You can unerringly mimic another person's speech, handwriting, or both if you have spent at least 1 hour studying them."
+            },
+            {
+              "name": "Roving Aim",
+              "description": "Your Speed isn't reduced to 0 by using Steady Aim."
+            }
+          ]
+        },
+        {
+          "name": "Envenom Weapons",
+          "level": 13,
+          "description": "When you use the Poison option of your Cunning Strike, the target also takes 2d6 Poison damage whenever it fails the saving throw. This damage ignores Resistance to Poison damage.",
+          "activation": "Passive",
+          "damageResistances": []
+        },
+        {
+          "name": "Death Strike",
+          "level": 17,
+          "description": "When you hit with your Sneak Attack on the first round of a combat, the target must succeed on a Constitution saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus), or the attack's damage is doubled against the target.",
+          "activation": "Special",
+          "savingThrow": {
+            "ability": "Dexterity",
+            "formula": "8 + Dexterity modifier + Proficiency Bonus"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Soulknife",
+      "description": "A Soulknife strikes with the mind, cutting through barriers both physical and psychic. These Rogues discover psionic power within themselves and channel it to do their roguish work. As a Soulknife, your psionic abilities might have haunted you since childhood, revealing their full potential only as you experienced the stress of adventure. Or you might have sought out an order of psychic adepts and spent years learning how to manifest your power.",
+      "featureLevels": [3, 9, 13, 17],
+      "features": [
+        {
+          "name": "Psionic Power",
+          "level": 3,
+          "description": "You harbor a wellspring of psionic energy within yourself. It is represented by your Psionic Energy Dice, which fuel certain powers you have from this subclass. Any features in this subclass that use a Psionic Energy Die use only the dice from this subclass. Some of your powers expend a Psionic Energy Die, as specified in a power's description, and you can't use a power if it requires you to use a die when your Psionic Energy Dice are all expended. You regain one of your expended Psionic Energy Dice when you finish a Short Rest, and you regain all of them when you finish a Long Rest.",
+          "activation": "Special",
+          "resourceScaling": [
+            {
+              "classLevel": 3,
+              "dieSize": "D6",
+              "count": 4
+            },
+            {
+              "classLevel": 5,
+              "dieSize": "D8",
+              "count": 6
+            },
+            {
+              "classLevel": 9,
+              "dieSize": "D8",
+              "count": 8
+            },
+            {
+              "classLevel": 11,
+              "dieSize": "D10",
+              "count": 8
+            },
+            {
+              "classLevel": 13,
+              "dieSize": "D10",
+              "count": 10
+            },
+            {
+              "classLevel": 17,
+              "dieSize": "D12",
+              "count": 12
+            }
+          ],
+          "options": [
+            {
+              "name": "Psi-Bolstered Knack",
+              "description": "If you fail an ability check using a skill or tool with which you have proficiency, you can roll one Psionic Energy Die and add the number rolled to the check, potentially turning failure into success. The die is expended only if the roll then succeeds."
+            },
+            {
+              "name": "Psychic Whispers",
+              "description": "You can establish telepathic communication between yourself and others. As a Magic action, choose one or more creatures you can see, up to a number of creatures equal to your Proficiency Bonus, and then roll one Psionic Energy Die. For a number of hours equal to the number rolled, the chosen creatures can speak telepathically with you, and you can speak telepathically with them. To send or receive a message (no action required), you and the other creature must be within 1 mile of each other. A creature can end the telepathic connection at any time (no action required). The first time you use this power after each Long Rest, you don't expend the Psionic Energy Die. All other times you use the power, you expend the die."
+            }
+          ]
+        },
+        {
+          "name": "Psychic Blades",
+          "level": 3,
+          "description": "You can manifest shimmering blades of psychic energy. Whenever you take the Attack action or make an Opportunity Attack, you can manifest a Psychic Blade in your free hand and make the attack with that blade. The magic blade has the following traits: Weapon Category: Simple Melee. Damage on a Hit: 1d6 Psychic plus the ability modifier used for the attack roll. Properties: Finesse, Thrown (range 60/120 feet). Mastery: Vex (you can use this property, and it doesn't count against the number of properties you can use with Weapon Mastery). The blade vanishes immediately after it hits or misses its target, and it leaves no mark if it deals damage. After you attack with the blade on your turn, you can make a melee or ranged attack with a second psychic blade as a Bonus Action on the same turn if your other hand is free to create it. The damage die of this bonus attack is 1d4 instead of 1d6.",
+          "activation": "Special"
+        },
+        {
+          "name": "Soul Blades",
+          "level": 9,
+          "description": "You can now use the following powers with your Psychic Blades.",
+          "activation": "Special",
+          "options": [
+            {
+              "name": "Homing Strikes",
+              "description": "If you make an attack roll with your Psychic Blade and miss the target, you can roll one Psionic Energy Die and add the number rolled to the attack roll. If this causes the attack to hit, the die is expended."
+            },
+            {
+              "name": "Psychic Teleportation",
+              "description": "As a Bonus Action, you manifest a Psychic Blade, expend one Psionic Energy Die and roll it, and throw the blade at an unoccupied space you can see up to a number of feet away equal to 10 times the number rolled. You then teleport to that space, and the blade vanishes."
+            }
+          ]
+        },
+        {
+          "name": "Psychic Veil",
+          "level": 13,
+          "description": "You can weave a veil of psychic static to mask yourself. As a Magic action, you gain the Invisible condition for 1 hour or until you dismiss this effect (no action required). This invisibility ends early immediately after you deal damage to a creature or you force a creature to make a saving throw. Once you use this feature, you can't do so again until you finish a Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.",
+          "activation": "MagicAction",
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "Expend a Psionic Energy Die (no action required)"
+          },
+          "conditionImmunities": []
+        },
+        {
+          "name": "Rend Mind",
+          "level": 17,
+          "description": "You can sweep your Psychic Blades through a creature's mind. When you use your Psychic Blades to deal Sneak Attack damage to a creature, you can force that target to make a Wisdom saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus). If the save fails, the target has the Stunned condition for 1 minute. The Stunned target repeats the save at the end of each of its turns, ending the effect on itself on a success. Once you use this feature, you can't do so again until you finish a Long Rest unless you expend three Psionic Energy Dice (no action required) to restore your use of it.",
+          "activation": "Special",
+          "savingThrow": {
+            "ability": "Dexterity",
+            "formula": "8 + Dexterity modifier + Proficiency Bonus"
+          },
+          "usesPerRest": {
+            "uses": 1,
+            "restType": "Long",
+            "rechargeAlternative": "Expend three Psionic Energy Dice (no action required)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Thief",
+      "description": "A mix of burglar, treasure hunter, and explorer, you are the epitome of an adventurer. In addition to improving your agility and stealth, you gain abilities useful for delving into ruins and getting maximum benefit from the magic items you find there.",
+      "featureLevels": [3, 9, 13, 17],
+      "features": [
+        {
+          "name": "Fast Hands",
+          "level": 3,
+          "description": "As a Bonus Action, you can do one of the following. Sleight of Hand: Make a Dexterity (Sleight of Hand) check to pick a lock or disarm a trap with Thieves' Tools or to pick a pocket. Use an Object: Take the Utilize action, or take the Magic action to use a magic item that requires that action.",
+          "activation": "BonusAction",
+          "options": [
+            {
+              "name": "Sleight of Hand",
+              "description": "Make a Dexterity (Sleight of Hand) check to pick a lock or disarm a trap with Thieves' Tools or to pick a pocket."
+            },
+            {
+              "name": "Use an Object",
+              "description": "Take the Utilize action, or take the Magic action to use a magic item that requires that action."
+            }
+          ]
+        },
+        {
+          "name": "Second-Story Work",
+          "level": 3,
+          "description": "You've trained to get into especially hard-to-reach places, granting you these benefits. Climber: You gain a Climb Speed equal to your Speed. Jumper: You can determine your jump distance using your Dexterity rather than your Strength.",
+          "activation": "Passive",
+          "options": [
+            {
+              "name": "Climber",
+              "description": "You gain a Climb Speed equal to your Speed."
+            },
+            {
+              "name": "Jumper",
+              "description": "You can determine your jump distance using your Dexterity rather than your Strength."
+            }
+          ]
+        },
+        {
+          "name": "Supreme Sneak",
+          "level": 9,
+          "description": "You gain the following Cunning Strike option. Stealth Attack (Cost: 1d6): If you have the Hide action's Invisible condition, this attack doesn't end that condition on you if you end the turn behind Three-Quarters Cover or Total Cover.",
+          "activation": "Passive",
+          "options": [
+            {
+              "name": "Stealth Attack",
+              "description": "If you have the Hide action's Invisible condition, this attack doesn't end that condition on you if you end the turn behind Three-Quarters Cover or Total Cover.",
+              "cost": "1d6"
+            }
+          ]
+        },
+        {
+          "name": "Use Magic Device",
+          "level": 13,
+          "description": "You've learned how to maximize use of magic items, granting you the following benefits. Attunement: You can attune to up to four magic items at once. Charges: Whenever you use a magic item property that expends charges, roll 1d6. On a roll of 6, you use the property without expending the charges. Scrolls: You can use any Spell Scroll, using Intelligence as your spellcasting ability for the spell. If the spell is a cantrip or a level 1 spell, you can cast it reliably. If the scroll contains a higher-level spell, you must first succeed on an Intelligence (Arcana) check (DC 10 plus the spell's level). On a successful check, you cast the spell from the scroll. On a failed check, the scroll disintegrates.",
+          "activation": "Passive",
+          "options": [
+            {
+              "name": "Attunement",
+              "description": "You can attune to up to four magic items at once."
+            },
+            {
+              "name": "Charges",
+              "description": "Whenever you use a magic item property that expends charges, roll 1d6. On a roll of 6, you use the property without expending the charges."
+            },
+            {
+              "name": "Scrolls",
+              "description": "You can use any Spell Scroll, using Intelligence as your spellcasting ability for the spell. If the spell is a cantrip or a level 1 spell, you can cast it reliably. If the scroll contains a higher-level spell, you must first succeed on an Intelligence (Arcana) check (DC 10 plus the spell's level). On a successful check, you cast the spell from the scroll. On a failed check, the scroll disintegrates."
+            }
+          ]
+        },
+        {
+          "name": "Thief's Reflexes",
+          "level": 17,
+          "description": "You are adept at laying ambushes and quickly escaping danger. You can take two turns during the first round of any combat. You take your first turn at your normal Initiative and your second turn at your Initiative minus 10.",
+          "activation": "Passive"
+        }
+      ]
+    }
+  ]
+}

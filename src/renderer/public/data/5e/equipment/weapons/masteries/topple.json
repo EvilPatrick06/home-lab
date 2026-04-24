@@ -1,0 +1,19 @@
+{
+  "name": "Topple",
+  "slug": "topple",
+  "category": "Weapon Mastery",
+  "description": "If you hit a creature with this weapon, you can force the creature to make a Constitution saving throw (DC 8 + the ability modifier used for the attack roll + your Proficiency Bonus). On a failed save, the creature has the Prone condition.",
+  "mechanicalEffect": {
+    "trigger": "hit",
+    "type": "savingThrow",
+    "saveAbility": "Constitution",
+    "saveDC": "8 + ability modifier + proficiency bonus",
+    "effectOnFail": "Prone"
+  },
+  "weaponsWithMastery": ["Battleaxe", "Lance", "Maul", "Trident"],
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapon Mastery"
+  }
+}

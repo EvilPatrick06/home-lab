@@ -1,0 +1,545 @@
+{
+  "name": "Ancient Silver Dragon",
+  "sizes": ["Gargantuan"],
+  "creatureType": "Dragon",
+  "descriptiveTags": ["Metallic"],
+  "alignment": "Lawful Good",
+  "habitat": ["Arctic", "Mountain", "Urban"],
+  "treasure": ["Any"],
+  "lore": "Silver dragons are the most social of the metallic dragons, frequently taking Humanoid form to live among other peoples. They prize friendship, alliance, and acts of kindness above all material treasures. Their lairs crown the highest mountain peaks and float among the clouds, serving as both sanctuary and meeting place for their many allies. A silver dragon's breath can freeze foes solid or leave them paralyzed in a cloud of enchanted gas.",
+  "armorClass": {
+    "value": 22,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 487,
+    "dice": {
+      "count": 25,
+      "die": "d20",
+      "modifier": 225
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 80
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 30,
+      "modifier": 10,
+      "save": 10
+    },
+    "DEX": {
+      "score": 14,
+      "modifier": 2,
+      "save": 9
+    },
+    "CON": {
+      "score": 29,
+      "modifier": 9,
+      "save": 16
+    },
+    "INT": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 9
+    },
+    "CHA": {
+      "score": 23,
+      "modifier": 6,
+      "save": 13
+    }
+  },
+  "skills": [
+    {
+      "skill": "History",
+      "bonus": 11
+    },
+    {
+      "skill": "Perception",
+      "bonus": 16
+    },
+    {
+      "skill": "Persuasion",
+      "bonus": 13
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 9
+    }
+  ],
+  "damageImmunities": ["Cold"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60
+      },
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 26
+  },
+  "languages": {
+    "spoken": ["Common", "Draconic"]
+  },
+  "challengeRating": "24",
+  "experiencePoints": 62000,
+  "proficiencyBonus": 7,
+  "traits": [
+    {
+      "name": "Legendary Resistance",
+      "description": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 4
+      }
+    }
+  ],
+  "multiattack": {
+    "description": "The dragon makes one Bite attack and two Claw attacks. It can replace one attack with a use of Cold Breath or Paralyzing Breath, if available.",
+    "attacks": [
+      {
+        "actionName": "Bite",
+        "count": 1
+      },
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Cold Breath"
+      },
+      {
+        "replace": "Bite",
+        "replaceCount": 1,
+        "with": "Paralyzing Breath"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "Melee Attack Roll: +17, reach 15 ft. Hit: 21 (2d10 + 10) Piercing damage plus 9 (2d8) Cold damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 15,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 21,
+              "dice": {
+                "count": 2,
+                "die": "d10",
+                "modifier": 10
+              },
+              "type": "Piercing"
+            },
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +17, reach 10 ft. Hit: 17 (2d6 + 10) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 17,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 10
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tail",
+      "description": "Melee Attack Roll: +17, reach 20 ft. Hit: 19 (2d8 + 10) Bludgeoning damage. If the target is a Huge or smaller creature, it has the Prone condition.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 17,
+        "reach": 20,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 19,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 10
+              },
+              "type": "Bludgeoning"
+            }
+          ],
+          "additionalEffects": "If the target is a Huge or smaller creature, it has the Prone condition.",
+          "conditions": [
+            {
+              "condition": "Prone"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cold Breath",
+      "description": "The dragon exhales a blast of freezing wind in a 90-foot Cone. Each creature in that area makes a DC 24 Constitution saving throw, taking 67 (15d8) Cold damage on a failed save or half as much damage on a successful one.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 24,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 67,
+              "dice": {
+                "count": 15,
+                "die": "d8",
+                "modifier": 0
+              },
+              "type": "Cold"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 90
+      }
+    },
+    {
+      "name": "Paralyzing Breath",
+      "description": "The dragon exhales paralyzing gas in a 90-foot Cone. Each creature in that area must succeed on a DC 24 Constitution saving throw or have the Paralyzed condition for 1 minute. A creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 24,
+        "targets": "each creature in the area",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Paralyzed",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 24,
+                "targets": "the affected creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Cone",
+        "size": 90
+      },
+      "conditions": [
+        {
+          "condition": "Paralyzed",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "CON",
+            "dc": 24
+          }
+        }
+      ]
+    },
+    {
+      "name": "Change Shape",
+      "description": "The dragon magically transforms into a Humanoid or Beast that has a Challenge Rating no higher than its own and is Medium or smaller, or back into its true form. Equipment it is wearing or carrying isn't transformed. It reverts to its true form if it dies. In the new form, the dragon retains its Hit Points, Hit Point Dice, ability to speak, proficiencies, Legendary Resistance, and lair actions, as well as its Intelligence, Wisdom, and Charisma scores. Its other statistics and capabilities are replaced by those of the new form."
+    },
+    {
+      "name": "Frightful Presence",
+      "description": "Each creature of the dragon's choice within 120 feet of it must succeed on a DC 21 Wisdom saving throw or have the Frightened condition for 1 minute. A Frightened creature repeats the saving throw at the end of each of its turns, ending the effect on itself on a success. A creature that succeeds on the saving throw is immune to this dragon's Frightful Presence for 24 hours.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 21,
+        "targets": "each creature of the dragon's choice within 120 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Frightened",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "WIS",
+                "dc": 21,
+                "targets": "the Frightened creature",
+                "onSuccess": {
+                  "effects": "The effect ends on the creature, and it is immune to this dragon's Frightful Presence for 24 hours."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Frightened",
+          "duration": "1 minute",
+          "savingThrow": {
+            "ability": "WIS",
+            "dc": 21
+          }
+        }
+      ]
+    }
+  ],
+  "legendaryActions": {
+    "perRound": 3,
+    "actions": [
+      {
+        "name": "Pounce",
+        "description": "The dragon moves up to half its Speed without provoking Opportunity Attacks. If it enters a space within 5 feet of a creature, it can make one Claw attack against that creature.",
+        "cost": 1
+      },
+      {
+        "name": "Tail Sweep",
+        "description": "The dragon makes one Tail attack.",
+        "cost": 1
+      },
+      {
+        "name": "Wing Storm",
+        "description": "The dragon beats its wings. Each creature within 15 feet of the dragon must succeed on a DC 25 Dexterity saving throw or take 17 (2d6 + 10) Bludgeoning damage and have the Prone condition. On a successful save, the creature takes half as much damage only. The dragon can then fly up to half its Fly Speed without provoking Opportunity Attacks.",
+        "cost": 2,
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 25,
+          "targets": "each creature within 15 feet of the dragon",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 17,
+                "dice": {
+                  "count": 2,
+                  "die": "d6",
+                  "modifier": 10
+                },
+                "type": "Bludgeoning"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Prone"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "damage": [
+          {
+            "average": 17,
+            "dice": {
+              "count": 2,
+              "die": "d6",
+              "modifier": 10
+            },
+            "type": "Bludgeoning"
+          }
+        ],
+        "conditions": [
+          {
+            "condition": "Prone"
+          }
+        ]
+      }
+    ]
+  },
+  "lair": {
+    "description": "A silver dragon's lair is typically a soaring mountain peak, a frozen highland plateau, or a castle of cloud-stuff floating high above the world. Silver dragons prefer lairs with sweeping views and cold, clean air.",
+    "initiativeCount": 20,
+    "loseInitiativeTies": true,
+    "actions": [
+      {
+        "name": "Freezing Fog",
+        "description": "A cloud of freezing fog fills a 20-foot-radius Sphere centered on a point the dragon can see within 120 feet of it. The fog spreads around corners. Each creature in the fog must make a DC 24 Constitution saving throw, taking 17 (5d6) Cold damage on a failed save or half as much damage on a successful one. The fog lightly obscures the area until initiative count 20 on the next round.",
+        "savingThrow": {
+          "ability": "CON",
+          "dc": 24,
+          "targets": "each creature in the fog",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 17,
+                "dice": {
+                  "count": 5,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Cold"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "damage": [
+          {
+            "average": 17,
+            "dice": {
+              "count": 5,
+              "die": "d6",
+              "modifier": 0
+            },
+            "type": "Cold"
+          }
+        ],
+        "areaOfEffect": {
+          "shape": "Sphere",
+          "size": 20
+        }
+      },
+      {
+        "name": "Swirling Ice",
+        "description": "Jagged ice sprouts from surfaces in a 20-foot Cube the dragon can see within 120 feet of it. The area becomes Difficult Terrain. Each creature in the area when the ice appears must succeed on a DC 24 Dexterity saving throw or take 14 (4d6) Cold damage and have the Restrained condition until the ice is destroyed. The ice has AC 12 and 15 Hit Points. It melts away at initiative count 20 on the next round.",
+        "savingThrow": {
+          "ability": "DEX",
+          "dc": 24,
+          "targets": "each creature in the area when the ice appears",
+          "onFailure": {
+            "damage": [
+              {
+                "average": 14,
+                "dice": {
+                  "count": 4,
+                  "die": "d6",
+                  "modifier": 0
+                },
+                "type": "Cold"
+              }
+            ],
+            "conditions": [
+              {
+                "condition": "Restrained",
+                "duration": "until the ice is destroyed"
+              }
+            ]
+          },
+          "onSuccess": {
+            "halfDamage": true
+          }
+        },
+        "damage": [
+          {
+            "average": 14,
+            "dice": {
+              "count": 4,
+              "die": "d6",
+              "modifier": 0
+            },
+            "type": "Cold"
+          }
+        ],
+        "areaOfEffect": {
+          "shape": "Cube",
+          "size": 20
+        },
+        "conditions": [
+          {
+            "condition": "Restrained",
+            "duration": "until the ice is destroyed"
+          }
+        ]
+      },
+      {
+        "name": "Calming Presence",
+        "description": "The dragon targets one creature it can see within 120 feet. The target must succeed on a DC 21 Wisdom saving throw or have the Charmed condition until initiative count 20 on the next round. While Charmed, the creature cannot take hostile actions.",
+        "savingThrow": {
+          "ability": "WIS",
+          "dc": 21,
+          "targets": "one creature the dragon can see within 120 feet",
+          "onFailure": {
+            "conditions": [
+              {
+                "condition": "Charmed",
+                "duration": "until initiative count 20 on the next round"
+              }
+            ]
+          }
+        },
+        "conditions": [
+          {
+            "condition": "Charmed",
+            "duration": "until initiative count 20 on the next round"
+          }
+        ]
+      }
+    ],
+    "regionalEffects": [
+      {
+        "description": "Within 1 mile of the lair, gentle snow or cold fog blankets the land. The area is lightly obscured for creatures unfamiliar with the region.",
+        "radius": 1,
+        "endCondition": "The dragon dies or relocates its lair."
+      },
+      {
+        "description": "Water sources within 1 mile of the lair are supernaturally pure, cold, and refreshing. A creature that drinks this water regains 1 Hit Point.",
+        "radius": 1,
+        "endCondition": "The dragon dies or relocates its lair."
+      },
+      {
+        "description": "Within 6 miles of the lair, winds are supernaturally calm, and snowstorms never turn into blizzards.",
+        "radius": 6,
+        "endCondition": "The dragon dies or relocates its lair."
+      }
+    ]
+  }
+}

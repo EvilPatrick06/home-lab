@@ -1,0 +1,36 @@
+[
+  {
+    "name": "Spell Scroll (Cantrip)",
+    "cost": {
+      "amount": 30,
+      "denomination": "GP"
+    },
+    "weight": null,
+    "description": "A magic item that bears the words of a cantrip determined by the scroll's creator. If the spell is on your class's spell list, you can read the scroll and cast the spell using its normal casting time and without providing any Material components. If the spell requires a saving throw or an attack roll, the spell save DC is 13, and the attack bonus is +5. The scroll disintegrates when the casting is completed.",
+    "isPack": false,
+    "packContents": null,
+    "isMagicItem": true,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  },
+  {
+    "name": "Spell Scroll (Level 1)",
+    "cost": {
+      "amount": 50,
+      "denomination": "GP"
+    },
+    "weight": null,
+    "description": "A magic item that bears the words of a level 1 spell determined by the scroll's creator. If the spell is on your class's spell list, you can read the scroll and cast the spell using its normal casting time and without providing any Material components. If the spell requires a saving throw or an attack roll, the spell save DC is 13, and the attack bonus is +5. The scroll disintegrates when the casting is completed.",
+    "isPack": false,
+    "packContents": null,
+    "isMagicItem": true,
+    "actionType": null,
+    "savingThrow": null,
+    "damage": null,
+    "lightProperties": null,
+    "capacityDescription": null
+  }
+]

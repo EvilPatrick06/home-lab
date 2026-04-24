@@ -1,0 +1,49 @@
+{
+  "name": "Leomund's Tiny Hut",
+  "level": 3,
+  "school": "Evocation",
+  "classes": ["Bard", "Wizard"],
+  "ritual": true,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "minutes",
+    "ritual": true
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a crystal bead",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 8,
+    "unit": "hours"
+  },
+  "description": "A 10-foot Emanation springs into existence around you and remains stationary for the duration. The spell fails when you cast it if the Emanation isn't big enough to fully encapsulate all creatures in its area. Creatures and objects within the Emanation when you cast the spell can move through it freely. All other creatures and objects are barred from passing through it. Spells of level 3 or lower can't be cast through it, and the effects of such spells can't extend into it. The atmosphere inside the Emanation is comfortable and dry, regardless of the weather outside. Until the spell ends, you can command the interior to have Dim Light or Darkness (no action required). The Emanation is opaque from the outside and of any color you choose, but it's transparent from the inside. The spell ends early if you leave the Emanation or if you cast it again.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 10,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "self",
+  "coverProvided": "Total",
+  "tags": [
+    "shelter",
+    "barrier",
+    "utility",
+    "blocks_spells_level_3_or_lower",
+    "stationary",
+    "opaque_outside",
+    "transparent_inside"
+  ]
+}

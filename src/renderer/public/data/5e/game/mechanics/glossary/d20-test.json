@@ -1,0 +1,11 @@
+{
+  "name": "D20 Test",
+  "slug": "d20-test",
+  "description": "Any time a character or monster attempts something that has a chance of failure, it makes a D20 Test by rolling a d20 and adding any applicable modifiers. The three types are ability checks, attack rolls, and saving throws.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

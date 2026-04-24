@@ -1,0 +1,246 @@
+{
+  "name": "Cloud Giant",
+  "sizes": ["Huge"],
+  "creatureType": "Giant",
+  "descriptiveTags": ["Cloud Giant"],
+  "alignment": "Neutral Good",
+  "habitat": ["Arctic", "Coastal", "Hill", "Mountain"],
+  "treasure": ["Any"],
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 200,
+    "dice": {
+      "count": 16,
+      "die": "d12",
+      "modifier": 96
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    },
+    {
+      "type": "Fly",
+      "distance": 40,
+      "hover": true
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 27,
+      "modifier": 8,
+      "save": 12
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 22,
+      "modifier": 6,
+      "save": 10
+    },
+    "INT": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    },
+    "CHA": {
+      "score": 16,
+      "modifier": 3,
+      "save": 7
+    }
+  },
+  "skills": [
+    {
+      "skill": "Insight",
+      "bonus": 7
+    },
+    {
+      "skill": "Perception",
+      "bonus": 7
+    }
+  ],
+  "gear": [
+    {
+      "name": "Morningstar",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "passivePerception": 17
+  },
+  "languages": {
+    "spoken": ["Common", "Giant"]
+  },
+  "challengeRating": "9",
+  "experiencePoints": 5000,
+  "proficiencyBonus": 4,
+  "traits": [
+    {
+      "name": "Cloud Walk",
+      "description": "The giant can step onto clouds and fog as if they were solid ground."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 15,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Detect Magic",
+              "level": 1
+            },
+            {
+              "name": "Fog Cloud",
+              "level": 1
+            },
+            {
+              "name": "Light",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Feather Fall",
+              "level": 1
+            },
+            {
+              "name": "Fly",
+              "level": 3
+            },
+            {
+              "name": "Misty Step",
+              "level": 2
+            },
+            {
+              "name": "Telekinesis",
+              "level": 5
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Gaseous Form",
+              "level": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The giant makes two Morningstar attacks. It can replace one of those attacks with a use of Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Morningstar",
+        "count": 2
+      }
+    ],
+    "substitutions": [
+      {
+        "replace": "Morningstar",
+        "replaceCount": 1,
+        "with": "Spellcasting"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Morningstar",
+      "description": "Melee Attack Roll: +12, reach 10 ft. Hit: 21 (3d8 + 8) Piercing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 12,
+        "reach": 10,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 21,
+              "dice": {
+                "count": 3,
+                "die": "d8",
+                "modifier": 8
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Thunderbolt",
+      "description": "The giant hurls a thunderbolt at a point it can see within 500 feet of itself. Each creature in a 20-foot-radius Sphere centered on that point must make a DC 18 Dexterity saving throw. On a failed save, a creature takes 22 (4d10) Thunder damage and has the Prone condition. On a successful save, a creature takes half damage only.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 5,
+        "maxRoll": 6
+      },
+      "savingThrow": {
+        "ability": "DEX",
+        "dc": 18,
+        "targets": "each creature in a 20-foot-radius Sphere centered on that point",
+        "onFailure": {
+          "damage": [
+            {
+              "average": 22,
+              "dice": {
+                "count": 4,
+                "die": "d10",
+                "modifier": 0
+              },
+              "type": "Thunder"
+            }
+          ],
+          "conditions": [
+            {
+              "condition": "Prone"
+            }
+          ]
+        },
+        "onSuccess": {
+          "halfDamage": true
+        }
+      },
+      "areaOfEffect": {
+        "shape": "Sphere",
+        "size": 20
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The giant casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 15):\n\nAt will: Detect Magic, Fog Cloud, Light\n3/day each: Feather Fall, Fly, Misty Step, Telekinesis\n1/day: Gaseous Form"
+    }
+  ]
+}

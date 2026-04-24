@@ -1,0 +1,11 @@
+{
+  "name": "Indifferent",
+  "slug": "indifferent",
+  "description": "An Indifferent creature has no strong feelings about you one way or another.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

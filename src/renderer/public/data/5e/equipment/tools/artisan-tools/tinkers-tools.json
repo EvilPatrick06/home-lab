@@ -1,0 +1,15 @@
+{
+  "name": "Tinker's Tools",
+  "cost": "50 GP",
+  "weight": "10 lb.",
+  "ability": "Dexterity",
+  "utilize": "Assemble a Tiny item composed of scrap, which falls apart in 1 minute (DC 20)",
+  "craft": "Musket, Pistol, Bell, Bullseye Lantern, Flask, Hooded Lantern, Hunting Trap, Lock, Manacles, Mirror, Shovel, Signal Whistle, Tinderbox",
+  "slug": "tinkers-tools",
+  "category": "Artisan Tools",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Tools"
+  }
+}

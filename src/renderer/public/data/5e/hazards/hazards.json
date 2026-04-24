@@ -1,0 +1,218 @@
+[
+  {
+    "id": "brown-mold",
+    "name": "Brown Mold",
+    "level": "Deadly (Levels 5-10) / Nuisance (Levels 11-16)",
+    "type": "biological",
+    "effect": "Brown mold feeds on warmth, drawing heat from anything around it. When a creature enters a space within 5 feet of the mold for the first time on a turn or starts its turn there, the creature makes a DC 12 Constitution saving throw, taking 22 (4d10) Cold damage on a failed save or half as much on a successful one.",
+    "damage": "22 (4d10) Cold",
+    "saveDC": 12,
+    "saveAbility": "CON",
+    "avoidance": "Brown mold has Immunity to Fire damage. Any source of fire brought within 5 feet causes it to expand, creating a new 10-foot-square patch. A patch exposed to any amount of Cold damage is destroyed instantly.",
+    "description": "Brown mold covers a 10-foot-square patch and drains heat from the surrounding area. Fire makes it grow; cold destroys it."
+  },
+  {
+    "id": "green-slime",
+    "name": "Green Slime",
+    "level": "low",
+    "type": "biological",
+    "effect": "Green slime clings to walls, floors, and ceilings. It has Blindsight 30 ft and drops when it detects movement below. A creature that comes in contact with green slime takes 5 (1d10) Acid damage. The creature takes the damage again at the start of each of its turns until the slime is scraped off (requiring an action) or destroyed. Against wood or metal, green slime deals 11 (2d10) Acid damage each round, and any nonmagical wood or metal item used to scrape off the slime is destroyed.",
+    "damage": "5 (1d10) Acid per turn (creature), 11 (2d10) Acid per round (wood/metal)",
+    "avoidance": "A DC 10 Dexterity saving throw avoids the initial drop. Direct sunlight or any amount of Cold, Fire, or Radiant damage destroys a patch of green slime.",
+    "saveDC": 10,
+    "saveAbility": "DEX",
+    "description": "A bright green, sticky substance clings to ceilings and drops onto unsuspecting creatures. It dissolves flesh, wood, and metal on contact."
+  },
+  {
+    "id": "yellow-mold",
+    "name": "Yellow Mold",
+    "level": "low",
+    "type": "biological",
+    "effect": "When touched or disturbed, yellow mold ejects a cloud of spores in a 10-foot Cube. Each creature in the area must succeed on a DC 15 Constitution saving throw or take 11 (2d10) Poison damage and become Poisoned for 1 minute. While Poisoned in this way, the creature takes 5 (1d10) Poison damage at the start of each of its turns. The creature can repeat the saving throw at the end of each of its turns, ending the effect on a success.",
+    "damage": "11 (2d10) Poison + 5 (1d10) per turn while Poisoned",
+    "saveDC": 15,
+    "saveAbility": "CON",
+    "avoidance": "The mold is destroyed by sunlight or any amount of Fire damage.",
+    "description": "Yellow mold covers a 5-foot-square patch. When disturbed, it releases toxic spores."
+  },
+  {
+    "id": "razorvine",
+    "name": "Razorvine",
+    "level": "low",
+    "type": "biological",
+    "effect": "When a creature comes into contact with razorvine for the first time on a turn, the creature must succeed on a DC 10 Dexterity saving throw or take 5 (1d10) Slashing damage. The vine has AC 11, HP 25, and Immunity to Bludgeoning, Piercing, and Psychic damage.",
+    "damage": "1d10 Slashing",
+    "saveDC": 10,
+    "saveAbility": "DEX",
+    "avoidance": "A successful DC 10 Dexterity saving throw avoids the damage.",
+    "description": "Razorvine is a thorny, creeping plant that grows rapidly and covers walls, trees, and ground. Its barbs are sharp enough to shred armor."
+  },
+  {
+    "id": "quicksand-pit",
+    "name": "Quicksand Pit",
+    "level": "low",
+    "type": "environmental",
+    "effect": "A creature that enters the area sinks 1d4 + 1 feet into the quicksand and has the Restrained condition. At the start of each of the creature's turns, it sinks another 1d4 feet. As long as the creature isn't completely submerged, it can take an action to try to escape with a Strength (Athletics) check (DC 10 plus the number of feet the creature has sunk). A creature completely submerged has Total Cover, the Blinded condition, and risks suffocation. A creature can pull another creature within reach out by succeeding on a Strength (Athletics) check (DC 5 plus the number of feet the target has sunk).",
+    "saveDC": "10 + feet sunk",
+    "saveAbility": "STR",
+    "avoidance": "DC 10 Wisdom (Survival) to spot quicksand before entering it.",
+    "scaling": {
+      "5-10": { "depth": 15, "sinkRate": "1d6 feet" },
+      "11-16": { "depth": 20, "sinkRate": "1d8 feet" },
+      "17-20": { "depth": 30, "sinkRate": "1d10 feet" }
+    },
+    "description": "A 10-foot-deep quicksand pit covering a 10-foot square. Escape DC increases the deeper a creature sinks."
+  },
+  {
+    "id": "fireball-fungus",
+    "name": "Fireball Fungus",
+    "level": "mid",
+    "type": "biological",
+    "effect": "A fireball fungus is a Small, inanimate mushroom. Its luminous orange cap sheds Bright Light in a 15-foot radius and Dim Light for an additional 15 feet. It has AC 10, HP 6, and Immunity to Psychic damage. When it drops to 0 Hit Points, the fungus explodes as if a Fireball spell (save DC 15) had been centered on it.",
+    "damage": "8d6 Fire (Fireball)",
+    "saveDC": 15,
+    "saveAbility": "DEX",
+    "avoidance": "Not disturbing or damaging the fungus. At levels 11-16, add one additional fungus; at levels 17-20, add three additional fungi.",
+    "description": "A Small inanimate mushroom that explodes like a Fireball spell when destroyed. Chain reactions occur when multiple fungi are nearby."
+  },
+  {
+    "id": "inferno",
+    "name": "Inferno",
+    "level": "mid",
+    "type": "environmental",
+    "effect": "An inferno consists of at least four contiguous 10-foot Cubes of fire. Each 10-foot Cube can be doused with 10 gallons of water. A strong wind for 1 minute causes it to grow, adding 1d4 new 10-foot Cubes. Deprived of fuel it burns out after 1d10 minutes. It damages unattended vegetation/objects for 22 (4d10) Fire damage immediately and again each minute. A creature that enters the inferno for the first time on a turn or starts its turn there takes 22 (4d10) Fire damage and has the Burning condition.",
+    "damage": "4d10 Fire",
+    "avoidance": "Dousing with water (10 gallons per 10-foot Cube). Depriving it of fuel.",
+    "description": "An uncontrolled fire that engulfs creatures, objects, and vegetation across multiple 10-foot Cubes."
+  },
+  {
+    "id": "river-styx",
+    "name": "River Styx",
+    "level": "high",
+    "type": "magical",
+    "effect": "A creature that drinks from the Styx, enters the river, or starts its turn in the river makes a DC 20 Intelligence saving throw. On a failed save, the creature takes 19 (3d12) Psychic damage and can't cast spells or take the Magic action for 30 days. An affected creature can drink from and swim in the Styx without additional effects. The effect can be ended only by Greater Restoration, Heal, or Wish. If not ended after 30 days, the effect becomes permanent and the creature loses all its memories.",
+    "damage": "19 (3d12) Psychic",
+    "saveDC": 20,
+    "saveAbility": "INT",
+    "avoidance": "Not touching or drinking the water. Certain Fiends are immune. Water taken from the Styx loses potency after 24 hours.",
+    "description": "The River Styx courses through the Lower Planes. Its waters shatter intellect, personality, and memory."
+  },
+  {
+    "id": "vicious-vine",
+    "name": "Vicious Vine",
+    "level": "low",
+    "type": "biological",
+    "effect": "Each vicious vine has AC 11, HP 16, and Immunity to Bludgeoning, Piercing, and Psychic damage. When a creature enters a space within 5 feet for the first time on a turn or starts its turn there, the vine tries to coil around the creature. The target must succeed on a DC 12 Dexterity saving throw or have the Grappled condition (escape DC 12). While Grappled, the target takes 5 (1d10) Necrotic damage at the start of each of its turns. Scaling: DC 14, 2d10 at levels 5-10; DC 16, 4d10 at levels 11-16; DC 18, 10d10 at levels 17-20.",
+    "damage": "1d10 Necrotic per turn (levels 1-4)",
+    "saveDC": 12,
+    "saveAbility": "DEX",
+    "avoidance": "Speak with Plants spell allows a DC 10 Charisma (Persuasion) check to release the victim.",
+    "description": "Animated vines that cling to doorways, walls, and statuary. Indistinguishable from inanimate vines until they move."
+  },
+  {
+    "id": "collapsing-roof",
+    "name": "Collapsing Roof",
+    "level": "mid",
+    "type": "environmental",
+    "effect": "Each creature in the area must make a DC 15 Dexterity saving throw, taking 22 (4d10) Bludgeoning damage on a failure or half on a success. On a failure, the creature is also Restrained (buried under rubble). A DC 15 Strength (Athletics) check frees a buried creature. Scaling: 44 (8d10) at levels 5-10, 110 (20d10) at levels 11-16, 176 (32d10) at levels 17-20.",
+    "damage": "22 (4d10) Bludgeoning",
+    "saveDC": 15,
+    "saveAbility": "DEX",
+    "avoidance": "DC 15 Intelligence (Investigation) or Wisdom (Perception) to notice cracks and weakened supports.",
+    "description": "A structurally weakened ceiling or roof collapses, burying creatures in rubble."
+  },
+  {
+    "id": "rockslide",
+    "name": "Rockslide",
+    "level": "low",
+    "type": "environmental",
+    "effect": "Each creature in areas covered by the rockslide must make a DC 15 Dexterity saving throw, taking 11 (2d10) Bludgeoning damage on a failure or half on a success. On a failure, the creature is also knocked Prone and Restrained (buried under rubble). A DC 15 Strength (Athletics) check frees a buried creature. Scaling: 22 (4d10) at levels 5-10, 55 (10d10) at levels 11-16, 99 (18d10) at levels 17-20.",
+    "damage": "11 (2d10) Bludgeoning (levels 1-4)",
+    "saveDC": 15,
+    "saveAbility": "DEX",
+    "avoidance": "DC 15 Wisdom (Survival) to notice unstable rock formations before the slide occurs.",
+    "description": "Loose rocks tumble down a slope, striking creatures in their path. Deadly hazard (Levels 1-4) that scales with party level."
+  },
+  {
+    "id": "lava-flow",
+    "name": "Lava Flow",
+    "level": "high",
+    "type": "environmental",
+    "effect": "A creature that enters lava or starts its turn there takes 10d10 Fire damage. An object that enters lava takes the same damage and might be destroyed.",
+    "damage": "10d10 Fire",
+    "avoidance": "Staying out of the lava. Resistance or immunity to Fire damage helps mitigate contact.",
+    "description": "Molten rock flows slowly but destroys nearly everything it touches."
+  },
+  {
+    "id": "poisonous-gas",
+    "name": "Poisonous Gas",
+    "level": "low",
+    "type": "environmental",
+    "effect": "A creature that enters the gas or starts its turn there must succeed on a DC 12 Constitution saving throw or take 5 (1d10) Poison damage. Creatures in the gas also have Disadvantage on Death Saving Throws. Scaling: DC 14, 2d10 at levels 5-10; DC 16, 4d10 at levels 11-16; DC 18, 10d10 at levels 17-20.",
+    "damage": "1d10 Poison (levels 1-4)",
+    "saveDC": 12,
+    "saveAbility": "CON",
+    "avoidance": "A creature that holds its breath has Advantage on the save. Strong wind disperses the gas in 1 round.",
+    "description": "A pocket of toxic gas fills an area with noxious fumes. Nuisance hazard (Levels 1-4) that scales with party level."
+  },
+  {
+    "id": "webs",
+    "name": "Webs",
+    "level": "low",
+    "type": "biological",
+    "effect": "A creature that enters the area of webs or starts its turn there is Restrained. A Restrained creature can use its action to make a DC 12 Strength (Athletics) or Dexterity (Acrobatics) check, breaking free on a success.",
+    "saveDC": 12,
+    "saveAbility": "STR",
+    "avoidance": "Each 10-foot Cube of webs has AC 10, HP 15, Vulnerability to Fire damage, and Immunity to Piercing, Poison, and Psychic damage. Web-filled areas are Difficult Terrain.",
+    "description": "Giant spiders weave thick, sticky webs across passages and at the bottom of pits to snare prey."
+  },
+  {
+    "id": "frigid-water",
+    "name": "Frigid Water",
+    "level": "mid",
+    "type": "environmental",
+    "effect": "A creature that enters frigid water must succeed on a DC 10 Constitution saving throw or gain 1 level of Exhaustion. For each additional minute of immersion, the creature must repeat the save.",
+    "saveDC": 10,
+    "saveAbility": "CON",
+    "avoidance": "Cold resistance or immunity, or appropriate protective gear (wetsuit, Endure Elements).",
+    "description": "Water at near-freezing temperatures can quickly incapacitate or kill a creature through hypothermia."
+  },
+  {
+    "id": "thin-ice",
+    "name": "Thin Ice",
+    "level": "low",
+    "type": "environmental",
+    "effect": "When a creature moves onto thin ice, the DM rolls a d10. On a 1, the ice breaks and the creature falls through into frigid water below. A creature on thin ice can make a DC 10 Dexterity (Acrobatics) check to move at half speed without breaking the ice.",
+    "saveDC": 10,
+    "saveAbility": "DEX",
+    "avoidance": "DC 10 Wisdom (Survival) to identify thin ice before stepping on it. Crawling distributes weight and prevents breakage.",
+    "description": "A sheet of ice too thin to bear normal weight. Creatures that break through fall into frigid water."
+  },
+  {
+    "id": "desecrated-ground",
+    "name": "Desecrated Ground",
+    "level": "mid",
+    "type": "magical",
+    "effect": "Undead standing on desecrated ground have Advantage on saving throws. A creature that dies on desecrated ground may rise as an Undead (DM's discretion). Healing spells targeting creatures on desecrated ground are halved.",
+    "avoidance": "Hallow or Consecrate effects can cleanse the area.",
+    "description": "An area tainted by dark energy that empowers undead and weakens healing magic."
+  },
+  {
+    "id": "faerzress",
+    "name": "Faerzress",
+    "level": "mid",
+    "type": "magical",
+    "effect": "In areas suffused with faerzress, creatures can't teleport or use extradimensional travel. Divination spells have a 50% chance of producing false results. Any spell cast creates a random wild magic effect on a roll of 1 on a d20.",
+    "avoidance": "Leaving the area of faerzress. No known way to suppress it.",
+    "description": "A mysterious magical radiation found in the Underdark that disrupts teleportation, divination, and spellcasting."
+  },
+  {
+    "id": "antimagic-field-zone",
+    "name": "Antimagic Field Zone",
+    "level": "high",
+    "type": "magical",
+    "effect": "Within this area, spells can't be cast, summoned creatures disappear, and magic items become mundane. Spell effects don't extend into the area. A creature's innate magical abilities are also suppressed.",
+    "avoidance": "Leaving the area restores magical abilities. Artifacts and deities are typically unaffected.",
+    "description": "A zone where all magic is suppressed, as if affected by the Antimagic Field spell."
+  }
+]

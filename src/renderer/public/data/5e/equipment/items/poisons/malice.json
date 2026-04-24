@@ -1,0 +1,16 @@
+{
+  "name": "Malice",
+  "cost": "250 GP",
+  "type": "Inhaled",
+  "dc": 15,
+  "damage": "None",
+  "effect": "Blinded for 1 hour",
+  "description": "A creature subjected to this poison must succeed on a DC 15 Constitution saving throw or have the Blinded condition for 1 hour. If the creature fails by 5 or more, it also has the Unconscious condition while Blinded in this way. The creature wakes up if it takes damage or if another creature uses an action to shake it awake.",
+  "slug": "malice",
+  "category": "Poison",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Poison"
+  }
+}

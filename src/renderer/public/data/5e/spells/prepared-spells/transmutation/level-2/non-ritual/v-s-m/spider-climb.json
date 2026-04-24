@@ -1,0 +1,50 @@
+{
+  "name": "Spider Climb",
+  "level": 2,
+  "school": "Transmutation",
+  "classes": ["Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a drop of bitumen and a spider",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "Until the spell ends, one willing creature you touch gains the ability to move up, down, and across vertical surfaces and along ceilings, while leaving its hands free. The target also gains a Climb Speed equal to its Speed.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "targetMustBeWilling": true,
+  "speedModifiers": [
+    {
+      "type": "set",
+      "speedType": "climb",
+      "equalToSpeed": true
+    }
+  ],
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "additionalTargets",
+        "flatPerLevel": 1,
+        "baseSpellLevel": 2,
+        "description": "You can target one additional creature for each spell slot level above 2."
+      }
+    ]
+  },
+  "tags": ["movement", "utility", "climb"]
+}

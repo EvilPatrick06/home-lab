@@ -1,0 +1,202 @@
+{
+  "name": "Lamia",
+  "sizes": ["Large"],
+  "creatureType": "Monstrosity",
+  "alignment": "Chaotic Evil",
+  "habitat": ["Desert"],
+  "treasure": ["Arcana"],
+  "lore": "A lamia is a vain, predatory creature that uses illusion and enchantment magic to lure prey into its territory. The upper body of a lamia resembles a beautiful humanoid, while its lower body is that of a powerful beast, often a lion. Lamias make their lairs in deserts, ruins, and other desolate places, surrounding themselves with charmed servants and stolen treasures.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 97,
+    "dice": {
+      "count": 13,
+      "die": "d10",
+      "modifier": 26
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 9
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 18,
+      "modifier": 4,
+      "save": 4
+    }
+  },
+  "skills": [
+    {
+      "skill": "Deception",
+      "bonus": 8
+    },
+    {
+      "skill": "Insight",
+      "bonus": 6
+    },
+    {
+      "skill": "Perception",
+      "bonus": 6
+    },
+    {
+      "skill": "Stealth",
+      "bonus": 5
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Abyssal", "Common"]
+  },
+  "challengeRating": "4",
+  "experiencePoints": 1100,
+  "proficiencyBonus": 2,
+  "spellcasting": [
+    {
+      "name": "Spellcasting",
+      "ability": "CHA",
+      "spellSaveDC": 14,
+      "componentOverrides": {
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Disguise Self",
+              "level": 1,
+              "restriction": "can appear Medium"
+            },
+            {
+              "name": "Minor Illusion",
+              "level": 0
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 3,
+          "each": true,
+          "spells": [
+            {
+              "name": "Charm Person",
+              "level": 1
+            },
+            {
+              "name": "Mirror Image",
+              "level": 2
+            },
+            {
+              "name": "Scrying",
+              "level": 5
+            },
+            {
+              "name": "Suggestion",
+              "level": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The lamia makes two Claw attacks and can use Intoxicating Touch or Spellcasting.",
+    "attacks": [
+      {
+        "actionName": "Claw",
+        "count": 2
+      }
+    ],
+    "additionalEffects": "Can also use Intoxicating Touch or Spellcasting."
+  },
+  "actions": [
+    {
+      "name": "Claw",
+      "description": "Melee Attack Roll: +5, reach 5 ft. Hit: 12 (2d8 + 3) Slashing damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 5,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 12,
+              "dice": {
+                "count": 2,
+                "die": "d8",
+                "modifier": 3
+              },
+              "type": "Slashing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Intoxicating Touch",
+      "description": "The lamia touches one creature within 5 feet of itself. The target must succeed on a DC 14 Wisdom saving throw or have the Charmed condition for 1 hour. While Charmed in this way, the target has Disadvantage on Wisdom saving throws and ability checks.",
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 14,
+        "targets": "one creature within 5 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Charmed",
+              "duration": "1 hour"
+            }
+          ],
+          "effects": "While Charmed in this way, the target has Disadvantage on Wisdom saving throws and ability checks."
+        }
+      }
+    },
+    {
+      "name": "Spellcasting",
+      "description": "The lamia casts one of the following spells, requiring no Material components, using Charisma as the spellcasting ability (spell save DC 14):\n\nAt will: Disguise Self (can appear Medium), Minor Illusion\n3/Day each: Charm Person, Mirror Image, Scrying, Suggestion"
+    }
+  ]
+}

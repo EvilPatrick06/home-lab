@@ -1,0 +1,50 @@
+{
+  "name": "Cockatrice",
+  "slug": "cockatrice",
+  "size": "Small",
+  "type": "Monstrosity",
+  "alignment": "Unaligned",
+  "ac": "11",
+  "initiative": "+1 (11)",
+  "hp": "22",
+  "hpFormula": "5d6 + 5",
+  "speed": "20 ft., Fly 40 ft.",
+  "abilityScores": {
+    "str": 6,
+    "dex": 12,
+    "con": 12,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": -2,
+    "dex": 1,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Petrified",
+  "senses": "Darkvision 60 ft.; Passive Perception 11",
+  "languages": "None",
+  "cr": "1/2 (XP 100; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Petrifying Bite",
+      "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 3 (1d4 + 1) Piercing damage. If the target is a creature, it is subjected to the following effect. *Constitution Saving Throw:* DC 11. *First Failure:* The target has the *Restrained* condition. The target repeats the save at the end of its next turn if it is still Restrained, ending the effect on itself on a success. *Second Failure:* The target has the *Petrified* condition, instead of the Restrained condition, for 24 hours."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Accursed Avians with the Power to Petrify*\n**Habitat:** Grassland; **Treasure:** None\nCockatrices combine the features of irate roosters and starving reptiles. They petrify those they bite, their slightest peck turning their prey to stone.\nCockatrices often try to claim eye-catching structures--such as ruins and secluded farms--as roosts.\nBolder than their smaller cousins, cockatrice regents brim with unstable magical energy they use to restrain distant foes.",
+  "habitat": "Grassland",
+  "treasure": "None",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Monstrosities",
+    "file": "Monstrosities.md"
+  }
+}

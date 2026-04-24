@@ -1,0 +1,639 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as a group of concentric wheels, with the material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all. Yggdrasil, the World Tree, is one of four planar features that connect multiple Outer Planes and also links them to many worlds of the Material Plane.",
+    "alternateConfigurations": [
+      {
+        "name": "Cosmic Tree Model",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively). Yggdrasil itself embodies this configuration, with roots stretching into the Lower Planes, its trunk rising through Ysgard, and branches reaching through the Upper Planes and across the Astral to the Material Plane."
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between two other realities: the astral realms (the Astral Plane and the Outer Planes) above and the elemental realms (the Inner Planes) below."
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside."
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it."
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them. Yggdrasil, the World Tree, spans these planes, connecting them to each other and to the Material Plane.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      },
+      {
+        "name": "Planar Pathways",
+        "description": "Features that connect multiple Outer Planes, including the Infinite Staircase, the River Oceanus, the River Styx, and Yggdrasil, the World Tree.",
+        "memberPlanes": ["Infinite Staircase", "River Oceanus", "River Styx", "Yggdrasil"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "yggdrasil-the-world-tree",
+      "name": "Yggdrasil, the World Tree",
+      "alternateNames": ["The World Tree", "Yggdrasil"],
+      "category": "Special",
+      "alignments": [],
+      "philosophicalEssence": "A cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. It represents the interconnectedness of all planes and worlds, and the living, ever-growing nature of the multiverse. Many philosophers and naturalists view all trees or even all plants as descendants of Yggdrasil, part of a vast network of plant life across the multiverse.",
+      "emotionalInfluence": "The World Tree embodies the primordial connection between all planes and worlds, evoking a sense of the grand cosmic order underlying the multiverse.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "variable",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "mutable",
+        "shape": "A cosmic ash tree whose roots stretch into the Lower Planes (touching Hades, Pandemonium, and possibly other Lower Planes), whose massive trunk rises through Ysgard, and whose branches stretch through the Upper Planes and across the Astral Plane to the Material Plane.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Conditions vary along the length of the tree, reflecting the planes through which its parts extend.",
+        "temperature": {
+          "category": "variable",
+          "description": "Temperature varies depending on which portion of the tree a traveler occupies, reflecting the nature of the adjacent plane."
+        },
+        "hasSurface": true,
+        "dominantElement": "Plant matter — the tree itself is a cosmic ash tree",
+        "weatherPatterns": "Variable, dependent on the plane through which the relevant portion of the tree passes."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "variable",
+        "ratioToMaterialPlane": "variable",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Time flow along Yggdrasil varies depending on which plane the traveler is traversing through the tree's roots, trunk, or branches."
+      },
+      "hazards": [
+        {
+          "id": "yggdrasil-ever-changing-paths",
+          "name": "Ever-Changing Paths",
+          "description": "The paths along Yggdrasil's roots and branches are ever-changing as the tree continues its eternal growth. Navigating without an expert guide is perilous, as familiar routes may shift or vanish entirely.",
+          "category": "planar_trait",
+          "severity": "moderate",
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology — Yggdrasil, the World Tree"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "yggdrasil-eternal-growth",
+          "name": "Eternal Growth",
+          "description": "Yggdrasil continues its eternal growth, causing the network of branching pathways among its roots and branches to constantly change. Some creatures position themselves as expert guides to this vast cosmic network of branching pathways, constantly studying the ever-changing paths.",
+          "mechanicalEffect": "Pathways along Yggdrasil shift and change as the tree grows eternally. Expert guides who study the ever-changing paths can help travelers navigate from plane to plane or world to world. Without such guidance, navigation is uncertain.",
+          "isOptional": false,
+          "sourceReference": "Chapter 6: Cosmology — Yggdrasil, the World Tree"
+        }
+      ],
+      "portals": [],
+      "portalFrequency": "uncommon",
+      "planarConnections": [
+        {
+          "id": "yggdrasil-roots-to-lower-planes",
+          "name": "Roots to the Lower Planes",
+          "type": "world_tree",
+          "connectedPlanes": ["Hades", "Pandemonium", "Other Lower Planes (possibly)"],
+          "description": "Yggdrasil's roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Planar travelers can climb among the roots to travel between these planes.",
+          "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+          "isOneWay": false,
+          "navigableBy": ["Climbing travelers", "Expert guides"]
+        },
+        {
+          "id": "yggdrasil-trunk-through-ysgard",
+          "name": "Trunk Through Ysgard",
+          "type": "world_tree",
+          "connectedPlanes": ["Ysgard"],
+          "description": "Most of Yggdrasil's massive trunk rises through the plane of Ysgard.",
+          "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+          "isOneWay": false,
+          "navigableBy": ["Climbing travelers", "Expert guides"]
+        },
+        {
+          "id": "yggdrasil-branches-to-upper-planes",
+          "name": "Branches to the Upper Planes",
+          "type": "world_tree",
+          "connectedPlanes": ["Mount Celestia", "Bytopia", "Elysium", "Beastlands", "Arborea", "Arcadia"],
+          "description": "Yggdrasil's branches stretch through the Upper Planes. Planar travelers can climb among the branches to travel from plane to plane.",
+          "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+          "isOneWay": false,
+          "navigableBy": ["Climbing travelers", "Expert guides"]
+        },
+        {
+          "id": "yggdrasil-branches-across-astral-to-material",
+          "name": "Branches Across the Astral to the Material Plane",
+          "type": "world_tree",
+          "connectedPlanes": ["Astral Plane", "Material Plane"],
+          "description": "Yggdrasil's branches stretch across the Astral Plane to the Material Plane, linking the Outer Planes to many worlds of the Material Plane.",
+          "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+          "isOneWay": false,
+          "navigableBy": ["Climbing travelers", "Expert guides"]
+        },
+        {
+          "id": "yggdrasil-to-material-worlds",
+          "name": "Connection to Material Plane Worlds",
+          "type": "world_tree",
+          "connectedPlanes": ["Material Plane"],
+          "description": "Yggdrasil links the Outer Planes to many worlds of the Material Plane. Some legends describe a great tree, a seedling of Yggdrasil, that the god Corellon planted and tended on the First World at the dawn of time. When the First World was destroyed, seeds from this tree scattered into the void and took root to form the worlds of the Material Plane. Nexus points at or near the roots of the worlds — where the seedlings of the First World's great tree took root — may serve as connection points.",
+          "hazards": ["Ever-changing paths as the tree continues its eternal growth"],
+          "isOneWay": false,
+          "navigableBy": ["Climbing travelers", "Expert guides"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Expert guides who study the ever-changing paths"],
+        "notableEntities": [
+          {
+            "name": "Corellon",
+            "title": "God",
+            "creatureType": "Deity",
+            "description": "Some legends describe a great tree, a seedling of Yggdrasil, that the god Corellon planted and tended on the First World at the dawn of time. When the First World was destroyed, seeds from this tree scattered into the void and took root to form the worlds of the Material Plane."
+          }
+        ],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "yggdrasil-planar-travel",
+          "name": "Planar Travel via Yggdrasil",
+          "description": "Planar travelers can climb among the roots and branches of Yggdrasil to travel from plane to plane or world to world. Some creatures position themselves as expert guides to this vast cosmic network of branching pathways, constantly studying the ever-changing paths as the tree continues its eternal growth.",
+          "mechanicalEffect": "Yggdrasil provides a physical pathway (climbing among roots and branches) for traveling between the Lower Planes (via roots touching Hades, Pandemonium, and possibly other Lower Planes), through Ysgard (via the trunk), through the Upper Planes and across the Astral Plane to the Material Plane (via branches). Expert guides are available who constantly study the ever-changing paths. The paths shift as the tree continues its eternal growth.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "yggdrasil-seedling-origin",
+          "name": "Seedling of Yggdrasil and the First World",
+          "description": "Some myths describe a great tree that grew on the First World at the dawn of time, planted and tended by the god Corellon. This tree was a seedling of Yggdrasil, the World Tree. When the First World was destroyed, seeds from this great tree scattered into the void of the Material Plane and sprouted to form the worlds of the Material Plane. Many philosophers and naturalists view all trees or even all plants as descendants of Yggdrasil, part of a vast network of plant life across the multiverse.",
+          "mechanicalEffect": "The seedling origin provides the cosmological basis for nexus points — locations that exist in multiple worlds at the same time, which may be located at or near the roots of the worlds where the seedlings of the First World's great tree took root and grew into new worlds. Nexus points can be geographical features such as enormous trees, mountains, caverns, or constructed features, and can be used to travel between worlds of the Material Plane.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [
+        {
+          "id": "yggdrasil-roots",
+          "name": "Roots of Yggdrasil",
+          "type": "Region",
+          "description": "The roots of Yggdrasil stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Travelers can climb among the roots to access these planes.",
+          "hazards": ["Ever-changing paths"]
+        },
+        {
+          "id": "yggdrasil-trunk",
+          "name": "Trunk of Yggdrasil",
+          "type": "Region",
+          "description": "Most of Yggdrasil's massive trunk rises through the plane of Ysgard.",
+          "hazards": ["Ever-changing paths"]
+        },
+        {
+          "id": "yggdrasil-branches",
+          "name": "Branches of Yggdrasil",
+          "type": "Region",
+          "description": "The branches of Yggdrasil stretch through the Upper Planes and across the Astral Plane to the Material Plane.",
+          "hazards": ["Ever-changing paths"]
+        }
+      ],
+      "adventureThemes": [
+        "Navigating the ever-changing paths of a cosmic tree",
+        "Hiring or becoming expert guides to the World Tree's pathways",
+        "Exploring the connection between all planes and worlds",
+        "Discovering the origins of the Material Plane worlds through the seedlings of the First World's great tree",
+        "Traveling between planes and worlds by climbing among roots and branches"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Traveling the Outer Planes section describes Yggdrasil as one of four planar features connecting multiple Outer Planes."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Material Plane section references the myth of Corellon planting a seedling of Yggdrasil on the First World, whose seeds formed the worlds of the Material Plane."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Other Configurations sidebar mentions planes situated among the roots and branches of a great cosmic tree as an alternate cosmological model."
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Nexus points on the Material Plane may be located at or near the roots of the worlds where seedlings of the First World's great tree took root."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [
+    {
+      "id": "yggdrasil-world-tree-connection",
+      "name": "Yggdrasil, the World Tree",
+      "type": "world_tree",
+      "connectedPlanes": [
+        "Hades",
+        "Pandemonium",
+        "Ysgard",
+        "Mount Celestia",
+        "Bytopia",
+        "Elysium",
+        "Beastlands",
+        "Arborea",
+        "Arcadia",
+        "Astral Plane",
+        "Material Plane"
+      ],
+      "description": "The World Tree, Yggdrasil, is a cosmic ash tree that spans the Outer Planes and links them to many worlds of the Material Plane. Its roots stretch into the Lower Planes, touching Hades, Pandemonium, and possibly other Lower Planes. Most of its massive trunk rises through the plane of Ysgard, and its branches stretch through the Upper Planes and across the Astral to the Material Plane. Planar travelers can climb among the roots and branches of Yggdrasil to travel from plane to plane or world to world. Some creatures position themselves as expert guides to this vast cosmic network of branching pathways, constantly studying the ever-changing paths as the tree continues its eternal growth.",
+      "hazards": [
+        "Ever-changing paths as the tree continues its eternal growth",
+        "Conditions of adjacent planes affect travelers along the tree"
+      ],
+      "isOneWay": false,
+      "navigableBy": ["Climbing travelers", "Expert guides who study the ever-changing paths"]
+    }
+  ],
+  "planarTravelMethods": [
+    {
+      "id": "yggdrasil-climbing",
+      "name": "Climbing Yggdrasil, the World Tree",
+      "type": "planar_pathway",
+      "description": "Planar travelers can climb among the roots and branches of Yggdrasil to travel from plane to plane or world to world. Some creatures position themselves as expert guides to this vast cosmic network of branching pathways, constantly studying the ever-changing paths as the tree continues its eternal growth. The roots stretch into the Lower Planes (touching Hades, Pandemonium, and possibly other Lower Planes), the trunk rises through Ysgard, and branches stretch through the Upper Planes and across the Astral to the Material Plane.",
+      "requirements": [
+        "Ability to physically climb among the roots and branches",
+        "Knowledge of the ever-changing paths (expert guides recommended)"
+      ],
+      "associatedSpells": [],
+      "risks": [
+        "Paths are ever-changing as the tree continues its eternal growth",
+        "Exposure to conditions of the planes through which the tree passes"
+      ],
+      "destinations": [
+        "Hades",
+        "Pandemonium",
+        "Other Lower Planes (possibly)",
+        "Ysgard",
+        "Upper Planes",
+        "Astral Plane",
+        "Material Plane (many worlds)"
+      ]
+    },
+    {
+      "id": "nexus-points-roots-of-worlds",
+      "name": "Nexus Points at the Roots of the Worlds",
+      "type": "nexus_point",
+      "description": "Nexus points are locations that exist in multiple worlds at the same time. These points might be located at or near the roots of the worlds — the places where the seedlings of the First World's great tree (a seedling of Yggdrasil planted by Corellon) took root and grew into a new world. A nexus point can be a geographical feature such as an enormous tree, a mountain or mesa, a yawning cavern deep under the mountains, or a meteorite in an enormous crater. It might also be a constructed feature: a lonely tower or castle, a bustling tavern, or even a city.",
+      "requirements": [
+        "Location at or near a nexus point",
+        "Depending on the place: use of magic, an object from the desired destination world as a sort of key, or nothing more than an act of will"
+      ],
+      "associatedSpells": [],
+      "risks": ["Some nexus points flit from world to world on a regular schedule, potentially stranding travelers"],
+      "destinations": ["Various worlds of the Material Plane"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

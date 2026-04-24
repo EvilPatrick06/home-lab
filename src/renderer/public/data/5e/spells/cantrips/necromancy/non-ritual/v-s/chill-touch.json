@@ -1,0 +1,59 @@
+{
+  "name": "Chill Touch",
+  "level": 0,
+  "school": "Necromancy",
+  "classes": ["Sorcerer", "Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "Channeling the chill of the grave, make a melee spell attack against a target within reach. On a hit, the target takes 1d10 Necrotic damage, and it can't regain Hit Points until the end of your next turn.",
+  "targetType": "creature",
+  "attackType": "MeleeSpellAttack",
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 1,
+        "diceValue": 10
+      },
+      "type": "Necrotic",
+      "applicationType": "onHit"
+    }
+  ],
+  "preventsHealing": true,
+  "cantripUpgrade": {
+    "upgrades": [
+      {
+        "level": 5,
+        "diceCount": 2,
+        "diceValue": 10,
+        "description": "The damage increases to 2d10."
+      },
+      {
+        "level": 11,
+        "diceCount": 3,
+        "diceValue": 10,
+        "description": "The damage increases to 3d10."
+      },
+      {
+        "level": 17,
+        "diceCount": 4,
+        "diceValue": 10,
+        "description": "The damage increases to 4d10."
+      }
+    ]
+  },
+  "tags": ["cantrip", "damage", "melee", "prevents-healing"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Encounter",
+  "slug": "encounter",
+  "description": "An encounter is a scene in an adventure that is defined by an interesting challenge, like a battle, a social negotiation, or a dangerous hazard.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

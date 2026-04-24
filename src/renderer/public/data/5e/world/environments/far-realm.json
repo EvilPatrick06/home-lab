@@ -1,0 +1,705 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with material realms at the center, Inner Planes forming a wheel around the Material Plane enveloped in the Ethereal Plane, and Outer Planes forming another wheel arranged according to alignment with the Outlands linking them all. The Far Realm exists outside this structure entirely, possibly constituting a separate universe with its own physical and magical laws.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between astral realms (Astral Plane and Outer Planes) above and elemental realms (Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: a Material Plane; the Transitive Planes; a single undifferentiated Elemental Plane; an Overheaven where good deities and Celestials dwell; and an Underworld where evil deities and Fiends reside"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, with planes exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      },
+      {
+        "name": "Far Realm",
+        "description": "The Far Realm is outside the known multiverse. It might be an entirely separate universe with its own physical and magical laws. It does not fit into the Great Wheel structure.",
+        "memberPlanes": ["Far Realm"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "far-realm",
+      "name": "Far Realm",
+      "alternateNames": [],
+      "category": "Far Realm",
+      "subcategory": "Far Realm",
+      "alignments": [],
+      "philosophicalEssence": "The Far Realm is outside the known multiverse. In fact, it might be an entirely separate universe with its own physical and magical laws. Where stray energies from the Far Realm leak onto another plane, matter is warped into alien shapes that defy understandable geometry and biology.",
+      "emotionalInfluence": "Knowledge of the Far Realm is a struggle of the mind to overcome the boundaries of matter, space, and rational thought. Anyone who has seen the Far Realm mutters about eyes, tentacles, and horror. To see the entities there is to become lost in their magnitude and the evidence that mortals have never, will never, and could never matter to the cosmos at large.",
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "none",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "highly_morphic",
+        "shape": "Incomprehensible alien geometry that defies understandable spatial principles. Titanic creatures swim through nothingness.",
+        "breathableAtmosphere": false,
+        "atmosphereNotes": "The Far Realm has its own physical and magical laws entirely separate from the known multiverse. No information about breathable atmosphere is provided; the environment is fundamentally alien and hostile to mortal life.",
+        "temperature": {
+          "category": "variable",
+          "description": "The Far Realm operates under its own physical laws. Temperature as understood in the known multiverse may not apply."
+        },
+        "hasSurface": false,
+        "dominantElement": "None - the Far Realm exists outside the elemental framework of the known multiverse",
+        "weatherPatterns": "Unknown - the Far Realm has its own physical laws that defy mortal understanding"
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "unknown",
+      "timeFlow": {
+        "type": "none",
+        "ratioToMaterialPlane": "unknown",
+        "agingOccurs": false,
+        "hungerThirstApplies": false,
+        "description": "The Far Realm might be an entirely separate universe with its own physical and magical laws. Time flow relative to the known multiverse is undefined."
+      },
+      "hazards": [
+        {
+          "id": "far-realm-alien-incomprehension",
+          "name": "Alien Incomprehension",
+          "description": "The entities that abide in the Far Realm are too alien for mortal minds to accept without strain. Titanic creatures swim through nothingness there, and unspeakable beings whisper awful truths to those who dare listen. For mortals, knowledge of the Far Realm is a struggle of the mind to overcome the boundaries of matter, space, and rational thought.",
+          "category": "psychic",
+          "severity": "severe",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Far Realm"
+        },
+        {
+          "id": "far-realm-matter-warping",
+          "name": "Matter Warping Energies",
+          "description": "Where stray energies from the Far Realm leak onto another plane, matter is warped into alien shapes that defy understandable geometry and biology. Aberrations such as mind flayers and beholders are either from this plane or shaped by its strange influence.",
+          "category": "corruption",
+          "severity": "severe",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Far Realm"
+        },
+        {
+          "id": "far-realm-portal-area-transformation",
+          "name": "Portal Area Transformation",
+          "description": "Lost portals to the Far Realm might still exist, marked by an alien magic that transforms the surrounding area. The alien magic emanating from these portals warps the local environment.",
+          "category": "corruption",
+          "severity": "major",
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology - Far Realm"
+        }
+      ],
+      "environmentalEffects": [
+        {
+          "id": "far-realm-alien-physics",
+          "name": "Alien Physical and Magical Laws",
+          "description": "The Far Realm might be an entirely separate universe with its own physical and magical laws. The normal rules of physics, magic, geometry, and biology do not apply.",
+          "mechanicalEffect": "The Far Realm operates under its own physical and magical laws entirely separate from the known multiverse. Standard planar rules, spells, and mechanics from the known multiverse may function differently or not at all. DM discretion is required for all interactions.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Knowledge of the Far Realm is a struggle of the mind to overcome the boundaries of matter, space, and rational thought. Anyone who has seen the Far Realm mutters about eyes, tentacles, and horror.",
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Far Realm"
+        },
+        {
+          "id": "far-realm-mortal-mind-strain",
+          "name": "Mortal Mind Strain",
+          "description": "The entities that abide in the Far Realm are too alien for mortal minds to accept without strain. To see these beings is to become lost in their magnitude and the evidence that mortals have never, will never, and could never matter to the cosmos at large.",
+          "mechanicalEffect": "Mortal minds cannot accept the entities of the Far Realm without strain. The specific mechanical effects are left to DM discretion, but the text implies severe psychological consequences for mortals who perceive or interact with Far Realm entities.",
+          "isOptional": true,
+          "affectsEmotions": true,
+          "emotionalEffect": "Existential dread and horror. Mortals confronted with Far Realm entities face evidence that they have never, will never, and could never matter to the cosmos at large.",
+          "removalMethods": [],
+          "sourceReference": "Chapter 6: Cosmology - Far Realm Adventures"
+        }
+      ],
+      "portals": [
+        {
+          "id": "far-realm-firestorm-peak-portal",
+          "type": "natural",
+          "name": "Firestorm Peak Portal",
+          "destination": "Far Realm",
+          "destinationPlane": "Far Realm",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "Ancient elves once opened a vast portal to the Far Realm within a mountain called Firestorm Peak, but their civilization imploded in bloody terror, and the portal's location—even its home world—is long forgotten. The portal is no longer known to be viable.",
+            "situationCondition": "Portal location and home world are long forgotten; no longer considered viable"
+          },
+          "colorOrAppearance": "Marked by alien magic that transforms the surrounding area",
+          "isDetectable": true
+        },
+        {
+          "id": "far-realm-lost-portals",
+          "type": "natural",
+          "name": "Lost Portals",
+          "destination": "Far Realm",
+          "destinationPlane": "Far Realm",
+          "bidirectional": true,
+          "requirement": {
+            "type": "situation",
+            "description": "Lost portals might still exist, marked by an alien magic that transforms the surrounding area. No well-known portals are still viable.",
+            "situationCondition": "Unknown requirements; marked by alien magic that transforms the surrounding area"
+          },
+          "colorOrAppearance": "Marked by alien magic that transforms the surrounding area into alien shapes",
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "extremely_rare",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Aberration"],
+        "notableEntities": [
+          {
+            "name": "Titanic Creatures",
+            "creatureType": "Aberration",
+            "description": "Titanic creatures swim through the nothingness of the Far Realm."
+          },
+          {
+            "name": "Unspeakable Beings",
+            "creatureType": "Aberration",
+            "description": "Unspeakable beings whisper awful truths to those who dare listen."
+          },
+          {
+            "name": "Far Realm Warlock Patrons",
+            "creatureType": "Aberration",
+            "description": "Some Warlocks embrace the struggle of comprehending the Far Realm by forming pacts with entities there."
+          }
+        ],
+        "civilizations": [
+          {
+            "name": "Ancient Elf Civilization (Destroyed)",
+            "race": "Elf",
+            "description": "Ancient elves once opened a vast portal to the Far Realm within a mountain called Firestorm Peak, but their civilization imploded in bloody terror. The portal's location and home world are long forgotten.",
+            "location": "Firestorm Peak (location forgotten)"
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "far-realm-separate-universe",
+          "name": "Separate Universe",
+          "description": "The Far Realm is outside the known multiverse. In fact, it might be an entirely separate universe with its own physical and magical laws.",
+          "mechanicalEffect": "The Far Realm exists outside the cosmological framework of the Great Wheel. Standard planar travel methods, color pools, ethereal curtains, and other interplanar connections do not connect to the Far Realm. The Far Realm has no well-known portals, or at least none that are still viable.",
+          "affectsSpellcasting": true,
+          "spellcastingRestrictions": {
+            "blockedSpells": [],
+            "exemptSpells": [],
+            "modifiedSpells": [
+              {
+                "spell": "Plane Shift",
+                "modification": "The Far Realm has no well-known portals and may not be reachable via standard planar travel spells, as it exists outside the known multiverse with its own physical and magical laws."
+              },
+              {
+                "spell": "Gate",
+                "modification": "The Far Realm has no well-known portals and may not be reachable via standard planar travel spells, as it exists outside the known multiverse with its own physical and magical laws."
+              }
+            ]
+          }
+        },
+        {
+          "id": "far-realm-no-standard-connections",
+          "name": "No Standard Planar Connections",
+          "description": "The Far Realm has no well-known portals, or at least none that are still viable. It does not appear on the Astral Color Pools table or the Ethereal Curtains table, confirming it has no standard connections to the Astral Plane or Ethereal Plane.",
+          "mechanicalEffect": "The Far Realm is not reachable via Astral color pools or Ethereal curtains. No color pool color is assigned to the Far Realm. No ethereal curtain color is assigned to the Far Realm. Lost portals might still exist but are marked by alien magic that transforms the surrounding area.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "far-realm-aberration-origin",
+          "name": "Aberration Origin",
+          "description": "Aberrations such as mind flayers and beholders are either from this plane or shaped by its strange influence. Where stray energies from the Far Realm leak onto another plane, matter is warped into alien shapes that defy understandable geometry and biology.",
+          "mechanicalEffect": "The Far Realm is the origin point or shaping influence for Aberration-type creatures. Stray Far Realm energies that leak onto other planes cause matter to warp into alien shapes that defy understandable geometry and biology, potentially creating or transforming creatures into Aberrations.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "adventureThemes": [
+        "What it means to be a person",
+        "Mental and bodily autonomy and their value",
+        "Whether mortals have any control over their fate",
+        "Whether mortals have any importance in the grand scheme of things",
+        "Confrontation with entities beyond mortal comprehension",
+        "The struggle of the mind to overcome the boundaries of matter, space, and rational thought",
+        "Review players' limits before planning adventures exploring these themes"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 6: Cosmology - Far Realm section describes the plane and adventure hooks"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Chapter 6: Cosmology - The Planes section establishes the Far Realm as outside the standard planar categories"
+        },
+        {
+          "book": "Dungeon Master's Guide 2024",
+          "description": "Appendix C: Rules Glossary - Arcana skill covers planes of existence and Aberrations, creature types connected to the Far Realm"
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "planar-portals",
+      "name": "Planar Portals",
+      "type": "portal",
+      "description": "A portal is a stationary, interplanar connection that links a specific location on one plane to a specific location on another. The Far Realm has no well-known portals, or at least none that are still viable. Lost portals might still exist, marked by an alien magic that transforms the surrounding area.",
+      "requirements": [
+        "Finding a portal that leads to the Far Realm",
+        "Meeting the portal's activation requirements",
+        "Portals to the Far Realm are extremely rare or nonexistent"
+      ],
+      "associatedSpells": [],
+      "risks": [
+        "The ancient elves who opened a portal to the Far Realm at Firestorm Peak saw their civilization implode in bloody terror",
+        "Alien magic from Far Realm portals transforms the surrounding area"
+      ],
+      "destinations": ["Far Realm"]
+    },
+    {
+      "id": "warlock-pacts",
+      "name": "Warlock Pacts with Far Realm Entities",
+      "type": "other",
+      "description": "Some Warlocks embrace the struggle of comprehending the Far Realm by forming pacts with entities there. This represents a connection to the Far Realm through mental and magical bonds rather than physical travel.",
+      "requirements": ["Warlock class with a pact to a Far Realm entity"],
+      "associatedSpells": [],
+      "risks": [
+        "Knowledge of the Far Realm is a struggle of the mind to overcome the boundaries of matter, space, and rational thought",
+        "Anyone who has seen the Far Realm mutters about eyes, tentacles, and horror"
+      ],
+      "destinations": ["Far Realm"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 1,
+      "plane": "Abyss",
+      "poolColor": "Amethyst"
+    },
+    {
+      "diceRangeLow": 2,
+      "diceRangeHigh": 2,
+      "plane": "Acheron",
+      "poolColor": "Flame red"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Arborea",
+      "poolColor": "Sapphire blue"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Arcadia",
+      "poolColor": "Saffron"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Beastlands",
+      "poolColor": "Emerald green"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Bytopia",
+      "poolColor": "Amber"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Carceri",
+      "poolColor": "Olive"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elysium",
+      "poolColor": "Orange"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Ethereal Plane",
+      "poolColor": "Spiraling white"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Gehenna",
+      "poolColor": "Russet"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Hades",
+      "poolColor": "Rust"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Limbo",
+      "poolColor": "Jet black"
+    },
+    {
+      "diceRangeLow": 13,
+      "diceRangeHigh": 14,
+      "plane": "Material Plane",
+      "poolColor": "Silver"
+    },
+    {
+      "diceRangeLow": 15,
+      "diceRangeHigh": 15,
+      "plane": "Mechanus",
+      "poolColor": "Diamond blue"
+    },
+    {
+      "diceRangeLow": 16,
+      "diceRangeHigh": 16,
+      "plane": "Mount Celestia",
+      "poolColor": "Gold"
+    },
+    {
+      "diceRangeLow": 17,
+      "diceRangeHigh": 17,
+      "plane": "Nine Hells",
+      "poolColor": "Ruby"
+    },
+    {
+      "diceRangeLow": 18,
+      "diceRangeHigh": 18,
+      "plane": "Outlands",
+      "poolColor": "Leather brown"
+    },
+    {
+      "diceRangeLow": 19,
+      "diceRangeHigh": 19,
+      "plane": "Pandemonium",
+      "poolColor": "Magenta"
+    },
+    {
+      "diceRangeLow": 20,
+      "diceRangeHigh": 20,
+      "plane": "Ysgard",
+      "poolColor": "Indigo"
+    }
+  ],
+  "etherealCurtains": [
+    {
+      "diceRangeLow": 1,
+      "diceRangeHigh": 2,
+      "plane": "Material Plane",
+      "curtainColor": "Turquoise"
+    },
+    {
+      "diceRangeLow": 3,
+      "diceRangeHigh": 3,
+      "plane": "Shadowfell",
+      "curtainColor": "Dusky gray"
+    },
+    {
+      "diceRangeLow": 4,
+      "diceRangeHigh": 4,
+      "plane": "Feywild",
+      "curtainColor": "Opalescent"
+    },
+    {
+      "diceRangeLow": 5,
+      "diceRangeHigh": 5,
+      "plane": "Elemental Plane of Air",
+      "curtainColor": "Pale blue"
+    },
+    {
+      "diceRangeLow": 6,
+      "diceRangeHigh": 6,
+      "plane": "Elemental Plane of Earth",
+      "curtainColor": "Chestnut"
+    },
+    {
+      "diceRangeLow": 7,
+      "diceRangeHigh": 7,
+      "plane": "Elemental Plane of Fire",
+      "curtainColor": "Orange"
+    },
+    {
+      "diceRangeLow": 8,
+      "diceRangeHigh": 8,
+      "plane": "Elemental Plane of Water",
+      "curtainColor": "Green"
+    },
+    {
+      "diceRangeLow": 9,
+      "diceRangeHigh": 9,
+      "plane": "Para-elemental Plane of Ash",
+      "curtainColor": "Dark gray"
+    },
+    {
+      "diceRangeLow": 10,
+      "diceRangeHigh": 10,
+      "plane": "Para-elemental Plane of Ice",
+      "curtainColor": "Aquamarine"
+    },
+    {
+      "diceRangeLow": 11,
+      "diceRangeHigh": 11,
+      "plane": "Para-elemental Plane of Magma",
+      "curtainColor": "Maroon"
+    },
+    {
+      "diceRangeLow": 12,
+      "diceRangeHigh": 12,
+      "plane": "Para-elemental Plane of Ooze",
+      "curtainColor": "Chocolate"
+    }
+  ],
+  "planarAdventureSituations": [
+    {
+      "diceValue": 1,
+      "situation": "When magic fails to revive a dead person, the only solution is to venture to the Outer Planes to find the person's spirit and either release it from some prison or convince the person to return to life.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 2,
+      "situation": "People who venture into the woods keep accidentally wandering into the Feywild or the Shadowfell. They might never return, return with no sense of how much time has passed, or return dramatically changed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 3,
+      "situation": "A long-dead oracle is the only one who knows how a terrible prophecy might be averted, but the cataclysmic fulfillment of the prophecy has already begun.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 4,
+      "situation": "A god has stopped answering prayers and won't respond to any Commune spell.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 5,
+      "situation": "A devil has tricked an angel into meddling in the Blood War, and the angel seeks mortal aid.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 6,
+      "situation": "An ancestor of one of the characters must be convinced to bless the character before the full power of the character's bloodline can be unleashed.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 7,
+      "situation": "A foolhardy knight carried a holy weapon on a doomed mission into the Nine Hells, and the powers of Mount Celestia want the weapon and the knight's remains retrieved.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 8,
+      "situation": "A titan is imprisoned on an Outer Plane. The characters might be trying to stop those who seek to release it, or they might want to release it to help defend the world from a greater threat.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 9,
+      "situation": "To prove themselves worthy of an even greater quest, the characters are sent to slay a horrible monster, win the favor of a powerful planar being, negotiate peace between two warring planar factions, or retrieve a long-lost item on another plane.",
+      "suggestedMinLevel": 11
+    },
+    {
+      "diceValue": 10,
+      "situation": "An item of legend is being sold at auction in Sigil, the City of Brass, or some other planar metropolis.",
+      "suggestedMinLevel": 11
+    }
+  ],
+  "globalPlanarDissonance": {
+    "description": "Celestials who visit the Lower Planes and Fiends who visit the Upper Planes experience significant discomfort if their visits last more than a few hours. After finishing a Long Rest on a plane that is alien to its nature, a Celestial or Fiend makes a DC 10 Constitution saving throw. On a failed save, whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save and ends when the creature finishes a Long Rest on a plane that isn't opposed to its nature.",
+    "affectedCreatureTypes": ["Celestial", "Fiend"],
+    "savingThrow": {
+      "ability": "Constitution",
+      "dc": 10,
+      "proficiencyApplies": true,
+      "trigger": "per_long_rest",
+      "triggerDescription": "After finishing a Long Rest on a plane that is alien to the creature's nature",
+      "onFailure": {
+        "description": "Whenever the creature makes a D20 Test, the creature must subtract 1d4 from the roll. The effect is cumulative with each failed save.",
+        "cumulative": true,
+        "cumulativeDescription": "Each failed save adds another 1d4 subtracted from D20 Tests",
+        "penaltyDice": {
+          "dice": {
+            "count": 1,
+            "die": 4,
+            "modifier": 0,
+            "expression": "1d4",
+            "averageResult": 2.5
+          },
+          "appliesTo": "d20_tests",
+          "subtracted": true
+        },
+        "duration": "Until the creature finishes a Long Rest on a plane that isn't opposed to its nature",
+        "exhaustionLevels": 0,
+        "exhaustionIsRemovable": true
+      },
+      "onSuccess": {
+        "description": "No additional penalty is imposed.",
+        "endsEffect": false
+      },
+      "autoSuccessCreatureTypes": [],
+      "autoSuccessTraits": [],
+      "autoSuccessConditions": [],
+      "repeatSaveAllowed": false,
+      "recoveryMethods": ["Finishing a Long Rest on a plane that isn't opposed to the creature's nature"],
+      "failureProbabilityAtDC": {
+        "dc": 10,
+        "noModifierFailChance": 0.45,
+        "commonModifierRange": {
+          "low": 1,
+          "high": 5
+        },
+        "failChanceAtLowMod": 0.4,
+        "failChanceAtHighMod": 0.2
+      }
+    },
+    "planesCausingDissonance": {
+      "forCelestials": ["Abyss", "Acheron", "Carceri", "Gehenna", "Hades", "Nine Hells", "Pandemonium"],
+      "forFiends": ["Arborea", "Arcadia", "Beastlands", "Bytopia", "Elysium", "Mount Celestia", "Ysgard"]
+    }
+  },
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    }
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-31T00:00:00Z"
+  }
+}

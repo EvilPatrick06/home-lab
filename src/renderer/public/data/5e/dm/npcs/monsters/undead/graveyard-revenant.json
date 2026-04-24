@@ -1,0 +1,64 @@
+{
+  "name": "Graveyard Revenant",
+  "slug": "graveyard-revenant",
+  "size": "Huge",
+  "type": "Undead",
+  "alignment": "Neutral",
+  "ac": "14",
+  "initiative": "+2 (12)",
+  "hp": "161",
+  "hpFormula": "14d12 + 70",
+  "speed": "40 ft.",
+  "abilityScores": {
+    "str": 20,
+    "dex": 14,
+    "con": 20,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 8,
+    "dex": 2,
+    "con": 8,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "immunities": "Poison; Charmed, Exhaustion, Frightened, Paralyzed, Petrified, Poisoned, Stunned, Unconscious",
+  "resistances": "Necrotic, Psychic",
+  "senses": "Darkvision 120 ft.; Passive Perception 13",
+  "languages": "Common plus two other languages",
+  "cr": "7 (XP 2,900; PB +3)",
+  "traits": [
+    {
+      "name": "Undead Restoration",
+      "description": "If the revenant dies, it revives 24 hours later unless *Dispel Evil or Good* is cast on its remains. If it revives, it animates another group of corpses elsewhere on the same plane of existence; it now looks different but uses the same stat block and returns with all its Hit Points."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The revenant makes two Suffocate attacks."
+    },
+    {
+      "name": "Suffocate",
+      "description": "*Melee Attack Roll:* +8, reach 10 ft. *Hit:* 10 (1d10 + 5) Bludgeoning damage plus 10 (3d6) Necrotic damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 15). Until the grapple ends, the target is suffocating. The revenant can have up to two targets Grappled in this way at a time."
+    },
+    {
+      "name": "Haunting Glare (Recharge 5--6)",
+      "description": "*Wisdom Saving Throw:* DC 15, each creature in a 30-foot Emanation originating from the revenant. *Failure:* The target has the Paralyzed condition and repeats the save at the end of each of its turns, ending the effect on itself on a success. After 1 minute, it succeeds automatically."
+    }
+  ],
+  "bonusActions": [],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Vengeance from beyond the Grave*\n**Habitat:** Forest, Swamp, Urban; **Treasure:** Any\nWrathful spirits bent on revenge, revenants possess corpses and other materials, using them to seek justice or vent their rage on those who wronged them. Revenants refuse to rest until those they seek to punish are no more. If their bodies are destroyed, revenants claim new forms and continue their ruthless quests.\nRevenants possess the bodies they had in life, using them to hunt down their killers. If their bodies are destroyed, they take control of new bodies that gradually change to resemble the revenants' original forms.\nGraveyard revenants possess dozens of bodies that combine to form grotesque masses. They take revenge on those responsible for mass deaths or institutions that callously ruin lives.\nHaunting revenants possess ruins and forsaken places connected with their deaths -- such as abandoned buildings, wrecked ships, or junk heaps. These revenants lurk in plain sight, waiting for their foes to near, then trap their victims within their massive bodies. Those inside a revenant might be battered by animate furnishings or more unsettling manifestations of the revenant's hatred.\nThe places haunting revenants lurk swiftly gain infamous reputations.",
+  "habitat": "Forest, Swamp, Urban",
+  "treasure": "Any",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Undead",
+    "file": "Undead.md"
+  }
+}

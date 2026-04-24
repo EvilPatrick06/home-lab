@@ -1,0 +1,66 @@
+{
+  "name": "Contagion",
+  "level": 5,
+  "school": "Necromancy",
+  "classes": ["Cleric", "Druid"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": false,
+    "amount": 7,
+    "unit": "days"
+  },
+  "description": "Your touch inflicts a magical contagion. The target must succeed on a Constitution saving throw or take 11d8 Necrotic damage and have the Poisoned condition. Also, choose one ability when you cast the spell. While Poisoned, the target has Disadvantage on saving throws made with the chosen ability. The target must repeat the saving throw at the end of each of its turns until it gets three successes or failures. If the target succeeds on three of these saves, the spell ends on the target. If the target fails three of the saves, the spell lasts for 7 days on it. Whenever the Poisoned target receives an effect that would end the Poisoned condition, the target must succeed on a Constitution saving throw, or the Poisoned condition doesn't end on it.",
+  "targetType": "creature",
+  "targetCount": 1,
+  "savingThrow": {
+    "ability": "Constitution",
+    "noEffectOnSuccess": true,
+    "effectOnFailure": "The target takes 11d8 Necrotic damage and has the Poisoned condition. While Poisoned, the target has Disadvantage on saving throws made with a chosen ability.",
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true,
+      "threeSuccessesRequired": true,
+      "threeFailuresEffect": "The spell lasts for 7 days on the target"
+    }
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 11,
+        "diceValue": 8
+      },
+      "type": "Necrotic",
+      "applicationType": "onFailedSave"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Poisoned",
+      "trigger": "onFailedSave",
+      "duration": "Until three successful saves end the spell, or 7 days on three failed saves",
+      "savingThrowToEnd": {
+        "ability": "Constitution",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "disadvantagesImposed": [
+    {
+      "on": "savingThrows",
+      "condition": "While Poisoned by this spell, on the chosen ability"
+    }
+  ],
+  "tags": ["touch", "debuff", "disease", "three-strikes-mechanic", "anti-healing-condition"]
+}

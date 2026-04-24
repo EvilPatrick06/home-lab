@@ -1,0 +1,139 @@
+{
+  "name": "Gray Ooze",
+  "sizes": ["Medium"],
+  "creatureType": "Ooze",
+  "alignment": "Unaligned",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "A gray ooze is a living puddle of stone-colored slime that lurks in dark caverns and dungeon corridors, blending in with wet stone and oily pools. It preys on creatures that wander too close, dissolving flesh and metal alike with its corrosive secretions. These mindless predators are a bane to adventurers who rely on metal weapons and armor, as contact with a gray ooze can corrode and destroy such equipment.",
+  "armorClass": {
+    "value": 8
+  },
+  "hitPoints": {
+    "average": 22,
+    "dice": {
+      "count": 3,
+      "die": "d8",
+      "modifier": 9
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 10
+    },
+    {
+      "type": "Climb",
+      "distance": 10
+    }
+  ],
+  "initiative": {
+    "modifier": -2,
+    "score": 8
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CON": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "INT": {
+      "score": 1,
+      "modifier": -5,
+      "save": -5
+    },
+    "WIS": {
+      "score": 6,
+      "modifier": -2,
+      "save": -2
+    },
+    "CHA": {
+      "score": 2,
+      "modifier": -4,
+      "save": -4
+    }
+  },
+  "skills": [
+    {
+      "skill": "Stealth",
+      "bonus": 2
+    }
+  ],
+  "resistances": ["Acid, Cold, and Fire"],
+  "conditionImmunities": ["Blinded", "Charmed", "Deafened", "Exhaustion", "Frightened", "Prone"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Blindsight",
+        "range": 60,
+        "notes": "Blind beyond this radius"
+      }
+    ],
+    "passivePerception": 8
+  },
+  "languages": {
+    "notes": "None"
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amorphous",
+      "description": "The ooze can move through a space as narrow as 1 inch without squeezing."
+    },
+    {
+      "name": "Corrode Metal",
+      "description": "Any nonmagical weapon made of metal that hits the ooze corrodes. After dealing damage, the weapon takes a permanent and cumulative −1 penalty to damage rolls. If its penalty drops to −5, the weapon is destroyed. Nonmagical ammunition made of metal that hits the ooze is destroyed after dealing damage. The ooze can eat through 2-inch-thick, nonmagical metal in 1 round."
+    },
+    {
+      "name": "False Appearance",
+      "description": "While the ooze remains motionless, it is indistinguishable from an oily pool or wet rock."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "description": "Melee Attack Roll: +3, reach 5 ft. Hit: 4 (1d6 + 1) Bludgeoning damage plus 7 (2d6) Acid damage. If the target is wearing nonmagical metal armor, the armor takes a permanent and cumulative −1 penalty to the AC it offers. Armor reduced to an AC of 10 is destroyed.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 3,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 1
+              },
+              "type": "Bludgeoning"
+            },
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Acid"
+            }
+          ],
+          "additionalEffects": "If the target is wearing nonmagical metal armor, the armor takes a permanent and cumulative −1 penalty to the AC it offers. Armor reduced to an AC of 10 is destroyed."
+        }
+      }
+    }
+  ]
+}

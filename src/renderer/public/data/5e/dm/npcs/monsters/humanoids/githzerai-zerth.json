@@ -1,0 +1,211 @@
+{
+  "name": "Githzerai Zerth",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "descriptiveTags": ["Gith"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Planar"],
+  "treasure": ["Arcana"],
+  "lore": "Zerths are githzerai monks who have mastered the manipulation of time, able to briefly shift foes through the time stream. They serve as elite guardians in the churning chaos of Limbo, defending githzerai monasteries with devastating psychic strikes and temporal disruptions. Their mental discipline is legendary, and they draw on psionic power to shape reality around them.",
+  "armorClass": {
+    "value": 19,
+    "sources": ["Psychic Defense"]
+  },
+  "hitPoints": {
+    "average": 97,
+    "dice": {
+      "count": 15,
+      "die": "d8",
+      "modifier": 30
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 40
+    }
+  ],
+  "initiative": {
+    "modifier": 4,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 18,
+      "modifier": 4,
+      "save": 7
+    },
+    "CON": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 16,
+      "modifier": 3,
+      "save": 6
+    },
+    "WIS": {
+      "score": 20,
+      "modifier": 5,
+      "save": 8
+    },
+    "CHA": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    }
+  },
+  "skills": [
+    {
+      "skill": "Arcana",
+      "bonus": 6
+    },
+    {
+      "skill": "Insight",
+      "bonus": 8
+    },
+    {
+      "skill": "Perception",
+      "bonus": 8
+    }
+  ],
+  "senses": {
+    "passivePerception": 18
+  },
+  "languages": {
+    "spoken": ["Common", "Gith"]
+  },
+  "challengeRating": "6",
+  "experiencePoints": 2300,
+  "proficiencyBonus": 3,
+  "traits": [
+    {
+      "name": "Mental Discipline",
+      "description": "The githzerai has Advantage on saving throws against the Charmed and Frightened conditions."
+    },
+    {
+      "name": "Psychic Defense",
+      "description": "While the githzerai isn't wearing armor and isn't using a Shield, its AC includes its Wisdom modifier."
+    }
+  ],
+  "spellcasting": [
+    {
+      "name": "Spellcasting (Psionics)",
+      "ability": "WIS",
+      "spellSaveDC": 16,
+      "componentOverrides": {
+        "ignoresVerbal": true,
+        "ignoresSomatic": true,
+        "ignoresMaterial": true
+      },
+      "spellGroups": [
+        {
+          "frequency": "atWill",
+          "spells": [
+            {
+              "name": "Mage Hand",
+              "level": 0,
+              "notes": "The hand is Invisible"
+            }
+          ]
+        },
+        {
+          "frequency": "perDay",
+          "uses": 1,
+          "each": true,
+          "spells": [
+            {
+              "name": "Plane Shift",
+              "level": 7,
+              "restriction": "self only"
+            },
+            {
+              "name": "See Invisibility",
+              "level": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "multiattack": {
+    "description": "The githzerai makes three Unarmed Strike attacks.",
+    "attacks": [
+      {
+        "actionName": "Unarmed Strike",
+        "count": 3
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Unarmed Strike",
+      "description": "Melee Attack Roll: +7, reach 5 ft. Hit: 11 (2d6 + 4) Psychic damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 7,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 11,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 4
+              },
+              "type": "Psychic"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Spellcasting (Psionics)",
+      "description": "The githzerai casts one of the following spells, requiring no spell components (spell save DC 16):\n\nAt will: Mage Hand (the hand is Invisible)\n\n1/day each: Plane Shift (self only), See Invisibility"
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Temporal Strike",
+      "description": "Immediately after the githzerai hits a creature with an Unarmed Strike on this turn, the githzerai deals an extra 16 (3d10) Psychic damage to that target. The target must succeed on a DC 16 Wisdom saving throw or be moved to a different point in the time stream. The target vanishes, being removed from play. At the end of the githzerai's next turn, the target reappears in the space it left or in the nearest unoccupied space if that space is occupied and has the Stunned condition until the end of its next turn.",
+      "limitedUsage": {
+        "type": "recharge",
+        "minRoll": 6,
+        "maxRoll": 6
+      },
+      "damage": [
+        {
+          "average": 16,
+          "dice": {
+            "count": 3,
+            "die": "d10",
+            "modifier": 0
+          },
+          "type": "Psychic"
+        }
+      ],
+      "savingThrow": {
+        "ability": "WIS",
+        "dc": 16,
+        "targets": "the target hit by the Unarmed Strike",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Stunned",
+              "duration": "until the end of the target's next turn"
+            }
+          ],
+          "effects": "The target vanishes, being removed from play. At the end of the githzerai's next turn, the target reappears in the space it left or in the nearest unoccupied space if that space is occupied."
+        }
+      }
+    }
+  ]
+}

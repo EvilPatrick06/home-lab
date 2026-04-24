@@ -1,0 +1,15 @@
+{
+  "name": "Meditation Chamber",
+  "slug": "meditation-chamber",
+  "type": "",
+  "level": "",
+  "space": "Cramped",
+  "hirelings": "1",
+  "order": "Empower",
+  "description": "*Level 13 Bastion Facility*\n\n**Prerequisite:** None\n**Space:** Cramped\n**Hirelings:** 1\n**Order:** Empower\n\nA Meditation Chamber is a relaxing space that helps align one's mind, body, and spirit.\n\n***Empower: Inner Peace.*** When you issue the Empower order to this facility, your Bastion's hirelings can use the Meditation Chamber to gain a measure of inner peace. The next time you roll for a Bastion event, you can roll twice and choose either result.\n\n***Fortify Self.*** You can meditate in this facility over a period of 7 days. If you leave the Bastion during this time, you gain no benefit. Otherwise, at the end of the seventh day, you gain Advantage on two kinds of saving throws for the next 7 days, determined randomly by rolling on the table below. Re-roll if you get a duplicate result.\n\n| 1d6 | Saving Throw | 1d6 | Saving Throw |\n|---|---|---|---|\n| 1 | Strength | 4 | Intelligence |\n| 2 | Dexterity | 5 | Wisdom |\n| 3 | Constitution | 6 | Charisma |\n\n---",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

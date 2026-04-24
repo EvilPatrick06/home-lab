@@ -1,0 +1,11 @@
+{
+  "name": "Creature Type",
+  "slug": "creature-type",
+  "description": "Every creature, including every player character, has a tag that identifies the kind of creature it is. Most player characters are of the Humanoid type. The creature types are: Aberration, Beast, Celestial, Construct, Dragon, Elemental, Fey, Fiend, Giant, Humanoid, Monstrosity, Ooze, Plant, and Undead. These types don't have rules themselves, but some rules in the game affect creatures of certain types in different ways.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

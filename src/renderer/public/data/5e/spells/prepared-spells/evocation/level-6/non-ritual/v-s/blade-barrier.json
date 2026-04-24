@@ -1,0 +1,61 @@
+{
+  "name": "Blade Barrier",
+  "level": 6,
+  "school": "Evocation",
+  "classes": ["Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "You create a wall of whirling blades made of magical energy. The wall appears within range and lasts for the duration. You make a straight wall up to 100 feet long, 20 feet high, and 5 feet thick, or a ringed wall up to 60 feet in diameter, 20 feet high, and 5 feet thick. The wall provides Three-Quarters Cover, and its space is Difficult Terrain. Any creature in the wall's space makes a Dexterity saving throw, taking 6d10 Force damage on a failed save or half as much damage on a successful one. A creature also makes that save if it enters the wall's space or ends its turn there. A creature makes that save only once per turn.",
+  "areaOfEffect": [
+    {
+      "shape": "Wall",
+      "lengthFeet": 100,
+      "heightFeet": 20,
+      "thicknessFeet": 5
+    },
+    {
+      "shape": "Wall",
+      "diameterFeet": 60,
+      "heightFeet": 20,
+      "thicknessFeet": 5
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Dexterity",
+    "halfDamageOnSuccess": true
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 6,
+        "diceValue": 10
+      },
+      "type": "Force",
+      "halfOnSave": true,
+      "applicationType": "onEntry"
+    }
+  ],
+  "coverProvided": "ThreeQuarters",
+  "createsDifficultTerrain": true,
+  "createsWall": true,
+  "tags": ["wall", "damage", "control", "difficult_terrain", "cover"]
+}

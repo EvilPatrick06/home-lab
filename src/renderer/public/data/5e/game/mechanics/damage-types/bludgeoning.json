@@ -1,0 +1,13 @@
+{
+  "id": "bludgeoning",
+  "name": "Bludgeoning",
+  "description": "Blunt force attacks -- hammers, falling, constriction, and the like -- deal Bludgeoning damage. This is one of the three physical damage types.",
+  "commonSources": [
+    "Maces and warhammers",
+    "Clubs and greatclubs",
+    "Falling damage",
+    "Constriction attacks",
+    "Slam attacks"
+  ],
+  "resistanceNotes": "Many creatures resist nonmagical Bludgeoning damage. Barbarian Rage grants resistance to Bludgeoning damage. Skeletons are vulnerable to Bludgeoning."
+}

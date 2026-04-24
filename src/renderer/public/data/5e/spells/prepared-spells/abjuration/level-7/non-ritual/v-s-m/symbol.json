@@ -1,0 +1,136 @@
+{
+  "name": "Symbol",
+  "level": 7,
+  "school": "Abjuration",
+  "classes": ["Bard", "Cleric", "Druid", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "minutes",
+    "ritual": false
+  },
+  "range": {
+    "type": "Touch"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "powdered diamond worth 1,000+ GP, which the spell consumes",
+      "cost": 1000,
+      "currency": "GP",
+      "consumed": true
+    }
+  },
+  "duration": {
+    "type": "UntilDispelledOrTriggered",
+    "concentration": false
+  },
+  "description": "You inscribe a harmful glyph either on a surface (such as a section of floor or wall) or within an object that can be closed (such as a book or chest). The glyph can cover an area no larger than 10 feet in diameter. If you choose an object, it must remain in place; if it is moved more than 10 feet from where you cast this spell, the glyph is broken, and the spell ends without being triggered. The glyph is nearly imperceptible and requires a successful Wisdom (Perception) check against your spell save DC to notice. When you inscribe the glyph, you set its trigger and choose which effect the symbol bears: Death, Discord, Fear, Pain, Sleep, or Stunning. You decide what triggers the glyph when you cast the spell. You can refine the trigger so that only creatures of certain types activate it. You can also set conditions for creatures that don't trigger the glyph, such as those who say a certain password. Once triggered, the glyph glows, filling a 60-foot-radius Sphere with Dim Light for 10 minutes, after which time the spell ends. Each creature in the Sphere when the glyph activates is targeted by its effect, as is a creature that enters the Sphere for the first time on a turn or ends its turn there. A creature is targeted only once per turn.",
+  "targetType": "surface",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 60
+    }
+  ],
+  "light": {
+    "dimRadiusFeet": 60
+  },
+  "spellOptions": [
+    {
+      "name": "Death",
+      "description": "Each target makes a Constitution saving throw, taking 10d10 Necrotic damage on a failed save or half as much damage on a successful save.",
+      "savingThrow": {
+        "ability": "Constitution",
+        "halfDamageOnSuccess": true
+      },
+      "damage": [
+        {
+          "dice": {
+            "diceCount": 10,
+            "diceValue": 10
+          },
+          "type": "Necrotic",
+          "halfOnSave": true,
+          "applicationType": "onFailedSave"
+        }
+      ]
+    },
+    {
+      "name": "Discord",
+      "description": "Each target makes a Wisdom saving throw. On a failed save, a target argues with other creatures for 1 minute. During this time, it is incapable of meaningful communication and has Disadvantage on attack rolls and ability checks.",
+      "savingThrow": {
+        "ability": "Wisdom",
+        "noEffectOnSuccess": true,
+        "effectOnFailure": "The target argues with other creatures for 1 minute, is incapable of meaningful communication, and has Disadvantage on attack rolls and ability checks."
+      }
+    },
+    {
+      "name": "Fear",
+      "description": "Each target must succeed on a Wisdom saving throw or have the Frightened condition for 1 minute. While Frightened, the target must move at least 30 feet away from the glyph on each of its turns, if able.",
+      "savingThrow": {
+        "ability": "Wisdom",
+        "noEffectOnSuccess": true,
+        "effectOnFailure": "The target has the Frightened condition for 1 minute and must move at least 30 feet away from the glyph on each of its turns, if able."
+      },
+      "conditionsApplied": [
+        {
+          "condition": "Frightened",
+          "trigger": "onFailedSave",
+          "duration": "1 minute"
+        }
+      ]
+    },
+    {
+      "name": "Pain",
+      "description": "Each target must succeed on a Constitution saving throw or have the Incapacitated condition for 1 minute.",
+      "savingThrow": {
+        "ability": "Constitution",
+        "noEffectOnSuccess": true,
+        "effectOnFailure": "The target has the Incapacitated condition for 1 minute."
+      },
+      "conditionsApplied": [
+        {
+          "condition": "Incapacitated",
+          "trigger": "onFailedSave",
+          "duration": "1 minute"
+        }
+      ]
+    },
+    {
+      "name": "Sleep",
+      "description": "Each target must succeed on a Wisdom saving throw or have the Unconscious condition for 10 minutes. A creature awakens if it takes damage or if someone takes an action to shake it awake.",
+      "savingThrow": {
+        "ability": "Wisdom",
+        "noEffectOnSuccess": true,
+        "effectOnFailure": "The target has the Unconscious condition for 10 minutes. It awakens if it takes damage or if someone takes an action to shake it awake."
+      },
+      "conditionsApplied": [
+        {
+          "condition": "Unconscious",
+          "trigger": "onFailedSave",
+          "duration": "10 minutes"
+        }
+      ]
+    },
+    {
+      "name": "Stunning",
+      "description": "Each target must succeed on a Wisdom saving throw or have the Stunned condition for 1 minute.",
+      "savingThrow": {
+        "ability": "Wisdom",
+        "noEffectOnSuccess": true,
+        "effectOnFailure": "The target has the Stunned condition for 1 minute."
+      },
+      "conditionsApplied": [
+        {
+          "condition": "Stunned",
+          "trigger": "onFailedSave",
+          "duration": "1 minute"
+        }
+      ]
+    }
+  ],
+  "tags": ["glyph", "trap", "ward", "trigger", "area-denial"]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Ring of Feather Falling",
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "weight": null,
+  "description": "A magic ring mentioned in the Player's Handbook as an example of identifying magic items. A feathered design might hint at its nature. Full properties are detailed in the Dungeon Master's Guide, not in this chapter.",
+  "isPack": false,
+  "packContents": null,
+  "isMagicItem": true,
+  "actionType": null,
+  "savingThrow": null,
+  "damage": null,
+  "lightProperties": null,
+  "capacityDescription": null
+}

@@ -1,0 +1,58 @@
+{
+  "name": "Summon Aberration",
+  "level": 4,
+  "school": "Conjuration",
+  "classes": ["Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 90,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "a pickled tentacle and an eyeball in a platinum-inlaid vial worth 400+ GP",
+      "cost": 400,
+      "currency": "GP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "hours"
+  },
+  "description": "You call forth an aberrant spirit. It manifests in an unoccupied space that you can see within range and uses the Aberrant Spirit stat block. When you cast the spell, choose Beholderkin, Mind Flayer, or Slaad. The creature resembles an Aberration of that kind, which determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends. The creature is an ally to you and your allies. In combat, the creature shares your Initiative count, but it takes its turn immediately after yours. It obeys your verbal commands (no action required by you). If you don't issue any, it takes the Dodge action and uses its movement to avoid danger.",
+  "targetType": "point",
+  "mustSeeTarget": true,
+  "summonsCreature": {
+    "statBlockName": "Aberrant Spirit",
+    "creatureType": "Aberration",
+    "variantChoices": ["Beholderkin", "Mind Flayer", "Slaad"],
+    "count": 1,
+    "scalesWithSpellLevel": true,
+    "baseHP": 40,
+    "hpPerLevelAbove": 10,
+    "baseAC": 11,
+    "acPerSpellLevel": true,
+    "attacksEqualHalfSpellLevel": true,
+    "description": "Medium Aberration. AC 11 + spell level. HP 40 + 10 per spell level above 4. Speed 30 ft.; Fly 30 ft. (hover; Beholderkin only). STR 16, DEX 10, CON 15, INT 16, WIS 10, CHA 6. Immunity: Psychic. Senses: Darkvision 60 ft. Languages: Deep Speech, understands caster's languages. Regeneration (Slaad Only): regains 5 HP at start of turn if it has at least 1 HP. Whispering Aura (Mind Flayer Only): at start of spirit's turns, Wisdom save (spell save DC) for each creature other than caster within 5 ft; failure: 2d6 Psychic damage. Multiattack: attacks equal to half spell level (round down). Claw (Slaad Only): melee, 1d10+3+spell level Slashing, target can't regain HP until start of spirit's next turn. Eye Ray (Beholderkin Only): ranged 150 ft., 1d8+3+spell level Psychic. Psychic Slam (Mind Flayer Only): melee, 1d8+3+spell level Psychic."
+  },
+  "higherLevelCasting": {
+    "scaling": [
+      {
+        "type": "spellLevelBlock",
+        "baseSpellLevel": 4,
+        "description": "Use the spell slot's level for the spell's level in the stat block. AC, HP, number of attacks, and attack damage all scale with the spell slot level used."
+      }
+    ]
+  },
+  "tags": ["summoning", "aberration", "concentration"]
+}

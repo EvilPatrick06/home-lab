@@ -1,0 +1,13 @@
+{
+  "name": "Boots of the Winterlands",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "description": "While wearing these furred boots, you gain the following benefits:\n\n- You have Resistance to Cold damage.\n- You ignore difficult terrain created by ice or snow.\n- You can tolerate temperatures as low as -50 degrees Fahrenheit without any additional protection. If you wear heavy clothes, you can survive temperatures as low as -100 degrees Fahrenheit.",
+  "weight": 0,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

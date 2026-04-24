@@ -1,0 +1,322 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with material realms at the center. The Inner Planes form a wheel around the Material Plane, enveloped in the Ethereal Plane. The Outer Planes form another wheel around that one, arranged according to alignment, with the Outlands linking them all.",
+    "alternateConfigurations": [
+      {
+        "name": "World Tree",
+        "description": "Planes situated among the roots and branches of a great cosmic tree (literally or figuratively)"
+      },
+      {
+        "name": "Vertical Cosmology",
+        "description": "Material realms suspended between astral realms (Astral Plane and Outer Planes) above and elemental realms (Inner Planes) below"
+      },
+      {
+        "name": "Simplified Cosmology",
+        "description": "A cosmology with fewer planes: Material Plane, Transitive Planes, a single undifferentiated Elemental Plane, an Overheaven for good deities and Celestials, and an Underworld for evil deities and Fiends"
+      },
+      {
+        "name": "Orbital Cosmology",
+        "description": "Planes arranged in a complex system of orbits, exerting greater influence on the Material Plane the closer they draw to it"
+      }
+    ],
+    "planeCategories": [
+      {
+        "name": "Material Realms",
+        "description": "Most D&D worlds are located on the Material Plane, which has two planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane", "Feywild", "Shadowfell"]
+      },
+      {
+        "name": "Transitive Planes",
+        "description": "The Ethereal Plane and the Astral Plane are boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Ethereal Plane", "Astral Plane"]
+      },
+      {
+        "name": "Inner Planes",
+        "description": "The four Elemental Planes (Air, Earth, Fire, and Water), plus the Para-elemental Planes between them, are the Inner Planes.",
+        "memberPlanes": [
+          "Elemental Plane of Air",
+          "Elemental Plane of Earth",
+          "Elemental Plane of Fire",
+          "Elemental Plane of Water",
+          "Para-elemental Plane of Ash",
+          "Para-elemental Plane of Ice",
+          "Para-elemental Plane of Magma",
+          "Para-elemental Plane of Ooze"
+        ]
+      },
+      {
+        "name": "Outer Planes",
+        "description": "Seventeen Outer Planes correspond to the nine alignments and shades of philosophical difference between them.",
+        "memberPlanes": [
+          "Abyss",
+          "Acheron",
+          "Arborea",
+          "Arcadia",
+          "Beastlands",
+          "Bytopia",
+          "Carceri",
+          "Elysium",
+          "Gehenna",
+          "Hades",
+          "Limbo",
+          "Mechanus",
+          "Mount Celestia",
+          "Nine Hells",
+          "Outlands",
+          "Pandemonium",
+          "Ysgard"
+        ]
+      },
+      {
+        "name": "Positive and Negative Planes",
+        "description": "These two planes enfold the rest of the cosmology, providing the raw forces of life and death that underlie all existence in the multiverse.",
+        "memberPlanes": ["Positive Plane", "Negative Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "radiant-citadel",
+      "name": "Radiant Citadel",
+      "alternateNames": [],
+      "category": "Special",
+      "subcategory": "Planar City",
+      "alignments": [],
+      "philosophicalEssence": "A bastion of hope, diplomacy, and equitable community against the unending mist and unseen terrors of the Ethereal Plane. Heroes and paupers meet on equal footing; power and resources are equitably shared by common agreement. Dignity is afforded to all, and great need is met with great aid.",
+      "emotionalInfluence": "Hope, safety, and collaborative spirit. The Auroral Diamond is a scintillating beacon always visible for wanderers lost and in need.",
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": true,
+        "isInfinite": false,
+        "morphic": "static",
+        "shape": "A floating city carved out of a single massive fossil that snakes around a colossal gemstone shard known as the Auroral Diamond, with fifteen structure-sized gemstones (the Concord Jewels) orbiting the city.",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "The Radiant Citadel exists within the Ethereal Plane, but provides a habitable sanctuary with breathable atmosphere for residents and visitors.",
+        "temperature": {
+          "category": "temperate",
+          "description": "A thriving sanctuary suitable for habitation, with no environmental hazards noted for the city itself."
+        },
+        "hasSurface": true,
+        "dominantElement": "None; the citadel is a constructed environment within the Ethereal Plane.",
+        "weatherPatterns": "Surrounded by the haze and mist of the Ethereal Plane. Just beyond the city whirls the Keening Gloom, a massive ether cyclone."
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "No special time flow properties are noted for the Radiant Citadel. It exists within the Ethereal Plane, where travel time through the Deep Ethereal is variable, but the citadel itself operates on normal time."
+      },
+      "hazards": [
+        {
+          "id": "keening-gloom",
+          "name": "Keening Gloom",
+          "description": "Just beyond the city whirls a massive ether cyclone known as the Keening Gloom — a looming threat that's a grim reminder of the Radiant Citadel's precarious position. Ether cyclones are serpentine columns that spin through the Ethereal Plane, distorting and uprooting everything in their path.",
+          "category": "planar_trait",
+          "severity": "severe",
+          "areaOfEffect": {
+            "shape": "localized",
+            "isPlaneWide": false
+          },
+          "detectionMethod": {
+            "passivePerceptionDC": 15,
+            "warningTimeMinutes": 1,
+            "warningDescription": "A deep thrum in the ethereal matter provides 1 minute of warning before an ether cyclone strikes, detectable by travelers with a Passive Perception score of 15 or higher."
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Chapter 6: Cosmology, Ethereal Plane - Ether Cyclones"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [
+        {
+          "id": "concord-jewels-transportation",
+          "type": "permanent",
+          "name": "Concord Jewels",
+          "destination": "Far-flung homes of the city's twenty-seven founding civilizations on the Material Plane",
+          "destinationPlane": "Material Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "key_item",
+            "description": "The Concord Jewels are fifteen structure-sized gemstones that orbit the city and provide transportation to the far-flung homes of the city's founding civilizations.",
+            "keyItem": "Concord Jewel (one of fifteen structure-sized gemstones orbiting the Radiant Citadel)"
+          },
+          "colorOrAppearance": "Structure-sized gemstones whose luminescence mirrors that of the Auroral Diamond.",
+          "isDetectable": true
+        },
+        {
+          "id": "ethereal-plane-access",
+          "type": "location",
+          "name": "Ethereal Plane Location",
+          "destination": "Ethereal Plane (Deep Ethereal and Border Ethereal)",
+          "destinationPlane": "Ethereal Plane",
+          "bidirectional": true,
+          "requirement": {
+            "type": "none",
+            "description": "The Radiant Citadel exists within the Ethereal Plane. In the haze of the Ethereal Plane, the Auroral Diamond is a scintillating beacon visible from miles away, always visible for wanderers lost and in need."
+          },
+          "colorOrAppearance": "The Auroral Diamond is a scintillating beacon that seems to have moods, changing colors unpredictably, but is always visible from miles away.",
+          "isDetectable": true
+        }
+      ],
+      "portalFrequency": "common",
+      "planarConnections": [
+        {
+          "id": "concord-jewels-network",
+          "name": "Concord Jewels Portal Network",
+          "type": "portal_network",
+          "connectedPlanes": ["Material Plane", "Ethereal Plane"],
+          "description": "A constellation of fifteen structure-sized gemstones called the Concord Jewels orbit the Radiant Citadel and provide transportation to the far-flung homes of the city's twenty-seven founding civilizations on the Material Plane.",
+          "hazards": [],
+          "isOneWay": false,
+          "navigableBy": ["any creature using the Concord Jewels"]
+        }
+      ],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Humanoid"],
+        "notableEntities": [],
+        "civilizations": [
+          {
+            "name": "Twenty-Seven Founding Civilizations",
+            "description": "The Radiant Citadel is a living relic of the ingenuity and collaboration of twenty-seven great civilizations on the Material Plane. Abandoned and lost for ages, it was resurrected from its slumber and reclaimed by descendants of those societies."
+          }
+        ]
+      },
+      "specialRules": [
+        {
+          "id": "equitable-governance",
+          "name": "Equitable Governance",
+          "description": "By common agreement, power and resources are equitably shared in the Radiant Citadel. Heroes and paupers meet on equal footing. Dignity is afforded to all, and great need is met with great aid.",
+          "mechanicalEffect": "The Radiant Citadel operates as a nexus of diplomacy and trade, a repository of histories and secrets, and a thriving sanctuary for those seeking safety or a better life. No special mechanical game effect is defined beyond its role as a safe haven and home base for planar campaigns.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "auroral-diamond-beacon",
+          "name": "Auroral Diamond Beacon",
+          "description": "The Auroral Diamond is a colossal gemstone shard at the center of the Radiant Citadel. Its luminescence is a scintillating beacon visible from miles away in the haze of the Ethereal Plane. The diamond seems to have moods, changing colors unpredictably, but it is always visible for wanderers lost and in need.",
+          "mechanicalEffect": "The Auroral Diamond serves as a navigational beacon in the Ethereal Plane, always visible from miles away, guiding lost wanderers to the Radiant Citadel. It changes colors unpredictably.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "concord-jewels-transportation",
+          "name": "Concord Jewels Transportation System",
+          "description": "Fifteen structure-sized gemstones called the Concord Jewels orbit the Radiant Citadel. Their luminescence mirrors the Auroral Diamond, and they provide transportation to the far-flung homes of the city's twenty-seven founding civilizations on the Material Plane.",
+          "mechanicalEffect": "The Concord Jewels function as permanent portals connecting the Radiant Citadel to the homelands of its founding civilizations on the Material Plane. There are 15 Concord Jewels serving 27 founding civilizations.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [],
+      "adventureThemes": [
+        "Exploring new worlds",
+        "Diplomacy and trade between civilizations",
+        "Sanctuary and safe haven",
+        "Recovering lost histories and secrets",
+        "Collaborative community building",
+        "Planar exploration from a home base"
+      ],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Journeys through the Radiant Citadel",
+          "description": "An anthology of short adventures set in worlds accessible from the Radiant Citadel. The Radiant Citadel can serve as a home base for any campaign built around the idea of exploring new worlds. Several worlds are introduced in this anthology."
+        }
+      ]
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [
+    {
+      "id": "concord-jewels",
+      "name": "Concord Jewels",
+      "type": "portal",
+      "description": "Fifteen structure-sized gemstones orbiting the Radiant Citadel that provide transportation to the far-flung homes of the city's twenty-seven founding civilizations on the Material Plane.",
+      "requirements": ["Access to the Radiant Citadel in the Ethereal Plane"],
+      "associatedSpells": [],
+      "risks": ["The Keening Gloom ether cyclone lurks just beyond the city"],
+      "destinations": ["Homelands of 27 founding civilizations on the Material Plane"]
+    },
+    {
+      "id": "auroral-diamond-navigation",
+      "name": "Auroral Diamond Navigation",
+      "type": "natural_crossing",
+      "description": "The Auroral Diamond is a scintillating beacon visible from miles away in the Ethereal Plane, always visible for wanderers lost and in need, guiding travelers to the Radiant Citadel.",
+      "requirements": ["Being present in the Ethereal Plane"],
+      "associatedSpells": ["Etherealness", "Plane Shift"],
+      "risks": ["Ether cyclones in the Deep Ethereal", "The Keening Gloom near the Radiant Citadel"],
+      "destinations": ["Radiant Citadel"]
+    }
+  ],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": true,
+      "transformationPlane": "Hades"
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 1,
+    "lastUpdated": "2024-12-20T00:00:00Z"
+  }
+}

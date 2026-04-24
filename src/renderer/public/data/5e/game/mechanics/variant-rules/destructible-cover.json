@@ -1,0 +1,40 @@
+{
+  "id": "destructible-cover",
+  "name": "Destructible Cover",
+  "source": "DMG 2024",
+  "category": "variant-rule",
+  "description": "Objects used as cover have AC and Hit Points. When an attack misses a creature behind cover but the attack roll equals or exceeds the cover object's AC, the attack hits the cover instead, dealing damage to it. When cover is reduced to 0 HP, it is destroyed and no longer provides cover.",
+  "mechanics": {
+    "coverDamageRule": {
+      "trigger": "An attack roll misses the target creature but equals or exceeds the AC of the cover object",
+      "result": "The attack hits the cover object instead, dealing damage to it",
+      "destruction": "When an object is reduced to 0 HP, it is destroyed and no longer provides any cover"
+    },
+    "objectAC": [
+      { "material": "Cloth, paper, rope", "ac": 11 },
+      { "material": "Crystal, glass, ice", "ac": 13 },
+      { "material": "Wood, bone", "ac": 15 },
+      { "material": "Stone", "ac": 17 },
+      { "material": "Iron, steel", "ac": 19 },
+      { "material": "Mithral", "ac": 21 },
+      { "material": "Adamantine", "ac": 23 }
+    ],
+    "objectHP": {
+      "description": "An object's HP is based on its size and resilience. The DM sets HP based on the object's material and construction.",
+      "guidelines": [
+        { "category": "Fragile (glass, crystal, ice)", "tiny": 2, "small": 3, "medium": 4, "large": 5 },
+        { "category": "Resilient (wood, bone, stone)", "tiny": 5, "small": 10, "medium": 18, "large": 27 },
+        { "category": "Robust (iron, steel)", "tiny": 10, "small": 18, "medium": 27, "large": 36 }
+      ]
+    },
+    "objectImmunities": "Objects are immune to Poison and Psychic damage. The DM may decide that certain objects have resistance or immunity to other damage types (e.g., a stone wall is immune to Slashing damage).",
+    "damageThreshold": "Some large or magically reinforced objects have a damage threshold. An object with a damage threshold is immune to damage from any single source unless the damage equals or exceeds the threshold."
+  },
+  "interactions": [
+    "This adds tactical depth by making cover a depletable resource that attackers can destroy over time",
+    "High-damage attacks are more effective at destroying cover than multiple weak attacks, especially against objects with damage thresholds",
+    "Area-of-effect spells like Fireball can damage cover objects in the area, potentially destroying multiple pieces of cover at once",
+    "Creatures relying on half cover (+2 AC) or three-quarters cover (+5 AC) must be aware that their protection can be stripped away",
+    "This rule interacts with the Shatter spell, which deals Thunder damage specifically targeting objects and has double damage against nonmagical objects"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Horseshoes of Speed",
+  "itemType": "Wondrous Item",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "attunementRequirements": null,
+  "description": "While you wear these Horseshoes, your Speed increases by 10 feet.",
+  "properties": [],
+  "weight": 0,
+  "cost": {
+    "amount": 4000,
+    "denomination": "GP"
+  },
+  "charges": null,
+  "rechargeRate": null,
+  "rechargeAmount": null,
+  "spells": [],
+  "damage": null,
+  "source": "DMG 2024"
+}

@@ -1,0 +1,220 @@
+{
+  "id": "a1c2d3e4-5f67-4a89-b012-3c4d5e6f7a8b",
+  "name": "Invisible",
+  "slug": "invisible",
+  "category": "Condition",
+  "subcategory": "Sensory",
+  "tags": ["condition", "sensory", "stealth", "obscured", "combat-modifier"],
+  "source": {
+    "book": "2024 Player's Handbook",
+    "chapter": "Rules Glossary",
+    "section": "Conditions"
+  },
+  "gameEdition": "2024",
+  "description": "An Invisible creature can't be seen without the aid of magic or a special sense. For the purpose of hiding, the creature is Heavily Obscured. The creature's location can be detected by any noise it makes or any tracks it leaves. Attack rolls against the creature have Disadvantage, and the creature's attack rolls have Advantage.",
+  "shortDescription": "Can't be seen; Heavily Obscured for hiding; Advantage on attacks; Disadvantage on attacks against you.",
+  "rulesAsWritten": "You can't be seen without the aid of magic or a special sense. For the purpose of hiding, you are Heavily Obscured. Your location can be detected by any noise you make or any tracks you leave. Attack rolls against you have Disadvantage, and your attack rolls have Advantage.",
+  "isVariantRule": false,
+  "isOptionalRule": false,
+  "replacesRule": null,
+  "prerequisiteRules": [],
+  "incompatibleWith": [],
+  "hasLevels": false,
+  "levelStackingBehavior": "NotApplicable",
+  "numericalModifiers": [],
+  "advantageGrants": [
+    {
+      "id": "b2c3d4e5-6f78-4a90-b123-4d5e6f7a8b9c",
+      "rollType": "AttackRoll",
+      "scope": {
+        "attackVectors": ["Any"]
+      },
+      "grantedTo": "Self",
+      "condition": "Creature is Invisible",
+      "note": "The invisible creature's attack rolls have Advantage."
+    }
+  ],
+  "disadvantageImposes": [
+    {
+      "id": "c3d4e5f6-7a89-4b01-c234-5e6f7a8b9c0d",
+      "rollType": "AttackRoll",
+      "scope": {
+        "attackVectors": ["Any"],
+        "targetRelationship": "Self"
+      },
+      "imposedOn": "Attacker",
+      "condition": "Attacker targets the invisible creature",
+      "note": "Attack rolls against the invisible creature have Disadvantage."
+    }
+  ],
+  "automaticOutcomes": [],
+  "actionRestrictions": [],
+  "conditionsImposed": [],
+  "immunities": [],
+  "resistances": [],
+  "vulnerabilities": [],
+  "relatedConditions": [
+    {
+      "conditionName": "Blinded",
+      "relationship": "OftenCombined",
+      "isAutomatic": false,
+      "note": "A Blinded creature effectively treats all creatures as Invisible for targeting purposes."
+    }
+  ],
+  "applicationLogic": [
+    {
+      "id": "d4e5f6a7-8b90-4c12-d345-6f7a8b9c0d1e",
+      "order": 0,
+      "name": "Unseen",
+      "description": "The creature can't be seen without the aid of magic or a special sense. For the purpose of hiding, the creature is Heavily Obscured.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "The creature cannot be seen without the aid of magic or a special sense such as Blindsight, Tremorsense, or Truesight.",
+          "mechanicalNote": "Visual detection is impossible by normal means. The creature is considered Heavily Obscured for the purpose of the Hide action."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "e5f6a7b8-9c01-4d23-e456-7a8b9c0d1e2f",
+      "order": 1,
+      "name": "Detectable by Noise and Tracks",
+      "description": "The creature's location can be detected by any noise it makes or any tracks it leaves.",
+      "trigger": {
+        "event": "Passive"
+      },
+      "effects": [
+        {
+          "effectType": "CustomEffect",
+          "description": "Despite being unseen, the invisible creature's location can be detected by sound, tracks, or other non-visual cues.",
+          "mechanicalNote": "Invisibility does not grant immunity to detection—only to sight-based detection. Creatures can still target the invisible creature's space if they identify its location through other senses."
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "f6a7b8c9-0d12-4e34-f567-8b9c0d1e2f3a",
+      "order": 2,
+      "name": "Attack Roll Advantage",
+      "description": "The invisible creature's attack rolls have Advantage.",
+      "trigger": {
+        "event": "OnAttackRollMade"
+      },
+      "effects": [
+        {
+          "effectType": "AdvantageGrant",
+          "grant": {
+            "id": "a7b8c9d0-1e23-4f45-a678-9c0d1e2f3a4b",
+            "rollType": "AttackRoll",
+            "scope": {
+              "attackVectors": ["Any"]
+            },
+            "grantedTo": "Self",
+            "note": "Invisible creature has Advantage on all its attack rolls."
+          }
+        }
+      ],
+      "appliesToSelf": true,
+      "appliesToTarget": false,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    },
+    {
+      "id": "07b8c9d0-2e34-4a56-b789-0d1e2f3a4b5c",
+      "order": 3,
+      "name": "Attack Roll Disadvantage Against",
+      "description": "Attack rolls against the invisible creature have Disadvantage.",
+      "trigger": {
+        "event": "OnAttackRollReceived"
+      },
+      "effects": [
+        {
+          "effectType": "DisadvantageImposition",
+          "imposition": {
+            "id": "18c9d0e1-3f45-4b67-c890-1e2f3a4b5c6d",
+            "rollType": "AttackRoll",
+            "scope": {
+              "attackVectors": ["Any"]
+            },
+            "imposedOn": "Attacker",
+            "note": "Attack rolls targeting the invisible creature have Disadvantage."
+          }
+        }
+      ],
+      "appliesToSelf": false,
+      "appliesToTarget": true,
+      "appliesToArea": false,
+      "isOptional": false,
+      "requiresDMApproval": false
+    }
+  ],
+  "duration": {
+    "type": "Special",
+    "concentration": false,
+    "extendable": false
+  },
+  "removalConditions": [
+    {
+      "id": "29d0e1f2-4a56-4c78-d901-2f3a4b5c6d7e",
+      "method": "SpellEffect",
+      "description": "The condition ends when the spell or effect that granted Invisibility expires or is dispelled.",
+      "automaticAfterDuration": true
+    },
+    {
+      "id": "3ae1f203-5b67-4d89-e012-3a4b5c6d7e8f",
+      "method": "ConditionEnds",
+      "description": "The condition may also end if the creature performs an action that breaks invisibility, as specified by the source granting the condition (e.g., attacking or casting a spell).",
+      "automaticAfterDuration": false
+    },
+    {
+      "id": "4bf20314-6c78-4e9a-f123-4b5c6d7e8f90",
+      "method": "Other",
+      "description": "Specific effects such as See Invisibility, Truesight, Blindsight, or Tremorsense allow a creature to perceive the invisible creature, but do not remove the condition itself.",
+      "automaticAfterDuration": false
+    }
+  ],
+  "stacking": {
+    "stacksWithSelf": false,
+    "stacksWithOthers": true,
+    "stackingNote": "Multiple sources of Invisibility do not stack. The condition is binary—a creature is either Invisible or it is not."
+  },
+  "dmNotes": "Remember that Invisibility does not equal undetectable. Noise, footprints in snow or mud, splashing through water, disturbed objects, and even smell can give away an invisible creature's location. A creature whose location is known can still be targeted by attacks (with Disadvantage) and by spells that don't require sight. Area-of-effect spells affect invisible creatures normally if they are in the area. Heavily Obscured means the creature can always attempt to take the Hide action without needing separate cover or obscurement.",
+  "commonRulings": [
+    {
+      "question": "Can you target an invisible creature with a spell that requires you to see the target?",
+      "ruling": "No. If a spell requires you to see the target, you cannot target an invisible creature unless you have a special sense (such as Truesight or Blindsight) that allows you to see it.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does an invisible creature still provoke Opportunity Attacks?",
+      "ruling": "No. Opportunity Attacks require you to see the creature leaving your reach. Since an invisible creature can't be seen, it does not provoke Opportunity Attacks from creatures that lack a special sense to see it.",
+      "isOfficial": true
+    },
+    {
+      "question": "If I know the location of an invisible creature, can I attack it?",
+      "ruling": "Yes, you can target that space with an attack, but the attack roll has Disadvantage. If the creature has moved without your knowledge, you target the wrong space and automatically miss.",
+      "isOfficial": true
+    },
+    {
+      "question": "Does casting a spell break Invisibility granted by the Invisibility spell?",
+      "ruling": "It depends on the source. The Invisibility spell specifically ends if the target attacks or casts a spell. Other sources of the Invisible condition may have different stipulations.",
+      "isOfficial": true
+    }
+  ],
+  "createdAt": "2024-09-20T00:00:00Z",
+  "updatedAt": "2024-09-20T00:00:00Z",
+  "version": "1.0.0"
+}

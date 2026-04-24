@@ -1,0 +1,11 @@
+{
+  "name": "Skill",
+  "slug": "skill",
+  "description": "A skill represents a specific aspect of an ability score that a character can be proficient in:\n\n- **Strength:** Athletics\n- **Dexterity:** Acrobatics, Sleight of Hand, Stealth\n- **Intelligence:** Arcana, History, Investigation, Nature, Religion\n- **Wisdom:** Animal Handling, Insight, Medicine, Perception, Survival\n- **Charisma:** Deception, Intimidation, Performance, Persuasion",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

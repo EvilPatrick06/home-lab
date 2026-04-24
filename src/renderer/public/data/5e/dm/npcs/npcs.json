@@ -1,0 +1,3751 @@
+[
+  {
+    "id": "commoner",
+    "name": "Commoner",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 10,
+    "hp": 4,
+    "hitDice": "1d8",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common"],
+    "cr": "0",
+    "xp": 10,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 0,
+      "score": 10
+    },
+    "actions": [
+      {
+        "name": "Club",
+        "description": "Melee attack with a club.",
+        "attackType": "melee",
+        "toHit": 2,
+        "reach": 5,
+        "targets": 1,
+        "damageDice": "1d4",
+        "damageType": "Bludgeoning"
+      }
+    ],
+    "description": "Commoners include peasants, serfs, servants, pilgrims, merchants, artisans, and hermits.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "traits": [
+      {
+        "name": "Training",
+        "description": "The commoner has proficiency in one skill of the DM's choice and has Advantage whenever it makes an ability check using that skill."
+      }
+    ]
+  },
+  {
+    "id": "bandit",
+    "name": "Bandit",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 12,
+    "acType": "Leather Armor",
+    "hp": 11,
+    "hitDice": "2d8+2",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 11,
+      "dex": 12,
+      "con": 12,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common"],
+    "cr": "1/8",
+    "xp": 25,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 1,
+      "score": 11
+    },
+    "traits": [
+      {
+        "name": "Pack Tactics",
+        "description": "The bandit has Advantage on an attack roll against a creature if at least one of the bandit's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Scimitar",
+        "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) Slashing damage.",
+        "attackType": "melee",
+        "toHit": 3,
+        "reach": 5,
+        "damageDice": "1d6 + 1",
+        "damageType": "Slashing"
+      },
+      {
+        "name": "Light Crossbow",
+        "description": "*Ranged Attack Roll:* +3, range 80/320 ft. *Hit:* 5 (1d8 + 1) Piercing damage.",
+        "attackType": "ranged",
+        "toHit": 3,
+        "rangeNormal": 80,
+        "rangeLong": 320,
+        "damageDice": "1d8 + 1",
+        "damageType": "Piercing"
+      }
+    ],
+    "description": "Bandits rove in gangs and are sometimes led by thugs, veterans, or spellcasters. Not all bandits are combative; some are desperate commoners who resort to lawlessness out of necessity.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Bandits"
+  },
+  {
+    "id": "cultist",
+    "name": "Cultist",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 12,
+    "acType": "Leather Armor",
+    "hp": 9,
+    "hitDice": "2d8",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 11,
+      "dex": 12,
+      "con": 10,
+      "int": 10,
+      "wis": 11,
+      "cha": 10
+    },
+    "skills": {
+      "Deception": 2,
+      "Religion": 2
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common"],
+    "cr": "1/8",
+    "xp": 25,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 1,
+      "score": 11
+    },
+    "traits": [
+      {
+        "name": "Dark Devotion",
+        "description": "The cultist has Advantage on saving throws against the Charmed and Frightened conditions."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Ritual Sickle",
+        "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 3 (1d4 + 1) Slashing damage plus 1 Necrotic damage.",
+        "attackType": "melee",
+        "toHit": 3,
+        "reach": 5,
+        "damageDice": "1d4 + 1",
+        "damageType": "Slashing"
+      }
+    ],
+    "description": "Cultists swear allegiance to dark powers such as elemental princes, demon lords, or archdevils.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Cultists",
+    "savingThrows": {
+      "wis": 2
+    }
+  },
+  {
+    "id": "guard",
+    "name": "Guard",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 16,
+    "acType": "Chain Shirt, Shield",
+    "hp": 11,
+    "hitDice": "2d8+2",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 13,
+      "dex": 12,
+      "con": 12,
+      "int": 10,
+      "wis": 11,
+      "cha": 10
+    },
+    "skills": {
+      "Perception": 2
+    },
+    "senses": {
+      "passivePerception": 12
+    },
+    "languages": ["Common"],
+    "cr": "1/8",
+    "xp": 25,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 1,
+      "score": 11
+    },
+    "actions": [
+      {
+        "name": "Spear",
+        "description": "*Melee or Ranged Attack Roll:* +3, reach 5 ft. or range 20/60 ft. *Hit:* 4 (1d6 + 1) Piercing damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 3,
+        "reach": 5,
+        "rangeNormal": 20,
+        "rangeLong": 60,
+        "damageDice": "1d6 + 1",
+        "damageType": "Piercing"
+      }
+    ],
+    "description": "Guards include city watch members, sentries, and bodyguards that protect a person or place.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Guards"
+  },
+  {
+    "id": "noble",
+    "name": "Noble",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 15,
+    "acType": "Breastplate",
+    "hp": 9,
+    "hitDice": "2d8",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 11,
+      "dex": 12,
+      "con": 11,
+      "int": 12,
+      "wis": 14,
+      "cha": 16
+    },
+    "skills": {
+      "Deception": 5,
+      "Insight": 4,
+      "Persuasion": 5
+    },
+    "senses": {
+      "passivePerception": 12
+    },
+    "languages": ["Common"],
+    "cr": "1/8",
+    "xp": 25,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 1,
+      "score": 11
+    },
+    "actions": [
+      {
+        "name": "Rapier",
+        "description": "*Melee Attack Roll:* +3, reach 5 ft. *Hit:* 5 (1d8 + 1) Piercing damage.",
+        "attackType": "melee",
+        "toHit": 3,
+        "reach": 5,
+        "damageDice": "1d8 + 1",
+        "damageType": "Piercing"
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Parry",
+        "description": "The noble adds 2 to its AC against one melee attack that would hit it. To do so, the noble must see the attacker and be wielding a melee weapon."
+      }
+    ],
+    "description": "Nobles wield great authority and influence as members of the upper class, possessing wealth and connections that can make them as combative and dangerous as combatants.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025"
+  },
+  {
+    "id": "warrior-infantry",
+    "name": "Warrior Infantry",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 13,
+    "acType": "Chain Shirt, Shield",
+    "hp": 9,
+    "hitDice": "2d8",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 13,
+      "dex": 11,
+      "con": 11,
+      "int": 8,
+      "wis": 11,
+      "cha": 8
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common"],
+    "cr": "1/8",
+    "xp": 25,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 0,
+      "score": 10
+    },
+    "traits": [
+      {
+        "name": "Pack Tactics",
+        "description": "The warrior has Advantage on an attack roll against a creature if at least one of the warrior's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Spear",
+        "description": "*Melee or Ranged Attack Roll:* +3, reach 5 ft. or range 20/60 ft. *Hit:* 4 (1d6 + 1) Piercing damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 3,
+        "reach": 5,
+        "rangeNormal": 20,
+        "rangeLong": 60,
+        "damageDice": "1d6 + 1",
+        "damageType": "Piercing"
+      }
+    ],
+    "description": "Warrior infantry are rank-and-file soldiers that make up the bulk of any organized army.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Warriors"
+  },
+  {
+    "id": "priest-acolyte",
+    "name": "Priest Acolyte",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 13,
+    "hp": 11,
+    "hitDice": "2d8 + 2",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 14,
+      "dex": 10,
+      "con": 12,
+      "int": 10,
+      "wis": 14,
+      "cha": 11
+    },
+    "skills": {
+      "Medicine": 4,
+      "Religion": 2
+    },
+    "senses": {
+      "passivePerception": 12
+    },
+    "languages": ["Common"],
+    "cr": "1/4",
+    "xp": 50,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 0,
+      "score": 10
+    },
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 10,
+      "attackBonus": 0,
+      "atWill": ["Light", "Thaumaturgy"]
+    },
+    "actions": [
+      {
+        "name": "Mace",
+        "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Bludgeoning damage plus 2 (1d4) Radiant damage.",
+        "attackType": "melee",
+        "toHit": 4,
+        "reach": 5,
+        "damageDice": "1d6 + 2",
+        "damageType": "Bludgeoning",
+        "additionalDamage": "1d4 Radiant"
+      },
+      {
+        "name": "Radiant Flame",
+        "description": "*Ranged Attack Roll:* +4, range 60 ft. *Hit:* 7 (2d6) Radiant damage.",
+        "attackType": "ranged",
+        "toHit": 4,
+        "rangeNormal": 60,
+        "damageDice": "2d6",
+        "damageType": "Radiant"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The priest casts one of the following spells, using Wisdom as the spellcasting ability:\n**At Will:** *Light*, *Thaumaturgy*"
+      }
+    ],
+    "description": "Acolytes are junior members of the clergy, usually answerable to a priest. They perform a variety of functions in a temple and are granted minor spellcasting power by their deities.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Priests",
+    "subtype": "Cleric",
+    "bonusActions": [
+      {
+        "name": "Divine Aid",
+        "description": "The priest casts *Bless*, *Healing Word*, or *Sanctuary*, using the same spellcasting ability as Spellcasting.",
+        "recharge": "1/day"
+      }
+    ]
+  },
+  {
+    "id": "performer",
+    "name": "Performer",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 13,
+    "hp": 27,
+    "hitDice": "5d8 + 5",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 12,
+      "dex": 16,
+      "con": 12,
+      "int": 13,
+      "wis": 14,
+      "cha": 16
+    },
+    "skills": {
+      "Acrobatics": 5,
+      "Athletics": 3,
+      "Performance": 7
+    },
+    "senses": {
+      "passivePerception": 12
+    },
+    "languages": ["Common"],
+    "cr": "1/2",
+    "xp": 100,
+    "proficiencyBonus": 2,
+    "traits": [
+      {
+        "name": "Taunt (2/Day)",
+        "description": "The performer targets one creature within 30 feet. If the target can hear the performer, the target must succeed on a DC 12 Charisma saving throw or have Disadvantage on ability checks, attack rolls, and saving throws until the start of the performer's next turn."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Shortsword",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Piercing damage.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "1d6 + 3",
+        "damageType": "Piercing"
+      }
+    ],
+    "bonusActions": [
+      {
+        "name": "Inspire (2/Day)",
+        "description": "The performer chooses one creature within 30 feet that can hear the performer. That creature gains a 1d6 Inspiration die it can add to one ability check, attack roll, or saving throw it makes within the next 10 minutes."
+      }
+    ],
+    "description": "Performers include bards, minstrels, actors, and other entertainers who use their talents to earn a living.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 3,
+      "score": 13
+    },
+    "source": "mm2025",
+    "group": "Performers",
+    "savingThrows": {
+      "dex": 5,
+      "cha": 5
+    },
+    "reactions": [
+      {
+        "name": "Uncanny Dodge",
+        "description": "*Trigger:* The performer is hit by an attack roll. *Response:* The performer halves the damage (round down) it takes from that attack."
+      }
+    ]
+  },
+  {
+    "id": "scout",
+    "name": "Scout",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 13,
+    "acType": "Leather Armor",
+    "hp": 16,
+    "hitDice": "3d8+3",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 11,
+      "dex": 14,
+      "con": 12,
+      "int": 11,
+      "wis": 13,
+      "cha": 11
+    },
+    "skills": {
+      "Nature": 4,
+      "Perception": 5,
+      "Stealth": 6,
+      "Survival": 5
+    },
+    "senses": {
+      "passivePerception": 15
+    },
+    "languages": ["Common"],
+    "cr": "1/2",
+    "xp": 100,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 2,
+      "score": 12
+    },
+    "traits": [
+      {
+        "name": "Keen Hearing and Sight",
+        "description": "The scout has Advantage on Wisdom (Perception) checks that rely on hearing or sight."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The scout makes two attacks, using Shortsword and Longbow in any combination.",
+        "multiattackActions": ["scout makes two"]
+      },
+      {
+        "name": "Shortsword",
+        "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Piercing damage.",
+        "attackType": "melee",
+        "toHit": 4,
+        "reach": 5,
+        "damageDice": "1d6 + 2",
+        "damageType": "Piercing"
+      },
+      {
+        "name": "Longbow",
+        "description": "*Ranged Attack Roll:* +4, range 150/600 ft. *Hit:* 6 (1d8 + 2) Piercing damage.",
+        "attackType": "ranged",
+        "toHit": 4,
+        "rangeNormal": 150,
+        "rangeLong": 600,
+        "damageDice": "1d8 + 2",
+        "damageType": "Piercing"
+      }
+    ],
+    "description": "Scouts are skilled hunters and trackers who offer their services for a fee.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Scouts"
+  },
+  {
+    "id": "tough",
+    "name": "Tough",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 12,
+    "acType": "Leather Armor",
+    "hp": 32,
+    "hitDice": "5d8+10",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 15,
+      "dex": 12,
+      "con": 14,
+      "int": 10,
+      "wis": 10,
+      "cha": 11
+    },
+    "skills": {
+      "Intimidation": 2
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common"],
+    "cr": "1/2",
+    "xp": 100,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 1,
+      "score": 11
+    },
+    "traits": [
+      {
+        "name": "Pack Tactics",
+        "description": "The tough has Advantage on an attack roll against a creature if at least one of the tough's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Mace",
+        "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Bludgeoning damage.",
+        "attackType": "melee",
+        "toHit": 4,
+        "reach": 5,
+        "damageDice": "1d6 + 2",
+        "damageType": "Bludgeoning"
+      },
+      {
+        "name": "Heavy Crossbow",
+        "description": "*Ranged Attack Roll:* +3, range 100/400 ft. *Hit:* 6 (1d10 + 1) Piercing damage.",
+        "attackType": "ranged",
+        "toHit": 3,
+        "rangeNormal": 100,
+        "rangeLong": 400,
+        "damageDice": "1d10 + 1",
+        "damageType": "Piercing"
+      }
+    ],
+    "bonusActions": [
+      {
+        "name": "Menace",
+        "description": "The tough targets one creature it can see within 30 feet of itself. The target must succeed on a DC 12 Wisdom saving throw or have the Frightened condition until the end of the tough's next turn.",
+        "saveDC": 12,
+        "saveAbility": "WIS"
+      }
+    ],
+    "description": "Toughs are upgraded enforcers who command fear through brute intimidation.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Toughs"
+  },
+  {
+    "id": "pirate",
+    "name": "Pirate",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 14,
+    "acType": "Leather Armor",
+    "hp": 33,
+    "hitDice": "6d8 + 6",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 16,
+      "con": 12,
+      "int": 8,
+      "wis": 12,
+      "cha": 14
+    },
+    "skills": {
+      "Athletics": 2
+    },
+    "senses": {
+      "passivePerception": 11
+    },
+    "languages": ["Common"],
+    "cr": "1",
+    "xp": 200,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 5,
+      "score": 15
+    },
+    "traits": [
+      {
+        "name": "Pack Tactics",
+        "description": "The pirate has Advantage on an attack roll against a creature if at least one of the pirate's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The pirate makes two Dagger attacks. It can replace one attack with a use of Enthralling Panache.",
+        "multiattackActions": ["pirate makes two Dagger", "can replace one", "of Enthralling Panache"]
+      },
+      {
+        "name": "Dagger",
+        "description": "*Melee or Ranged Attack Roll:* +5, reach 5 ft. or range 20/60 ft. *Hit:* 5 (1d4 + 3) Piercing damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 5,
+        "reach": 5,
+        "rangeNormal": 20,
+        "rangeLong": 60,
+        "damageDice": "1d4 + 3",
+        "damageType": "Piercing"
+      },
+      {
+        "name": "Enthralling Panache",
+        "description": "*Wisdom Saving Throw:* DC 12, one creature the pirate can see within 30 feet. *Failure:* The target has the Charmed condition until the start of the pirate's next turn.",
+        "saveAbility": "Wisdom",
+        "saveDC": 12
+      }
+    ],
+    "description": "Pirates sail the seas in search of plunder. Some are little more than armed sailors, while others are ruthless reavers.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Pirates",
+    "savingThrows": {
+      "dex": 5,
+      "cha": 4
+    }
+  },
+  {
+    "id": "spy",
+    "name": "Spy",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 12,
+    "hp": 27,
+    "hitDice": "6d8",
+    "speed": {
+      "walk": 30,
+      "climb": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 15,
+      "con": 10,
+      "int": 12,
+      "wis": 14,
+      "cha": 16
+    },
+    "skills": {
+      "Deception": 5,
+      "Insight": 4,
+      "Investigation": 5,
+      "Perception": 6,
+      "Sleight of Hand": 4,
+      "Stealth": 6
+    },
+    "senses": {
+      "passivePerception": 16
+    },
+    "languages": ["Common"],
+    "cr": "1",
+    "xp": 200,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 4,
+      "score": 14
+    },
+    "traits": [
+      {
+        "name": "Cunning Action",
+        "description": "On each of its turns, the spy can take the Dash, Disengage, or Hide action as a Bonus Action."
+      },
+      {
+        "name": "Sneak Attack (1/Turn)",
+        "description": "The spy deals an extra 7 (2d6) damage when it hits a target with a weapon attack and has Advantage on the attack roll, or when the target is within 5 feet of an ally of the spy that doesn't have the Incapacitated condition and the spy doesn't have Disadvantage on the attack roll."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Shortsword",
+        "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) Piercing damage plus 7 (2d6) Poison damage.",
+        "attackType": "melee",
+        "toHit": 4,
+        "reach": 5,
+        "damageDice": "1d6 + 2",
+        "damageType": "Piercing",
+        "additionalDamage": "2d6 Poison"
+      },
+      {
+        "name": "Hand Crossbow",
+        "description": "*Ranged Attack Roll:* +4, range 30/120 ft. *Hit:* 5 (1d6 + 2) Piercing damage plus 7 (2d6) Poison damage.",
+        "attackType": "ranged",
+        "toHit": 4,
+        "rangeNormal": 30,
+        "rangeLong": 120,
+        "damageDice": "1d6 + 2",
+        "damageType": "Piercing",
+        "additionalDamage": "2d6 Poison"
+      }
+    ],
+    "description": "Spies are skilled in deception and subterfuge. Many work as informants or intelligence agents.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Spies",
+    "bonusActions": [
+      {
+        "name": "Cunning Action",
+        "description": "The spy takes the Dash, Disengage, or Hide action."
+      }
+    ]
+  },
+  {
+    "id": "bandit-captain",
+    "name": "Bandit Captain",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 15,
+    "acType": "Studded Leather",
+    "hp": 52,
+    "hitDice": "8d8 + 16",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 15,
+      "dex": 16,
+      "con": 14,
+      "int": 14,
+      "wis": 11,
+      "cha": 14
+    },
+    "savingThrows": {
+      "str": 4,
+      "dex": 5,
+      "wis": 2
+    },
+    "skills": {
+      "Athletics": 4,
+      "Deception": 4
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common"],
+    "cr": "2",
+    "xp": 450,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 3,
+      "score": 13
+    },
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The bandit makes two attacks, using Scimitar and Pistol in any combination.",
+        "multiattackActions": ["bandit makes two"]
+      },
+      {
+        "name": "Scimitar",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Slashing damage.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "1d6 + 3",
+        "damageType": "Slashing"
+      },
+      {
+        "name": "Pistol",
+        "description": "*Ranged Attack Roll:* +5, range 30/90 ft. *Hit:* 8 (1d10 + 3) Piercing damage.",
+        "attackType": "ranged",
+        "toHit": 5,
+        "rangeNormal": 30,
+        "rangeLong": 90,
+        "damageDice": "1d10 + 3",
+        "damageType": "Piercing"
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Parry",
+        "description": "The captain adds 2 to its AC against one melee attack that would hit it. To do so, the captain must see the attacker and be wielding a melee weapon."
+      }
+    ],
+    "description": "Bandit captains command gangs of bandits and often use them to prey on caravans, raid villages, or patrol for a thieves' guild.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Bandits"
+  },
+  {
+    "id": "berserker",
+    "name": "Berserker",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 13,
+    "acType": "Hide Armor",
+    "hp": 67,
+    "hitDice": "9d8+27",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 16,
+      "dex": 12,
+      "con": 17,
+      "int": 9,
+      "wis": 11,
+      "cha": 9
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common"],
+    "cr": "2",
+    "xp": 450,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 1,
+      "score": 11
+    },
+    "traits": [
+      {
+        "name": "Bloodied Frenzy",
+        "description": "While Bloodied, the berserker has Advantage on attack rolls and saving throws."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Greataxe",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 9 (1d12 + 3) Slashing damage.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "1d12 + 3",
+        "damageType": "Slashing"
+      }
+    ],
+    "description": "Berserkers are ferocious warriors who throw themselves into battle with reckless abandon.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025"
+  },
+  {
+    "id": "cultist-fanatic",
+    "name": "Cultist Fanatic",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 13,
+    "acType": "Leather Armor",
+    "hp": 44,
+    "hitDice": "8d8 + 8",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 11,
+      "dex": 14,
+      "con": 12,
+      "int": 10,
+      "wis": 14,
+      "cha": 13
+    },
+    "skills": {
+      "Deception": 3,
+      "Persuasion": 3,
+      "Religion": 2
+    },
+    "senses": {
+      "passivePerception": 12
+    },
+    "languages": ["Common"],
+    "cr": "2",
+    "xp": 450,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 2,
+      "score": 12
+    },
+    "traits": [
+      {
+        "name": "Dark Devotion",
+        "description": "The fanatic has Advantage on saving throws against the Charmed and Frightened conditions."
+      }
+    ],
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 12,
+      "attackBonus": 4,
+      "atWill": ["Light", "Thaumaturgy"],
+      "perDay": {
+        "2": ["Command"]
+      }
+    },
+    "actions": [
+      {
+        "name": "Pact Blade",
+        "description": "*Melee Attack Roll:* +4, reach 5 ft. *Hit:* 6 (1d8 + 2) Slashing damage plus 7 (2d6) Necrotic damage.",
+        "attackType": "melee",
+        "toHit": 4,
+        "reach": 5,
+        "damageDice": "1d8 + 2",
+        "damageType": "Slashing",
+        "additionalDamage": "2d6 Necrotic"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The cultist casts one of the following spells, using Wisdom as the spellcasting ability (spell save DC 12, +4 to hit with spell attacks):\n**At Will:** *Light*, *Thaumaturgy*\n**2/Day:** *Command*\n**1/Day:** *Hold Person*"
+      }
+    ],
+    "description": "Cult fanatics are zealous devotees who lead cult cells and preach the dark will of their masters.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Cultists",
+    "savingThrows": {
+      "wis": 4
+    },
+    "bonusActions": [
+      {
+        "name": "Spiritual Weapon",
+        "description": "The cultist casts the *Spiritual Weapon* spell, using the same spellcasting ability as Spellcasting.",
+        "recharge": "2/day"
+      }
+    ]
+  },
+  {
+    "id": "druid",
+    "name": "Druid",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 13,
+    "acType": "16 with Barkskin",
+    "hp": 44,
+    "hitDice": "8d8 + 8",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 12,
+      "con": 13,
+      "int": 12,
+      "wis": 16,
+      "cha": 11
+    },
+    "skills": {
+      "Medicine": 5,
+      "Nature": 3,
+      "Perception": 5
+    },
+    "senses": {
+      "passivePerception": 15
+    },
+    "languages": ["Common", "Druidic"],
+    "cr": "2",
+    "xp": 450,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 1,
+      "score": 11
+    },
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 13,
+      "attackBonus": 0,
+      "atWill": ["Druidcraft", "Speak with Animals"],
+      "perDay": {
+        "2": ["Entangle", "Thunderwave"]
+      }
+    },
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The druid makes two attacks, using Vine Staff or Verdant Wisp in any combination.",
+        "multiattackActions": ["druid makes two"]
+      },
+      {
+        "name": "Vine Staff",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 7 (1d8 + 3) Bludgeoning damage plus 2 (1d4) Poison damage.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "1d8 + 3",
+        "damageType": "Bludgeoning",
+        "additionalDamage": "1d4 Poison"
+      },
+      {
+        "name": "Verdant Wisp",
+        "description": "*Ranged Attack Roll:* +5, range 90 ft. *Hit:* 10 (3d6) Radiant damage.",
+        "attackType": "ranged",
+        "toHit": 5,
+        "rangeNormal": 90,
+        "damageDice": "3d6",
+        "damageType": "Radiant"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The druid casts one of the following spells, using Wisdom as the spellcasting ability (spell save DC 13):\n**At Will:** *Druidcraft*, *Speak with Animals*\n**2/Day Each:** *Entangle*, *Thunderwave*\n**1/Day Each:** *Animal Messenger*, *Longstrider*, *Moonbeam*"
+      }
+    ],
+    "description": "Druids dwell in forests and other secluded wilderness locations, where they protect the natural world from monsters and the encroachment of civilization.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "subtype": "Druid"
+  },
+  {
+    "id": "mage-apprentice",
+    "name": "Mage Apprentice",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 15,
+    "hp": 49,
+    "hitDice": "9d8 + 9",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 8,
+      "dex": 14,
+      "con": 12,
+      "int": 16,
+      "wis": 13,
+      "cha": 10
+    },
+    "skills": {
+      "Arcana": 5,
+      "Perception": 3
+    },
+    "senses": {
+      "passivePerception": 13
+    },
+    "languages": ["Common"],
+    "cr": "2",
+    "xp": 450,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 2,
+      "score": 12
+    },
+    "spellcasting": {
+      "ability": "Intelligence",
+      "saveDC": 13,
+      "attackBonus": 5,
+      "atWill": ["Mage Hand", "Prestidigitation"],
+      "perDay": {
+        "1": ["Disguise Self", "Ice Knife", "Mage Armor", "Thunderwave"]
+      }
+    },
+    "actions": [
+      {
+        "name": "Arcane Burst",
+        "description": "*Melee or Ranged Attack:* +5, reach 5 ft. or range 120 ft. *Hit:* 14 (2d10 + 3) Force damage.",
+        "reach": 5,
+        "damageDice": "2d10+3",
+        "damageType": "force",
+        "attackType": "melee-or-ranged",
+        "toHit": 5,
+        "rangeNormal": 120
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The mage casts one of the following spells, using Intelligence as the spellcasting ability (spell save DC 13, +5 to hit with spell attacks):\n**At Will:** *Mage Hand*, *Prestidigitation*\n**1/Day Each:** *Disguise Self*, *Ice Knife*, *Mage Armor* (included in AC), *Thunderwave*"
+      }
+    ],
+    "description": "Mage apprentices are fledgling spellcasters learning the ways of arcane magic.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Mages",
+    "savingThrows": {
+      "int": 5,
+      "wis": 3
+    },
+    "subtype": "Wizard"
+  },
+  {
+    "id": "priest",
+    "name": "Priest",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 13,
+    "acType": "Chain Shirt",
+    "hp": 38,
+    "hitDice": "7d8 + 7",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 16,
+      "dex": 10,
+      "con": 12,
+      "int": 13,
+      "wis": 16,
+      "cha": 13
+    },
+    "skills": {
+      "Medicine": 7,
+      "Perception": 5,
+      "Religion": 5
+    },
+    "senses": {
+      "passivePerception": 15
+    },
+    "languages": ["Common"],
+    "cr": "2",
+    "xp": 450,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 0,
+      "score": 10
+    },
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 10,
+      "attackBonus": 0,
+      "atWill": ["Light", "Thaumaturgy"],
+      "perDay": {
+        "1": ["Spirit Guardians"]
+      }
+    },
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The priest makes two attacks, using Mace or Radiant Flame in any combination.",
+        "multiattackActions": ["priest makes two"]
+      },
+      {
+        "name": "Mace",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Bludgeoning damage plus 5 (2d4) Radiant damage.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "1d6 + 3",
+        "damageType": "Bludgeoning",
+        "additionalDamage": "2d4 Radiant"
+      },
+      {
+        "name": "Radiant Flame",
+        "description": "*Ranged Attack Roll:* +4, range 60 ft. *Hit:* 11 (2d10) Radiant damage.",
+        "attackType": "ranged",
+        "toHit": 4,
+        "rangeNormal": 60,
+        "damageDice": "2d10",
+        "damageType": "Radiant"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The priest casts one of the following spells, using Wisdom as the spellcasting ability:\n**At Will:** *Light*, *Thaumaturgy*\n**1/Day:** *Spirit Guardians*"
+      }
+    ],
+    "description": "Priests bring the teachings of their gods to the common folk. They are the spiritual leaders of temples and shrines.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Priests",
+    "subtype": "Cleric",
+    "bonusActions": [
+      {
+        "name": "Divine Aid",
+        "description": "The priest casts *Bless*, *Dispel Magic*, *Healing Word*, or *Lesser Restoration*, using the same spellcasting ability as Spellcasting.",
+        "recharge": "3/day"
+      }
+    ]
+  },
+  {
+    "id": "knight",
+    "name": "Knight",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 18,
+    "acType": "Plate",
+    "hp": 52,
+    "hitDice": "8d8+16",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 16,
+      "dex": 11,
+      "con": 14,
+      "int": 11,
+      "wis": 11,
+      "cha": 15
+    },
+    "savingThrows": {
+      "con": 4,
+      "wis": 2
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common"],
+    "cr": "3",
+    "xp": 700,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 0,
+      "score": 10
+    },
+    "traits": [
+      {
+        "name": "Brave",
+        "description": "The knight has Advantage on saving throws against the Frightened condition."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The knight makes two attacks, using Greatsword or Heavy Crossbow in any combination.",
+        "multiattackActions": ["knight makes two"]
+      },
+      {
+        "name": "Greatsword",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 10 (2d6 + 3) Slashing damage plus 4 (1d8) Radiant damage.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "2d6 + 3",
+        "damageType": "Slashing",
+        "additionalDamage": "1d8 Radiant"
+      },
+      {
+        "name": "Heavy Crossbow",
+        "description": "*Ranged Attack Roll:* +2, range 100/400 ft. *Hit:* 11 (2d10) Piercing damage plus 4 (1d8) Radiant damage.",
+        "attackType": "ranged",
+        "toHit": 2,
+        "rangeNormal": 100,
+        "rangeLong": 400,
+        "damageDice": "2d10",
+        "damageType": "Piercing",
+        "additionalDamage": "1d8 Radiant"
+      }
+    ],
+    "bonusActions": [
+      {
+        "name": "Leadership (Recharges after a Short or Long Rest)",
+        "description": "For 1 minute, the knight can utter a special command or warning whenever a nonhostile creature that it can see within 30 feet of it makes an attack roll or a saving throw. The creature can add a d4 to its roll provided it can hear and understand the knight. A creature can benefit from only one Leadership die at a time. This effect ends if the knight has the Incapacitated condition or dies."
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Parry",
+        "description": "The knight adds 2 to its AC against one melee attack that would hit it. To do so, the knight must see the attacker and be wielding a melee weapon."
+      }
+    ],
+    "description": "Knights are warriors who pledge service to rulers, religious orders, and noble causes.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Knights",
+    "conditionImmunities": ["Frightened"]
+  },
+  {
+    "id": "scout-captain",
+    "name": "Scout Captain",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 15,
+    "hp": 66,
+    "hitDice": "12d8 + 12",
+    "speed": {
+      "walk": 30,
+      "climb": 30
+    },
+    "abilityScores": {
+      "str": 11,
+      "dex": 16,
+      "con": 12,
+      "int": 14,
+      "wis": 15,
+      "cha": 11
+    },
+    "senses": {
+      "passivePerception": 16
+    },
+    "languages": ["Common plus one other language"],
+    "cr": "3",
+    "xp": 700,
+    "proficiencyBonus": 2,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The scout makes two attacks, using Shortsword or Longbow in any combination.",
+        "multiattackActions": ["scout makes two"]
+      },
+      {
+        "name": "Shortsword",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 6 (1d6 + 3) Piercing damage, plus 10 (3d6) Piercing damage if the attack was made with Advantage.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "1d6 + 3",
+        "damageType": "Piercing",
+        "additionalDamage": "3d6 Piercing"
+      },
+      {
+        "name": "Longbow",
+        "description": "*Ranged Attack Roll:* +5, range 150/600 ft. *Hit:* 7 (1d8 + 3) Piercing damage, plus 10 (3d6) Piercing damage if the attack was made with Advantage.",
+        "attackType": "ranged",
+        "toHit": 5,
+        "rangeNormal": 150,
+        "rangeLong": 600,
+        "damageDice": "1d8 + 3",
+        "damageType": "Piercing",
+        "additionalDamage": "3d6 Piercing"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 5,
+      "score": 15
+    },
+    "savingThrows": {
+      "dex": 5,
+      "int": 4
+    },
+    "skills": {
+      "Perception": 6,
+      "Stealth": 7,
+      "Survival": 6
+    },
+    "gear": ["Longbow", "Shortsword", "Studded Leather Armor"],
+    "bonusActions": [
+      {
+        "name": "Aim",
+        "description": "The scout has Advantage on the next attack roll it makes during the current turn."
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Uncanny Dodge",
+        "description": "*Trigger:* The scout is hit by an attack roll. *Response:* The scout halves the damage (round down) it takes from that attack."
+      }
+    ],
+    "habitat": ["Any"],
+    "group": "Scouts"
+  },
+  {
+    "id": "warrior-veteran",
+    "name": "Warrior Veteran",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 17,
+    "acType": "Splint",
+    "hp": 65,
+    "hitDice": "10d8 + 20",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 16,
+      "dex": 13,
+      "con": 14,
+      "int": 10,
+      "wis": 11,
+      "cha": 10
+    },
+    "skills": {
+      "Athletics": 5,
+      "Perception": 2
+    },
+    "senses": {
+      "passivePerception": 12
+    },
+    "languages": ["Common"],
+    "cr": "3",
+    "xp": 700,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 3,
+      "score": 13
+    },
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The warrior makes two Greatsword or Heavy Crossbow attacks.",
+        "multiattackActions": ["warrior makes two Greatsword or Heavy Crossbow"]
+      },
+      {
+        "name": "Greatsword",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 10 (2d6 + 3) Slashing damage.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "2d6 + 3",
+        "damageType": "Slashing"
+      },
+      {
+        "name": "Heavy Crossbow",
+        "description": "*Ranged Attack Roll:* +3, range 100/400 ft. *Hit:* 12 (2d10 + 1) Piercing damage.",
+        "attackType": "ranged",
+        "toHit": 3,
+        "rangeNormal": 100,
+        "rangeLong": 400,
+        "damageDice": "2d10 + 1",
+        "damageType": "Piercing"
+      }
+    ],
+    "description": "Veterans are professional soldiers who have seen numerous battles and emerged victorious.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Warriors",
+    "reactions": [
+      {
+        "name": "Parry",
+        "description": "*Trigger:* The warrior is hit by a melee attack roll while holding a weapon. *Response:* The warrior adds 2 to its AC against that attack, possibly causing it to miss."
+      }
+    ]
+  },
+  {
+    "id": "guard-captain",
+    "name": "Guard Captain",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 18,
+    "acType": "Chain Shirt, Shield",
+    "hp": 75,
+    "hitDice": "10d8 + 30",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 18,
+      "dex": 14,
+      "con": 16,
+      "int": 12,
+      "wis": 14,
+      "cha": 13
+    },
+    "savingThrows": {
+      "str": 4,
+      "dex": 5,
+      "wis": 2
+    },
+    "skills": {
+      "Athletics": 6,
+      "Perception": 4
+    },
+    "senses": {
+      "passivePerception": 14
+    },
+    "languages": ["Common"],
+    "cr": "4",
+    "xp": 1100,
+    "proficiencyBonus": 2,
+    "initiative": {
+      "modifier": 4,
+      "score": 14
+    },
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The guard makes two attacks, using Javelin or Longsword in any combination.",
+        "multiattackActions": ["guard makes two"]
+      },
+      {
+        "name": "Javelin",
+        "description": "*Melee or Ranged Attack Roll:* +6, reach 5 ft. or range 30/120 ft. *Hit:* 14 (3d6 + 4) Piercing damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 6,
+        "reach": 5,
+        "rangeNormal": 30,
+        "rangeLong": 120,
+        "damageDice": "3d6 + 4",
+        "damageType": "Piercing"
+      },
+      {
+        "name": "Longsword",
+        "description": "*Melee Attack Roll:* +6, reach 5 ft. *Hit:* 15 (2d10 + 4) Slashing damage.",
+        "attackType": "melee",
+        "toHit": 6,
+        "reach": 5,
+        "damageDice": "2d10 + 4",
+        "damageType": "Slashing"
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Parry",
+        "description": "The guard captain adds 2 to its AC against one melee attack that would hit it. To do so, the guard captain must see the attacker and be wielding a melee weapon."
+      }
+    ],
+    "description": "Guard captains oversee the protection of a settlement, noble estate, or other location.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Guards"
+  },
+  {
+    "id": "tough-boss",
+    "name": "Tough Boss",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 16,
+    "hp": 82,
+    "hitDice": "11d8 + 33",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 17,
+      "dex": 14,
+      "con": 16,
+      "int": 11,
+      "wis": 10,
+      "cha": 11
+    },
+    "senses": {
+      "passivePerception": 10
+    },
+    "languages": ["Common plus one other language"],
+    "cr": "4",
+    "xp": 1100,
+    "proficiencyBonus": 2,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The tough makes two attacks, using Warhammer or Heavy Crossbow in any combination.",
+        "multiattackActions": ["tough makes two"]
+      },
+      {
+        "name": "Warhammer",
+        "description": "*Melee Attack Roll:* +5, reach 5 ft. *Hit:* 12 (2d8 + 3) Bludgeoning damage. If the target is a Large or smaller creature, the tough pushes the target up to 10 feet straight away from itself.",
+        "attackType": "melee",
+        "toHit": 5,
+        "reach": 5,
+        "damageDice": "2d8 + 3",
+        "damageType": "Bludgeoning"
+      },
+      {
+        "name": "Heavy Crossbow",
+        "description": "*Ranged Attack Roll:* +4, range 100/400 ft. *Hit:* 13 (2d10 + 2) Piercing damage.",
+        "attackType": "ranged",
+        "toHit": 4,
+        "rangeNormal": 100,
+        "rangeLong": 400,
+        "damageDice": "2d10 + 2",
+        "damageType": "Piercing"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 2,
+      "score": 12
+    },
+    "savingThrows": {
+      "str": 5,
+      "con": 5,
+      "cha": 2
+    },
+    "gear": ["Chain Mail", "Heavy Crossbow", "Warhammer"],
+    "traits": [
+      {
+        "name": "Pack Tactics",
+        "description": "The tough has Advantage on an attack roll against a creature if at least one of the tough's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition."
+      }
+    ],
+    "habitat": ["Any"],
+    "group": "Toughs"
+  },
+  {
+    "id": "gladiator",
+    "name": "Gladiator",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 16,
+    "acType": "Studded Leather, Shield",
+    "hp": 112,
+    "hitDice": "15d8+45",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 18,
+      "dex": 15,
+      "con": 16,
+      "int": 10,
+      "wis": 12,
+      "cha": 15
+    },
+    "savingThrows": {
+      "str": 7,
+      "dex": 5,
+      "con": 6,
+      "wis": 4
+    },
+    "skills": {
+      "Athletics": 10,
+      "Performance": 5
+    },
+    "senses": {
+      "passivePerception": 11
+    },
+    "languages": ["Common"],
+    "cr": "5",
+    "xp": 1800,
+    "proficiencyBonus": 3,
+    "initiative": {
+      "modifier": 5,
+      "score": 15
+    },
+    "traits": [
+      {
+        "name": "Brave",
+        "description": "The gladiator has Advantage on saving throws against the Frightened condition."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The gladiator makes three Spear attacks. It can replace one attack with a use of Shield Bash.",
+        "multiattackActions": ["gladiator makes three Spear", "can replace one", "of Shield Bash"]
+      },
+      {
+        "name": "Spear",
+        "description": "*Melee or Ranged Attack Roll:* +7, reach 5 ft. or range 20/60 ft. *Hit:* 11 (2d6 + 4) Piercing damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 7,
+        "reach": 5,
+        "rangeNormal": 20,
+        "rangeLong": 60,
+        "damageDice": "2d6 + 4",
+        "damageType": "Piercing"
+      },
+      {
+        "name": "Shield Bash",
+        "description": "*Strength Saving Throw:* DC 15, one creature within 5 feet that the gladiator can see. *Failure:* 9 (2d4 + 4) Bludgeoning damage. If the target is a Medium or smaller creature, it has the Prone condition.",
+        "saveAbility": "Strength",
+        "saveDC": 15
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Parry",
+        "description": "The gladiator adds 3 to its AC against one melee attack that would hit it. To do so, the gladiator must see the attacker and be wielding a melee weapon."
+      }
+    ],
+    "description": "Gladiators battle for the entertainment of raucous crowds. Some gladiators are combatants forced to fight to the death, while others are professional combatants.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025"
+  },
+  {
+    "id": "mage",
+    "name": "Mage",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 15,
+    "acType": "15 with Mage Armor",
+    "hp": 81,
+    "hitDice": "18d8",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 9,
+      "dex": 14,
+      "con": 11,
+      "int": 17,
+      "wis": 12,
+      "cha": 11
+    },
+    "savingThrows": {
+      "int": 6,
+      "wis": 4
+    },
+    "skills": {
+      "Arcana": 6,
+      "History": 6,
+      "Perception": 4
+    },
+    "senses": {
+      "passivePerception": 14
+    },
+    "languages": ["Common"],
+    "cr": "6",
+    "xp": 2300,
+    "proficiencyBonus": 3,
+    "initiative": {
+      "modifier": 2,
+      "score": 12
+    },
+    "spellcasting": {
+      "ability": "Intelligence",
+      "saveDC": 14,
+      "attackBonus": 0,
+      "atWill": ["Detect Magic", "Light", "Mage Armor", "Mage Hand", "Prestidigitation"],
+      "perDay": {
+        "2": ["Fireball", "Invisibility"]
+      }
+    },
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The mage makes three Arcane Burst attacks.",
+        "multiattackActions": ["mage makes three Arcane Burst"]
+      },
+      {
+        "name": "Arcane Burst",
+        "description": "*Melee or Ranged Attack Roll:* +6, reach 5 ft. or range 120 ft. *Hit:* 16 (3d8 + 3) Force damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 6,
+        "reach": 5,
+        "damageDice": "3d8 + 3",
+        "damageType": "Force"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The mage casts one of the following spells, using Intelligence as the spellcasting ability (spell save DC 14):\n**At Will:** *Detect Magic*, *Light*, *Mage Armor* (included in AC), *Mage Hand*, *Prestidigitation*\n**2/Day Each:** *Fireball* (level 4 version), *Invisibility*\n**1/Day Each:** *Cone of Cold*, *Fly*"
+      }
+    ],
+    "description": "Mages are accomplished spellcasters who study the arcane arts.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Mages",
+    "subtype": "Wizard",
+    "bonusActions": [
+      {
+        "name": "Misty Step",
+        "description": "The mage casts *Misty Step*, using the same spellcasting ability as Spellcasting.",
+        "recharge": "3/day"
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Protective Magic",
+        "description": "The mage casts *Counterspell* or *Shield* in response to the spell's trigger, using the same spellcasting ability as Spellcasting.",
+        "recharge": "3/day"
+      }
+    ]
+  },
+  {
+    "id": "performer-maestro",
+    "name": "Performer Maestro",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 18,
+    "hp": 110,
+    "hitDice": "17d8 + 34",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 12,
+      "dex": 18,
+      "con": 14,
+      "int": 13,
+      "wis": 14,
+      "cha": 19
+    },
+    "senses": {
+      "passivePerception": 15
+    },
+    "languages": ["Common plus one other language"],
+    "cr": "6",
+    "xp": 2300,
+    "proficiencyBonus": 3,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The performer makes three Rapier attacks.",
+        "multiattackActions": ["performer makes three Rapier"]
+      },
+      {
+        "name": "Rapier",
+        "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 8 (1d8 + 4) Piercing damage plus 7 (2d6) Psychic damage.",
+        "attackType": "melee",
+        "toHit": 7,
+        "reach": 5,
+        "damageDice": "1d8 + 4",
+        "damageType": "Piercing",
+        "additionalDamage": "2d6 Psychic"
+      },
+      {
+        "name": "Beguiling Song",
+        "description": "*Wisdom Saving Throw:* DC 15, each creature in a 20-foot-radius Sphere centered on a point within 120 feet. *Failure:* 20 (3d10 + 4) Psychic damage, and the target has the Charmed condition until the end of the performer's next turn. *Success:* Half damage only.",
+        "saveAbility": "Wisdom",
+        "saveDC": 15,
+        "areaOfEffect": {
+          "type": "sphere",
+          "size": 20
+        }
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The performer casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 15):\n**At Will:** *Minor Illusion*, *Prestidigitation*\n**1/Day:** *Tasha's Hideous Laughter* (level 3 version)"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 8,
+      "score": 18
+    },
+    "savingThrows": {
+      "dex": 7,
+      "cha": 7
+    },
+    "skills": {
+      "Acrobatics": 10,
+      "Athletics": 4,
+      "Perception": 5,
+      "Performance": 10,
+      "Stealth": 7
+    },
+    "gear": ["Rapier"],
+    "spellcasting": {
+      "ability": "Charisma",
+      "saveDC": 15,
+      "attackBonus": 0,
+      "atWill": ["Minor Illusion", "Prestidigitation"],
+      "perDay": {
+        "1": ["Tasha's Hideous Laughter"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Performers"
+  },
+  {
+    "id": "pirate-captain",
+    "name": "Pirate Captain",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 17,
+    "acType": "Studded Leather",
+    "hp": 84,
+    "hitDice": "13d8 + 26",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 18,
+      "con": 14,
+      "int": 10,
+      "wis": 14,
+      "cha": 17
+    },
+    "savingThrows": {
+      "str": 3,
+      "dex": 7,
+      "wis": 5,
+      "cha": 6
+    },
+    "skills": {
+      "Acrobatics": 7,
+      "Perception": 5
+    },
+    "senses": {
+      "passivePerception": 15
+    },
+    "languages": ["Common"],
+    "cr": "6",
+    "xp": 2300,
+    "proficiencyBonus": 3,
+    "initiative": {
+      "modifier": 7,
+      "score": 17
+    },
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The pirate makes three attacks, using Rapier or Pistol in any combination.",
+        "multiattackActions": ["pirate makes three"]
+      },
+      {
+        "name": "Rapier",
+        "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 13 (2d8 + 4) Piercing damage, and the pirate has Advantage on the next attack roll it makes before the end of this turn.",
+        "attackType": "melee",
+        "toHit": 7,
+        "reach": 5,
+        "damageDice": "2d8 + 4",
+        "damageType": "Piercing"
+      },
+      {
+        "name": "Pistol",
+        "description": "*Ranged Attack Roll:* +7, range 30/90 ft. *Hit:* 15 (2d10 + 4) Piercing damage.",
+        "attackType": "ranged",
+        "toHit": 7,
+        "rangeNormal": 30,
+        "rangeLong": 90,
+        "damageDice": "2d10 + 4",
+        "damageType": "Piercing"
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Riposte",
+        "description": "*Trigger:* The pirate is hit by a melee attack roll while holding a weapon. *Response:* The pirate adds 3 to its AC against that attack, possibly causing it to miss. On a miss, the pirate makes one Rapier attack against the triggering creature if within range."
+      }
+    ],
+    "description": "Pirate captains command crews of pirates and scallywags, plundering vessels and coastal settlements.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Pirates",
+    "bonusActions": [
+      {
+        "name": "Captain's Charm",
+        "description": "*Wisdom Saving Throw:* DC 14, one creature the pirate can see within 30 feet. *Failure:* The target has the Charmed condition until the start of the pirate's next turn.",
+        "saveAbility": "Wisdom",
+        "saveDC": 14
+      }
+    ]
+  },
+  {
+    "id": "bandit-deceiver",
+    "name": "Bandit Deceiver",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 16,
+    "hp": 130,
+    "hitDice": "20d8 + 40",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 8,
+      "dex": 16,
+      "con": 14,
+      "int": 17,
+      "wis": 12,
+      "cha": 16
+    },
+    "senses": {
+      "passivePerception": 14
+    },
+    "languages": ["Common", "Thieves' Cant"],
+    "cr": "7",
+    "xp": 2900,
+    "proficiencyBonus": 3,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The bandit makes three Dagger attacks.",
+        "multiattackActions": ["bandit makes three Dagger"]
+      },
+      {
+        "name": "Dagger",
+        "description": "*Melee or Ranged Attack Roll:* +6, reach 5 ft. or range 20/60 ft. *Hit:* 8 (2d4 + 3) Piercing damage plus 10 (3d6) Poison damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 6,
+        "reach": 5,
+        "rangeNormal": 20,
+        "rangeLong": 60,
+        "damageDice": "2d4 + 3",
+        "damageType": "Piercing",
+        "additionalDamage": "3d6 Poison"
+      },
+      {
+        "name": "Blinding Flash",
+        "description": "*Constitution Saving Throw:* DC 14, each creature in a 10-foot-radius Sphere centered on a point the bandit can see within 120 feet. *Failure:* 13 (3d6 + 3) Radiant damage, and the target has the Blinded condition until the start of the bandit's next turn. *Success:* Half damage only.",
+        "recharge": "4-6",
+        "saveAbility": "Constitution",
+        "saveDC": 14,
+        "areaOfEffect": {
+          "type": "sphere",
+          "size": 10
+        }
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The bandit casts one of the following spells, using Intelligence as the spellcasting ability (spell save DC 14):\n**At Will:** *Disguise Self*, *Mage Hand*, *Minor Illusion*\n**1/Day Each:** *Hold Person* (level 4 version), *Mage Armor* (included in AC), *Major Image*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 6,
+      "score": 16
+    },
+    "savingThrows": {
+      "dex": 6,
+      "int": 6
+    },
+    "skills": {
+      "Acrobatics": 6,
+      "Perception": 4,
+      "Stealth": 9
+    },
+    "gear": ["Daggers (6)", "Wand"],
+    "spellcasting": {
+      "ability": "Intelligence",
+      "saveDC": 14,
+      "attackBonus": 0,
+      "atWill": ["Disguise Self", "Mage Hand", "Minor Illusion"],
+      "perDay": {
+        "1": ["Hold Person", "Mage Armor", "Major Image"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Bandits"
+  },
+  {
+    "id": "aberrant-cultist",
+    "name": "Aberrant Cultist",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral Evil",
+    "ac": 14,
+    "hp": 137,
+    "hitDice": "25d8 + 25",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 19,
+      "con": 12,
+      "int": 16,
+      "wis": 18,
+      "cha": 15
+    },
+    "senses": {
+      "passivePerception": 17,
+      "darkvision": 90
+    },
+    "languages": ["Common", "Deep Speech"],
+    "cr": "8",
+    "xp": 3900,
+    "proficiencyBonus": 3,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The cultist makes two Tentacle Lash attacks. It can replace any attack with a use of Mind Rot.",
+        "multiattackActions": ["cultist makes two Tentacle Lash", "can replace any", "of Mind Rot"]
+      },
+      {
+        "name": "Tentacle Lash",
+        "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 7 (1d6 + 4) Slashing damage plus 14 (4d6) Psychic damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 14) from one of two tentacles, and it has the Restrained condition until the grapple ends.",
+        "attackType": "melee",
+        "toHit": 7,
+        "reach": 10,
+        "damageDice": "1d6 + 4",
+        "damageType": "Slashing",
+        "additionalDamage": "4d6 Psychic",
+        "saveDC": 14
+      },
+      {
+        "name": "Mind Rot",
+        "description": "*Wisdom Saving Throw:* DC 15, one creature the cultist can see within 90 feet. *Failure:* 27 (6d8) Psychic damage, and the target has the Poisoned condition until the start of the cultist's next turn. *Success:* Half damage only.",
+        "saveAbility": "Wisdom",
+        "saveDC": 15
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The cultist casts one of the following spells, using Wisdom as the spellcasting ability (spell save DC 15):\n**At Will:** *Detect Thoughts*, *Minor Illusion*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 7,
+      "score": 17
+    },
+    "savingThrows": {
+      "int": 6,
+      "wis": 7
+    },
+    "skills": {
+      "Arcana": 6,
+      "Perception": 7,
+      "Religion": 6
+    },
+    "telepathy": 30,
+    "reactions": [
+      {
+        "name": "Counterspell",
+        "description": "The cultist casts *Counterspell* in response to that spell's trigger, using the same spellcasting ability as Spellcasting.",
+        "recharge": "2/day"
+      }
+    ],
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 15,
+      "attackBonus": 0,
+      "atWill": ["Detect Thoughts", "Minor Illusion"]
+    },
+    "habitat": ["Any"],
+    "group": "Cultists"
+  },
+  {
+    "id": "assassin",
+    "name": "Assassin",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 16,
+    "acType": "Studded Leather",
+    "hp": 97,
+    "hitDice": "15d8 + 30",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 11,
+      "dex": 18,
+      "con": 14,
+      "int": 16,
+      "wis": 11,
+      "cha": 10
+    },
+    "savingThrows": {
+      "dex": 7,
+      "int": 6
+    },
+    "skills": {
+      "Acrobatics": 7,
+      "Perception": 6,
+      "Stealth": 10
+    },
+    "resistances": ["Poison"],
+    "senses": {
+      "passivePerception": 16
+    },
+    "languages": ["Common", "Thieves' Cant"],
+    "cr": "8",
+    "xp": 3900,
+    "proficiencyBonus": 3,
+    "initiative": {
+      "modifier": 10,
+      "score": 20
+    },
+    "traits": [
+      {
+        "name": "Cunning Action",
+        "description": "On each of its turns, the assassin can take the Dash, Disengage, or Hide action as a Bonus Action."
+      },
+      {
+        "name": "Evasion",
+        "description": "If the assassin is subjected to an effect that allows it to make a Dexterity saving throw to take only half damage, it instead takes no damage if it succeeds on the saving throw, and only half damage if it fails."
+      },
+      {
+        "name": "Sneak Attack (1/Turn)",
+        "description": "The assassin deals an extra 14 (4d6) damage when it hits a target with a weapon attack and has Advantage on the attack roll, or when the target is within 5 feet of an ally of the assassin that doesn't have the Incapacitated condition and the assassin doesn't have Disadvantage on the attack roll."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The assassin makes three attacks, using Shortsword or Light Crossbow in any combination.",
+        "multiattackActions": ["assassin makes three"]
+      },
+      {
+        "name": "Shortsword",
+        "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 7 (1d6 + 4) Piercing damage plus 17 (5d6) Poison damage, and the target has the Poisoned condition until the start of the assassin's next turn.",
+        "attackType": "melee",
+        "toHit": 7,
+        "reach": 5,
+        "damageDice": "1d6 + 4",
+        "damageType": "Piercing",
+        "additionalDamage": "5d6 Poison"
+      },
+      {
+        "name": "Light Crossbow",
+        "description": "*Ranged Attack Roll:* +7, range 80/320 ft. *Hit:* 8 (1d8 + 4) Piercing damage plus 21 (6d6) Poison damage.",
+        "attackType": "ranged",
+        "toHit": 7,
+        "rangeNormal": 80,
+        "rangeLong": 320,
+        "damageDice": "1d8 + 4",
+        "damageType": "Piercing",
+        "additionalDamage": "6d6 Poison"
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Uncanny Dodge",
+        "description": "The assassin halves the damage that it takes from an attack that hits it. The assassin must be able to see the attacker."
+      }
+    ],
+    "description": "Assassins are remorseless killers who work for money, revenge, or ideology.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "bonusActions": [
+      {
+        "name": "Cunning Action",
+        "description": "The assassin takes the Dash, Disengage, or Hide action."
+      }
+    ]
+  },
+  {
+    "id": "berserker-commander",
+    "name": "Berserker Commander",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 16,
+    "hp": 136,
+    "hitDice": "16d8 + 64",
+    "speed": {
+      "walk": 40
+    },
+    "abilityScores": {
+      "str": 19,
+      "dex": 14,
+      "con": 19,
+      "int": 10,
+      "wis": 14,
+      "cha": 9
+    },
+    "senses": {
+      "passivePerception": 15
+    },
+    "languages": ["Common"],
+    "cr": "8",
+    "xp": 3900,
+    "proficiencyBonus": 3,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The berserker makes three attacks, using Greataxe or Javelin in any combination.",
+        "multiattackActions": ["berserker makes three"]
+      },
+      {
+        "name": "Greataxe",
+        "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 10 (1d12 + 4) Slashing damage, plus 10 (3d6) Thunder damage to the target or another creature within 5 feet of the target.",
+        "attackType": "melee",
+        "toHit": 7,
+        "reach": 5,
+        "damageDice": "1d12 + 4",
+        "damageType": "Slashing",
+        "additionalDamage": "3d6 Thunder"
+      },
+      {
+        "name": "Javelin",
+        "description": "*Melee or Ranged Attack Roll:* +7, reach 5 ft. or range 30/120 ft. *Hit:* 18 (4d6 + 4) Piercing damage, and the target's Speed decreases by 5 feet until the start of the berserker's next turn.",
+        "attackType": "melee-or-ranged",
+        "toHit": 7,
+        "reach": 5,
+        "rangeNormal": 30,
+        "rangeLong": 120,
+        "damageDice": "4d6 + 4",
+        "damageType": "Piercing"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 5,
+      "score": 15
+    },
+    "savingThrows": {
+      "str": 7,
+      "con": 7
+    },
+    "skills": {
+      "Athletics": 7,
+      "Perception": 5
+    },
+    "conditionImmunities": ["Charmed", "Frightened"],
+    "gear": ["Greataxe", "Javelins (6)"],
+    "traits": [
+      {
+        "name": "Bloodied Frenzy",
+        "description": "While Bloodied, the berserker has Advantage on attack rolls and saving throws."
+      }
+    ],
+    "bonusActions": [
+      {
+        "name": "Frenzied Rush",
+        "description": "Each ally within 30 feet of the berserker can take a Reaction to move up to half the ally's Speed without provoking Opportunity Attacks. The berserker can also move up to half its Speed without provoking Opportunity Attacks."
+      }
+    ],
+    "habitat": ["Any"],
+    "group": "Berserkers"
+  },
+  {
+    "id": "death-cultist",
+    "name": "Death Cultist",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral Evil",
+    "ac": 17,
+    "hp": 127,
+    "hitDice": "15d8 + 60",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 19,
+      "dex": 12,
+      "con": 18,
+      "int": 12,
+      "wis": 16,
+      "cha": 14
+    },
+    "senses": {
+      "passivePerception": 16
+    },
+    "languages": ["Common"],
+    "cr": "8",
+    "xp": 3900,
+    "proficiencyBonus": 3,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The cultist makes three attacks, using Dread Scythe or Deathly Ray in any combination.",
+        "multiattackActions": ["cultist makes three"]
+      },
+      {
+        "name": "Dread Scythe",
+        "description": "*Melee Attack Roll:* +7, reach 10 ft. *Hit:* 9 (1d10 + 4) Slashing damage plus 11 (2d10) Necrotic damage, and the target can't regain Hit Points until the end of its next turn.",
+        "attackType": "melee",
+        "toHit": 7,
+        "reach": 10,
+        "damageDice": "1d10 + 4",
+        "damageType": "Slashing",
+        "additionalDamage": "2d10 Necrotic"
+      },
+      {
+        "name": "Deathly Ray",
+        "description": "*Ranged Attack Roll:* +6, range 120 ft. *Hit:* 22 (4d10) Necrotic damage.",
+        "attackType": "ranged",
+        "toHit": 6,
+        "rangeNormal": 120,
+        "damageDice": "4d10",
+        "damageType": "Necrotic"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The cultist casts one of the following spells, using Wisdom as the spellcasting ability (spell save DC 14):\n**At Will:** *Speak with Dead*, *Thaumaturgy*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 4,
+      "score": 14
+    },
+    "savingThrows": {
+      "con": 7,
+      "wis": 6
+    },
+    "skills": {
+      "Insight": 6,
+      "Perception": 6,
+      "Religion": 4
+    },
+    "gear": ["Splint Armor"],
+    "bonusActions": [
+      {
+        "name": "Spirit Wail",
+        "description": "*Wisdom Saving Throw:* DC 14, each creature in a 20-foot Emanation originating from the cultist. *Failure:* 14 (4d6) Psychic damage, and the creature has the Frightened condition until the end of its next turn. *Success:* Half damage only.",
+        "recharge": "5-6",
+        "saveAbility": "Wisdom",
+        "saveDC": 14,
+        "areaOfEffect": {
+          "type": "sphere",
+          "size": 20
+        }
+      }
+    ],
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 14,
+      "attackBonus": 0,
+      "atWill": ["Speak with Dead", "Thaumaturgy"]
+    },
+    "habitat": ["Any"],
+    "group": "Cultists"
+  },
+  {
+    "id": "elemental-cultist",
+    "name": "Elemental Cultist",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Chaotic Evil",
+    "ac": 16,
+    "hp": 135,
+    "hitDice": "18d8 + 54",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 18,
+      "dex": 12,
+      "con": 16,
+      "int": 14,
+      "wis": 18,
+      "cha": 12
+    },
+    "senses": {
+      "passivePerception": 17
+    },
+    "languages": ["Common", "Primordial"],
+    "cr": "8",
+    "xp": 3900,
+    "proficiencyBonus": 3,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The cultist makes three attacks, using Elemental Flail or Elemental Claw in any combination.",
+        "multiattackActions": ["cultist makes three"]
+      },
+      {
+        "name": "Elemental Flail",
+        "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 25 (6d6 + 4) damage of a type chosen by the cultist: Acid, Cold, Fire, Lightning, or Thunder.",
+        "attackType": "melee",
+        "toHit": 7,
+        "reach": 5
+      },
+      {
+        "name": "Elemental Claw",
+        "description": "*Ranged Attack Roll:* +7, range 120 ft. *Hit:* 22 (4d10) damage of a type chosen by the cultist: Acid, Cold, Fire, Lightning, or Thunder. If the target is a Medium or smaller creature, the cultist moves the target up to 10 feet straight toward or away from itself.",
+        "attackType": "ranged",
+        "toHit": 7,
+        "rangeNormal": 120
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The cultist casts one of the following spells, using Wisdom as the spellcasting ability (spell save DC 15):\n**At Will:** *Elementalism*, *Mage Hand*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 4,
+      "score": 14
+    },
+    "savingThrows": {
+      "con": 6,
+      "wis": 7
+    },
+    "skills": {
+      "Arcana": 5,
+      "Perception": 7,
+      "Religion": 5
+    },
+    "gear": ["Chain Mail"],
+    "reactions": [
+      {
+        "name": "Elemental Absorption",
+        "description": "*Trigger:* The cultist takes Acid, Cold, Fire, Lightning, or Thunder damage. *Response:* The cultist gives itself Resistance to that instance of damage and gains 10 Temporary Hit Points.",
+        "recharge": "1/day"
+      }
+    ],
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 15,
+      "attackBonus": 0,
+      "atWill": ["Elementalism", "Mage Hand"]
+    },
+    "habitat": ["Any"],
+    "group": "Cultists"
+  },
+  {
+    "id": "fiend-cultist",
+    "name": "Fiend Cultist",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral Evil",
+    "ac": 16,
+    "hp": 127,
+    "hitDice": "17d8 + 51",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 19,
+      "dex": 15,
+      "con": 16,
+      "int": 12,
+      "wis": 18,
+      "cha": 10
+    },
+    "senses": {
+      "passivePerception": 17,
+      "darkvision": 90
+    },
+    "languages": ["Abyssal", "Common", "Infernal"],
+    "cr": "8",
+    "xp": 3900,
+    "proficiencyBonus": 3,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The cultist makes three Pact Axe attacks.",
+        "multiattackActions": ["cultist makes three Pact Axe"]
+      },
+      {
+        "name": "Pact Axe",
+        "description": "*Melee Attack Roll:* +7, reach 5 ft. *Hit:* 10 (1d12 + 4) Slashing damage plus 13 (3d8) Fire damage.",
+        "attackType": "melee",
+        "toHit": 7,
+        "reach": 5,
+        "damageDice": "1d12 + 4",
+        "damageType": "Slashing",
+        "additionalDamage": "3d8 Fire"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The cultist casts one of the following spells, using Wisdom as the spellcasting ability (spell save DC 15, +7 to hit with spell attacks):\n**At Will:** *Scorching Ray* (level 5 version), *Thaumaturgy*\n**2/Day:** *Fireball* (level 6 version)"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 5,
+      "score": 15
+    },
+    "savingThrows": {
+      "con": 6,
+      "wis": 7
+    },
+    "skills": {
+      "Perception": 7,
+      "Religion": 4
+    },
+    "gear": ["Breastplate"],
+    "reactions": [
+      {
+        "name": "Hellish Rebuke",
+        "description": "The cultist casts *Hellish Rebuke* in response to that spell's trigger, using the same spellcasting ability as Spellcasting."
+      }
+    ],
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 15,
+      "attackBonus": 7,
+      "atWill": ["Scorching Ray", "Thaumaturgy"],
+      "perDay": {
+        "2": ["Fireball"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Cultists"
+  },
+  {
+    "id": "cultist-hierophant",
+    "name": "Cultist Hierophant",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 16,
+    "hp": 144,
+    "hitDice": "17d8 + 68",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 14,
+      "dex": 18,
+      "con": 18,
+      "int": 13,
+      "wis": 16,
+      "cha": 20
+    },
+    "senses": {
+      "passivePerception": 17
+    },
+    "languages": ["Celestial", "Common"],
+    "cr": "10",
+    "xp": 5900,
+    "proficiencyBonus": 4,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The cultist makes three attacks, using Pact Blade or Radiant Ray in any combination.",
+        "multiattackActions": ["cultist makes three"]
+      },
+      {
+        "name": "Pact Blade",
+        "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 12 (2d6 + 5) Slashing damage plus 18 (4d8) Radiant damage.",
+        "attackType": "melee",
+        "toHit": 9,
+        "reach": 5,
+        "damageDice": "2d6 + 5",
+        "damageType": "Slashing",
+        "additionalDamage": "4d8 Radiant"
+      },
+      {
+        "name": "Radiant Ray",
+        "description": "*Ranged Attack Roll:* +9, range 120 ft. *Hit:* 31 (4d12 + 5) Radiant damage.",
+        "attackType": "ranged",
+        "toHit": 9,
+        "rangeNormal": 120,
+        "damageDice": "4d12 + 5",
+        "damageType": "Radiant"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The cultist casts one of the following spells, using Charisma as the spellcasting ability (spell save DC 17):\n**At Will:** *Mage Armor* (included in AC), *Thaumaturgy*\n**1/Day Each:** *Jallarzi's Storm of Radiance* (level 7 version), *Mass Suggestion*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 8,
+      "score": 18
+    },
+    "savingThrows": {
+      "wis": 7,
+      "cha": 9
+    },
+    "skills": {
+      "Perception": 7,
+      "Persuasion": 9,
+      "Religion": 5
+    },
+    "gear": ["Breastplate", "Holy Symbol"],
+    "spellcasting": {
+      "ability": "Charisma",
+      "saveDC": 17,
+      "attackBonus": 0,
+      "atWill": ["Mage Armor", "Thaumaturgy"],
+      "perDay": {
+        "1": ["Jallarzi's Storm of Radiance", "Mass Suggestion"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Cultists"
+  },
+  {
+    "id": "noble-prodigy",
+    "name": "Noble Prodigy",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 16,
+    "hp": 148,
+    "hitDice": "27d8 + 27",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 8,
+      "dex": 16,
+      "con": 12,
+      "int": 15,
+      "wis": 14,
+      "cha": 19
+    },
+    "senses": {
+      "passivePerception": 16
+    },
+    "languages": ["Common plus two other languages"],
+    "cr": "10",
+    "xp": 5900,
+    "proficiencyBonus": 4,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The noble makes three Beguiling Strike attacks.",
+        "multiattackActions": ["noble makes three Beguiling Strike"]
+      },
+      {
+        "name": "Beguiling Strike",
+        "description": "*Melee or Ranged Attack Roll:* +8, reach 5 ft. or range 60 ft. *Hit:* 18 (4d6 + 4) Psychic damage, and the target has the Charmed condition until the start of the noble's next turn.",
+        "attackType": "melee-or-ranged",
+        "toHit": 8,
+        "reach": 5,
+        "damageDice": "4d6 + 4",
+        "damageType": "Psychic"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The noble casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 16):\n**At Will:** *Mage Armor* (included in AC), *Mage Hand*, *Minor Illusion*\n**1/Day Each:** *Befuddlement*, *Detect Thoughts*, *Fly*, *Scrying*, *Shatter* (level 7 version)"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 7,
+      "score": 17
+    },
+    "savingThrows": {
+      "dex": 7,
+      "con": 5,
+      "wis": 6,
+      "cha": 8
+    },
+    "skills": {
+      "Perception": 6,
+      "Persuasion": 8
+    },
+    "reactions": [
+      {
+        "name": "Shield",
+        "description": "The noble casts *Shield* in response to that spell's trigger, using the same spellcasting ability as Spellcasting.",
+        "recharge": "2/day"
+      }
+    ],
+    "spellcasting": {
+      "ability": "Charisma",
+      "saveDC": 16,
+      "attackBonus": 0,
+      "atWill": ["Mage Armor", "Mage Hand", "Minor Illusion"],
+      "perDay": {
+        "1": ["Befuddlement", "Detect Thoughts", "Fly", "Scrying", "Shatter"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Nobles"
+  },
+  {
+    "id": "performer-legend",
+    "name": "Performer Legend",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 20,
+    "hp": 162,
+    "hitDice": "25d8 + 50",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 12,
+      "dex": 20,
+      "con": 14,
+      "int": 15,
+      "wis": 16,
+      "cha": 20
+    },
+    "senses": {
+      "passivePerception": 17
+    },
+    "languages": ["Common plus two other languages"],
+    "cr": "10",
+    "xp": 5900,
+    "proficiencyBonus": 4,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The performer makes three Bejeweled Baton attacks.",
+        "multiattackActions": ["performer makes three Bejeweled Baton"]
+      },
+      {
+        "name": "Bejeweled Baton",
+        "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 10 (2d4 + 5) Bludgeoning damage plus 10 (3d6) Psychic damage.",
+        "attackType": "melee",
+        "toHit": 9,
+        "reach": 5,
+        "damageDice": "2d4 + 5",
+        "damageType": "Bludgeoning",
+        "additionalDamage": "3d6 Psychic"
+      },
+      {
+        "name": "Majestic Song",
+        "description": "*Wisdom Saving Throw:* DC 17, each creature in a 20-foot-radius Sphere centered on a point within 120 feet. *Failure:* 22 (4d8 + 4) Psychic damage, and the target has the Charmed or Frightened condition (performer's choice) until the end of the performer's next turn. *Success:* Half damage only.",
+        "saveAbility": "Wisdom",
+        "saveDC": 17,
+        "areaOfEffect": {
+          "type": "sphere",
+          "size": 20
+        }
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The performer casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 17):\n**At Will:** *Mage Hand*, *Minor Illusion*, *Prestidigitation*\n**1/Day Each:** *Major Image*, *Project Image*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 10,
+      "score": 20
+    },
+    "savingThrows": {
+      "dex": 9,
+      "int": 6,
+      "wis": 7,
+      "cha": 9
+    },
+    "skills": {
+      "Acrobatics": 13,
+      "Athletics": 5,
+      "Perception": 7,
+      "Performance": 13,
+      "Stealth": 9
+    },
+    "reactions": [
+      {
+        "name": "Warding Charm",
+        "description": "*Trigger:* A creature hits the performer with an attack roll. *Response -- Wisdom Saving Throw:* DC 17, the triggering creature. *Failure:* The attack roll misses the performer, and the target has the Charmed condition until the end of the performer's next turn.",
+        "saveDC": 17
+      }
+    ],
+    "spellcasting": {
+      "ability": "Charisma",
+      "saveDC": 17,
+      "attackBonus": 0,
+      "atWill": ["Mage Hand", "Minor Illusion", "Prestidigitation"],
+      "perDay": {
+        "1": ["Major Image", "Project Image"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Performers"
+  },
+  {
+    "id": "spy-master",
+    "name": "Spy Master",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "ac": 19,
+    "hp": 137,
+    "hitDice": "25d8 + 25",
+    "speed": {
+      "walk": 30,
+      "climb": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 20,
+      "con": 12,
+      "int": 18,
+      "wis": 16,
+      "cha": 16
+    },
+    "savingThrows": {
+      "dex": 9,
+      "int": 8,
+      "con": 5,
+      "wis": 7
+    },
+    "skills": {
+      "Deception": 7,
+      "Insight": 7,
+      "Investigation": 8,
+      "Perception": 11,
+      "Sleight of Hand": 9,
+      "Stealth": 13
+    },
+    "senses": {
+      "passivePerception": 21
+    },
+    "languages": ["Common", "Thieves' Cant"],
+    "cr": "10",
+    "xp": 5900,
+    "proficiencyBonus": 4,
+    "initiative": {
+      "modifier": 9,
+      "score": 19
+    },
+    "traits": [
+      {
+        "name": "Cunning Action",
+        "description": "On each of its turns, the spy master can take the Dash, Disengage, or Hide action as a Bonus Action."
+      },
+      {
+        "name": "Evasion",
+        "description": "If the spy master is subjected to an effect that allows it to make a Dexterity saving throw to take only half damage, it instead takes no damage if it succeeds on the saving throw, and only half damage if it fails."
+      },
+      {
+        "name": "Sneak Attack (1/Turn)",
+        "description": "The spy master deals an extra 14 (4d6) damage when it hits a target with a weapon attack and has Advantage on the attack roll, or when the target is within 5 feet of an ally of the spy master that doesn't have the Incapacitated condition and the spy master doesn't have Disadvantage on the attack roll."
+      }
+    ],
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The spy makes three attacks, using Rapier or Hand Crossbow in any combination.",
+        "multiattackActions": ["spy makes three"]
+      },
+      {
+        "name": "Rapier",
+        "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 14 (2d8 + 5) Piercing damage plus 7 (2d6) Poison damage.",
+        "attackType": "melee",
+        "toHit": 9,
+        "reach": 5,
+        "damageDice": "2d8 + 5",
+        "damageType": "Piercing",
+        "additionalDamage": "2d6 Poison"
+      },
+      {
+        "name": "Hand Crossbow",
+        "description": "*Ranged Attack Roll:* +9, range 30/120 ft. *Hit:* 12 (2d6 + 5) Piercing damage plus 9 (2d8) Poison damage.",
+        "attackType": "ranged",
+        "toHit": 9,
+        "rangeNormal": 30,
+        "rangeLong": 120,
+        "damageDice": "2d6 + 5",
+        "damageType": "Piercing",
+        "additionalDamage": "2d8 Poison"
+      },
+      {
+        "name": "Smoke Bomb",
+        "description": "The spy throws a bomb to a point it can see within 30 feet of itself. *Constitution Saving Throw:* DC 16, each creature in a 20-foot-radius Sphere centered on that point. *Failure:* 28 (8d6) Poison damage, and the target has the Blinded condition until the end of the spy's next turn. *Success:* Half damage only.",
+        "recharge": "1/day",
+        "saveAbility": "Constitution",
+        "saveDC": 16,
+        "areaOfEffect": {
+          "type": "sphere",
+          "size": 20
+        }
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Uncanny Dodge",
+        "description": "The spy master halves the damage that it takes from an attack that hits it. The spy master must be able to see the attacker."
+      }
+    ],
+    "description": "Spy masters are the heads of intelligence networks, skilled at manipulating others and extracting secrets.",
+    "tags": ["npc"],
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "source": "mm2025",
+    "group": "Spies",
+    "bonusActions": [
+      {
+        "name": "Cunning Action",
+        "description": "The spy takes the Dash, Disengage, or Hide action."
+      }
+    ]
+  },
+  {
+    "id": "warrior-commander",
+    "name": "Warrior Commander",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 18,
+    "hp": 161,
+    "hitDice": "19d8+76",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 21,
+      "dex": 20,
+      "con": 18,
+      "int": 14,
+      "wis": 16,
+      "cha": 14
+    },
+    "savingThrows": {
+      "str": 9,
+      "dex": 9,
+      "con": 8,
+      "int": 2,
+      "wis": 7,
+      "cha": 2
+    },
+    "skills": {
+      "Athletics": 9,
+      "Insight": 7,
+      "Perception": 7
+    },
+    "senses": {
+      "passivePerception": 17
+    },
+    "languages": ["Common plus one other language"],
+    "cr": "10",
+    "xp": 5900,
+    "proficiencyBonus": 4,
+    "initiative": {
+      "modifier": 9,
+      "score": 19
+    },
+    "traits": [],
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The warrior makes three attacks, using Greatsword or Longbow in any combination.",
+        "multiattackActions": ["warrior makes three"]
+      },
+      {
+        "name": "Greatsword",
+        "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 19 (4d6 + 5) Slashing damage. The warrior also creates one of the following effects:",
+        "attackType": "melee",
+        "toHit": 9,
+        "reach": 5,
+        "damageDice": "4d6 + 5",
+        "damageType": "Slashing"
+      },
+      {
+        "name": "Sap",
+        "description": "The target has Disadvantage on its next attack roll before the start of the warrior's next turn.",
+        "utility": true
+      },
+      {
+        "name": "Maneuver",
+        "description": "One ally who can see or hear the warrior can take a Reaction to move up to half the ally's Speed without provoking Opportunity Attacks.",
+        "utility": true
+      },
+      {
+        "name": "Longbow",
+        "description": "*Ranged Attack Roll:* +9, range 150/600 ft. *Hit:* 18 (3d8 + 5) Piercing damage, and the target's Speed decreases by 10 feet until the end of the target's next turn.",
+        "attackType": "ranged",
+        "toHit": 9,
+        "rangeNormal": 150,
+        "rangeLong": 600,
+        "damageDice": "3d8 + 5",
+        "damageType": "Piercing"
+      }
+    ],
+    "bonusActions": [
+      {
+        "name": "Tactical Charge",
+        "description": "The warrior moves up to half its Speed straight toward an enemy it can see without provoking Opportunity Attacks."
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Counterattack",
+        "description": "Trigger: The warrior is hit by an attack roll. Response: The warrior adds 4 to its AC against that attack, possibly causing it to miss. On a miss, the warrior can make one Greatsword or Longbow attack against the attacker."
+      }
+    ],
+    "source": "mm2025",
+    "group": "NPCs",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    }
+  },
+  {
+    "id": "bandit-crime-lord",
+    "name": "Bandit Crime Lord",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 17,
+    "hp": 169,
+    "hitDice": "26d8 + 52",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 20,
+      "con": 14,
+      "int": 18,
+      "wis": 14,
+      "cha": 15
+    },
+    "senses": {
+      "passivePerception": 20
+    },
+    "languages": ["Common", "Thieves' Cant"],
+    "cr": "11",
+    "xp": 7200,
+    "proficiencyBonus": 4,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The bandit makes three attacks, using Scimitar or Pistol in any combination.",
+        "multiattackActions": ["bandit makes three"]
+      },
+      {
+        "name": "Scimitar",
+        "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 12 (2d6 + 5) Slashing damage plus 14 (4d6) Poison damage.",
+        "attackType": "melee",
+        "toHit": 9,
+        "reach": 5,
+        "damageDice": "2d6 + 5",
+        "damageType": "Slashing",
+        "additionalDamage": "4d6 Poison"
+      },
+      {
+        "name": "Pistol",
+        "description": "*Ranged Attack Roll:* +9, range 30/90 ft. *Hit:* 10 (1d10 + 5) Piercing damage plus 14 (4d6) Poison damage.",
+        "attackType": "ranged",
+        "toHit": 9,
+        "rangeNormal": 30,
+        "rangeLong": 90,
+        "damageDice": "1d10 + 5",
+        "damageType": "Piercing",
+        "additionalDamage": "4d6 Poison"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 9,
+      "score": 19
+    },
+    "savingThrows": {
+      "dex": 9,
+      "con": 6
+    },
+    "skills": {
+      "Acrobatics": 9,
+      "Perception": 10,
+      "Stealth": 13
+    },
+    "gear": ["Pistols (2)", "Scimitar", "Studded Leather Armor"],
+    "traits": [
+      {
+        "name": "Evasion",
+        "description": "If the bandit is subjected to an effect that allows it to make a Dexterity saving throw to take only half damage, the bandit instead takes no damage if it succeeds on the save and only half damage if it fails. It can't use this trait if it has the Incapacitated condition."
+      }
+    ],
+    "bonusActions": [
+      {
+        "name": "Deadly Aim",
+        "description": "The bandit gives itself Advantage on the next attack roll it makes during the current turn. If that attack hits, the target takes an extra 28 (8d6) Poison damage."
+      }
+    ],
+    "habitat": ["Any"],
+    "group": "Bandits"
+  },
+  {
+    "id": "archmage",
+    "name": "Archmage",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 17,
+    "hp": 170,
+    "hitDice": "31d8 + 31",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 10,
+      "dex": 14,
+      "con": 12,
+      "int": 20,
+      "wis": 15,
+      "cha": 16
+    },
+    "senses": {
+      "passivePerception": 16
+    },
+    "languages": ["Common plus five other languages"],
+    "cr": "12",
+    "xp": 8400,
+    "proficiencyBonus": 4,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The archmage makes four Arcane Burst attacks.",
+        "multiattackActions": ["archmage makes four Arcane Burst"]
+      },
+      {
+        "name": "Arcane Burst",
+        "description": "*Melee or Ranged Attack Roll:* +9, reach 5 ft. or range 150 ft. *Hit:* 27 (4d10 + 5) Force damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 9,
+        "reach": 5,
+        "damageDice": "4d10 + 5",
+        "damageType": "Force"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The archmage casts one of the following spells, using Intelligence as the spellcasting ability (spell save DC 17):\n**At Will:** *Detect Magic*, *Detect Thoughts*, *Disguise Self*, *Invisibility*, *Light*, *Mage Armor* (included in AC), *Mage Hand*, *Prestidigitation*\n**2/Day Each:** *Fly*, *Lightning Bolt* (level 7 version)\n**1/Day Each:** *Cone of Cold* (level 9 version), *Mind Blank* (cast before combat), *Scrying*, *Teleport*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "subtype": "Wizard",
+    "initiative": {
+      "modifier": 7,
+      "score": 17
+    },
+    "savingThrows": {
+      "int": 9,
+      "wis": 6
+    },
+    "skills": {
+      "Arcana": 13,
+      "History": 9,
+      "Perception": 6
+    },
+    "damageImmunities": ["Psychic"],
+    "conditionImmunities": ["Charmed (with *Mind Blank*)"],
+    "gear": ["Wand"],
+    "traits": [
+      {
+        "name": "Magic Resistance",
+        "description": "The archmage has Advantage on saving throws against spells and other magical effects."
+      }
+    ],
+    "bonusActions": [
+      {
+        "name": "Misty Step",
+        "description": "The mage casts *Misty Step*, using the same spellcasting ability as Spellcasting.",
+        "recharge": "3/day"
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Protective Magic",
+        "description": "The archmage casts *Counterspell* or *Shield* in response to the spell's trigger, using the same spellcasting ability as Spellcasting.",
+        "recharge": "3/day"
+      }
+    ],
+    "spellcasting": {
+      "ability": "Intelligence",
+      "saveDC": 17,
+      "attackBonus": 0,
+      "atWill": [
+        "Detect Magic",
+        "Detect Thoughts",
+        "Disguise Self",
+        "Invisibility",
+        "Light",
+        "Mage Armor",
+        "Mage Hand",
+        "Prestidigitation"
+      ],
+      "perDay": {
+        "2": ["Fly", "Lightning Bolt"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Mages"
+  },
+  {
+    "id": "archpriest",
+    "name": "Archpriest",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 16,
+    "hp": 240,
+    "hitDice": "32d8 + 96",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 16,
+      "dex": 12,
+      "con": 17,
+      "int": 14,
+      "wis": 21,
+      "cha": 14
+    },
+    "senses": {
+      "passivePerception": 19
+    },
+    "languages": ["Common plus two other languages"],
+    "cr": "12",
+    "xp": 8400,
+    "proficiencyBonus": 4,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The archpriest makes three Radiant Burst attacks.",
+        "multiattackActions": ["archpriest makes three Radiant Burst"]
+      },
+      {
+        "name": "Radiant Burst",
+        "description": "*Melee or Ranged Attack Roll:* +9, reach 5 ft. or range 60 ft. *Hit:* 27 (4d10 + 5) Radiant damage.",
+        "attackType": "melee-or-ranged",
+        "toHit": 9,
+        "reach": 5,
+        "damageDice": "4d10 + 5",
+        "damageType": "Radiant"
+      },
+      {
+        "name": "Holy Word",
+        "description": "*Wisdom Saving Throw:* DC 17, each enemy in a 20-foot Emanation originating from the archpriest. *Failure:* 21 (6d6) Radiant damage, and the target has the Stunned condition until the end of the archpriest's next turn. *Success:* Half damage only.",
+        "recharge": "4-6",
+        "saveAbility": "Wisdom",
+        "saveDC": 17,
+        "areaOfEffect": {
+          "type": "sphere",
+          "size": 20
+        }
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The archpriest casts one of the following spells, requiring no Material components and using Wisdom as the spellcasting ability (spell save DC 17):\n**At Will:** *Light*, *Thaumaturgy*\n**1/Day Each:** *Flame Strike* (level 6 version), *Greater Restoration*, *Raise Dead*, *Zone of Truth*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "subtype": "Cleric",
+    "initiative": {
+      "modifier": 5,
+      "score": 15
+    },
+    "savingThrows": {
+      "str": 7,
+      "con": 7,
+      "int": 6,
+      "wis": 9
+    },
+    "skills": {
+      "Insight": 9,
+      "Medicine": 9,
+      "Perception": 9,
+      "Religion": 10
+    },
+    "gear": ["Chain Mail", "Holy Symbol"],
+    "bonusActions": [
+      {
+        "name": "Divine Aid",
+        "description": "The priest casts *Bless*, *Dispel Magic*, *Healing Word*, or *Lesser Restoration*, using the same spellcasting ability as Spellcasting.",
+        "recharge": "3/day"
+      }
+    ],
+    "spellcasting": {
+      "ability": "Wisdom",
+      "saveDC": 17,
+      "attackBonus": 0,
+      "atWill": ["Light", "Thaumaturgy"],
+      "perDay": {
+        "1": ["Flame Strike", "Greater Restoration", "Raise Dead", "Zone of Truth"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Priests"
+  },
+  {
+    "id": "pirate-admiral",
+    "name": "Pirate Admiral",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 20,
+    "hp": 182,
+    "hitDice": "28d8 + 56",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 14,
+      "dex": 22,
+      "con": 14,
+      "int": 12,
+      "wis": 14,
+      "cha": 19
+    },
+    "senses": {
+      "passivePerception": 16
+    },
+    "languages": ["Common plus one other language"],
+    "cr": "12",
+    "xp": 8400,
+    "proficiencyBonus": 4,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The pirate makes three attacks, using Scimitar or Pistol in any combination.",
+        "multiattackActions": ["pirate makes three"]
+      },
+      {
+        "name": "Scimitar",
+        "description": "*Melee Attack Roll:* +10, reach 5 ft. *Hit:* 16 (3d6 + 6) Slashing damage plus 7 (2d6) Poison damage, and the target suffers one of the following effects of the pirate's choice:",
+        "attackType": "melee",
+        "toHit": 10,
+        "reach": 5,
+        "damageDice": "3d6 + 6",
+        "damageType": "Slashing",
+        "additionalDamage": "2d6 Poison"
+      },
+      {
+        "name": "Awestruck",
+        "description": "The target has the Charmed condition until the start of the pirate's next turn.",
+        "utility": true
+      },
+      {
+        "name": "Poison",
+        "description": "The target has the Poisoned condition until the start of the pirate's next turn.",
+        "utility": true
+      },
+      {
+        "name": "Pistol",
+        "description": "*Ranged Attack Roll:* +10, range 30/90 ft. *Hit:* 28 (4d10 + 6) Piercing damage.",
+        "attackType": "ranged",
+        "toHit": 10,
+        "rangeNormal": 30,
+        "rangeLong": 90,
+        "damageDice": "4d10 + 6",
+        "damageType": "Piercing"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 10,
+      "score": 20
+    },
+    "savingThrows": {
+      "str": 6,
+      "dex": 10,
+      "wis": 6,
+      "cha": 8
+    },
+    "skills": {
+      "Acrobatics": 10,
+      "Athletics": 6,
+      "Perception": 6
+    },
+    "gear": ["Pistol", "Scimitar"],
+    "bonusActions": [
+      {
+        "name": "Rally",
+        "description": "The pirate chooses up to three other creatures it can see within 30 feet. Until the start of the pirate's next turn, the targets have Advantage on attack rolls and saving throws.",
+        "recharge": "1/day"
+      }
+    ],
+    "reactions": [
+      {
+        "name": "Defensive Stance",
+        "description": "*Trigger:* The pirate is hit by a melee attack roll while holding a weapon. *Response:* The pirate adds 4 to its AC against melee attack rolls (including the triggering attack) until the start of its next turn, possibly causing the attacks to miss."
+      }
+    ],
+    "habitat": ["Any"],
+    "group": "Pirates"
+  },
+  {
+    "id": "questing-knight",
+    "name": "Questing Knight",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Neutral",
+    "ac": 18,
+    "hp": 202,
+    "hitDice": "27d8 + 81",
+    "speed": {
+      "walk": 30
+    },
+    "abilityScores": {
+      "str": 20,
+      "dex": 16,
+      "con": 16,
+      "int": 11,
+      "wis": 12,
+      "cha": 18
+    },
+    "senses": {
+      "passivePerception": 15
+    },
+    "languages": ["Common plus one other language"],
+    "cr": "12",
+    "xp": 8400,
+    "proficiencyBonus": 4,
+    "actions": [
+      {
+        "name": "Multiattack",
+        "description": "The knight makes three attacks, using Greatsword or Longbow in any combination.",
+        "multiattackActions": ["knight makes three"]
+      },
+      {
+        "name": "Greatsword",
+        "description": "*Melee Attack Roll:* +9, reach 5 ft. *Hit:* 12 (2d6 + 5) Slashing damage plus 22 (5d8) Radiant damage.",
+        "attackType": "melee",
+        "toHit": 9,
+        "reach": 5,
+        "damageDice": "2d6 + 5",
+        "damageType": "Slashing",
+        "additionalDamage": "5d8 Radiant"
+      },
+      {
+        "name": "Longbow",
+        "description": "*Ranged Attack Roll:* +7, range 150/600 ft. *Hit:* 12 (2d8 + 3) Piercing damage plus 22 (5d8) Radiant damage.",
+        "attackType": "ranged",
+        "toHit": 7,
+        "rangeNormal": 150,
+        "rangeLong": 600,
+        "damageDice": "2d8 + 3",
+        "damageType": "Piercing",
+        "additionalDamage": "5d8 Radiant"
+      },
+      {
+        "name": "Spellcasting",
+        "description": "The knight casts one of the following spells, using Charisma as the spellcasting ability (spell save DC 16):\n**1/Day Each:** *Daylight*, *Dispel Evil and Good*, *Greater Restoration*, *Phantom Steed*"
+      }
+    ],
+    "source": "mm2025",
+    "tokenSize": {
+      "x": 1,
+      "y": 1
+    },
+    "initiative": {
+      "modifier": 7,
+      "score": 17
+    },
+    "savingThrows": {
+      "str": 9,
+      "con": 7,
+      "wis": 5,
+      "cha": 8
+    },
+    "skills": {
+      "Athletics": 9,
+      "Perception": 5,
+      "Persuasion": 8
+    },
+    "conditionImmunities": ["Charmed", "Frightened"],
+    "gear": ["Greatsword", "Longbow", "Plate Armor"],
+    "traits": [
+      {
+        "name": "Aura of Bravery",
+        "description": "Creatures of the knight's choice in a 30-foot Emanation originating from it have Immunity to the Charmed and Frightened conditions while there."
+      }
+    ],
+    "spellcasting": {
+      "ability": "Charisma",
+      "saveDC": 16,
+      "attackBonus": 0,
+      "perDay": {
+        "1": ["Daylight", "Dispel Evil and Good", "Greater Restoration", "Phantom Steed"]
+      }
+    },
+    "habitat": ["Any"],
+    "group": "Knights"
+  }
+]

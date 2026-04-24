@@ -1,0 +1,24 @@
+{
+  "id": "tempus",
+  "name": "Tempus",
+  "title": "God of War",
+  "alignment": "Neutral",
+  "domains": ["War"],
+  "symbol": "Upright flaming sword",
+  "description": "Tempus is the god of war, battle, and warriors. He is not a god of conquest or tyranny but of honorable combat, martial prowess, and the courage found on the battlefield. Tempus favors no one side in a conflict, for war is his domain regardless of who wages it. He demands that his followers fight bravely and honorably, and he despises cowardice and the wanton slaughter of noncombatants.",
+  "piety": {
+    "thresholds": [
+      { "score": 3, "benefit": "Before rolling initiative, you can add 1d4 to your initiative roll." },
+      { "score": 10, "benefit": "You have advantage on the first attack roll you make in each combat." },
+      { "score": 25, "benefit": "When you score a critical hit, you can roll one additional weapon damage die." },
+      {
+        "score": 50,
+        "benefit": "You can enter a divine battle fury as a bonus action. For 1 minute, you have resistance to bludgeoning, piercing, and slashing damage. Usable once per long rest."
+      }
+    ]
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Deities of the Multiverse"
+  }
+}

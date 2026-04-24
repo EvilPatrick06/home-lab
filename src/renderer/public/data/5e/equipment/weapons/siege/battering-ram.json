@@ -1,0 +1,31 @@
+{
+  "name": "Battering Ram",
+  "slug": "battering-ram",
+  "category": "Siege Weapon",
+  "size": "Large",
+  "ac": 15,
+  "hp": 100,
+  "cost": "—",
+  "description": "A heavy log or beam used to break down doors and walls. The ram requires at least 1 creature to operate, with additional creatures adding to its effectiveness (max 4 creatures). Each creature beyond the first grants a +2 bonus to hit (maximum +10 to hit with 4 operators).",
+  "attack": {
+    "toHit": 4,
+    "toHitPerAdditionalCrew": 2,
+    "maxToHit": 10,
+    "damage": "1d8",
+    "damageType": "Bludgeoning",
+    "averageDamage": 4,
+    "range": {
+      "normal": 5,
+      "long": 5
+    }
+  },
+  "crew": 1,
+  "maxCrew": 4,
+  "doubleDamageToStructures": true,
+  "immunities": ["Poison", "Psychic"],
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 3",
+    "section": "Siege Equipment"
+  }
+}

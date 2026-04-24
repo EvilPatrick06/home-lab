@@ -1,0 +1,13 @@
+{
+  "name": "Brooch of Shielding",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": true,
+  "description": "While wearing this brooch, you have Resistance to Force damage, and you have Advantage on saving throws against spells and other magical effects that cause the Charmed condition or the Frightened condition.",
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

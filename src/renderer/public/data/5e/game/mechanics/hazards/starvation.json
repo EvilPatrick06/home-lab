@@ -1,0 +1,336 @@
+{
+  "schemaVersion": "2024.1.0",
+  "system": "DnD2024",
+  "domain": "Cosmology",
+  "cosmology": {
+    "name": "The Great Wheel",
+    "description": "The default D&D cosmology includes more than two dozen planes. The most common understanding visualizes them as concentric wheels, with the material realms at the center.",
+    "alternateConfigurations": [],
+    "planeCategories": [
+      {
+        "name": "Material Realm",
+        "description": "The Material Plane and its planar echoes: the Feywild and the Shadowfell.",
+        "memberPlanes": ["Material Plane"]
+      },
+      {
+        "name": "Transitive Plane",
+        "description": "Boundless realms that provide passage between other planes of existence.",
+        "memberPlanes": ["Astral Plane"]
+      }
+    ]
+  },
+  "planes": [
+    {
+      "id": "material-plane",
+      "name": "Material Plane",
+      "alternateNames": [],
+      "category": "Material Realm",
+      "subcategory": "Material Plane",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": true,
+        "gravityType": "normal",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "hasSurface": true
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "normal",
+        "ratioToMaterialPlane": "1:1",
+        "agingOccurs": true,
+        "hungerThirstApplies": true,
+        "description": "Time flows normally on the Material Plane. Creatures age, require food and water, and suffer starvation and dehydration if those needs are not met."
+      },
+      "hazards": [
+        {
+          "id": "malnutrition",
+          "name": "Malnutrition (Starvation)",
+          "description": "A creature requires a daily amount of food based on its size: Tiny 1/4 pound, Small 1 pound, Medium 1 pound, Large 4 pounds, Huge 16 pounds, Gargantuan 64 pounds. A creature that eats but consumes less than half the required food must succeed on a DC 15 Constitution saving throw at the end of the day or gain 1 Exhaustion level. A creature that eats nothing automatically gains 1 Exhaustion level at the end of the day. Exhaustion gained this way is cumulative; a creature dies if its Exhaustion level reaches 6. Finishing a Long Rest removes 1 Exhaustion level.",
+          "category": "environmental",
+          "severity": "lethal",
+          "savingThrowToTraverse": {
+            "ability": "Constitution",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "per_day",
+            "triggerDescription": "At the end of each day when the creature eats but consumes less than half the required food for its size. A creature that eats nothing automatically fails (no save).",
+            "onFailure": {
+              "description": "The creature gains 1 Exhaustion level. Exhaustion is cumulative. At 6 Exhaustion levels, the creature dies. Each Exhaustion level reduces all D20 Tests by 2 times the Exhaustion level and reduces Speed by 5 times the Exhaustion level in feet.",
+              "conditionApplied": "Exhaustion",
+              "exhaustionLevels": 1,
+              "exhaustionIsRemovable": true,
+              "duration": "Until removed by finishing a Long Rest (removes 1 level per Long Rest)",
+              "cumulative": true,
+              "cumulativeMaxStacks": 6,
+              "cumulativeDescription": "Each failed save or each day without any food adds 1 Exhaustion level. D20 Tests are reduced by 2 times Exhaustion level, Speed is reduced by 5 times Exhaustion level feet. At 6 levels, the creature dies.",
+              "terminalEffect": "Death at Exhaustion level 6",
+              "terminalAtExhaustionLevel": 6,
+              "preventsDeath": false
+            },
+            "onSuccess": {
+              "description": "The creature does not gain an Exhaustion level for that day.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": ["Creature consumed at least half the required food for its size"],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": [
+              "Finishing a Long Rest removes 1 Exhaustion level",
+              "Eating sufficient food prevents further Exhaustion gain but does not remove existing levels"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": 1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.65,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary, Food entry; Chapter 1: Playing the Game, Hazards section (Malnutrition)"
+        },
+        {
+          "id": "dehydration",
+          "name": "Dehydration",
+          "description": "A creature requires a daily amount of water based on its size: Tiny 1/4 gallon, Small 1 gallon, Medium 1 gallon, Large 4 gallons, Huge 16 gallons, Gargantuan 64 gallons. A creature that drinks less than half the required water must succeed on a DC 15 Constitution saving throw or gain 1 Exhaustion level at the end of the day. A creature with access to even less water automatically gains 1 Exhaustion level.",
+          "category": "environmental",
+          "severity": "lethal",
+          "savingThrowToTraverse": {
+            "ability": "Constitution",
+            "dc": 15,
+            "proficiencyApplies": true,
+            "trigger": "per_day",
+            "triggerDescription": "At the end of each day when the creature drinks less than half the required water for its size. A creature with access to even less water automatically gains 1 Exhaustion level.",
+            "onFailure": {
+              "description": "The creature gains 1 Exhaustion level. Exhaustion is cumulative. At 6 Exhaustion levels, the creature dies.",
+              "conditionApplied": "Exhaustion",
+              "exhaustionLevels": 1,
+              "exhaustionIsRemovable": true,
+              "duration": "Until removed by finishing a Long Rest (removes 1 level per Long Rest)",
+              "cumulative": true,
+              "cumulativeMaxStacks": 6,
+              "cumulativeDescription": "Each failed save or each day with minimal water adds 1 Exhaustion level. At 6 levels, the creature dies.",
+              "terminalEffect": "Death at Exhaustion level 6",
+              "terminalAtExhaustionLevel": 6,
+              "preventsDeath": false
+            },
+            "onSuccess": {
+              "description": "The creature does not gain an Exhaustion level for that day.",
+              "endsEffect": false
+            },
+            "autoSuccessCreatureTypes": [],
+            "autoSuccessTraits": [],
+            "autoSuccessConditions": ["Creature consumed at least half the required water for its size"],
+            "repeatSaveAllowed": false,
+            "recoveryMethods": [
+              "Finishing a Long Rest removes 1 Exhaustion level",
+              "Drinking sufficient water prevents further Exhaustion gain but does not remove existing levels"
+            ],
+            "failureProbabilityAtDC": {
+              "dc": 15,
+              "noModifierFailChance": 0.7,
+              "commonModifierRange": {
+                "low": 1,
+                "high": 5
+              },
+              "failChanceAtLowMod": 0.65,
+              "failChanceAtHighMod": 0.45
+            }
+          },
+          "immuneCreatureTypes": [],
+          "immuneDamageTypes": [],
+          "immuneTraits": [],
+          "areaOfEffect": {
+            "shape": "plane_wide",
+            "isPlaneWide": true
+          },
+          "narrativeWeight": "both",
+          "sourceReference": "Appendix C: Rules Glossary, Dehydration entry; Chapter 1: Playing the Game, Hazards section (Dehydration)"
+        }
+      ],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {},
+      "specialRules": [
+        {
+          "id": "food-needs-by-size",
+          "name": "Daily Food Requirements by Creature Size",
+          "description": "All creatures require food each day based on their size. The required amounts are: Tiny 1/4 pound, Small 1 pound, Medium 1 pound, Large 4 pounds, Huge 16 pounds, Gargantuan 64 pounds.",
+          "mechanicalEffect": "A creature that eats but consumes less than half the required food must succeed on a DC 15 Constitution saving throw at the end of the day or gain 1 Exhaustion level. A creature that eats nothing automatically gains 1 Exhaustion level at the end of the day.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "water-needs-by-size",
+          "name": "Daily Water Requirements by Creature Size",
+          "description": "All creatures require water each day based on their size. The required amounts are: Tiny 1/4 gallon, Small 1 gallon, Medium 1 gallon, Large 4 gallons, Huge 16 gallons, Gargantuan 64 gallons.",
+          "mechanicalEffect": "A creature that drinks less than half the required water must succeed on a DC 15 Constitution saving throw or gain 1 Exhaustion level at the end of the day. A creature with access to even less water automatically gains 1 Exhaustion level.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "exhaustion-from-starvation",
+          "name": "Exhaustion Condition (as applied by Starvation/Dehydration)",
+          "description": "Exhaustion is cumulative. Each time a creature receives the Exhaustion condition, it gains 1 Exhaustion level. The creature dies if its Exhaustion level reaches 6. D20 Tests are reduced by 2 times the creature's Exhaustion level. Speed is reduced by a number of feet equal to 5 times the creature's Exhaustion level. Finishing a Long Rest removes 1 Exhaustion level. When the Exhaustion level reaches 0, the condition ends.",
+          "mechanicalEffect": "At Exhaustion level 1: -2 to all D20 Tests, -5 ft Speed. At level 2: -4 to D20 Tests, -10 ft Speed. At level 3: -6 to D20 Tests, -15 ft Speed. At level 4: -8 to D20 Tests, -20 ft Speed. At level 5: -10 to D20 Tests, -25 ft Speed. At level 6: death.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [],
+      "adventureThemes": [],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": [
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Chapter 1: Playing the Game lists Malnutrition and Dehydration as hazards."
+        },
+        {
+          "book": "Player's Handbook 2024",
+          "description": "Appendix C: Rules Glossary defines Food, Dehydration, and the Exhaustion condition with full mechanical details."
+        }
+      ]
+    },
+    {
+      "id": "astral-plane",
+      "name": "Astral Plane",
+      "alternateNames": ["Astral Sea"],
+      "category": "Transitive Plane",
+      "subcategory": "Astral",
+      "alignments": [],
+      "physicalProperties": {
+        "hasGravity": false,
+        "gravityType": "thought_based",
+        "isBounded": false,
+        "isInfinite": true,
+        "morphic": "static",
+        "breathableAtmosphere": true,
+        "atmosphereNotes": "Creatures on the Astral Plane don't age or suffer from hunger or thirst.",
+        "hasSurface": false
+      },
+      "layers": [],
+      "hasDistinctLayers": false,
+      "layerCount": "none",
+      "timeFlow": {
+        "type": "stopped",
+        "ratioToMaterialPlane": "variable",
+        "agingOccurs": false,
+        "hungerThirstApplies": false,
+        "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst. For this reason, creatures that live on the Astral Plane (such as githyanki) establish outposts on other planes, often the Material Plane, so their children can grow to maturity."
+      },
+      "hazards": [],
+      "environmentalEffects": [],
+      "portals": [],
+      "portalFrequency": "common",
+      "planarConnections": [],
+      "inhabitants": {
+        "primaryCreatureTypes": ["Celestial", "Fiend", "Aberration", "Humanoid"],
+        "notableEntities": [],
+        "civilizations": []
+      },
+      "specialRules": [
+        {
+          "id": "astral-no-hunger",
+          "name": "No Hunger or Thirst on the Astral Plane",
+          "description": "Creatures on the Astral Plane don't age or suffer from hunger or thirst. Starvation and dehydration rules do not apply while on this plane.",
+          "mechanicalEffect": "Creatures are immune to the effects of Malnutrition (Starvation) and Dehydration while on the Astral Plane. They do not require food or water.",
+          "affectsSpellcasting": false
+        },
+        {
+          "id": "astral-movement",
+          "name": "Astral Movement",
+          "description": "A traveler in the Astral Plane can move by simply thinking about moving. In combat, a creature has a Fly Speed (in feet) equal to 5 times its Intelligence score and can hover.",
+          "mechanicalEffect": "Fly Speed = 5 × Intelligence score. The creature can hover.",
+          "affectsSpellcasting": false
+        }
+      ],
+      "domainsOrRegions": [],
+      "adventureThemes": [],
+      "adventureSituations": [],
+      "sourceBook": "Dungeon Master's Guide 2024",
+      "chapter": "Chapter 6: Cosmology",
+      "crossReferences": []
+    }
+  ],
+  "globalPlanarConnections": [],
+  "planarTravelMethods": [],
+  "infernalHierarchy": [],
+  "astralColorPools": [],
+  "etherealCurtains": [],
+  "planarAdventureSituations": [],
+  "mathematicalConstants": {
+    "standardDCScale": {
+      "veryEasy": 5,
+      "easy": 10,
+      "medium": 15,
+      "hard": 20,
+      "veryHard": 25,
+      "nearlyImpossible": 30
+    },
+    "astralMovementFormula": {
+      "description": "Fly Speed (ft) = 5 × Intelligence score",
+      "coefficient": 5,
+      "abilityScore": "Intelligence",
+      "canHover": true
+    },
+    "limboObjectManipulationDCs": {
+      "move": {
+        "Tiny": 5,
+        "Small": 10,
+        "Medium": 15,
+        "Large": 20,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "alter": {
+        "Tiny": 10,
+        "Small": 15,
+        "Medium": 20,
+        "Large": 25,
+        "Huge": 25,
+        "Gargantuan": 25
+      },
+      "stabilize": {
+        "dc": 20,
+        "radiusFeet": 30,
+        "durationHours": 24
+      },
+      "moveBonusFormula": "5 + (check total - DC) feet"
+    },
+    "exhaustionThreshold": {
+      "maxLevels": 6,
+      "deathAtMax": true,
+      "transformationAtMax": false
+    },
+    "savingThrowProbabilities": {
+      "dcTenFailRateNoMod": 0.45,
+      "dcFifteenFailRateNoMod": 0.7,
+      "dcTwentyFailRateNoMod": 0.95,
+      "formula": "P(fail | modifier m) = max(0.05, min(0.95, (DC - 1 - m) / 20))"
+    },
+    "averageDamageFormula": "avg = count × (die + 1) / 2 + modifier"
+  },
+  "metadata": {
+    "sourceBook": "Dungeon Master's Guide 2024",
+    "chapter": "Chapter 6: Cosmology",
+    "totalPlanesDescribed": 2,
+    "lastUpdated": "2025-01-15T00:00:00Z"
+  }
+}

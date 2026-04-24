@@ -1,0 +1,66 @@
+{
+  "name": "Gnoll Pack Lord",
+  "slug": "gnoll-pack-lord",
+  "size": "Medium",
+  "type": "Fiend",
+  "alignment": "Chaotic Evil",
+  "ac": "15",
+  "initiative": "+4 (14)",
+  "hp": "49",
+  "hpFormula": "9d8 + 9",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 14,
+    "con": 13,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 3,
+    "dex": 2,
+    "con": 1,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "senses": "Darkvision 60 ft.; Passive Perception 10",
+  "languages": "Gnoll",
+  "cr": "2 (XP 450; PB +2)",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The gnoll makes two attacks, using Bone Whip or Bone Javelin in any combination, and it uses Incite Rampage if available."
+    },
+    {
+      "name": "Bone Whip",
+      "description": "*Melee Attack Roll:* +5, reach 10 ft. *Hit:* 8 (2d4 + 3) Slashing damage."
+    },
+    {
+      "name": "Bone Javelin",
+      "description": "*Ranged Attack Roll:* +5, range 30/120 ft. *Hit:* 7 (1d8 + 3) Piercing damage."
+    },
+    {
+      "name": "Incite Rampage (Recharge 5--6)",
+      "description": "The gnoll targets another creature it can see within 60 feet of itself that has the Rampage Bonus Action. The target can take a Reaction to make one melee attack."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Rampage (2/Day)",
+      "description": "Immediately after dealing damage to a creature that is already Bloodied, the gnoll moves up to half its Speed, and it makes one Bone Whip attack."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Fiends in Feral Flesh*\n**Habitat:** Desert, Forest, Grassland, Hill; **Treasure:** Armaments, Individual\nThe first gnolls arose from hyenas that fed on flesh tainted by the Abyss. Their corruption and violence delighted the demon lord Yeenoghu, who encouraged their numbers and spread them across the multiverse. Ever since, gnolls have been the cackling servants of Yeenoghu, existing to cause ruin and to feast on what remains.\n> \"Yeenoghu claims gnolls not as his brood but as maggots purposefully released to infest a despised carcass. They are a pernicious rot the Beast of Butchery spreads across mortal worlds. Whatever they once were, they were remade and are now his.\" -- Iggwilv, *Demonomicon of Iggwilv*\nGnoll warriors crave endless slaughter but quickly grow bored with the prey they kill and the treasures they plunder. Nevertheless, they're enraged by the thought of anyone else having what's theirs, compelling them to despoil what they can't take with them.\nRising above other gnolls with their viciousness and physical prowess, gnoll pack lords terrorize weaker gnolls into their service. These brutes drive other gnolls to acts of great violence, then claim the best of their servants' spoils.\nGnolls possessed by demonic vestiges of the demon lord Yeenoghu, fangs of Yeenoghu direct the chaos of gnoll packs. Along the way, these fanatics seek grisly omens from Yeenoghu and strive to interpret the demon lord's vicious goals.\nGnoll demoniacs are berserkers that arise from gnolls who've ritualistically fed on flesh corrupted by the Abyss. Now embodying the ruinous hunger of Yeenoghu, these gnolls throw themselves into battle, heedless of odds or their own survival. Rampaging demoniacs even devour other gnolls in their wild frenzies.",
+  "habitat": "Desert, Forest, Grassland, Hill",
+  "treasure": "Armaments, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

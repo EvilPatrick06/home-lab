@@ -1,0 +1,17 @@
+{
+  "name": "Scale Mail",
+  "slug": "scale-mail",
+  "category": "Medium",
+  "ac": "14 + Dex modifier (max 2)",
+  "strength": null,
+  "stealthDisadvantage": true,
+  "weight": "45 lb.",
+  "cost": "50 GP",
+  "donTime": "5 Minutes",
+  "doffTime": "1 Minute",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Armor"
+  }
+}

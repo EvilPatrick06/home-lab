@@ -1,0 +1,53 @@
+{
+  "name": "Calm Emotions",
+  "level": 2,
+  "school": "Enchantment",
+  "classes": ["Bard", "Cleric"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 60,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "Each Humanoid in a 20-foot-radius Sphere centered on a point you choose within range must succeed on a Charisma saving throw or be affected by one of the following effects (choose for each creature): The creature has Immunity to the Charmed and Frightened conditions until the spell ends. If the creature was already Charmed or Frightened, those conditions are suppressed for the duration. Or the creature becomes Indifferent about creatures of your choice that it's Hostile toward. This indifference ends if the target takes damage or witnesses its allies taking damage. When the spell ends, the creature's attitude returns to normal.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 20
+    }
+  ],
+  "targetType": "creature",
+  "targetCreatureTypes": ["Humanoid"],
+  "savingThrow": {
+    "ability": "Charisma",
+    "noEffectOnSuccess": true
+  },
+  "spellOptions": [
+    {
+      "name": "Suppress Emotions",
+      "description": "The creature has Immunity to the Charmed and Frightened conditions until the spell ends. If the creature was already Charmed or Frightened, those conditions are suppressed for the duration."
+    },
+    {
+      "name": "Indifference",
+      "description": "The creature becomes Indifferent about creatures of your choice that it's Hostile toward. This indifference ends if the target takes damage or witnesses its allies taking damage. When the spell ends, the creature's attitude returns to normal."
+    }
+  ],
+  "immunitiesGranted": {
+    "conditions": ["Charmed", "Frightened"]
+  },
+  "tags": ["control", "social"]
+}

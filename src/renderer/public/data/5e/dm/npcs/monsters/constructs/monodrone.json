@@ -1,0 +1,159 @@
+{
+  "name": "Monodrone",
+  "sizes": ["Small"],
+  "creatureType": "Construct",
+  "descriptiveTags": ["Modron"],
+  "alignment": "Lawful Neutral",
+  "habitat": ["Planar (Mechanus)"],
+  "treasure": ["None"],
+  "lore": "Monodrones are the lowest-ranking modrons—identical, single-eyed beings of absolute law from the clockwork plane of Mechanus. Each monodrone can only comprehend a single task at a time, carrying out orders from duodrones or higher-ranking modrons without question. If its commander is destroyed, a monodrone becomes confused and reverts to its last directive until a new commander gives it instructions.",
+  "armorClass": {
+    "value": 15,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 13,
+    "dice": {
+      "count": 3,
+      "die": "d6",
+      "modifier": 3
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Fly",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 1,
+    "score": 11
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "DEX": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 4,
+      "modifier": -3,
+      "save": -3
+    },
+    "WIS": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 5,
+      "modifier": -3,
+      "save": -3
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Truesight",
+        "range": 120
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Modron"]
+  },
+  "challengeRating": "1/8",
+  "experiencePoints": 25,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Axiomatic Mind",
+      "description": "The modron can't be compelled to act in a manner contrary to its nature or its instructions."
+    },
+    {
+      "name": "Disintegration",
+      "description": "If the modron dies, its body disintegrates into dust, leaving behind anything it was carrying."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Dagger",
+      "description": "Melee or Ranged Attack Roll: +3, reach 5 ft. or range 20/60 ft. Hit: 3 (1d4 + 1) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 3,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d4",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Javelin",
+      "description": "Melee or Ranged Attack Roll: +2, reach 5 ft. or range 30/120 ft. Hit: 3 (1d6) Piercing damage.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 2,
+        "reach": 5,
+        "range": {
+          "normal": 30,
+          "long": 120
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 3,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 0
+              },
+              "type": "Piercing"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "gear": [
+    {
+      "name": "Dagger",
+      "quantity": 1
+    },
+    {
+      "name": "Javelin",
+      "quantity": 1
+    }
+  ]
+}

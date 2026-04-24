@@ -1,0 +1,41 @@
+{
+  "name": "Ring of Resistance",
+  "itemType": "Ring",
+  "rarity": "Rare",
+  "requiresAttunement": true,
+  "description": "You have Resistance to one damage type while wearing this ring. The gemstone in the ring indicates the type, which the DM chooses or determines randomly by rolling on the following table.",
+  "properties": {
+    "damageResistance": {
+      "damageType": {
+        "1": "Acid",
+        "2": "Cold",
+        "3": "Fire",
+        "4": "Force",
+        "5": "Lightning",
+        "6": "Necrotic",
+        "7": "Poison",
+        "8": "Psychic",
+        "9": "Radiant",
+        "10": "Thunder"
+      },
+      "gem": {
+        "Acid": "Pearl",
+        "Cold": "Tourmaline",
+        "Fire": "Garnet",
+        "Force": "Sapphire",
+        "Lightning": "Citrine",
+        "Necrotic": "Jet",
+        "Poison": "Amethyst",
+        "Psychic": "Jade",
+        "Radiant": "Topaz",
+        "Thunder": "Spinel"
+      }
+    }
+  },
+  "weight": 0,
+  "cost": {
+    "amount": 4000,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

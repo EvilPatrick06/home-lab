@@ -1,0 +1,194 @@
+{
+  "name": "Kuo-toa",
+  "sizes": ["Medium"],
+  "creatureType": "Humanoid",
+  "alignment": "Neutral Evil",
+  "habitat": ["Underdark"],
+  "treasure": ["Individual"],
+  "lore": "Kuo-toa are aquatic humanoids that dwell in the lightless depths of the Underdark. Driven mad by eons of exile beneath the surface, these fish-like beings worship strange gods of their own fevered imagining. Their collective fervor can sometimes coalesce into real divine power, manifesting the very deities they dream into existence. Kuo-toa organize into theocratic communities led by priestly figures, raiding the waterways of the Underdark and capturing surface dwellers to offer as sacrifices.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor", "Shield"]
+  },
+  "hitPoints": {
+    "average": 18,
+    "dice": {
+      "count": 4,
+      "die": "d8",
+      "modifier": 0
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    },
+    {
+      "type": "Swim",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 13,
+      "modifier": 1,
+      "save": 1
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "INT": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "WIS": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "CHA": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "skills": [
+    {
+      "skill": "Perception",
+      "bonus": 6
+    }
+  ],
+  "gear": [
+    {
+      "name": "Net",
+      "quantity": 1
+    },
+    {
+      "name": "Shield",
+      "quantity": 1
+    },
+    {
+      "name": "Spear",
+      "quantity": 1
+    }
+  ],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 16
+  },
+  "languages": {
+    "spoken": ["Undercommon"]
+  },
+  "challengeRating": "1/4",
+  "experiencePoints": 50,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Amphibious",
+      "description": "The kuo-toa can breathe air and water."
+    },
+    {
+      "name": "Otherworldly Perception",
+      "description": "The kuo-toa can sense the presence of any creature within 30 feet of it that has the Invisible condition. It can also sense whether a creature is using a disguise or illusion to alter its appearance."
+    },
+    {
+      "name": "Slippery",
+      "description": "The kuo-toa has Advantage on ability checks and saving throws made to escape a Grapple."
+    },
+    {
+      "name": "Sunlight Sensitivity",
+      "description": "While in sunlight, the kuo-toa has Disadvantage on attack rolls and on Wisdom (Perception) checks that rely on sight."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Spear",
+      "description": "Melee or Ranged Attack Roll: +3, reach 5 ft. or range 20/60 ft. Hit: 4 (1d6 + 1) Piercing damage, or 5 (1d8 + 1) Piercing damage if used with two hands in melee.",
+      "attack": {
+        "type": "MeleeOrRanged",
+        "attackBonus": 3,
+        "reach": 5,
+        "range": {
+          "normal": 20,
+          "long": 60
+        },
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 4,
+              "dice": {
+                "count": 1,
+                "die": "d6",
+                "modifier": 1
+              },
+              "type": "Piercing"
+            }
+          ],
+          "additionalEffects": "Or 5 (1d8 + 1) Piercing damage if used with two hands in melee."
+        }
+      }
+    },
+    {
+      "name": "Net",
+      "description": "Ranged Attack Roll: +2, range 5/15 ft., one Large or smaller creature. Hit: The target has the Restrained condition. A creature can take an action to make a DC 10 Strength (Athletics) check, freeing the Restrained creature on a success. The net has AC 10, 5 HP, and Immunity to Bludgeoning, Poison, and Psychic damage.",
+      "attack": {
+        "type": "Ranged",
+        "attackBonus": 2,
+        "range": {
+          "normal": 5,
+          "long": 15
+        },
+        "targets": "one Large or smaller creature",
+        "hit": {
+          "damage": [],
+          "additionalEffects": "A creature can take an action to make a DC 10 Strength (Athletics) check, freeing the Restrained creature on a success. The net has AC 10, 5 HP, and Immunity to Bludgeoning, Poison, and Psychic damage.",
+          "conditions": [
+            {
+              "condition": "Restrained",
+              "escapeDC": 10
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Restrained",
+          "escapeDC": 10
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Sticky Shield",
+      "description": "When a creature the kuo-toa can see misses it with a melee attack roll, the kuo-toa tries to catch the weapon used in the attack. The attacker must succeed on a DC 11 Strength saving throw, or the weapon becomes stuck to the kuo-toa's shield. While stuck, the weapon can't be used. A creature can take an action to make a DC 11 Strength (Athletics) check, freeing the weapon on a success.",
+      "trigger": "A creature the kuo-toa can see misses it with a melee attack roll.",
+      "savingThrow": {
+        "ability": "STR",
+        "dc": 11,
+        "targets": "the attacker",
+        "onFailure": {
+          "effects": "The weapon becomes stuck to the kuo-toa's shield. While stuck, the weapon can't be used. A creature can take an action to make a DC 11 Strength (Athletics) check, freeing the weapon on a success."
+        }
+      }
+    }
+  ]
+}

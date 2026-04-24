@@ -1,0 +1,15 @@
+{
+  "name": "Menagerie",
+  "slug": "menagerie",
+  "type": "",
+  "level": "",
+  "space": "Vast",
+  "hirelings": "2",
+  "order": "Recruit",
+  "description": "*Level 13 Bastion Facility*\n\n**Prerequisite:** None\n**Space:** Vast\n**Hirelings:** 2\n**Order:** Recruit\n\nA Menagerie has enclosures big enough to contain up to four Large creatures. Four Small or Medium creatures can occupy the same space as one Large creature there.\n\n***Recruit: Creature.*** When you issue the Recruit order to this facility, you commission the facility's hirelings to add a creature from the Menagerie Creatures table to your Menagerie. The recruitment takes 7 days and costs the amount listed in the table. The hirelings look after the creature.\n\nCreatures in your Menagerie count as Bastion Defenders. Deduct any you lose from your Bastion Defenders roster. You can choose not to count one or more of these creatures as Bastion Defenders, in which case they can't be called on to defend the Bastion. Instead, they act in accordance with their nature and use their stat blocks in the *Monster Manual*.\n\n#### Menagerie Creatures\n\n| Creature | Size | Cost |\n|---|---|---|\n| Ape | Medium | 500 GP |\n| Black Bear | Medium | 500 GP |\n| Brown Bear | Large | 1,000 GP |\n| Constrictor Snake | Large | 250 GP |\n| Crocodile | Large | 500 GP |\n| Dire Wolf | Large | 1,000 GP |\n| Giant Vulture | Large | 1,000 GP |\n| Hyena | Medium | 50 GP |\n| Jackal | Small | 50 GP |\n| Lion | Large | 1,000 GP |\n| Owlbear | Large | 3,500 GP |\n| Panther | Medium | 250 GP |\n| Tiger | Large | 1,000 GP |\n\nWith the DM's consent, you can add different creatures than those shown in the Menagerie Creatures table to your Menagerie. The cost of a creature depends on its Challenge Rating, as shown on the Creature Costs by Challenge Rating table. Typically only Beasts and some Monstrosities can be kept in a Menagerie, though the DM might allow other creatures.\n\n#### Creature Costs by Challenge Rating\n\n| Challenge Rating | Cost | Challenge Rating | Cost |\n|---|---|---|---|\n| 0 or 1/8 | 50 GP | 1 | 1,000 GP |\n| 1/4 | 250 GP | 2 | 2,000 GP |\n| 1/2 | 500 GP | 3 | 3,500 GP |\n\n---",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Component Pouch",
+  "cost": "25 GP",
+  "weight": "2 lb.",
+  "description": "Watertight; holds all free Material components of your spells.",
+  "slug": "component-pouch",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

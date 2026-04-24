@@ -1,0 +1,13 @@
+{
+  "name": "Saddle of the Cavalier",
+  "itemType": "Wondrous Item",
+  "rarity": "Uncommon",
+  "requiresAttunement": false,
+  "description": "This saddle confers the following benefits while you are seated in it and astride a mount.\n\n**Protected Mount.** Attack rolls against the mount have Disadvantage.\n\n**Secure Rider.** You can't be dismounted against your will. This property is suppressed while you have the Incapacitated condition.",
+  "weight": null,
+  "cost": {
+    "amount": 400,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

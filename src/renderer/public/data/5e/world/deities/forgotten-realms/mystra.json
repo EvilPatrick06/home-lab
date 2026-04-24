@@ -1,0 +1,27 @@
+{
+  "id": "mystra",
+  "name": "Mystra",
+  "title": "Goddess of Magic",
+  "alignment": "Neutral Good",
+  "domains": ["Arcana", "Knowledge"],
+  "symbol": "Circle of seven stars, or nine stars encircling a flowing red mist, or a single star",
+  "description": "Mystra is the goddess of the Weave, the source of all arcane magic in the Realms. She maintains the balance of magical energy, preventing its abuse while ensuring it remains accessible to mortals. Mystra has died and been reborn multiple times throughout history, each time selecting a mortal woman to carry her divine spark. Her followers include wizards, sorcerers, and anyone who respects the proper use of magic.",
+  "piety": {
+    "thresholds": [
+      {
+        "score": 3,
+        "benefit": "You can cast Detect Magic once without a spell slot. You regain this ability after a long rest."
+      },
+      { "score": 10, "benefit": "You have advantage on Arcana checks to identify spells and magical effects." },
+      { "score": 25, "benefit": "You gain resistance to damage from spells." },
+      {
+        "score": 50,
+        "benefit": "Once per long rest, when you cast a spell, you can choose to not expend the spell slot."
+      }
+    ]
+  },
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Deities of the Multiverse"
+  }
+}

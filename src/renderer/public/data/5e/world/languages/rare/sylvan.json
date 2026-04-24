@@ -1,0 +1,13 @@
+{
+  "name": "Sylvan",
+  "script": "Elvish",
+  "origin": "The Feywild",
+  "speakers": "Fey creatures",
+  "slug": "sylvan",
+  "category": "Rare",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Burglar's Pack",
+  "cost": "16 GP",
+  "weight": "42 lb.",
+  "contents": "Backpack, Ball Bearings, Bell, 10 Candles, Crowbar, Hooded Lantern, 7 flasks of Oil, 5 days of Rations, Rope, Tinderbox, Waterskin",
+  "slug": "burglars-pack",
+  "category": "Equipment Bundle",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

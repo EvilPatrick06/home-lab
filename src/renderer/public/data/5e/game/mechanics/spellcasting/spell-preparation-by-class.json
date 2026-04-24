@@ -1,0 +1,44 @@
+{
+  "spellPreparationByClass": [
+    {
+      "class": "Bard",
+      "changeWhen": "Gain a level",
+      "numberOfSpells": "One"
+    },
+    {
+      "class": "Cleric",
+      "changeWhen": "Finish a Long Rest",
+      "numberOfSpells": "Any"
+    },
+    {
+      "class": "Druid",
+      "changeWhen": "Finish a Long Rest",
+      "numberOfSpells": "Any"
+    },
+    {
+      "class": "Paladin",
+      "changeWhen": "Finish a Long Rest",
+      "numberOfSpells": "One"
+    },
+    {
+      "class": "Ranger",
+      "changeWhen": "Finish a Long Rest",
+      "numberOfSpells": "One"
+    },
+    {
+      "class": "Sorcerer",
+      "changeWhen": "Gain a level",
+      "numberOfSpells": "One"
+    },
+    {
+      "class": "Warlock",
+      "changeWhen": "Gain a level",
+      "numberOfSpells": "One"
+    },
+    {
+      "class": "Wizard",
+      "changeWhen": "Finish a Long Rest",
+      "numberOfSpells": "Any"
+    }
+  ]
+}

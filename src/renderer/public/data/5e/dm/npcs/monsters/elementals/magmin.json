@@ -1,0 +1,115 @@
+{
+  "name": "Magmin",
+  "sizes": ["Small"],
+  "creatureType": "Elemental",
+  "alignment": "Chaotic Neutral",
+  "habitat": ["Planar"],
+  "treasure": ["None"],
+  "lore": "Magmin are small, bipedal beings ofite and magma that hail from the Elemental Plane of Fire. They delight in setting things ablaze, cackling with glee as flames spread around them. Magmin are often found serving more powerful fire-aligned creatures such as efreet or fire giants, though wild magmin roam volcanic regions and portals to the Plane of Fire.",
+  "armorClass": {
+    "value": 14,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 9,
+    "dice": {
+      "count": 2,
+      "die": "d6",
+      "modifier": 2
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 2,
+    "score": 12
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 7,
+      "modifier": -2,
+      "save": -2
+    },
+    "DEX": {
+      "score": 15,
+      "modifier": 2,
+      "save": 2
+    },
+    "CON": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    },
+    "INT": {
+      "score": 8,
+      "modifier": -1,
+      "save": -1
+    },
+    "WIS": {
+      "score": 11,
+      "modifier": 0,
+      "save": 0
+    },
+    "CHA": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    }
+  },
+  "damageImmunities": ["Fire"],
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 60
+      }
+    ],
+    "passivePerception": 10
+  },
+  "languages": {
+    "spoken": ["Ignan"]
+  },
+  "challengeRating": "1/2",
+  "experiencePoints": 100,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Death Burst",
+      "description": "When the magmin dies, it explodes in a burst of fire and magma. Each creature within 10 feet of it must make a DC 11 Dexterity saving throw, taking 7 (2d6) Fire damage on a failed save or half as much damage on a successful one. Flammable objects that aren't being worn or carried in that area start burning."
+    },
+    {
+      "name": "Ignited Illumination",
+      "description": "The magmin sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Touch",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 7 (2d4 + 2) Fire damage. If the target is a creature or a flammable object, it starts burning.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 7,
+              "dice": {
+                "count": 2,
+                "die": "d4",
+                "modifier": 2
+              },
+              "type": "Fire"
+            }
+          ],
+          "additionalEffects": "If the target is a creature or a flammable object, it starts burning."
+        }
+      }
+    }
+  ]
+}

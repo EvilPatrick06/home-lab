@@ -1,0 +1,13 @@
+{
+  "name": "Malachite",
+  "slug": "malachite",
+  "value": "10 GP",
+  "category": "Gemstone",
+  "description": "striated light and dark green",
+  "dieValue": "7",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

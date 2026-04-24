@@ -1,0 +1,13 @@
+{
+  "name": "Celestial",
+  "script": "Celestial",
+  "origin": "Celestials",
+  "speakers": "Celestials",
+  "slug": "celestial",
+  "category": "Rare",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 2",
+    "section": "Languages"
+  }
+}

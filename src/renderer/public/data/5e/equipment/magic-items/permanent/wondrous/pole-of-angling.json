@@ -1,0 +1,13 @@
+{
+  "name": "Pole of Angling",
+  "itemType": "Wondrous Item",
+  "rarity": "Common",
+  "requiresAttunement": false,
+  "description": "This item functions as a Pole. While holding it, you can take a Magic action to cause it to transform into a fishing pole with a hook, a line, and a reel, or have the fishing pole revert to a Pole.",
+  "weight": 0,
+  "cost": {
+    "amount": 0,
+    "denomination": "GP"
+  },
+  "source": "DMG 2024"
+}

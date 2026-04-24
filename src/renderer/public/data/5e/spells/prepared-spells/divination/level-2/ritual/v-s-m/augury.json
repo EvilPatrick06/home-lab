@@ -1,0 +1,33 @@
+{
+  "name": "Augury",
+  "level": 2,
+  "school": "Divination",
+  "classes": ["Cleric", "Druid", "Wizard"],
+  "ritual": true,
+  "castingTime": {
+    "type": "Time",
+    "timeAmount": 1,
+    "timeUnit": "minutes",
+    "ritual": true
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true,
+    "material": {
+      "description": "specially marked sticks, bones, cards, or other divinatory tokens worth 25+ GP",
+      "cost": 25,
+      "currency": "GP",
+      "consumed": false
+    }
+  },
+  "duration": {
+    "type": "Instantaneous",
+    "concentration": false
+  },
+  "description": "You receive an omen from an otherworldly entity about the results of a course of action that you plan to take within the next 30 minutes. The DM chooses the omen from the Omens table: Weal (good), Woe (bad), Weal and woe (good and bad), or Indifference (neither good nor bad). The spell doesn't account for circumstances, such as other spells, that might change the results. If you cast the spell more than once before finishing a Long Rest, there is a cumulative 25 percent chance for each casting after the first that you get no answer.",
+  "targetType": "self",
+  "tags": ["divination", "utility", "information"]
+}

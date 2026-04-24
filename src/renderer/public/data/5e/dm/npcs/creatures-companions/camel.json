@@ -1,0 +1,34 @@
+{
+  "name": "Camel",
+  "slug": "camel",
+  "size": "Large",
+  "type": "Beast",
+  "alignment": "Unaligned",
+  "ac": 9,
+  "hp": 15,
+  "hpFormula": "2d10 + 4",
+  "speed": "50 ft.",
+  "abilityScores": {
+    "str": 16,
+    "dex": 8,
+    "con": 14,
+    "int": 2,
+    "wis": 8,
+    "cha": 5
+  },
+  "senses": "Passive Perception 9",
+  "languages": "—",
+  "cr": "1/8",
+  "xp": "25 XP",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bite",
+      "description": "*Melee:* +5, reach 5 ft. *Hit:* 2 (1d4) Bludgeoning."
+    }
+  ],
+  "source": {
+    "book": "2024 Players Handbook",
+    "section": "Appendix B: Creature Stat Blocks"
+  }
+}

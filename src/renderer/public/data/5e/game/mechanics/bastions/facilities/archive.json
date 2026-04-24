@@ -1,0 +1,15 @@
+{
+  "name": "Archive",
+  "slug": "archive",
+  "type": "",
+  "level": "",
+  "space": "Roomy",
+  "hirelings": "1",
+  "order": "Research",
+  "description": "*Level 13 Bastion Facility*\n\n**Prerequisite:** None\n**Space:** Roomy\n**Hirelings:** 1\n**Order:** Research\n\nAn Archive is a repository of books, maps, and scrolls. It is usually attached to a Library behind a locked or secret door.\n\n**Research: Helpful Lore.** When you issue the Research order to this facility, you commission the facility's hireling to search the Archive for lore. The work takes 7 days. The hireling gains knowledge as if they had cast the *Legend Lore* spell, then shares this knowledge with you the next time you speak with them.\n\n**Reference Book.** Your Archive contains one copy of a reference book, which gives you a benefit while you and the book are in your Bastion. You can choose one of the following options (your DM might make more options available):\n\n- **Bigby's Handy Arcana Codex.** You have Advantage on any Intelligence (Arcana) check you make when you take the Study action to recall lore about spells, magic items, eldritch symbols, magical traditions, and planes of existence.\n- **The Chronepsis Chronicles.** You have Advantage on any Intelligence (History) check you make when you take the Study action to recall lore about historical events, legendary people, ancient kingdoms, past disputes, wars, and lost civilizations.\n- **Investigations of the Inquisitive.** You have Advantage on any Intelligence (Investigation) check you make when you take the Study action to make deductions based on clues or evidence or to recall lore about traps, ciphers, riddles, and gadgetry.\n- **Material Musings on the Nature of the World.** You have Advantage on any Intelligence (Nature) check you make when you take the Study action to recall lore about terrain, plants, animals, and the weather.\n- **The Old Faith and Other Religions.** You have Advantage on any Intelligence (Religion) check you make when you take the Study action to recall lore about deities, rites and prayers, hierarchies, holy symbols, and the practices of secret cults.\n\n**Enlarging the Facility.** You can enlarge your Archive to a Vast facility by spending 2,000 GP. If you do so, you gain two additional reference books chosen from the list above.\n\n---",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 8",
+    "section": "Bastions"
+  }
+}

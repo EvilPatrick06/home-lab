@@ -1,0 +1,74 @@
+{
+  "name": "Weird",
+  "level": 9,
+  "school": "Illusion",
+  "classes": ["Warlock", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Ranged",
+    "distance": 120,
+    "unit": "feet"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": true
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 1,
+    "unit": "minutes"
+  },
+  "description": "You try to create illusory terrors in others' minds. Each creature of your choice in a 30-foot-radius Sphere centered on a point within range makes a Wisdom saving throw. On a failed save, a target takes 10d10 Psychic damage and has the Frightened condition for the duration. On a successful save, a target takes half as much damage only. A Frightened target makes a Wisdom saving throw at the end of each of its turns. On a failed save, it takes 5d10 Psychic damage. On a successful save, the spell ends on that target.",
+  "areaOfEffect": [
+    {
+      "shape": "Sphere",
+      "radiusFeet": 30
+    }
+  ],
+  "targetType": "point",
+  "savingThrow": {
+    "ability": "Wisdom",
+    "halfDamageOnSuccess": true,
+    "repeatSave": {
+      "timing": "endOfTurn",
+      "endsEffectOnSuccess": true
+    }
+  },
+  "damage": [
+    {
+      "dice": {
+        "diceCount": 10,
+        "diceValue": 10
+      },
+      "type": "Psychic",
+      "halfOnSave": true,
+      "applicationType": "onFailedSave"
+    },
+    {
+      "dice": {
+        "diceCount": 5,
+        "diceValue": 10
+      },
+      "type": "Psychic",
+      "applicationType": "recurring",
+      "condition": "Failed Wisdom save at end of turn while Frightened"
+    }
+  ],
+  "conditionsApplied": [
+    {
+      "condition": "Frightened",
+      "trigger": "onFailedSave",
+      "duration": "for the spell's duration",
+      "savingThrowToEnd": {
+        "ability": "Wisdom",
+        "timing": "endOfTurn"
+      }
+    }
+  ],
+  "tags": ["damage", "control", "fear", "area"]
+}

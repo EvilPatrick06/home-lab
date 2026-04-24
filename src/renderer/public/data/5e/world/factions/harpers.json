@@ -1,0 +1,45 @@
+{
+  "id": "harpers",
+  "name": "Harpers",
+  "symbol": "A silver harp between the horns of a crescent moon",
+  "beliefs": "The Harpers believe that too much power leads to corruption, and that a balance of power must be maintained between all civilized races. They gather information, oppose tyranny, and promote fairness and equality through stealth and subtlety rather than open warfare.",
+  "goals": [
+    "Gather information throughout the realms",
+    "Promote fairness and equality by covert means",
+    "Thwart tyrants and leaders who grow too powerful",
+    "Aid the weak, the poor, and the oppressed"
+  ],
+  "ranks": [
+    { "rank": 1, "title": "Watcher", "renownRequired": 1, "description": "New inductee, trusted with basic missions." },
+    {
+      "rank": 2,
+      "title": "Harpshadow",
+      "renownRequired": 3,
+      "description": "Proven agent with access to the Harper network."
+    },
+    {
+      "rank": 3,
+      "title": "Brightcandle",
+      "renownRequired": 10,
+      "description": "Respected member who can requisition aid."
+    },
+    { "rank": 4, "title": "Wise Owl", "renownRequired": 25, "description": "Senior operative who directs missions." },
+    {
+      "rank": 5,
+      "title": "High Harper",
+      "renownRequired": 50,
+      "description": "Member of the inner council guiding Harper strategy."
+    }
+  ],
+  "benefits": [
+    { "rank": 1, "benefit": "Access to the Harper network of safe houses and information brokers." },
+    { "rank": 2, "benefit": "A Harper contact who can provide intelligence on a topic (once per adventure)." },
+    { "rank": 3, "benefit": "Can request a team of 1d4 spies for a mission." },
+    { "rank": 4, "benefit": "Access to rare magic items on loan (must be returned)." },
+    { "rank": 5, "benefit": "Can call an emergency meeting of High Harpers and shape faction policy." }
+  ],
+  "source": {
+    "book": "2024 Dungeon Master's Guide",
+    "section": "Factions"
+  }
+}

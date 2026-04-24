@@ -1,0 +1,20 @@
+{
+  "name": "Potion of Vitality",
+  "itemType": "Potion",
+  "rarity": "Very Rare",
+  "requiresAttunement": false,
+  "attunementRequirements": null,
+  "description": "When you drink this potion, it removes any Exhaustion levels you have and ends the Poisoned condition on you. For the next 24 hours, you regain the maximum number of Hit Points for any Hit Point Die you spend.",
+  "properties": null,
+  "weight": null,
+  "cost": {
+    "amount": null,
+    "denomination": null
+  },
+  "charges": null,
+  "rechargeRate": null,
+  "rechargeAmount": null,
+  "spells": null,
+  "damage": null,
+  "source": "DMG 2024"
+}

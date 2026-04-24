@@ -1,0 +1,41 @@
+{
+  "biome": "Desert",
+  "legendaryEffects": [
+    {
+      "source": "Ancient Blue Dragon",
+      "effects": [
+        "Thunderstorms rage within 6 miles of the lair.",
+        "Dust devils and sandstorms obscure the land, creating lightly obscured areas that shift unpredictably.",
+        "Hidden sinkholes form near the lair; creatures must succeed on a DC 15 Wisdom (Perception) check to spot them or fall 1d6 x 10 feet."
+      ],
+      "radius": "6 miles"
+    },
+    {
+      "source": "Mummy Lord",
+      "effects": [
+        "Food spoils and water evaporates at twice the normal rate within 6 miles.",
+        "A curse of ill fortune plagues intruders; they have disadvantage on saving throws against diseases and curses.",
+        "Sandstorms rise suddenly, reducing visibility and dealing 1d4 slashing damage per round to unprotected creatures."
+      ],
+      "radius": "6 miles"
+    }
+  ],
+  "naturalHazards": [
+    {
+      "name": "Extreme Heat",
+      "description": "When the temperature is at or above 100 degrees Fahrenheit, a creature exposed to the heat without access to water must succeed on a Constitution saving throw at the end of each hour or gain one level of exhaustion. The DC is 5 for the first hour and increases by 1 for each additional hour. Creatures wearing medium or heavy armor have disadvantage on the saving throw."
+    },
+    {
+      "name": "Sandstorm",
+      "description": "A sandstorm reduces visibility to 0 within its area, effectively blinding creatures. Unprotected creatures take 1d4 slashing damage at the start of each turn. A sandstorm typically lasts 1d4 hours."
+    },
+    {
+      "name": "Quicksand",
+      "description": "A creature that enters quicksand sinks 1d4 + 1 feet and is Restrained. At the start of each of its turns, the creature sinks 1d4 feet deeper. A creature can escape by using an action to make a DC 10 Strength check, pulling free on a success. A creature completely submerged in quicksand begins suffocating."
+    },
+    {
+      "name": "Mirages",
+      "description": "Mirages can cause creatures to wander off course. When navigating the desert, the navigator must succeed on a DC 15 Wisdom (Survival) check to avoid being deceived by a mirage and losing 1d4 hours of travel time."
+    }
+  ]
+}

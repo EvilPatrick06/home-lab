@@ -1,0 +1,13 @@
+{
+  "name": "Diamond",
+  "slug": "diamond",
+  "value": "5,000 GP",
+  "category": "Gemstone",
+  "description": "blue-white, canary, pink, brown, or blue",
+  "dieValue": "2",
+  "source": {
+    "book": "2024 Dungeon Masters Guide",
+    "chapter": "Chapter 7",
+    "section": "Treasure Tables"
+  }
+}

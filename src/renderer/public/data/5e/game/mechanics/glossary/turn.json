@@ -1,0 +1,11 @@
+{
+  "name": "Turn",
+  "slug": "turn",
+  "description": "During a round, each participant takes a turn. On your turn, you can move a distance up to your Speed and take one action.",
+  "category": "Rule",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Appendix C",
+    "section": "Rules Glossary"
+  }
+}

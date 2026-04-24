@@ -1,0 +1,40 @@
+{
+  "name": "Circle of Power",
+  "level": 5,
+  "school": "Abjuration",
+  "classes": ["Cleric", "Paladin", "Wizard"],
+  "ritual": false,
+  "castingTime": {
+    "type": "Action",
+    "ritual": false
+  },
+  "range": {
+    "type": "Self"
+  },
+  "components": {
+    "verbal": true,
+    "somatic": false
+  },
+  "duration": {
+    "type": "Timed",
+    "concentration": true,
+    "amount": 10,
+    "unit": "minutes"
+  },
+  "description": "An aura radiates from you in a 30-foot Emanation for the duration. While in the aura, you and your allies have Advantage on saving throws against spells and other magical effects. When an affected creature makes a saving throw against a spell or magical effect that allows a save to take only half damage, it takes no damage if it succeeds on the save.",
+  "areaOfEffect": [
+    {
+      "shape": "Emanation",
+      "radiusFeet": 30,
+      "originatesFromCaster": true
+    }
+  ],
+  "targetType": "self",
+  "advantagesGranted": [
+    {
+      "on": "savingThrows",
+      "againstMagic": true
+    }
+  ],
+  "tags": ["buff", "aura", "magical-defense", "evasion-for-magic"]
+}

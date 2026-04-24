@@ -1,0 +1,204 @@
+{
+  "name": "Myconid Sovereign",
+  "sizes": ["Large"],
+  "creatureType": "Plant",
+  "alignment": "Neutral",
+  "habitat": ["Underdark"],
+  "treasure": ["None"],
+  "lore": "The sovereign is the leader of a myconid colony, a large and wise fungal being that guides the community through shared spore-based communication. Sovereigns can release hallucination spores that overwhelm the minds of intruders, and their animating spores can reanimate corpses as spore servants—shambling fungal puppets that serve the colony.",
+  "armorClass": {
+    "value": 13,
+    "sources": ["Natural Armor"]
+  },
+  "hitPoints": {
+    "average": 90,
+    "dice": {
+      "count": 12,
+      "die": "d10",
+      "modifier": 24
+    }
+  },
+  "speeds": [
+    {
+      "type": "Walk",
+      "distance": 30
+    }
+  ],
+  "initiative": {
+    "modifier": 0,
+    "score": 10
+  },
+  "abilityScores": {
+    "STR": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "DEX": {
+      "score": 10,
+      "modifier": 0,
+      "save": 0
+    },
+    "CON": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "INT": {
+      "score": 14,
+      "modifier": 2,
+      "save": 2
+    },
+    "WIS": {
+      "score": 16,
+      "modifier": 3,
+      "save": 3
+    },
+    "CHA": {
+      "score": 12,
+      "modifier": 1,
+      "save": 1
+    }
+  },
+  "senses": {
+    "specialSenses": [
+      {
+        "type": "Darkvision",
+        "range": 120
+      }
+    ],
+    "passivePerception": 13
+  },
+  "languages": {
+    "notes": "No languages; see Rapport Spores"
+  },
+  "challengeRating": "2",
+  "experiencePoints": 450,
+  "proficiencyBonus": 2,
+  "traits": [
+    {
+      "name": "Rapport Spores",
+      "description": "A creature that willingly inhales spores released by the myconid or that is a Myconid can communicate telepathically with the myconid, provided the creature and the myconid are within 30 feet of each other. The communication consists of shared emotions, basic ideas, and simple concepts."
+    }
+  ],
+  "multiattack": {
+    "description": "The sovereign makes two Fist attacks.",
+    "attacks": [
+      {
+        "actionName": "Fist",
+        "count": 2
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Fist",
+      "description": "Melee Attack Roll: +4, reach 5 ft. Hit: 9 (2d6 + 2) Bludgeoning damage.",
+      "attack": {
+        "type": "Melee",
+        "attackBonus": 4,
+        "reach": 5,
+        "targets": "one target",
+        "hit": {
+          "damage": [
+            {
+              "average": 9,
+              "dice": {
+                "count": 2,
+                "die": "d6",
+                "modifier": 2
+              },
+              "type": "Bludgeoning"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hallucination Spores",
+      "description": "Constitution Saving Throw: DC 12, one creature the myconid can see within 5 feet. Failure: The target has the Poisoned condition for 1 minute. While Poisoned in this way, the target also has the Incapacitated condition and sees vivid hallucinations. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 12,
+        "targets": "one creature the myconid can see within 5 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Poisoned",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 12,
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            },
+            {
+              "condition": "Incapacitated",
+              "duration": "1 minute"
+            }
+          ],
+          "effects": "The target sees vivid hallucinations while Poisoned in this way."
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Poisoned",
+          "duration": "1 minute"
+        },
+        {
+          "condition": "Incapacitated",
+          "duration": "1 minute"
+        }
+      ]
+    },
+    {
+      "name": "Pacifying Spores",
+      "description": "Constitution Saving Throw: DC 12, one creature the myconid can see within 5 feet. Failure: The target has the Stunned condition for 1 minute. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+      "savingThrow": {
+        "ability": "CON",
+        "dc": 12,
+        "targets": "one creature the myconid can see within 5 feet",
+        "onFailure": {
+          "conditions": [
+            {
+              "condition": "Stunned",
+              "duration": "1 minute",
+              "savingThrow": {
+                "ability": "CON",
+                "dc": 12,
+                "onSuccess": {
+                  "effects": "The effect ends on the target."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "conditions": [
+        {
+          "condition": "Stunned",
+          "duration": "1 minute"
+        }
+      ]
+    },
+    {
+      "name": "Animating Spores",
+      "description": "The sovereign targets one Small or Medium corpse within 5 feet of it and releases animating spores at the corpse. In 24 hours, the corpse rises as a Spore Servant controlled by the sovereign. The sovereign can have no more than a number of Spore Servants under its control equal to its Proficiency Bonus + its Intelligence modifier (currently 4).",
+      "limitedUsage": {
+        "type": "perDay",
+        "times": 3
+      },
+      "summon": {
+        "creatureName": "Spore Servant",
+        "fixedCount": 1,
+        "notes": "Created from a Small or Medium corpse within 5 ft.; rises in 24 hours. Maximum of 4 active Spore Servants."
+      }
+    },
+    {
+      "name": "Distress Spores",
+      "description": "Each Myconid within 240 feet of this myconid senses a distress signal from this myconid, learning the myconid's location and general emotional state."
+    }
+  ]
+}

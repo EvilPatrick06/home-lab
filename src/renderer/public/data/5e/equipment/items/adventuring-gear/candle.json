@@ -1,0 +1,13 @@
+{
+  "name": "Candle",
+  "cost": "1 CP",
+  "weight": "—",
+  "description": "Burns for 1 hour. Casts Bright Light in 5-foot radius and Dim Light for additional 5 feet.",
+  "slug": "candle",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}

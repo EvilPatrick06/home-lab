@@ -1,0 +1,21 @@
+{
+  "name": "Light Hammer",
+  "slug": "light-hammer",
+  "category": "Simple",
+  "type": "Melee",
+  "damage": "1d4",
+  "damageType": "Bludgeoning",
+  "properties": ["Light", "Thrown"],
+  "mastery": "Nick",
+  "weight": "2 lb.",
+  "cost": "2 GP",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Weapons"
+  },
+  "range": {
+    "normal": 20,
+    "long": 60
+  }
+}

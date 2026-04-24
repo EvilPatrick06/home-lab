@@ -1,0 +1,410 @@
+[
+  {
+    "id": "blade-ward",
+    "name": "Blade Ward",
+    "school": "Abjuration",
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/abjuration/non-ritual/v-s/blade-ward.json"
+  },
+  {
+    "id": "resistance",
+    "name": "Resistance",
+    "school": "Abjuration",
+    "classes": ["Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/abjuration/non-ritual/v-s/resistance.json"
+  },
+  {
+    "id": "mage-hand",
+    "name": "Mage Hand",
+    "school": "Conjuration",
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/conjuration/non-ritual/v-s/mage-hand.json"
+  },
+  {
+    "id": "produce-flame",
+    "name": "Produce Flame",
+    "school": "Conjuration",
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/conjuration/non-ritual/v-s/produce-flame.json"
+  },
+  {
+    "id": "true-strike",
+    "name": "True Strike",
+    "school": "Divination",
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/cantrips/divination/non-ritual/s-m/true-strike.json"
+  },
+  {
+    "id": "guidance",
+    "name": "Guidance",
+    "school": "Divination",
+    "classes": ["Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/divination/non-ritual/v-s/guidance.json"
+  },
+  {
+    "id": "friends",
+    "name": "Friends",
+    "school": "Enchantment",
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/cantrips/enchantment/non-ritual/s-m/friends.json"
+  },
+  {
+    "id": "mind-sliver",
+    "name": "Mind Sliver",
+    "school": "Enchantment",
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/cantrips/enchantment/non-ritual/v/mind-sliver.json"
+  },
+  {
+    "id": "vicious-mockery",
+    "name": "Vicious Mockery",
+    "school": "Enchantment",
+    "classes": ["Bard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/cantrips/enchantment/non-ritual/v/vicious-mockery.json"
+  },
+  {
+    "id": "thunderclap",
+    "name": "Thunderclap",
+    "school": "Evocation",
+    "classes": ["Bard", "Druid", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/s/thunderclap.json"
+  },
+  {
+    "id": "light",
+    "name": "Light",
+    "school": "Evocation",
+    "classes": ["Bard", "Cleric", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-m/light.json"
+  },
+  {
+    "id": "word-of-radiance",
+    "name": "Word of Radiance",
+    "school": "Evocation",
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-m/word-of-radiance.json"
+  },
+  {
+    "id": "acid-splash",
+    "name": "Acid Splash",
+    "school": "Evocation",
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-s/acid-splash.json"
+  },
+  {
+    "id": "eldritch-blast",
+    "name": "Eldritch Blast",
+    "school": "Evocation",
+    "classes": ["Warlock"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-s/eldritch-blast.json"
+  },
+  {
+    "id": "fire-bolt",
+    "name": "Fire Bolt",
+    "school": "Evocation",
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-s/fire-bolt.json"
+  },
+  {
+    "id": "ray-of-frost",
+    "name": "Ray of Frost",
+    "school": "Evocation",
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-s/ray-of-frost.json"
+  },
+  {
+    "id": "sacred-flame",
+    "name": "Sacred Flame",
+    "school": "Evocation",
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-s/sacred-flame.json"
+  },
+  {
+    "id": "shocking-grasp",
+    "name": "Shocking Grasp",
+    "school": "Evocation",
+    "classes": ["Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-s/shocking-grasp.json"
+  },
+  {
+    "id": "sorcerous-burst",
+    "name": "Sorcerous Burst",
+    "school": "Evocation",
+    "classes": ["Sorcerer"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-s/sorcerous-burst.json"
+  },
+  {
+    "id": "starry-wisp",
+    "name": "Starry Wisp",
+    "school": "Evocation",
+    "classes": ["Bard", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/evocation/non-ritual/v-s/starry-wisp.json"
+  },
+  {
+    "id": "minor-illusion",
+    "name": "Minor Illusion",
+    "school": "Illusion",
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/cantrips/illusion/non-ritual/s-m/minor-illusion.json"
+  },
+  {
+    "id": "dancing-lights",
+    "name": "Dancing Lights",
+    "school": "Illusion",
+    "classes": ["Bard", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/cantrips/illusion/non-ritual/v-s-m/dancing-lights.json"
+  },
+  {
+    "id": "chill-touch",
+    "name": "Chill Touch",
+    "school": "Necromancy",
+    "classes": ["Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/necromancy/non-ritual/v-s/chill-touch.json"
+  },
+  {
+    "id": "poison-spray",
+    "name": "Poison Spray",
+    "school": "Necromancy",
+    "classes": ["Druid", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/necromancy/non-ritual/v-s/poison-spray.json"
+  },
+  {
+    "id": "spare-the-dying",
+    "name": "Spare the Dying",
+    "school": "Necromancy",
+    "classes": ["Cleric", "Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/necromancy/non-ritual/v-s/spare-the-dying.json"
+  },
+  {
+    "id": "toll-the-dead",
+    "name": "Toll the Dead",
+    "school": "Necromancy",
+    "classes": ["Cleric", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/necromancy/non-ritual/v-s/toll-the-dead.json"
+  },
+  {
+    "id": "message",
+    "name": "Message",
+    "school": "Transmutation",
+    "classes": ["Bard", "Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/cantrips/transmutation/non-ritual/s-m/message.json"
+  },
+  {
+    "id": "thaumaturgy",
+    "name": "Thaumaturgy",
+    "school": "Transmutation",
+    "classes": ["Cleric"],
+    "components": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    },
+    "path": "spells/cantrips/transmutation/non-ritual/v/thaumaturgy.json"
+  },
+  {
+    "id": "druidcraft",
+    "name": "Druidcraft",
+    "school": "Transmutation",
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/transmutation/non-ritual/v-s/druidcraft.json"
+  },
+  {
+    "id": "elementalism",
+    "name": "Elementalism",
+    "school": "Transmutation",
+    "classes": ["Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/transmutation/non-ritual/v-s/elementalism.json"
+  },
+  {
+    "id": "prestidigitation",
+    "name": "Prestidigitation",
+    "school": "Transmutation",
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    },
+    "path": "spells/cantrips/transmutation/non-ritual/v-s/prestidigitation.json"
+  },
+  {
+    "id": "mending",
+    "name": "Mending",
+    "school": "Transmutation",
+    "classes": ["Bard", "Cleric", "Druid", "Sorcerer", "Wizard"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/cantrips/transmutation/non-ritual/v-s-m/mending.json"
+  },
+  {
+    "id": "shillelagh",
+    "name": "Shillelagh",
+    "school": "Transmutation",
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/cantrips/transmutation/non-ritual/v-s-m/shillelagh.json"
+  },
+  {
+    "id": "thorn-whip",
+    "name": "Thorn Whip",
+    "school": "Transmutation",
+    "classes": ["Druid"],
+    "components": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    },
+    "path": "spells/cantrips/transmutation/non-ritual/v-s-m/thorn-whip.json"
+  }
+]

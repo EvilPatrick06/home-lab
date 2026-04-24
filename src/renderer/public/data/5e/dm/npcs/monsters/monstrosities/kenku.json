@@ -1,0 +1,60 @@
+{
+  "name": "Kenku",
+  "slug": "kenku",
+  "size": "Medium",
+  "type": "Monstrosity",
+  "alignment": "Neutral",
+  "ac": "13",
+  "initiative": "+3 (13)",
+  "hp": "13",
+  "hpFormula": "3d8",
+  "speed": "30 ft.",
+  "abilityScores": {
+    "str": 10,
+    "dex": 16,
+    "con": 10,
+    "int": 10,
+    "wis": 10,
+    "cha": 10
+  },
+  "abilitySaves": {
+    "str": 0,
+    "dex": 3,
+    "con": 0,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "skills": "Deception +4, Perception +2, Stealth +5",
+  "senses": "Darkvision 60 ft.; Passive Perception 12",
+  "languages": "Common, Primordial (Auran)",
+  "cr": "1/4 (XP 50; PB +2)",
+  "traits": [
+    {
+      "name": "Mimicry",
+      "description": "The kenku can mimic any sounds it has heard, including voices. A creature that hears the sounds can tell they are imitations with a successful DC 14 Wisdom (Insight) check."
+    }
+  ],
+  "actions": [
+    {
+      "name": "Shadow Blade",
+      "description": "*Melee or Ranged Attack Roll:* +5, reach 5 ft. or range 60 ft. *Hit:* 6 (1d6 + 3) Necrotic damage. *Hit or Miss:* The blade magically returns to the kenku's hand immediately after a ranged attack."
+    }
+  ],
+  "bonusActions": [
+    {
+      "name": "Eldritch Lantern (Recharge 4--6)",
+      "description": "The kenku casts *Faerie Fire*, using Intelligence as the spellcasting ability (spell save DC 10)."
+    }
+  ],
+  "reactions": [],
+  "legendaryActions": [],
+  "lore": "*Flightless, Noise-Mimicking Avian*\n**Habitat:** Forest, Planar (Shadowfell), Urban; **Treasure:** Implements, Individual\nKenku are birdlike folk who once soared the skies and sang enchanted songs, but a curse stole their wings and transformed their voices. Now kenku slip through the shadows of cities and the Shadowfell, trying to recover what they've lost. To some, this means seeking an end to their curse; others search for magic or contraptions to enable them to fly and sing again.\nThe curse affecting kenku allows them to vocally communicate only by mimicking sounds they've heard. Kenku can supernaturally re-create vast varieties of noises, from crying babies to running water and short phrases in others' voices. Cunning kenku use their mimicry to deceive foes, lure creatures into ambushes, and signal to allies.",
+  "habitat": "Forest, Planar (Shadowfell), Urban",
+  "treasure": "Implements, Individual",
+  "source": {
+    "book": "2025 Monster Manual",
+    "section": "Humanoids",
+    "file": "Humanoids.md"
+  }
+}

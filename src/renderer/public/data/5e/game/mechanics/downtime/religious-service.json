@@ -1,0 +1,37 @@
+{
+  "id": "religious-service",
+  "name": "Religious Service",
+  "description": "A character can spend time performing religious service at a temple or shrine. Between rites and prayers, the character earns favors from the organization.",
+  "costPerDay": "0 GP",
+  "costPerDayGP": 0,
+  "minimumDuration": "1 workweek (5 days)",
+  "requirements": [
+    "Access to a temple, shrine, or religious community that will accept the character's service",
+    "Alignment or behavior compatible with the temple's values (DM discretion)"
+  ],
+  "resolution": "At the end of each workweek, the character makes three checks: Intelligence (Religion), Wisdom (Insight), and Charisma (Persuasion). Compare successes to failures.",
+  "checks": [
+    { "check": "Intelligence (Religion)", "description": "Knowledge of religious doctrine and rites." },
+    {
+      "check": "Wisdom (Insight)",
+      "description": "Understanding the needs of the faithful and reading the congregation."
+    },
+    {
+      "check": "Charisma (Persuasion)",
+      "description": "Inspiring worshippers and building connections within the temple."
+    }
+  ],
+  "dcBase": 10,
+  "results": [
+    { "successes": 0, "result": "No favors earned. The character may have offended some members of the temple." },
+    { "successes": 1, "result": "The character earns one favor." },
+    { "successes": 2, "result": "The character earns two favors." },
+    { "successes": 3, "result": "The character earns three favors and gains a reputation within the temple." }
+  ],
+  "favorExamples": [
+    "A favor can be spent to request healing or other magical services from the temple",
+    "A favor can grant political support from the temple for a specific cause",
+    "A favor can provide shelter and lodging for the character and allies",
+    "A favor can grant access to restricted areas or secret knowledge held by the temple"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Robe",
+  "cost": "1 GP",
+  "weight": "4 lb.",
+  "description": "Vocational or ceremonial significance. Some events/locations require specific robes.",
+  "slug": "robe",
+  "category": "Adventuring Gear",
+  "source": {
+    "book": "2024 Players Handbook",
+    "chapter": "Chapter 6",
+    "section": "Adventuring Gear"
+  }
+}
