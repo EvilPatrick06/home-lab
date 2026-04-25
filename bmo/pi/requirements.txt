@@ -66,6 +66,8 @@ requests
 # Used directly by app / bots (were missing from this file; fresh venvs failed)
 python-dotenv
 discord.py[voice]
+# PyNaCl (transitive from voice extras); CVE-2025-69277 fixed in 1.6.2+
+PyNaCl>=1.6.2
 edge-tts
 scipy
 

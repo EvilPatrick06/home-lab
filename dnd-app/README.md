@@ -29,7 +29,7 @@ npm run lint                   # biome check
 npm run lint:fix               # biome fix
 npx tsc --noEmit               # type-check only
 npm run dead-code              # knip unused exports
-npm run circular               # madge circular deps
+npm run circular               # dpdm circular deps (report only; exit 0)
 ```
 
 ## Directory layout

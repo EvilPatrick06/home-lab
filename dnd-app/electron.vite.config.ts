@@ -65,7 +65,6 @@ export default defineConfig(async () => {
               if (id.includes('node_modules/cannon-es')) return 'vendor-physics'
               if (id.includes('node_modules/pixi.js') || id.includes('node_modules/@pixi')) return 'vendor-pixi'
               if (id.includes('node_modules/@tiptap')) return 'vendor-tiptap'
-              if (id.includes('node_modules/@langchain')) return 'vendor-langchain'
               if (id.includes('node_modules/@anthropic-ai')) return 'vendor-anthropic'
               if (id.includes('node_modules/peerjs')) return 'vendor-peerjs'
               if (id.includes('node_modules/pdfjs-dist')) return 'vendor-pdfjs'

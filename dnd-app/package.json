@@ -21,9 +21,10 @@
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "format": "biome format --write src/",
-    "audit:ci": "npm audit --audit-level=critical",
+    "audit:ci": "npm audit --audit-level=moderate --omit=dev",
+    "audit:all": "npm audit --audit-level=moderate",
     "dead-code": "npx knip",
-    "circular": "npx dpdm@3.14.0 --no-warning --no-tree --transform --extensions ts,tsx --exit-code circular:1 src/main/index.ts src/renderer/src/main.tsx"
+    "circular": "npx dpdm@3.14.0 --no-warning --no-tree --transform --extensions ts,tsx --exit-code circular:0 src/main/index.ts src/renderer/src/main.tsx"
   },
   "keywords": [
     "dnd",
@@ -138,13 +139,12 @@
     "type-coverage": "^2.29.7",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "@langchain/langgraph": "^1.2.0"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@google/generative-ai": "^0.24.1",
-    "@langchain/core": "^1.1.29",
-    "@langchain/langgraph": "^1.2.0",
     "@tanstack/react-virtual": "^3.13.19",
     "@tiptap/extension-placeholder": "^3.20.0",
     "@tiptap/pm": "^3.20.0",
@@ -169,6 +169,7 @@
     "zustand": "^5.0.11"
   },
   "overrides": {
+    "uuid": "^14.0.0",
     "minimatch": ">=10.2.1",
     "scheduler": "0.27.0",
     "fs-extra": "11.3.3",

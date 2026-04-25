@@ -27,7 +27,7 @@ npm run lint:fix               # biome fix
 npm run format                 # biome format
 npx tsc --noEmit               # type check only (no emit)
 npm run dead-code              # knip unused exports
-npm run circular               # madge circular deps
+npm run circular               # dpdm circular deps (report; exit 0)
 npm run audit:ci               # npm audit (critical only)
 ```
 
