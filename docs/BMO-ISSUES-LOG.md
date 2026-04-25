@@ -28,55 +28,6 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-### [2026-04-24] Six `tests/test_*.py` files are not real test files — break pytest collection
-
-- **Category:** debt, bug
-- **Severity:** medium
-- **Domain:** bmo
-- **Discovered by:** Claude Opus
-- **During:** pytest collection audit (deep scan)
-
-**Description:** Six files in `bmo/pi/tests/` named `test_*.py` are **not actually test files** — they have no `def test_*` functions and no `pytest`-style classes. They're standalone scripts that execute side-effecting code at import time:
-
-| File | What it does at import time |
-|---|---|
-| `tests/test_aec.py` | Records 2s of audio with `sounddevice.rec()`, computes RMS — fails collection because `sd.rec()` returns a zero-size array if no input device |
-| `tests/test_thinking_budget.py` | `load_dotenv('/home/patrick/bmo/.env')`, hits Gemini API live |
-| `tests/test_wake_auto.py` | Live wake-word recording diagnostic — needs hardware |
-| `tests/test_wake_timed.py` | Plays beeps, records audio — needs hardware |
-| `tests/test_gemini_stream.py` | Hits Gemini SSE API live |
-| `tests/test_server.py` | Spins up an entire Flask test server with port 5000 binding |
-
-When pytest tries to collect them (because of the `test_*.py` glob), import-time side effects either fail outright (audio recording with no input → `ValueError: zero-size array`) or have unwanted effects (binding ports, hitting paid APIs). This is a major contributor to the existing "pytest fails to collect with 'agents' is not a package" entry — even after fixing `conftest.py` mocking, these 6 files still trigger collection failures.
-
-**Reproduction:**
-```bash
-cd bmo/pi && venv/bin/python -m pytest tests/ --collect-only -q 2>&1 | grep ERROR
-# → ERROR tests/test_aec.py - ValueError: zero-size array...
-# → ERROR tests/test_wake_auto.py, tests/test_wake_debug.py, tests/test_wake_timed.py
-# → ERROR tests/test_server.py, tests/test_calendar_auth_paths.py, tests/test_music_restore.py
-# → 660 tests collected, 8 errors
-```
-
-**Expected behavior:** Pytest collects cleanly. Hardware-required diagnostics live elsewhere (or are properly fixtured/skipped).
-
-**Hypothesis / root cause:** These 6 files were originally hand-run scripts (`python tests/test_aec.py`) that got the `test_` prefix because they "test" something informally. They predate the actual pytest test suite and were never converted.
-
-**Proposed fix:**
-- [ ] Move the 6 files out of `tests/`:
-  - `tests/test_aec.py`, `tests/test_wake_auto.py`, `tests/test_wake_timed.py` → `dev/diagnostics/aec.py`, etc. (audio diagnostics — keep them runnable manually)
-  - `tests/test_thinking_budget.py`, `tests/test_gemini_stream.py` → `dev/benchmarks/` (live-API benchmarks — already siblings of `dev/benchmark_*.py`)
-  - `tests/test_server.py` → either delete (if subsumed by `tests/test_app_endpoints.py`) or move to `dev/`
-- [ ] Update any docs that reference `python tests/test_*.py` to use the new path
-- [ ] Verify `venv/bin/python -m pytest tests/ --collect-only` → 0 errors
-- [ ] Combined with the existing `conftest.py` fix (separate entry), the full suite should run
-
-**Related files:** all 6 files listed above
-
-**Related entries:** `[2026-04-23] pytest suite fails to collect with 'agents' is not a package in full run` (medium) — same root area; this one covers the "fake tests" half of the problem, that one covers the conftest.py-mocking half.
-
----
-
 ### [2026-04-24] Hardcoded LAN IPs in BMO runtime code — `TV_IP` and `VTT_SYNC_URL` default
 
 - **Category:** config, portability, bug
@@ -91,7 +42,7 @@ cd bmo/pi && venv/bin/python -m pytest tests/ --collect-only -q 2>&1 | grep ERRO
 |---|---|---|---|
 | `app.py:3274` | `TV_IP = "10.10.20.194"` | hardcoded | `/api/tv/input`, `/api/tv/navigate`, etc. (12+ call sites) |
 | `agents/vtt_sync.py:28` | `VTT_SYNC_URL = os.environ.get("VTT_SYNC_URL", "http://10.10.20.100:5001")` | env-overridable, but default is hardcoded | `vtt_sync` agent — pushes events to dnd-app |
-| `tests/test_server.py:1592` | `TV_IP = "10.10.20.194"` | duplicate hardcode in test file (also part of "fake test files" issue) |
+| `dev/bmo_ui_lab_server.py` (moved from `tests/test_server.py`) | `TV_IP = "10.10.20.194"` | duplicate hardcode in dev lab file |
 
 Same anti-pattern as the dnd-app `10.10.20.242` CSP hardcode (logged in `ISSUES-LOG-DNDAPP.md`). On a network where the TV / VTT host gets a different DHCP lease, these silently break: TV controls return ADB connection errors, VTT push events fail with connection-refused.
 
@@ -110,7 +61,7 @@ grep -rEn '10\.10\.20\.[0-9]+' bmo/pi/ --include="*.py" --include="*.json" --inc
 - [ ] Document the env vars in `bmo/docs/SERVICES.md`
 - [ ] Test: set BMO_TV_HOST to a different value, verify ADB calls use it
 
-**Related files:** `bmo/pi/app.py:3274`, `bmo/pi/agents/vtt_sync.py:28`, `bmo/pi/tests/test_server.py:1592`, `bmo/.env.template`
+**Related files:** `bmo/pi/app.py:3274`, `bmo/pi/agents/vtt_sync.py:28`, `bmo/pi/dev/bmo_ui_lab_server.py`, `bmo/.env.template`
 
 ---
 
@@ -512,33 +463,6 @@ grep -c "DeprecationWarning: 'audioop'" /home/patrick/home-lab/bmo/pi/data/logs/
 
 ---
 
-### [2026-04-23] pytest suite fails to collect with `'agents' is not a package` in full run
-
-- **Category:** debt
-- **Severity:** medium
-- **Domain:** bmo
-- **Discovered by:** Claude Opus
-- **During:** pytest validation after reorg
-
-**Description:** `pytest tests/` fails to collect `tests/agents/test_routing_accuracy.py` with `ModuleNotFoundError: No module named 'agents.router'; 'agents' is not a package`. But running that file alone (`pytest tests/agents/test_routing_accuracy.py`) passes 77 tests successfully.
-
-Root cause: `tests/conftest.py` mocks 3rd-party modules (`openwakeword`, `gevent`, `requests`) by writing to `sys.modules` at module-load time. When earlier test files are collected, they pollute `sys.modules['agents']` as a `MagicMock` before `test_routing_accuracy.py` tries to import.
-
-**Reproduction:**
-1. `cd bmo/pi && ./venv/bin/python -m pytest tests/` → errors out
-2. `./venv/bin/python -m pytest tests/agents/test_routing_accuracy.py` → passes 77 tests
-
-**Expected behavior:** Full suite runs cleanly.
-
-**Proposed fix:**
-- [ ] Refactor `tests/conftest.py` to use `pytest_configure` + `patch.dict(sys.modules)` in fixture scope (not module-level sys.modules writes)
-- [ ] OR split conftest into subset per test directory
-- [ ] Same root cause also breaks: `test_wake_*`, `test_calendar_auth_paths`, `test_music_restore`, `test_server`
-
-**Related files:** `bmo/pi/tests/conftest.py`
-
----
-
 ### [2026-04-23] Piper TTS model references point to nonexistent path
 
 - **Category:** config
@@ -558,7 +482,7 @@ Root cause: `tests/conftest.py` mocks 3rd-party modules (`openwakeword`, `gevent
 - [ ] Remove piper-dependent code if Fish Audio is the only active TTS
 - [ ] Add env var to configure model path with fallback to Fish Audio if missing
 
-**Related files:** `bmo/pi/services/voice_pipeline.py`, `bmo/pi/tests/test_wake_{auto,debug,timed}.py`
+**Related files:** `bmo/pi/services/voice_pipeline.py`, `bmo/pi/dev/diagnostics/wake_word_{auto,debug,timed}.py`
 
 ---
 

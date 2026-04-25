@@ -12,6 +12,21 @@
 
 ---
 
+### [2026-04-24] Non-pytest `test_*.py` scripts in `bmo/pi/tests/` and pytest import-order / conftest issues
+
+- **Original severity:** medium
+- **Category:** debt, test harness
+- **Domain:** bmo
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-24
+- **Resolution (code):**
+  - **Moved** hand-run diagnostics and benchmarks out of `tests/`: `dev/diagnostics/{aec_pipewire_check,wake_word_auto,wake_word_timed,wake_word_debug}.py`, `dev/benchmarks/{thinking_budget_sweep,gemini_stream_probe}.py`, `dev/bmo_ui_lab_server.py` (Flask lab server; templates/static from `bmo/pi/web/`). Wrapped all side effects in `if __name__ == "__main__"`: or `main()` where needed; fixed paths to use `Path(__file__).resolve().parents[1]` for `bmo/pi` root; renamed `test_*` step functions in the wake deep diagnostic so pytest would not pick them up if paths drift.
+  - **Collection / imports:** `tests/conftest.py` sets `BMO_SOCKETIO_ASYNC_MODE=threading` and replaces minimal `gevent` stubs with `types.ModuleType` so `app` can import. `app.py` reads that env for `SocketIO(async_mode=...)`.
+  - **`test_routing_accuracy`:** Renamed to `tests/agents/test_0_routing_accuracy.py` so it imports the real `agents.router` before `test_base_agent.py` and `test_app_endpoints.py` register `sys.modules["agents"] = MagicMock()`.
+  - **`test_base_agent` + `test_voice_pipeline`:** `test_voice_pipeline` still stubs `sys.modules["agent"]` for pipeline import; `test_base_agent` fixtures call `_ensure_real_agent_module()` to `del` that MagicMock before `import agent` (BmoAgent).
+  - **Patches:** `test_calendar_auth_paths` uses `services.calendar_service` in `@patch(...)`; `test_music_restore` uses `services.music_service` (fixed `ModuleNotFoundError` for patch resolution).
+- **Note:** `pytest tests/ --collect-only` is clean (753 tests, 0 errors on this host). A full `pytest tests/` run may still report failures unrelated to collection (e.g. network-key tests, or `tests/agents/test_base_agent.py::test_history_does_not_exceed_max` timing) — not part of this fix.
+
 ### [2026-04-23] Google Calendar `invalid_grant: Bad Request` (plus split `token.json` paths)
 
 - **Original severity:** high
