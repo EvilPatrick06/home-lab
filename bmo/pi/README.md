@@ -128,6 +128,7 @@ pi/
 ├── config/                      Gitignored secrets (credentials.json, token.json)
 ├── venv/                        Python 3.11 venv (gitignored)
 ├── requirements.txt             Runtime deps
+├── requirements-ci.txt          Same for GitHub Actions (no Pi hardware wheels)
 ├── requirements-test.txt        Test deps (pytest, pytest-asyncio)
 ├── pytest.ini
 ├── tailwind.config.js
@@ -170,6 +171,16 @@ Production = systemd. See [`../docs/SYSTEMD.md`](../docs/SYSTEMD.md).
 ./venv/bin/python -m pytest -m "not live"           # skip API-hitting tests
 ./venv/bin/python -m pytest -m "not hardware"       # skip Pi-hardware tests
 ```
+
+**CI:** GitHub Actions runs the same command (`python -m pytest tests/ -q` from this directory) on pushes/PRs that touch `bmo/**` — see `.github/workflows/bmo-pi-pytest.yml`. Installs from `requirements-ci.txt` (runtime deps without Pi-only wheels) plus `requirements-test.txt`. When you add runtime dependencies, update both `requirements.txt` and `requirements-ci.txt` unless the new package is Pi hardware-only.
+
+### Next steps (maintenance)
+
+1. **Confirm the workflow** — Open the repo **Actions** tab and ensure **bmo / pi pytest** passes on `master` after the workflow file landed; if it fails, check logs (often a missing system package, new import, or `requirements-ci.txt` drift from `requirements.txt`).
+2. **Keep CI requirements in sync** — Edits to `requirements.txt` that are not RPi/smbus/luma/spidev should be mirrored in `requirements-ci.txt` so the job does not break on the next run.
+3. **Optional: cloud stub alignment** — Some tests use `sys.modules["cloud_providers"]` while the app imports `services.cloud_providers`; consolidating stubs reduces bad `patch()` targets and accidental real API calls.
+4. **Optional: repo security** — GitHub’s Dependabot alerts (see Security tab) are separate from bmo; triage when you have time, especially critical/high.
+5. **Optional: local untracked paths** — If `bmo/pi/data/dnd_sessions/` or `bmo/pi/hardware/data/` should never be committed, add them to `.gitignore`; if they are artifacts to keep, document or ignore as appropriate.
 
 ## Common tasks
 
