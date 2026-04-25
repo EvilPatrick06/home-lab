@@ -9,9 +9,9 @@
 
 import { join } from 'node:path'
 import { app } from 'electron'
+import { getBmoBaseUrl } from './bmo-config'
 import { logToFile } from './log'
 
-const BMO_BASE_URL = process.env.BMO_PI_URL || 'http://bmo.local:5000'
 const TIMEOUT_MS = 60_000 // 60 second timeout for sync operations
 
 export interface CloudSyncResult {
@@ -46,7 +46,7 @@ async function executeRcloneCommand(
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
   try {
-    const res = await fetch(`${BMO_BASE_URL}/api/rclone/execute`, {
+    const res = await fetch(`${getBmoBaseUrl()}/api/rclone/execute`, {
       method: 'POST',
       signal: controller.signal,
       headers: {
@@ -88,7 +88,7 @@ async function executeRcloneCommand(
  */
 export async function checkRemoteStatus(): Promise<RcloneStatus> {
   try {
-    const res = await fetch(`${BMO_BASE_URL}/api/rclone/status`, {
+    const res = await fetch(`${getBmoBaseUrl()}/api/rclone/status`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     })

@@ -3,6 +3,7 @@
  */
 import fs from 'fs'
 import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 const ROOT = path.join(process.cwd(), 'src/renderer/public/data/5e')
 function ensureDir(d: string) { fs.mkdirSync(d, { recursive: true }) }
@@ -120,7 +121,7 @@ ensureDir(trinketDir)
 const phb2t = { book: '2024 Players Handbook', chapter: 'Chapter 2', section: 'Trinkets' }
 
 // Read trinkets from PHB
-const phbPath = path.join(process.cwd(), '5.5e References/PHB2024/markdown/02-creating-a-character.md')
+const phbPath = path.join(get5eReferencesDir(), 'PHB2024/markdown/02-creating-a-character.md')
 const phbContent = fs.readFileSync(phbPath, 'utf-8')
 const trinketLines = phbContent.split('\n').filter(l => l.match(/^\| \d+ \|/))
 const trinkets: { roll: number; description: string }[] = []

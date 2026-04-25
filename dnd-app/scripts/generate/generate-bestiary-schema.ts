@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import dotenv from 'dotenv'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 dotenv.config()
 
@@ -28,7 +29,7 @@ Output ONLY the raw TypeScript code containing the \`z.object({ ... })\` definit
 async function runBestiaryRescue() {
     console.log(`\n📦 Initializing RESCUE Architect for Domain: Bestiary`)
 
-    const filePath = join(process.cwd(), '5.5e References', bestiaryDomain.dirName, bestiaryDomain.file)
+    const filePath = join(get5eReferencesDir(), bestiaryDomain.dirName, bestiaryDomain.file)
     if (!existsSync(filePath)) {
         console.error(`   ❌ File not found: ${filePath}`)
         return

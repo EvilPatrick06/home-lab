@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import dotenv from 'dotenv'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 dotenv.config()
 
@@ -88,7 +89,7 @@ async function runSchemaGeneration() {
     for (const domain of DOMAINS) {
         console.log(`\n📦 Initializing Architect for Domain: ${domain.name}`)
 
-        const filePath = join(process.cwd(), '5.5e References', 'PHB2024', 'markdown', domain.file)
+        const filePath = join(get5eReferencesDir(), 'PHB2024', 'markdown', domain.file)
         if (!existsSync(filePath)) {
             console.error(`   ❌ File not found: ${filePath}`)
             continue

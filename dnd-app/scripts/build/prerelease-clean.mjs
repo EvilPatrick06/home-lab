@@ -4,7 +4,7 @@
  * Prevents stale artifacts (old .exe, .blockmap, .yml, builder cache)
  * from interfering with delta-update logic or being uploaded accidentally.
  *
- * Run via: node scripts/prerelease-clean.js
+ * Run via: node scripts/build/prerelease-clean.mjs
  * Called automatically by the "prerelease" npm script.
  */
 
@@ -13,7 +13,7 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const distDir = join(__dirname, '..', 'dist')
+const distDir = join(__dirname, '..', '..', 'dist')
 
 if (existsSync(distDir)) {
   rmSync(distDir, { recursive: true, force: true })

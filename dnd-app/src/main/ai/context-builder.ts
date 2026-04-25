@@ -36,7 +36,7 @@ function loadMonsterData(): Map<string, Record<string, unknown>> {
   if (monsterDataCache) return monsterDataCache
   monsterDataCache = new Map()
   const dataDir = getDataDir()
-  for (const file of ['creatures/monsters.json', 'creatures/creatures.json', 'creatures/npcs.json']) {
+  for (const file of ['dm/npcs/monsters.json', 'dm/npcs/creatures.json', 'dm/npcs/npcs.json']) {
     try {
       const filePath = path.join(dataDir, file)
       const data = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>[]
@@ -46,7 +46,7 @@ function loadMonsterData(): Map<string, Record<string, unknown>> {
         }
       }
     } catch (err) {
-      logToFile('WARN', `[context-builder] Failed to load monster data (${file}): ${err}`)
+      logToFile('ERROR', `[context-builder] Failed to load monster data (${file}): ${err}`)
     }
   }
   return monsterDataCache

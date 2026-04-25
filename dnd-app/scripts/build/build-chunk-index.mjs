@@ -1,10 +1,10 @@
 /**
  * Pre-build chunk index from rulebook markdown files.
- * Run: node scripts/build-chunk-index.js
+ * Run: node scripts/build/build-chunk-index.mjs
  *
- * Reads markdown files from PHB2024, DMG2024, and MM2025 directories
- * under "5.5e References/" and writes resources/chunk-index.json
- * for bundling with the installer.
+ * Reads markdown files from PHB2024, DMG2024, and MM2025 under the repo
+ * "5.5e References/" directory (monorepo root, next to dnd-app/) and writes
+ * resources/chunk-index.json for bundling with the installer.
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs'
@@ -13,7 +13,8 @@ import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const ROOT = join(__dirname, '..')
+// scripts/build/ → dnd-app root
+const ROOT = join(__dirname, '..', '..')
 
 const MAX_CHUNK_TOKENS = 4000
 const CHARS_PER_TOKEN = 4
@@ -222,7 +223,15 @@ function flattenToChunks(nodes, source, idPrefix) {
 
 // ── Main ──
 
-const refsBase = join(ROOT, '5.5e References')
+function resolve5eReferencesFromDndApp(dndAppRoot) {
+  const inside = join(dndAppRoot, '5.5e References')
+  if (existsSync(inside)) return inside
+  const beside = join(dndAppRoot, '..', '5.5e References')
+  if (existsSync(beside)) return beside
+  throw new Error('5.5e References/ not found (expected at repo root, next to dnd-app/)')
+}
+
+const refsBase = resolve5eReferencesFromDndApp(ROOT)
 const allChunks = []
 const sourceStats = []
 

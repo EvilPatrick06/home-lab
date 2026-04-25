@@ -1,11 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-import crypto from 'crypto';
+import fs from 'fs'
+import path from 'path'
+import crypto from 'crypto'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 // --- Constants ---
-const DATA_DIR = path.join(process.cwd(), 'src/renderer/public/data/5e');
-const SCHEMA_DIR = path.join(process.cwd(), 'scripts/schemas');
-const REF_DIR = path.join(process.cwd(), '5.5e References');
+const DATA_DIR = path.join(process.cwd(), 'src/renderer/public/data/5e')
+const SCHEMA_DIR = path.join(process.cwd(), 'scripts/schemas')
+const REF_DIR = get5eReferencesDir()
 const BATCH_OUTPUT = path.join(process.cwd(), 'batch_payload.jsonl');
 const ID_MAP_OUTPUT = path.join(process.cwd(), 'batch-id-map.json');
 

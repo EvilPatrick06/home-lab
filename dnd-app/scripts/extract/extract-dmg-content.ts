@@ -3,9 +3,10 @@
  */
 import fs from 'fs'
 import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 const ROOT = path.join(process.cwd(), 'src/renderer/public/data/5e')
-const REF = path.join(process.cwd(), '5.5e References/DMG2024/markdown')
+const REF = path.join(get5eReferencesDir(), 'DMG2024/markdown')
 function ensureDir(d: string) { fs.mkdirSync(d, { recursive: true }) }
 function kebab(s: string): string {
     return s.replace(/['']/g, '').replace(/\s+/g, '-').replace(/[^a-z0-9-]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase()

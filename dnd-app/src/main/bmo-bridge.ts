@@ -8,9 +8,9 @@
 
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { BrowserWindow } from 'electron'
+import { getBmoBaseUrl } from './bmo-config'
 import { logToFile } from './log'
 
-const BMO_BASE_URL = process.env.BMO_PI_URL || 'http://bmo.local:5000'
 const TIMEOUT_MS = 15_000
 const SYNC_RECEIVER_PORT = parseInt(process.env.BMO_SYNC_PORT || '5001', 10)
 
@@ -32,7 +32,7 @@ async function bmoPiFetch(path: string, options?: RequestInit): Promise<BridgeRe
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
   try {
-    const res = await fetch(`${BMO_BASE_URL}${path}`, {
+    const res = await fetch(`${getBmoBaseUrl()}${path}`, {
       ...options,
       signal: controller.signal,
       headers: {

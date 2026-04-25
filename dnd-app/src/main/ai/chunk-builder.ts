@@ -23,7 +23,12 @@ function getReferencesBase(): string {
   if (app.isPackaged) {
     return join(process.resourcesPath, 'rulebooks')
   }
-  return join(app.getAppPath(), '5.5e References')
+  const appPath = app.getAppPath()
+  const besideDndApp = join(appPath, '..', '5.5e References')
+  const insideDndApp = join(appPath, '5.5e References')
+  if (existsSync(besideDndApp)) return besideDndApp
+  if (existsSync(insideDndApp)) return insideDndApp
+  return besideDndApp
 }
 
 function getSourcePath(source: SourceDir): string {

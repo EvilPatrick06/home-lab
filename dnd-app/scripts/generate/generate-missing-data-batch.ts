@@ -15,13 +15,14 @@
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 // ── Constants ──
 
 const ROOT = process.cwd()
 const DATA_DIR = path.join(ROOT, 'src/renderer/public/data/5e')
 const SCHEMA_DIR = path.join(ROOT, 'scripts/schemas')
-const REF_DIR = path.join(ROOT, '5.5e References')
+const REF_DIR = get5eReferencesDir(ROOT)
 
 const BATCH_OUTPUT = path.join(ROOT, 'batch_payload_missing.jsonl')
 const ID_MAP_OUTPUT = path.join(ROOT, 'batch-id-map-missing.json')

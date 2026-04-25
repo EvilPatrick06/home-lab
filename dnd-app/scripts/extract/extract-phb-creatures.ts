@@ -4,8 +4,9 @@
  */
 import fs from 'fs'
 import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
-const SRC_FILE = path.join(process.cwd(), '5.5e References/PHB2024/markdown/appendix-b-creature-stat-blocks.md')
+const SRC_FILE = path.join(get5eReferencesDir(), 'PHB2024/markdown/appendix-b-creature-stat-blocks.md')
 const OUT_DIR = path.join(process.cwd(), 'src/renderer/public/data/5e/dm/npcs/creatures-companions')
 fs.mkdirSync(OUT_DIR, { recursive: true })
 

@@ -1,7 +1,8 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'fs'
+import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
-const PHB_CLASSES_FILE = path.join(process.cwd(), '5.5e References/PHB2024/markdown/03-character-classes.md');
+const PHB_CLASSES_FILE = path.join(get5eReferencesDir(), 'PHB2024/markdown/03-character-classes.md')
 const OUTPUT_FILE = path.join(process.cwd(), 'batch-subclasses.jsonl');
 
 const tsSchema = `

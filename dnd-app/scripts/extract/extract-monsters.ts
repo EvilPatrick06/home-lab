@@ -4,10 +4,11 @@
  */
 import fs from 'fs'
 import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 const ROOT = path.join(process.cwd(), 'src/renderer/public/data/5e/dm/npcs/monsters')
-const BESTIARY = path.join(process.cwd(), '5.5e References/MM2025/markdown/Bestiary')
-const NPCS = path.join(process.cwd(), '5.5e References/MM2025/markdown/NPC\'s/NPCs.md')
+const BESTIARY = path.join(get5eReferencesDir(), 'MM2025/Markdown/Bestiary')
+const NPCS = path.join(get5eReferencesDir(), 'MM2025/Markdown/NPC\'s/NPCs.md')
 function ensureDir(d: string) { fs.mkdirSync(d, { recursive: true }) }
 function kebab(s: string): string {
     return s.replace(/['']/g, '').replace(/\s+/g, '-').replace(/[^a-z0-9-]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase()

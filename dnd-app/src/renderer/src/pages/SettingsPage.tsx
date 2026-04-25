@@ -557,6 +557,44 @@ function CloudBackupSection(): JSX.Element {
   })
   const [loading, setLoading] = useState<string | null>(null)
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  const [bmoPiBaseUrl, setBmoPiBaseUrl] = useState('')
+
+  useEffect(() => {
+    window.api.loadSettings().then((s) => {
+      const v =
+        s &&
+        typeof s === 'object' &&
+        'bmoPiBaseUrl' in s &&
+        typeof (s as { bmoPiBaseUrl?: string }).bmoPiBaseUrl === 'string'
+          ? (s as { bmoPiBaseUrl: string }).bmoPiBaseUrl
+          : ''
+      setBmoPiBaseUrl(v)
+    })
+  }, [])
+
+  const saveBmoPiUrl = async (): Promise<void> => {
+    setLoading('bmo-url')
+    setMessage(null)
+    try {
+      const settings = await window.api.loadSettings()
+      const result = await window.api.saveSettings({
+        ...settings,
+        bmoPiBaseUrl: bmoPiBaseUrl.trim() || undefined
+      })
+      if (result.success) {
+        setMessage({
+          text: 'BMO Pi URL saved. The app uses it for the Pi bridge, cloud sync, and connection policy.',
+          type: 'success'
+        })
+      } else {
+        setMessage({ text: result.error ?? 'Failed to save', type: 'error' })
+      }
+    } catch {
+      setMessage({ text: 'Failed to save BMO URL', type: 'error' })
+    } finally {
+      setLoading(null)
+    }
+  }
 
   const handleCheckStatus = async (): Promise<void> => {
     setLoading('status')
@@ -643,6 +681,35 @@ function CloudBackupSection(): JSX.Element {
         Back up campaign data to Google Drive via rclone on BMO Pi. Credentials are stored on the Pi — nothing is stored
         locally.
       </p>
+
+      <div className="space-y-1.5">
+        <label className="text-xs text-gray-400 block" htmlFor="bmo-pi-base-url">
+          BMO Pi base URL
+        </label>
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            id="bmo-pi-base-url"
+            type="url"
+            name="bmo-pi-base-url"
+            autoComplete="off"
+            placeholder="http://bmo.local:5000"
+            value={bmoPiBaseUrl}
+            onChange={(e) => setBmoPiBaseUrl(e.target.value)}
+            className="flex-1 min-w-[12rem] px-2 py-1.5 text-sm rounded-lg bg-gray-800 border border-gray-700 text-gray-200"
+          />
+          <button
+            type="button"
+            onClick={saveBmoPiUrl}
+            disabled={loading === 'bmo-url'}
+            className="px-3 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {loading === 'bmo-url' ? 'Saving...' : 'Save URL'}
+          </button>
+        </div>
+        <p className="text-[10px] text-gray-500">
+          When set, overrides the <code className="text-gray-400">BMO_PI_URL</code> environment variable for this app.
+        </p>
+      </div>
 
       {/* Status display */}
       {message && (
@@ -733,7 +800,7 @@ export async function factoryResetAllSettings(): Promise<void> {
   keysToRemove.forEach((k) => localStorage.removeItem(k))
 
   // 2. Reset file-based settings
-  await window.api.saveSettings({ turnServers: undefined, userProfile: undefined })
+  await window.api.saveSettings({ turnServers: undefined, userProfile: undefined, bmoPiBaseUrl: undefined })
 
   // 3. Reset in-memory state
   setGlobalVolume(1)

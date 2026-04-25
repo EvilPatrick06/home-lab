@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import dotenv from 'dotenv'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 dotenv.config()
 
@@ -9,8 +10,9 @@ const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY
 })
 
-const MD_DIR = join(process.cwd(), '5.5e References', 'PHB2024', 'markdown')
-const DMG_DIR = join(process.cwd(), '5.5e References', 'DMG2024', 'markdown')
+const REF = get5eReferencesDir()
+const MD_DIR = join(REF, 'PHB2024', 'markdown')
+const DMG_DIR = join(REF, 'DMG2024', 'markdown')
 
 // Only scan chapters that usually contain massive lists of mechanics we might not have hardcoded
 const TARGET_CHAPTERS = [

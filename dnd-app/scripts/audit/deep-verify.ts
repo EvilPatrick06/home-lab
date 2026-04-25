@@ -9,13 +9,15 @@
  */
 import fs from 'fs'
 import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
+const REF = get5eReferencesDir()
 const DATA = path.join(process.cwd(), 'src/renderer/public/data/5e')
-const PHB = path.join(process.cwd(), '5.5e References/PHB2024/markdown')
-const DMG = path.join(process.cwd(), '5.5e References/DMG2024/markdown')
-const MM_BEST = path.join(process.cwd(), '5.5e References/MM2025/markdown/Bestiary')
-const MM_NPC = path.join(process.cwd(), '5.5e References/MM2025/markdown/NPC\'s/NPCs.md')
-const MM_ANIM = path.join(process.cwd(), '5.5e References/MM2025/markdown/Appendices/Creatures.md')
+const PHB = path.join(REF, 'PHB2024/markdown')
+const DMG = path.join(REF, 'DMG2024/markdown')
+const MM_BEST = path.join(REF, 'MM2025/Markdown/Bestiary')
+const MM_NPC = path.join(REF, 'MM2025/Markdown/NPC\'s/NPCs.md')
+const MM_ANIM = path.join(REF, 'MM2025/Markdown/Appendices/Creatures.md')
 
 function kebab(s: string): string {
     return s.replace(/['']/g, '').replace(/\s+/g, '-').replace(/[^a-z0-9-]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase()

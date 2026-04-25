@@ -3,10 +3,13 @@ import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, nativeImage, shell } from 'electron'
 import { initFromSavedConfig } from './ai/ai-service'
+import { applyBmoBaseUrlFromSettings } from './bmo-config'
+import { bmoCspConnectFragment } from './bmo-csp'
 import { registerIpcHandlers } from './ipc'
 import { logToFile } from './log'
 import { registerPluginProtocol, registerPluginScheme } from './plugins/plugin-protocol'
 import { registerCoreBooks } from './storage/book-storage'
+import { loadSettings } from './storage/settings-storage'
 import { registerUpdateHandlers } from './updater'
 
 // ── Unhandled Error Handlers ──
@@ -59,11 +62,12 @@ function createWindow(): void {
   }
 
   // Content Security Policy — relax inline restrictions in dev for Vite HMR
-  const devConnect = is.dev ? ' ws://localhost:5173 http://localhost:5173' : ''
-  const piConnect = ' ws://10.10.20.242:* http://10.10.20.242:*'
+  // Rebuild CSP on each response so BMO `connect-src` updates after settings save
   const inlinePolicy = is.dev ? " 'unsafe-inline' 'unsafe-eval'" : ''
-  const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' plugin:${inlinePolicy}; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    const devConnect = is.dev ? ' ws://localhost:5173 http://localhost:5173' : ''
+    const piConnect = bmoCspConnectFragment()
+    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' plugin:${inlinePolicy}; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
     callback({
       responseHeaders: {
         ...details.responseHeaders,
@@ -132,6 +136,11 @@ async function cleanupTmpFiles(dir: string): Promise<void> {
 app.whenReady().then(async () => {
   app.setAppUserModelId('com.dnd-vtt.app')
   cleanupTmpFiles(app.getPath('userData'))
+
+  const st = await loadSettings()
+  if (st.success && st.data) {
+    applyBmoBaseUrlFromSettings(st.data)
+  }
 
   // Install React DevTools in dev mode
   if (is.dev) {

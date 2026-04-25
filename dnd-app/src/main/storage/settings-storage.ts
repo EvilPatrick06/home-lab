@@ -26,7 +26,9 @@ export const AppSettingsSchema = z
         avatarPath: z.string().optional(),
         createdAt: z.string()
       })
-      .optional()
+      .optional(),
+    /** BMO Pi HTTP base (main fetches, cloud sync, CSP). Empty/unset → BMO_PI_URL env or default. */
+    bmoPiBaseUrl: z.string().optional()
   })
   .passthrough()
 

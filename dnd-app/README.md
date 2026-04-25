@@ -61,7 +61,7 @@ dnd-app/
 │   │   │   ├── network/           25 files — peerjs multiplayer (client/host managers, message handlers, game sync)
 │   │   │   ├── utils/, types/, hooks/, systems/, constants/, events/, styles/
 │   │   └── public/
-│   │       └── data/5e/           3096 JSON files — D&D 2024 content (spells, equipment, monsters, classes, feats, origins, ...)
+│   │       └── data/5e/           3028 JSON files — D&D 2024 content (spells, equipment, monsters, classes, feats, origins, ...)
 │   ├── shared/                    10 files — cross-process types, schemas, IPC channels
 │   └── __mocks__/                 vitest mocks
 │
@@ -108,7 +108,7 @@ dnd-app/
 ## Talking to BMO
 
 VTT → BMO: HTTP client at `src/main/bmo-bridge.ts`.
-- Base URL: `process.env.BMO_PI_URL || 'http://bmo.local:5000'`
+- Base URL: saved **BMO Pi base URL** in app settings, else `BMO_PI_URL`, else `http://bmo.local:5000` (see `src/main/bmo-config.ts`)
 - Timeout: 15s
 - Used for: narration sync, combat state push, Discord DM session control
 

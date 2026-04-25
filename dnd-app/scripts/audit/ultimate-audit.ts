@@ -6,11 +6,13 @@
  */
 import fs from 'fs'
 import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
+const REF = get5eReferencesDir()
 const DATA = path.join(process.cwd(), 'src/renderer/public/data/5e')
-const PHB = path.join(process.cwd(), '5.5e References/PHB2024/markdown')
-const DMG = path.join(process.cwd(), '5.5e References/DMG2024/markdown')
-const MM = path.join(process.cwd(), '5.5e References/MM2025/markdown')
+const PHB = path.join(REF, 'PHB2024/markdown')
+const DMG = path.join(REF, 'DMG2024/markdown')
+const MM = path.join(REF, 'MM2025/Markdown')
 const REPORT = path.join(process.cwd(), 'audit-report.md')
 
 type Sev = 'CRITICAL' | 'WARNING' | 'INFO'

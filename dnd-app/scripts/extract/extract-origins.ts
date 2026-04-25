@@ -4,6 +4,7 @@
  */
 import fs from 'fs'
 import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 const ROOT = path.join(process.cwd(), 'src/renderer/public/data/5e')
 function ensureDir(d: string) { fs.mkdirSync(d, { recursive: true }) }
@@ -11,7 +12,10 @@ function kebab(s: string): string {
     return s.replace(/['']/g, '').replace(/\s+/g, '-').replace(/[^a-z0-9-]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase()
 }
 
-const lines = fs.readFileSync(path.join(process.cwd(), '5.5e References/PHB2024/markdown/04-character-origins.md'), 'utf-8').split('\n').map(l => l.replace(/\r/g, ''))
+const lines = fs
+  .readFileSync(path.join(get5eReferencesDir(), 'PHB2024/markdown/04-character-origins.md'), 'utf-8')
+  .split('\n')
+  .map((l) => l.replace(/\r/g, ''))
 const phb4 = { book: '2024 Players Handbook', chapter: 'Chapter 4', section: '' }
 
 // ── BACKGROUNDS ──

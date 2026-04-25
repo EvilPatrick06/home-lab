@@ -8,6 +8,7 @@ import {
   GameStateSaveSchema,
   HomebrewSaveSchema
 } from '../../shared/storage-schemas'
+import { applyBmoBaseUrlFromSettings } from '../bmo-config'
 import { loadBans, saveBans } from '../storage/ban-storage'
 import { deleteBastion, loadBastion, loadBastions, saveBastion } from '../storage/bastion-storage'
 import {
@@ -262,7 +263,11 @@ export function registerStorageHandlers(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, async (_event, settings: AppSettings) => {
-    return await saveSettings(settings)
+    const result = await saveSettings(settings)
+    if (result.success) {
+      applyBmoBaseUrlFromSettings(settings)
+    }
+    return result
   })
 
   // --- Ban storage ---

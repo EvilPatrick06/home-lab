@@ -1,19 +1,22 @@
-import fs from 'fs';
-import path from 'path';
-import crypto from 'crypto';
+import fs from 'fs'
+import path from 'path'
+import crypto from 'crypto'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
-const DATA_DIR = path.join(process.cwd(), 'src/renderer/public/data/5e');
-const SCHEMA_DIR = path.join(process.cwd(), 'scripts/schemas');
-const DISCOVERIES_FILE = path.join(process.cwd(), 'phase4-discoveries.json');
-const BATCH_OUTPUT = path.join(process.cwd(), 'batch_payload_phase4.jsonl');
-const ID_MAP_OUTPUT = path.join(process.cwd(), 'batch-id-map-phase4.json');
+const DATA_DIR = path.join(process.cwd(), 'src/renderer/public/data/5e')
+const SCHEMA_DIR = path.join(process.cwd(), 'scripts/schemas')
+const DISCOVERIES_FILE = path.join(process.cwd(), 'phase4-discoveries.json')
+const BATCH_OUTPUT = path.join(process.cwd(), 'batch_payload_phase4.jsonl')
+const ID_MAP_OUTPUT = path.join(process.cwd(), 'batch-id-map-phase4.json')
+
+const REF_BASE = get5eReferencesDir()
 
 // We will concatenate the highest-yield chapters so the Swarm has all reference context it needs.
 const REF_FILES = [
-    path.join(process.cwd(), '5.5e References/PHB2024/markdown/01-playing-the-game.md'),
-    path.join(process.cwd(), '5.5e References/PHB2024/markdown/appendix-c-rules-glossary.md'),
-    path.join(process.cwd(), '5.5e References/DMG2024/markdown/ch6-cosmology.md')
-];
+  path.join(REF_BASE, 'PHB2024/markdown/01-playing-the-game.md'),
+  path.join(REF_BASE, 'PHB2024/markdown/appendix-c-rules-glossary.md'),
+  path.join(REF_BASE, 'DMG2024/markdown/ch6-cosmology.md'),
+]
 
 function getCombinedContext() {
     let combined = '';

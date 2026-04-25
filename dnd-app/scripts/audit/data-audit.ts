@@ -10,9 +10,10 @@
 
 import fs from 'fs'
 import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
 const ROOT = path.join(process.cwd(), 'src/renderer/public/data/5e')
-const REF_DIR = path.join(process.cwd(), '5.5e References')
+const REF_DIR = get5eReferencesDir()
 
 // ── Stats ──
 

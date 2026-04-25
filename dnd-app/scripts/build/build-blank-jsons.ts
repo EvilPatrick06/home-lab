@@ -1,8 +1,9 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'fs'
+import path from 'path'
+import { get5eReferencesDir } from '../lib/5e-refs-path'
 
-const BASE_DIR = path.join(__dirname, '../src/renderer/public/data/5e');
-const REF_DIR = path.join(__dirname, '../5.5e References');
+const BASE_DIR = path.join(__dirname, '../src/renderer/public/data/5e')
+const REF_DIR = get5eReferencesDir()
 
 const explicitJsonFiles = [
     'character/faction-status.json',
