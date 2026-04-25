@@ -12,6 +12,16 @@
 
 ---
 
+### [2026-04-25] Suggestions log (domain: both) — 5e JSON + data ownership folded into DATA-FLOW / DESIGN-CONSTRAINTS
+
+- **Original severity:** info
+- **Category:** docs
+- **Domain:** both
+- **Resolved by:** Cursor agent (with BMO suggestions sweep)
+- **Date resolved:** 2026-04-25
+
+**Resolution:** Replaced long mirrored entries in [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) with a single pointer. Canonical text: [`DATA-FLOW.md`](./DATA-FLOW.md), [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md). Partner archive: [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) → **"BMO suggestions log — full sweep"**.
+
 ### [2026-04-25] dnd-app Vitest: 30 failing tests (633 files / 6137 tests)
 
 - **Original severity:** medium

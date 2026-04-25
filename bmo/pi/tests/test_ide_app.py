@@ -554,7 +554,8 @@ class TestRunFile:
     def test_supported_extensions_accepted(self, client, tmp_path):
         """Supported extensions should not return 400 (may fail to run, but won't 400)."""
         for ext in (".py", ".sh", ".js"):
-            f = tmp_path / f"test_file{ext}"
+            # Avoid "test" in basename — /api/run treats *test*.* as test-discovery mode
+            f = tmp_path / f"script{ext}"
             f.write_text("# placeholder")
             resp = client.post(
                 "/api/run",

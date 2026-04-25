@@ -1,6 +1,6 @@
 import { usePanelResize } from '../../../hooks/use-panel-resize'
 import { useMacroStore } from '../../../stores/use-macro-store'
-import { useNetworkStore } from '../../../stores/use-network-store'
+import { useNetworkStore } from '../../../stores/network-store'
 import type { Campaign } from '../../../types/campaign'
 import ResizeHandle from '../ResizeHandle'
 import ChatPanel from './ChatPanel'

@@ -102,6 +102,10 @@ bmo/pi/data/play_counts.json
 bmo/pi/data/playback_state.json
 bmo/pi/data/recent_chat.json
 bmo/pi/data/settings.json
+bmo/pi/data/dnd_sessions/
+
+# Hardware LED / local UI state (runtime)
+bmo/pi/hardware/data/
 
 # Monitoring agents write here — entire dir is runtime state
 bmo/pi/services/data/*.json

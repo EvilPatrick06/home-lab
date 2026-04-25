@@ -12,6 +12,10 @@ from typing import Optional
 
 import requests
 
+# Gevent: `os.system("curl …")` below is intentional — gevent patches subprocess/requests;
+# do not replace with subprocess.run or requests without load-testing voice/STT paths.
+# See bmo/docs/DESIGN-CONSTRAINTS.md
+
 # Persistent HTTP sessions for connection reuse (avoids TCP+TLS handshake per call)
 _groq_session = requests.Session()
 _fish_session = requests.Session()
@@ -198,7 +202,7 @@ def gemini_chat_stream(messages: list[dict], model: str = "",
     try:
         _t0 = _time.time()
         # os.system bypasses gevent monkey-patching (gevent patches subprocess but not os.system)
-        ret = os.system(
+        ret = os.system(  # nosec B605
             f"curl -sS -X POST {shlex.quote(url)} "
             f"-H 'Content-Type: application/json' "
             f"-d @{shlex.quote(payload_path)} "
@@ -414,7 +418,7 @@ def groq_stt(audio_bytes: bytes, language: str = "en", prompt: str = "") -> dict
     try:
         prompt_flag = f" -F prompt={shlex.quote(prompt)}" if prompt else ""
         _t0 = _time.time()
-        ret = os.system(
+        ret = os.system(  # nosec B605
             f"curl -sS -X POST {shlex.quote(GROQ_BASE + '/audio/transcriptions')} "
             f"-H 'Authorization: Bearer {GROQ_API_KEY}' "
             f"-F 'file=@{tmp_path};type=audio/wav' "
@@ -498,7 +502,7 @@ def fish_audio_tts(text: str, voice_id: str = "",
 
     try:
         _t0 = _time.time()
-        ret = os.system(
+        ret = os.system(  # nosec B605
             f"curl -sS -X POST {shlex.quote(FISH_AUDIO_BASE + '/tts')} "
             f"-H 'Authorization: Bearer {FISH_AUDIO_API_KEY}' "
             f"-H 'Content-Type: application/json' "

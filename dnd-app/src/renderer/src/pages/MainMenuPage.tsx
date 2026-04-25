@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router'
-import { useNetworkStore } from '../stores/use-network-store'
+import { useNetworkStore } from '../stores/network-store'
 
 const menuItems = [
   {

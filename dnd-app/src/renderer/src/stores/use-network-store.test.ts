@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
 
-import { useNetworkStore } from './use-network-store'
+import { useNetworkStore } from './network-store'
 
 describe('useNetworkStore', () => {
   it('can be imported', async () => {
-    const mod = await import('./use-network-store')
+    const mod = await import('./network-store')
     expect(mod).toBeDefined()
   })
 

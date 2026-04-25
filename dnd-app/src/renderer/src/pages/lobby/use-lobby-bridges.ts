@@ -10,7 +10,7 @@ import type {
 import { onClientMessage, onHostMessage } from '../../network'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/use-network-store'
+import { useNetworkStore } from '../../stores/network-store'
 import type { Character } from '../../types/character'
 import { logger } from '../../utils/logger'
 

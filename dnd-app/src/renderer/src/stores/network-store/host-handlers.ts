@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import type {
   BuyItemPayload,
   ColorChangePayload,
@@ -20,7 +19,7 @@ import type {
   TurnEndPayload,
   WhisperPayload
 } from '../../network'
-import { broadcastExcluding, broadcastMessage, getPeerId, getPeerInfo, sendToPeer, updatePeerInfo } from '../../network'
+import { broadcastExcluding, broadcastMessage, getPeerId, getPeerInfo, PAYLOAD_SCHEMAS, sendToPeer, updatePeerInfo } from '../../network'
 import type { Character5e } from '../../types/character-5e'
 import { useGameStore } from '../use-game-store'
 import { useLobbyStore } from '../use-lobby-store'
@@ -28,26 +27,6 @@ import type { NetworkState } from './index'
 
 // In-memory trade tracking
 const pendingTrades = new Map<string, TradeRequestPayload>()
-
-// ── Payload Validation Schemas ──
-
-const PriceSchema = z.object({
-  cp: z.number().optional(),
-  sp: z.number().optional(),
-  gp: z.number().optional(),
-  pp: z.number().optional()
-})
-
-const BuyItemPayloadSchema = z.object({
-  itemId: z.string(),
-  itemName: z.string(),
-  price: PriceSchema
-})
-
-const SellItemPayloadSchema = z.object({
-  itemName: z.string(),
-  price: PriceSchema
-})
 
 /**
  * Handle messages received by the host from connected peers.
@@ -59,6 +38,24 @@ export function handleHostMessage(
   get: () => NetworkState,
   _set: (partial: Partial<NetworkState> | ((state: NetworkState) => Partial<NetworkState>)) => void
 ): void {
+  if (message.senderId && message.senderId !== fromPeerId) {
+    console.warn('[host-handlers] Rejecting message (senderId !== connection peer):', {
+      type: message.type,
+      fromPeerId,
+      senderId: message.senderId
+    })
+    return
+  }
+
+  const payloadSchema = PAYLOAD_SCHEMAS[message.type as keyof typeof PAYLOAD_SCHEMAS]
+  if (payloadSchema) {
+    const pr = payloadSchema.safeParse(message.payload)
+    if (!pr.success) {
+      console.warn('[host-handlers] Invalid payload for', message.type, pr.error.issues)
+      return
+    }
+  }
+
   switch (message.type) {
     case 'player:ready': {
       const readyPayload = message.payload as { isReady?: boolean }
@@ -127,12 +124,7 @@ export function handleHostMessage(
     }
 
     case 'player:buy-item': {
-      const buyResult = BuyItemPayloadSchema.safeParse(message.payload)
-      if (!buyResult.success) {
-        console.warn('[host-handlers] Invalid buy-item payload:', buyResult.error.issues)
-        break
-      }
-      const buyPayload = buyResult.data as BuyItemPayload
+      const buyPayload = message.payload as BuyItemPayload
       {
         const gameStore = useGameStore.getState()
         const updatedInventory = gameStore.shopInventory.map((item: ShopItem) => {
@@ -156,12 +148,7 @@ export function handleHostMessage(
       break
     }
     case 'player:sell-item': {
-      const sellResult = SellItemPayloadSchema.safeParse(message.payload)
-      if (!sellResult.success) {
-        console.warn('[host-handlers] Invalid sell-item payload:', sellResult.error.issues)
-        break
-      }
-      const sellPayload = sellResult.data as SellItemPayload
+      const sellPayload = message.payload as SellItemPayload
       {
         const gameStore = useGameStore.getState()
         const existing = gameStore.shopInventory.find(
@@ -231,6 +218,10 @@ export function handleHostMessage(
 
     case 'player:trade-request': {
       const payload = message.payload as TradeRequestPayload
+      if (payload.fromPeerId !== fromPeerId) {
+        console.warn('[host-handlers] trade-request fromPeerId mismatch')
+        break
+      }
       pendingTrades.set(payload.tradeId, payload)
       // Forward to the target player
       sendToPeer(payload.toPeerId, message)
@@ -239,6 +230,10 @@ export function handleHostMessage(
 
     case 'player:trade-response': {
       const payload = message.payload as TradeResponsePayload
+      if (payload.fromPeerId !== fromPeerId) {
+        console.warn('[host-handlers] trade-response fromPeerId mismatch')
+        break
+      }
       const trade = pendingTrades.get(payload.tradeId)
       if (!trade) break
       pendingTrades.delete(payload.tradeId)
@@ -365,6 +360,10 @@ export function handleHostMessage(
 
     case 'player:inspect-request': {
       const payload = message.payload as InspectRequestPayload
+      if (payload.requesterPeerId !== fromPeerId) {
+        console.warn('[host-handlers] inspect-request requesterPeerId mismatch')
+        break
+      }
       const lobby = useLobbyStore.getState()
       // Try to find the character from remote characters
       let charData: unknown = null

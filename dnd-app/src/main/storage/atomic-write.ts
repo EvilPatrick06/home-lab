@@ -1,3 +1,4 @@
+import { renameSync, writeFileSync } from 'node:fs'
 import { rename, writeFile } from 'node:fs/promises'
 
 /**
@@ -15,4 +16,11 @@ export async function atomicWriteFile(filePath: string, data: string): Promise<v
   await writeFile(tmpPath, data, 'utf-8')
   // Atomically overwrite the target file (on Windows NTFS, this is atomic for same-volume renames)
   await rename(tmpPath, filePath)
+}
+
+/** Synchronous atomic write (main-process config that must stay sync). */
+export function atomicWriteFileSync(filePath: string, data: string): void {
+  const tmpPath = `${filePath}.tmp`
+  writeFileSync(tmpPath, data, 'utf-8')
+  renameSync(tmpPath, filePath)
 }

@@ -24,7 +24,7 @@ export interface ExecutionResult {
 export interface StoreAccessors {
   getGameStore: () => typeof import('../../stores/use-game-store').useGameStore
   getLobbyStore: () => typeof import('../../stores/use-lobby-store').useLobbyStore
-  getNetworkStore: () => typeof import('../../stores/use-network-store').useNetworkStore
+  getNetworkStore: () => typeof import('../../stores/network-store').useNetworkStore
 }
 
 export type GameStoreState = ReturnType<StoreAccessors['getGameStore']>

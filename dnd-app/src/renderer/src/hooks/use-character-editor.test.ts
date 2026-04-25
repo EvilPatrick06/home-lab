@@ -17,7 +17,7 @@ vi.mock('../stores/use-character-store', () => ({
   )
 }))
 
-vi.mock('../stores/use-network-store', () => ({
+vi.mock('../stores/network-store', () => ({
   useNetworkStore: Object.assign(
     vi.fn(() => ({})),
     {

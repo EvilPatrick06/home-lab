@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ShopItem } from '../../../network'
 import { load5ePoisons } from '../../../services/data-provider'
 import { useGameStore } from '../../../stores/use-game-store'
-import { useNetworkStore } from '../../../stores/use-network-store'
+import { useNetworkStore } from '../../../stores/network-store'
 import type { Poison, Settlement } from '../../../types/dm-toolbox'
 
 type _Settlement = Settlement

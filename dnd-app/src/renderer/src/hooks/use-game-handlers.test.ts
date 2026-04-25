@@ -59,7 +59,7 @@ vi.mock('../stores/use-ai-dm-store', () => ({
   )
 }))
 
-vi.mock('../stores/use-network-store', () => ({
+vi.mock('../stores/network-store', () => ({
   useNetworkStore: Object.assign(
     vi.fn(() => ({})),
     {

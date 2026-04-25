@@ -1,10 +1,12 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { sendNarrationToDiscord } from '../discord-integration'
 import { logToFile } from '../log'
 import { saveConversation } from '../storage/ai-conversation-storage'
+import { atomicWriteFileSync } from '../storage/atomic-write'
+import { decryptOptional, encryptOptional } from '../storage/safe-secret-storage'
 import { parseRuleCitations, stripRuleCitations } from './ai-response-parser'
 import type { PendingWebSearchApproval, StreamHandlerDeps } from './ai-stream-handler'
 import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
@@ -242,15 +244,15 @@ export function configure(config: AiConfig): void {
   })
 
   const configPath = getConfigPath()
-  writeFileSync(
+  atomicWriteFileSync(
     configPath,
     JSON.stringify({
       provider: currentConfig.provider,
       model: currentConfig.model,
       ollamaUrl: currentConfig.ollamaUrl,
-      claudeApiKey: currentConfig.claudeApiKey,
-      openaiApiKey: currentConfig.openaiApiKey,
-      geminiApiKey: currentConfig.geminiApiKey
+      claudeApiKey: encryptOptional(currentConfig.claudeApiKey),
+      openaiApiKey: encryptOptional(currentConfig.openaiApiKey),
+      geminiApiKey: encryptOptional(currentConfig.geminiApiKey)
     })
   )
 }
@@ -259,14 +261,14 @@ export function getConfig(): AiConfig {
   const configPath = getConfigPath()
   if (existsSync(configPath)) {
     try {
-      const saved = JSON.parse(readFileSync(configPath, 'utf-8'))
+      const saved = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>
       currentConfig = {
-        provider: saved.provider ?? 'ollama',
-        model: saved.model || saved.ollamaModel || 'llama3.1',
-        ollamaUrl: saved.ollamaUrl || OLLAMA_BASE_URL,
-        claudeApiKey: saved.claudeApiKey,
-        openaiApiKey: saved.openaiApiKey,
-        geminiApiKey: saved.geminiApiKey
+        provider: (saved.provider as string) ?? 'ollama',
+        model: (saved.model as string) || (saved.ollamaModel as string) || 'llama3.1',
+        ollamaUrl: (saved.ollamaUrl as string) || OLLAMA_BASE_URL,
+        claudeApiKey: decryptOptional(saved.claudeApiKey as string | undefined),
+        openaiApiKey: decryptOptional(saved.openaiApiKey as string | undefined),
+        geminiApiKey: decryptOptional(saved.geminiApiKey as string | undefined)
       }
     } catch {
       // Use defaults

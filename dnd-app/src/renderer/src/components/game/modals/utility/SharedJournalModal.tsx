@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { addToast } from '../../../../hooks/use-toast'
 import { useCampaignStore } from '../../../../stores/use-campaign-store'
 import { useGameStore } from '../../../../stores/use-game-store'
-import { useNetworkStore } from '../../../../stores/use-network-store'
+import { useNetworkStore } from '../../../../stores/network-store'
 import type { SharedJournalEntry } from '../../../../types/game-state'
 import ModalFormFooter from '../shared/ModalFormFooter'
 

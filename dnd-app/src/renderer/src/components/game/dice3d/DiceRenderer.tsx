@@ -10,6 +10,27 @@ import {
   runSimulation
 } from './dice-physics'
 
+/** Free GPU memory for meshes removed from the scene (geometries, materials, textures). */
+function disposeObject3D(root: THREE.Object3D): void {
+  root.traverse((o) => {
+    if (o instanceof THREE.Mesh || o instanceof THREE.LineSegments) {
+      o.geometry?.dispose()
+      const m = o.material
+      if (Array.isArray(m)) {
+        for (const mat of m) disposeOneMaterial(mat)
+      } else if (m) {
+        disposeOneMaterial(m)
+      }
+    }
+  })
+}
+
+function disposeOneMaterial(m: THREE.Material): void {
+  const any = m as THREE.MeshStandardMaterial & { map?: THREE.Texture | null }
+  any.map?.dispose()
+  m.dispose()
+}
+
 // ─── Types ────────────────────────────────────────────────────
 
 export interface DiceRollRequest {
@@ -44,6 +65,7 @@ export default function DiceRenderer({
   const physicsRef = useRef<PhysicsWorld | null>(null)
   const simRef = useRef<{ stop: () => void } | null>(null)
   const diceDefsRef = useRef<Map<string, DieDefinition>>(new Map())
+  const floorRef = useRef<THREE.Mesh | null>(null)
   const settledRef = useRef(false)
 
   // ── Setup Three.js scene (once) ──────────────────────────
@@ -102,11 +124,24 @@ export default function DiceRenderer({
     floor.rotation.x = -Math.PI / 2
     floor.receiveShadow = true
     scene.add(floor)
+    floorRef.current = floor
 
     return () => {
       cancelAnimationFrame(animFrameRef.current)
       simRef.current?.stop()
       if (physicsRef.current) destroyPhysicsWorld(physicsRef.current)
+      physicsRef.current = null
+      diceDefsRef.current.forEach((def) => {
+        disposeObject3D(def.mesh)
+        if (def.wireframe) disposeObject3D(def.wireframe)
+      })
+      diceDefsRef.current.clear()
+      const f = floorRef.current
+      if (f) {
+        f.geometry?.dispose()
+        if (f.material) disposeOneMaterial(f.material as THREE.Material)
+        floorRef.current = null
+      }
       renderer.dispose()
       renderer.domElement.remove()
       scene.clear()
@@ -129,8 +164,12 @@ export default function DiceRenderer({
     if (!scene) return
 
     diceDefsRef.current.forEach((def) => {
+      disposeObject3D(def.mesh)
       scene.remove(def.mesh)
-      if (def.wireframe) scene.remove(def.wireframe)
+      if (def.wireframe) {
+        disposeObject3D(def.wireframe)
+        scene.remove(def.wireframe)
+      }
     })
     diceDefsRef.current.clear()
 

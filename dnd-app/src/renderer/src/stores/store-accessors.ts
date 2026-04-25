@@ -5,7 +5,7 @@
 
 type GameStore = typeof import('./use-game-store').useGameStore
 type LobbyStore = typeof import('./use-lobby-store').useLobbyStore
-type NetworkStore = typeof import('./use-network-store').useNetworkStore
+type NetworkStore = typeof import('./network-store').useNetworkStore
 type AiDmStore = typeof import('./use-ai-dm-store').useAiDmStore
 
 let _getGameStore: (() => GameStore) | null = null

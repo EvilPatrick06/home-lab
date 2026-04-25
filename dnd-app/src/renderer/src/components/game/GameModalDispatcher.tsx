@@ -1,7 +1,7 @@
 import type { MessageType } from '../../network'
 import { useGameStore } from '../../stores/use-game-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/use-network-store'
+import { useNetworkStore } from '../../stores/network-store'
 import type { Campaign } from '../../types/campaign'
 import type { Character } from '../../types/character'
 import type { Companion5e } from '../../types/companion'

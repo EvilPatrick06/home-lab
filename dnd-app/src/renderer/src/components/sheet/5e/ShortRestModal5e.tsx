@@ -7,7 +7,7 @@ import {
 } from '../../../services/character/rest-service-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
-import { useNetworkStore } from '../../../stores/use-network-store'
+import { useNetworkStore } from '../../../stores/network-store'
 import { is5eCharacter } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import { abilityModifier } from '../../../types/character-common'

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { BackButton, Button, Input, Spinner } from '../components/ui'
 import { AUTO_REJOIN_KEY, DISPLAY_NAME_KEY, JOINED_SESSIONS_KEY, LAST_SESSION_KEY } from '../constants'
-import { useNetworkStore } from '../stores/use-network-store'
+import { useNetworkStore } from '../stores/network-store'
 import { logger } from '../utils/logger'
 
 export default function JoinGamePage(): JSX.Element {

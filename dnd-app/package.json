@@ -23,7 +23,7 @@
     "format": "biome format --write src/",
     "audit:ci": "npm audit --audit-level=critical",
     "dead-code": "npx knip",
-    "circular": "npx madge --circular --extensions ts,tsx src/"
+    "circular": "npx dpdm@3.14.0 --no-warning --no-tree --transform --extensions ts,tsx --exit-code circular:1 src/main/index.ts src/renderer/src/main.tsx"
   },
   "keywords": [
     "dnd",
@@ -110,9 +110,6 @@
       "include": "resources/installer.nsh"
     }
   },
-  "optionalDependencies": {
-    "isolated-vm": "^5.0.1"
-  },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
     "@electron-toolkit/utils": "^4.0.0",
@@ -132,12 +129,11 @@
     "knip": "^5.85.0",
     "license-checker": "^25.0.1",
     "lockfile-lint": "^5.0.0",
-    "madge": "^8.0.0",
+    "dpdm": "^3.14.0",
     "npm-check-updates": "^19.6.3",
     "oxlint": "^1.50.0",
     "rollup-plugin-visualizer": "^7.0.0",
     "tailwindcss": "^4.2.1",
-    "ts-prune": "^0.10.3",
     "tsx": "^4.21.0",
     "type-coverage": "^2.29.7",
     "typescript": "^5.9.3",

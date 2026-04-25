@@ -13,7 +13,7 @@ import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-d
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
-import { useNetworkStore } from '../../../stores/use-network-store'
+import { useNetworkStore } from '../../../stores/network-store'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import type { SpellEntry } from '../../../types/character-common'

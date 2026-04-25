@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
-import { useNetworkStore } from '../../../../stores/use-network-store'
+import { useNetworkStore } from '../../../../stores/network-store'
 import type { PartyInventoryItem } from '../../../../types/game-state'
 
 interface PartyInventoryModalProps {

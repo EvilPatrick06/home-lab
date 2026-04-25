@@ -3,7 +3,7 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useCallback, useMemo, useState } from 'react'
 import { useGameStore } from '../../../stores/use-game-store'
-import { useNetworkStore } from '../../../stores/use-network-store'
+import { useNetworkStore } from '../../../stores/network-store'
 import type { SharedJournalEntry } from '../../../types/game-state'
 
 // ---------------------------------------------------------------------------

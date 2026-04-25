@@ -7,7 +7,7 @@ import { rollMultiple, rollSingle } from '../../../../services/dice/dice-service
 import { useCharacterStore } from '../../../../stores/use-character-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
-import { useNetworkStore } from '../../../../stores/use-network-store'
+import { useNetworkStore } from '../../../../stores/network-store'
 import { is5eCharacter } from '../../../../types/character'
 import type { Character5e } from '../../../../types/character-5e'
 import type { MonsterAction, MonsterStatBlock } from '../../../../types/monster'

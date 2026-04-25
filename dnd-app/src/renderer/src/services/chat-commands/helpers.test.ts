@@ -46,7 +46,7 @@ vi.mock('../../stores/use-lobby-store', () => ({
   }
 }))
 
-vi.mock('../../stores/use-network-store', () => ({
+vi.mock('../../stores/network-store', () => ({
   useNetworkStore: {
     getState: vi.fn(() => ({
       localPeerId: 'local',
@@ -71,7 +71,7 @@ vi.mock('../../types/character', () => ({
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useGameStore } from '../../stores/use-game-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/use-network-store'
+import { useNetworkStore } from '../../stores/network-store'
 import {
   broadcastDiceResult,
   findTokenByName,

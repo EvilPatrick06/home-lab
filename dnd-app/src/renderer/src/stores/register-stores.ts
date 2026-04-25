@@ -7,7 +7,7 @@ import { setStoreAccessors } from './store-accessors'
 import { useAiDmStore } from './use-ai-dm-store'
 import { useGameStore } from './use-game-store'
 import { useLobbyStore } from './use-lobby-store'
-import { useNetworkStore } from './use-network-store'
+import { useNetworkStore } from './network-store'
 
 setStoreAccessors({
   getGameStore: () => useGameStore,

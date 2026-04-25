@@ -52,7 +52,8 @@ def _run_hook_command(
     try:
         result = subprocess.run(
             command,
-            shell=True,
+            shell=True,  # nosec B602
+            # User-configured shell pipelines; see bmo/docs/DESIGN-CONSTRAINTS.md
             input=json.dumps(stdin_data),
             capture_output=True,
             text=True,

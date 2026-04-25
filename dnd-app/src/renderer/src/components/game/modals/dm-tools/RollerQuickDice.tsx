@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import type { DiceRollHiddenPayload } from '../../../../network'
-import { useNetworkStore } from '../../../../stores/use-network-store'
+import { useNetworkStore } from '../../../../stores/network-store'
 import { rollDice } from '../../../../utils/dice-utils'
 
 export interface QuickRollResult {

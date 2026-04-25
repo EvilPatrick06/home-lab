@@ -10,10 +10,14 @@ import {
 } from '../../shared/ipc-schemas'
 import type { AiConnectionStatus, StreamResult } from '../ai/ai-service'
 import * as aiService from '../ai/ai-service'
-import type { GameStateSnapshot } from '../ai/ai-trigger-observer'
-import type { MapStateForVisionAnalysis } from '../ai/ai-vision'
 import { buildContext, getLastTokenBreakdown, getSearchEngine } from '../ai/context-builder'
 import type { DmAction } from '../ai/dm-actions'
+import { analyzeMapState, captureMapScreenshot, type MapStateForVisionAnalysis } from '../ai/ai-vision'
+import { processStateUpdate, type GameStateSnapshot } from '../ai/ai-trigger-observer'
+import { setClaudeApiKey } from '../ai/claude-client'
+import { setGeminiApiKey } from '../ai/gemini-client'
+import { getDmStatus, sendNarration, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
+import { setOpenAIApiKey } from '../ai/openai-client'
 import { type AiProviderType, CLOUD_MODELS } from '../ai/llm-provider'
 import { type CombatState, getMemoryManager, type WorldState } from '../ai/memory-manager'
 import {
@@ -106,10 +110,6 @@ export function registerAiHandlers(): void {
 
     try {
       const provider = getProvider(providerType as AiProviderType)
-
-      const { setClaudeApiKey } = await import('../ai/claude-client')
-      const { setOpenAIApiKey } = await import('../ai/openai-client')
-      const { setGeminiApiKey } = await import('../ai/gemini-client')
 
       if (providerType === 'claude') setClaudeApiKey(apiKey)
       else if (providerType === 'openai') setOpenAIApiKey(apiKey)
@@ -537,7 +537,6 @@ export function registerAiHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.AI_CAPTURE_MAP, async () => {
     try {
-      const { captureMapScreenshot } = await import('../ai/ai-vision')
       const buffer = await captureMapScreenshot()
       if (!buffer) return { success: false, error: 'No window available' }
       return { success: true, data: buffer.toString('base64') }
@@ -548,7 +547,6 @@ export function registerAiHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.AI_ANALYZE_MAP, async (_event, gameState: Record<string, unknown>) => {
     try {
-      const { analyzeMapState } = await import('../ai/ai-vision')
       return await analyzeMapState(gameState as MapStateForVisionAnalysis)
     } catch (error) {
       return { success: false, error: (error as Error).message }
@@ -559,7 +557,6 @@ export function registerAiHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, async (_event, state: Record<string, unknown>) => {
     try {
-      const { processStateUpdate } = await import('../ai/ai-trigger-observer')
       const results = processStateUpdate(state as GameStateSnapshot)
       return { success: true, fired: results }
     } catch (error) {
@@ -570,22 +567,18 @@ export function registerAiHandlers(): void {
   // ── BMO Pi Bridge ──
 
   ipcMain.handle(IPC_CHANNELS.BMO_START_DM, async (_e, campaignId: string) => {
-    const { startDiscordDm } = await import('../bmo-bridge')
     return startDiscordDm(campaignId)
   })
 
   ipcMain.handle(IPC_CHANNELS.BMO_STOP_DM, async () => {
-    const { stopDiscordDm } = await import('../bmo-bridge')
     return stopDiscordDm()
   })
 
   ipcMain.handle(IPC_CHANNELS.BMO_NARRATE, async (_e, text: string, npc?: string, emotion?: string) => {
-    const { sendNarration } = await import('../bmo-bridge')
     return sendNarration(text, npc, emotion)
   })
 
   ipcMain.handle(IPC_CHANNELS.BMO_STATUS, async () => {
-    const { getDmStatus } = await import('../bmo-bridge')
     return getDmStatus()
   })
 }

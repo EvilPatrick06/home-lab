@@ -8,7 +8,7 @@ import { getHeritageOptions5e, load5eSpells, resolveDataPath } from '../../../se
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
-import { useNetworkStore } from '../../../stores/use-network-store'
+import { useNetworkStore } from '../../../stores/network-store'
 import { PRIMORDIAL_DIALECTS } from '../../../types/character-common'
 import { logger } from '../../../utils/logger'
 import Modal from '../../ui/Modal'

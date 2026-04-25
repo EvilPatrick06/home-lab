@@ -9,9 +9,16 @@ Group=patrick
 WorkingDirectory=/home/patrick/home-lab/bmo/pi/ide_app
 Environment=PATH=/home/patrick/home-lab/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONUNBUFFERED=1
+# Bind 127.0.0.1 by default in ide_app.py — not reachable from LAN.
+# Set BMO_IDE_TOKEN and pass Authorization: Bearer (HTTP) or ?token= (SocketIO) to use /api.
+# Optional: BMO_IDE_HOST=0.0.0.0 only on trusted networks; prefer SSH tunnel.
+Environment=BMO_IDE_HOST=127.0.0.1
+# Environment=BMO_IDE_TOKEN=
 ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python /home/patrick/home-lab/bmo/pi/ide_app/ide_app.py
 Restart=always
 RestartSec=3
+PrivateTmp=true
+NoNewPrivileges=true
 
 [Install]
 WantedBy=multi-user.target

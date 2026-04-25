@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useGameStore } from '../stores/use-game-store'
-import { useNetworkStore } from '../stores/use-network-store'
+import { useNetworkStore } from '../stores/network-store'
 import { logger } from '../utils/logger'
 
 const DEBOUNCE_MS = 3000

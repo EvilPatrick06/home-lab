@@ -7,7 +7,7 @@
 
 import { useGameStore } from '../../stores/use-game-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/use-network-store'
+import { useNetworkStore } from '../../stores/network-store'
 import type { CombatLogEntry } from '../../types/game-state'
 
 /** Add an entry to the combat log. */

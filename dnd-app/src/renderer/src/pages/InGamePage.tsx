@@ -8,7 +8,7 @@ import { useBastionStore } from '../stores/use-bastion-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useGameStore } from '../stores/use-game-store'
-import { useNetworkStore } from '../stores/use-network-store'
+import { useNetworkStore } from '../stores/network-store'
 import { totalSecondsFromDateTime } from '../utils/calendar-utils'
 
 export default function InGamePage(): JSX.Element {

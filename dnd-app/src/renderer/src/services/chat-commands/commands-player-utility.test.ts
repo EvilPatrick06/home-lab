@@ -18,7 +18,7 @@ vi.mock('../../stores/use-lobby-store', () => ({
   }
 }))
 
-vi.mock('../../stores/use-network-store', () => ({
+vi.mock('../../stores/network-store', () => ({
   useNetworkStore: {
     getState: vi.fn(() => ({
       localPeerId: 'local',

@@ -1,6 +1,6 @@
 import { SKILLS_5E } from '../../data/skills'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/use-network-store'
+import { useNetworkStore } from '../../stores/network-store'
 import type { AbilityName } from '../../types/character-common'
 import { ABILITY_NAMES, abilityModifier, formatMod } from '../../types/character-common'
 import { rollSingle } from '../dice/dice-service'

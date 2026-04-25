@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import { useAiDmStore } from '../../stores/use-ai-dm-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/use-network-store'
+import { useNetworkStore } from '../../stores/network-store'
 
 export default function ReadyButton(): JSX.Element {
   const navigate = useNavigate()

@@ -20,8 +20,9 @@ cat .cursorrules                              # structure map
 cat docs/ARCHITECTURE.md                      # cross-domain protocol
 # preexisting bugs (grep both domain logs so you don't re-discover):
 cat docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md
-# preexisting future-ideas / design-gotchas:
+# preexisting future-ideas / design-gotchas (active logs) + canonical constraints:
 cat docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md
+cat bmo/docs/DESIGN-CONSTRAINTS.md
 
 # 2. Work in the right directory
 cd dnd-app   # for VTT work

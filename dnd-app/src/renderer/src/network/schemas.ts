@@ -37,7 +37,7 @@ const JoinPayloadSchema = z.object({
 })
 
 const ChatPayloadSchema = z.object({
-  message: z.string(),
+  message: z.string().max(12_000),
   isSystem: z.boolean().optional(),
   isDiceRoll: z.boolean().optional(),
   diceResult: z
@@ -53,9 +53,9 @@ const ChatPayloadSchema = z.object({
 })
 
 const WhisperPayloadSchema = z.object({
-  message: z.string(),
+  message: z.string().max(8_000),
   targetPeerId: z.string(),
-  targetName: z.string()
+  targetName: z.string().max(200).optional()
 })
 
 const DiceRollPayloadSchema = z.object({
@@ -443,6 +443,23 @@ const JournalSyncPayloadSchema = z.object({
   entries: z.array(SharedJournalEntrySchema)
 })
 
+const PlayerReadyPayloadSchema = z.object({
+  isReady: z.boolean().optional()
+})
+
+const PongPayloadSchema = z.object({
+  timestamp: z.number().optional()
+})
+
+const HaggleRequestPayloadSchema = z.object({
+  itemId: z.string().max(200),
+  itemName: z.string().max(200),
+  originalPrice: PriceSchema,
+  persuasionRoll: z.number(),
+  persuasionModifier: z.number(),
+  persuasionTotal: z.number()
+})
+
 const InspectRequestPayloadSchema = z.object({
   characterId: z.string(),
   requesterPeerId: z.string()
@@ -463,6 +480,7 @@ type MessageTypeString = (typeof MESSAGE_TYPES)[number]
 
 const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'player:join': JoinPayloadSchema,
+  'player:ready': PlayerReadyPayloadSchema,
   'player:character-select': CharacterSelectPayloadSchema,
   'player:buy-item': BuyItemPayloadSchema,
   'player:sell-item': SellItemPayloadSchema,
@@ -519,6 +537,8 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'player:journal-delete': JournalDeletePayloadSchema,
   'dm:journal-sync': JournalSyncPayloadSchema,
   'player:inspect-request': InspectRequestPayloadSchema,
+  'player:haggle-request': HaggleRequestPayloadSchema,
+  'pong': PongPayloadSchema,
   'dm:inspect-response': InspectResponsePayloadSchema
 }
 

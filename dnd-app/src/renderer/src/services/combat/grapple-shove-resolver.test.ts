@@ -23,7 +23,7 @@ vi.mock('../../stores/use-lobby-store', () => ({
 }))
 
 // Mock network store
-vi.mock('../../stores/use-network-store', () => ({
+vi.mock('../../stores/network-store', () => ({
   useNetworkStore: {
     getState: vi.fn(() => ({
       isHost: false,

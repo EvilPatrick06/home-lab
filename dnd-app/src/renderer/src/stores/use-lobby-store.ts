@@ -6,7 +6,7 @@ import { subscribeToSystemChat } from '../events/system-chat-bridge'
 import { PLAYER_COLORS } from '../network/types'
 import { rollFormula } from '../services/dice/dice-engine'
 import type { Character } from '../types/character'
-import { useNetworkStore } from './use-network-store'
+import { useNetworkStore } from './network-store'
 
 function getLocalPeerId(): string | null {
   try {

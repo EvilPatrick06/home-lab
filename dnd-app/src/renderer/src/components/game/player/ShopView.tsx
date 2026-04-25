@@ -5,7 +5,7 @@ import type { HaggleRequestPayload, ShopItem, ShopItemCategory } from '../../../
 import { rollSingle } from '../../../services/dice/dice-service'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
-import { useNetworkStore } from '../../../stores/use-network-store'
+import { useNetworkStore } from '../../../stores/network-store'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
 

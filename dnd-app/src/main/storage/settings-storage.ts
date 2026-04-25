@@ -3,6 +3,7 @@ import { mkdir, readFile } from 'fs/promises'
 import { join } from 'path'
 import { z } from 'zod'
 import { atomicWriteFile } from './atomic-write'
+import { decryptOptional, encryptOptional } from './safe-secret-storage'
 import type { StorageResult } from './types'
 
 export const SETTINGS_SCHEMA_VERSION = 1
@@ -34,6 +35,32 @@ export const AppSettingsSchema = z
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>
 
+function decryptTurnCredentials(data: AppSettings): AppSettings {
+  if (!data.turnServers?.length) {
+    return data
+  }
+  return {
+    ...data,
+    turnServers: data.turnServers.map((s) => ({
+      ...s,
+      credential: decryptOptional(s.credential)
+    }))
+  }
+}
+
+function encryptTurnCredentials(data: AppSettings): AppSettings {
+  if (!data.turnServers?.length) {
+    return data
+  }
+  return {
+    ...data,
+    turnServers: data.turnServers.map((s) => ({
+      ...s,
+      credential: encryptOptional(s.credential)
+    }))
+  }
+}
+
 function getSettingsPath(): string {
   return join(app.getPath('userData'), 'settings.json')
 }
@@ -52,7 +79,7 @@ export async function loadSettings(): Promise<StorageResult<AppSettings>> {
     if (!result.success) {
       return { success: false, error: 'Invalid settings schema', data: { version: SETTINGS_SCHEMA_VERSION } }
     }
-    return { success: true, data: result.data }
+    return { success: true, data: decryptTurnCredentials(result.data) }
   } catch {
     return { success: true, data: { version: SETTINGS_SCHEMA_VERSION } }
   }
@@ -63,7 +90,8 @@ export async function saveSettings(settings: AppSettings): Promise<StorageResult
     const dir = app.getPath('userData')
     await mkdir(dir, { recursive: true })
     const parsed = AppSettingsSchema.parse(settings)
-    await atomicWriteFile(getSettingsPath(), JSON.stringify(parsed, null, 2))
+    const toStore = encryptTurnCredentials(parsed)
+    await atomicWriteFile(getSettingsPath(), JSON.stringify(toStore, null, 2))
     return { success: true }
   } catch (err) {
     return { success: false, error: (err as Error).message }

@@ -62,6 +62,48 @@ def _get_secret_key() -> str:
 
 
 app.config["SECRET_KEY"] = _get_secret_key()
+
+# Optional LAN/internet hardening: when set, require Authorization: Bearer for non-localhost HTTP
+# and SocketIO connects (kiosk on 127.0.0.1 is exempt). See docs/SECURITY.md.
+BMO_API_KEY = (os.environ.get("BMO_API_KEY") or "").strip()
+
+
+def _bmo_client_is_trusted_localhost() -> bool:
+    addr = (getattr(request, "remote_addr", None) or "") or ""
+    return addr in ("127.0.0.1", "::1", "localhost")
+
+
+def _bmo_bearer_authorized() -> bool:
+    if not BMO_API_KEY:
+        return True
+    if _bmo_client_is_trusted_localhost():
+        return True
+    auth = (request.headers.get("Authorization", "") or "").strip()
+    return auth == f"Bearer {BMO_API_KEY}"
+
+
+@app.before_request
+def _bmo_optional_api_key():
+    if not BMO_API_KEY:
+        return None
+    p = request.path or ""
+    if p in ("/health", "/favicon.ico") or p.startswith("/static/"):
+        return None
+    if _bmo_client_is_trusted_localhost():
+        return None
+    if request.headers.get("Authorization", "") == f"Bearer {BMO_API_KEY}":
+        return None
+    return (
+        jsonify(
+            {
+                "error": "unauthorized",
+                "message": "Set BMO_API_KEY in the client as Authorization: Bearer, or use localhost.",
+            }
+        ),
+        401,
+    )
+
+
 # Production: gevent. Tests: conftest sets BMO_SOCKETIO_ASYNC_MODE=threading
 # so `import app` works without a real gevent stack when a test file loads
 # app before any module that mocks flask_socketio.
@@ -3664,16 +3706,46 @@ def api_tv_input():
     """Switch TV to HDMI 1 via Live TV passthrough URI."""
     try:
         subprocess.run(
-            f"adb -s {TV_IP}:5555 shell am force-stop com.android.tv",
-            shell=True, capture_output=True, text=True, timeout=5,
+            [
+                "adb",
+                "-s",
+                f"{TV_IP}:5555",
+                "shell",
+                "am",
+                "force-stop",
+                "com.android.tv",
+            ],
+            shell=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
         time.sleep(1)
         r = subprocess.run(
-            f"adb -s {TV_IP}:5555 shell 'am start -a android.intent.action.VIEW"
-            f" -d content://android.media.tv/passthrough/"
-            f"com.realtek.tv.passthrough%2F.hdmiinput.HDMITvInputService%2FHW151519232"
-            f" -n com.android.tv/.MainActivity -f 0x10020000 --ei from_launcher 1'",
-            shell=True, capture_output=True, text=True, timeout=10,
+            [
+                "adb",
+                "-s",
+                f"{TV_IP}:5555",
+                "shell",
+                "am",
+                "start",
+                "-a",
+                "android.intent.action.VIEW",
+                "-d",
+                "content://android.media.tv/passthrough/com.realtek.tv.passthrough%2F"
+                ".hdmiinput.HDMITvInputService%2FHW151519232",
+                "-n",
+                "com.android.tv/.MainActivity",
+                "-f",
+                "0x10020000",
+                "--ei",
+                "from_launcher",
+                "1",
+            ],
+            shell=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         if r.returncode == 0:
             return jsonify({"ok": True})
@@ -4135,8 +4207,24 @@ def api_model_set():
 
 # ── WebSocket Events ────────────────────────────────────────────────
 
+def _bmo_websocket_authorized(auth: object | None) -> bool:
+    """HTTP Bearer and/or Socket.IO `auth: { bmo_api_key: ... }` for non-local clients."""
+    if not BMO_API_KEY:
+        return True
+    if _bmo_client_is_trusted_localhost():
+        return True
+    if (request.headers.get("Authorization", "") or "").strip() == f"Bearer {BMO_API_KEY}":
+        return True
+    if isinstance(auth, dict) and auth.get("bmo_api_key") == BMO_API_KEY:
+        return True
+    return False
+
+
 @socketio.on("connect")
 def on_connect(auth=None):
+    if not _bmo_websocket_authorized(auth):
+        print("[ws] Rejected: BMO_API_KEY required for this client")
+        return False
     print("[ws] Client connected")
     client_tz = _normalize_timezone((auth or {}).get("client_timezone") if isinstance(auth, dict) else None) or _request_client_timezone(default_to_pi=True)
     if timers:

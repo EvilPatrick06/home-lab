@@ -5,6 +5,7 @@ the main BMO app (port 5000).
 """
 
 import os
+import secrets
 import subprocess
 import sys
 
@@ -20,10 +21,66 @@ from dev.terminal_service import TerminalManager
 app = Flask(__name__,
             template_folder='templates',
             static_folder='static')
-app.config['SECRET_KEY'] = 'bmo-ide-dev-2024'
+
+
+def _get_ide_secret_key() -> str:
+    """Stable SECRET_KEY: env IDE_SECRET_KEY or ~/.bmo_ide_secret_key (gitignored on disk)."""
+    env = os.environ.get("IDE_SECRET_KEY", "").strip()
+    if env:
+        return env
+    key_path = os.path.join(os.path.expanduser("~"), ".bmo_ide_secret_key")
+    try:
+        with open(key_path, "r", encoding="utf-8") as f:
+            key = f.read().strip()
+        if key:
+            return key
+    except FileNotFoundError:
+        pass
+    key = secrets.token_hex(32)
+    with open(key_path, "w", encoding="utf-8") as f:
+        f.write(key)
+    os.chmod(key_path, 0o600)
+    return key
+
+
+app.config['SECRET_KEY'] = _get_ide_secret_key()
+
+# When set, all /api/* and SocketIO require this token (header or query).
+BMO_IDE_TOKEN = (os.environ.get("BMO_IDE_TOKEN", "") or "").strip()
 
 socketio = SocketIO(app, cors_allowed_origins='*', async_mode='threading')
 terminal_mgr = TerminalManager()
+
+
+def _ide_token_from_request() -> str:
+    auth = (request.headers.get("Authorization", "") or "").strip()
+    if auth.lower().startswith("bearer "):
+        return auth[7:].strip()
+    return (request.headers.get("X-BMO-IDE-Token", "") or "").strip()
+
+
+def _ide_auth_ok() -> bool:
+    if not BMO_IDE_TOKEN:
+        return True
+    return _ide_token_from_request() == BMO_IDE_TOKEN
+
+
+@app.before_request
+def _ide_require_token_for_api():
+    if not request.path.startswith("/api/"):
+        return None
+    if _ide_auth_ok():
+        return None
+    return jsonify({"error": "Unauthorized", "hint": "Set BMO_IDE_TOKEN and send Authorization: Bearer <token>"}), 401
+
+
+@socketio.on("connect")
+def _ide_on_connect():
+    if not BMO_IDE_TOKEN:
+        return
+    t = (request.args.get("token", "") or "").strip()
+    if t != BMO_IDE_TOKEN:
+        return False
 
 # ── Configuration ────────────────────────────────────────────────
 
@@ -439,29 +496,31 @@ def run_file():
 
     ext = os.path.splitext(resolved)[1].lower()
     name = os.path.basename(resolved)
+    if ext not in (".py", ".sh", ".js", ".ts"):
+        return jsonify({"error": f"Unsupported file type: {ext}"}), 400
 
-    cmd_map = {
-        '.py': f'python3 {resolved}',
-        '.sh': f'bash {resolved}',
-        '.js': f'node {resolved}',
-        '.ts': f'npx tsx {resolved}',
-    }
-
-    cmd = cmd_map.get(ext)
-    if not cmd:
-        return jsonify({'error': f'Unsupported file type: {ext}'}), 400
-
-    # Check for test files
-    if 'test' in name.lower():
-        if ext == '.py':
-            cmd = f'pytest -v {resolved}'
-        elif ext in ('.js', '.ts'):
-            cmd = f'npx vitest run {resolved}'
+    run_dir = os.path.dirname(resolved) or "."
+    # Use argv lists only (no shell) — see SECURITY-LOG.md B602
+    if "test" in name.lower():
+        if ext == ".py":
+            cmd: list[str] = ["pytest", "-v", resolved]
+        elif ext in (".js", ".ts"):
+            cmd = ["npx", "vitest", "run", resolved]
+        else:
+            return jsonify({"error": f"Test run not defined for {ext}"}), 400
+    elif ext == ".py":
+        cmd = ["python3", resolved]
+    elif ext == ".sh":
+        cmd = ["bash", resolved]
+    elif ext == ".js":
+        cmd = ["node", resolved]
+    else:  # .ts
+        cmd = ["npx", "tsx", resolved]
 
     try:
         result = subprocess.run(
-            cmd, shell=True, capture_output=True, text=True,
-            timeout=30, cwd=os.path.dirname(resolved),
+            cmd, shell=False, capture_output=True, text=True,
+            timeout=30, cwd=run_dir,
         )
         return jsonify({
             'output': result.stdout + result.stderr,
@@ -710,7 +769,9 @@ def agent_set_model():
 # ── Main ─────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
-    print('🔧 BMO IDE Test App starting on port 5001...')
+    _host = os.environ.get("BMO_IDE_HOST", "127.0.0.1")
+    _port = int(os.environ.get("BMO_IDE_PORT", "5001"))
+    print(f'🔧 BMO IDE Test App starting on {_host}:{_port} (debug=False, bind local only by default)...')
     _discover_agents()
-    socketio.run(app, host='0.0.0.0', port=5001, debug=True,
-                 allow_unsafe_werkzeug=True)
+    # debug=True + 0.0.0.0 was a critical RCE/debug exposure — keep off; use BMO_IDE_HOST to override bind.
+    socketio.run(app, host=_host, port=_port, debug=False, allow_unsafe_werkzeug=False)

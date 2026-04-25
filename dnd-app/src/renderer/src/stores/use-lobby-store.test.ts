@@ -4,7 +4,7 @@ vi.stubGlobal('window', { api: { storage: {}, game: {} } })
 
 import type { ChatMessage, LobbyPlayer } from './use-lobby-store'
 import { useLobbyStore } from './use-lobby-store'
-import { useNetworkStore } from './use-network-store'
+import { useNetworkStore } from './network-store'
 
 describe('useLobbyStore', () => {
   const storageState = new Map<string, string>()

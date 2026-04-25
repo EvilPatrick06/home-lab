@@ -30,6 +30,18 @@ BMO maintains a mirror:
 - `bmo/pi/data/5e/` — common subset BMO needs for agents (encounter-presets, conditions, random-tables, spells, magic-items)
 - `bmo/pi/data/5e-references/` — markdown versions of rulebook content (MM2025, DMG2024, PHB2024)
 
+**Five JSONs must stay byte-identical** (copy from dnd-app when you change them — no cross-domain filesystem reads at runtime):
+
+| dnd-app (source) | bmo (copy) |
+|---|---|
+| `dnd-app/src/renderer/public/data/5e/hazards/conditions.json` | `bmo/pi/data/5e/conditions.json` |
+| `dnd-app/src/renderer/public/data/5e/encounters/encounter-presets.json` | `bmo/pi/data/5e/encounter-presets.json` |
+| `dnd-app/src/renderer/public/data/5e/encounters/random-tables.json` | `bmo/pi/data/5e/random-tables.json` |
+| `dnd-app/src/renderer/public/data/5e/equipment/magic-items.json` | `bmo/pi/data/5e/magic-items.json` |
+| `dnd-app/src/renderer/public/data/5e/world/treasure-tables.json` | `bmo/pi/data/5e/treasure-tables.json` |
+
+Sync script (from repo root, after editing dnd-app): `bash bmo/pi/scripts/sync-shared-5e-json.sh`. See also [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md).
+
 ### D&D reference PDFs (LFS)
 
 | Kind | Location | Storage |
@@ -109,7 +121,7 @@ bmo/pi/data/memory/<project-hash>/MEMORY.md
 |---|---|
 | Wake model | `bmo/pi/wake/hey_bmo.onnx` (+ `.onnx.data`) |
 | Training clips (WAV) | `bmo/pi/wake/clips/hey_bmo_01.wav` ... `_20.wav` |
-| Voice profiles | `bmo/pi/data/voice_profiles.pkl` (gitignored) |
+| Voice profiles | `bmo/pi/data/voice_profiles.json` (gitignored; migrates from legacy `.pkl` on load) |
 
 Model + clips are TRACKED (rare — training data usually isn't). Voice profiles are gitignored (private biometrics).
 

@@ -473,43 +473,13 @@ The `isolated-vm` dep is misleading code archaeology — leftover from an abando
 
 ---
 
-### [2026-04-23] 5 game-data JSONs byte-identical between `dnd-app/` and `bmo/pi/data/5e/`
+### [2026-04-23 → 2026-04-25] Domain: both — five duplicated 5e JSONs + HTTP-only data ownership
 
-- **Category:** design-gotcha, docs
+- **Category:** design-gotcha, docs *(was mirrored in [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md))*
 - **Severity:** info
-- **Domain:** both *(mirrored in [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md))*
-- **Discovered by:** Claude Opus
-- **During:** workspace duplicate-hash pass
+- **Domain:** both
 
-**Description:** The following 5 files have identical SHA-256 between the two domains:
-
-| dnd-app path | bmo/pi path |
-|---|---|
-| `public/data/5e/hazards/conditions.json` | `data/5e/conditions.json` |
-| `public/data/5e/encounters/encounter-presets.json` | `data/5e/encounter-presets.json` |
-| `public/data/5e/encounters/random-tables.json` | `data/5e/random-tables.json` |
-| `public/data/5e/equipment/magic-items.json` | `data/5e/magic-items.json` |
-| `public/data/5e/world/treasure-tables.json` | `data/5e/treasure-tables.json` |
-
-**Why useful to future agents:** This is almost certainly intentional per the "each domain owns its own storage" pattern (see sibling Info entry on data ownership) — the VTT ships the data to the renderer, BMO ships the same data to the DM agent. But if one side changes, the other will silently go stale. Two options: (a) keep the duplicate and document that a **sync script is required** when any of these 5 files changes, or (b) promote to a shared asset directory and have both domains read from one source.
-
-**Related files:** listed above, plus `docs/DATA-FLOW.md` (candidate for a note), `dnd-app/tools/build-index.*` (likely generator if one exists)
-
----
-
-### [2026-04-23] Data ownership pattern: dnd-app vs bmo
-
-- **Category:** design-gotcha, docs
-- **Severity:** info
-- **Domain:** both *(mirrored in [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md))*
-- **Discovered by:** Claude Opus
-- **During:** DATA-FLOW.md drafting
-
-**Description:** Each domain owns its own storage. dnd-app writes to `%APPDATA%/dnd-vtt/` (per-user, per-install). bmo writes to `/home/patrick/home-lab/bmo/pi/data/` (shared, on Pi). No cross-domain filesystem access — they communicate via HTTP only.
-
-**Why useful to future agents:** If adding a feature that "needs data from the other side" — DON'T reach across filesystem. Add HTTP endpoint + use `bmo-bridge.ts` or `vtt_sync.py`.
-
-**Related files:** `docs/DATA-FLOW.md`, `dnd-app/src/main/bmo-bridge.ts`, `bmo/pi/agents/vtt_sync.py`
+**2026-04-25 update:** Full write-ups live in [`DATA-FLOW.md`](./DATA-FLOW.md) (five-file table + `bash bmo/pi/scripts/sync-shared-5e-json.sh`, ownership rules) and [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md). BMO-side archive: [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) → **"BMO suggestions log — full sweep"**.
 
 ---
 

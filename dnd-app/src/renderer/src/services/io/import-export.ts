@@ -133,6 +133,25 @@ export async function importCampaign(): Promise<Record<string, unknown> | null> 
 const BACKUP_VERSION = 3
 const BACKUP_FILTER = [{ name: 'D&D VTT Backup', extensions: ['dndbackup'] }]
 
+/** Normalize v1–v2 backup shapes to the v3 field layout (additive fields only). */
+function migrateBackupPayload(raw: Record<string, unknown>): Record<string, unknown> {
+  const v = Number(raw.version)
+  if (v < 1 || v >= BACKUP_VERSION) return raw
+  return {
+    ...raw,
+    version: BACKUP_VERSION,
+    gameStates: Array.isArray(raw.gameStates) ? raw.gameStates : [],
+    aiConversations: Array.isArray(raw.aiConversations) ? raw.aiConversations : [],
+    imageLibrary: Array.isArray(raw.imageLibrary) ? raw.imageLibrary : [],
+    mapLibrary: Array.isArray(raw.mapLibrary) ? raw.mapLibrary : [],
+    shopTemplates: Array.isArray(raw.shopTemplates) ? raw.shopTemplates : [],
+    books:
+      raw.books && typeof raw.books === 'object'
+        ? raw.books
+        : { config: { customBooks: [] }, data: [] }
+  }
+}
+
 const PREFERENCE_PREFIX = 'dnd-vtt-'
 const PREFERENCE_KEY_MAX_LEN = 128
 /** Keys we persist in backups / restore on import: prefix + safe slug shape (defense in depth for crafted .dndbackup files). */
@@ -341,12 +360,16 @@ export async function importAllData(): Promise<BackupStats | null> {
 
   let payload: BackupPayload
   try {
-    payload = JSON.parse(raw)
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    if (!parsed || typeof parsed !== 'object' || typeof parsed.version !== 'number') {
+      return null
+    }
+    if (parsed.version > BACKUP_VERSION) {
+      return null
+    }
+    const normalized = parsed.version < BACKUP_VERSION ? migrateBackupPayload(parsed) : parsed
+    payload = normalized as BackupPayload
   } catch {
-    return null
-  }
-
-  if (!payload || typeof payload !== 'object' || !payload.version || payload.version > BACKUP_VERSION) {
     return null
   }
 

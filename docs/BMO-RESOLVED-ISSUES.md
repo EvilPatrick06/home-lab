@@ -12,6 +12,19 @@
 
 ---
 
+### [2026-04-25] BMO suggestions log — full sweep (design gotchas → DESIGN-CONSTRAINTS, 5e sync, hooks/mcp docs, bandit nosec)
+
+- **Original severity:** info / medium (all active entries in `BMO-SUGGESTIONS-LOG.md` through 2026-04-25)
+- **Category:** docs, security hygiene, tooling
+- **Domain:** bmo (+ `both` data notes)
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-25
+- **Resolution summary:**
+  1. **Canonical doc:** [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md) — task list discipline pointer, hooks `shell=True` threat model, `os.system` curl + gevent rationale, `bots/` vs `discord/`, `calendar_service` vs stdlib names, duplicated 5e JSON table, HTTP-only ownership.
+  2. **Code:** `bmo/pi/agents/hooks.py` — `# nosec B602` + cross-link. `bmo/pi/services/cloud_providers.py` — module comment + `# nosec B605` on each `os.system` curl call.
+  3. **Docs:** [`docs/DATA-FLOW.md`](./DATA-FLOW.md) — five-file 5e mirror table + `bmo/pi/scripts/sync-shared-5e-json.sh`; voice profiles line aligned to `voice_profiles.json`. [`bmo/pi/mcp_servers/README.md`](../bmo/pi/mcp_servers/README.md) — hook trust model. [`bmo/pi/bots/README.md`](../bmo/pi/bots/README.md) — why not `discord/`. Repo [`AGENTS.md`](../AGENTS.md) — `cat bmo/docs/DESIGN-CONSTRAINTS.md` in “How to Start.”
+  4. **Active log:** [`docs/BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) cleared to empty sections with migration pointer (this entry).
+
 ### [2026-04-25] BMO issues log — full sweep (env TV/VTT, data dirs, JSON embeddings, journald bots, audioop, ruff F-rules, ops docs)
 
 - **Original severity:** mixed (all active entries in `BMO-ISSUES-LOG.md` through 2026-04-25)
