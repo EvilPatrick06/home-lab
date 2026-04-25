@@ -258,7 +258,6 @@ export function useTokenMovement({
         const isProne = movingToken.conditions.some((c) => c.toLowerCase() === 'prone')
         if (isProne && ts.movementRemaining === ts.movementMax) {
           const standCost = proneStandUpCost(effectiveSpeed)
-          // biome-ignore lint/correctness/useHookAtTopLevel: gameStore.useMovement is a Zustand action, not a React hook
           gameStore.useMovement(movingToken.entityId, standCost)
           const updatedConditions = movingToken.conditions.filter((c) => c.toLowerCase() !== 'prone')
           gameStore.updateToken(activeMap.id, tokenId, { conditions: updatedConditions })
@@ -294,7 +293,6 @@ export function useTokenMovement({
           actualCost = Math.round(actualCost * (ts.movementMax / effectiveSpeed))
         }
 
-        // biome-ignore lint/correctness/useHookAtTopLevel: gameStore.useMovement is a Zustand action, not a React hook
         gameStore.useMovement(movingToken.entityId, actualCost)
       }
 

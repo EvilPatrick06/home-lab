@@ -18,7 +18,8 @@ interface TokenContextMenuProps {
   y: number
   token: MapToken
   mapId: string
-  selectedTokenIds: string[]
+  /** Omitted in tests; production passes selection from `GameLayout`. */
+  selectedTokenIds?: string[]
   isDM: boolean
   characterId?: string | null
   onClose: () => void
@@ -40,6 +41,7 @@ export default function TokenContextMenu({
   onEditToken,
   onAddToInitiative
 }: TokenContextMenuProps): JSX.Element | null {
+  const selectedIds = selectedTokenIds ?? []
   const menuRef = useRef<HTMLDivElement>(null)
   const updateToken = useGameStore((s) => s.updateToken)
   const removeToken = useGameStore((s) => s.removeToken)
@@ -101,10 +103,8 @@ export default function TokenContextMenu({
     getTokenSizeCategory(token) > getTokenSizeCategory(currentCharacterToken)
 
   // Check if multiple tokens are selected
-  const isMultiSelection = selectedTokenIds.length > 1
-  const selectedTokens = isMultiSelection
-    ? (activeMap?.tokens.filter((t) => selectedTokenIds.includes(t.id)) ?? [])
-    : []
+  const isMultiSelection = selectedIds.length > 1
+  const selectedTokens = isMultiSelection ? (activeMap?.tokens.filter((t) => selectedIds.includes(t.id)) ?? []) : []
 
   const mountActionLabel =
     characterId == null

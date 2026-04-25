@@ -20,8 +20,7 @@ export default function JoinGamePage(): JSX.Element {
   })
   const [waitingForCampaign, setWaitingForCampaign] = useState(false)
 
-  // Keep localStorage in sync with canonical settings.json source of truth
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional mount-only effect
+  // Keep localStorage in sync with canonical settings.json source of truth (mount once)
   useEffect(() => {
     window.api.loadSettings().then((settings) => {
       if (settings.userProfile?.displayName) {

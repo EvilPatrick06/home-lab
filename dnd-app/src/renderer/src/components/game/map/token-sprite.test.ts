@@ -27,6 +27,10 @@ vi.mock('pixi.js', () => {
         const idx = children.indexOf(child)
         if (idx >= 0) children.splice(idx, 1)
       }),
+      removeChildren: vi.fn(() => {
+        children.length = 0
+      }),
+      destroy: vi.fn(),
       getLocalBounds: vi.fn(() => ({ x: 0, y: 0, width: 60, height: 60 }))
     }
   }
@@ -34,6 +38,7 @@ vi.mock('pixi.js', () => {
     label: '',
     alpha: 1,
     onRender: null as unknown,
+    moveTo: vi.fn().mockReturnThis(),
     circle: vi.fn().mockReturnThis(),
     fill: vi.fn().mockReturnThis(),
     stroke: vi.fn().mockReturnThis(),
@@ -59,7 +64,11 @@ vi.mock('pixi.js', () => {
     }),
     TextStyle: vi.fn(function () {
       return {}
-    })
+    }),
+    Sprite: vi.fn(function () {
+      return { width: 0, height: 0, x: 0, y: 0, mask: null as unknown }
+    }),
+    Assets: { load: vi.fn().mockResolvedValue({}) }
   }
 })
 

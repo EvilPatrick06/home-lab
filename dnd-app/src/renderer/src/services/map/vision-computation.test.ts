@@ -15,6 +15,11 @@ import {
   recomputeVision
 } from './vision-computation'
 
+/** Map pixel size for tests: 10×10 cells at 50px → matches GameMap width/height in pixels. */
+const TEST_CELL = 50
+const TEST_GRID = 10
+const TEST_PX = TEST_GRID * TEST_CELL
+
 // ─── Helpers ────────────────────────────────────────────────────
 
 function makeToken(overrides: Partial<MapToken> & { gridX: number; gridY: number }): MapToken {
@@ -37,9 +42,9 @@ function makeMap(overrides?: Partial<GameMap>): GameMap {
     name: 'Test Map',
     campaignId: 'campaign-1',
     imagePath: '',
-    width: 10,
-    height: 10,
-    grid: { enabled: true, cellSize: 50, offsetX: 0, offsetY: 0, color: '#fff', opacity: 0.5, type: 'square' },
+    width: TEST_PX,
+    height: TEST_PX,
+    grid: { enabled: true, cellSize: TEST_CELL, offsetX: 0, offsetY: 0, color: '#fff', opacity: 0.5, type: 'square' },
     tokens: [],
     fogOfWar: { enabled: true, revealedCells: [] },
     terrain: [],
