@@ -62,7 +62,7 @@ class TestGetPiStats:
     def test_psutil_cpu_percent_used(self):
         mock_psutil = MagicMock()
         mock_psutil.cpu_percent.return_value = 42.0
-        with patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil):
             result = mon_module._read_cpu_percent()
         assert result == 42.0
@@ -71,7 +71,7 @@ class TestGetPiStats:
     def test_psutil_ram_percent_used(self):
         mock_psutil = MagicMock()
         mock_psutil.virtual_memory.return_value = MagicMock(percent=78.5)
-        with patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil):
             result = mon_module._read_ram_percent()
         assert result == 78.5
@@ -79,13 +79,13 @@ class TestGetPiStats:
     def test_psutil_disk_percent_used(self):
         mock_psutil = MagicMock()
         mock_psutil.disk_usage.return_value = MagicMock(percent=60.0)
-        with patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil):
             result = mon_module._read_disk_percent()
         assert result == 60.0
 
     def test_stats_none_when_psutil_unavailable_and_no_proc(self):
-        with patch("monitoring.PSUTIL_AVAILABLE", False), \
+        with patch("services.monitoring.PSUTIL_AVAILABLE", False), \
              patch("builtins.open", side_effect=FileNotFoundError):
             result = mon_module._read_cpu_percent()
             assert result is None
@@ -131,8 +131,8 @@ class TestCpuThresholdAlerts:
         mock_psutil = MagicMock()
         mock_psutil.swap_memory.return_value = MagicMock(percent=5.0, used=0, total=1)
         mock_psutil.disk_partitions.return_value = []
-        with patch("monitoring.get_pi_stats", return_value=stats), \
-             patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.get_pi_stats", return_value=stats), \
+             patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil), \
              patch("os.getloadavg", return_value=(0.5, 0.4, 0.3), create=True), \
              patch("os.cpu_count", return_value=4):
@@ -151,8 +151,8 @@ class TestCpuThresholdAlerts:
         mock_psutil = MagicMock()
         mock_psutil.swap_memory.return_value = MagicMock(percent=5.0, used=0, total=1)
         mock_psutil.disk_partitions.return_value = []
-        with patch("monitoring.get_pi_stats", return_value=stats), \
-             patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.get_pi_stats", return_value=stats), \
+             patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil), \
              patch("os.getloadavg", return_value=(0.2, 0.2, 0.1), create=True), \
              patch("os.cpu_count", return_value=4):
@@ -174,8 +174,8 @@ class TestRamThresholdAlerts:
         mock_psutil = MagicMock()
         mock_psutil.swap_memory.return_value = MagicMock(percent=5.0, used=0, total=1)
         mock_psutil.disk_partitions.return_value = []
-        with patch("monitoring.get_pi_stats", return_value=stats), \
-             patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.get_pi_stats", return_value=stats), \
+             patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil), \
              patch("os.getloadavg", return_value=(0.2, 0.2, 0.1), create=True), \
              patch("os.cpu_count", return_value=4):
@@ -198,8 +198,8 @@ class TestRamThresholdAlerts:
         mock_psutil = MagicMock()
         mock_psutil.swap_memory.return_value = MagicMock(percent=5.0, used=0, total=1)
         mock_psutil.disk_partitions.return_value = []
-        with patch("monitoring.get_pi_stats", return_value=stats), \
-             patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.get_pi_stats", return_value=stats), \
+             patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil), \
              patch("os.getloadavg", return_value=(0.1, 0.1, 0.1), create=True), \
              patch("os.cpu_count", return_value=4):
@@ -221,8 +221,8 @@ class TestNormalReadings:
         mock_psutil = MagicMock()
         mock_psutil.swap_memory.return_value = MagicMock(percent=5.0, used=0, total=1)
         mock_psutil.disk_partitions.return_value = []
-        with patch("monitoring.get_pi_stats", return_value=stats), \
-             patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.get_pi_stats", return_value=stats), \
+             patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil), \
              patch("os.getloadavg", return_value=(0.3, 0.2, 0.2), create=True), \
              patch("os.cpu_count", return_value=4):
@@ -289,7 +289,7 @@ class TestAlertCooldown:
         checker._service_status["my_svc"] = {"status": "down"}
 
         webhook_calls = []
-        with patch("monitoring._send_discord_webhook", side_effect=lambda *a, **k: webhook_calls.append(a) or True):
+        with patch("services.monitoring._send_discord_webhook", side_effect=lambda *a, **k: webhook_calls.append(a) or True):
             checker._send_discord_if_allowed(mon_module.Severity.CRITICAL, "my_svc", "Service crashed")
             checker._send_discord_if_allowed(mon_module.Severity.CRITICAL, "my_svc", "Service crashed")
 
@@ -301,7 +301,7 @@ class TestAlertCooldown:
         checker._service_status["my_svc"] = {"status": "down"}
 
         webhook_calls = []
-        with patch("monitoring._send_discord_webhook", side_effect=lambda *a, **k: webhook_calls.append(a) or True):
+        with patch("services.monitoring._send_discord_webhook", side_effect=lambda *a, **k: webhook_calls.append(a) or True):
             checker._send_discord_if_allowed(mon_module.Severity.CRITICAL, "my_svc", "Service crashed")
             checker._service_status["my_svc"] = {"status": "down"}
             checker._send_discord_if_allowed(mon_module.Severity.CRITICAL, "my_svc", "OOM killed")
@@ -316,9 +316,9 @@ class TestDiscordWebhook:
         checker = _make_checker(tmp_path)
         checker._service_status["test_svc"] = {"status": "down"}
 
-        with patch("monitoring.DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/test"), \
-             patch("monitoring.REQUESTS_AVAILABLE", True), \
-             patch("monitoring.requests") as mock_requests:
+        with patch("services.monitoring.DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/test"), \
+             patch("services.monitoring.REQUESTS_AVAILABLE", True), \
+             patch("services.monitoring.requests") as mock_requests:
             mock_requests.post.return_value = MagicMock(status_code=204)
             result = mon_module._send_discord_webhook(
                 mon_module.Severity.CRITICAL, "test_svc", "Service is DOWN"
@@ -328,9 +328,9 @@ class TestDiscordWebhook:
         assert result is True
 
     def test_webhook_not_called_without_url(self, tmp_path):
-        with patch("monitoring.DISCORD_WEBHOOK_URL", ""), \
-             patch("monitoring.REQUESTS_AVAILABLE", True), \
-             patch("monitoring.requests") as mock_requests:
+        with patch("services.monitoring.DISCORD_WEBHOOK_URL", ""), \
+             patch("services.monitoring.REQUESTS_AVAILABLE", True), \
+             patch("services.monitoring.requests") as mock_requests:
             result = mon_module._send_discord_webhook(
                 mon_module.Severity.CRITICAL, "svc", "Down"
             )
@@ -340,9 +340,9 @@ class TestDiscordWebhook:
 
     def test_webhook_sends_correct_payload_shape(self, tmp_path):
         captured = {}
-        with patch("monitoring.DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/test"), \
-             patch("monitoring.REQUESTS_AVAILABLE", True), \
-             patch("monitoring.requests") as mock_requests:
+        with patch("services.monitoring.DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/test"), \
+             patch("services.monitoring.REQUESTS_AVAILABLE", True), \
+             patch("services.monitoring.requests") as mock_requests:
             mock_requests.post.return_value = MagicMock(status_code=200)
             mock_requests.post.side_effect = lambda url, json=None, **kw: (
                 captured.update({"payload": json}) or MagicMock(status_code=200)
@@ -393,7 +393,7 @@ class TestMockHardwareIntegration:
         mock_psutil.virtual_memory.return_value = MagicMock(percent=60.0)
         mock_psutil.disk_usage.return_value = MagicMock(percent=45.0)
         mock_psutil.sensors_temperatures.return_value = {}
-        with patch("monitoring.PSUTIL_AVAILABLE", True), \
+        with patch("services.monitoring.PSUTIL_AVAILABLE", True), \
              patch.object(mon_module, "psutil", mock_psutil):
             stats = mon_module.get_pi_stats()
 

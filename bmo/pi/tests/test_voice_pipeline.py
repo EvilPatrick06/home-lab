@@ -20,9 +20,14 @@ import pytest
 if "edge_tts" not in sys.modules:
     sys.modules["edge_tts"] = MagicMock()
 
-if "scipy" not in sys.modules:
-    sys.modules["scipy"] = MagicMock()
-    sys.modules["scipy.signal"] = MagicMock()
+# Use real scipy when installed so full-suite runs don't break voice_pipeline;
+# stub only if import fails (e.g. minimal CI image).
+try:
+    import scipy.signal  # noqa: F401
+except ImportError:
+    if "scipy" not in sys.modules:
+        sys.modules["scipy"] = MagicMock()
+        sys.modules["scipy.signal"] = MagicMock()
 
 if "faster_whisper" not in sys.modules:
     sys.modules["faster_whisper"] = MagicMock()
@@ -293,7 +298,7 @@ class TestSTT:
 
         with patch.object(pipeline, "_local_transcribe", side_effect=RuntimeError("no model")), \
              patch.object(pipeline, "_cloud_transcribe", return_value="what's the weather") as mock_cloud, \
-             patch("voice_pipeline._check_cloud", return_value=True):
+             patch("services.voice_pipeline._check_cloud", return_value=True):
             result = pipeline.transcribe(str(wav_path))
             mock_cloud.assert_called_once()
             assert result == "what's the weather"
@@ -317,7 +322,7 @@ class TestSTT:
             "segments": [{"no_speech_probability": 0.9, "avg_logprob": -0.5}],
             "duration": 1.0,
         }
-        with patch("cloud_providers.groq_stt", return_value=high_no_speech):
+        with patch("services.voice_pipeline.groq_stt", return_value=high_no_speech):
             result = pipeline._cloud_transcribe(str(loud_wav))
             assert result == ""
 
@@ -327,7 +332,7 @@ class TestSTT:
 
         # Local whisper fails, cloud returns empty
         with patch.object(pipeline, "_load_whisper", side_effect=RuntimeError("no model")), \
-             patch("cloud_providers.groq_stt", return_value={"text": "okay", "segments": []}):
+             patch("services.voice_pipeline.groq_stt", return_value={"text": "okay", "segments": []}):
             result = pipeline._quick_stt(wav_bytes)
             # "okay" is in _WHISPER_HALLUCINATIONS
             assert result == ""

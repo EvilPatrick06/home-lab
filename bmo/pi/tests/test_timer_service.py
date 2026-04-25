@@ -45,7 +45,7 @@ def _past_dt(minutes: int = 5) -> datetime.datetime:
 def svc(tmp_path):
     """TimerService with persistence redirected to tmp_path. No background threads."""
     persist = str(tmp_path / "data" / "alarms.json")
-    with patch("timer_service.PERSIST_PATH", persist):
+    with patch("services.timer_service.PERSIST_PATH", persist):
         service = TimerService()
     return service
 
@@ -54,7 +54,7 @@ def svc(tmp_path):
 def svc_with_persist_path(tmp_path):
     """Returns (service, persist_path) for persistence tests."""
     persist = str(tmp_path / "data" / "alarms.json")
-    with patch("timer_service.PERSIST_PATH", persist):
+    with patch("services.timer_service.PERSIST_PATH", persist):
         service = TimerService()
     return service, persist
 
@@ -639,7 +639,7 @@ class TestCleanForSpeech:
 class TestPersistence:
     def test_save_and_reload_alarms(self, tmp_path):
         persist = str(tmp_path / "data" / "alarms.json")
-        with patch("timer_service.PERSIST_PATH", persist):
+        with patch("services.timer_service.PERSIST_PATH", persist):
             svc1 = TimerService()
             a = Alarm(_future_dt(60), "Saved Alarm", anchor_timezone="America/Denver")
             svc1._alarms[a.id] = a
@@ -651,7 +651,7 @@ class TestPersistence:
 
     def test_save_and_reload_active_timers(self, tmp_path):
         persist = str(tmp_path / "data" / "alarms.json")
-        with patch("timer_service.PERSIST_PATH", persist):
+        with patch("services.timer_service.PERSIST_PATH", persist):
             svc1 = TimerService()
             t = Timer(300, "Long Timer")
             svc1._timers[t.id] = t
@@ -680,7 +680,7 @@ class TestPersistence:
             json.dump(payload, f)
 
         mock_sio = MagicMock()
-        with patch("timer_service.PERSIST_PATH", persist):
+        with patch("services.timer_service.PERSIST_PATH", persist):
             svc = TimerService(socketio=mock_sio)
 
         # Timer should NOT be in active dict
@@ -714,21 +714,21 @@ class TestPersistence:
         with open(persist, "w") as f:
             json.dump(payload, f)
 
-        with patch("timer_service.PERSIST_PATH", persist):
+        with patch("services.timer_service.PERSIST_PATH", persist):
             svc = TimerService()
 
         assert "fired-1" not in svc._alarms
 
     def test_save_creates_data_directory(self, tmp_path):
         deep_path = str(tmp_path / "deep" / "nested" / "alarms.json")
-        with patch("timer_service.PERSIST_PATH", deep_path):
+        with patch("services.timer_service.PERSIST_PATH", deep_path):
             svc = TimerService()
             svc._save_alarms()
         assert os.path.exists(deep_path)
 
     def test_load_handles_missing_file_gracefully(self, tmp_path):
         missing_path = str(tmp_path / "no_such" / "alarms.json")
-        with patch("timer_service.PERSIST_PATH", missing_path):
+        with patch("services.timer_service.PERSIST_PATH", missing_path):
             svc = TimerService()
         assert svc._alarms == {}
         assert svc._timers == {}
@@ -738,7 +738,7 @@ class TestPersistence:
         os.makedirs(tmp_path / "data", exist_ok=True)
         with open(persist, "w") as f:
             f.write("{not: valid json}")
-        with patch("timer_service.PERSIST_PATH", persist):
+        with patch("services.timer_service.PERSIST_PATH", persist):
             svc = TimerService()  # should not raise
         assert svc._alarms == {}
 

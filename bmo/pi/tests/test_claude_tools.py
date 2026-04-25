@@ -23,6 +23,8 @@ _cloud_stub.ANTHROPIC_BASE = "https://api.anthropic.com/v1"
 _cloud_stub._claude_model_id = lambda m: m
 _cloud_stub._claude_session = MagicMock()
 sys.modules.setdefault("cloud_providers", _cloud_stub)
+# dev.claude_tools imports `from services.cloud_providers import ...` at call time
+sys.modules.setdefault("services.cloud_providers", _cloud_stub)
 
 import dev.claude_tools as claude_tools
 from dev.claude_tools import (
@@ -263,14 +265,15 @@ class TestClaudeChatWithTools:
 
     def setup_method(self, method):
         """Reset the session mock before every test so side_effect/return_value don't bleed."""
-        session = sys.modules["cloud_providers"]._claude_session
+        sys.modules["services.cloud_providers"] = _cloud_stub
+        session = _cloud_stub._claude_session
         session.reset_mock()
         # Remove any lingering side_effect from a previous test
         session.post.side_effect = None
         session.post.return_value = MagicMock()
 
     def _get_session_mock(self):
-        return sys.modules["cloud_providers"]._claude_session
+        return _cloud_stub._claude_session
 
     def test_returns_text_on_end_turn(self):
         session = self._get_session_mock()

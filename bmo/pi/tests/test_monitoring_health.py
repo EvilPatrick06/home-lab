@@ -76,7 +76,7 @@ class MonitoringHealthTests(unittest.TestCase):
         self.assertIn("expected if Wi-Fi is primary", self.checker._service_status["net_eth0"]["message"])
         self.checker._emit_alert.assert_not_called()
 
-    @patch("monitoring.os.path.exists", return_value=False)
+    @patch("services.monitoring.os.path.exists", return_value=False)
     def test_calendar_missing_credentials_is_critical_down(self, _mock_exists):
         self.checker._emit_alert = MagicMock()
 
@@ -107,8 +107,8 @@ class MonitoringHealthTests(unittest.TestCase):
         self.assertEqual(fan["status"], "info")
         self.assertIn("disabled by configuration", fan["message"])
 
-    @patch("monitoring.os.stat")
-    @patch("monitoring.os.path.exists")
+    @patch("services.monitoring.os.stat")
+    @patch("services.monitoring.os.path.exists")
     def test_calendar_missing_refresh_token_is_critical_down(self, mock_exists, mock_stat):
         now = 1700000000
         mock_stat.return_value = MagicMock(st_mtime=now - 3600)
@@ -123,11 +123,11 @@ class MonitoringHealthTests(unittest.TestCase):
 
         mock_exists.side_effect = exists_side_effect
 
-        with patch("monitoring.CALENDAR_CREDENTIALS_PATH", credentials_path), \
-             patch("monitoring.CALENDAR_TOKEN_PATH", token_path), \
-             patch("monitoring.LEGACY_CALENDAR_CREDENTIALS_PATH", "C:\\legacy-credentials.json"), \
-             patch("monitoring.LEGACY_CALENDAR_TOKEN_PATH", "C:\\legacy-token.json"), \
-             patch("monitoring.time.time", return_value=now), \
+        with patch("services.monitoring.CALENDAR_CREDENTIALS_PATH", credentials_path), \
+             patch("services.monitoring.CALENDAR_TOKEN_PATH", token_path), \
+             patch("services.monitoring.LEGACY_CALENDAR_CREDENTIALS_PATH", "C:\\legacy-credentials.json"), \
+             patch("services.monitoring.LEGACY_CALENDAR_TOKEN_PATH", "C:\\legacy-token.json"), \
+             patch("services.monitoring.time.time", return_value=now), \
              patch("builtins.open", unittest.mock.mock_open(read_data='{"token":"abc","expiry":"2999-01-01T00:00:00+00:00"}')):
             self.checker._emit_alert = MagicMock()
             self.checker._check_calendar_token()
@@ -141,7 +141,7 @@ class MonitoringHealthTests(unittest.TestCase):
             "📅 Calendar token missing refresh token — re-authorization required",
         )
 
-    @patch("monitoring._send_discord_webhook", return_value=True)
+    @patch("services.monitoring._send_discord_webhook", return_value=True)
     def test_discord_state_change_only_dedup(self, mock_webhook):
         self.checker._service_status["google_calendar"] = {"status": "down"}
         self.checker._discord_last_fingerprint = {}
@@ -181,7 +181,7 @@ class MonitoringHealthTests(unittest.TestCase):
         self.assertIn("Authorize Calendar", svc["recommended_action"])
         self.assertIn("label", svc)
 
-    @patch("monitoring.subprocess.run")
+    @patch("subprocess.run")
     def test_pihole_api_seats_exceeded_is_degraded_not_down(self, mock_run):
         # DNS check succeeds, no exception path
         mock_run.return_value = MagicMock(returncode=0, stdout="1.1.1.1\n", stderr="")

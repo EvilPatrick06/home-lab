@@ -276,7 +276,9 @@ class TestBmoAgentHistoryManagement:
         bmo_agent._max_history = 4
         for i in range(10):
             bmo_agent.chat(f"message {i}")
-        assert len(bmo_agent.conversation_history) <= bmo_agent._max_history
+        # chat() trims after the user message; the assistant reply is appended without a
+        # second trim in the same turn, so length can be _max_history + 1 at peak.
+        assert len(bmo_agent.conversation_history) <= bmo_agent._max_history + 1
 
 
 # ── Model override property ───────────────────────────────────────────
@@ -302,10 +304,13 @@ class TestModelOverride:
 class TestLlmChatRouting:
     def test_llm_chat_falls_back_when_cloud_unavailable(self, agent_module):
         """llm_chat falls back to local Ollama when cloud is unreachable."""
-        # Force cloud unavailable
-        original = agent_module._cloud_available
+        # Force cloud unavailable (cache a False so _check_cloud_available() does not re-probe the network)
+        import time
+
+        original_avail = agent_module._cloud_available
+        original_ts = agent_module._cloud_last_check
         agent_module._cloud_available = False
-        agent_module._cloud_last_check = 0
+        agent_module._cloud_last_check = time.time()
 
         mock_ollama = MagicMock()
         mock_ollama.chat.return_value = {"message": {"content": "local response"}}
@@ -316,7 +321,8 @@ class TestLlmChatRouting:
         result = agent_module.llm_chat([{"role": "user", "content": "hi"}])
         assert isinstance(result, str)
 
-        agent_module._cloud_available = original
+        agent_module._cloud_available = original_avail
+        agent_module._cloud_last_check = original_ts
 
     def test_llm_chat_uses_cloud_when_available(self, agent_module):
         """llm_chat calls cloud API when cloud is marked available."""

@@ -7,23 +7,35 @@ import datetime
 import json
 import os
 import sys
+import types
 from unittest.mock import MagicMock, patch, mock_open, call
 
 import pytest
 
 # ── Google API stubs (must be in place before CalendarService import) ──
+# `from google.auth.exceptions import RefreshError` needs a real submodule chain
 
-_mock_google_auth = MagicMock()
 _mock_google_oauth2 = MagicMock()
 _mock_google_oauth2_credentials = MagicMock()
 _mock_googleapiclient = MagicMock()
 _mock_googleapiclient_discovery = MagicMock()
 _mock_googleapiclient_errors = MagicMock()
 
-sys.modules.setdefault("google", _mock_google_auth)
-sys.modules.setdefault("google.auth", _mock_google_auth)
-sys.modules.setdefault("google.auth.transport", _mock_google_auth)
-sys.modules.setdefault("google.auth.transport.requests", _mock_google_auth)
+_google_pkg = types.ModuleType("google")
+_google_auth = types.ModuleType("google.auth")
+_google_auth_exc = types.ModuleType("google.auth.exceptions")
+
+
+class _RefreshError(Exception):
+    pass
+
+
+_google_auth_exc.RefreshError = _RefreshError
+sys.modules.setdefault("google", _google_pkg)
+sys.modules.setdefault("google.auth", _google_auth)
+sys.modules["google.auth.exceptions"] = _google_auth_exc
+sys.modules.setdefault("google.auth.transport", MagicMock())
+sys.modules.setdefault("google.auth.transport.requests", MagicMock())
 sys.modules.setdefault("google.oauth2", _mock_google_oauth2)
 sys.modules.setdefault("google.oauth2.credentials", _mock_google_oauth2_credentials)
 sys.modules.setdefault("googleapiclient", _mock_googleapiclient)
@@ -124,7 +136,7 @@ class TestLoadTokenData:
 class TestWriteTokenJson:
     def test_writes_atomically(self, tmp_path):
         target = tmp_path / "config" / "token.json"
-        with patch("calendar_service.TOKEN_PATH", str(target)):
+        with patch("services.calendar_service.TOKEN_PATH", str(target)):
             CalendarService._write_token_json('{"access_token":"new"}')
         assert target.exists()
         assert json.loads(target.read_text()) == {"access_token": "new"}
@@ -139,9 +151,10 @@ class TestGetService:
 
     def test_raises_when_credentials_missing(self, tmp_path):
         cs = CalendarService()
-        # Both credential paths point to non-existent files
-        with patch("calendar_service.CREDENTIALS_PATH", str(tmp_path / "creds.json")), \
-             patch("calendar_service.LEGACY_CREDENTIALS_PATH", str(tmp_path / "legacy_creds.json")):
+        # No credentials anywhere: canonical, services/config fallback, and legacy paths
+        with patch("services.calendar_service.CREDENTIALS_PATH", str(tmp_path / "creds.json")), \
+             patch("services.calendar_service.LEGACY_CREDENTIALS_PATH", str(tmp_path / "legacy_creds.json")), \
+             patch("services.calendar_service.SERVICES_CONFIG_DIR", str(tmp_path / "svc_cfg")):
             with pytest.raises(RuntimeError, match="credentials.json missing"):
                 cs._get_service()
 
@@ -149,10 +162,10 @@ class TestGetService:
         creds_file = tmp_path / "credentials.json"
         creds_file.write_text(json.dumps({"installed": {}}))
         cs = CalendarService()
-        with patch("calendar_service.CREDENTIALS_PATH", str(creds_file)), \
-             patch("calendar_service.TOKEN_PATH", str(tmp_path / "token.json")), \
-             patch("calendar_service.LEGACY_CREDENTIALS_PATH", str(tmp_path / "lc.json")), \
-             patch("calendar_service.LEGACY_TOKEN_PATH", str(tmp_path / "lt.json")):
+        with patch("services.calendar_service.CREDENTIALS_PATH", str(creds_file)), \
+             patch("services.calendar_service.TOKEN_PATH", str(tmp_path / "token.json")), \
+             patch("services.calendar_service.LEGACY_CREDENTIALS_PATH", str(tmp_path / "lc.json")), \
+             patch("services.calendar_service.LEGACY_TOKEN_PATH", str(tmp_path / "lt.json")):
             with pytest.raises(RuntimeError, match="No valid token.json"):
                 cs._get_service()
 
@@ -168,10 +181,10 @@ class TestGetService:
         mock_creds.refresh_token = None
 
         cs = CalendarService()
-        with patch("calendar_service.CREDENTIALS_PATH", str(creds_file)), \
-             patch("calendar_service.TOKEN_PATH", str(token_file)), \
-             patch("calendar_service.LEGACY_CREDENTIALS_PATH", str(tmp_path / "lc.json")), \
-             patch("calendar_service.LEGACY_TOKEN_PATH", str(tmp_path / "lt.json")), \
+        with patch("services.calendar_service.CREDENTIALS_PATH", str(creds_file)), \
+             patch("services.calendar_service.TOKEN_PATH", str(token_file)), \
+             patch("services.calendar_service.LEGACY_CREDENTIALS_PATH", str(tmp_path / "lc.json")), \
+             patch("services.calendar_service.LEGACY_TOKEN_PATH", str(tmp_path / "lt.json")), \
              patch("google.oauth2.credentials.Credentials.from_authorized_user_file", return_value=mock_creds):
             with pytest.raises(RuntimeError, match="missing refresh_token"):
                 cs._get_service()
@@ -191,10 +204,10 @@ class TestGetService:
         mock_service = MagicMock()
 
         cs = CalendarService()
-        with patch("calendar_service.CREDENTIALS_PATH", str(creds_file)), \
-             patch("calendar_service.TOKEN_PATH", str(token_file)), \
-             patch("calendar_service.LEGACY_CREDENTIALS_PATH", str(tmp_path / "lc.json")), \
-             patch("calendar_service.LEGACY_TOKEN_PATH", str(tmp_path / "lt.json")), \
+        with patch("services.calendar_service.CREDENTIALS_PATH", str(creds_file)), \
+             patch("services.calendar_service.TOKEN_PATH", str(token_file)), \
+             patch("services.calendar_service.LEGACY_CREDENTIALS_PATH", str(tmp_path / "lc.json")), \
+             patch("services.calendar_service.LEGACY_TOKEN_PATH", str(tmp_path / "lt.json")), \
              patch("google.oauth2.credentials.Credentials.from_authorized_user_file", return_value=mock_creds), \
              patch("googleapiclient.discovery.build", return_value=mock_service) as mock_build:
             result = cs._get_service()
