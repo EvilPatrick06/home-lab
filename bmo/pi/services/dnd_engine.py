@@ -7,7 +7,6 @@ Pure Python — no LLM calls. All mechanics are resolved deterministically
 
 import random
 import re
-import math
 from typing import Optional
 
 

@@ -4,10 +4,8 @@ Routes LLM calls to cloud APIs (Gemini Pro, Claude Opus) for high-quality infere
 Falls back to local Ollama (Gemma3:4b) when cloud APIs are unreachable.
 """
 
-import glob
 import json
 import os
-import random
 import re
 import datetime
 import platform
@@ -17,11 +15,11 @@ import requests
 import ollama as ollama_client
 
 from services.cloud_providers import cloud_chat, gemini_chat_stream, groq_llm_chat_stream, PRIMARY_MODEL, ROUTER_MODEL, DND_MODEL
-from dev.dev_tools import dispatch_tool, get_tool_descriptions, MAX_TOOL_CALLS_PER_TURN
+from dev.dev_tools import dispatch_tool
 from services.voice_personality import parse_response_tags
 
 CODE_AGENT_RESUME_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/code_agent_resume.json")
-from agents.settings import init_settings, get_settings
+from agents.settings import init_settings
 
 # ── Cloud API Configuration ──────────────────────────────────────────
 # Primary AI brain: Cloud APIs (Gemini Pro, Claude Opus, Groq, Fish Audio)
@@ -781,7 +779,6 @@ class BmoAgent:
 
         # Initialize the multi-agent orchestrator
         from agents.orchestrator import AgentOrchestrator
-        from agents.scratchpad import SharedScratchpad
         from agents.conversation import create_conversation_agent
         from agents.code_agent import create_code_agent
         from agents.dnd_dm import create_dnd_dm_agent

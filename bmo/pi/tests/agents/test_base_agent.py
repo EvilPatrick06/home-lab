@@ -5,8 +5,7 @@ and error handling — all without real LLM or hardware calls.
 """
 
 import sys
-import types
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 

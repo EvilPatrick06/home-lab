@@ -1,7 +1,7 @@
 #!/bin/bash
 # Cloudflare Tunnel + Access diagnostics for BMO
 # Run on the Pi via: ssh patrick@bmo.local 'bash -s' < scripts/diagnose-cloudflare.sh
-# Or: ssh patrick@bmo 'cd ~/bmo && ./scripts/diagnose-cloudflare.sh'
+# Or: ssh patrick@bmo 'cd ~/home-lab/bmo/pi && ./scripts/diagnose-cloudflare.sh'
 
 set -e
 echo "=== Cloudflare Tunnel + Access Diagnostics ==="

@@ -204,7 +204,7 @@ class PersonalityEngine:
             reactions = [
                 f"You really like {title}, huh? BMO likes it too!",
                 f"BMO notices you've played {title} a lot today!",
-                f"This song again? It must be really good!",
+                "This song again? It must be really good!",
             ]
             self._last_music_reaction = time.monotonic()
             self._deliver(random.choice(reactions), expression="singing")

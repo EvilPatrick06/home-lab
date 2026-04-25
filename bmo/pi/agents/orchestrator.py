@@ -6,7 +6,7 @@ import re
 from enum import Enum
 from typing import Any
 
-from agents.base_agent import AgentConfig, AgentResult, BaseAgent
+from agents.base_agent import AgentResult, BaseAgent
 from agents.router import AgentRouter
 from agents.scratchpad import SharedScratchpad
 

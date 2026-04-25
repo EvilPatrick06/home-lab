@@ -16,9 +16,9 @@ RestartSec=10
 MemoryMax=512M
 CPUQuota=50%
 
-# Logging
-StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
-StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
+# Logging — journald (rotation by systemd); also: `journalctl -u bmo-dm-bot -f`
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

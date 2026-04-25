@@ -5,10 +5,9 @@ All Pi-specific modules are pre-mocked by conftest.py.
 """
 
 import io
-import queue
 import sys
 import wave
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest

@@ -11,7 +11,6 @@ Usage:
 from gevent import monkey
 monkey.patch_all()
 
-import asyncio
 import json
 import os
 import re
@@ -3277,7 +3276,7 @@ _tv_is_on = True  # Track TV power state
 _tv_loop = None
 _tv_pairing_remote = None
 
-TV_IP = "10.10.20.194"
+TV_IP = os.environ.get("BMO_TV_HOST", "10.10.20.194").strip() or "10.10.20.194"
 _TV_CERT_DIR = os.path.dirname(os.path.abspath(__file__))
 _TV_CERTFILE = os.path.join(_TV_CERT_DIR, "tv_cert.pem")
 _TV_KEYFILE = os.path.join(_TV_CERT_DIR, "tv_key.pem")
@@ -4182,7 +4181,6 @@ def on_connect(auth=None):
 
 def _finish_chat_response(sid, result, model_override, voice, speaker):
     """Emit chat_response and run TTS. Called from main handler or background thread."""
-    from flask_socketio import emit
     from services.voice_pipeline import VoicePipeline
 
     raw_text = result.get("text", "").strip()

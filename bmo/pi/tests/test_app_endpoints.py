@@ -5,8 +5,7 @@ these tests run on any machine (Windows, Linux, macOS) without Pi hardware.
 """
 
 import sys
-import types
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -119,7 +118,6 @@ def bmo_app():
     # re-assert here for module-scoped safety).
     sys.modules["gevent"].monkey.patch_all = MagicMock()
 
-    import importlib
     import app as bmo_app_module
 
     flask_app = bmo_app_module.app

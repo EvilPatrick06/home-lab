@@ -186,7 +186,6 @@ class TestHealthCheckScript:
 
     def test_exits_zero_when_all_checks_pass(self, tmp_path):
         """Script exits 0 when all stub commands succeed."""
-        import shutil as _shutil
         import stat
 
         def make_exe(name: str, body: str) -> None:
@@ -229,7 +228,6 @@ class TestHealthCheckScript:
 
     def test_high_temperature_triggers_alert(self, tmp_path):
         """Script exits 1 when CPU temperature is > 80°C."""
-        import shutil as _shutil
         import stat
 
         def make_exe(name: str, body: str) -> None:

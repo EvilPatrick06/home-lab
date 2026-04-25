@@ -23,7 +23,7 @@ _PIPER_ONNX = os.path.join(_PI_ROOT, "models", "piper", "en_US-hfc_female-medium
 def main() -> None:
     native = int(sd.query_devices(kind="input")["default_samplerate"])
     print(f"[audio] Mic native rate: {native}Hz")
-    print(f"[audio] Recording 3s ambient...")
+    print("[audio] Recording 3s ambient...")
     audio = sd.rec(int(native * 3), samplerate=native, channels=1, dtype="int16")
     sd.wait()
     rms = np.sqrt(np.mean(audio.astype(np.float32) ** 2))

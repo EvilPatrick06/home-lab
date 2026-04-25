@@ -5,6 +5,8 @@
 #   python -m pip install -r requirements-ci.txt
 #   python -m pip install -r requirements-test.txt
 
+setuptools>=78.1.1,<82
+
 # Core AI
 ollama
 

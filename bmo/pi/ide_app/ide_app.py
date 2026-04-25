@@ -4,14 +4,12 @@ A brand-new IDE built from scratch. Runs independently alongside
 the main BMO app (port 5000).
 """
 
-import mimetypes
 import os
 import subprocess
 import sys
-import threading
 
 from flask import Flask, jsonify, render_template, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 
 # ── Import terminal service from parent directory ────────────────
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))

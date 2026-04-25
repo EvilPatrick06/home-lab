@@ -9,10 +9,8 @@ import os
 import pty
 import select
 import struct
-import subprocess
 import termios
 import threading
-import time
 
 
 class TerminalSession:

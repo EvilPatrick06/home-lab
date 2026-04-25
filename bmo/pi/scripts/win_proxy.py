@@ -12,7 +12,6 @@ import argparse
 import fnmatch
 import os
 import re
-import subprocess
 import sys
 import time
 

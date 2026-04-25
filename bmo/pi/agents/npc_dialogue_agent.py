@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import os
 import random
-from typing import Any
 
 from agents.base_agent import AgentConfig, AgentResult, BaseAgent
 

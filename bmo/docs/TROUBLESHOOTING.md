@@ -205,6 +205,25 @@ free -h                                 # RAM
    sudo systemctl start bmo-fan bmo-dm-bot bmo-social-bot bmo-kiosk
   ```
 
+## Discord bot logs (DM / social)
+
+Bot units log to **journald** (not plain files under `data/logs/`). Follow:
+
+```bash
+journalctl -u bmo-dm-bot -f
+journalctl -u bmo-social-bot -f
+```
+
+After editing `bmo/pi/kiosk/bmo-*.service`, run `sudo systemctl daemon-reload && sudo systemctl restart bmo-dm-bot bmo-social-bot`.
+
+## TV / VTT host changed (new LAN)
+
+Set in `bmo/pi/.env` (see `bmo/.env.template`): `BMO_TV_HOST`, `VTT_SYNC_URL`. Restart BMO: `sudo systemctl restart bmo`.
+
+## pip cache bloat on the Pi
+
+`~/.cache/pip/http-v2` can grow large. Safe clean: `rm -rf ~/.cache/pip/http-v2` (re-downloads on next `pip install`).
+
 ## Still stuck?
 
 1. Search [`BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md) and [`BMO-SUGGESTIONS-LOG.md`](../../docs/BMO-SUGGESTIONS-LOG.md)

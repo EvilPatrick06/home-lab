@@ -5,7 +5,7 @@ All HTTP calls are mocked via unittest.mock.patch. No real network calls.
 
 import os
 import sys
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 

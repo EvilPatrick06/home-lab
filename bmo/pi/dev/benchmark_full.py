@@ -4,10 +4,16 @@ Tests Gemini 3 Flash, Gemini 2.5 Flash, and Groq Llama 3.3 70B
 with identical prompts. Measures timestamps for each stage.
 No audio playback — just timing.
 """
-import time, os, sys, json
-sys.path.insert(0, '/home/patrick/bmo')
+import json
+import os
+import sys
+import time
+
+_PI_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, _PI_ROOT)
 from dotenv import load_dotenv
-load_dotenv('/home/patrick/bmo/.env')
+
+load_dotenv(os.path.join(_PI_ROOT, ".env"))
 
 import services.cloud_providers as cloud_providers
 cloud_providers.GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
@@ -241,7 +247,7 @@ def main():
                 tts = result["tts"][fmt]
                 print(f"    TTS {fmt.upper():3s}: first_chunk={tts['first_chunk']:.2f}s, total={tts['total']:.2f}s, {tts['total_bytes']//1024}KB ({tts['num_chunks']} chunks)")
 
-            print(f"    ── End-to-end (time to first audio) ──")
+            print("    ── End-to-end (time to first audio) ──")
             print(f"    Streaming + WAV: {result['e2e_streaming_wav']:.2f}s")
             print(f"    Streaming + MP3: {result['e2e_streaming_mp3']:.2f}s")
             print(f"    Sync + WAV:      {result['e2e_sync_wav']:.2f}s")

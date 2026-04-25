@@ -8,7 +8,6 @@ Data: ~/home-lab/bmo/pi/data/routines.json
 
 import json
 import os
-import re
 import threading
 import time
 import uuid

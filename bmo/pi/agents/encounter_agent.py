@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-import json
-import os
 import random
-from typing import Any
 
 from agents.base_agent import AgentConfig, AgentResult, BaseAgent
 
-from agent import DND_DATA_DIR, _calculate_encounter_difficulty, _load_monster_stat_block
+from agent import _calculate_encounter_difficulty, _load_monster_stat_block
 
 
 ENCOUNTER_PROMPT = """You are an encounter design specialist for D&D 5e (2024 rules).

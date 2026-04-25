@@ -14,7 +14,6 @@ Board LED modes (register 0x03):
 import json
 import os
 import threading
-import time
 from enum import Enum
 
 try:

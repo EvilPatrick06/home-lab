@@ -11,8 +11,7 @@ import os
 import sys
 import threading
 import queue
-import hashlib
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 import pytest
 
 # ── Stub modules that voice_pipeline.py imports at module level ────────────────

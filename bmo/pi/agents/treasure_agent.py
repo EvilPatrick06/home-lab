@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-import json
-import os
 import random
 import re
-from typing import Any
 
 from agents.base_agent import AgentConfig, AgentResult, BaseAgent
 
-from agent import DND_DATA_DIR
 
 
 TREASURE_PROMPT = """You are a D&D 5e treasure generation specialist. You create

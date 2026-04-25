@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import sys
 import os
-import types
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 

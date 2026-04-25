@@ -1,6 +1,6 @@
 #!/bin/bash
 # Install + bootstrap Tailscale for stable remote SSH to BMO
-# Run on Pi: bash ~/bmo/scripts/setup-tailscale.sh
+# Run on Pi: bash ~/home-lab/bmo/pi/scripts/setup-tailscale.sh
 
 set -euo pipefail
 

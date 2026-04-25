@@ -80,9 +80,9 @@ The Flask app runs directly on the host because it needs low-latency access to h
 | Smart Home | `smart_home.py` | — | Home Assistant REST API |
 | Calendar | `calendar_service.py` | — | Google Calendar OAuth2 |
 | Weather | `weather_service.py` | — | OpenWeatherMap API |
-| Music | `music_service.py` | — | MPD/Spotify playback control |
+| Music | `music_service.py` | — | YouTube Music (ytmusicapi) + VLC playback |
 | D&D Engine | `dnd_engine.py` | — | Campaign management, combat tracker |
-| TV Controller | `tv_controller.py` | — | Samsung TV WebSocket remote |
+| TV / ADB | `tv_worker.py` | — | ADB subprocess for TV control (see `app.py` TV routes) |
 | Timers | `timer_service.py` | — | Alarms and countdown timers |
 | LED Controller | `led_controller.py` | — | NeoPixel status ring (SPI/GPIO) |
 | OLED Face | `oled_face.py` | — | 128×64 animated expressions (I²C) |

@@ -35,12 +35,12 @@ from discord.ext import commands
 if not discord.opus.is_loaded():
     try:
         discord.opus.load_opus("libopus.so.0")
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[discord_dm] Opus not loaded (voice will fail until fixed): {e}")
 
-from services.cloud_providers import cloud_chat, fish_audio_tts, groq_stt, DND_MODEL
-from services.dnd_engine import roll_dice, calculate_encounter_difficulty
-from services.voice_personality import NPC_PROSODY, get_prosody, parse_response_tags
+from services.cloud_providers import cloud_chat, fish_audio_tts, DND_MODEL
+from services.dnd_engine import roll_dice
+from services.voice_personality import get_prosody, parse_response_tags
 
 # ── Configuration ────────────────────────────────────────────────────
 

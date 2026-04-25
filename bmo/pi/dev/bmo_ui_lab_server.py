@@ -9,7 +9,6 @@ Opens at http://localhost:5000
 import datetime
 import os
 import random
-import sys
 import threading
 import time
 from pathlib import Path
@@ -79,7 +78,7 @@ def camera_capture_loop():
     if not cap.isOpened():
         print("[camera] No webcam found — camera tab will show offline")
         return
-    print(f"[camera] Webcam opened (index 0)")
+    print("[camera] Webcam opened (index 0)")
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -1594,7 +1593,7 @@ _tv_remote = None
 _tv_loop = None
 _tv_pairing_remote = None  # Temporary remote used during pairing
 
-TV_IP = "10.10.20.194"
+TV_IP = os.environ.get("BMO_TV_HOST", "10.10.20.194").strip() or "10.10.20.194"
 _TV_CERT_DIR = os.path.dirname(__file__)
 _TV_CERTFILE = os.path.join(_TV_CERT_DIR, "tv_cert.pem")
 _TV_KEYFILE = os.path.join(_TV_CERT_DIR, "tv_key.pem")
@@ -1648,7 +1647,7 @@ def init_tv_remote():
         from androidtvremote2 import AndroidTVRemote
 
         if not os.path.exists(_TV_CERTFILE) or not os.path.exists(_TV_KEYFILE):
-            print(f"[tv] No cert files found — pair via the TV tab first")
+            print("[tv] No cert files found — pair via the TV tab first")
             return
 
         _ensure_tv_loop()

@@ -1,0 +1,13 @@
+# Optional: if you switch Discord bot units back to file logging, install as
+#   sudo cp logrotate.d-bmo-bots.example /etc/logrotate.d/bmo-bots
+# With journald logging (default in bmo-dm-bot.service / bmo-social-bot.service), you do not need this.
+
+/home/patrick/home-lab/bmo/pi/data/logs/*.log {
+    size 10M
+    rotate 5
+    compress
+    copytruncate
+    missingok
+    notifempty
+    su patrick patrick
+}

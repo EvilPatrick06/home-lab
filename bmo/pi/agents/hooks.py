@@ -11,13 +11,12 @@ from __future__ import annotations
 
 import fnmatch
 import json
-import os
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from agents.settings import BmoSettings
+    pass
 
 
 @dataclass

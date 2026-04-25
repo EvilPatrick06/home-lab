@@ -4,7 +4,6 @@
 Triggered by SocketIO events from the Flask app.
 """
 
-import os
 import threading
 import time
 from enum import Enum
@@ -12,7 +11,7 @@ from enum import Enum
 try:
     from luma.core.interface.serial import i2c
     from luma.oled.device import ssd1306
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw
     OLED_AVAILABLE = True
 except ImportError:
     OLED_AVAILABLE = False
@@ -594,7 +593,6 @@ class OledFace:
 
     def _render_warmup(self, draw):
         """Boot/loading animation with spinning arc and pulsing dots."""
-        import math
         draw.rounded_rectangle([10, 4, 118, 60], radius=8, outline=1)
 
         # Sleepy half-closed eyes

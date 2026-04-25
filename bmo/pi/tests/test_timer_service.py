@@ -9,8 +9,7 @@ import json
 import os
 import sys
 import time
-import threading
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -25,7 +24,6 @@ from services.timer_service import (  # noqa: E402
     Alarm,
     TimerService,
     _normalize_timezone,
-    DEFAULT_EXISTING_ALARMS_TZ,
     UTC,
 )
 

@@ -1,8 +1,13 @@
 """Benchmark LLM streaming vs non-streaming."""
-import time, os, sys
-sys.path.insert(0, '/home/patrick/bmo')
+import os
+import sys
+import time
+
+_PI_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, _PI_ROOT)
 from dotenv import load_dotenv
-load_dotenv('/home/patrick/bmo/.env')
+
+load_dotenv(os.path.join(_PI_ROOT, ".env"))
 
 import services.cloud_providers as cloud_providers
 cloud_providers.GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')

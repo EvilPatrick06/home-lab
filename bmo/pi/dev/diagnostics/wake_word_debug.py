@@ -9,7 +9,6 @@ Steps:
 import os
 import subprocess
 import tempfile
-import time
 import wave
 from pathlib import Path
 

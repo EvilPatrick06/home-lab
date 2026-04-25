@@ -1,6 +1,8 @@
-import re
+import os
 
-with open("/home/patrick/bmo/app.py", "r") as f:
+_APP = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "app.py"))
+
+with open(_APP, "r") as f:
     lines = f.readlines()
 
 # 1. Remove keep_reconnecting and is_on callback from initial connect (lines 1024-1026)
@@ -33,7 +35,7 @@ for i, line in enumerate(lines, 1):
     else:
         new_lines.append(line)
 
-with open("/home/patrick/bmo/app.py", "w") as f:
+with open(_APP, "w") as f:
     f.writelines(new_lines)
 
 print("OK - reverted app.py to original power endpoint")

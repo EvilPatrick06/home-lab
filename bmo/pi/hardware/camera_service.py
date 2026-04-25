@@ -4,7 +4,7 @@ Routes object detection to Google Cloud Vision API and scene descriptions
 to Gemini cloud API. Falls back to local YOLOv8-Nano and Ollama.
 """
 
-import io
+import json
 import os
 import pickle
 import threading
@@ -14,10 +14,11 @@ import cv2
 import numpy as np
 import requests
 
-from services.cloud_providers import google_vision_detect, google_vision_describe
+from services.cloud_providers import google_vision_detect
 
 DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
-KNOWN_FACES_PATH = os.path.join(DATA_DIR, "known_faces.pkl")
+KNOWN_FACES_JSON = os.path.join(DATA_DIR, "known_faces.json")
+KNOWN_FACES_PATH = os.path.join(DATA_DIR, "known_faces.pkl")  # legacy — migrated on read
 SNAPSHOTS_DIR = os.path.join(DATA_DIR, "snapshots")
 
 
@@ -43,7 +44,8 @@ class CameraService:
         self._backend = None
         self._yolo = None
         self._ocr_reader = None
-        self._known_faces = {}
+        self._known_faces: dict = {}
+        self._known_faces_loaded = False
         self._motion_enabled = False
         self._motion_thread = None
         self._prev_frame = None
@@ -214,10 +216,34 @@ class CameraService:
     # ── Face Recognition ─────────────────────────────────────────────
 
     def _load_known_faces(self):
-        if not self._known_faces and os.path.exists(KNOWN_FACES_PATH):
+        if self._known_faces_loaded:
+            return self._known_faces
+        self._known_faces_loaded = True
+        if os.path.exists(KNOWN_FACES_JSON):
+            with open(KNOWN_FACES_JSON, encoding="utf-8") as f:
+                raw = json.load(f)
+            self._known_faces = {
+                name: [np.array(enc, dtype=np.float64) for enc in encs]
+                for name, encs in raw.items()
+            }
+        elif os.path.exists(KNOWN_FACES_PATH):
             with open(KNOWN_FACES_PATH, "rb") as f:
                 self._known_faces = pickle.load(f)
+            self._save_known_faces_json()
+            try:
+                os.remove(KNOWN_FACES_PATH)
+            except OSError:
+                pass
         return self._known_faces
+
+    def _save_known_faces_json(self):
+        os.makedirs(os.path.dirname(KNOWN_FACES_JSON), exist_ok=True)
+        serializable = {
+            name: [enc.tolist() for enc in encs]
+            for name, encs in self._known_faces.items()
+        }
+        with open(KNOWN_FACES_JSON, "w", encoding="utf-8") as f:
+            json.dump(serializable, f, indent=2)
 
     def identify_faces(self, frame: np.ndarray = None) -> list[dict]:
         """Detect and identify faces in a frame. Returns list of {name, location}."""
@@ -266,10 +292,8 @@ class CameraService:
 
         known = self._load_known_faces()
         known[name] = encodings
-
-        os.makedirs(os.path.dirname(KNOWN_FACES_PATH), exist_ok=True)
-        with open(KNOWN_FACES_PATH, "wb") as f:
-            pickle.dump(known, f)
+        self._known_faces = known
+        self._save_known_faces_json()
 
         print(f"[face] Enrolled '{name}' with {len(encodings)} face encodings")
 

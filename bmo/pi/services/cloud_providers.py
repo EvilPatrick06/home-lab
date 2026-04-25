@@ -5,7 +5,6 @@ Each provider is a thin wrapper around the vendor's REST API.
 """
 
 import base64
-import io
 import json
 import os
 import time
@@ -148,7 +147,6 @@ def gemini_chat_stream(messages: list[dict], model: str = "",
     requests.post() to be starved by the SocketIO event loop (~17s delay).
     Curl runs as a native OS process, unaffected by gevent.
     """
-    import subprocess
     import time as _time
 
     model = model or PRIMARY_MODEL

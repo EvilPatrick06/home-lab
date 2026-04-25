@@ -44,8 +44,8 @@ pi/
 │   ├── build_rag_indexes.py     index builder
 │   ├── authorize_calendar.py, reauth_calendar.py    Google OAuth flows
 │   ├── cloud_providers.py       LLM provider abstraction (Anthropic, Gemini, OpenAI, Groq)
-│   ├── smart_home.py, tv_controller.py, tv_worker.py    Chromecast + TV control
-│   ├── sound_effects.py, dnd_engine.py, campaign_memory.py
+│   ├── smart_home.py, tv_worker.py    Chromecast + TV (ADB via worker subprocess)
+│   ├── dnd_engine.py, campaign_memory.py
 │   └── monitoring.py            service+hardware health
 │
 ├── hardware/                    Pi hardware drivers

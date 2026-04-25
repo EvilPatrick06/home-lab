@@ -5,9 +5,9 @@ Falls back to local Whisper-base and Piper TTS when cloud APIs are unreachable.
 Wake word detection always runs locally (must be instant).
 """
 
-import asyncio
 import io
 import difflib
+import json
 import os
 import pickle
 import queue
@@ -18,7 +18,6 @@ import threading
 import time
 import wave
 
-import edge_tts
 import numpy as np
 import requests
 import scipy.signal
@@ -27,8 +26,11 @@ import sounddevice as sd
 from services.cloud_providers import groq_stt, fish_audio_tts
 
 MODELS_DIR = os.path.expanduser("~/home-lab/bmo/pi/models")
+os.makedirs(os.path.join(MODELS_DIR, "piper"), exist_ok=True)
 DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+# Legacy pickle path (migrated to JSON on first read)
 VOICE_PROFILES_PATH = os.path.join(DATA_DIR, "voice_profiles.pkl")
+VOICE_PROFILES_JSON = os.path.join(DATA_DIR, "voice_profiles.json")
 
 EDGE_TTS_VOICE = "en-US-AnaNeural"  # Young/playful voice for BMO
 
@@ -201,6 +203,8 @@ class VoicePipeline:
         if self._wake_model is None:
             from openwakeword.model import Model
             paths = _get_wake_model_paths()
+            if not paths:
+                raise RuntimeError("no wake word ONNX model files found (use custom model or install openwakeword default models)")
             try:
                 self._wake_model = Model(
                     wakeword_models=paths,
@@ -263,10 +267,27 @@ class VoicePipeline:
             return 1.0
 
     def _load_voice_profiles(self):
-        if os.path.exists(VOICE_PROFILES_PATH):
+        if os.path.exists(VOICE_PROFILES_JSON):
+            with open(VOICE_PROFILES_JSON, encoding="utf-8") as f:
+                raw = json.load(f)
+            self._voice_profiles = {
+                k: np.asarray(v, dtype=np.float32) for k, v in raw.items()
+            }
+        elif os.path.exists(VOICE_PROFILES_PATH):
             with open(VOICE_PROFILES_PATH, "rb") as f:
                 self._voice_profiles = pickle.load(f)
+            self._save_voice_profiles_json()
+            try:
+                os.remove(VOICE_PROFILES_PATH)
+            except OSError:
+                pass
         return self._voice_profiles
+
+    def _save_voice_profiles_json(self):
+        os.makedirs(os.path.dirname(VOICE_PROFILES_JSON), exist_ok=True)
+        serializable = {k: v.astype(float).tolist() for k, v in self._voice_profiles.items()}
+        with open(VOICE_PROFILES_JSON, "w", encoding="utf-8") as f:
+            json.dump(serializable, f, indent=2)
 
     # ── Voice Settings API ────────────────────────────────────────────
 
@@ -504,7 +525,7 @@ class VoicePipeline:
                             print("[wake] Suppressed (bedtime mode) — mic muted")
                             continue
 
-                        print(f"[wake] Porcupine detected 'hey BMO'!")
+                        print("[wake] Porcupine detected 'hey BMO'!")
                         self._emit("status", {"state": "listening"})
                         # Drain audio queue
                         while not self._audio_queue.empty():
@@ -766,7 +787,7 @@ class VoicePipeline:
 
     def _pcm_to_wav(self, pcm_bytes: bytes) -> bytes:
         """Convert raw PCM to WAV format for STT."""
-        import io, wave
+        import wave
         buf = io.BytesIO()
         with wave.open(buf, "wb") as wf:
             wf.setnchannels(CHANNELS)
@@ -1092,7 +1113,7 @@ class VoicePipeline:
             if self._chat_stream_callback and not is_closing:
                 try:
                     _t_chat0 = time.time()
-                    print(f"[timing] calling _chat_stream_callback...")
+                    print("[timing] calling _chat_stream_callback...")
                     text_gen = self._chat_stream_callback(text, speaker)
                     response = self._stream_and_speak(text_gen)
                     if response and response.strip():
@@ -1354,7 +1375,7 @@ class VoicePipeline:
             )
         except Exception as e:
             print(f"[voice] Enrollment failed: {e}")
-            return f"Hmm, I had trouble learning your voice. Let's try again later!"
+            return "Hmm, I had trouble learning your voice. Let's try again later!"
         finally:
             for path in extra_clips:
                 if os.path.exists(path):
@@ -2117,11 +2138,8 @@ class VoicePipeline:
 
         profiles = self._load_voice_profiles()
         profiles[name] = avg_embed
-
-        os.makedirs(os.path.dirname(VOICE_PROFILES_PATH), exist_ok=True)
-        with open(VOICE_PROFILES_PATH, "wb") as f:
-            pickle.dump(profiles, f)
-        self._voice_profiles = profiles  # update in-memory cache
+        self._voice_profiles = profiles
+        self._save_voice_profiles_json()
 
         print(f"[speaker] Enrolled '{name}' from {len(audio_paths)} clips")
 
@@ -2136,10 +2154,8 @@ class VoicePipeline:
         if name not in profiles:
             return False
         del profiles[name]
-        os.makedirs(os.path.dirname(VOICE_PROFILES_PATH), exist_ok=True)
-        with open(VOICE_PROFILES_PATH, "wb") as f:
-            pickle.dump(profiles, f)
         self._voice_profiles = profiles
+        self._save_voice_profiles_json()
         print(f"[speaker] Removed '{name}'")
         return True
 

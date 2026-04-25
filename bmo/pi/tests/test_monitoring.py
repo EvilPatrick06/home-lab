@@ -5,12 +5,9 @@ No real HTTP calls are made.
 os.getloadavg is patched for Windows compatibility.
 """
 
-import json
-import os
 import sys
 import time
-from unittest.mock import MagicMock, patch, call
-import pytest
+from unittest.mock import MagicMock, patch
 
 # ── Inject a mock psutil before importing monitoring ──────────────────────────
 # monitoring.py does `try: import psutil; PSUTIL_AVAILABLE = True` at module
@@ -241,7 +238,6 @@ class TestCheckServices:
         mock_enabled = MagicMock(returncode=0, stdout="enabled\n", stderr="")
         mock_ts = MagicMock(returncode=0, stdout="", stderr="")
 
-        import subprocess
         with patch("subprocess.run") as mock_run:
             # First call: is-active, second: is-enabled, third: show timestamp
             mock_run.side_effect = [mock_result, mock_enabled, mock_ts]

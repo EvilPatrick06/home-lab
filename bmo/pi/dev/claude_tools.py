@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import threading
 
-from dev.dev_tools import TOOL_DEFINITIONS, dispatch_tool
+from dev.dev_tools import TOOL_DEFINITIONS
 
 # Thread-local auto-approve flag — set by IDE autopilot mode
 _auto_approve_local = threading.local()

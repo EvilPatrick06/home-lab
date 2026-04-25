@@ -8,7 +8,7 @@ import json
 import os
 import sys
 import types
-from unittest.mock import MagicMock, patch, mock_open, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -45,7 +45,6 @@ sys.modules.setdefault("googleapiclient.errors", _mock_googleapiclient_errors)
 # Expose HttpError on the errors stub
 _mock_googleapiclient_errors.HttpError = type("HttpError", (Exception,), {})
 
-import importlib
 import sys as _sys
 
 # Ensure the pi directory is on sys.path so we can import the service

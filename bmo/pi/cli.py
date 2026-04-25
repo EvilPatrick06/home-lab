@@ -22,7 +22,6 @@ import os
 import sys
 import threading
 import time
-from io import StringIO
 
 # ── Rich imports (with fallback to plain text) ──────────────────────
 
@@ -31,7 +30,6 @@ try:
     from rich.live import Live
     from rich.markdown import Markdown
     from rich.panel import Panel
-    from rich.spinner import Spinner
     from rich.table import Table
     from rich.text import Text
     from rich.theme import Theme
@@ -135,16 +133,16 @@ class CLIEventHandler:
                     padding=(0, 1),
                 ))
             else:
-                print(f"\n--- Plan Ready ---")
+                print("\n--- Plan Ready ---")
                 print(plan_text)
-                print(f"--- Approve? (yes/no) ---")
+                print("--- Approve? (yes/no) ---")
 
     def _on_plan_mode_executing(self, data: dict):
         self._plan_status = "executing"
         if HAS_RICH:
-            console.print(f"\n  [plan]▶ Executing plan...[/plan]")
+            console.print("\n  [plan]▶ Executing plan...[/plan]")
         else:
-            print(f"\n  ▶ Executing plan...")
+            print("\n  ▶ Executing plan...")
 
     def _on_plan_step_start(self, data: dict):
         step = data.get("step", 0)
@@ -601,7 +599,7 @@ def _show_memory():
         from rich.markdown import Markdown
         console.print(Panel(
             Markdown(content[:2000]),
-            title=f"[accent]Auto-Memory[/accent]",
+            title="[accent]Auto-Memory[/accent]",
             subtitle=f"[dim]{path}[/dim]",
             border_style="cyan",
             padding=(0, 1),

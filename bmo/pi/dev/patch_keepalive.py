@@ -1,4 +1,8 @@
-with open("/home/patrick/bmo/app.py", "r") as f:
+import os
+
+_APP = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "app.py"))
+
+with open(_APP, "r") as f:
     content = f.read()
 
 # Find the initial TV connection code and add keep_reconnecting + is_on callback
@@ -34,5 +38,5 @@ if old_reconnect in content:
 else:
     print("WARN - reconnect helper block not found")
 
-with open("/home/patrick/bmo/app.py", "w") as f:
+with open(_APP, "w") as f:
     f.write(content)

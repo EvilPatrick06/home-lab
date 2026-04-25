@@ -4,11 +4,11 @@
       "dnd_data": {
         "transport": "stdio",
         "command": "python3",
-        "args": ["/home/patrick/bmo/mcp_servers/dnd_data_server.py"],
+        "args": ["/home/patrick/home-lab/bmo/pi/mcp_servers/dnd_data_server.py"],
         "env": {
-          "DND_MARKDOWN_ROOT": "/home/patrick/bmo/data/5e-references",
-          "DND_JSON_ROOT": "/home/patrick/bmo/data/5e",
-          "RAG_DATA_DIR": "/home/patrick/bmo/data/rag_data"
+          "DND_MARKDOWN_ROOT": "/home/patrick/home-lab/bmo/pi/data/5e-references",
+          "DND_JSON_ROOT": "/home/patrick/home-lab/bmo/pi/data/5e",
+          "RAG_DATA_DIR": "/home/patrick/home-lab/bmo/pi/data/rag_data"
         },
         "description": "D&D 5.5e reference data, structured JSON, and RAG knowledge base"
       },
@@ -17,8 +17,8 @@
         "command": "npx",
         "args": [
           "-y", "@modelcontextprotocol/server-filesystem",
-          "/home/patrick/bmo",
-          "/home/patrick/bmo/data"
+          "/home/patrick/home-lab/bmo/pi",
+          "/home/patrick/home-lab/bmo/pi/data"
         ],
         "description": "File read/write/edit within BMO directories (explicit permission required for writes)"
       },

@@ -5,12 +5,10 @@ but asks confirmation before destructive operations (delete, overwrite, push, et
 """
 
 import glob as glob_module
-import json
 import os
 import re
 import shlex
 import subprocess
-import tempfile
 
 # ── Safety Configuration ──────────────────────────────────────────────
 
@@ -106,7 +104,7 @@ def execute_confirmed(cmd: str, cwd: str | None = None, timeout: int = 30) -> di
         try:
             subprocess.Popen(delayed_cmd, shell=True, cwd=cwd)
             return {
-                "output": f"BMO restart scheduled in 5 seconds. Agent can continue working.",
+                "output": "BMO restart scheduled in 5 seconds. Agent can continue working.",
                 "exit_code": 0,
                 "delayed_restart": True,
             }

@@ -1,4 +1,8 @@
-with open("/home/patrick/bmo/app.py", "r") as f:
+import os
+
+_APP = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "app.py"))
+
+with open(_APP, "r") as f:
     content = f.read()
 
 # Add detailed logging to power endpoint
@@ -47,5 +51,5 @@ if old in content:
 else:
     print("ERROR - power endpoint not found")
 
-with open("/home/patrick/bmo/app.py", "w") as f:
+with open(_APP, "w") as f:
     f.write(content)

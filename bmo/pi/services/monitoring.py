@@ -42,9 +42,11 @@ FISH_AUDIO_API_KEY = os.environ.get("FISH_AUDIO_API_KEY", "")
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY", "")
 PIHOLE_API_PASSWORD = os.environ.get("PIHOLE_API_PASSWORD", "bmo-ads-begone")
 
-# Calendar token path
+# Calendar token path + canonical data dir (bmo/pi/data — not services/data)
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-_LEGACY_CONFIG_DIR = os.path.join(os.path.dirname(_SCRIPT_DIR), "config")
+_PI_ROOT = os.path.dirname(_SCRIPT_DIR)
+_DATA_DIR = os.path.join(_PI_ROOT, "data")
+_LEGACY_CONFIG_DIR = os.path.join(_PI_ROOT, "config")
 CALENDAR_TOKEN_PATH = os.path.join(_SCRIPT_DIR, "config", "token.json")
 CALENDAR_CREDENTIALS_PATH = os.path.join(_SCRIPT_DIR, "config", "credentials.json")
 LEGACY_CALENDAR_TOKEN_PATH = os.path.join(_LEGACY_CONFIG_DIR, "token.json")
@@ -292,17 +294,13 @@ class HealthChecker:
 
         # Previous status for detecting state transitions (recovery detection)
         # Load from disk so recovery alerts work across restarts
-        self._state_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "data", "monitor_state.json"
-        )
+        self._state_file = os.path.join(_DATA_DIR, "monitor_state.json")
         self._prev_status: dict[str, str] = self._load_prev_status()
         self._service_meta: dict[str, dict] = {}
 
         # Discord dedupe tracker persisted across restarts:
         # service_name -> last alert fingerprint
-        self._alert_state_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "data", "monitor_alert_state.json"
-        )
+        self._alert_state_file = os.path.join(_DATA_DIR, "monitor_alert_state.json")
         self._discord_last_fingerprint: dict[str, str] = self._load_discord_alert_state()
 
     def _load_prev_status(self) -> dict[str, str]:
@@ -834,7 +832,7 @@ class HealthChecker:
                     self._service_status[f"docker_{name}"] = {
                         "status": "down",
                         "last_check": time.time(),
-                        "message": f"Container not found",
+                        "message": "Container not found",
                         "response_time": None,
                     }
                     self._emit_alert(

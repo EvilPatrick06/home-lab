@@ -13,7 +13,6 @@ Environment variables:
 """
 
 import asyncio
-import audioop
 import collections
 import datetime
 import html
@@ -28,6 +27,8 @@ import sqlite3
 import threading
 import time
 import uuid
+
+import numpy as np
 import wave
 from typing import Optional
 
@@ -269,8 +270,10 @@ def _get_queue(guild_id: int) -> MusicQueue:
 
 
 def _pcm_to_wav_48k(pcm_bytes: bytes) -> bytes:
-    """Convert 48kHz stereo 16-bit PCM to mono WAV for STT."""
-    mono = audioop.tomono(pcm_bytes, 2, 1, 0)  # left channel only
+    """Convert 48kHz stereo 16-bit PCM to mono WAV for STT (replaces deprecated audioop)."""
+    # Left channel only — same as audioop.tomono(pcm, 2, 1, 0)
+    stereo = np.frombuffer(pcm_bytes, dtype=np.int16).reshape(-1, 2)
+    mono = stereo[:, 0].tobytes()
     buf = io.BytesIO()
     with wave.open(buf, "wb") as wf:
         wf.setnchannels(1)

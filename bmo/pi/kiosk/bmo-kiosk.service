@@ -19,7 +19,7 @@ Environment=XCURSOR_SIZE=1
 Environment=XCURSOR_PATH=/home/patrick/.icons:/usr/share/icons
 
 # Wait for BMO Flask to be ready
-ExecStartPre=/bin/bash -c 'for i in {1..30}; do curl -sf http://localhost:5000/health > /dev/null && break; sleep 1; done'
+ExecStartPre=/bin/bash -c 'for i in {1..20}; do curl -sf --max-time 2 http://127.0.0.1:5000/health > /dev/null && break; sleep 2; done'
 
 ExecStart=/bin/bash -lc 'export GOOGLE_API_KEY="${GOOGLE_MAPS_API_KEY:-}"; exec /usr/bin/cage -- chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --disable-restore-session-state --disable-features=TranslateUI --disable-component-update --disable-domain-reliability --disable-sync --dns-prefetch-disable --no-default-browser-check --password-store=basic --check-for-update-interval=31536000 --no-first-run --start-fullscreen --touch-events=enabled --ash-hide-cursor-on-touch --enable-touchview --enable-pinch --use-fake-ui-for-media-stream --autoplay-policy=no-user-gesture-required --force-device-scale-factor=1 --high-dpi-support=1 --window-size=800,480 --user-data-dir=/home/patrick/.config/chromium-bmo --enable-logging=stderr --v=1 --unsafely-treat-insecure-origin-as-secure=http://127.0.0.1:5000,http://localhost:5000 http://127.0.0.1:5000/?kiosk=1'
 

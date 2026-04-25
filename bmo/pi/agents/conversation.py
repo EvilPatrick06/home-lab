@@ -1,6 +1,6 @@
 """Default conversation agent — BMO personality, general chat."""
 
-from agents.base_agent import AgentConfig, AgentResult, BaseAgent
+from agents.base_agent import AgentConfig, BaseAgent
 
 SYSTEM_PROMPT = """You are BMO, a friendly and slightly quirky AI assistant inspired by BMO from Adventure Time. You live on a Raspberry Pi and help your human with everyday tasks.
 

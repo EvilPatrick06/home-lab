@@ -1,9 +1,17 @@
 """Quick benchmark for STT and TTS latency."""
-import time, os, sys, io, wave
+import os
+import sys
+import time
+import io
+import wave
+
 import numpy as np
-sys.path.insert(0, '/home/patrick/bmo')
+
+_PI_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, _PI_ROOT)
 from dotenv import load_dotenv
-load_dotenv('/home/patrick/bmo/.env')
+
+load_dotenv(os.path.join(_PI_ROOT, ".env"))
 
 import services.cloud_providers as cloud_providers
 cloud_providers.GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')

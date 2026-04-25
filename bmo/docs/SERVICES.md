@@ -12,7 +12,6 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 | `voice_personality.py` | Persona injection — wraps responses with "BMO-ness". |
 | `bmo_say.py` | TTS dispatcher (Fish Audio primary, Piper fallback). |
 | `audio_output_service.py` | Routes audio to HDMI, Bluetooth, or USB speakers. |
-| `sound_effects.py` | Plays sfx from `data/sfx/*.mp3`. |
 
 ### Calendar + time (4)
 
@@ -31,8 +30,7 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 | `location_service.py` | Geolocation polling (Google geocoding). Cached at `data/location_cache.json`. |
 | `music_service.py` | YouTube Music (ytmusicapi) + VLC playback. Persists `data/{music_history,play_counts,playback_state}.json`. |
 | `smart_home.py` | Chromecast discovery + control. |
-| `tv_controller.py` | TV control via ADB. Pairs with `tv_worker.py` subprocess. |
-| `tv_worker.py` | ADB subprocess wrapper (isolates ADB state from main process). |
+| `tv_worker.py` | ADB subprocess wrapper for TV control (isolates ADB state from main process; TV routes in `app.py`). |
 
 ### Notifications + alerts (3)
 

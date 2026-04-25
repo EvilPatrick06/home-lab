@@ -11,7 +11,6 @@ import os
 import re
 import random
 import datetime
-from typing import Any
 
 from agents.vtt_sync import push_discord_message
 from agents.base_agent import AgentConfig, AgentResult, BaseAgent
@@ -23,7 +22,6 @@ from agent import (
     GAMESTATE_DIR,
     GAMESTATE_FILE,
     MAP_ENVIRONMENTS,
-    OLLAMA_OPTIONS,
     OLLAMA_PLAN_OPTIONS,
     _build_dm_data_context,
     _calculate_encounter_difficulty,
@@ -580,9 +578,9 @@ Reply with a SHORT plan (2-4 sentences max). Available directives:
         if hit_dice_remaining is not None:
             lines.append(f"  Hit Dice Remaining: {hit_dice_remaining} ({hit_dice_size})")
         else:
-            lines.append(f"  Hit Dice: Unknown — ask the player.")
+            lines.append("  Hit Dice: Unknown — ask the player.")
         lines.append(f"  Current HP: {hp}/{hp_max}")
-        lines.append(f"  Ask how many hit dice to spend, then roll healing.")
+        lines.append("  Ask how many hit dice to spend, then roll healing.")
         return "\n".join(lines)
 
     def _resolve_long_rest(self, character_name: str) -> str:
@@ -595,8 +593,8 @@ Reply with a SHORT plan (2-4 sentences max). Available directives:
         hit_dice_remaining = char_state.get("hit_dice_remaining")
         lines = [f"Long Rest for {character_name}:"]
         lines.append(f"  HP: Restored to {hp_max}")
-        lines.append(f"  Spell Slots: All restored")
-        lines.append(f"  Conditions: All removed")
+        lines.append("  Spell Slots: All restored")
+        lines.append("  Conditions: All removed")
         if hit_dice_max is not None and hit_dice_remaining is not None:
             recovery = max(1, hit_dice_max // 2)
             new_remaining = min(hit_dice_max, hit_dice_remaining + recovery)

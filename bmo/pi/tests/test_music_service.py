@@ -5,8 +5,7 @@ so tests run on any machine without hardware or network access.
 """
 
 import sys
-import types
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 import pytest
 
 # ── Ensure Pi-specific stubs are loaded (conftest does this at collection time,

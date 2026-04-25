@@ -37,8 +37,9 @@ AUTO_SYSTEM_TIMEZONE = os.environ.get("BMO_AUTO_SYSTEM_TIMEZONE", "1").strip().l
     "no",
 }
 
-_CACHE_PATH = Path(__file__).resolve().parent / "data" / "location_cache.json"
-_SETTINGS_PATH = Path(__file__).resolve().parent / "data" / "settings.json"
+_PI_DATA = Path(__file__).resolve().parent.parent / "data"
+_CACHE_PATH = _PI_DATA / "location_cache.json"
+_SETTINGS_PATH = _PI_DATA / "settings.json"
 
 
 def _make_label(city: str, region: str, country: str) -> str:

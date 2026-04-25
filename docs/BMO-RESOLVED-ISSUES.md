@@ -12,6 +12,43 @@
 
 ---
 
+### [2026-04-25] BMO issues log — full sweep (env TV/VTT, data dirs, JSON embeddings, journald bots, audioop, ruff F-rules, ops docs)
+
+- **Original severity:** mixed (all active entries in `BMO-ISSUES-LOG.md` through 2026-04-25)
+- **Category:** config, security, debt, performance, docs
+- **Domain:** bmo
+- **Resolved by:** Cursor agent (changes run + verified on Pi: `/home/patrick/home-lab/bmo/pi/venv`, `pytest tests/` 744 passed, 6 skipped)
+- **Date resolved:** 2026-04-25
+- **Resolution summary:**
+  1. **TV / VTT hosts:** `app.py` `TV_IP = os.environ.get("BMO_TV_HOST", "10.10.20.194")`. `bmo/.env.template` documents `BMO_TV_HOST`, `VTT_SYNC_URL`. `agents/vtt_sync.py` default `http://vtt.local:5001`. `dev/bmo_ui_lab_server.py` uses `BMO_TV_HOST`.
+  2. **Single data tree:** `services/monitoring.py` writes `monitor_state.json` / `monitor_alert_state.json` under `bmo/pi/data/`. `services/location_service.py` uses `bmo/pi/data/` for `location_cache.json` and reads `settings.json` from the same tree (aligns with `app.py` / `USER_SETTINGS_PATH`).
+  3. **Pickle → safe formats:** `voice_pipeline` speaker embeddings in `data/voice_profiles.json` (migrate from `.pkl` on load). `camera_service` `known_faces.json` (migrate from `.pkl` on load). Pickle only used for one-time migration reads.
+  4. **Discord social bot:** Replaced deprecated `audioop.tomono` with numpy left-channel extract in `_pcm_to_wav_48k`.
+  5. **Discord DM bot:** `calculate_encounter_difficulty` import removed (unused). Opus load failure now prints a warning instead of silent `pass`.
+  6. **Systemd bot logging:** `bmo-dm-bot.service` / `bmo-social-bot.service` use `StandardOutput=journal` / `StandardError=journal`. Example logrotate in `bmo/pi/kiosk/logrotate.d-bmo-bots.example` for file-based recovery.
+  7. **Kiosk wait:** `bmo-kiosk.service` `ExecStartPre` uses `curl --max-time 2`, fewer iterations, 127.0.0.1.
+  8. **Wake OWW:** `_load_wake_model` raises a clear error if no ONNX paths (existing outer handler falls back to energy+STT). `os.makedirs(MODELS_DIR/piper)`.
+  9. **setuptools:** Pinned `setuptools>=78.1.1,<82` in `requirements.txt` and `requirements-ci.txt` (CVE mitigation; **&lt;82** required by `torch` on Pi).
+  10. **Ruff F401/F541:** `pip install ruff`; auto-fixed unused imports and pointless f-strings; manual fixes for `cli.py` / `oled_face.py` leftovers. **vtt_sync:** removed unused `List` import.
+  11. **Docs:** `bmo/docs/TROUBLESHOOTING.md` — journalctl for bots, `BMO_TV_HOST` / `VTT_SYNC_URL`, pip `http-v2` cache note.
+
+### [2026-04-25] Batch: HTTP timeouts, voice_pipeline F811, stale service docs, MCP paths, dev legacy paths, package `__init__.py`
+
+- **Original severity:** medium (most) / low (`__init__.py`)
+- **Category:** bug, debt, docs, config
+- **Domain:** bmo
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-25
+- **Resolution (code + docs):**
+  1. **`agents/mcp_client.py` SSE:** Replaced `httpx.stream(..., timeout=None)` with `httpx.Timeout(connect=5.0, read=120.0, write=10.0, pool=5.0)` so stalled MCP SSE does not block workers forever.
+  2. **`services/reauth_calendar.py`:** Already had `timeout=30` on the token `post` (no code change). Original S113 scan was outdated.
+  3. **`services/voice_pipeline.py` `_pcm_to_wav`:** Inline `import io, wave` → `import wave` only (module-level `io` already imported); removes F811 shadowing.
+  4. **Docs:** `bmo/pi/README.md` service tree, `bmo/docs/SERVICES.md`, and `bmo/docs/ARCHITECTURE.md` — removed references to removed modules `tv_controller.py` and `sound_effects.py`; documented `tv_worker.py` and corrected Music row (ytmusicapi + VLC).
+  5. **`mcp_servers/mcp_settings.json`:** All `/home/patrick/bmo/...` paths → `/home/patrick/home-lab/bmo/pi/...` for dnd_data + filesystem roots.
+  6. **Package markers:** Added `bmo/pi/mcp_servers/__init__.py` and `bmo/pi/ide_app/__init__.py` (minimal docstrings).
+  7. **Dev / scripts:** `dev/patch_*.py`, `revert_power.py`, `dev/benchmark_*.py` now resolve `app.py` and `.env` via `os.path` relative to `__file__`. Shell script comments in `scripts/e2e_test.sh`, `diagnose-cloudflare.sh`, `setup-tailscale.sh` use `~/home-lab/bmo/pi/...`.
+- **Process:** Clarified in `docs/BMO-ISSUES-LOG.md` that the active log is **deferred** backlog; same-session fixes are not re-logged (per `LOG-INSTRUCTIONS.md`).
+
 ### [2026-04-24] Non-pytest `test_*.py` scripts in `bmo/pi/tests/` and pytest import-order / conftest issues
 
 - **Original severity:** medium

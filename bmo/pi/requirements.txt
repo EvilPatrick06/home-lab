@@ -1,4 +1,6 @@
 # BMO — Python dependencies for Raspberry Pi 5
+# Pin setuptools for known CVEs (pip/venv build)
+setuptools>=78.1.1,<82
 #
 # PyTorch: install CPU-only BEFORE the rest, or a plain `pip install -r` on Linux aarch64
 # may resolve torch from PyPI with CUDA + nvidia wheels (~4.5+ GB) — useless on Pi 5.

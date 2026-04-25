@@ -18,14 +18,14 @@ import logging
 import os
 import threading
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import requests
 
 logger = logging.getLogger("bmo.vtt_sync")
 
 # The VTT's sync receiver URL — set via env or auto-discover
-VTT_SYNC_URL = os.environ.get("VTT_SYNC_URL", "http://10.10.20.100:5001")
+VTT_SYNC_URL = os.environ.get("VTT_SYNC_URL", "http://vtt.local:5001").strip() or "http://vtt.local:5001"
 SYNC_TIMEOUT = 5  # seconds
 
 

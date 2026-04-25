@@ -14,7 +14,6 @@ from __future__ import annotations
 import json
 import os
 import subprocess
-import sys
 import threading
 import time
 from typing import Any
@@ -354,7 +353,13 @@ class McpClient:
         def _listen():
             try:
                 import httpx
-                with httpx.stream("GET", url, headers={**headers, "Accept": "text/event-stream"}, timeout=None) as response:
+                # Finite timeouts: unbounded read stalls the worker if the MCP server stops mid-stream
+                with httpx.stream(
+                    "GET",
+                    url,
+                    headers={**headers, "Accept": "text/event-stream"},
+                    timeout=httpx.Timeout(connect=5.0, read=120.0, write=10.0, pool=5.0),
+                ) as response:
                     buffer = ""
                     for chunk in response.iter_text():
                         if not self._sse_running:

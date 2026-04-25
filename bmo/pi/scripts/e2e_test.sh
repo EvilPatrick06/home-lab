@@ -6,9 +6,9 @@
 #   bash e2e_test.sh --verbose    # Show response bodies
 #
 # Run from Pi or via SSH:
-#   ssh patrick@bmo.local "bash ~/bmo/e2e_test.sh"
+#   ssh patrick@bmo.local "bash ~/home-lab/bmo/pi/scripts/e2e_test.sh"
 #   # or if you use an SSH alias:
-#   ssh patrick@bmo "bash ~/bmo/e2e_test.sh"
+#   ssh patrick@bmo "bash ~/home-lab/bmo/pi/scripts/e2e_test.sh"
 
 set -uo pipefail
 

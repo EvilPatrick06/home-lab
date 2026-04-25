@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 from agents.mcp_client import McpClient
 
 if TYPE_CHECKING:
-    from agents.settings import BmoSettings
+    pass
 
 
 @dataclass
