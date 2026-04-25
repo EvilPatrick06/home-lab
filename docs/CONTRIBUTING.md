@@ -35,7 +35,7 @@ git config core.hooksPath .githooks
 chmod +x .githooks/pre-commit
 ```
 
-The hook runs `gitleaks protect --staged --redact` when gitleaks is on your `PATH` (it skips if not installed). CI also runs `npm audit` and Python `bandit` on relevant paths (see `.github/workflows/security-audit.yml`).
+The hook runs `gitleaks protect --staged --redact` when gitleaks is on your `PATH` (it skips if not installed). CI runs `dnd-app`'s `npm run audit:ci` (production dependencies only, moderate and above), plus Python `bandit` on `bmo/pi/ide_app` (see `.github/workflows/security-audit.yml`). For a full tree including devDependencies (e.g. LangChain used only in extract scripts), run `cd dnd-app && npm run audit:all`.
 
 ## Commits
 
