@@ -6,8 +6,8 @@
  * can call them programmatically.
  *
  * Usage:
- *   node Tests/rename-to-kebab.js                    # run all renames
- *   node Tests/rename-to-kebab.js --dry-run           # preview only
+ *   node tools/rename-to-kebab.js                    # run all renames
+ *   node tools/rename-to-kebab.js --dry-run           # preview only
  *
  * Programmatic:
  *   const { renameFiles, updateImports } = require('./rename-to-kebab')

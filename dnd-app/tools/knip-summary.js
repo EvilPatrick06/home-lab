@@ -1,4 +1,7 @@
-const r = JSON.parse(require('fs').readFileSync('Tests/knip-report.json', 'utf8'))
+const path = require('node:path')
+const r = JSON.parse(
+  require('fs').readFileSync(path.join(__dirname, 'knip-report.json'), 'utf8')
+)
 console.log('Unused files:', r.files?.length || 0)
 let totalExports = 0, totalTypes = 0
 for (const issue of r.issues || []) {

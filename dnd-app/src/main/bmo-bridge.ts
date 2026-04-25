@@ -8,6 +8,7 @@
 
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { BrowserWindow } from 'electron'
+import { IPC_CHANNELS } from '../shared/ipc-channels'
 import { getBmoBaseUrl } from './bmo-config'
 import { logToFile } from './log'
 
@@ -163,7 +164,7 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
         const body = await readBody(req)
         const event: SyncEvent = JSON.parse(body)
         logToFile('INFO', `[bmo-bridge] Sync event: ${event.type}`)
-        forwardToRenderer('bmo:sync-event', event)
+        forwardToRenderer(IPC_CHANNELS.BMO_SYNC_EVENT, event)
         sendJson(res, 200, { ok: true })
         return
       }
@@ -173,7 +174,7 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
         const body = await readBody(req)
         const data = JSON.parse(body)
         logToFile('INFO', '[bmo-bridge] Initiative sync from Discord')
-        forwardToRenderer('bmo:sync-initiative', data)
+        forwardToRenderer(IPC_CHANNELS.BMO_SYNC_INITIATIVE, data)
         sendJson(res, 200, { ok: true })
         return
       }
@@ -181,7 +182,7 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
       // State request — Pi is asking for current VTT state
       if (req.method === 'GET' && req.url === '/api/sync/state') {
         // Forward a state request event; the renderer will respond with a push
-        forwardToRenderer('bmo:sync-event', {
+        forwardToRenderer(IPC_CHANNELS.BMO_SYNC_EVENT, {
           type: 'state_request',
           payload: {},
           timestamp: Date.now()

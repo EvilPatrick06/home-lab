@@ -10,9 +10,9 @@
  * Modular design: exports reusable functions.
  *
  * Usage:
- *   node Tests/replace-console-logs.js               # apply replacements
- *   node Tests/replace-console-logs.js --dry-run       # preview only
- *   node Tests/replace-console-logs.js --count         # just count occurrences
+ *   node tools/replace-console-logs.js               # apply replacements
+ *   node tools/replace-console-logs.js --dry-run       # preview only
+ *   node tools/replace-console-logs.js --count         # just count occurrences
  *
  * Programmatic:
  *   const { replaceConsoleLogs } = require('./replace-console-logs')

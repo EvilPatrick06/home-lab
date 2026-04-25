@@ -12,6 +12,96 @@
 
 ---
 
+### [2026-04-25] dnd-app Vitest: 30 failing tests (633 files / 6137 tests)
+
+- **Original severity:** medium
+- **Category:** test
+- **Domain:** dnd-app
+- **Discovered by:** Cursor agent
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-25
+- **Commit:** (include when you commit)
+
+**Original summary:** Full suite had 9 failed files / 30 failed tests (Pixi mocks, TokenContextMenu harness, etc.).
+
+**Resolution:** Renderer test suite now passes: **635 files / 6299 tests** (see `npm test`). Remaining stderr lines from `data-provider` in some page tests are logged warnings, not failing assertions.
+
+**Related files:** (various test mocks and components addressed in 2026-04-24–25 dnd-app cleanup)
+
+---
+
+### [2026-04-24] `import-export.ts` wrote arbitrary `localStorage` keys from imported backups — no key allowlist
+
+- **Original severity:** low
+- **Category:** debt, security
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-25
+- **Commit:** (include when you commit)
+
+**Original summary:** Import loop used `localStorage.setItem` for any key present under `payload.preferences`.
+
+**Resolution:** Added `isImportablePreferenceKey()` — `dnd-vtt-` prefix, max length 128, pattern `^dnd-vtt-[\\w.-]+$`. Used for both **export** (`gatherLocalStoragePreferences`) and **import** preference restore. Crafted backups cannot inject keys outside that shape.
+
+**Related files:** `dnd-app/src/renderer/src/services/io/import-export.ts`
+
+---
+
+### [2026-04-24] `ANALYZE=1 npm run build` fails — `rollup-plugin-visualizer@7` is ESM-only but `electron.vite.config.ts` used CJS `require()`
+
+- **Original severity:** low
+- **Category:** bug, debt, config
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-25
+- **Commit:** (include when you commit)
+
+**Original summary:** `require('rollup-plugin-visualizer')` threw `ERR_PACKAGE_PATH_NOT_EXPORTED` when `ANALYZE=1`.
+
+**Resolution:** `analyzePlugin()` is async and uses `await import('rollup-plugin-visualizer')`. Root config is `defineConfig(async () => ({ ... }))` so the plugin loads at config resolution time. `ANALYZE=1 npm run build` completes and writes `bundle-stats.html`.
+
+**Related files:** `dnd-app/electron.vite.config.ts`
+
+---
+
+### [2026-04-24] `bmo:sync-event` IPC used string literals instead of `IPC_CHANNELS` (and initiative channel)
+
+- **Original severity:** low
+- **Category:** debt
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-25
+- **Commit:** (include when you commit)
+
+**Original summary:** `bmo-bridge.ts` called `forwardToRenderer('bmo:sync-event', ...)` and `'bmo:sync-initiative'` as literals.
+
+**Resolution:** All three call sites use `IPC_CHANNELS.BMO_SYNC_EVENT` and `IPC_CHANNELS.BMO_SYNC_INITIATIVE` from `src/shared/ipc-channels.ts`.
+
+**Related files:** `dnd-app/src/main/bmo-bridge.ts`, `dnd-app/src/shared/ipc-channels.ts`
+
+---
+
+### [2026-04-24] `tools/*.js` referenced the old `Tests/` directory and `knip-summary.js` read a broken path
+
+- **Original severity:** low
+- **Category:** docs, debt, portability
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-25
+- **Commit:** (include when you commit)
+
+**Original summary:** Comments and `knip-summary.js` pointed at `Tests/`; `run-audit.js` help text and report paths were stale.
+
+**Resolution:** Scripts under `dnd-app/tools/` now reference `tools/` in usage strings and reports; `knip-summary.js` resolves `knip-report.json` next to the script via `path.join(__dirname, '..', 'knip-report.json')`.
+
+**Related files:** `dnd-app/tools/run-audit.js`, `dnd-app/tools/knip-summary.js`, `dnd-app/tools/rename-to-kebab.js`, `dnd-app/tools/replace-console-logs.js` (as applicable)
+
+---
+
 ### [2026-04-24] 38 dead cross-references in 5e content — `effect-definitions.json` + `adventures.json` `mapId`s
 
 - **Original severity:** medium

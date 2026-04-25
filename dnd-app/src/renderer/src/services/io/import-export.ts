@@ -134,6 +134,13 @@ const BACKUP_VERSION = 3
 const BACKUP_FILTER = [{ name: 'D&D VTT Backup', extensions: ['dndbackup'] }]
 
 const PREFERENCE_PREFIX = 'dnd-vtt-'
+const PREFERENCE_KEY_MAX_LEN = 128
+/** Keys we persist in backups / restore on import: prefix + safe slug shape (defense in depth for crafted .dndbackup files). */
+const PREFERENCE_KEY_RE = /^dnd-vtt-[\w.-]+$/
+
+export function isImportablePreferenceKey(key: string): boolean {
+  return key.length > PREFERENCE_PREFIX.length && key.length <= PREFERENCE_KEY_MAX_LEN && PREFERENCE_KEY_RE.test(key)
+}
 
 interface BackupPayload {
   version: number
@@ -161,7 +168,7 @@ function gatherLocalStoragePreferences(): Record<string, string> {
   const prefs: Record<string, string> = {}
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)
-    if (key?.startsWith(PREFERENCE_PREFIX)) {
+    if (key && isImportablePreferenceKey(key)) {
       prefs[key] = localStorage.getItem(key) ?? ''
     }
   }
@@ -429,7 +436,7 @@ export async function importAllData(): Promise<BackupStats | null> {
 
   if (payload.preferences && typeof payload.preferences === 'object') {
     for (const [key, value] of Object.entries(payload.preferences)) {
-      if (key.startsWith(PREFERENCE_PREFIX) && typeof value === 'string') {
+      if (isImportablePreferenceKey(key) && typeof value === 'string') {
         localStorage.setItem(key, value)
       }
     }

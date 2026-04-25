@@ -1,6 +1,6 @@
 /**
  * Master Audit Script — runs all checks and writes TestAudit.md
- * Usage: node Tests/run-audit.js
+ * Usage: node tools/run-audit.js
  */
 
 const { execSync } = require('node:child_process')
@@ -19,7 +19,12 @@ function run(cmd, opts = {}) {
       cwd: ROOT,
       encoding: 'utf-8',
       timeout: opts.timeout || 120_000,
-      env: { ...process.env, PATH: 'C:\\Program Files\\nodejs;' + process.env.PATH },
+      env: {
+        ...process.env,
+        ...(process.platform === 'win32'
+          ? { PATH: 'C:\\Program Files\\nodejs;' + process.env.PATH }
+          : {})
+      },
       stdio: ['pipe', 'pipe', 'pipe'],
       maxBuffer: 50 * 1024 * 1024
     })
@@ -926,7 +931,7 @@ async function main() {
     26: 'Split files >1000 lines into sub-modules. See `stores/game/` and `services/game-actions/` for patterns.',
     27: 'Replace `as any` with proper types. Only acceptable in test files with `// eslint-disable` comment.',
     30: 'Extract duplicate code into shared hooks (see `hooks/use-character-editor.ts` pattern).',
-    33: 'Rename camelCase `.ts` files to kebab-case. Run `node Tests/rename-to-kebab.js`.',
+    33: 'Rename camelCase `.ts` files to kebab-case. Run `node tools/rename-to-kebab.js`.',
   }
   for (const r of results) {
     if (r.result.status !== 'pass' && fixInstructions[r.id]) {
@@ -1022,13 +1027,13 @@ async function main() {
 
   // Automation scripts reference
   lines.push('\n---\n')
-  lines.push('## Automation Scripts (Tests/)\n')
+  lines.push('## Automation Scripts (tools/)\n')
   lines.push('| Script | Purpose | Usage |')
   lines.push('|--------|---------|-------|')
-  lines.push('| `run-audit.js` | Master audit — runs all checks, generates this report | `node Tests/run-audit.js` |')
+  lines.push('| `run-audit.js` | Master audit — runs all checks, generates this report | `node tools/run-audit.js` |')
   lines.push('| `electron-security.js` | Electron security scan (CSP, sandbox, etc.) | Called by run-audit.js check #10 |')
-  lines.push('| `rename-to-kebab.js` | Rename camelCase files to kebab-case + update imports | `node Tests/rename-to-kebab.js [--dry-run]` |')
-  lines.push('| `replace-console-logs.js` | Replace console.* with structured logger | `node Tests/replace-console-logs.js [--dry-run|--count]` |')
+  lines.push('| `rename-to-kebab.js` | Rename camelCase files to kebab-case + update imports | `node tools/rename-to-kebab.js [--dry-run]` |')
+  lines.push('| `replace-console-logs.js` | Replace console.* with structured logger | `node tools/replace-console-logs.js [--dry-run|--count]` |')
   lines.push('')
   lines.push('All scripts are modular and export reusable functions for programmatic use.')
 
@@ -1082,7 +1087,7 @@ async function main() {
   fs.writeFileSync(OUT, md, 'utf-8')
 
   console.log(`\n=== Summary: ${errors} errors, ${warnings} warnings, ${infos} info ===`)
-  console.log(`Report written to: Tests/TestAudit.md`)
+  console.log(`Report written to: tools/TestAudit.md`)
 }
 
 main().catch(e => {

@@ -5,3 +5,5 @@ node_modules/
 out/
 dist/
 *.log
+# rollup-plugin-visualizer (ANALYZE=1 npm run build)
+bundle-stats.html
