@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import { Button, EmptyState } from '../ui'
 
 interface BookConfig {
@@ -64,7 +63,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
         })
         if (!result) return
 
-        const bookId = coreDef?.key ?? uuidv4()
+        const bookId = coreDef?.key ?? globalThis.crypto.randomUUID()
         const title = coreDef?.title ?? result.split(/[/\\]/).pop()?.replace('.pdf', '') ?? 'Untitled Book'
 
         const config: BookConfig = {
@@ -92,7 +91,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
       })
       if (!result) return
 
-      const bookId = uuidv4()
+      const bookId = globalThis.crypto.randomUUID()
       const fileName = result.split(/[/\\]/).pop()?.replace('.pdf', '') ?? 'Untitled Book'
 
       // Import (copy) into userData/books/
