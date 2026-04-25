@@ -94,37 +94,37 @@
       "effects": [{ "type": "ability_set", "value": 19, "stringValue": "strength", "condition": "attuned" }]
     },
     "Belt of Giant Strength (Hill)": {
-      "sourceId": "belt-hill-giant-strength",
+      "sourceId": "belt-of-giant-strength-hill",
       "sourceName": "Belt of Hill Giant Strength",
       "sourceType": "magic-item",
       "effects": [{ "type": "ability_set", "value": 21, "stringValue": "strength", "condition": "attuned" }]
     },
     "Belt of Giant Strength (Frost)": {
-      "sourceId": "belt-frost-giant-strength",
+      "sourceId": "belt-of-giant-strength-frost",
       "sourceName": "Belt of Frost Giant Strength",
       "sourceType": "magic-item",
       "effects": [{ "type": "ability_set", "value": 23, "stringValue": "strength", "condition": "attuned" }]
     },
     "Belt of Giant Strength (Fire)": {
-      "sourceId": "belt-fire-giant-strength",
+      "sourceId": "belt-of-giant-strength-fire",
       "sourceName": "Belt of Fire Giant Strength",
       "sourceType": "magic-item",
       "effects": [{ "type": "ability_set", "value": 25, "stringValue": "strength", "condition": "attuned" }]
     },
     "Belt of Giant Strength (Cloud)": {
-      "sourceId": "belt-cloud-giant-strength",
+      "sourceId": "belt-of-giant-strength-cloud",
       "sourceName": "Belt of Cloud Giant Strength",
       "sourceType": "magic-item",
       "effects": [{ "type": "ability_set", "value": 27, "stringValue": "strength", "condition": "attuned" }]
     },
     "Belt of Giant Strength (Storm)": {
-      "sourceId": "belt-storm-giant-strength",
+      "sourceId": "belt-of-giant-strength-storm",
       "sourceName": "Belt of Storm Giant Strength",
       "sourceType": "magic-item",
       "effects": [{ "type": "ability_set", "value": 29, "stringValue": "strength", "condition": "attuned" }]
     },
     "All-Purpose Tool (+1)": {
-      "sourceId": "all-purpose-tool-1",
+      "sourceId": "all-purpose-tool-plus-1",
       "sourceName": "All-Purpose Tool +1",
       "sourceType": "magic-item",
       "effects": [
@@ -133,7 +133,7 @@
       ]
     },
     "All-Purpose Tool (+2)": {
-      "sourceId": "all-purpose-tool-2",
+      "sourceId": "all-purpose-tool-plus-2",
       "sourceName": "All-Purpose Tool +2",
       "sourceType": "magic-item",
       "effects": [
@@ -142,7 +142,7 @@
       ]
     },
     "Arcane Grimoire (+1)": {
-      "sourceId": "arcane-grimoire-1",
+      "sourceId": "arcane-grimoire-plus-1",
       "sourceName": "Arcane Grimoire +1",
       "sourceType": "magic-item",
       "effects": [
@@ -151,7 +151,7 @@
       ]
     },
     "Amulet of the Devout (+1)": {
-      "sourceId": "amulet-devout-1",
+      "sourceId": "amulet-of-the-devout-plus-1",
       "sourceName": "Amulet of the Devout +1",
       "sourceType": "magic-item",
       "effects": [
@@ -279,37 +279,37 @@
   },
   "fightingStyles": {
     "Defense": {
-      "sourceId": "fs-defense",
+      "sourceId": "defense",
       "sourceName": "Defense",
       "sourceType": "fighting-style",
       "effects": [{ "type": "ac_bonus", "value": 1, "condition": "wearing_armor" }]
     },
     "Archery": {
-      "sourceId": "fs-archery",
+      "sourceId": "archery",
       "sourceName": "Archery",
       "sourceType": "fighting-style",
       "effects": [{ "type": "attack_bonus", "value": 2, "scope": "ranged_weapon" }]
     },
     "Dueling": {
-      "sourceId": "fs-dueling",
+      "sourceId": "dueling",
       "sourceName": "Dueling",
       "sourceType": "fighting-style",
       "effects": [{ "type": "damage_bonus", "value": 2, "scope": "melee_weapon" }]
     },
     "Great Weapon Fighting": {
-      "sourceId": "fs-gwf",
+      "sourceId": "great-weapon-fighting",
       "sourceName": "Great Weapon Fighting",
       "sourceType": "fighting-style",
       "effects": [{ "type": "reroll_damage_1s", "scope": "heavy_weapon" }]
     },
     "Two-Weapon Fighting": {
-      "sourceId": "fs-twf",
+      "sourceId": "two-weapon-fighting",
       "sourceName": "Two-Weapon Fighting",
       "sourceType": "fighting-style",
       "effects": [{ "type": "damage_bonus", "value": 0, "stringValue": "add_ability_mod_offhand" }]
     },
     "Thrown Weapon Fighting": {
-      "sourceId": "fs-thrown",
+      "sourceId": "thrown-weapon-fighting",
       "sourceName": "Thrown Weapon Fighting",
       "sourceType": "fighting-style",
       "effects": [{ "type": "damage_bonus", "value": 2, "scope": "thrown" }]
@@ -317,31 +317,31 @@
   },
   "consumables": {
     "Potion of Healing": {
-      "sourceId": "potion-healing",
+      "sourceId": "potion-of-healing",
       "sourceName": "Potion of Healing",
       "sourceType": "consumable",
       "effects": [{ "type": "heal", "dice": "2d4+2", "condition": "on_use" }]
     },
     "Potion of Greater Healing": {
-      "sourceId": "potion-greater-healing",
+      "sourceId": "potion-of-greater-healing",
       "sourceName": "Potion of Greater Healing",
       "sourceType": "consumable",
       "effects": [{ "type": "heal", "dice": "4d4+4", "condition": "on_use" }]
     },
     "Potion of Superior Healing": {
-      "sourceId": "potion-superior-healing",
+      "sourceId": "potion-of-superior-healing",
       "sourceName": "Potion of Superior Healing",
       "sourceType": "consumable",
       "effects": [{ "type": "heal", "dice": "8d4+8", "condition": "on_use" }]
     },
     "Potion of Supreme Healing": {
-      "sourceId": "potion-supreme-healing",
+      "sourceId": "potion-of-supreme-healing",
       "sourceName": "Potion of Supreme Healing",
       "sourceType": "consumable",
       "effects": [{ "type": "heal", "dice": "10d4+20", "condition": "on_use" }]
     },
     "Potion of Heroism": {
-      "sourceId": "potion-heroism",
+      "sourceId": "potion-of-heroism",
       "sourceName": "Potion of Heroism",
       "sourceType": "consumable",
       "effects": [{ "type": "temp_hp", "value": 10, "condition": "on_use" }]

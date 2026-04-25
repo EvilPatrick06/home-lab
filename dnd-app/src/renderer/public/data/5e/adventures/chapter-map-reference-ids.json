@@ -1,0 +1,20 @@
+[
+  { "id": "butterskull-map" },
+  { "id": "cragmaw-castle-map" },
+  { "id": "cragmaw-hideout-map" },
+  { "id": "dragon-barrow-map" },
+  { "id": "durst-dungeon-map" },
+  { "id": "durst-upper-map" },
+  { "id": "durst-upper-map-2" },
+  { "id": "fortress-keep-map" },
+  { "id": "fortress-level-map" },
+  { "id": "grove-level-map" },
+  { "id": "icespire-hold-map" },
+  { "id": "mountain-toe-map" },
+  { "id": "phandalin-doip-map" },
+  { "id": "phandalin-map" },
+  { "id": "ravine-entrance-map" },
+  { "id": "tower-storms-map" },
+  { "id": "tresendar-manor-map" },
+  { "id": "wave-echo-cave-map" }
+]

@@ -1,0 +1,37 @@
+# Ensures 5e JSON cross-references (sourceId, mapId, etc.) resolve to declared `id` values.
+name: dnd-app validate 5e
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'dnd-app/**'
+      - '.github/workflows/dnd-app-validate-5e.yml'
+  pull_request:
+    paths:
+      - 'dnd-app/**'
+      - '.github/workflows/dnd-app-validate-5e.yml'
+
+defaults:
+  run:
+    working-directory: dnd-app
+
+jobs:
+  validate-5e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: dnd-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate 5e data cross-references
+        run: npm run validate:5e
