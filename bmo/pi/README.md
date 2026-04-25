@@ -65,8 +65,10 @@ pi/
 ├── dev/                         Dev tools — NOT used in production
 │   ├── claude_tools.py, dev_tools.py, file_watcher.py, terminal_service.py
 │   ├── patch_debug.py, patch_keepalive.py, patch_retry.py, patch_revert.py, patch_wol.py
-│   ├── revert_power.py
-│   └── benchmark_audio.py, benchmark_full.py, benchmark_llm.py, benchmark_personality.py
+│   ├── revert_power.py, bmo_ui_lab_server.py   (webcam/YT/Calendar lab; uses web/templates)
+│   ├── benchmark_audio.py, benchmark_full.py, benchmark_llm.py, benchmark_personality.py
+│   ├── benchmarks/              thinking_budget_sweep.py, gemini_stream_probe.py (live API)
+│   └── diagnostics/            aec_pipewire_check.py, wake_word_{auto,timed,debug}.py
 │
 ├── wake/                        Wake-word detection
 │   ├── hey_bmo.onnx             Custom trained model
@@ -102,17 +104,15 @@ pi/
 │   ├── win_proxy.py             Windows WSL2 proxy helper
 │   └── apply_patch.py           Deploy BMO agent patches from laptop
 │
-├── tests/                       Pytest — 660+ tests
+├── tests/                       Pytest — 650+ unit tests
 │   ├── conftest.py              Shared fixtures (mocks Pi hardware for cross-OS runs)
 │   ├── test_app_endpoints.py, test_audio_output.py, test_calendar_service.py,
 │   ├── test_claude_tools.py, test_dev_tools.py, test_ide_app.py,
 │   ├── test_monitoring.py, test_music_service.py, test_shell_scripts.py,
 │   ├── test_timer_service.py, test_voice_pipeline.py, test_weather_service.py,
-│   ├── test_aec.py, test_calendar_auth_paths.py, test_gemini_stream.py,
-│   ├── test_monitoring_health.py, test_music_restore.py, test_server.py,
-│   ├── test_thinking_budget.py, test_wake_auto.py, test_wake_debug.py, test_wake_timed.py
+│   ├── test_calendar_auth_paths.py, test_monitoring_health.py, test_music_restore.py
 │   └── agents/
-│       ├── test_base_agent.py, test_routing_accuracy.py
+│       ├── test_0_routing_accuracy.py, test_base_agent.py
 │
 ├── data/                        Canonical data (content + runtime state)
 │   ├── games/                   Trivia, Adventure Time trivia

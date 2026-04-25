@@ -92,8 +92,8 @@ class MusicRestoreBehaviorTests(unittest.TestCase):
 
         svc._restore_seek_position.assert_called_once_with(199.0)
 
-    @patch("music_service.time.sleep")
-    @patch("music_service.time.time", side_effect=[0.0, 0.2, 0.4, 0.6, 0.8, 5.0, 16.0])
+    @patch("services.music_service.time.sleep")
+    @patch("services.music_service.time.time", side_effect=[0.0, 0.2, 0.4, 0.6, 0.8, 5.0, 16.0])
     def test_restore_seek_position_retries_until_target(self, _mock_time, _mock_sleep):
         svc = MusicService.__new__(MusicService)
         svc._output_device = "pi"
@@ -110,9 +110,9 @@ class MusicRestoreBehaviorTests(unittest.TestCase):
         svc._cast_seek.assert_not_called()
         svc._emit_state.assert_called_once()
 
-    @patch("music_service.time.time", return_value=1700000000.0)
-    @patch("music_service.os.makedirs")
-    @patch("music_service.json.dump")
+    @patch("services.music_service.time.time", return_value=1700000000.0)
+    @patch("services.music_service.os.makedirs")
+    @patch("services.music_service.json.dump")
     @patch("builtins.open", new_callable=unittest.mock.mock_open)
     def test_save_playback_state_persists_position_and_flags(self, _open_mock, _json_dump, _makedirs, _time_mock):
         svc = MusicService.__new__(MusicService)
@@ -199,9 +199,9 @@ class MusicRestoreBehaviorTests(unittest.TestCase):
         svc._save_playback_state.assert_called_once()
         svc._emit_state.assert_called_once()
 
-    @patch("music_service.time.time", return_value=1700000000.0)
-    @patch("music_service.os.makedirs")
-    @patch("music_service.json.dump")
+    @patch("services.music_service.time.time", return_value=1700000000.0)
+    @patch("services.music_service.os.makedirs")
+    @patch("services.music_service.json.dump")
     @patch("builtins.open", new_callable=unittest.mock.mock_open)
     def test_save_state_prefers_playback_intent_paused(self, _open_mock, _json_dump, _makedirs, _time_mock):
         svc = MusicService.__new__(MusicService)
@@ -229,8 +229,8 @@ class MusicRestoreBehaviorTests(unittest.TestCase):
         self.assertTrue(captured["was_paused"])
         self.assertFalse(captured["was_playing"])
 
-    @patch("music_service.time.sleep")
-    @patch("music_service.time.time", side_effect=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 5.0])
+    @patch("services.music_service.time.sleep")
+    @patch("services.music_service.time.time", side_effect=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 5.0])
     def test_force_pause_after_restore_retries_until_paused(self, _mock_time, _mock_sleep):
         svc = MusicService.__new__(MusicService)
         svc._output_device = "pi"

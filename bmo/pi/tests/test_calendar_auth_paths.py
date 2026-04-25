@@ -45,7 +45,7 @@ class CalendarPathResolutionTests(unittest.TestCase):
         self.assertEqual(self._normalize(copied_from), legacy)
         self.assertEqual(self._normalize(copied_to), local)
 
-    @patch("calendar_service.os.path.exists")
+    @patch("services.calendar_service.os.path.exists")
     def test_calendar_service_prefers_local_paths(self, mock_exists):
         local_credentials = _calendar_config_dir() + "/credentials.json"
         local_token = _calendar_config_dir() + "/token.json"

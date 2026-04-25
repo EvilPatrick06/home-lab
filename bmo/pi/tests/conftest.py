@@ -4,6 +4,13 @@ Mocks all hardware, cloud APIs, and Pi-specific dependencies so tests
 run on any machine (Windows, Linux, macOS) without real hardware.
 """
 
+import os
+
+# `app` uses SocketIO(async_mode=gevent); conftest supplies minimal gevent stubs.
+# When a test file imports `app` before `test_app_endpoints` (which mocks
+# flask_socketio), use threading so engineio does not need a real gevent install.
+os.environ.setdefault("BMO_SOCKETIO_ASYNC_MODE", "threading")
+
 import sys
 import types
 from unittest.mock import MagicMock, patch
@@ -21,7 +28,6 @@ _MOCK_MODULES = [
     "pyaudio", "sounddevice", "openwakeword",
     "piper", "resemblyzer",
     "vlc", "pychromecast", "androidtvremote2",
-    "gevent", "gevent.monkey",
     "spidev",
 ]
 
@@ -29,10 +35,16 @@ for mod_name in _MOCK_MODULES:
     if mod_name not in sys.modules:
         sys.modules[mod_name] = MagicMock()
 
-# gevent.monkey.patch_all must be callable and a no-op
-sys.modules["gevent"].monkey = MagicMock()
-sys.modules["gevent.monkey"] = sys.modules["gevent"].monkey
-sys.modules["gevent.monkey"].patch_all = MagicMock()
+# gevent: app.py uses `from gevent import monkey` and `from gevent.event import AsyncResult`
+_gevent = types.ModuleType("gevent")
+_gevent_monkey = types.ModuleType("gevent.monkey")
+_gevent_monkey.patch_all = MagicMock()
+_gevent.monkey = _gevent_monkey
+sys.modules["gevent"] = _gevent
+sys.modules["gevent.monkey"] = _gevent_monkey
+_gevent_event = types.ModuleType("gevent.event")
+_gevent_event.AsyncResult = MagicMock
+sys.modules["gevent.event"] = _gevent_event
 
 
 # ── Fixtures ───────────────────────────────────────────────────────

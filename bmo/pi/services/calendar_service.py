@@ -7,8 +7,13 @@ import shutil
 import threading
 import time
 
-CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
-LEGACY_CONFIG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config")
+# Canonical with app.py: bmo/pi/config/ — not bmo/pi/services/config/
+_PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = os.path.join(_PI_ROOT, "config")
+# Pre-reorg / mistaken copies under services/package
+SERVICES_CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
+# Legacy: bmo/config (outside bmo/pi)
+LEGACY_CONFIG_DIR = os.path.join(os.path.dirname(_PI_ROOT), "config")
 CREDENTIALS_PATH = os.path.join(CONFIG_DIR, "credentials.json")
 TOKEN_PATH = os.path.join(CONFIG_DIR, "token.json")
 LEGACY_CREDENTIALS_PATH = os.path.join(LEGACY_CONFIG_DIR, "credentials.json")
@@ -35,9 +40,25 @@ class CalendarService:
 
     @staticmethod
     def _resolve_config_paths() -> tuple[str, str]:
-        credentials_path = CREDENTIALS_PATH if os.path.exists(CREDENTIALS_PATH) else LEGACY_CREDENTIALS_PATH
-        token_path = TOKEN_PATH if os.path.exists(TOKEN_PATH) else LEGACY_TOKEN_PATH
-        return credentials_path, token_path
+        """Prefer bmo/pi/config, then services/config, then bmo/config."""
+
+        def first_existing(*paths: str) -> str | None:
+            for p in paths:
+                if os.path.exists(p):
+                    return p
+            return None
+
+        creds = first_existing(
+            CREDENTIALS_PATH,
+            os.path.join(SERVICES_CONFIG_DIR, "credentials.json"),
+            LEGACY_CREDENTIALS_PATH,
+        )
+        tok = first_existing(
+            TOKEN_PATH,
+            os.path.join(SERVICES_CONFIG_DIR, "token.json"),
+            LEGACY_TOKEN_PATH,
+        )
+        return creds or CREDENTIALS_PATH, tok or TOKEN_PATH
 
     @staticmethod
     def _canonicalize_path(path: str, target_path: str, label: str) -> str:
@@ -77,6 +98,7 @@ class CalendarService:
         if self._service is not None:
             return self._service
 
+        from google.auth.exceptions import RefreshError
         from google.auth.transport.requests import Request
         from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
@@ -98,8 +120,18 @@ class CalendarService:
 
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-                self._write_token_json(creds.to_json())
+                try:
+                    creds.refresh(Request())
+                    self._write_token_json(creds.to_json())
+                except RefreshError as e:
+                    err = str(e).lower()
+                    if "invalid_grant" in err or "invalid_scope" in err:
+                        raise RuntimeError(
+                            "Google Calendar refresh failed (token revoked or expired). "
+                            "Re-authorize: `cd ~/home-lab/bmo/pi && ./venv/bin/python services/reauth_calendar.py` "
+                            "(paste code) or run `services/authorize_calendar.py` in a browser session."
+                        ) from e
+                    raise
             else:
                 if token_data and not token_data.get("refresh_token"):
                     raise RuntimeError(

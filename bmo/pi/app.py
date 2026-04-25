@@ -63,7 +63,13 @@ def _get_secret_key() -> str:
 
 
 app.config["SECRET_KEY"] = _get_secret_key()
-socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins="*")
+# Production: gevent. Tests: conftest sets BMO_SOCKETIO_ASYNC_MODE=threading
+# so `import app` works without a real gevent stack when a test file loads
+# app before any module that mocks flask_socketio.
+_sio_mode = os.environ.get("BMO_SOCKETIO_ASYNC_MODE", "gevent")
+if _sio_mode not in ("gevent", "threading", "eventlet"):
+    _sio_mode = "gevent"
+socketio = SocketIO(app, async_mode=_sio_mode, cors_allowed_origins="*")
 
 # ── Services (lazy-initialized) ─────────────────────────────────────
 

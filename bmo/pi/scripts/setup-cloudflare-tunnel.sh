@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # Cloudflare Tunnel setup for BMO @ bmo.mybmoai.work
 # Run this AFTER: cloudflared tunnel login (and completing the browser auth)
 

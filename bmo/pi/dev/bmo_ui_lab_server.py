@@ -1,8 +1,7 @@
-"""BMO UI Test Server — Real YT Music, Google Calendar, and laptop webcam.
+"""BMO UI dev lab — real YT Music, Google Calendar, and laptop webcam.
 
-Usage:
-    cd pi-setup/test
-    python test_server.py
+Usage (from bmo/pi):
+    python dev/bmo_ui_lab_server.py
 
 Opens at http://localhost:5000
 """
@@ -13,6 +12,7 @@ import random
 import sys
 import threading
 import time
+from pathlib import Path
 
 import cv2
 import sounddevice as sd
@@ -23,7 +23,12 @@ from ytmusicapi import YTMusic
 
 # ── App Setup ────────────────────────────────────────────────────────
 
-app = Flask(__name__, template_folder="templates", static_folder="static")
+_PI_ROOT = str(Path(__file__).resolve().parent.parent)
+app = Flask(
+    __name__,
+    template_folder=os.path.join(_PI_ROOT, "web", "templates"),
+    static_folder=os.path.join(_PI_ROOT, "web", "static"),
+)
 app.config["SECRET_KEY"] = "bmo-test"
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 socketio = SocketIO(app, async_mode="threading", cors_allowed_origins="*")
@@ -34,7 +39,7 @@ ytmusic = YTMusic()
 
 # Calendar service (real if token exists, mock otherwise)
 calendar_service = None
-CONFIG_DIR = os.path.join(os.path.dirname(__file__), "..", "config")
+CONFIG_DIR = os.path.join(_PI_ROOT, "config")
 TOKEN_PATH = os.path.join(CONFIG_DIR, "token.json")
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 

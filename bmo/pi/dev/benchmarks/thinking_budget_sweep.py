@@ -1,30 +1,37 @@
-"""Test Gemini 3 Flash with different thinking budgets to find the speed/quality sweet spot."""
-import sys, os, time, json, requests
-sys.path.insert(0, '/home/patrick/bmo')
-from dotenv import load_dotenv
-load_dotenv('/home/patrick/bmo/.env')
+"""Sweep Gemini 3 Flash thinking budgets for speed/quality. Run manually (live API)."""
+import os
+import sys
+import time
+from pathlib import Path
 
-key = os.environ.get('GEMINI_API_KEY', '')
+import requests
+from dotenv import load_dotenv
+
+_PI_ROOT = str(Path(__file__).resolve().parents[1])
+sys.path.insert(0, _PI_ROOT)
+load_dotenv(Path(_PI_ROOT) / ".env")
+
+key = os.environ.get("GEMINI_API_KEY", "")
 base = "https://generativelanguage.googleapis.com/v1beta"
 
 SYSTEM = (
-    'You are BMO, a friendly and slightly quirky AI assistant inspired by BMO '
-    'from Adventure Time. You live on a Raspberry Pi. Cheerful, curious, slightly '
-    'mischievous. Short punchy responses. You can use [FACE:x] [LED:x] [EMOTION:x] tags. '
-    'No markdown. Plain English only.'
+    "You are BMO, a friendly and slightly quirky AI assistant inspired by BMO "
+    "from Adventure Time. You live on a Raspberry Pi. Cheerful, curious, slightly "
+    "mischievous. Short punchy responses. You can use [FACE:x] [LED:x] [EMOTION:x] tags. "
+    "No markdown. Plain English only."
 )
 
 PROMPTS = [
-    'Good morning BMO!',
-    'BMO are you smarter than Alexa?',
-    'Do you ever get lonely?',
-    'Tell me a joke',
+    "Good morning BMO!",
+    "BMO are you smarter than Alexa?",
+    "Do you ever get lonely?",
+    "Tell me a joke",
 ]
 
 BUDGETS = [0, 128, 256, 512, None]  # None = default (no thinkingConfig)
 
 
-def test(prompt, budget):
+def run_prompt(prompt, budget):
     payload = {
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "systemInstruction": {"parts": [{"text": SYSTEM}]},
@@ -58,17 +65,17 @@ def test(prompt, budget):
 def main():
     for prompt in PROMPTS:
         print(f'\n{"=" * 80}')
-        print(f'User: {prompt}')
-        print('=' * 80)
+        print(f"User: {prompt}")
+        print("=" * 80)
         for budget in BUDGETS:
             label = f"budget={budget}" if budget is not None else "default"
-            elapsed, text, thoughts, output = test(prompt, budget)
-            print(f'\n  [{label}] {elapsed:.1f}s (think={thoughts}, out={output})')
-            print(f'  {text}')
+            elapsed, text, thoughts, output = run_prompt(prompt, budget)
+            print(f"\n  [{label}] {elapsed:.1f}s (think={thoughts}, out={output})")
+            print(f"  {text}")
 
     print(f'\n{"=" * 80}')
-    print('DONE')
+    print("DONE")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,5 +1,13 @@
 # BMO — Python dependencies for Raspberry Pi 5
-# Install: pip install -r requirements.txt
+#
+# PyTorch: install CPU-only BEFORE the rest, or a plain `pip install -r` on Linux aarch64
+# may resolve torch from PyPI with CUDA + nvidia wheels (~4.5+ GB) — useless on Pi 5.
+#   ./venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   ./venv/bin/pip install -r requirements.txt
+# Or: bash scripts/install-venv.sh
+#
+# resemblyzer / openwakeword pull torch; order matters. Do not add a bare `torch` line here
+# without the CPU install step above (setup-bmo.sh and install-venv.sh do it right).
 
 # Core AI
 ollama
@@ -52,6 +60,12 @@ sseclient-py
 
 # Cloud API helpers
 requests
+
+# Used directly by app / bots (were missing from this file; fresh venvs failed)
+python-dotenv
+discord.py[voice]
+edge-tts
+scipy
 
 # Hardware — Pi-specific
 RPi.GPIO

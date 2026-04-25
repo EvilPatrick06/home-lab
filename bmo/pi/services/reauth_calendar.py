@@ -11,7 +11,8 @@ import os
 import requests as http_requests
 from google.oauth2.credentials import Credentials
 
-CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
+_PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = os.path.join(_PI_ROOT, "config")
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
@@ -62,6 +63,7 @@ def main():
             "redirect_uri": redirect_uri,
             "grant_type": "authorization_code",
         },
+        timeout=30,
     )
 
     if token_resp.status_code != 200:
@@ -80,6 +82,7 @@ def main():
         scopes=SCOPES,
     )
 
+    os.makedirs(os.path.dirname(token_path), exist_ok=True)
     with open(token_path, "w") as f:
         f.write(creds.to_json())
 

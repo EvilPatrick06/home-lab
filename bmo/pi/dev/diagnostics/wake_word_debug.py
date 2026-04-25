@@ -1,14 +1,18 @@
-"""Deep diagnostic for hey_bmo wake word model.
+"""Deep diagnostic for hey_bmo wake word model. Run manually.
 
-Tests:
+Steps:
 1. Does the model respond to synthetic TTS "hey bmo"?
 2. Does hey_jarvis model respond to live mic with resampling?
 3. What does the raw mic audio look like after resampling?
 4. Does the model respond to live mic at all?
 """
-import sys
 import os
+import subprocess
+import tempfile
 import time
+import wave
+from pathlib import Path
+
 import numpy as np
 import scipy.signal
 import sounddevice as sd
@@ -16,52 +20,57 @@ import sounddevice as sd
 # Force ONNX inference
 os.environ.setdefault("OWW_INFERENCE_FRAMEWORK", "onnx")
 
-from openwakeword.model import Model
+from openwakeword.model import Model  # noqa: E402
+
+_PI_ROOT = str(Path(__file__).resolve().parents[1])
+_WAKE_ONNX = os.path.join(_PI_ROOT, "wake", "hey_bmo.onnx")
+_PIPER_ONNX = os.path.join(_PI_ROOT, "models", "piper", "en_US-hfc_female-medium.onnx")
 
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 1280  # 80ms at 16kHz
 
 
 def get_native_rate():
-    info = sd.query_devices(kind='input')
-    return int(info['default_samplerate'])
+    info = sd.query_devices(kind="input")
+    return int(info["default_samplerate"])
 
 
-def test_1_model_loads():
-    """Test that hey_bmo.onnx loads and returns predictions."""
+def step_1_model_loads():
+    """Load hey_bmo.onnx and return predictions."""
     print("\n=== TEST 1: Model Loading ===")
-    model_path = os.path.join(os.path.dirname(__file__), "hey_bmo.onnx")
-    print(f"  Model path: {model_path}")
-    print(f"  Exists: {os.path.isfile(model_path)}")
-    data_path = model_path + ".data"
+    print(f"  Model path: {_WAKE_ONNX}")
+    print(f"  Exists: {os.path.isfile(_WAKE_ONNX)}")
+    data_path = _WAKE_ONNX + ".data"
     print(f"  Data file: {os.path.isfile(data_path)}")
 
-    model = Model(wakeword_models=[model_path], inference_framework="onnx")
+    model = Model(wakeword_models=[_WAKE_ONNX], inference_framework="onnx")
     print(f"  Labels: {list(model.prediction_buffer.keys())}")
 
     silence = np.zeros(CHUNK_SIZE, dtype=np.int16).astype(np.float32) / 32768.0
-    for i in range(10):
+    for _ in range(10):
         pred = model.predict(silence)
     print(f"  Silence prediction: {pred}")
     return model
 
 
-def test_2_synthetic_audio(model):
+def step_2_synthetic_audio(model):
     """Generate synthetic 'hey bmo' via piper and feed to model."""
     print("\n=== TEST 2: Synthetic Audio ===")
     try:
-        import subprocess
-        import tempfile
-        import wave
-
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
             tmp_path = f.name
 
         result = subprocess.run(
-            ["piper", "--model", os.path.expanduser("~/home-lab/bmo/pi/models/piper/en_US-hfc_female-medium.onnx"),
-             "--output_file", tmp_path],
+            [
+                "piper",
+                "--model",
+                _PIPER_ONNX,
+                "--output_file",
+                tmp_path,
+            ],
             input=b"hey beemo\n",
-            capture_output=True, timeout=10,
+            capture_output=True,
+            timeout=10,
         )
         if result.returncode != 0:
             print(f"  Piper failed: {result.stderr[:200]}")
@@ -84,7 +93,7 @@ def test_2_synthetic_audio(model):
         max_score = 0.0
         f32 = audio.astype(np.float32) / 32768.0
         for i in range(0, len(f32) - CHUNK_SIZE, CHUNK_SIZE):
-            chunk = f32[i:i + CHUNK_SIZE]
+            chunk = f32[i : i + CHUNK_SIZE]
             pred = model.predict(chunk)
             for k, v in pred.items():
                 if v > max_score:
@@ -98,7 +107,7 @@ def test_2_synthetic_audio(model):
         print(f"  Error: {e}")
 
 
-def test_3_jarvis_comparison():
+def step_3_jarvis_comparison():
     """Compare hey_jarvis model scores with resampled mic audio."""
     print("\n=== TEST 3: hey_jarvis Comparison ===")
     try:
@@ -116,7 +125,7 @@ def test_3_jarvis_comparison():
     input_chunk = int(CHUNK_SIZE * (native_rate / SAMPLE_RATE))
     max_scores = {}
     for i in range(0, len(audio) - input_chunk, input_chunk):
-        chunk = audio[i:i + input_chunk].flatten()
+        chunk = audio[i : i + input_chunk].flatten()
         resampled = scipy.signal.resample(chunk, CHUNK_SIZE).astype(np.int16)
         f32 = resampled.astype(np.float32) / 32768.0
         pred = jarvis.predict(f32)
@@ -129,7 +138,7 @@ def test_3_jarvis_comparison():
     print(f"  Max scores: {max_scores}")
 
 
-def test_4_live_mic_bmo(model):
+def step_4_live_mic_bmo(model):
     """Record 10s of live mic and feed to hey_bmo model."""
     print("\n=== TEST 4: Live Mic + hey_bmo ===")
     native_rate = get_native_rate()
@@ -143,7 +152,7 @@ def test_4_live_mic_bmo(model):
     frame_scores = []
 
     for i in range(0, len(audio) - input_chunk, input_chunk):
-        chunk = audio[i:i + input_chunk].flatten()
+        chunk = audio[i : i + input_chunk].flatten()
         resampled = scipy.signal.resample(chunk, CHUNK_SIZE).astype(np.int16)
         f32 = resampled.astype(np.float32) / 32768.0
         pred = model.predict(f32)
@@ -152,14 +161,14 @@ def test_4_live_mic_bmo(model):
             if v > max_score:
                 max_score = v
             if v > 0.001:
-                t = (i / native_rate)
+                t = i / native_rate
                 print(f"    t={t:.1f}s: {k}={v:.4f}")
 
     print(f"  Max score: {max_score:.4f}")
     print(f"  Non-zero frames: {sum(1 for s in frame_scores if s > 0.0)}/{len(frame_scores)}")
 
 
-def test_5_audio_quality():
+def step_5_audio_quality():
     """Check raw audio stats to verify mic and resampling."""
     print("\n=== TEST 5: Audio Quality Check ===")
     native_rate = get_native_rate()
@@ -183,23 +192,27 @@ def test_5_audio_quality():
     print(f"  Float32: min={f32.min():.4f}, max={f32.max():.4f}, mean={np.mean(f32):.6f}")
 
 
-if __name__ == "__main__":
+def main() -> None:
     print("=" * 60)
     print("BMO Wake Word Deep Diagnostic")
     print("=" * 60)
 
-    test_5_audio_quality()
-    model = test_1_model_loads()
-    test_2_synthetic_audio(model)
+    step_5_audio_quality()
+    model = step_1_model_loads()
+    step_2_synthetic_audio(model)
 
     print("\n--- Ready for live tests ---")
     print("Say 'hey jarvis' when prompted for test 3.")
     input("Press Enter to start test 3...")
-    test_3_jarvis_comparison()
+    step_3_jarvis_comparison()
 
     print("\nSay 'hey bmo' multiple times when prompted for test 4.")
     input("Press Enter to start test 4...")
-    test_4_live_mic_bmo(model)
+    step_4_live_mic_bmo(model)
 
     print("\n" + "=" * 60)
     print("Diagnostic complete.")
+
+
+if __name__ == "__main__":
+    main()

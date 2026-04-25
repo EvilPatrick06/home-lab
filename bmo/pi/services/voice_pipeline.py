@@ -937,7 +937,6 @@ class VoicePipeline:
         """
         self._emit("status", {"state": "speaking"})
         self._is_speaking = True
-        self._remember_spoken(text)
         # Don't reset _speak_volume — it's set by the volume slider and should persist
         self._tts_interrupted.clear()
         # NOTE: mic muting removed — gevent blocks Popen for 5s, causing
@@ -966,16 +965,15 @@ class VoicePipeline:
 
                 while True:
                     match = re.search(r'[.!?][\s\n]', buffer)
-                    if not match and len(buffer) > 60:
-                        match = re.search(r',\s', buffer[40:])
-                        if match:
-                            class _M:
-                                def end(self_inner):
-                                    return match.end() + 40
-                            match = _M()
-                    if not match:
+                    if match:
+                        end = match.end()
+                    elif len(buffer) > 60:
+                        comma_match = re.search(r',\s', buffer[40:])
+                        end = comma_match.end() + 40 if comma_match else None
+                    else:
+                        end = None
+                    if end is None:
                         break
-                    end = match.end()
                     sentence = buffer[:end].strip()
                     buffer = buffer[end:]
                     if sentence:

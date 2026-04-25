@@ -34,12 +34,12 @@ _cloud_mod.fish_audio_tts = MagicMock(return_value=b"")
 _cloud_mod.GROQ_API_KEY = "test-key"
 sys.modules["cloud_providers"] = _cloud_mod
 
-# agent stub (imported at module level for PORCUPINE_AVAILABLE check etc.)
+# Stub `agent` so services.voice_pipeline can load before a real BmoAgent is needed;
+# tests/agents/test_base_agent clears this MagicMock before `import agent` if present.
 if "agent" not in sys.modules:
     _agent_mod = MagicMock()
     _agent_mod._check_cloud_available = MagicMock(return_value=False)
     sys.modules["agent"] = _agent_mod
-
 
 # ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -453,6 +453,25 @@ class TestFullPipelineFlow:
             result = pipeline._stream_and_speak(chunks)
             assert "Hello" in result
             assert "there" in result
+
+    def test_stream_and_speak_comma_boundary_long_buffer_no_recursion(self, pipeline):
+        """B023: long stretch without .?! but with comma after index 40 must not recurse."""
+        long_preamble = "word " * 20
+        s = long_preamble + "tail, and more words here"
+        chunks = iter([s])
+        with patch.object(pipeline, "_tts_queue") as mock_q, \
+             patch.object(pipeline, "_tts_worker_active") as mock_active, \
+             patch.object(pipeline, "_tts_interrupted") as mock_interrupted, \
+             patch.object(pipeline, "_emit"), \
+             patch.object(pipeline, "_wait_for_tts"), \
+             patch.object(pipeline, "_remember_spoken") as remember, \
+             patch("threading.Thread") as mock_thread:
+            mock_interrupted.is_set.return_value = False
+            mock_active.is_set.return_value = False
+            result = pipeline._stream_and_speak(chunks)
+        assert result == s
+        remember.assert_called_once()
+        assert remember.call_args[0][0] == s
 
     def test_interrupt_clears_speaking_state(self, pipeline):
         """interrupt() resets _is_speaking and empties the TTS queue."""

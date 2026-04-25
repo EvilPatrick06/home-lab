@@ -87,10 +87,11 @@ if [ ! -d "DnD" ]; then
 fi
 
 # ── 5. Python Virtual Environment ────────────────────────────────
-log "Setting up Python venv..."
+log "Setting up Python venv (PyTorch CPU-only first — no GPU on Pi)..."
 cd ~/home-lab/bmo/pi
 python3 -m venv venv
 venv/bin/pip install --upgrade pip
+venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
 venv/bin/pip install -r requirements.txt
 
 # ── 6. Tailwind CSS Compilation ──────────────────────────────────
@@ -132,6 +133,20 @@ fi
 # ── 8. Runtime Directories ───────────────────────────────────────
 log "Creating runtime directories..."
 mkdir -p ~/home-lab/bmo/pi/{data,data/logs,config,logs,.bmo,.audiocache,wake_clips}
+
+# Pre-reorg checkouts may have symlinks to ~/DnD/BMO-setup/... — replace with empty JSON
+_DATA=~/home-lab/bmo/pi/data
+for _name in music_history play_counts; do
+  _p="$_DATA/${_name}.json"
+  if [[ -L "$_p" ]] || [[ ! -f "$_p" ]]; then
+    rm -f "$_p"
+    if [[ "$_name" == music_history ]]; then
+      echo '[]' > "$_p"
+    else
+      echo '{}' > "$_p"
+    fi
+  fi
+done
 
 # ── 9. Docker Containers ────────────────────────────────────────
 log "Setting up Docker containers..."

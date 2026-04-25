@@ -17,8 +17,8 @@ MemoryMax=512M
 CPUQuota=50%
 
 # Logging
-StandardOutput=append:/home/patrick/bmo/data/logs/dm-bot.log
-StandardError=append:/home/patrick/bmo/data/logs/dm-bot.log
+StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
+StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
 
 [Install]
 WantedBy=multi-user.target

@@ -14,7 +14,6 @@ import pytest
 
 _AGENT_MOCKS = [
     "ollama",
-    "requests",
     "cloud_providers",
     "dev_tools",
     "voice_personality",
@@ -94,10 +93,17 @@ def mock_orchestrator():
     return _make_orchestrator()
 
 
+def _ensure_real_agent_module():
+    """test_voice_pipeline may register a MagicMock for `agent`; clear before real import."""
+    mod = sys.modules.get("agent")
+    if mod is not None and isinstance(mod, MagicMock):
+        del sys.modules["agent"]
+
+
 @pytest.fixture
 def agent_module():
     """Import agent module (deferred so mocks are in place)."""
-    import importlib
+    _ensure_real_agent_module()
     import agent as agent_mod
     return agent_mod
 
@@ -119,6 +125,7 @@ def bmo_agent(mock_orchestrator):
     create_plan_agent.return_value = MagicMock()
     create_research_agent.return_value = MagicMock()
 
+    _ensure_real_agent_module()
     import agent as agent_mod
     return agent_mod.BmoAgent(services={}, socketio=None)
 
