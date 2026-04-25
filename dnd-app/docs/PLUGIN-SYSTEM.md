@@ -172,7 +172,7 @@ Each phase uses zod schemas to validate. Regeneration is idempotent.
 
 - `plugin-installer.ts` — unpack + validate plugin zip
 - `plugin-scanner.ts` — discover plugins in user dir
-- `plugin-runner.ts` — run sandboxed plugin code (uses `isolated-vm`)
+- `plugin-runner.ts` — (planned) previously mentioned `isolated-vm`; **plugins are not sandboxed**. Renderer plugins run as normal JS in the renderer with full app access (trust-on-install).
 - `plugin-protocol.ts` — protocol for plugins to communicate with main
 - `plugin-config.ts` — per-plugin settings
 

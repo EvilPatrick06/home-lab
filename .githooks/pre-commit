@@ -1,0 +1,7 @@
+#!/bin/sh
+# Optional: install gitleaks and `git config core.hooksPath .githooks`
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact
+else
+  echo "gitleaks not on PATH; skipping secret scan (see docs/CONTRIBUTING.md)" >&2
+fi

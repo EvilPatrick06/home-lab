@@ -29,7 +29,7 @@ This is a solo project — patch speed depends on availability. Critical fixes w
 - **`.gitignore`** has broad patterns for env files, PEM keys, OAuth tokens, credentials JSON, service accounts, private keys
 - **BMO runs as user `patrick`** (not root) — services with minimal systemd hardening (room to improve, see [`./SECURITY-LOG.md`](./SECURITY-LOG.md))
 - **No public internet exposure by default** — BMO runs on LAN only. Remote access via Cloudflare Tunnel or Tailscale (opt-in)
-- **No auth on BMO HTTP API** — anyone on the LAN with port 5000 access can invoke anything. Fine for home use; harden before exposing
+- **Optional BMO API auth** — set `BMO_API_KEY` in `bmo/pi/.env` to require `Authorization: Bearer` (or Socket.IO `auth: { bmo_api_key: ... }`) for **non-localhost** clients. Localhost and `/health` stay open for the kiosk and health checks
 
 ## Threat model
 

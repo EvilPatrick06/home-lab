@@ -10,13 +10,17 @@ vi.mock('electron', () => ({
   },
   BrowserWindow: {
     getAllWindows: vi.fn(() => [])
+  },
+  safeStorage: {
+    isEncryptionAvailable: vi.fn(() => false)
   }
 }))
 
 vi.mock('node:fs', () => ({
   existsSync: vi.fn(() => false),
   readFileSync: vi.fn(() => '{}'),
-  writeFileSync: vi.fn()
+  writeFileSync: vi.fn(),
+  renameSync: vi.fn()
 }))
 
 vi.mock('./chunk-builder', () => ({
@@ -168,7 +172,7 @@ vi.mock('./web-search', () => ({
 
 // ── Imports (after mocks) ──
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import {
   cancelChat,
   checkProviders,
@@ -213,8 +217,13 @@ describe('ai-service', () => {
 
       expect(setOllamaUrl).toHaveBeenCalledWith('http://gpu-server:11434')
       expect(writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('ai-config.json'),
-        expect.stringContaining('mistral')
+        expect.stringMatching(/ai-config\.json\.tmp$/),
+        expect.stringContaining('mistral'),
+        'utf-8'
+      )
+      expect(renameSync).toHaveBeenCalledWith(
+        expect.stringMatching(/ai-config\.json\.tmp$/),
+        expect.stringMatching(/ai-config\.json$/)
       )
     })
 

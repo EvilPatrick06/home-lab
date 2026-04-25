@@ -82,10 +82,14 @@ vi.mock('../storage/homebrew-storage', () => ({
   deleteHomebrewEntry: vi.fn(() => ({ success: true, data: true }))
 }))
 
-vi.mock('../storage/settings-storage', () => ({
-  loadSettings: vi.fn(() => ({ success: true, data: {} })),
-  saveSettings: vi.fn(() => ({ success: true }))
-}))
+vi.mock('../storage/settings-storage', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../storage/settings-storage')>()
+  return {
+    ...actual,
+    loadSettings: vi.fn(() => ({ success: true, data: { version: 1 } })),
+    saveSettings: vi.fn(() => ({ success: true }))
+  }
+})
 
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { registerStorageHandlers } from './storage-handlers'
@@ -176,7 +180,7 @@ describe('storage-handlers', () => {
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.LOAD_SETTINGS)![1]
 
       const result = await handler({})
-      expect(result).toEqual({})
+      expect(result).toEqual({ version: 1 })
     })
   })
 

@@ -220,6 +220,10 @@ LimitNOFILE=65536
 StandardOutput=journal
 StandardError=journal
 SupplementaryGroups=video audio i2c gpio spi input
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/home/patrick/home-lab/bmo/pi
 
 [Install]
 WantedBy=multi-user.target
@@ -305,6 +309,10 @@ MemoryMax=512M
 CPUQuota=50%
 StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
 StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/home/patrick/home-lab/bmo/pi
 
 [Install]
 WantedBy=multi-user.target
@@ -329,6 +337,10 @@ MemoryMax=512M
 CPUQuota=50%
 StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/social-bot.log
 StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/social-bot.log
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/home/patrick/home-lab/bmo/pi
 
 [Install]
 WantedBy=multi-user.target

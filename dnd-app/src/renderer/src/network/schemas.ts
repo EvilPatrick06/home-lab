@@ -538,7 +538,7 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'dm:journal-sync': JournalSyncPayloadSchema,
   'player:inspect-request': InspectRequestPayloadSchema,
   'player:haggle-request': HaggleRequestPayloadSchema,
-  'pong': PongPayloadSchema,
+  pong: PongPayloadSchema,
   'dm:inspect-response': InspectResponsePayloadSchema
 }
 
@@ -595,6 +595,10 @@ type _CheckMapPing = AssertAssignable<MapPingPayload, z.infer<typeof MapPingPayl
 type _CheckDiceRoll3d = AssertAssignable<DiceRoll3dPayload, z.infer<typeof DiceRoll3dPayloadSchema>>
 type _CheckMoveDeclare = AssertAssignable<MoveDeclarePayload, z.infer<typeof MoveDeclarePayloadSchema>>
 type _CheckReactionResponse = AssertAssignable<ReactionResponsePayload, z.infer<typeof ReactionResponsePayloadSchema>>
+type _CheckHaggleRequest = AssertAssignable<
+  import('./message-types').HaggleRequestPayload,
+  z.infer<typeof HaggleRequestPayloadSchema>
+>
 
 // Export for testing
 export { NetworkMessageEnvelopeSchema, PAYLOAD_SCHEMAS, AnyPayloadSchema }

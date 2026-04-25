@@ -102,6 +102,32 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  // Defense-in-depth: keep the main document URL on the app shell (file:// or dev server).
+  const isAllowedMainNavigation = (rawUrl: string): boolean => {
+    if (is.dev) {
+      const base = (process.env.ELECTRON_RENDERER_URL ?? 'http://localhost:5173').replace(/\/$/, '')
+      return rawUrl.startsWith(base)
+    }
+    return rawUrl.startsWith('file://')
+  }
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (isAllowedMainNavigation(url)) {
+      return
+    }
+    event.preventDefault()
+    logToFile('WARN', `Blocked main-window will-navigate to ${url}`)
+  })
+  mainWindow.webContents.on('will-redirect', (event, url) => {
+    if (isAllowedMainNavigation(url)) {
+      return
+    }
+    event.preventDefault()
+    logToFile('WARN', `Blocked main-window will-redirect to ${url}`)
+  })
+  mainWindow.webContents.on('will-attach-webview', (event) => {
+    event.preventDefault()
+  })
+
   if (is.dev && process.env.ELECTRON_RENDERER_URL) {
     mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
   } else {

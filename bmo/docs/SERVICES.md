@@ -189,6 +189,19 @@ Templates at `bmo/pi/web/templates/*.html`. Static at `bmo/pi/web/static/`. If y
 5. Document above
 6. Restart BMO
 
+## Discord bots — intents and least privilege
+
+Two bots live under `bmo/pi/bots/`. Tokens stay in `bmo/pi/.env` (never commit). For **Discord Developer Portal → Bot → Privileged Gateway Intents**, only enable what the code uses:
+
+| Intent | DM bot | Social bot | Rationale |
+|--------|--------|------------|------------|
+| **Message Content** | On | On | `intents.message_content = True` — read messages for commands/chat |
+| **Server Members** | On | On | `intents.members = True` — voice/DM user resolution |
+| **Presence** | Off | On | Only social has `intents.presences = True` (activity features) |
+| **Voice** | On | On | `intents.voice_states = True` for voice channels |
+
+When generating invite URLs, do **not** use Administrator; add only scopes the bots need (e.g. `applications.commands`, `bot` with `Send Messages`, `Embed Links`, `Read Message History`, `Connect`/`Speak` for voice, `Use Slash Commands`). Re-audit the portal after Python intent changes.
+
 ## Debugging services
 
 ```bash

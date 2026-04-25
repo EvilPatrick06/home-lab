@@ -19,6 +19,10 @@ Optional:
 | `bmo-ide.service` | `bmo/pi/ide_app/bmo-ide.service` | Embedded web IDE on port 5001 |
 | `bmo-backup.service` + `.timer` | *recoverable from git history (`git log --all --full-history -- bmo/docker/bmo-backup.service`)* | Daily backup of `data/` — legacy, not installed |
 
+## Hardening (main + Discord bots)
+
+Units installed from `bmo/setup-bmo.sh` for `bmo.service`, `bmo-dm-bot.service`, and `bmo-social-bot.service` set `PrivateTmp=true`, `NoNewPrivileges=true`, `ProtectSystem=strict`, and `ReadWritePaths=/home/patrick/home-lab/bmo/pi` so the process cannot mutate `/usr`/`/etc` but can read/write project `data/`, `logs/`, and venv-backed code. The kiosk and fan services are unchanged from prior behavior. If a service fails after an update, check `journalctl -u <name>` for permission errors and extend `ReadWritePaths=` only with a specific directory.
+
 ## Service dependencies
 
 ```

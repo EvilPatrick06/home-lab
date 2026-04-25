@@ -10,14 +10,12 @@ import {
 } from '../../shared/ipc-schemas'
 import type { AiConnectionStatus, StreamResult } from '../ai/ai-service'
 import * as aiService from '../ai/ai-service'
+import { type GameStateSnapshot, processStateUpdate } from '../ai/ai-trigger-observer'
+import { analyzeMapState, captureMapScreenshot, type MapStateForVisionAnalysis } from '../ai/ai-vision'
+import { setClaudeApiKey } from '../ai/claude-client'
 import { buildContext, getLastTokenBreakdown, getSearchEngine } from '../ai/context-builder'
 import type { DmAction } from '../ai/dm-actions'
-import { analyzeMapState, captureMapScreenshot, type MapStateForVisionAnalysis } from '../ai/ai-vision'
-import { processStateUpdate, type GameStateSnapshot } from '../ai/ai-trigger-observer'
-import { setClaudeApiKey } from '../ai/claude-client'
 import { setGeminiApiKey } from '../ai/gemini-client'
-import { getDmStatus, sendNarration, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
-import { setOpenAIApiKey } from '../ai/openai-client'
 import { type AiProviderType, CLOUD_MODELS } from '../ai/llm-provider'
 import { type CombatState, getMemoryManager, type WorldState } from '../ai/memory-manager'
 import {
@@ -40,6 +38,7 @@ import {
   updateOllama,
   type VramInfo
 } from '../ai/ollama-manager'
+import { setOpenAIApiKey } from '../ai/openai-client'
 import { getProvider } from '../ai/provider-registry'
 import type {
   AiChatRequest,
@@ -51,6 +50,7 @@ import type {
   ConversationData,
   StatChange
 } from '../ai/types'
+import { getDmStatus, sendNarration, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
 import { logToFile } from '../log'
 import { deleteConversation, loadConversation, saveConversation } from '../storage/ai-conversation-storage'
 

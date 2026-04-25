@@ -56,7 +56,7 @@ import {
   listMapLibrary,
   saveMapToLibrary
 } from '../storage/map-library-storage'
-import { type AppSettings, loadSettings, saveSettings } from '../storage/settings-storage'
+import { AppSettingsSchema, loadSettings, saveSettings } from '../storage/settings-storage'
 import { deleteShopTemplate, getShopTemplate, listShopTemplates, saveShopTemplate } from '../storage/shop-storage'
 
 // Ensure imported types are used for type-safety
@@ -262,10 +262,14 @@ export function registerStorageHandlers(): void {
     return result.data ?? {}
   })
 
-  ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, async (_event, settings: AppSettings) => {
-    const result = await saveSettings(settings)
+  ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, async (_event, settings: unknown) => {
+    const parsed = AppSettingsSchema.safeParse(settings)
+    if (!parsed.success) {
+      return { success: false, error: `Invalid settings: ${parsed.error.message}` } as const
+    }
+    const result = await saveSettings(parsed.data)
     if (result.success) {
-      applyBmoBaseUrlFromSettings(settings)
+      applyBmoBaseUrlFromSettings(parsed.data)
     }
     return result
   })

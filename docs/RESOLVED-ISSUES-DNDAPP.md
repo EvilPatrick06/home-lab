@@ -12,6 +12,43 @@
 
 ---
 
+### [2026-04-25] dnd-app issues log clearance — full archive batch (code + deferred)
+
+- **Original severity:** mixed (medium/low backlog)
+- **Category:** bug, debt, security, perf, test, config
+- **Domain:** dnd-app
+- **Discovered by:** prior audits (Claude Opus / Cursor)
+- **Resolved by:** Cursor agent
+- **Date resolved:** 2026-04-25
+
+**Summary:** The active list in `ISSUES-LOG-DNDAPP.md` was cleared. Items below map former log entries to either **implemented in repo** or **explicitly deferred** (still valid future work; see `SUGGESTIONS-LOG-DNDAPP.md` or product roadmap).
+
+**Implemented in this clearance (dnd-app code):**
+
+- **PeerJS host payload validation** — `host-handlers.ts`: reject when `message.senderId` is set and ≠ `fromPeerId`; validate payloads with `PAYLOAD_SCHEMAS` before handling; register `player:ready`, `pong`, `player:haggle-request`; anti-spoof for `player:trade-request`, `player:trade-response`, `player:inspect-request`; stricter `chat:message` / `chat:whisper` string caps; `WhisperPayload.targetName` optional at type level.
+- **Rollup / chunk warnings** — `ai-handlers.ts`: static imports for AI vision, trigger observer, BMO bridge, and API key setters (removes useless dynamic/split warnings vs `provider-registry` / `bmo-sync-handlers`). **All renderer imports** of `useNetworkStore` now use `.../network-store` (folder index) instead of `use-network-store.ts` shim to break the re-export chunk cycle.
+- **Three.js dice** — `DiceRenderer.tsx`: `disposeObject3D` on dice meshes/wireframes in `clearDice` and on unmount; floor geometry/material disposed on teardown.
+- **`isolated-vm`** — removed from `package.json` (`optionalDependencies`); trust model already documented in `dnd-app/docs/PLUGIN-SYSTEM.md`.
+- **Tooling** — `npm run circular` uses `dpdm`; removed broken `madge` + `ts-prune` devDeps; `npm install` refreshed lockfile.
+- **Backups** — `import-export.ts`: `migrateBackupPayload()` upgrades v1–v2 backup JSON to v3 field layout before import.
+- **Colocated tests** — `library-sort-filter.test.ts`, `plugin-registry-data.test.ts`, `combat-log-export.test.ts`, `ai-memory-sync.test.ts`.
+
+**Deferred / not fully automatable (unchanged problem space; no longer duplicated in active log):**
+
+- **119 IPC handlers + zod** — defense-in-depth across all `ipcMain.handle` paths remains a phased effort; AI channels already use schemas.
+- **5e `scripts/schemas` vs content** — full schema alignment with `public/data/5e/` is a content + migration project.
+- **Magic-items duplicates / collisions** — data authoring + loader policy.
+- **81 MB map PNGs + Git LFS** — monorepo `.gitattributes` / `git lfs migrate` (coordination).
+- **Bundle size, lazy PDF/three, 13 `dpdm` cycles, barrel imports, jscpd, knip unused exports, 1000-line files, `@renderer` alias adoption** — ongoing refactors.
+- **`npm outdated` majors** (Vite 8, Electron 41, pdfjs 5, TypeScript 6) — track via release branches.
+- **Biome 60+ errors / 192 warnings** — incremental sweeps; config already tuned earlier.
+- **GitHub branch protection** — org/repo settings, not dnd-app code.
+- **Pi / workspace health (`Domain: both`)** — environment; mirror remains in BMO log if present.
+
+**Related files (non-exhaustive):** `dnd-app/src/renderer/src/stores/network-store/host-handlers.ts`, `dnd-app/src/renderer/src/network/schemas.ts`, `dnd-app/src/main/ipc/ai-handlers.ts`, `dnd-app/src/renderer/src/components/game/dice3d/DiceRenderer.tsx`, `dnd-app/package.json`, `dnd-app/src/renderer/src/services/io/import-export.ts`, colocated `*.test.ts` files above.
+
+---
+
 ### [2026-04-25] Suggestions log (domain: both) — 5e JSON + data ownership folded into DATA-FLOW / DESIGN-CONSTRAINTS
 
 - **Original severity:** info

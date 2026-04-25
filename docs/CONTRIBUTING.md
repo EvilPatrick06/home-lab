@@ -26,6 +26,17 @@ See [`./SETUP.md`](./SETUP.md).
 - `chore/<short-name>` — tooling, deps, CI
 - `docs/<short-name>` — docs only
 
+## Secret scanning (optional)
+
+To reduce the chance of committing `.env` or keys by mistake, install [gitleaks](https://github.com/gitleaks/gitleaks) and enable repo hooks:
+
+```bash
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-commit
+```
+
+The hook runs `gitleaks protect --staged --redact` when gitleaks is on your `PATH` (it skips if not installed). CI also runs `npm audit` and Python `bandit` on relevant paths (see `.github/workflows/security-audit.yml`).
+
 ## Commits
 
 Imperative mood. Summary ≤ 72 chars.

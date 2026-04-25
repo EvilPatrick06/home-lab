@@ -123,7 +123,8 @@ export interface ChatPayload {
 export interface WhisperPayload {
   message: string
   targetPeerId: string
-  targetName: string
+  /** Filled by host when forwarding if the client omitted it. */
+  targetName?: string
 }
 
 export interface DiceRollPayload {

@@ -1,0 +1,52 @@
+name: Security audit
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'dnd-app/**'
+      - 'bmo/**'
+      - '.github/workflows/security-audit.yml'
+      - '.githooks/**'
+  pull_request:
+    paths:
+      - 'dnd-app/**'
+      - 'bmo/**'
+      - '.github/workflows/security-audit.yml'
+      - '.githooks/**'
+  schedule:
+    - cron: "18 4 * * 1"
+
+jobs:
+  dnd-npm-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dnd-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: dnd-app/package-lock.json
+      - run: npm ci
+      - name: npm audit (critical+)
+        run: npm run audit:ci
+
+  bmo-bandit-ide:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bandit
+        run: pip install 'bandit[toml]>=1.8.0'
+      - name: bandit on ide_app (high severity and up)
+        run: bandit -r bmo/pi/ide_app --severity-level=high
+      - name: pip-audit on bmo (informational)
+        continue-on-error: true
+        run: |
+          pip install pip-audit
+          pip-audit -r bmo/pi/requirements.txt
