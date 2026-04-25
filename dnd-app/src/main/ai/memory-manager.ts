@@ -5,7 +5,7 @@ import type { NPCPersonality, WorldStateSummary } from './types'
 
 // Per-campaign memory files stored in userData/campaigns/{campaignId}/ai-context/
 
-interface WorldState {
+export interface WorldState {
   currentMapId: string | null
   currentMapName: string | null
   timeOfDay: string
@@ -15,7 +15,7 @@ interface WorldState {
   updatedAt: string
 }
 
-interface CombatState {
+export interface CombatState {
   inCombat: boolean
   round: number
   currentTurnEntity: string | null

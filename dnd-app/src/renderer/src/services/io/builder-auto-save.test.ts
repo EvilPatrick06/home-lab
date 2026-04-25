@@ -8,7 +8,9 @@ vi.stubGlobal('localStorage', {
   getItem: vi.fn((key: string) => storageMap.get(key) ?? null),
   setItem: vi.fn((key: string, value: string) => storageMap.set(key, value)),
   removeItem: vi.fn((key: string) => storageMap.delete(key)),
-  get length() { return storageMap.size },
+  get length() {
+    return storageMap.size
+  },
   key: vi.fn((i: number) => Array.from(storageMap.keys())[i] ?? null)
 })
 
@@ -39,26 +41,17 @@ describe('builder-auto-save', () => {
     it('persists state under the characterId key', () => {
       const state = { name: 'Gandalf', level: 20 }
       saveBuilderDraft(state, 'char-1')
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'builder-draft-char-1',
-        expect.any(String)
-      )
+      expect(localStorage.setItem).toHaveBeenCalledWith('builder-draft-char-1', expect.any(String))
     })
 
     it('uses "new" when characterId is null', () => {
       saveBuilderDraft({ name: 'New' }, null)
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'builder-draft-new',
-        expect.any(String)
-      )
+      expect(localStorage.setItem).toHaveBeenCalledWith('builder-draft-new', expect.any(String))
     })
 
     it('uses "new" when characterId is undefined', () => {
       saveBuilderDraft({ name: 'New' })
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'builder-draft-new',
-        expect.any(String)
-      )
+      expect(localStorage.setItem).toHaveBeenCalledWith('builder-draft-new', expect.any(String))
     })
 
     it('includes a savedAt timestamp', () => {

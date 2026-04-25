@@ -241,8 +241,8 @@ export interface SavedGameState {
   activeLightSources: ActiveLightSource[]
   handouts: Handout[]
   combatTimer?: CombatTimerConfig
-  sessionLog?: any[]
-  sharedJournal?: any[]
+  sessionLog?: unknown[]
+  sharedJournal?: unknown[]
   lastSaveTimestamp?: number
 }
 

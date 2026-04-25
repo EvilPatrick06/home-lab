@@ -272,9 +272,7 @@ export function PlayerHUDEffectsExpanded({
 
     // Bless: if the character has the Bless condition, +1d4 (average 2, use actual roll)
     const gameConditions = useGameStore.getState().conditions
-    const hasBless = gameConditions.some(
-      (c) => c.entityId === latest.id && c.condition.toLowerCase() === 'bless'
-    )
+    const hasBless = gameConditions.some((c) => c.entityId === latest.id && c.condition.toLowerCase() === 'bless')
     if (hasBless) {
       // Roll 1d4 for Bless bonus
       const blessRoll = Math.floor(Math.random() * 4) + 1

@@ -102,7 +102,9 @@ export default function TokenContextMenu({
 
   // Check if multiple tokens are selected
   const isMultiSelection = selectedTokenIds.length > 1
-  const selectedTokens = isMultiSelection ? activeMap?.tokens.filter(t => selectedTokenIds.includes(t.id)) ?? [] : []
+  const selectedTokens = isMultiSelection
+    ? (activeMap?.tokens.filter((t) => selectedTokenIds.includes(t.id)) ?? [])
+    : []
 
   const mountActionLabel =
     characterId == null
@@ -150,7 +152,7 @@ export default function TokenContextMenu({
 
   const handleSelectGroupCondition = (condition: string): void => {
     // Apply condition to all selected tokens
-    selectedTokens.forEach(selectedToken => {
+    selectedTokens.forEach((selectedToken) => {
       const currentConditions = selectedToken.conditions ?? []
       if (!currentConditions.includes(condition)) {
         updateToken(mapId, selectedToken.id, {
@@ -318,7 +320,22 @@ export default function TokenContextMenu({
           </button>
           {showGroupConditions && (
             <div className="ml-4 space-y-1">
-              {['Blinded', 'Charmed', 'Deafened', 'Frightened', 'Grappled', 'Incapacitated', 'Invisible', 'Paralyzed', 'Petrified', 'Poisoned', 'Prone', 'Restrained', 'Stunned', 'Unconscious'].map((condition) => (
+              {[
+                'Blinded',
+                'Charmed',
+                'Deafened',
+                'Frightened',
+                'Grappled',
+                'Incapacitated',
+                'Invisible',
+                'Paralyzed',
+                'Petrified',
+                'Poisoned',
+                'Prone',
+                'Restrained',
+                'Stunned',
+                'Unconscious'
+              ].map((condition) => (
                 <button
                   key={condition}
                   onClick={() => handleSelectGroupCondition(condition)}

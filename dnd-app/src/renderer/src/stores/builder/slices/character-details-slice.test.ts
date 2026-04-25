@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { create } from 'zustand'
 import { createCharacterDetailsSlice, DEFAULT_CHARACTER_DETAILS } from './character-details-slice'
 
@@ -326,7 +326,7 @@ describe('character-details-slice', () => {
       store.setState({
         maxCantrips: 2,
         maxPreparedSpells: 3,
-        spellLevelMap: { 'c1': 0, 'c2': 0, 's1': 1, 's2': 2 }
+        spellLevelMap: { c1: 0, c2: 0, s1: 1, s2: 2 }
       })
       store.getState().setSelectedSpellIds(['c1', 'c2', 's1', 's2'])
       expect(store.getState().selectedSpellIds).toEqual(['c1', 'c2', 's1', 's2'])
@@ -343,8 +343,8 @@ describe('character-details-slice', () => {
 
   describe('setSpellLevelMap', () => {
     it('sets the spell level map', () => {
-      store.getState().setSpellLevelMap({ 'fireball': 3, 'mage-hand': 0 })
-      expect(store.getState().spellLevelMap).toEqual({ 'fireball': 3, 'mage-hand': 0 })
+      store.getState().setSpellLevelMap({ fireball: 3, 'mage-hand': 0 })
+      expect(store.getState().spellLevelMap).toEqual({ fireball: 3, 'mage-hand': 0 })
     })
   })
 

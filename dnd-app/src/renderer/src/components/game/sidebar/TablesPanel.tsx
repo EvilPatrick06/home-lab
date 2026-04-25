@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { load5eRandomTables } from '../../../services/data-provider'
 import { rollFormula } from '../../../services/dice/dice-engine'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -19,11 +19,7 @@ export default function TablesPanel(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const addChatMessage = useLobbyStore((s) => s.addChatMessage)
 
-  useEffect(() => {
-    loadTables()
-  }, [loadTables])
-
-  const loadTables = async (): Promise<void> => {
+  const loadTables = useCallback(async (): Promise<void> => {
     try {
       setLoading(true)
       const data = await load5eRandomTables()
@@ -64,7 +60,11 @@ export default function TablesPanel(): JSX.Element {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    void loadTables()
+  }, [loadTables])
 
   const rollOnTable = (table: TableEntry): void => {
     let result: string

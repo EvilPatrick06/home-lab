@@ -72,7 +72,16 @@ export function handleTerrainCellClick(
   const newTerrain =
     existing >= 0
       ? terrain.filter((_, i) => i !== existing)
-      : [...terrain, { x: fx, y: fy, type: terrainPaintType, movementCost: terrainPaintType === 'hazard' ? 1 : 2, portalTarget: terrainPaintType === 'portal' ? portalTarget : undefined }]
+      : [
+          ...terrain,
+          {
+            x: fx,
+            y: fy,
+            type: terrainPaintType,
+            movementCost: terrainPaintType === 'hazard' ? 1 : 2,
+            portalTarget: terrainPaintType === 'portal' ? portalTarget : undefined
+          }
+        ]
 
   applyTerrainToMap(mapId, newTerrain)
   pushTerrainUndo(mapId, 'terrain-paint', `Paint terrain at (${fx}, ${fy})`, oldTerrain, newTerrain, triggerRerender)

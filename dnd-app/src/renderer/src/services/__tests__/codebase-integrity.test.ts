@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, existsSync } from 'fs'
-import { resolve, join } from 'path'
+import { existsSync, readdirSync, readFileSync } from 'fs'
+import { join, resolve } from 'path'
+import { describe, expect, it } from 'vitest'
 
 const ROOT = resolve(__dirname, '../../../../../')
 
@@ -85,7 +85,9 @@ describe('Chat commands', () => {
     const names = commands.map((c) => c.name)
     const duplicates = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))]
     if (duplicates.length > 0) {
-      console.warn(`[codebase-integrity] ${duplicates.length} shared command names across DM+player contexts: ${duplicates.join(', ')}`)
+      console.warn(
+        `[codebase-integrity] ${duplicates.length} shared command names across DM+player contexts: ${duplicates.join(', ')}`
+      )
     }
     // Shared names across DM/player contexts are intentional — just report
     expect(true).toBe(true)

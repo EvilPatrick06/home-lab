@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  assertCommandNameFormat,
   assertCommandShape,
   assertUniqueCommandNames,
-  assertCommandNameFormat,
   createCommandContext
 } from '../../test-helpers'
 
@@ -68,8 +68,16 @@ describe('commands-dm-monsters', () => {
     const names = commands.map((c) => c.name)
     expect(names).toEqual(
       expect.arrayContaining([
-        'statblock', 'cr', 'spawn', 'kill', 'legendary',
-        'lair', 'healall', 'npcmood', 'npcsay', 'revive'
+        'statblock',
+        'cr',
+        'spawn',
+        'kill',
+        'legendary',
+        'lair',
+        'healall',
+        'npcmood',
+        'npcsay',
+        'revive'
       ])
     )
     expect(commands).toHaveLength(10)

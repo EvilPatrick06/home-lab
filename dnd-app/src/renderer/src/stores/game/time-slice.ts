@@ -35,7 +35,9 @@ function checkStableCreatureRecovery(get: () => GameStoreState): void {
       try {
         const { useCharacterStore } = require('../../stores/use-character-store')
         const charStore = useCharacterStore.getState()
-        const char = charStore.characters.find((c: { id: string }) => c.id === stableCond.entityId) as Character5e | undefined
+        const char = charStore.characters.find((c: { id: string }) => c.id === stableCond.entityId) as
+          | Character5e
+          | undefined
         if (char && char.hitPoints.current <= 0) {
           charStore.saveCharacter({
             ...char,

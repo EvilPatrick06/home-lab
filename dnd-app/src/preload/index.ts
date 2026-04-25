@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, type IpcRendererEvent, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 
 const api = {
@@ -204,7 +204,10 @@ const api = {
     downloadUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_DOWNLOAD),
     installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_INSTALL),
     onStatus: (cb: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => {
-      const listener = (_e: any, status: any) => cb(status)
+      const listener = (
+        _e: IpcRendererEvent,
+        status: { state: string; version?: string; percent?: number; message?: string }
+      ) => cb(status)
       ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, listener)
       return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, listener)
     },

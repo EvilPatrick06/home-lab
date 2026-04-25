@@ -45,7 +45,7 @@ interface MapInfo {
   }>
 }
 
-interface GameStateSnapshot {
+export interface GameStateSnapshot {
   triggers: DmTrigger[]
   initiative: {
     entries: Array<{ entityId: string; isActive: boolean }>

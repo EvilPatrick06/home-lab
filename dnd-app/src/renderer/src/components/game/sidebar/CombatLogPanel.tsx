@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { exportCombatLogCSV, exportCombatLogJSON } from '../../../services/io/combat-log-export'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { CombatLogEntry } from '../../../types/game-state'
-import {
-  exportCombatLogCSV,
-  exportCombatLogJSON
-} from '../../../services/io/combat-log-export'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -288,11 +285,11 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
 
   const handleExport = (format: 'csv' | 'json'): void => {
     if (combatLog.length === 0) return
-    
+
     let data = ''
     let mime = ''
     let ext = ''
-    
+
     if (format === 'csv') {
       data = exportCombatLogCSV(combatLog)
       mime = 'text/csv'

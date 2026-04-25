@@ -75,7 +75,7 @@ describe('computeVisibility', () => {
     const walls: Segment[] = [
       { a: { x: 40, y: 0 }, b: { x: 40, y: 100 }, type: 'solid' },
       { a: { x: 40, y: 0 }, b: { x: 40, y: 100 }, type: 'solid' }, // exact duplicate
-      { a: { x: 40, y: 10 }, b: { x: 40, y: 90 }, type: 'solid' }  // overlapping subset
+      { a: { x: 40, y: 10 }, b: { x: 40, y: 90 }, type: 'solid' } // overlapping subset
     ]
     expect(() => computeVisibility({ x: 20, y: 50 }, walls, bounds)).not.toThrow()
     const result = computeVisibility({ x: 20, y: 50 }, walls, bounds)
@@ -249,18 +249,26 @@ describe('isMovementBlocked', () => {
 
   it('one-way wall blocks from blocked side (0° normal = +x direction)', () => {
     // Wall at x=50, normal pointing right (+x, 0°). Origin at x=80 (right side = same as normal) → blocked.
-    const walls: Segment[] = [{
-      a: { x: 50, y: 0 }, b: { x: 50, y: 100 },
-      type: 'one-way', oneWayDirection: 0
-    }]
+    const walls: Segment[] = [
+      {
+        a: { x: 50, y: 0 },
+        b: { x: 50, y: 100 },
+        type: 'one-way',
+        oneWayDirection: 0
+      }
+    ]
     expect(isMovementBlocked({ x: 80, y: 50 }, { x: 20, y: 50 }, walls)).toBe(true)
   })
 
   it('one-way wall does not block from unblocked side', () => {
-    const walls: Segment[] = [{
-      a: { x: 50, y: 0 }, b: { x: 50, y: 100 },
-      type: 'one-way', oneWayDirection: 0
-    }]
+    const walls: Segment[] = [
+      {
+        a: { x: 50, y: 0 },
+        b: { x: 50, y: 100 },
+        type: 'one-way',
+        oneWayDirection: 0
+      }
+    ]
     // Origin at x=20 (left side, opposite to +x normal) → unblocked
     expect(isMovementBlocked({ x: 20, y: 50 }, { x: 80, y: 50 }, walls)).toBe(false)
   })
@@ -513,16 +521,20 @@ describe('computeLitAreas', () => {
     const sources: LightSource[] = [{ x: 10, y: 10, brightRadius: 3, dimRadius: 3 }]
     const result = computeLitAreas(sources, [], bounds, cellSize)
     const { brightPoly, dimPoly } = result[0]
-    const brightMaxDist = Math.max(...brightPoly.points.map((p) => {
-      const dx = p.x - brightPoly.origin.x
-      const dy = p.y - brightPoly.origin.y
-      return Math.sqrt(dx * dx + dy * dy)
-    }))
-    const dimMaxDist = Math.max(...dimPoly.points.map((p) => {
-      const dx = p.x - dimPoly.origin.x
-      const dy = p.y - dimPoly.origin.y
-      return Math.sqrt(dx * dx + dy * dy)
-    }))
+    const brightMaxDist = Math.max(
+      ...brightPoly.points.map((p) => {
+        const dx = p.x - brightPoly.origin.x
+        const dy = p.y - brightPoly.origin.y
+        return Math.sqrt(dx * dx + dy * dy)
+      })
+    )
+    const dimMaxDist = Math.max(
+      ...dimPoly.points.map((p) => {
+        const dx = p.x - dimPoly.origin.x
+        const dy = p.y - dimPoly.origin.y
+        return Math.sqrt(dx * dx + dy * dy)
+      })
+    )
     expect(dimMaxDist).toBeGreaterThanOrEqual(brightMaxDist)
   })
 

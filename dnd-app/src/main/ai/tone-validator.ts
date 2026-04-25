@@ -30,7 +30,9 @@ export function detectToneViolations(text: string): ToneViolation[] {
   for (const { type, pattern } of VIOLATION_PATTERNS) {
     const regex = new RegExp(pattern.source, pattern.flags)
     let match: RegExpExecArray | null
-    while ((match = regex.exec(cleanedText)) !== null) {
+    for (;;) {
+      match = regex.exec(cleanedText)
+      if (match === null) break
       violations.push({ type, match: match[0], index: match.index })
     }
   }

@@ -116,7 +116,7 @@ export async function removeBook(bookId: string): Promise<{ success: boolean; er
 
 export async function importBook(
   sourcePath: string,
-  title: string,
+  _title: string,
   bookId: string
 ): Promise<{ success: boolean; path?: string; error?: string }> {
   try {

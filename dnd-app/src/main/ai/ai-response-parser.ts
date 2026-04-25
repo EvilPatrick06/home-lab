@@ -14,7 +14,9 @@ export function parseRuleCitations(text: string): RuleCitation[] {
   const citations: RuleCitation[] = []
   const re = new RegExp(RULE_CITATION_RE.source, 'g')
   let match: RegExpExecArray | null
-  while ((match = re.exec(text)) !== null) {
+  for (;;) {
+    match = re.exec(text)
+    if (match === null) break
     citations.push({ source: match[1], rule: match[2], text: match[3].trim() })
   }
   return citations

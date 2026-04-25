@@ -1,7 +1,7 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { create } from 'zustand'
-import { createTriggerSlice } from './trigger-slice'
 import type { DmTrigger } from '../../types/game-state'
+import { createTriggerSlice } from './trigger-slice'
 
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
 

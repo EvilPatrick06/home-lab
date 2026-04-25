@@ -10,10 +10,12 @@ import {
 } from '../../shared/ipc-schemas'
 import type { AiConnectionStatus, StreamResult } from '../ai/ai-service'
 import * as aiService from '../ai/ai-service'
+import type { GameStateSnapshot } from '../ai/ai-trigger-observer'
+import type { MapStateForVisionAnalysis } from '../ai/ai-vision'
 import { buildContext, getLastTokenBreakdown, getSearchEngine } from '../ai/context-builder'
 import type { DmAction } from '../ai/dm-actions'
 import { type AiProviderType, CLOUD_MODELS } from '../ai/llm-provider'
-import { getMemoryManager } from '../ai/memory-manager'
+import { type CombatState, getMemoryManager, type WorldState } from '../ai/memory-manager'
 import {
   CURATED_MODELS,
   type CuratedModel,
@@ -42,6 +44,7 @@ import type {
   AiStreamChunk,
   AiStreamDone,
   AiStreamError,
+  ConversationData,
   StatChange
 } from '../ai/types'
 import { logToFile } from '../log'
@@ -288,7 +291,7 @@ export function registerAiHandlers(): void {
   ipcMain.handle(
     IPC_CHANNELS.AI_RESTORE_CONVERSATION,
     async (_event, campaignId: string, data: Record<string, unknown>) => {
-      const result = await saveConversation(campaignId, data as any)
+      const result = await saveConversation(campaignId, data as ConversationData)
       if (!result.success) return { success: false, error: result.error }
       return { success: true }
     }
@@ -371,7 +374,7 @@ export function registerAiHandlers(): void {
     async (_event, campaignId: string, state: Record<string, unknown>) => {
       try {
         const memMgr = getMemoryManager(campaignId)
-        await memMgr.updateWorldState(state as any)
+        await memMgr.updateWorldState(state as Partial<WorldState>)
         return { success: true }
       } catch (error) {
         logToFile('error', `[AI Memory] Failed to sync world state: ${(error as Error).message}`)
@@ -385,7 +388,7 @@ export function registerAiHandlers(): void {
     async (_event, campaignId: string, state: Record<string, unknown>) => {
       try {
         const memMgr = getMemoryManager(campaignId)
-        await memMgr.updateCombatState(state as any)
+        await memMgr.updateCombatState(state as CombatState)
         return { success: true }
       } catch (error) {
         logToFile('error', `[AI Memory] Failed to sync combat state: ${(error as Error).message}`)
@@ -546,7 +549,7 @@ export function registerAiHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.AI_ANALYZE_MAP, async (_event, gameState: Record<string, unknown>) => {
     try {
       const { analyzeMapState } = await import('../ai/ai-vision')
-      return await analyzeMapState(gameState as any)
+      return await analyzeMapState(gameState as MapStateForVisionAnalysis)
     } catch (error) {
       return { success: false, error: (error as Error).message }
     }
@@ -557,7 +560,7 @@ export function registerAiHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, async (_event, state: Record<string, unknown>) => {
     try {
       const { processStateUpdate } = await import('../ai/ai-trigger-observer')
-      const results = processStateUpdate(state as any)
+      const results = processStateUpdate(state as GameStateSnapshot)
       return { success: true, fired: results }
     } catch (error) {
       return { success: false, error: (error as Error).message }

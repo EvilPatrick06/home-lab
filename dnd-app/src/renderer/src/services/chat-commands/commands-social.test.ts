@@ -13,9 +13,9 @@ vi.mock('../../stores/use-lobby-store', () => ({
 }))
 
 import {
+  assertCommandNameFormat,
   assertCommandShape,
   assertUniqueCommandNames,
-  assertCommandNameFormat,
   createCommandContext
 } from '../../test-helpers'
 import { commands } from './commands-social'

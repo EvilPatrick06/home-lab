@@ -36,8 +36,7 @@ vi.mock('../cloud-sync', () => ({
 }))
 
 vi.mock('../../shared/utils/uuid', () => ({
-  isValidUUID: (str: string) =>
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+  isValidUUID: (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
 }))
 
 vi.mock('../log', () => ({ logToFile: vi.fn() }))

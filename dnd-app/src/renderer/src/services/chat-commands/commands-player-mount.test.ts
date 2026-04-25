@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  assertCommandNameFormat,
   assertCommandShape,
   assertUniqueCommandNames,
-  assertCommandNameFormat,
   createCommandContext
 } from '../../test-helpers'
 

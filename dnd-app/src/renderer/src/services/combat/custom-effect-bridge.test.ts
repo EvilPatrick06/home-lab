@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CustomEffect } from '../../types/effects'
 import { getCustomEffectBonuses, getEffectiveAC } from './custom-effect-bridge'
 
@@ -16,11 +16,7 @@ vi.mock('../../stores/use-game-store', () => ({
 
 // ── Helpers ───────────────────────────────────────────────────────
 
-function makeEffect(
-  targetEntityId: string,
-  effects: CustomEffect['effects'],
-  name = 'Test Effect'
-): CustomEffect {
+function makeEffect(targetEntityId: string, effects: CustomEffect['effects'], name = 'Test Effect'): CustomEffect {
   return {
     id: `eff-${Math.random().toString(36).slice(2, 8)}`,
     name,
@@ -109,13 +105,7 @@ describe('getCustomEffectBonuses', () => {
   })
 
   it('skips resistance/immunity/vulnerability with no stringValue', () => {
-    mockCustomEffects = [
-      makeEffect('e-1', [
-        { type: 'resistance' },
-        { type: 'immunity' },
-        { type: 'vulnerability' }
-      ])
-    ]
+    mockCustomEffects = [makeEffect('e-1', [{ type: 'resistance' }, { type: 'immunity' }, { type: 'vulnerability' }])]
     const result = getCustomEffectBonuses('e-1')
     expect(result.resistances).toEqual([])
     expect(result.immunities).toEqual([])

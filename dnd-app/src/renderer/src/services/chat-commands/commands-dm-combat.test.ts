@@ -1,14 +1,22 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  assertCommandNameFormat,
   assertCommandShape,
   assertUniqueCommandNames,
-  assertCommandNameFormat,
   createCommandContext
 } from '../../test-helpers'
 
 const mockGameState = {
   conditions: [
-    { id: 'c1', entityId: 'tok-1', entityName: 'Goblin', condition: 'poisoned', duration: 3, source: 'command', appliedRound: 1 }
+    {
+      id: 'c1',
+      entityId: 'tok-1',
+      entityName: 'Goblin',
+      condition: 'poisoned',
+      duration: 3,
+      source: 'command',
+      appliedRound: 1
+    }
   ],
   maps: [],
   activeMapId: 'map-1',
@@ -67,8 +75,16 @@ describe('commands-dm-combat', () => {
     const names = commands.map((c) => c.name)
     expect(names).toEqual(
       expect.arrayContaining([
-        'initiative', 'timer', 'rollfor', 'grouproll', 'effect',
-        'mob', 'chase', 'flanking', 'groupinit', 'diagonal'
+        'initiative',
+        'timer',
+        'rollfor',
+        'grouproll',
+        'effect',
+        'mob',
+        'chase',
+        'flanking',
+        'groupinit',
+        'diagonal'
       ])
     )
     expect(commands).toHaveLength(10)

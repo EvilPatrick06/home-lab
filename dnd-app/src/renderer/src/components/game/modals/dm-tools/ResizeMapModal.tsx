@@ -44,7 +44,8 @@ export default function ResizeMapModal({
 
         <div className="space-y-4">
           <p className="text-xs text-gray-400">
-            Current size: {Math.round(currentWidthPixels / cellSize)} x {Math.round(currentHeightPixels / cellSize)} cells
+            Current size: {Math.round(currentWidthPixels / cellSize)} x {Math.round(currentHeightPixels / cellSize)}{' '}
+            cells
           </p>
 
           <div className="flex gap-3">
@@ -76,7 +77,8 @@ export default function ResizeMapModal({
             Total size: {newPixelWidth} x {newPixelHeight} px
           </p>
           <p className="text-[10px] text-amber-500/80">
-            Note: Content outside the new bounds boundaries will be hidden but preserved. Background maps will not resize.
+            Note: Content outside the new bounds boundaries will be hidden but preserved. Background maps will not
+            resize.
           </p>
 
           <button

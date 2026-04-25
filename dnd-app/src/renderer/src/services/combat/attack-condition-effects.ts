@@ -105,7 +105,8 @@ export function getAttackConditionEffects(
     const frightenedCond = attackerConditions.find((c) => c.name.toLowerCase() === 'frightened')
     const fearSourceId = frightenedCond?.sourceEntityId
     // If no source tracked, assume fear source is visible (conservative/safe default)
-    const fearSourceVisible = !fearSourceId || !context.visibleEntityIds || context.visibleEntityIds.includes(fearSourceId)
+    const fearSourceVisible =
+      !fearSourceId || !context.visibleEntityIds || context.visibleEntityIds.includes(fearSourceId)
     if (fearSourceVisible) {
       disadvantageSources.push('Frightened (source of fear visible)')
     }
@@ -123,7 +124,6 @@ export function getAttackConditionEffects(
 
   // PHB 2024: Deafened auto-fails hearing-based checks. No attack roll modifier.
   // Modeled here as no-op for attacks; hearing-based ability checks handled in SkillRollButton.
-
 
   if (hasCondition(attackerConditions, 'Poisoned')) {
     disadvantageSources.push('Poisoned (disadvantage on attacks)')

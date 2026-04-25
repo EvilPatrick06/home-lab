@@ -113,7 +113,13 @@ export interface MapTokenSliceState {
   removeWallSegment: (mapId: string, wallId: string) => void
   updateWallSegment: (mapId: string, wallId: string, updates: Partial<WallSegment>) => void
   toggleEmitterPlaying: (mapId: string, emitterId: string) => void
-  teleportToken: (tokenId: string, sourceMapId: string, targetMapId: string, targetGridX: number, targetGridY: number) => void
+  teleportToken: (
+    tokenId: string,
+    sourceMapId: string,
+    targetMapId: string,
+    targetGridX: number,
+    targetGridY: number
+  ) => void
   centerOnEntityId: string | null
   requestCenterOnEntity: (entityId: string) => void
   clearCenterRequest: () => void

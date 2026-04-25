@@ -31,7 +31,9 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null)
   const [rightPanel, setRightPanel] = useState<RightPanel>('tokens')
   const [terrainPaintType, setTerrainPaintType] = useState<TerrainCell['type']>('difficult')
-  const [portalTarget, setPortalTarget] = useState<{ mapId: string; gridX: number; gridY: number } | undefined>(undefined)
+  const [portalTarget, setPortalTarget] = useState<{ mapId: string; gridX: number; gridY: number } | undefined>(
+    undefined
+  )
   const [showCreateMap, setShowCreateMap] = useState(false)
   const [showResizeMap, setShowResizeMap] = useState(false)
   const [_undoCount, setUndoCount] = useState(0)
@@ -65,7 +67,15 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
       if (!activeMap) return
 
       if (activeTool === 'terrain') {
-        handleTerrainCellClick(activeMap.id, gridX, gridY, activeMap.terrain ?? [], terrainPaintType, triggerRerender, portalTarget)
+        handleTerrainCellClick(
+          activeMap.id,
+          gridX,
+          gridY,
+          activeMap.terrain ?? [],
+          terrainPaintType,
+          triggerRerender,
+          portalTarget
+        )
         return
       }
 

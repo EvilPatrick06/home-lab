@@ -30,7 +30,7 @@ export interface OverlayEffectState {
   type: 'audio' | 'visual'
   playing: boolean
   startedAt: number
-  duration?: number  // ms, undefined = looping
+  duration?: number // ms, undefined = looping
 }
 
 const activeEffects = new Map<string, OverlayEffectState>()

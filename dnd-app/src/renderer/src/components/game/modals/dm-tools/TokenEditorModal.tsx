@@ -220,7 +220,11 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
             />
             {token.imagePath && (
               <div className="flex items-center gap-3 mt-1">
-                <img src={token.imagePath} alt="Token preview" className="w-12 h-12 rounded-full object-cover border border-gray-600" />
+                <img
+                  src={token.imagePath}
+                  alt="Token preview"
+                  className="w-12 h-12 rounded-full object-cover border border-gray-600"
+                />
                 <button
                   onClick={() => applyUpdate({ imagePath: undefined })}
                   className="text-[10px] text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer"

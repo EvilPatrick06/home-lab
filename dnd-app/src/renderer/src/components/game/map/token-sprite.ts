@@ -111,11 +111,9 @@ export function createTokenSprite(
 
   const fillColor = token.color
     ? parseInt(token.color.replace('#', ''), 16)
-    : ENTITY_COLORS[token.entityType] ?? 0x6b7280
+    : (ENTITY_COLORS[token.entityType] ?? 0x6b7280)
 
-  const borderColorHex = token.borderColor
-    ? parseInt(token.borderColor.replace('#', ''), 16)
-    : 0x1f2937
+  const borderColorHex = token.borderColor ? parseInt(token.borderColor.replace('#', ''), 16) : 0x1f2937
 
   const hasValidImage =
     token.imagePath && VALID_IMAGE_EXTENSIONS.some((ext) => token.imagePath!.toLowerCase().endsWith(ext))

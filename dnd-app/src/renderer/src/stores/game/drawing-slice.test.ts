@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { create } from 'zustand'
 import type { DrawingData } from '../../types/map'
 import { createDrawingSlice } from './drawing-slice'
@@ -17,7 +17,10 @@ function makeDrawing(overrides: Partial<DrawingData> = {}): DrawingData {
   return {
     id: 'd1',
     type: 'draw-free',
-    points: [{ x: 0, y: 0 }, { x: 10, y: 10 }],
+    points: [
+      { x: 0, y: 0 },
+      { x: 10, y: 10 }
+    ],
     color: '#ff0000',
     strokeWidth: 2,
     ...overrides

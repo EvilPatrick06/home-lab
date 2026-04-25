@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { GameMap, MapToken, WallSegment } from '../../types/map'
+import type { Point } from './raycast-visibility'
 import {
-  calculateSoundOcclusion,
   calculateEmitterVolumes,
+  calculateSoundOcclusion,
   checkWallOcclusion,
   getPlayerListenerPosition,
   SOUND_OCCLUSION
 } from './sound-occlusion'
-import type { Point } from './raycast-visibility'
 
 // ─── Helpers ────────────────────────────────────────────────────
 
@@ -213,10 +213,7 @@ describe('checkWallOcclusion', () => {
   it('multiple walls: any crossing returns true', () => {
     const emitter: Point = { x: 1, y: 5 }
     const listener: Point = { x: 9, y: 5 }
-    const walls: WallSegment[] = [
-      makeWall(3, 0, 3, 10, 'solid'),
-      makeWall(7, 0, 7, 10, 'solid')
-    ]
+    const walls: WallSegment[] = [makeWall(3, 0, 3, 10, 'solid'), makeWall(7, 0, 7, 10, 'solid')]
     expect(checkWallOcclusion(emitter, listener, walls, cellSize)).toBe(true)
   })
 
@@ -248,9 +245,7 @@ describe('getPlayerListenerPosition', () => {
 
   it('returns center position of first player token', () => {
     const map = makeMap({
-      tokens: [
-        makeToken({ gridX: 4, gridY: 6, entityType: 'player' })
-      ]
+      tokens: [makeToken({ gridX: 4, gridY: 6, entityType: 'player' })]
     })
     const result = getPlayerListenerPosition(map)
     expect(result).not.toBeNull()
@@ -273,9 +268,7 @@ describe('getPlayerListenerPosition', () => {
 
   it('uses token size for center calculation (2x2 token)', () => {
     const map = makeMap({
-      tokens: [
-        makeToken({ gridX: 4, gridY: 4, sizeX: 2, sizeY: 2, entityType: 'player' })
-      ]
+      tokens: [makeToken({ gridX: 4, gridY: 4, sizeX: 2, sizeY: 2, entityType: 'player' })]
     })
     const result = getPlayerListenerPosition(map)
     // center: 4 + 2/2 = 5

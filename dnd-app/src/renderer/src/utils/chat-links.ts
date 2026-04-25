@@ -54,8 +54,10 @@ export function parseChatLinks(content: string): ChatLink[] {
 
   // 1. Parse [[name]] bracket syntax — matches against content index
   const bracketRegex = /\[\[([^\]]+)\]\]/g
-  let bracketMatch
-  while ((bracketMatch = bracketRegex.exec(content)) !== null) {
+  let bracketMatch: RegExpExecArray | null
+  for (;;) {
+    bracketMatch = bracketRegex.exec(content)
+    if (bracketMatch === null) break
     const ref = lookupContent(bracketMatch[1])
     if (ref) {
       links.push({
@@ -71,13 +73,15 @@ export function parseChatLinks(content: string): ChatLink[] {
   // Find monster references
   for (const monsterName of MONSTER_NAMES) {
     const regex = new RegExp(`\\b${monsterName}\\b`, 'gi')
-    let match
-    while ((match = regex.exec(content)) !== null) {
+    let m: RegExpExecArray | null
+    for (;;) {
+      m = regex.exec(content)
+      if (m === null) break
       links.push({
         type: 'monster',
         name: monsterName,
-        start: match.index,
-        end: match.index + match[0].length
+        start: m.index,
+        end: m.index + m[0].length
       })
     }
   }
@@ -85,26 +89,30 @@ export function parseChatLinks(content: string): ChatLink[] {
   // Find item references
   for (const itemName of ITEM_NAMES) {
     const regex = new RegExp(`\\b${itemName}\\b`, 'gi')
-    let match
-    while ((match = regex.exec(content)) !== null) {
+    let m: RegExpExecArray | null
+    for (;;) {
+      m = regex.exec(content)
+      if (m === null) break
       links.push({
         type: 'item',
         name: itemName,
-        start: match.index,
-        end: match.index + match[0].length
+        start: m.index,
+        end: m.index + m[0].length
       })
     }
   }
 
   // Find spell references (basic patterns)
   const spellRegex = /\b(?:Magic Missile|Fireball|Lightning Bolt|Cure Wounds|Heal|Raise Dead|Wish)\b/gi
-  let match
-  while ((match = spellRegex.exec(content)) !== null) {
+  let sm: RegExpExecArray | null
+  for (;;) {
+    sm = spellRegex.exec(content)
+    if (sm === null) break
     links.push({
       type: 'spell',
-      name: match[0],
-      start: match.index,
-      end: match.index + match[0].length
+      name: sm[0],
+      start: sm.index,
+      end: sm.index + sm[0].length
     })
   }
 

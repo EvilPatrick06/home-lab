@@ -647,16 +647,8 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
 
 // ── Portal helper ────────────────────────────────────────────────────────────
 
-function checkPortalTeleport(
-  map: GameMap,
-  tokenId: string,
-  gridX: number,
-  gridY: number,
-  isHost: boolean
-): void {
-  const portal = map.terrain?.find(
-    (t) => t.type === 'portal' && t.x === Math.round(gridX) && t.y === Math.round(gridY)
-  )
+function checkPortalTeleport(map: GameMap, tokenId: string, gridX: number, gridY: number, isHost: boolean): void {
+  const portal = map.terrain?.find((t) => t.type === 'portal' && t.x === Math.round(gridX) && t.y === Math.round(gridY))
   if (!portal || !portal.portalTarget) return
 
   const target = portal.portalTarget

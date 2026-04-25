@@ -188,9 +188,7 @@ export default function JoinGamePage(): JSX.Element {
                        text-2xl font-mono font-bold tracking-[0.3em] uppercase
                        ${codeInvalid ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-amber-500'}`}
           />
-          {codeInvalid && (
-            <p className="mt-1 text-xs text-red-400 text-center">Invite code must be 8 characters.</p>
-          )}
+          {codeInvalid && <p className="mt-1 text-xs text-red-400 text-center">Invite code must be 8 characters.</p>}
         </div>
 
         {/* Connection status indicator */}

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, afterEach } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ActiveLightSource } from '../../types/campaign'
 import type { DarknessZone, GameMap, MapToken, WallSegment } from '../../types/map'
 import {
@@ -446,7 +446,8 @@ describe('computePartyVision with darkness zones', () => {
   function makeDarknessZone(overrides: Partial<DarknessZone> = {}): DarknessZone {
     return {
       id: 'dz-1',
-      x: 5, y: 5,
+      x: 5,
+      y: 5,
       radius: 2,
       magicLevel: 'nonmagical',
       ...overrides
@@ -485,7 +486,8 @@ describe('computePartyVision with darkness zones', () => {
 
   it('token with blindsight is never blinded by darkness', () => {
     const token = makeToken({
-      gridX: 5, gridY: 5,
+      gridX: 5,
+      gridY: 5,
       darkvision: false,
       specialSenses: [{ type: 'blindsight', range: 30 }]
     })
@@ -498,7 +500,8 @@ describe('computePartyVision with darkness zones', () => {
 
   it('token with tremorsense is never blinded by darkness', () => {
     const token = makeToken({
-      gridX: 5, gridY: 5,
+      gridX: 5,
+      gridY: 5,
       darkvision: false,
       specialSenses: [{ type: 'tremorsense', range: 30 }]
     })
@@ -537,7 +540,7 @@ describe('getLightingAtPoint edge cases', () => {
   })
 
   it('multiple light sources: first matching source wins (dim source checked first)', () => {
-    const dim: LightSource = { x: 0, y: 0, brightRadius: 1, dimRadius: 5 }  // bright=50, dim=300
+    const dim: LightSource = { x: 0, y: 0, brightRadius: 1, dimRadius: 5 } // bright=50, dim=300
     const bright: LightSource = { x: 4, y: 0, brightRadius: 3, dimRadius: 1 } // bright=150, at pixel (200,0)
     // Point at (200, 0): dim source is checked first, dist=200 is within dim range (50<200<=300) → 'dim'
     // Function returns on first match, so 'dim' wins even though bright source covers the same point
@@ -566,7 +569,10 @@ describe('isTokenInVisionSet edge cases', () => {
 
   it('2x2 token: none of its cells visible → false', () => {
     const token = makeToken({ gridX: 3, gridY: 3, sizeX: 2, sizeY: 2 })
-    const set = buildVisionSet([{ x: 2, y: 2 }, { x: 5, y: 5 }]) // adjacent but not overlapping
+    const set = buildVisionSet([
+      { x: 2, y: 2 },
+      { x: 5, y: 5 }
+    ]) // adjacent but not overlapping
     expect(isTokenInVisionSet(token, set)).toBe(false)
   })
 

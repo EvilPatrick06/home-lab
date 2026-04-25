@@ -9,25 +9,26 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export const GAME_STATE_SCHEMA_VERSION = 1
 
-export function migrateGameState(state: any): Record<string, unknown> {
+export function migrateGameState(state: unknown): Record<string, unknown> {
   if (!state || typeof state !== 'object') {
     return { schemaVersion: GAME_STATE_SCHEMA_VERSION }
   }
 
-  let version = typeof state.schemaVersion === 'number' ? state.schemaVersion : 0
+  const s = state as Record<string, unknown>
+  let version = typeof s.schemaVersion === 'number' ? s.schemaVersion : 0
 
   if (version < 1) {
     // Migration logic for v0 -> v1
-    state.entities = Array.isArray(state.entities) ? state.entities : []
-    state.logs = Array.isArray(state.logs) ? state.logs : []
-    state.maps = Array.isArray(state.maps) ? state.maps : []
-    state.schemaVersion = 1
+    s.entities = Array.isArray(s.entities) ? s.entities : []
+    s.logs = Array.isArray(s.logs) ? s.logs : []
+    s.maps = Array.isArray(s.maps) ? s.maps : []
+    s.schemaVersion = 1
     version = 1
   }
 
   // Future schemas logic goes here
 
-  return state
+  return s
 }
 function isValidUUID(str: string): boolean {
   return UUID_RE.test(str)
@@ -85,7 +86,7 @@ export async function loadGameState(campaignId: string): Promise<StorageResult<R
       return { success: true, data: null }
     }
     const data = await readFile(path, 'utf-8')
-    let parsed: any
+    let parsed: unknown
     try {
       parsed = JSON.parse(data)
     } catch {

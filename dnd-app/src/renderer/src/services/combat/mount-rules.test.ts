@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { TurnState } from '../../types/game-state'
+import type { MapToken } from '../../types/map'
 import {
   calculateMountedMovement,
   enforceMountedCombatRestrictions,
@@ -6,8 +8,6 @@ import {
   getMountSpeed,
   isControlledMountAction
 } from './mount-rules'
-import type { MapToken } from '../../types/map'
-import type { TurnState } from '../../types/game-state'
 
 // ─── Helpers ─────────────────────────────────────────────────────
 

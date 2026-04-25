@@ -73,7 +73,7 @@ function usePeerSync(localPeerId: string | null): void {
         if (player.status !== 'reconnecting') {
           lobby.setPlayerStatus(player.peerId, 'reconnecting')
           setTimeout(() => {
-            const p = useLobbyStore.getState().players.find(x => x.peerId === player.peerId)
+            const p = useLobbyStore.getState().players.find((x) => x.peerId === player.peerId)
             if (p?.status === 'reconnecting') {
               useLobbyStore.getState().removePlayer(player.peerId)
             }

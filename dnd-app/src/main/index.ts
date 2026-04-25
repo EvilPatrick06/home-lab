@@ -1,3 +1,4 @@
+import type { Dirent } from 'node:fs'
 import { readdir, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
@@ -123,7 +124,8 @@ async function cleanupTmpFiles(dir: string): Promise<void> {
     for (const entry of entries) {
       if (entry.isFile() && entry.name.endsWith('.tmp')) {
         // Handle both older Node (entry.path) and newer Node (entry.parentPath)
-        const parentPath = (entry as any).parentPath || (entry as any).path || dir
+        const e = entry as Dirent & { parentPath?: string; path?: string }
+        const parentPath = e.parentPath || e.path || dir
         await unlink(join(parentPath, entry.name)).catch(() => {})
         logToFile('INFO', `Cleaned up orphaned tmp file: ${entry.name}`)
       }

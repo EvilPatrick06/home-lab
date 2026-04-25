@@ -7,8 +7,8 @@ import {
   checkSilveryBarbs,
   executeReaction,
   getAvailableReactions,
-  resolveMultipleReactions,
-  type ReactionPrompt
+  type ReactionPrompt,
+  resolveMultipleReactions
 } from './reaction-tracker'
 
 // ─── Helpers ────────────────────────────────────────────────────

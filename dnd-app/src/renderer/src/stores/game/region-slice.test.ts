@@ -1,7 +1,7 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { create } from 'zustand'
-import { createRegionSlice } from './region-slice'
 import type { SceneRegion } from '../../types/map'
+import { createRegionSlice } from './region-slice'
 
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
 
@@ -142,7 +142,14 @@ describe('region-slice', () => {
 
     it('can update shape', () => {
       const store = makeStore([{ id: 'map1', regions: [makeRegion({ id: 'r1' })] }])
-      const newShape = { type: 'polygon' as const, points: [{ x: 0, y: 0 }, { x: 5, y: 0 }, { x: 5, y: 5 }] }
+      const newShape = {
+        type: 'polygon' as const,
+        points: [
+          { x: 0, y: 0 },
+          { x: 5, y: 0 },
+          { x: 5, y: 5 }
+        ]
+      }
       store.getState().updateRegion('map1', 'r1', { shape: newShape })
       expect(store.getState().maps[0].regions[0].shape).toEqual(newShape)
     })

@@ -390,6 +390,7 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
     })
 
     // Readying an action uses the action and ends the turn
+    // biome-ignore lint/correctness/useHookAtTopLevel: useAction is a zustand store action, not a React hook
     get().useAction(entityId)
     get().nextTurn()
   },

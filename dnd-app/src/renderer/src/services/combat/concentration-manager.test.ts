@@ -1,10 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TurnState } from '../../types/game-state'
-import {
-  checkConcentrationOnDamage,
-  onConcentrationLost,
-  warnNewConcentration
-} from './concentration-manager'
+import { checkConcentrationOnDamage, onConcentrationLost, warnNewConcentration } from './concentration-manager'
 
 // ── Mock death-mechanics (resolveConcentrationCheck) ──────────────
 const mockResolveConcentrationCheck = vi.fn()

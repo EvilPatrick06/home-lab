@@ -201,6 +201,9 @@ export async function analyzeMapState(gameState: {
   }
 }
 
+/** IPC / handler input type for `analyzeMapState` */
+export type MapStateForVisionAnalysis = Parameters<typeof analyzeMapState>[0]
+
 /**
  * Get the appropriate model string for the active provider.
  */
