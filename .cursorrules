@@ -74,10 +74,13 @@
 │   ├── CONTRIBUTING.md               branch/commit conventions
 │   ├── CHANGELOG.md                  version history
 │   ├── LOG-INSTRUCTIONS.md           which-log-where + entry templates
-│   ├── ISSUES-LOG.md                 active bugs / debt / broken config
-│   ├── SUGGESTIONS-LOG.md            future ideas + design gotchas + info
-│   ├── SECURITY-LOG.md               GITIGNORED — security concerns/incidents
-│   ├── RESOLVED-ISSUES.md            archive of fixed ISSUES-LOG / SUGGESTIONS-LOG entries
+│   ├── BMO-ISSUES-LOG.md             active bugs / debt — bmo domain
+│   ├── ISSUES-LOG-DNDAPP.md          active bugs / debt — dnd-app domain
+│   ├── BMO-SUGGESTIONS-LOG.md        future ideas + design gotchas + info — bmo domain
+│   ├── SUGGESTIONS-LOG-DNDAPP.md     future ideas + design gotchas + info — dnd-app domain
+│   ├── SECURITY-LOG.md               GITIGNORED — security concerns/incidents (global, any domain)
+│   ├── BMO-RESOLVED-ISSUES.md        archive of fixed bmo entries (issues + suggestions)
+│   ├── RESOLVED-ISSUES-DNDAPP.md     archive of fixed dnd-app entries (issues + suggestions)
 │   └── RESOLVED-SECURITY-ISSUES.md   GITIGNORED — archive of fixed SECURITY-LOG entries
 │
 ├── _archive/                         tracked code quarantine (audit trail)
@@ -126,12 +129,20 @@
 
 ## Logging Bugs / Issues / Future Work
 
-The log (`docs/ISSUES-LOG.md`) is for **unfixed or deferred** work that crosses session boundaries.
+The active logs are fully split by domain (security is the only global log):
+- `docs/BMO-ISSUES-LOG.md` — bmo bugs / debt / config / perf
+- `docs/ISSUES-LOG-DNDAPP.md` — dnd-app bugs / debt / config / perf
+- `docs/BMO-SUGGESTIONS-LOG.md` — bmo ideas / gotchas / info
+- `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app ideas / gotchas / info
+- `docs/SECURITY-LOG.md` — security (gitignored, global, any domain)
+- `Domain: both` entries → mirror in BOTH issue logs (or BOTH suggestion logs); fix once, remove from both copies.
+
+All are for **unfixed or deferred** work that crosses session boundaries.
 
 - **Fixing in this session?** → Just fix it. The commit is the record. Do NOT log — it clutters the log with already-resolved entries.
-- **Out of scope / deferred?** → APPEND. Don't silently fix preexisting issues outside current task — log them, let user prioritize.
+- **Out of scope / deferred?** → APPEND to the log matching the issue's `Domain`. Don't silently fix preexisting issues outside current task — log them, let user prioritize.
 - **Log minor/optional items too** *(when out of scope)* — patterns across small observations reveal larger problems.
-- **Read `docs/LOG-INSTRUCTIONS.md`** for the template + severity/category guide + the "log vs fix inline" decision rule with examples.
+- **Read `docs/LOG-INSTRUCTIONS.md`** for the routing table, template, severity/category guide + the "log vs fix inline" decision rule with examples.
 
 ## Secrets / Safety
 
@@ -149,10 +160,10 @@ The log (`docs/ISSUES-LOG.md`) is for **unfixed or deferred** work that crosses 
 ## For AI Sessions
 
 - Start by reading this file + AGENTS.md (or your tool-specific file)
-- Check `docs/ISSUES-LOG.md` before starting new work
+- Check the relevant active logs before starting new work — `docs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs), `docs/BMO-SUGGESTIONS-LOG.md` + `docs/SUGGESTIONS-LOG-DNDAPP.md` (gotchas/ideas)
 - When in doubt about structure, check this file first
 - When in doubt about protocol, check `docs/ARCHITECTURE.md`
-- When debugging, check `bmo/docs/TROUBLESHOOTING.md` + `docs/ISSUES-LOG.md`
+- When debugging, check `bmo/docs/TROUBLESHOOTING.md` + the active issue logs (above)
 
 ## Communication mode (user toggle)
 

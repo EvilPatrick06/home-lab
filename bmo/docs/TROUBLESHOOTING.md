@@ -1,6 +1,6 @@
 # BMO Troubleshooting
 
-Common failures + fixes. Also check `[../../docs/ISSUES-LOG.md](../../docs/ISSUES-LOG.md)` for logged bugs.
+Common failures + fixes. Also check [`../../docs/BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md) for logged BMO bugs and [`../../docs/BMO-SUGGESTIONS-LOG.md`](../../docs/BMO-SUGGESTIONS-LOG.md) for design-gotchas.
 
 ## BMO won't start
 
@@ -19,7 +19,7 @@ Common causes:
 ### Python venv broken
 
 - **Symptom:** `/home/patrick/home-lab/bmo/pi/venv/bin/python: not found`
-- **Fix:** Rebuild venv: `cd bmo/pi && rm -rf venv && python3.11 -m venv venv && ./venv/bin/pip install -r requirements.txt`
+- **Fix:** Rebuild venv: `cd bmo/pi && bash scripts/install-venv.sh` (installs **CPU-only** `torch` first — avoids a multi‑GB CUDA stack on Pi). Or the manual two-step: `python3.11 -m venv venv && ./venv/bin/pip install --upgrade pip && ./venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu && ./venv/bin/pip install -r requirements.txt`
 
 ### Port 5000 occupied
 
@@ -38,7 +38,7 @@ Common causes:
 - **Check audio input:** `pactl list short sources` — is your mic detected?
 - **Check wake-word model exists:** `ls -la bmo/pi/wake/hey_bmo.onnx`
 - **Check openwakeword logs:** `journalctl -u bmo | grep -i "wake"`
-- **Fallback active?** If logs say "openwakeword not available, using energy+STT fallback" — that still works, just less accurate. See [ISSUES-LOG.md](../../docs/ISSUES-LOG.md) for the model file issue.
+- **Fallback active?** If logs say "openwakeword not available, using energy+STT fallback" — that still works, just less accurate. See [BMO-ISSUES-LOG.md](../../docs/BMO-ISSUES-LOG.md) for the model file issue.
 
 ### STT fails
 
@@ -100,7 +100,7 @@ journalctl -u bmo-kiosk -n 50 --no-pager
 ## HTTP endpoints hang
 
 - **Symptom:** `curl http://localhost:5000/health` times out but service is "active"
-- **Cause:** gevent workers blocked by slow operation (see ISSUES-LOG.md).
+- **Cause:** gevent workers blocked by slow operation (see BMO-ISSUES-LOG.md).
 - **Quick fix:** `sudo systemctl restart bmo`
 - **Diagnose:** `ss -tnp | grep 5000` — many CLOSE-WAIT = worker exhaustion
 
@@ -109,13 +109,13 @@ journalctl -u bmo-kiosk -n 50 --no-pager
 ### `invalid_grant: Bad Request`
 
 - **Cause:** OAuth token expired or revoked. Refresh tokens can become invalid after prolonged inactivity, password changes, or manual revocation.
-- **Fix:** Run re-auth:
+- **Fix (headless Pi):** print URL, paste the auth code (writes `bmo/pi/config/token.json`):
   ```bash
-  cd bmo/pi
-  ./venv/bin/python services/authorize_calendar.py
-  # Follow URL, authorize, token.json rewritten
+  cd ~/home-lab/bmo/pi
+  ./venv/bin/python services/reauth_calendar.py
   sudo systemctl restart bmo
   ```
+- **Fix (machine with a browser):** `cd ~/home-lab/bmo/pi && ./venv/bin/python services/authorize_calendar.py` (local server OAuth). Ensure tokens live in **`bmo/pi/config/`** only; do not add a second `token.json` under `services/config/`.
 
 ### `credentials.json missing`
 
@@ -133,7 +133,7 @@ journalctl -u bmo-kiosk -n 50 --no-pager
 
 ```bash
 df -h /                           # root fs
-du -sh ~/home-lab/bmo/pi/venv          # venv size (~500 MB normal)
+du -sh ~/home-lab/bmo/pi/venv          # expect ~1–2 GB with CPU-only torch; multi-GB if CUDA stack slipped in
 du -sh ~/home-lab/bmo/pi/data/logs     # logs grow
 du -sh ~/.cache/chromium-bmo      # kiosk cache grows
 ```
@@ -149,7 +149,7 @@ rm -rf ~/.cache/chromium-bmo/Default/Cache/*
 ## MCP servers fail to initialize
 
 - **Symptom:** `[mcp] Initialized: 0/3 servers, 0 tools`
-- **Fix:** Tracked in [ISSUES-LOG.md](../../docs/ISSUES-LOG.md). Probably path issue in `mcp_servers/mcp_settings.json` or server script crashing.
+- **Fix:** Tracked in [BMO-ISSUES-LOG.md](../../docs/BMO-ISSUES-LOG.md). Probably path issue in `mcp_servers/mcp_settings.json` or server script crashing.
 
 ## Service keeps restarting
 
@@ -192,12 +192,11 @@ free -h                                 # RAM
    git fetch origin
    git reset --hard origin/master    # careful: loses local changes
   ```
-4. Rebuild venv if Python messed up:
+4. Rebuild venv if Python messed up (CPU `torch` first — see `scripts/install-venv.sh`):
   ```bash
    cd bmo/pi
    rm -rf venv __pycache__
-   python3.11 -m venv venv
-   ./venv/bin/pip install -r requirements.txt
+   bash scripts/install-venv.sh
   ```
 5. Restart services one at a time:
   ```bash
@@ -208,7 +207,7 @@ free -h                                 # RAM
 
 ## Still stuck?
 
-1. Search `[ISSUES-LOG.md](../../docs/ISSUES-LOG.md)`
+1. Search [`BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md) and [`BMO-SUGGESTIONS-LOG.md`](../../docs/BMO-SUGGESTIONS-LOG.md)
 2. Check recent commits: `cd ~/home-lab && git log --oneline -20`
 3. Ask an AI agent (Cursor/Claude/Gemini) — they have all the context via `AGENTS.md`
 4. File an issue on GitHub with:

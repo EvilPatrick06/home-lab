@@ -98,10 +98,9 @@ journalctl -u bmo -f                          # tail main app logs
 
 On DM's laptop (running dnd-app):
 
-1. Open dnd-app Settings → BMO Integration
-2. Enter Pi URL (e.g., `http://bmo.local:5000` if on same LAN, or Tailscale/Cloudflare URL if remote)
-3. Test connection (click "Ping BMO")
-4. Open firewall port 5001 on laptop for BMO callbacks (Windows Defender / iptables)
+1. **Pi URL:** In dnd-app → **Settings** → **Cloud backup** (BMO / Google Drive section), set **BMO Pi base URL** and click **Save URL**. That value overrides `BMO_PI_URL` for main-process fetches, cloud sync, and the renderer Content Security Policy—no app restart. If the field is left empty, the app uses `BMO_PI_URL` (environment) or the built-in default `http://bmo.local:5000`.
+2. Test connection: use **Check Status** in the same section (rclone/health) or in-game BMO actions as needed.
+3. Open firewall port 5001 on the DM laptop for BMO callbacks (Windows Defender / iptables) when using Discord sync.
 
 On Pi:
 
@@ -120,7 +119,7 @@ sudo systemctl restart bmo
 
 If broken, check:
 - `bmo/docs/TROUBLESHOOTING.md`
-- `docs/ISSUES-LOG.md`
+- The matching active log: `docs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs); also `docs/BMO-SUGGESTIONS-LOG.md` + `docs/SUGGESTIONS-LOG-DNDAPP.md` for design-gotchas / known-quirks
 - `journalctl -u bmo -f` + dnd-app logs (Help → Open Logs)
 
 ## Next steps

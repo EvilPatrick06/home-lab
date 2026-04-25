@@ -56,8 +56,12 @@ Primary context files, read in order:
 1. [`.cursorrules`](./.cursorrules) — structure map (every dir explained)
 2. [`AGENTS.md`](./AGENTS.md) — cross-tool AI rules
 3. [`docs/LOG-INSTRUCTIONS.md`](./docs/LOG-INSTRUCTIONS.md) — how to log findings (routes to the right log)
-4. [`docs/ISSUES-LOG.md`](./docs/ISSUES-LOG.md) — active bugs / debt
-5. [`docs/SUGGESTIONS-LOG.md`](./docs/SUGGESTIONS-LOG.md) — future ideas + design gotchas
+4. Active issue logs (fully domain-split) — grep both before opening a "new" bug:
+   - [`docs/BMO-ISSUES-LOG.md`](./docs/BMO-ISSUES-LOG.md) — bmo only
+   - [`docs/ISSUES-LOG-DNDAPP.md`](./docs/ISSUES-LOG-DNDAPP.md) — dnd-app only
+5. Active suggestion logs (also domain-split) — future ideas + design gotchas:
+   - [`docs/BMO-SUGGESTIONS-LOG.md`](./docs/BMO-SUGGESTIONS-LOG.md) — bmo only
+   - [`docs/SUGGESTIONS-LOG-DNDAPP.md`](./docs/SUGGESTIONS-LOG-DNDAPP.md) — dnd-app only
 
 Tool-specific: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEMINI.md), [`.github/copilot-instructions.md`](./.github/copilot-instructions.md)
 
@@ -69,9 +73,12 @@ Tool-specific: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEMINI.md), [`.github
 - [`docs/GLOSSARY.md`](./docs/GLOSSARY.md) — beginner term index
 - [`docs/BACKUP.md`](./docs/BACKUP.md) — backup strategy
 - [`docs/LOG-INSTRUCTIONS.md`](./docs/LOG-INSTRUCTIONS.md) — how AI agents + humans log discoveries (triage to right log)
-- [`docs/ISSUES-LOG.md`](./docs/ISSUES-LOG.md) — active bugs, debt, broken config
-- [`docs/SUGGESTIONS-LOG.md`](./docs/SUGGESTIONS-LOG.md) — future ideas, design gotchas, observations
-- [`docs/RESOLVED-ISSUES.md`](./docs/RESOLVED-ISSUES.md) — archive of fixed entries
+- [`docs/BMO-ISSUES-LOG.md`](./docs/BMO-ISSUES-LOG.md) — active bugs / debt — bmo domain
+- [`docs/ISSUES-LOG-DNDAPP.md`](./docs/ISSUES-LOG-DNDAPP.md) — active bugs / debt — dnd-app domain
+- [`docs/BMO-SUGGESTIONS-LOG.md`](./docs/BMO-SUGGESTIONS-LOG.md) — future ideas, design gotchas, observations — bmo domain
+- [`docs/SUGGESTIONS-LOG-DNDAPP.md`](./docs/SUGGESTIONS-LOG-DNDAPP.md) — future ideas, design gotchas, observations — dnd-app domain
+- [`docs/BMO-RESOLVED-ISSUES.md`](./docs/BMO-RESOLVED-ISSUES.md) — archive of fixed bmo entries
+- [`docs/RESOLVED-ISSUES-DNDAPP.md`](./docs/RESOLVED-ISSUES-DNDAPP.md) — archive of fixed dnd-app entries
 
 **Architecture:**
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — how dnd-app + bmo communicate

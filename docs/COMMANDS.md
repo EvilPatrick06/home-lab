@@ -195,6 +195,6 @@ cd ~/home-lab/bmo/pi
 
 - Architecture: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 - Glossary: [`GLOSSARY.md`](./GLOSSARY.md)
-- Known issues: [`ISSUES-LOG.md`](./ISSUES-LOG.md)
+- Known issues: [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) · [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) · [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) · [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md)
 - BMO troubleshoot: [`../bmo/docs/TROUBLESHOOTING.md`](../bmo/docs/TROUBLESHOOTING.md)
 - BMO deploy: [`../bmo/docs/DEPLOY.md`](../bmo/docs/DEPLOY.md)

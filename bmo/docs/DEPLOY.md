@@ -146,6 +146,6 @@ For near-zero-downtime deploys, use `systemctl reload` where supported (not curr
 
 ## Future improvements
 
-- CI/CD: GitHub Actions → SSH to Pi on merge to master (see [`ISSUES-LOG.md`](../../docs/ISSUES-LOG.md) future-idea entries)
+- CI/CD: GitHub Actions → SSH to Pi on merge to master (see [`BMO-SUGGESTIONS-LOG.md`](../../docs/BMO-SUGGESTIONS-LOG.md) future-idea entries)
 - Blue/green: run two BMO instances on :5000 and :5002, swap via a tiny routing proxy — overkill for solo use
 - Container deploy: wrap BMO in Docker, rollback = `docker-compose up -d --force-recreate` of specific image tag

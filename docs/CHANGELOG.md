@@ -8,13 +8,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates i
 
 ### Added
 - Comprehensive AI agent instruction files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.github/copilot-instructions.md`)
-- Full monorepo documentation: `docs/ARCHITECTURE.md`, `docs/DATA-FLOW.md`, `docs/SETUP.md`, `docs/COMMANDS.md`, `docs/GLOSSARY.md`, `docs/BACKUP.md`, `docs/LOG-INSTRUCTIONS.md`, `docs/ISSUES-LOG.md`
+- Full monorepo documentation: `docs/ARCHITECTURE.md`, `docs/DATA-FLOW.md`, `docs/SETUP.md`, `docs/COMMANDS.md`, `docs/GLOSSARY.md`, `docs/BACKUP.md`, `docs/LOG-INSTRUCTIONS.md`, `docs/BMO-ISSUES-LOG.md`, `docs/ISSUES-LOG-DNDAPP.md`, `docs/BMO-SUGGESTIONS-LOG.md`, `docs/SUGGESTIONS-LOG-DNDAPP.md`
 - dnd-app specific docs: `dnd-app/docs/IPC-SURFACE.md`, `dnd-app/docs/PLUGIN-SYSTEM.md`
 - BMO-specific docs: `bmo/docs/AGENTS.md`, `bmo/docs/SERVICES.md`, `bmo/docs/TROUBLESHOOTING.md`, `bmo/docs/DEPLOY.md`, `bmo/docs/SYSTEMD.md`
 - Process docs: `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`, issue + PR templates
 - README files at each domain level
 
 ### Changed
+- **Domain-split issue and suggestion logs:** Replaced monolithic `docs/ISSUES-LOG.md` / `docs/SUGGESTIONS-LOG.md` / `docs/RESOLVED-ISSUES.md` with BMO- and dnd-app-specific files (`BMO-ISSUES-LOG.md`, `ISSUES-LOG-DNDAPP.md`, and matching suggestion + resolved archives). The old three filenames stay as short **redirect stubs** so existing links and bookmarks still resolve; see [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md).
 - **Restructured monorepo into `dnd-app/` + `bmo/` + `_archive/` top-level split**
 - Moved all dnd-app files (src/, scripts/, resources/, Tests→tools/, Phase*.md→docs/phases/, package.json + configs) from repo root into `dnd-app/`
 - Renamed `BMO-setup/` → `bmo/`

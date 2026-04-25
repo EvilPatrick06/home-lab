@@ -50,10 +50,10 @@ When reviewing PRs, check:
 
 ## Issue / PR Templates
 
-Issues should reference `docs/ISSUES-LOG.md` if logging a bug. PRs should:
+Issues should reference the matching active log if logging a bug (per domain — see `docs/LOG-INSTRUCTIONS.md` for the triage table). PRs should:
 - Link related issue
 - Describe what/why (not just what)
-- Note any `ISSUES-LOG.md` entries resolved
+- Note any active-log entries resolved (`BMO-ISSUES-LOG.md` / `ISSUES-LOG-DNDAPP.md` / `BMO-SUGGESTIONS-LOG.md` / `SUGGESTIONS-LOG-DNDAPP.md`)
 
 ## Forbidden Patterns
 
@@ -70,7 +70,7 @@ Issues should reference `docs/ISSUES-LOG.md` if logging a bug. PRs should:
 - Small focused PRs (`<500` line diff when possible)
 - Explicit return types on exported functions
 - Zod runtime validation at trust boundaries (IPC, HTTP, file reads)
-- Log **unfixed or deferred** work to the right log per `docs/LOG-INSTRUCTIONS.md`: `ISSUES-LOG.md` (bugs/debt), `SUGGESTIONS-LOG.md` (ideas/gotchas), or `SECURITY-LOG.md` (security — gitignored). Rule of thumb: if you're fixing it in this PR, don't log it — the commit is the record. If it's out of scope, log it even if minor.
+- Log **unfixed or deferred** work to the right log per `docs/LOG-INSTRUCTIONS.md` (full domain split): `BMO-ISSUES-LOG.md` (bmo bug+debt), `ISSUES-LOG-DNDAPP.md` (dnd-app bug+debt), `BMO-SUGGESTIONS-LOG.md` (bmo ideas/gotchas), `SUGGESTIONS-LOG-DNDAPP.md` (dnd-app ideas/gotchas), or `SECURITY-LOG.md` (security — global, gitignored). `Domain: both` mirrors in BOTH issue logs (or BOTH suggestion logs). Rule of thumb: if you're fixing it in this PR, don't log it — the commit is the record. If it's out of scope, log it even if minor.
 - Add a pytest/vitest case for each bug fix (regression prevention)
 - Use conventional commit prefixes: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, `test:`
 

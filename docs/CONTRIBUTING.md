@@ -7,7 +7,11 @@ Solo-project conventions — open to PRs if they fit the direction.
 1. Read [`../README.md`](../README.md) — project overview
 2. Read [`../.cursorrules`](../.cursorrules) — structure map
 3. Read [`../AGENTS.md`](../AGENTS.md) — AI + coding conventions
-4. Read [`./ISSUES-LOG.md`](./ISSUES-LOG.md) — don't re-discover tracked bugs
+4. Skim the active logs so you don't re-discover tracked bugs:
+   - [`./BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) — bmo bugs / debt
+   - [`./ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) — dnd-app bugs / debt
+   - [`./BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) — bmo gotchas / ideas
+   - [`./SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) — dnd-app gotchas / ideas
 
 ## Dev setup
 
@@ -136,7 +140,7 @@ class TestFunctionName:
 
 - **User-facing?** Add or update `docs/*.md`
 - **Internal architecture?** Add or update `dnd-app/docs/*.md` or `bmo/docs/*.md`
-- **Bug / idea / debt found?** Read [`./LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md) — it routes you to the right log: [`ISSUES-LOG.md`](./ISSUES-LOG.md) (active bugs), [`SUGGESTIONS-LOG.md`](./SUGGESTIONS-LOG.md) (future-ideas + design-gotchas), or [`SECURITY-LOG.md`](./SECURITY-LOG.md) (gitignored). Log minor items too.
+- **Bug / idea / debt found?** Read [`./LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md) — it routes you to the right log per **Domain** + category: bugs go to [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) or [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md); ideas + design-gotchas go to [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) or [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md); security (any domain) goes to [`SECURITY-LOG.md`](./SECURITY-LOG.md) (gitignored). `Domain: both` mirrors in BOTH issue or BOTH suggestion logs. Log minor items too.
 - **AI agent rules?** Update `../AGENTS.md` (applies to all) or tool-specific file (`../CLAUDE.md`, `../GEMINI.md`, `../.cursorrules`, `../.github/copilot-instructions.md`)
 
 ## Commit checklist
@@ -152,7 +156,7 @@ Before pushing:
 - [ ] If touched systemd service file → test restart on Pi
 - [ ] If touched `requirements.txt` or `package.json` → `pip install -r` / `npm install` done locally
 - [ ] Related docs updated (`IPC-SURFACE.md`, `SERVICES.md`, `AGENTS.md`, etc.)
-- [ ] If resolved an `ISSUES-LOG.md` entry → moved to `RESOLVED-ISSUES.md` with commit SHA + resolution (per `LOG-INSTRUCTIONS.md`)
+- [ ] If resolved an entry in any active log → moved to the matching domain resolved file (`BMO-RESOLVED-ISSUES.md` for bmo entries; `RESOLVED-ISSUES-DNDAPP.md` for dnd-app entries; `RESOLVED-SECURITY-ISSUES.md` for security) with commit SHA + resolution (per `LOG-INSTRUCTIONS.md`)
 
 ## Working with AI assistants
 

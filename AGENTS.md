@@ -16,9 +16,12 @@ Both live in the same git repo because they're tightly coupled: BMO narrates D&D
 
 ```bash
 # 1. Always orient yourself first
-cat .cursorrules                           # structure map
-cat docs/ARCHITECTURE.md                   # cross-domain protocol
-cat docs/ISSUES-LOG.md                   # preexisting bugs to avoid re-fixing
+cat .cursorrules                              # structure map
+cat docs/ARCHITECTURE.md                      # cross-domain protocol
+# preexisting bugs (grep both domain logs so you don't re-discover):
+cat docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md
+# preexisting future-ideas / design-gotchas:
+cat docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md
 
 # 2. Work in the right directory
 cd dnd-app   # for VTT work
@@ -97,7 +100,16 @@ Protocol details: `docs/ARCHITECTURE.md`
 
 ## When You Find Bugs / Tech Debt / Ideas
 
-The logs (`docs/ISSUES-LOG.md` for bugs/debt, `docs/SUGGESTIONS-LOG.md` for ideas/gotchas, `docs/SECURITY-LOG.md` for security — gitignored) are for work that **crosses session boundaries**. Before appending, decide:
+The logs are for work that **crosses session boundaries**:
+
+- `docs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
+- `docs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
+- `docs/BMO-SUGGESTIONS-LOG.md` — BMO-domain ideas / design gotchas / info
+- `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas / design gotchas / info
+- `docs/SECURITY-LOG.md` — security (gitignored, any domain)
+- `Domain: both` entries → mirrored in BOTH issue logs (or BOTH suggestion logs). Triage table: `docs/LOG-INSTRUCTIONS.md`
+
+Before appending, decide:
 
 - **Fixing in this session?** → Just fix it. Mention in commit body if non-trivial. Do NOT log — it clutters the log with already-resolved entries.
 - **Out of scope / deferred?** → Log it (even if minor). Do NOT silently fix.
@@ -107,7 +119,7 @@ The logs (`docs/ISSUES-LOG.md` for bugs/debt, `docs/SUGGESTIONS-LOG.md` for idea
 
 1. Reproduce + verify it's preexisting (not caused by your change)
 2. Read `docs/LOG-INSTRUCTIONS.md` for the triage table (which log), template, severity/category guidance, and "log vs fix inline" examples
-3. Append an entry to the right log: `ISSUES-LOG.md` (bugs/debt) | `SUGGESTIONS-LOG.md` (ideas/gotchas) | `SECURITY-LOG.md` (security, gitignored). Minor/optional out-of-scope items count — log them too.
+3. Append an entry to the right log per the **Domain** field — see triage rule in `LOG-INSTRUCTIONS.md`. Minor/optional out-of-scope items count — log them too.
 4. Mention it in your summary/PR but don't fix unless user asks
 
 This keeps the log useful + avoids "while I was here" scope creep AND avoids entries that are stale before they land.

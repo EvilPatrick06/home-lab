@@ -21,7 +21,12 @@ Full protocol: `docs/ARCHITECTURE.md`
 Read in order:
 1. `.cursorrules` — structure map with every directory explained
 2. `AGENTS.md` — standard AI rules (framework, conventions, tests)
-3. `docs/ISSUES-LOG.md` (bugs/debt) + `docs/SUGGESTIONS-LOG.md` (ideas + design gotchas) + `docs/SECURITY-LOG.md` (security, gitignored) — preexisting items so you don't "re-discover" them
+3. Active logs (preexisting items so you don't "re-discover" them):
+   - `docs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
+   - `docs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
+   - `docs/BMO-SUGGESTIONS-LOG.md` — BMO-domain ideas + design gotchas + info
+   - `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas + design gotchas + info
+   - `docs/SECURITY-LOG.md` — security (global, gitignored)
 4. Domain doc: `dnd-app/README.md` or `bmo/README.md`
 
 ### Tool preferences (Claude Code)
@@ -86,7 +91,14 @@ Before appending, decide:
 Then:
 
 1. Read `docs/LOG-INSTRUCTIONS.md` first — triage table (which log), template, severity/category guide, "log vs fix inline" examples
-2. Append to the right log: `ISSUES-LOG.md` (bug/debt/config/perf), `SUGGESTIONS-LOG.md` (future-idea/design-gotcha/info), or `SECURITY-LOG.md` (security — gitignored)
+2. Append to the right log (full domain-split):
+   - bug / debt / config / perf, **Domain: bmo** → `BMO-ISSUES-LOG.md`
+   - bug / debt / config / perf, **Domain: dnd-app** → `ISSUES-LOG-DNDAPP.md`
+   - bug / debt / config / perf, **Domain: both** → mirror in BOTH issue logs
+   - future-idea / design-gotcha / info, **Domain: bmo** → `BMO-SUGGESTIONS-LOG.md`
+   - future-idea / design-gotcha / info, **Domain: dnd-app** → `SUGGESTIONS-LOG-DNDAPP.md`
+   - future-idea / design-gotcha / info, **Domain: both** → mirror in BOTH suggestions logs
+   - security (any domain) → `SECURITY-LOG.md` (gitignored, global)
 
 **Log even minor/optional out-of-scope items.** Patterns across "small" entries often reveal larger problems. Future Claude sessions grep the log for context; don't rely on commit messages alone. But minor items you're fixing right now don't belong in the log — just fix them.
 
@@ -117,7 +129,10 @@ Tasks left as `pending`/`in_progress` at session end are reported as incomplete 
 ### When stuck
 
 Try in order:
-1. `docs/ISSUES-LOG.md` + `docs/SUGGESTIONS-LOG.md` + `docs/SECURITY-LOG.md` — has this been seen before?
+1. Grep all active logs — has this been seen before?
+   ```bash
+   grep -i "<keyword>" docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md docs/SECURITY-LOG.md
+   ```
 2. `bmo/docs/TROUBLESHOOTING.md` — BMO-specific patterns
 3. `git log --oneline -20` — recent changes may give context
 4. Ask the user a focused question (don't flail)

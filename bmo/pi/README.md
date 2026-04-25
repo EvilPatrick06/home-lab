@@ -203,4 +203,4 @@ All BMO code uses canonical paths:
 - Wake: `/home/patrick/home-lab/bmo/pi/wake/`
 - Web: `/home/patrick/home-lab/bmo/pi/web/`
 
-Legacy `~/bmo/` paths have been rewritten. If you find one, it's a bug — log in [`../../docs/ISSUES-LOG.md`](../../docs/ISSUES-LOG.md).
+Legacy `~/bmo/` paths have been rewritten. If you find one, it's a bug — log in [`../../docs/BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md).

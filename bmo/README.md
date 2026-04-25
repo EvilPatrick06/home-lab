@@ -116,7 +116,7 @@ Highlights:
 
 ## Known limitations
 
-Preexisting bugs tracked in [`docs/ISSUES-LOG.md`](../docs/ISSUES-LOG.md). Check there before debugging "something's broken".
+Preexisting bugs tracked in [`docs/BMO-ISSUES-LOG.md`](../docs/BMO-ISSUES-LOG.md) (BMO bugs/debt) and design-gotchas in [`docs/BMO-SUGGESTIONS-LOG.md`](../docs/BMO-SUGGESTIONS-LOG.md). Check there before debugging "something's broken".
 
 ## Testing
 

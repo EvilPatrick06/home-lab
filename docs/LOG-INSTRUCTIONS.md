@@ -2,21 +2,39 @@
 
 How to log discoveries. Read this file BEFORE logging.
 
-> **Instructions file — no actual log entries here.** Entries are split across four logs by topic.
+> **Instructions file — no actual log entries here.** Entries are split across active logs by topic + domain.
 
 ---
 
 ## Which log goes where
 
+Active logs are **fully domain-split** for issues + suggestions. Security stays global (single log, gitignored).
+
 | Log | Tracked? | What goes in it |
 |---|---|---|
-| [`ISSUES-LOG.md`](./ISSUES-LOG.md) | git | **Bugs, tech debt, broken config, perf problems, test failures** — things that are wrong and need fixing. |
-| [`SUGGESTIONS-LOG.md`](./SUGGESTIONS-LOG.md) | git | **Future ideas, design gotchas (`DO NOT X` warnings), info observations** — things that aren't broken but worth remembering. |
-| [`SECURITY-LOG.md`](./SECURITY-LOG.md) | **gitignored** | **Security concerns, hardening backlog, incident notes.** Sensitive — kept local. Never put raw secret values here. |
-| [`RESOLVED-ISSUES.md`](./RESOLVED-ISSUES.md) | git | Archive of completed entries moved out of `ISSUES-LOG.md` / `SUGGESTIONS-LOG.md`. |
+| [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) | git | **BMO-domain bugs, debt, broken config, perf, test failures.** Pi voice assistant + Discord bots + DM engine (Python/Flask/agents/services/wake/MCP). Also Pi-side infra/tooling that BMO depends on. |
+| [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) | git | **dnd-app-domain bugs, debt, broken config, perf, test failures.** Electron VTT (TS/React/Electron/Vite/biome/vitest/Pixi/peerjs/the 5e JSON content set). |
+| [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) | git | **BMO-domain future ideas, design gotchas (`DO NOT X`), info observations.** |
+| [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) | git | **dnd-app-domain future ideas, design gotchas, info observations.** |
+| [`SECURITY-LOG.md`](./SECURITY-LOG.md) | **gitignored** | **Security concerns, hardening backlog, incident notes — any domain (global).** Sensitive — kept local. Never put raw secret values here. |
+| [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) | git | Archive of completed BMO entries (issues + suggestions). |
+| [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) | git | Archive of completed dnd-app entries (issues + suggestions). |
 | [`RESOLVED-SECURITY-ISSUES.md`](./RESOLVED-SECURITY-ISSUES.md) | **gitignored** | Archive of completed entries moved out of `SECURITY-LOG.md`. |
 
-**Triage rule:** Anything tagged `security` (even if also `future-idea`) → `SECURITY-LOG.md`. Anything tagged `design-gotcha`, `future-idea` (non-security), or `info` → `SUGGESTIONS-LOG.md`. Everything else → `ISSUES-LOG.md`.
+**Triage rule:**
+1. `security` (even if also `future-idea`) → `SECURITY-LOG.md` (any domain).
+2. By **Category** + **Domain**:
+
+   |  | Domain `bmo` | Domain `dnd-app` | Domain `both` |
+   |---|---|---|---|
+   | `bug` / `debt` / `config` / `perf` / `test` | `BMO-ISSUES-LOG.md` | `ISSUES-LOG-DNDAPP.md` | **mirror in BOTH** |
+   | `future-idea` / `design-gotcha` / `info` | `BMO-SUGGESTIONS-LOG.md` | `SUGGESTIONS-LOG-DNDAPP.md` | **mirror in BOTH** |
+
+3. Edge-cases:
+   - `Domain: tooling` → file under whichever domain it most affects (most commit hooks / CI / lint configs touch one domain primarily). If genuinely both, mirror.
+   - `Domain: infra` → BMO log (the Pi is BMO's host; pip/npm caches, systemd, host packages, etc.).
+   - `Domain: docs` for repo-root docs (`README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, etc.) → BMO log by default; if it's domain-specific docs, file under that domain.
+   - **`Domain: both` deliberately duplicates** — small cost, big benefit (single grep finds it from either side; one fix removes both copies).
 
 ---
 
@@ -24,13 +42,13 @@ How to log discoveries. Read this file BEFORE logging.
 
 These logs are a living record that survives across AI sessions + human work. They hold:
 
-- Bugs (confirmed + suspected) → `ISSUES-LOG.md`
-- Tech debt → `ISSUES-LOG.md`
-- Future improvements / ideas → `SUGGESTIONS-LOG.md` (or `SECURITY-LOG.md` if security-related)
-- Design gotchas (warnings for future contributors) → `SUGGESTIONS-LOG.md`
-- Security items (incidents, observations, improvement ideas) → `SECURITY-LOG.md`
-- Config drift → `ISSUES-LOG.md`
-- Info / observations → `SUGGESTIONS-LOG.md`
+- Bugs (confirmed + suspected) → issue log per domain (see triage rule)
+- Tech debt → issue log per domain
+- Future improvements / ideas → suggestions log per domain (or `SECURITY-LOG.md` if security-related)
+- Design gotchas (warnings for future contributors) → suggestions log per domain
+- Security items (incidents, observations, improvement ideas) → `SECURITY-LOG.md` (global)
+- Config drift → issue log per domain
+- Info / observations → suggestions log per domain
 - Minor / optional stuff (log it anyway — patterns emerge)
 
 **Log EVERYTHING you find worth remembering.** Better to over-log than miss something. Future grep-ability > concise "nice-to-look-at" log.
@@ -98,7 +116,7 @@ The low threshold applies to things you're NOT fixing. It does not override the 
 
 ## Entry template (copy + fill)
 
-Copy this into `ISSUES-LOG.md` under the appropriate severity section:
+Copy this into the right log per the triage rule above (issues + suggestions are split by domain) under the appropriate severity section:
 
 ```markdown
 ### [YYYY-MM-DD] <short title — what the issue / idea is>
@@ -129,7 +147,7 @@ Copy this into `ISSUES-LOG.md` under the appropriate severity section:
 
 **Related files:** `path/to/file.ts`, `other/file.py`
 
-**Related entries:** <link to other ISSUES-LOG entries by date+title if applicable>
+**Related entries:** <link to other active-log entries by date+title if applicable>
 ```
 
 ---
@@ -169,20 +187,24 @@ Multiple categories allowed: `Category: bug, security` is fine.
 
 ## How to append (practical)
 
-1. **Grep first** — is this already logged in any of the three logs?
+1. **Grep first** — is this already logged in any of the active logs?
    ```bash
-   grep -i "<keyword>" docs/ISSUES-LOG.md docs/SUGGESTIONS-LOG.md docs/SECURITY-LOG.md
+   grep -i "<keyword>" docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md docs/SECURITY-LOG.md
    ```
    If found, don't duplicate. Add a dated comment under the existing entry OR just read and move on.
 
 2. **Pick the right log** per the triage rule above:
-   - Bug / debt / broken config / perf → `ISSUES-LOG.md`
-   - Security (any kind) → `SECURITY-LOG.md` (gitignored)
-   - Design gotcha / future idea / info → `SUGGESTIONS-LOG.md`
+   - Bug / debt / broken config / perf, **Domain: bmo** → `BMO-ISSUES-LOG.md`
+   - Bug / debt / broken config / perf, **Domain: dnd-app** → `ISSUES-LOG-DNDAPP.md`
+   - Bug / debt / broken config / perf, **Domain: both** → mirror in BOTH issue logs
+   - Future-idea / design-gotcha / info, **Domain: bmo** → `BMO-SUGGESTIONS-LOG.md`
+   - Future-idea / design-gotcha / info, **Domain: dnd-app** → `SUGGESTIONS-LOG-DNDAPP.md`
+   - Future-idea / design-gotcha / info, **Domain: both** → mirror in BOTH suggestions logs
+   - Security (any flavor, any domain) → `SECURITY-LOG.md` (gitignored)
 
-3. **Pick severity + section** within that log (entries are grouped by severity).
+3. **Pick severity + section** within that log (issues are grouped by severity; suggestions are grouped by category — Future ideas / Design gotchas / Info).
 
-4. **Insert** the filled template at the top of that severity section (newest first within section).
+4. **Insert** the filled template at the top of that section (newest first).
 
 5. **Also mention** in your PR / commit message: "Logged in <LOG_NAME>: <title>". This makes the entry discoverable from git history too. (Skip this step for `SECURITY-LOG.md` entries — that file isn't tracked, so don't reference it in commit bodies that get pushed.)
 
@@ -190,9 +212,11 @@ Multiple categories allowed: `Category: bug, security` is fine.
 
 ## After fixing a logged issue
 
-1. **Cut** the entry from its active log (don't leave it behind — keeping resolved entries in the active log clutters grep results and obscures what's still open).
+1. **Cut** the entry from its active log (don't leave it behind — keeping resolved entries in the active log clutters grep results and obscures what's still open). For `Domain: both` entries that are mirrored, cut from BOTH active logs.
 2. **Paste** it at the TOP of the matching resolved file (newest first):
-   - From `ISSUES-LOG.md` or `SUGGESTIONS-LOG.md` → [`RESOLVED-ISSUES.md`](./RESOLVED-ISSUES.md) *(tracked)*
+   - From `BMO-ISSUES-LOG.md` / `BMO-SUGGESTIONS-LOG.md` → [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) *(tracked)*
+   - From `ISSUES-LOG-DNDAPP.md` / `SUGGESTIONS-LOG-DNDAPP.md` → [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) *(tracked)*
+   - For `Domain: both` entries, file under the domain whose codebase the fix actually touched (and reference the sibling resolved log in the entry).
    - From `SECURITY-LOG.md` → [`RESOLVED-SECURITY-ISSUES.md`](./RESOLVED-SECURITY-ISSUES.md) *(gitignored — same privacy reason as the active security log)*
 3. Append fix details to the entry:
    ```markdown
@@ -203,7 +227,7 @@ Multiple categories allowed: `Category: bug, security` is fine.
    ```
 4. Rename the original `**Severity:**` line to `**Original severity:**` so the resolved entry doesn't compete with active severity grep.
 
-The active log stays lean; the resolved file preserves history for postmortems and pattern-spotting.
+The active logs stay lean; the resolved files preserve history for postmortems and pattern-spotting.
 
 ---
 
@@ -211,7 +235,7 @@ The active log stays lean; the resolved file preserves history for postmortems a
 
 ### Security entries
 
-**All security entries go in [`SECURITY-LOG.md`](./SECURITY-LOG.md), not `ISSUES-LOG.md`.** That file is gitignored so concerns and incident details stay local.
+**All security entries go in [`SECURITY-LOG.md`](./SECURITY-LOG.md), regardless of domain.** That file is gitignored so concerns and incident details stay local. Security is the only category that's NOT split by domain — keeping a single security log makes it easier to audit attack-surface across the whole repo at once.
 
 Log items like:
 - Missing input validation
@@ -232,9 +256,9 @@ Follow the rotation + purge procedure in [`./SECURITY.md`](./SECURITY.md). Then 
 
 ### Design-gotcha entries
 
-**These go in [`SUGGESTIONS-LOG.md`](./SUGGESTIONS-LOG.md).** For things that LOOK like they should be changed but shouldn't. Save future agents from tempting but broken refactors. Examples:
-- "Don't rename `bmo/pi/bots/` to `discord/` — shadows `discord.py` library"
-- "Don't use `any` to silence the TS error in X — it hides a real validation bug"
+**These go in the matching domain's suggestions log** ([`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) or [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md), or both for `Domain: both`). For things that LOOK like they should be changed but shouldn't. Save future agents from tempting but broken refactors. Examples:
+- "Don't rename `bmo/pi/bots/` to `discord/` — shadows `discord.py` library" → `BMO-SUGGESTIONS-LOG.md`
+- "Don't restructure `dnd-app/src/{main,preload,renderer,shared}/` — electron-vite hardcodes those" → `SUGGESTIONS-LOG-DNDAPP.md`
 
 Format as a warning, high visibility:
 
@@ -254,7 +278,7 @@ Format as a warning, high visibility:
 
 ### Future-idea entries
 
-**Non-security future ideas go in [`SUGGESTIONS-LOG.md`](./SUGGESTIONS-LOG.md). Security-flavored ones (`Category: future-idea, security`) go in [`SECURITY-LOG.md`](./SECURITY-LOG.md).** For nice-to-haves. Tag with rough effort if known:
+**Non-security future ideas go in the matching domain's suggestions log.** Security-flavored ones (`Category: future-idea, security`) go in [`SECURITY-LOG.md`](./SECURITY-LOG.md). For nice-to-haves. Tag with rough effort if known:
 
 ```markdown
 ### [YYYY-MM-DD] Add pre-commit secret scanner
@@ -293,13 +317,21 @@ Keeping instructions here (stable, low-churn) and the logs separate (frequently-
 ## Quick reference
 
 **Log entry:** append to the right log per the triage table at top:
-- bug / debt / config / perf → `docs/ISSUES-LOG.md`
-- security (any flavor) → `docs/SECURITY-LOG.md` *(gitignored)*
-- design-gotcha / future-idea (non-security) / info → `docs/SUGGESTIONS-LOG.md`
+- bug / debt / config / perf — `Domain: bmo` → `docs/BMO-ISSUES-LOG.md`
+- bug / debt / config / perf — `Domain: dnd-app` → `docs/ISSUES-LOG-DNDAPP.md`
+- bug / debt / config / perf — `Domain: both` → mirror in BOTH issue logs
+- future-idea / design-gotcha / info — `Domain: bmo` → `docs/BMO-SUGGESTIONS-LOG.md`
+- future-idea / design-gotcha / info — `Domain: dnd-app` → `docs/SUGGESTIONS-LOG-DNDAPP.md`
+- future-idea / design-gotcha / info — `Domain: both` → mirror in BOTH suggestions logs
+- security (any flavor, any domain) → `docs/SECURITY-LOG.md` *(gitignored)*
 
-**Before fix:** grep all three logs + log if not already present
+**Before fix:** grep all five tracked active logs (above) + `SECURITY-LOG.md`; log if not already present.
 
-**After fix:** move entry from `ISSUES-LOG.md` → `RESOLVED-ISSUES.md` + add commit SHA & resolution
+**After fix:** move entry → matching resolved log:
+- BMO entries (issues + suggestions) → `BMO-RESOLVED-ISSUES.md`
+- dnd-app entries (issues + suggestions) → `RESOLVED-ISSUES-DNDAPP.md`
+- security entries → `RESOLVED-SECURITY-ISSUES.md` (gitignored)
+- Always add commit SHA + resolution.
 
 **Minor stuff:** still log
 

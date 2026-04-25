@@ -31,7 +31,7 @@
 - [ ] `docs/...` if user-facing
 - [ ] `dnd-app/docs/...` or `bmo/docs/...` if internal
 - [ ] `AGENTS.md` / `.cursorrules` if AI-rule change
-- [ ] `docs/ISSUES-LOG.md` — resolved entries moved to `docs/RESOLVED-ISSUES.md` with commit SHA?
+- [ ] If resolving a logged issue — entry moved from active log (`docs/BMO-ISSUES-LOG.md` / `ISSUES-LOG-DNDAPP.md` / `BMO-SUGGESTIONS-LOG.md` / `SUGGESTIONS-LOG-DNDAPP.md`) to the matching domain resolved file (`docs/BMO-RESOLVED-ISSUES.md` or `docs/RESOLVED-ISSUES-DNDAPP.md`) with commit SHA
 - [ ] `docs/CHANGELOG.md` updated
 
 ## Checklist
@@ -45,4 +45,4 @@
 
 ## Related
 
-<!-- Links to related issues, PRs, ISSUES-LOG.md entries, or external docs. -->
+<!-- Links to related issues, PRs, active-log entries (`BMO-ISSUES-LOG.md` / `ISSUES-LOG-DNDAPP.md` / `BMO-SUGGESTIONS-LOG.md` / `SUGGESTIONS-LOG-DNDAPP.md`), or external docs. -->
