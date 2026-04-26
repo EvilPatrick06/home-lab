@@ -21,7 +21,9 @@ export default function ReadyButton(): JSX.Element {
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const connectedPeerIds = useNetworkStore((s) => s.connectedPeerIds)
 
-  const campaign = useCampaignStore.getState().campaigns.find((c) => c.id === campaignId)
+  // Subscribe to the specific campaign so this button re-renders when its
+  // aiDm.enabled flag (or any other field on the campaign) changes.
+  const campaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === campaignId))
   const aiDmEnabled = campaign?.aiDm?.enabled ?? false
   const sceneStatus = useAiDmStore((s) => s.sceneStatus)
 

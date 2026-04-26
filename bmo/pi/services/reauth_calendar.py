@@ -11,6 +11,9 @@ import os
 import requests as http_requests
 from google.oauth2.credentials import Credentials
 
+from services.bmo_logging import get_logger
+log = get_logger("reauth_calendar")
+
 _PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_DIR = os.path.join(_PI_ROOT, "config")
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
@@ -21,7 +24,7 @@ def main():
     token_path = os.path.join(CONFIG_DIR, "token.json")
 
     if not os.path.exists(creds_path):
-        print(f"ERROR: {creds_path} not found")
+        log.warning(f"ERROR: {creds_path} not found")
         return
 
     with open(creds_path) as f:
@@ -42,14 +45,14 @@ def main():
         f"&prompt=consent"
     )
 
-    print()
-    print("=" * 60)
-    print("Open this URL in ANY browser (phone, laptop, etc.):")
-    print()
-    print(auth_url)
-    print()
-    print("=" * 60)
-    print()
+    log.info()
+    log.info("=" * 60)
+    log.info("Open this URL in ANY browser (phone, laptop, etc.):")
+    log.info()
+    log.info(auth_url)
+    log.info()
+    log.info("=" * 60)
+    log.info()
 
     code = input("Paste the authorization code here: ").strip()
 
@@ -67,7 +70,7 @@ def main():
     )
 
     if token_resp.status_code != 200:
-        print(f"ERROR: Token exchange failed: {token_resp.text}")
+        log.warning(f"ERROR: Token exchange failed: {token_resp.text}")
         return
 
     token_data = token_resp.json()
@@ -86,8 +89,8 @@ def main():
     with open(token_path, "w") as f:
         f.write(creds.to_json())
 
-    print(f"\nToken saved to {token_path}")
-    print("Restart BMO to pick up the new token: sudo systemctl restart bmo")
+    log.info(f"\nToken saved to {token_path}")
+    log.info("Restart BMO to pick up the new token: sudo systemctl restart bmo")
 
 
 if __name__ == "__main__":

@@ -59,7 +59,7 @@ cd bmo/pi && ./venv/bin/python -m pytest
 | BMO integration | HTTP client in `src/main/bmo-bridge.ts`. Receives callbacks on port 5001 via sync receiver. |
 | Tests | vitest. `.test.ts(x)` colocated. Run with `npm test`. |
 | Lint | biome (`dnd-app/biome.json`). Run `npm run lint`. |
-| Build | `npm run build` (electron-vite) → `npm run release` (electron-builder for Windows NSIS installer). |
+| Build | `npm run build` (electron-vite) → `npm run build:{win,linux,cross}` (electron-builder NSIS / AppImage+deb). `npm run release{,:linux,:all}` to publish. |
 
 ## bmo/ Guidelines
 

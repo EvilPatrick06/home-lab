@@ -13,11 +13,24 @@ npm run dev        # launches electron + vite dev server with HMR
 
 ## Build for release
 
+Cross-platform: ships as **Windows NSIS installer** + **Linux AppImage** + **Linux .deb**.
+
 ```bash
 npm run build:index            # regenerate chunk index for lazy loading
-npm run build                  # electron-vite build
-npm run release                # builds + electron-builder + publishes to GitHub Releases (Windows NSIS)
+npm run build                  # electron-vite build (no installer; current platform)
+
+# Per-platform builders (no publish — local artifacts in dist/)
+npm run build:win              # Windows NSIS installer
+npm run build:linux            # Linux AppImage + .deb
+npm run build:cross            # Both (requires wine on Linux for cross-compile)
+
+# Release (publishes to GitHub Releases)
+npm run release                # Windows only (current default)
+npm run release:linux          # Linux only
+npm run release:all            # Windows + Linux
 ```
+
+**Auto-update** — `electron-updater` handles updates on Windows (NSIS differential) and Linux (AppImage only; `.deb` is managed by APT). On Linux, the running app must be the AppImage (`process.env.APPIMAGE` set) for in-app update to engage.
 
 ## Test + lint
 

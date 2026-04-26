@@ -185,7 +185,10 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
   const [diceFormula, setDiceFormula] = useState('1d6')
   const [entries, setEntries] = useState<RollTableEntry[]>([{ min: 1, max: 1, text: '' }])
 
-  const campaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === useLobbyStore.getState().campaignId))
+  // Subscribe to both stores reactively — switching campaigns mid-session
+  // would otherwise leave this modal pointing at the previous campaign.
+  const lobbyCampaignId = useLobbyStore((s) => s.campaignId)
+  const campaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === lobbyCampaignId))
   const saveCampaign = useCampaignStore((s) => s.saveCampaign)
   const addChatMessage = useLobbyStore((s) => s.addChatMessage)
 

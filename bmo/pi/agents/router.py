@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from services.bmo_logging import get_logger
+log = get_logger("router")
 
 
 # ── Tier 1: Explicit prefix overrides ───────────────────────────────
@@ -363,7 +365,7 @@ class AgentRouter:
                     return valid
 
         except Exception as e:
-            print(f"[router] LLM classification failed: {e}")
+            log.exception(f"[router] LLM classification failed")
 
         return None
 

@@ -236,7 +236,9 @@ export function handleJoin(
   const provider = state.getGameStateProvider()
   if (provider) {
     try {
-      fullPayload.gameState = provider()
+      // Pass peerInfo so the provider can filter DM-only data for non-host peers
+      // (hidden tokens, unrevealed traps, dm-only handouts/notes, etc.)
+      fullPayload.gameState = provider(peerInfo)
     } catch (e) {
       logger.warn('[HostManager] Failed to get game state for sync:', e)
     }

@@ -2,30 +2,23 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { app } from 'electron'
+// `extract-zip` (yauzl under the hood) — cross-platform, zip-slip-protected,
+// no shell exec. Was previously a transitive dep of electron-builder; we
+// promote it to a direct prod dep so behavior is stable across upgrades.
+import extract from 'extract-zip'
 import { logToFile } from '../log'
 import type { StorageResult } from '../storage/types'
 import { removePluginConfig } from './plugin-config'
 import { getPluginsDir, validateManifest } from './plugin-scanner'
 
-// Use tar-style extraction for zip files via the built-in 'unzipper' approach
-// Since Node.js doesn't have built-in zip support, we'll use a simple approach:
-// Read the file, extract using the yauzl-free approach with streams
-// For simplicity and security, we'll use a pipeline with the 'extract' npm module
-// Actually, Electron apps on Windows can use PowerShell or we can use a minimal approach.
-
-// For maximum compatibility without extra dependencies, we'll use Node.js child_process
-// to call tar (available on Windows 10+ Git Bash) or PowerShell's Expand-Archive.
-import { exec } from 'node:child_process'
-import { promisify } from 'node:util'
-
-const execAsync = promisify(exec)
-
 async function extractZip(zipPath: string, destDir: string): Promise<void> {
   await mkdir(destDir, { recursive: true })
-
-  // Use PowerShell on Windows for zip extraction (no extra deps needed)
-  const psCommand = `Expand-Archive -Path '${zipPath.replace(/'/g, "''")}' -DestinationPath '${destDir.replace(/'/g, "''")}' -Force`
-  await execAsync(`powershell -NoProfile -Command "${psCommand}"`)
+  // `extract-zip` resolves entries against `dir` and rejects any whose
+  // resolved path escapes (zip-slip protection — see yauzl docs / the
+  // CVE-2018-1002201 family). No shell exec → no shell-injection surface
+  // even if `zipPath` contains shell metacharacters from a Linux/macOS
+  // file dialog (filename can contain `"`, `;`, `$`, `\`` etc. on POSIX).
+  await extract(zipPath, { dir: resolve(destDir) })
 }
 
 /**

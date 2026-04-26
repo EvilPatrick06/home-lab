@@ -123,18 +123,40 @@ describe('ConversationManager', () => {
       expect(data.summaries).toEqual([])
     })
 
-    it('restores conversation from serialized data', () => {
+    it('restores conversation in new (post-prune) format unchanged', () => {
+      // New-format data: latest summary's coversUpTo === -1 (summary precedes
+      // all current messages). No migration needed.
       const mgr = new ConversationManager()
       mgr.restore({
         messages: [
           { role: 'user', content: 'Hi', timestamp: '2024-01-01T00:00:00.000Z' },
           { role: 'assistant', content: 'Hello!', timestamp: '2024-01-01T00:00:01.000Z' }
         ],
-        summaries: [{ content: 'Summary of events', coversUpTo: 0 }],
+        summaries: [{ content: 'Summary of events', coversUpTo: -1 }],
         activeCharacterIds: ['char-a']
       })
 
       expect(mgr.getMessageCount()).toBe(2)
+      expect(mgr.getActiveCharacterIds()).toEqual(['char-a'])
+    })
+
+    it('migrates legacy (pre-prune) format on restore — splices the summarized prefix', () => {
+      // Legacy data carries the full unpruned message array plus an absolute
+      // coversUpTo index. Restore should drop the now-summarized prefix so the
+      // post-prune invariant holds.
+      const mgr = new ConversationManager()
+      mgr.restore({
+        messages: [
+          { role: 'user', content: 'Old1', timestamp: '2024-01-01T00:00:00.000Z' },
+          { role: 'assistant', content: 'Old2', timestamp: '2024-01-01T00:00:01.000Z' },
+          { role: 'user', content: 'Fresh1', timestamp: '2024-01-01T00:00:02.000Z' }
+        ],
+        summaries: [{ content: 'Summary of events', coversUpTo: 1 }],
+        activeCharacterIds: ['char-a']
+      })
+
+      // After migration: the 2 summarized msgs are gone, only 'Fresh1' remains
+      expect(mgr.getMessageCount()).toBe(1)
       expect(mgr.getActiveCharacterIds()).toEqual(['char-a'])
     })
 
@@ -144,6 +166,24 @@ describe('ConversationManager', () => {
 
       expect(mgr.getMessageCount()).toBe(0)
       expect(mgr.getActiveCharacterIds()).toEqual([])
+    })
+
+    it('prunes messages array after summarize (caps growth)', async () => {
+      const mgr = new ConversationManager()
+      mgr.setSummarizeCallback(async (text) => `sum(${text.length})`)
+
+      // Push enough messages to trigger summarize (MAX_RECENT_MESSAGES = 10)
+      for (let i = 0; i < 12; i++) {
+        mgr.addMessage(i % 2 === 0 ? 'user' : 'assistant', `msg ${i}`)
+      }
+      expect(mgr.getMessageCount()).toBe(12)
+
+      // getMessagesForApi calls maybeSummarize; assert prune happened
+      await mgr.getMessagesForApi('')
+      expect(mgr.getMessageCount()).toBe(6) // halfPoint was floor(12/2) = 6
+      const data = mgr.serialize()
+      expect(data.summaries).toHaveLength(1)
+      expect(data.summaries[0].coversUpTo).toBe(-1)
     })
   })
 

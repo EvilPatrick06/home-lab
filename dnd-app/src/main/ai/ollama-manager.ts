@@ -92,11 +92,19 @@ export const CURATED_MODELS: CuratedModel[] = [
  * Returns the path if the bundled binary exists, undefined otherwise.
  */
 function getBundledOllamaPath(): string | undefined {
-  // In production, resources are at process.resourcesPath
-  // In dev, check relative to app root
+  // In production, electron-builder's per-platform `extraResources` flattens
+  //   resources/ollama/{linux,windows}/{ollama,ollama.exe}
+  // into the installed app's resources tree, so the runtime path is just
+  //   process.resourcesPath/ollama/{ollama,ollama.exe}
+  // In dev, scripts/build/fetch-ollama.mjs writes the per-platform tree to
+  //   dnd-app/resources/ollama/{linux,windows}/{ollama,ollama.exe}
+  const ollamaName = process.platform === 'win32' ? 'ollama.exe' : 'ollama'
+  const platformDir = process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux'
   const resourcePaths = [
-    join(process.resourcesPath ?? '', 'ollama', 'ollama.exe'),
-    join(app.getAppPath(), 'resources', 'ollama', 'ollama.exe')
+    // Packaged build — flat layout from extraResources `to: ollama/`
+    join(process.resourcesPath ?? '', 'ollama', ollamaName),
+    // Dev — fetch-ollama.mjs writes the per-platform layout
+    join(app.getAppPath(), 'resources', 'ollama', platformDir, ollamaName)
   ]
 
   for (const candidate of resourcePaths) {
@@ -108,8 +116,52 @@ function getBundledOllamaPath(): string | undefined {
 }
 
 /**
+ * Per-platform standard install locations for Ollama.
+ *
+ * - Windows: `LOCALAPPDATA/Programs/Ollama/ollama.exe`, `Program Files`, etc.
+ * - Linux: `/usr/local/bin/ollama` (the official install script's default),
+ *   `/usr/bin/ollama` (some distros), `~/.local/bin/ollama` (user-scoped).
+ * - macOS: `/usr/local/bin/ollama`, `/opt/homebrew/bin/ollama` (Apple Silicon
+ *   Homebrew), `/Applications/Ollama.app/Contents/Resources/ollama` (the
+ *   official .app bundle).
+ */
+function getPlatformInstallCandidates(): string[] {
+  if (process.platform === 'win32') {
+    const localAppData = process.env.LOCALAPPDATA || ''
+    const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
+    return [
+      join(localAppData, 'Programs', 'Ollama', 'ollama.exe'),
+      join(programFiles, 'Ollama', 'ollama.exe'),
+      join(localAppData, 'Ollama', 'ollama.exe')
+    ]
+  }
+  if (process.platform === 'darwin') {
+    const home = process.env.HOME || ''
+    return [
+      '/usr/local/bin/ollama',
+      '/opt/homebrew/bin/ollama',
+      '/Applications/Ollama.app/Contents/Resources/ollama',
+      join(home, '.local', 'bin', 'ollama')
+    ]
+  }
+  // Linux + other POSIX
+  const home = process.env.HOME || ''
+  return [
+    '/usr/local/bin/ollama',
+    '/usr/bin/ollama',
+    '/opt/ollama/bin/ollama',
+    join(home, '.local', 'bin', 'ollama')
+  ]
+}
+
+/**
  * Detect whether Ollama is installed and running.
- * Checks (in order): bundled binary → system install → PATH → running server.
+ *
+ * Checks (in order):
+ *   1. Bundled binary (shipped inside the installer's resources)
+ *   2. Per-platform standard install paths
+ *   3. PATH lookup (`where ollama` on Windows, `which ollama` elsewhere)
+ *   4. Running server on `OLLAMA_BASE_URL`
  */
 export async function detectOllama(): Promise<OllamaStatus> {
   let installed = false
@@ -122,15 +174,9 @@ export async function detectOllama(): Promise<OllamaStatus> {
     path = bundledPath
   }
 
-  // 2. Check common Windows system install paths
+  // 2. Check per-platform system install paths
   if (!installed) {
-    const localAppData = process.env.LOCALAPPDATA || ''
-    const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
-    const candidates = [
-      join(localAppData, 'Programs', 'Ollama', 'ollama.exe'),
-      join(programFiles, 'Ollama', 'ollama.exe'),
-      join(localAppData, 'Ollama', 'ollama.exe')
-    ]
+    const candidates = getPlatformInstallCandidates()
 
     for (const candidate of candidates) {
       if (existsSync(candidate)) {
@@ -141,10 +187,11 @@ export async function detectOllama(): Promise<OllamaStatus> {
     }
   }
 
-  // Also try `where ollama`
+  // 3. Try the PATH-resolution helper for the current platform
   if (!installed) {
     try {
-      const result = execSync('where ollama', { encoding: 'utf-8', timeout: 5000 }).trim()
+      const lookupCmd = process.platform === 'win32' ? 'where ollama' : 'command -v ollama'
+      const result = execSync(lookupCmd, { encoding: 'utf-8', timeout: 5000 }).trim()
       if (result) {
         installed = true
         path = result.split('\n')[0].trim()
@@ -191,8 +238,23 @@ export async function getSystemVram(): Promise<VramInfo> {
 
 /**
  * Download the Ollama installer for Windows.
+ *
+ * Linux and macOS: errors out with an actionable message. Those platforms have
+ * one-line install scripts (`curl -fsSL https://ollama.com/install.sh | sh`) and
+ * package-manager paths (Homebrew on macOS) that don't fit the .exe-installer
+ * model the renderer's "Install Ollama" button assumes. Users on those
+ * platforms install Ollama themselves; the in-app *detect* path then picks it
+ * up automatically.
  */
 export async function downloadOllama(onProgress?: (percent: number) => void): Promise<string> {
+  if (process.platform !== 'win32') {
+    throw new Error(
+      'Ollama installer download is Windows-only. ' +
+        'On Linux: run `curl -fsSL https://ollama.com/install.sh | sh`. ' +
+        'On macOS: install the Ollama.app from https://ollama.com/download or `brew install ollama`. ' +
+        "Then restart this app — it'll auto-detect the installed binary."
+    )
+  }
   const url = 'https://ollama.com/download/OllamaSetup.exe'
   const tempDir = app.getPath('temp')
   const destPath = join(tempDir, 'OllamaSetup.exe')
@@ -233,8 +295,15 @@ export async function downloadOllama(onProgress?: (percent: number) => void): Pr
 /**
  * Run the Ollama silent installer.
  * Only accepts paths under the app's temp directory to prevent arbitrary execution.
+ * Windows-only — see `downloadOllama` for the rationale.
  */
 export async function installOllama(installerPath: string): Promise<void> {
+  if (process.platform !== 'win32') {
+    throw new Error(
+      'Ollama silent install is Windows-only. ' +
+        'See downloadOllama() error for per-platform install steps.'
+    )
+  }
   const resolvedPath = resolve(installerPath)
   const tempDir = resolve(app.getPath('temp'))
   const rel = relative(tempDir, resolvedPath)

@@ -3,6 +3,9 @@
 
 import os
 import sys
+
+from services.bmo_logging import get_logger
+log = get_logger("build_rag_indexes")
 sys.path.insert(0, os.path.expanduser("~/home-lab/bmo/pi"))
 
 from services.rag_search import (
@@ -14,7 +17,7 @@ REF_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/5e-references")
 
 
 def progress(pct, msg):
-    print(f"  [{pct:3d}%] {msg}")
+    log.info(f"  [{pct:3d}%] {msg}")
 
 
 # -- 1. D&D indexes from existing markdown reference books ----------------
@@ -30,17 +33,17 @@ def build_dnd():
                 md_dir = os.path.join(book_dir, entry)
                 break
         if not md_dir:
-            print(f"  ! No markdown dir in {book_dir}, skipping")
+            log.info(f"  ! No markdown dir in {book_dir}, skipping")
             continue
-        print(f"  Building {book}...")
+        log.info(f"  Building {book}...")
         chunks = build_index_from_markdown(md_dir, book, "dnd", on_progress=progress)
         all_chunks.extend(chunks)
-        print(f"    -> {len(chunks)} chunks")
+        log.info(f"    -> {len(chunks)} chunks")
 
     if all_chunks:
         path = os.path.join(RAG_DIR, "chunk-index-dnd.json")
         save_index(all_chunks, path)
-        print(f"  Saved {len(all_chunks)} D&D chunks -> {path}")
+        log.info(f"  Saved {len(all_chunks)} D&D chunks -> {path}")
     return len(all_chunks)
 
 
@@ -357,14 +360,14 @@ DAWs: Ableton Live, FL Studio, Logic Pro, Pro Tools, Reaper, GarageBand. Key con
 
 
 def build_domain(name, markdown_text, source_name):
-    print(f"\n[{name}] Building index...")
+    log.info(f"\n[{name}] Building index...")
     chunks = build_index_from_text(markdown_text, source_name, name)
     if chunks:
         path = os.path.join(RAG_DIR, f"chunk-index-{name}.json")
         save_index(chunks, path)
-        print(f"  Saved {len(chunks)} chunks -> {path}")
+        log.info(f"  Saved {len(chunks)} chunks -> {path}")
     else:
-        print(f"  ! No chunks generated for {name}")
+        log.info(f"  ! No chunks generated for {name}")
     return len(chunks)
 
 
@@ -372,9 +375,9 @@ if __name__ == "__main__":
     os.makedirs(RAG_DIR, exist_ok=True)
     total = 0
 
-    print("=== Building RAG Indexes ===\n")
+    log.info("=== Building RAG Indexes ===\n")
 
-    print("[dnd] Building D&D index from reference books...")
+    log.info("[dnd] Building D&D index from reference books...")
     total += build_dnd()
 
     total += build_domain("anime", ANIME_KB, "anime-knowledge-base")
@@ -382,6 +385,6 @@ if __name__ == "__main__":
     total += build_domain("movies", MOVIES_KB, "movies-knowledge-base")
     total += build_domain("music", MUSIC_KB, "music-knowledge-base")
 
-    print(f"\n=== Done! Total: {total} chunks across 5 domains ===")
-    print(f"Index files in: {RAG_DIR}")
+    log.info(f"\n=== Done! Total: {total} chunks across 5 domains ===")
+    log.info(f"Index files in: {RAG_DIR}")
     os.system(f"ls -la {RAG_DIR}")

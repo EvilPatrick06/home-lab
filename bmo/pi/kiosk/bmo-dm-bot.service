@@ -2,6 +2,8 @@
 Description=BMO DM Discord Bot — D&D Dungeon Master
 After=network-online.target bmo.service
 Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=10
 
 [Service]
 Type=simple
@@ -15,6 +17,24 @@ RestartSec=10
 # Resource limits
 MemoryMax=512M
 CPUQuota=50%
+
+# Sandbox hardening — bot is network + voice only; lock down everything else.
+# `ReadWritePaths` keeps the data dir writable (alarms, recap, etc.) while
+# `ProtectSystem=strict` makes the rest of the FS read-only.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/patrick/home-lab/bmo/pi/data
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+SystemCallArchitectures=native
 
 # Logging — journald (rotation by systemd); also: `journalctl -u bmo-dm-bot -f`
 StandardOutput=journal

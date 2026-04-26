@@ -25,6 +25,9 @@ import sounddevice as sd
 
 from services.cloud_providers import groq_stt, fish_audio_tts
 
+from services.bmo_logging import get_logger
+log = get_logger("voice_pipeline")
+
 MODELS_DIR = os.path.expanduser("~/home-lab/bmo/pi/models")
 os.makedirs(os.path.join(MODELS_DIR, "piper"), exist_ok=True)
 DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
@@ -78,7 +81,7 @@ TTS_PREWARM_PHRASES = [
 
 def _load_voice_settings():
     """Load voice settings from data/settings.json."""
-    settings_path = os.path.join(os.path.dirname(__file__), "data", "settings.json")
+    settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
     try:
         if os.path.exists(settings_path):
             with open(settings_path) as f:
@@ -93,7 +96,7 @@ def _load_voice_settings():
 def _get_wake_model_paths() -> list[str]:
     """Resolve wake word model paths. Prefers custom-trained hey_bmo.onnx."""
     if WAKE_USE_CUSTOM:
-        print(f"[wake] Using custom model: {WAKE_CUSTOM_MODEL}")
+        log.info(f"[wake] Using custom model: {WAKE_CUSTOM_MODEL}")
         return [WAKE_CUSTOM_MODEL]
     import openwakeword
     model_dir = os.path.join(os.path.dirname(openwakeword.__file__), "resources", "models")
@@ -237,9 +240,9 @@ class VoicePipeline:
                 trust_repo=True,
             )
             self._silero_vad = model
-            print("[vad] Silero VAD loaded")
+            log.info("[vad] Silero VAD loaded")
         except Exception as e:
-            print(f"[vad] Silero VAD not available ({e}), using energy-only")
+            log.exception(f"[vad] Silero VAD not available, using energy-only")
         return self._silero_vad
 
     def _silero_check_speech(self, audio_int16: np.ndarray) -> float:
@@ -263,7 +266,7 @@ class VoicePipeline:
                     break  # Early exit — speech confirmed
             return max_prob
         except Exception as e:
-            print(f"[vad] Silero error: {e}")
+            log.exception(f"[vad] Silero error")
             return 1.0
 
     def _load_voice_profiles(self):
@@ -322,7 +325,7 @@ class VoicePipeline:
 
     def _save_voice_settings(self):
         """Persist voice settings to data/settings.json."""
-        settings_path = os.path.join(os.path.dirname(__file__), "data", "settings.json")
+        settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
         try:
             import json as _json
             settings = {}
@@ -341,7 +344,7 @@ class VoicePipeline:
             with open(settings_path, "w") as f:
                 _json.dump(settings, f, indent=2)
         except Exception as e:
-            print(f"[voice] Failed to save settings: {e}")
+            log.exception(f"[voice] Failed to save settings")
 
     # ── Wake Word Detection (always local — must be instant) ──────────
 
@@ -373,7 +376,7 @@ class VoicePipeline:
 
         # Try Porcupine first (best accuracy)
         if PORCUPINE_AVAILABLE:
-            print("[wake] Using Picovoice Porcupine for wake word detection")
+            log.info("[wake] Using Picovoice Porcupine for wake word detection")
             while self._running:
                 try:
                     self._wake_listen_cycle_porcupine()
@@ -382,7 +385,7 @@ class VoicePipeline:
                         time.sleep(0.2)
                         self._on_wake()
                 except Exception as e:
-                    print(f"[wake] Porcupine error: {e}, restarting in 2s...")
+                    log.exception(f"[wake] Porcupine error, restarting in 2s...")
                     time.sleep(2)
             return
 
@@ -399,9 +402,9 @@ class VoicePipeline:
         try:
             oww_model = self._load_wake_model()
             mode = "single-stage" if WAKE_USE_CUSTOM else "OWW + STT confirm"
-            print(f"[wake] Listening for 'hey BMO' ({mode})...")
+            log.info(f"[wake] Listening for 'hey BMO' ({mode})...")
         except Exception as e:
-            print(f"[wake] openwakeword not available ({e}), using energy+STT fallback...")
+            log.exception(f"[wake] openwakeword not available, using energy+STT fallback...")
 
         while self._running:
             try:
@@ -420,7 +423,7 @@ class VoicePipeline:
                     time.sleep(0.2)
                     self._on_wake()
             except Exception as e:
-                print(f"[wake] Listener error: {e}, restarting in 2s...")
+                log.exception(f"[wake] Listener error, restarting in 2s...")
                 time.sleep(2)
 
     def _wake_listen_cycle_porcupine(self):
@@ -458,19 +461,19 @@ class VoicePipeline:
             stream_rate = SAMPLE_RATE
             stream_blocksize = frame_length
             use_resampling = False
-            print(f"[wake] Porcupine mic: direct {SAMPLE_RATE}Hz (no resampling needed)")
+            log.info(f"[wake] Porcupine mic: direct {SAMPLE_RATE}Hz (no resampling needed)")
         except Exception:
             stream_rate = _get_native_input_rate()
             stream_blocksize = int(frame_length * (stream_rate / SAMPLE_RATE))
             use_resampling = True
-            print(f"[wake] Porcupine mic: {stream_rate}Hz → resampling to {SAMPLE_RATE}Hz")
+            log.info(f"[wake] Porcupine mic: {stream_rate}Hz → resampling to {SAMPLE_RATE}Hz")
 
         def audio_callback(indata, frames, time_info, status):
             if status:
-                print(f"[audio] {status}")
+                log.info(f"[audio] {status}")
             self._audio_queue.put(indata.copy())
 
-        print(f"[wake] Porcupine listening for '{wake_phrase}' (frame={frame_length}, sensitivity={PORCUPINE_SENSITIVITY})")
+        log.info(f"[wake] Porcupine listening for '{wake_phrase}' (frame={frame_length}, sensitivity={PORCUPINE_SENSITIVITY})")
 
         try:
             with sd.InputStream(
@@ -507,9 +510,9 @@ class VoicePipeline:
 
                     # Log periodic status + speech-level chunks
                     if chunks_processed <= 3 or chunks_processed % 1000 == 0:
-                        print(f"[wake] Porcupine #{chunks_processed}: rms={rms:.0f}, ambient={self._ambient_rms_avg:.0f}")
+                        log.info(f"[wake] Porcupine #{chunks_processed}: rms={rms:.0f}, ambient={self._ambient_rms_avg:.0f}")
                     elif rms > speech_threshold:
-                        print(f"[wake] SPEECH? rms={rms:.0f} (ambient={self._ambient_rms_avg:.0f})")
+                        log.info(f"[wake] SPEECH? rms={rms:.0f} (ambient={self._ambient_rms_avg:.0f})")
 
                     keyword_index = porcupine.process(chunk)
 
@@ -522,10 +525,10 @@ class VoicePipeline:
                         # Bedtime mode: ignore wake word (mic muted)
                         scene_svc = getattr(self, '_scene_service', None)
                         if scene_svc and scene_svc.get_active() == "bedtime":
-                            print("[wake] Suppressed (bedtime mode) — mic muted")
+                            log.info("[wake] Suppressed (bedtime mode) — mic muted")
                             continue
 
-                        print("[wake] Porcupine detected 'hey BMO'!")
+                        log.info("[wake] Porcupine detected 'hey BMO'!")
                         self._emit("status", {"state": "listening"})
                         # Drain audio queue
                         while not self._audio_queue.empty():
@@ -549,14 +552,14 @@ class VoicePipeline:
         use_resampling = (native_rate != SAMPLE_RATE)
         input_chunk_size = int(chunk_size * (native_rate / SAMPLE_RATE)) if use_resampling else chunk_size
         if use_resampling:
-            print(f"[wake] Mic native rate: {native_rate}Hz, resampling to {SAMPLE_RATE}Hz")
+            log.info(f"[wake] Mic native rate: {native_rate}Hz, resampling to {SAMPLE_RATE}Hz")
 
         def audio_callback(indata, frames, time_info, status):
             if status:
-                print(f"[audio] {status}")
+                log.info(f"[audio] {status}")
             self._audio_queue.put(indata.copy())
 
-        print(f"[wake] Opening mic: rate={native_rate}, blocksize={input_chunk_size}, resampling={use_resampling}")
+        log.info(f"[wake] Opening mic: rate={native_rate}, blocksize={input_chunk_size}, resampling={use_resampling}")
         try:
             mic_stream = sd.InputStream(
                 samplerate=native_rate,
@@ -566,7 +569,7 @@ class VoicePipeline:
                 callback=audio_callback,
             )
         except Exception as e:
-            print(f"[wake] FATAL: Failed to open mic stream: {e}")
+            log.exception(f"[wake] FATAL: Failed to open mic stream")
             time.sleep(2)
             return
 
@@ -581,7 +584,7 @@ class VoicePipeline:
                 chunks_processed += 1
                 if chunks_processed <= 3 or chunks_processed % 100 == 0:
                     rms_dbg = np.sqrt(np.mean(chunk.astype(np.float32) ** 2))
-                    print(f"[wake] Chunk #{chunks_processed}: shape={chunk.shape}, rms={rms_dbg:.0f}")
+                    log.info(f"[wake] Chunk #{chunks_processed}: shape={chunk.shape}, rms={rms_dbg:.0f}")
 
                 if use_resampling:
                     chunk = scipy.signal.resample(
@@ -603,16 +606,16 @@ class VoicePipeline:
                 try:
                     prediction = oww_model.predict(audio_f32)
                 except Exception as e:
-                    print(f"[wake] predict() error: {e}")
+                    log.exception(f"[wake] predict() error")
                     time.sleep(0.5)
                     continue
 
                 triggered = False
                 for key, score in prediction.items():
                     if score > 0.04:  # Only log scores approaching threshold
-                        print(f"[wake] OWW score: {key}={score:.4f} (threshold={WAKE_OWW_THRESHOLD})")
+                        log.info(f"[wake] OWW score: {key}={score:.4f} (threshold={WAKE_OWW_THRESHOLD})")
                     if score > WAKE_OWW_THRESHOLD:
-                        print(f"[wake] OWW triggered: {key}={score:.3f}")
+                        log.info(f"[wake] OWW triggered: {key}={score:.3f}")
                         triggered = True
                         break
 
@@ -629,11 +632,11 @@ class VoicePipeline:
                     ring_audio = np.concatenate(ring_buffer) if ring_buffer else chunk.flatten()
                     speech_prob = self._silero_check_speech(ring_audio)
                     if speech_prob < 0.3:
-                        print(f"[wake] OWW triggered but Silero says no speech (prob={speech_prob:.2f}), ignoring")
+                        log.info(f"[wake] OWW triggered but Silero says no speech (prob={speech_prob:.2f}), ignoring")
                         oww_model.reset()
                         continue
 
-                    print(f"[wake] 'hey BMO' detected (single-stage, VAD={speech_prob:.2f})")
+                    log.info(f"[wake] 'hey BMO' detected (single-stage, VAD={speech_prob:.2f})")
                     self._emit("status", {"state": "listening"})
                     ring_buffer.clear()
                     while not self._audio_queue.empty():
@@ -652,13 +655,13 @@ class VoicePipeline:
                         oww_model.reset()
                         continue
                     text_lower = text.lower().strip()
-                    print(f"[wake] STT confirm: '{text_lower}'")
+                    log.info(f"[wake] STT confirm: '{text_lower}'")
                     is_wake = any(
                         re.search(r'\b' + re.escape(v) + r'\b', text_lower)
                         for v in WAKE_VARIANTS
                     )
                     if is_wake:
-                        print(f"[wake] Confirmed 'hey BMO' in: {text}")
+                        log.info(f"[wake] Confirmed 'hey BMO' in: {text}")
                         self._emit("status", {"state": "listening"})
                         ring_buffer.clear()
                         while not self._audio_queue.empty():
@@ -669,7 +672,7 @@ class VoicePipeline:
                     else:
                         oww_model.reset()
                 except Exception as e:
-                    print(f"[wake] STT confirm failed: {e}")
+                    log.exception(f"[wake] STT confirm failed")
                     oww_model.reset()
 
     def _check_aec(self):
@@ -681,10 +684,10 @@ class VoicePipeline:
                 env={**os.environ, "XDG_RUNTIME_DIR": "/run/user/1000"},
             )
             if "echo-cancel" in result.stdout.lower():
-                print("[aec] Echo cancellation nodes found in PipeWire")
+                log.info("[aec] Echo cancellation nodes found in PipeWire")
             else:
-                print("[aec] WARNING: No echo-cancel nodes found — echo may occur")
-                print("[aec] Consider: pactl load-module module-echo-cancel")
+                log.info("[aec] WARNING: No echo-cancel nodes found — echo may occur")
+                log.info("[aec] Consider: pactl load-module module-echo-cancel")
         except Exception:
             pass
 
@@ -706,7 +709,7 @@ class VoicePipeline:
 
         def audio_callback(indata, frames, time_info, status):
             if status:
-                print(f"[audio] {status}")
+                log.info(f"[audio] {status}")
             self._audio_queue.put(indata.copy())
 
         with sd.InputStream(
@@ -758,7 +761,7 @@ class VoicePipeline:
                 # Silero VAD check — confirm it's actually speech, not just noise
                 speech_prob = self._silero_check_speech(ring_audio)
                 if speech_prob < 0.3:
-                    print(f"[wake] Silero rejected (prob={speech_prob:.2f})")
+                    log.info(f"[wake] Silero rejected (prob={speech_prob:.2f})")
                     continue
 
                 try:
@@ -768,13 +771,13 @@ class VoicePipeline:
                     if not text:
                         continue  # Filtered as hallucination or no speech
                     text_lower = text.lower().strip()
-                    print(f"[wake] STT check: '{text_lower}'")
+                    log.info(f"[wake] STT check: '{text_lower}'")
                     is_wake = any(
                         re.search(r'\b' + re.escape(v) + r'\b', text_lower)
                         for v in WAKE_VARIANTS
                     )
                     if is_wake:
-                        print(f"[wake] Detected 'hey BMO' in: {text}")
+                        log.info(f"[wake] Detected 'hey BMO' in: {text}")
                         self._emit("status", {"state": "listening"})
                         ring_buffer.clear()
                         while not self._audio_queue.empty():
@@ -783,7 +786,7 @@ class VoicePipeline:
                         self._wake_triggered = True
                         return
                 except Exception as e:
-                    print(f"[wake] STT check failed: {e}")
+                    log.exception(f"[wake] STT check failed")
 
     def _pcm_to_wav(self, pcm_bytes: bytes) -> bytes:
         """Convert raw PCM to WAV format for STT."""
@@ -835,7 +838,7 @@ class VoicePipeline:
                     if segments:
                         avg_no_speech = sum(s.get("no_speech_probability", 0) for s in segments) / len(segments)
                         if avg_no_speech > 0.5:
-                            print(f"[wake] Rejected (no_speech_prob={avg_no_speech:.2f}): '{text}'")
+                            log.info(f"[wake] Rejected (no_speech_prob={avg_no_speech:.2f}): '{text}'")
                             return ""
             except Exception:
                 return ""
@@ -902,13 +905,13 @@ class VoicePipeline:
 
             self._tts_worker_active.set()
             if not getattr(self, '_bmo_tts_enabled', True):
-                print(f"[tts-worker] Suppressed (BMO TTS off): {text[:60]}...")
+                log.info(f"[tts-worker] Suppressed (BMO TTS off): {text[:60]}...")
                 self._tts_worker_active.clear()
                 continue
             # Bedtime mode check — suppress TTS unless it's a priority item
             scene_svc = getattr(self, '_scene_service', None)
             if scene_svc and scene_svc.get_active() == "bedtime":
-                print(f"[tts-worker] Suppressed (bedtime mode): {text[:60]}...")
+                log.info(f"[tts-worker] Suppressed (bedtime mode): {text[:60]}...")
                 self._tts_worker_active.clear()
                 continue
             try:
@@ -924,7 +927,7 @@ class VoicePipeline:
                 try:
                     self._edge_speak(text)
                 except Exception as e:
-                    print(f"[tts-worker] All TTS failed: {e}")
+                    log.exception(f"[tts-worker] All TTS failed")
             finally:
                 self._tts_worker_active.clear()
 
@@ -946,7 +949,7 @@ class VoicePipeline:
         self._tts_queue.put(None)
         self._is_speaking = False
         self._emit("status", {"state": "idle"})
-        print("[voice] Interrupted")
+        log.info("[voice] Interrupted")
 
     def _stream_and_speak(self, text_gen) -> str:
         """Consume LLM text stream, buffer sentences, TTS each via worker thread.
@@ -1003,7 +1006,7 @@ class VoicePipeline:
                         tts_text = self._strip_markdown(sentence)
                         if tts_text:
                             sentences_queued += 1
-                            print(f"[stream] Queue sentence {sentences_queued}: {tts_text[:60]}...")
+                            log.info(f"[stream] Queue sentence {sentences_queued}: {tts_text[:60]}...")
                             self._tts_queue.put(tts_text)
 
             remaining = buffer.strip()
@@ -1013,7 +1016,7 @@ class VoicePipeline:
                 tts_text = self._strip_markdown(remaining)
                 if tts_text:
                     sentences_queued += 1
-                    print(f"[stream] Queue final ({sentences_queued}): {tts_text[:60]}...")
+                    log.info(f"[stream] Queue final ({sentences_queued}): {tts_text[:60]}...")
                     self._tts_queue.put(tts_text)
 
             # Signal worker to exit after all sentences are spoken
@@ -1025,7 +1028,7 @@ class VoicePipeline:
 
             return full_text
         except Exception as e:
-            print(f"[stream] Error: {e}")
+            log.exception(f"[stream] Error")
             self._tts_queue.put(None)
             return full_text
         finally:
@@ -1047,14 +1050,14 @@ class VoicePipeline:
         # Minimum energy check — reject if recording is just ambient noise
         rms = np.sqrt(np.mean(audio_data.astype(np.float32) ** 2))
         if rms < 200:
-            print(f"[conv] Rejected recording (rms={rms:.0f}, too quiet for speech)")
+            log.info(f"[conv] Rejected recording (rms={rms:.0f}, too quiet for speech)")
             self._emit("status", {"state": "idle"})
             return None
 
         # Silero VAD check — reject recordings that are just noise, not speech
         speech_prob = self._silero_check_speech(audio_data)
         if speech_prob < 0.4:
-            print(f"[conv] Silero rejected recording (prob={speech_prob:.2f})")
+            log.info(f"[conv] Silero rejected recording (prob={speech_prob:.2f})")
             self._emit("status", {"state": "idle"})
             return None
 
@@ -1067,21 +1070,21 @@ class VoicePipeline:
             _t_spk0 = time.time()
             speaker = self.identify_speaker(temp_path)
             _t_spk1 = time.time()
-            print(f"[timing] identify_speaker() took {_t_spk1 - _t_spk0:.2f}s")
+            log.info(f"[timing] identify_speaker() took {_t_spk1 - _t_spk0:.2f}s")
 
             # Transcribe
             self._emit("status", {"state": "thinking"})
             _t_stt0 = time.time()
             text = self.transcribe(temp_path)
             _t_stt1 = time.time()
-            print(f"[timing] transcribe() took {_t_stt1 - _t_stt0:.2f}s")
+            log.info(f"[timing] transcribe() took {_t_stt1 - _t_stt0:.2f}s")
             if not text or text.strip() == "":
                 self._emit("status", {"state": "idle"})
                 return None
 
-            print(f"[stt] {speaker}: {text}")
+            log.info(f"[stt] {speaker}: {text}")
             if self._is_probable_self_echo(text):
-                print("[echo] Ignoring probable self-heard transcription")
+                log.info("[echo] Ignoring probable self-heard transcription")
                 self._emit("status", {"state": "idle"})
                 return None
             self._emit("transcription", {"speaker": speaker, "text": text})
@@ -1099,7 +1102,7 @@ class VoicePipeline:
             # Ignore unregistered speakers (but only if profiles exist)
             profiles = self._load_voice_profiles()
             if speaker == "unknown" and profiles:
-                print(f"[voice] Ignoring unregistered speaker: '{text[:60]}'")
+                log.info(f"[voice] Ignoring unregistered speaker: '{text[:60]}'")
                 self._emit("status", {"state": "idle"})
                 return None
 
@@ -1113,7 +1116,7 @@ class VoicePipeline:
             if self._chat_stream_callback and not is_closing:
                 try:
                     _t_chat0 = time.time()
-                    print("[timing] calling _chat_stream_callback...")
+                    log.info("[timing] calling _chat_stream_callback...")
                     text_gen = self._chat_stream_callback(text, speaker)
                     response = self._stream_and_speak(text_gen)
                     if response and response.strip():
@@ -1121,16 +1124,16 @@ class VoicePipeline:
                         self._emit("response", {"text": clean, "speaker": speaker})
                         return response
                 except Exception as e:
-                    print(f"[stream] Streaming failed ({e}), falling back to sync")
+                    log.exception(f"[stream] Streaming failed, falling back to sync")
 
             # Sync path: closing phrases and fallback
             if is_follow_up and is_closing:
-                print("[conv] User ended conversation")
+                log.info("[conv] User ended conversation")
                 if self._chat_callback:
                     response = self._chat_callback(text, speaker)
                     if response:
                         tts_text = self._strip_markdown(response)
-                        print(f"[tts] Speaking: {tts_text[:80]}...")
+                        log.info(f"[tts] Speaking: {tts_text[:80]}...")
                         self._emit("response", {"text": tts_text, "speaker": speaker})
                         self.speak(tts_text)
                 self._emit("status", {"state": "idle"})
@@ -1141,7 +1144,7 @@ class VoicePipeline:
                 response = self._chat_callback(text, speaker)
                 if response:
                     tts_text = self._strip_markdown(response)
-                    print(f"[tts] Speaking: {tts_text[:80]}...")
+                    log.info(f"[tts] Speaking: {tts_text[:80]}...")
                     self._emit("response", {"text": tts_text, "speaker": speaker})
                     self.speak(tts_text)
                     # Skip follow-up loop if user said a closing phrase on the first turn
@@ -1151,7 +1154,7 @@ class VoicePipeline:
                     return response
             return None
         except Exception as e:
-            print(f"[wake] Response error: {e}")
+            log.exception(f"[wake] Response error")
             self._emit("status", {"state": "idle"})
             return None
         finally:
@@ -1195,7 +1198,7 @@ class VoicePipeline:
 
         while self._running:
             wait_time = FOLLOW_UP_WAIT_FIRST if exchange_count == 0 else FOLLOW_UP_WAIT
-            print(f"[conv] Listening for follow-up (wait={wait_time}s, exchanges={exchange_count})...")
+            log.info(f"[conv] Listening for follow-up (wait={wait_time}s, exchanges={exchange_count})...")
             self._emit("status", {"state": "follow_up"})
 
             # Wait for speech energy within the follow-up window
@@ -1203,14 +1206,14 @@ class VoicePipeline:
             if not heard_speech:
                 # First follow-up: exit immediately if no speech (most interactions are single-turn)
                 if exchange_count == 0:
-                    print("[conv] No follow-up speech — back to wake word mode")
+                    log.info("[conv] No follow-up speech — back to wake word mode")
                     self._emit("status", {"state": "idle"})
                     self._emit("conversation_mode", {"active": False})
                     return
                 # Subsequent: check inactivity timeout
                 elapsed = _time.monotonic() - last_activity
                 if elapsed >= INACTIVITY_TIMEOUT:
-                    print("[conv] Inactivity timeout — back to wake word mode")
+                    log.info("[conv] Inactivity timeout — back to wake word mode")
                     self._emit("status", {"state": "idle"})
                     self._emit("conversation_mode", {"active": False})
                     return
@@ -1222,7 +1225,7 @@ class VoicePipeline:
             response = self._process_one_turn(is_follow_up=True)
             if response is None:
                 # No speech captured or empty transcription
-                print("[conv] Empty turn — back to wake word mode")
+                log.info("[conv] Empty turn — back to wake word mode")
                 self._emit("status", {"state": "idle"})
                 self._emit("conversation_mode", {"active": False})
                 return
@@ -1297,7 +1300,7 @@ class VoicePipeline:
             m = re.search(pattern, text_lower, re.IGNORECASE)
             if m:
                 name = m.group(1).capitalize()
-                print(f"[voice] Enrollment request detected for: {name}")
+                log.info(f"[voice] Enrollment request detected for: {name}")
                 return name
         return None
 
@@ -1307,11 +1310,11 @@ class VoicePipeline:
     def _validate_enrollment_clip(self, audio_data: np.ndarray) -> bool:
         """Check if an audio clip has enough speech for voice enrollment."""
         if len(audio_data) < self._ENROLLMENT_CLIP_MIN_SAMPLES:
-            print(f"[voice] Clip too short ({len(audio_data)} samples)")
+            log.info(f"[voice] Clip too short ({len(audio_data)} samples)")
             return False
         speech_prob = self._silero_check_speech(audio_data)
         if speech_prob < 0.3:
-            print(f"[voice] Clip rejected by VAD (prob={speech_prob:.2f})")
+            log.info(f"[voice] Clip rejected by VAD (prob={speech_prob:.2f})")
             return False
         return True
 
@@ -1333,9 +1336,9 @@ class VoicePipeline:
                     first_audio = np.frombuffer(raw, dtype=np.int16)
             if self._validate_enrollment_clip(first_audio):
                 clips.append(current_audio_path)
-                print(f"[voice] Enrollment clip 1: OK ({len(first_audio)} samples)")
+                log.info(f"[voice] Enrollment clip 1: OK ({len(first_audio)} samples)")
             else:
-                print("[voice] Enrollment clip 1: rejected (not enough speech)")
+                log.info("[voice] Enrollment clip 1: rejected (not enough speech)")
 
             extra_prompts = [
                 f"Great, keep talking {name}! Tell me about your day.",
@@ -1353,14 +1356,14 @@ class VoicePipeline:
                         self._save_wav(f, audio_data)
                         extra_clips.append(f.name)
                         clips.append(f.name)
-                    print(f"[voice] Enrollment clip {i + 2}: OK ({len(audio_data)} samples)")
+                    log.info(f"[voice] Enrollment clip {i + 2}: OK ({len(audio_data)} samples)")
                 else:
                     reason = "silent" if audio_data is None else "not enough speech"
-                    print(f"[voice] Enrollment clip {i + 2}: rejected ({reason})")
+                    log.info(f"[voice] Enrollment clip {i + 2}: rejected ({reason})")
                     self.speak("I didn't catch that. Speak a little louder or closer!")
 
             if len(clips) < self._MIN_ENROLLMENT_CLIPS:
-                print(f"[voice] Enrollment failed: only {len(clips)} good clips (need {self._MIN_ENROLLMENT_CLIPS})")
+                log.warning(f"[voice] Enrollment failed: only {len(clips)} good clips (need {self._MIN_ENROLLMENT_CLIPS})")
                 return (
                     f"Sorry {name}, I only got {len(clips)} good recording"
                     f"{'s' if len(clips) != 1 else ''}. "
@@ -1374,7 +1377,7 @@ class VoicePipeline:
                 f"I'll recognize you from now on!"
             )
         except Exception as e:
-            print(f"[voice] Enrollment failed: {e}")
+            log.exception(f"[voice] Enrollment failed")
             return "Hmm, I had trouble learning your voice. Let's try again later!"
         finally:
             for path in extra_clips:
@@ -1453,7 +1456,7 @@ class VoicePipeline:
         silence_start = None
         started_speaking = False
         speech_start_time = None
-        print("[record] Recording...")
+        log.info("[record] Recording...")
 
         # Adaptive silence threshold from ambient noise
         ambient = getattr(self, '_ambient_rms_avg', 0.0)
@@ -1499,7 +1502,7 @@ class VoicePipeline:
                             break
 
         elapsed = time.time() - start_time
-        print(f"[record] Done ({elapsed:.1f}s, {len(chunks)} chunks, spoke={started_speaking})")
+        log.info(f"[record] Done ({elapsed:.1f}s, {len(chunks)} chunks, spoke={started_speaking})")
 
         if not started_speaking:
             return None
@@ -1511,7 +1514,7 @@ class VoicePipeline:
             for c in chunks
         ) if chunks else 0
         if max_rms < silence_thresh * 2.0:
-            print(f"[record] Discarded — max RMS {max_rms:.0f} too low (need {silence_thresh * 2.0:.0f})")
+            log.info(f"[record] Discarded — max RMS {max_rms:.0f} too low (need {silence_thresh * 2.0:.0f})")
             return None
 
         return audio
@@ -1557,16 +1560,16 @@ class VoicePipeline:
             try:
                 text = self._local_transcribe(audio_path)
             except Exception as e:
-                print(f"[stt] Local STT failed ({e}), falling back to Groq")
+                log.exception(f"[stt] Local STT failed, falling back to Groq")
                 if _check_cloud():
                     try:
                         text = self._cloud_transcribe(audio_path)
                     except Exception as e2:
-                        print(f"[stt] Groq STT also failed: {e2}")
+                        log.exception(f"[stt] Groq STT also failed")
 
         cleaned = text.strip().lower().rstrip(".,!?")
         if cleaned in self._TRANSCRIPTION_HALLUCINATIONS:
-            print(f"[stt] Filtered hallucination: '{text}'")
+            log.info(f"[stt] Filtered hallucination: '{text}'")
             return ""
         return text
 
@@ -1587,7 +1590,7 @@ class VoicePipeline:
         # Whisper hallucinates on quiet audio (invents "Good morning", "Thank you", etc.)
         rms = np.sqrt(np.mean(audio_int16.astype(np.float32) ** 2))
         if rms < 200:
-            print(f"[stt] Pre-API rejection: audio too quiet (rms={rms:.0f})")
+            log.info(f"[stt] Pre-API rejection: audio too quiet (rms={rms:.0f})")
             return ""
 
         # Check that at least 5% of frames have speech-level energy
@@ -1600,7 +1603,7 @@ class VoicePipeline:
                 speech_frames += 1
         speech_ratio = speech_frames / total_frames
         if speech_ratio < 0.05:
-            print(f"[stt] Pre-API rejection: only {speech_ratio:.0%} speech frames")
+            log.info(f"[stt] Pre-API rejection: only {speech_ratio:.0%} speech frames")
             return ""
 
         processed = self._preprocess_audio(audio_int16)
@@ -1621,12 +1624,12 @@ class VoicePipeline:
         if segments:
             avg_no_speech = sum(s.get("no_speech_probability", 0) for s in segments) / len(segments)
             if avg_no_speech > 0.4:
-                print(f"[stt] Rejected (avg no_speech_prob={avg_no_speech:.2f}): '{text}'")
+                log.info(f"[stt] Rejected (avg no_speech_prob={avg_no_speech:.2f}): '{text}'")
                 return ""
             # Also check avg_logprob — hallucinated text has very low confidence
             avg_logprob = sum(s.get("avg_logprob", 0) for s in segments) / len(segments)
             if avg_logprob < -1.2:
-                print(f"[stt] Rejected (avg_logprob={avg_logprob:.2f}): '{text}'")
+                log.info(f"[stt] Rejected (avg_logprob={avg_logprob:.2f}): '{text}'")
                 return ""
 
         # Short text from long recordings is common with voice commands
@@ -1634,7 +1637,7 @@ class VoicePipeline:
         # Only reject truly trivial single-word outputs from very long recordings
         duration = result.get("duration", 0)
         if duration > 8 and len(text.split()) <= 1:
-            print(f"[stt] Rejected (single word from {duration:.1f}s recording): '{text}'")
+            log.info(f"[stt] Rejected (single word from {duration:.1f}s recording): '{text}'")
             return ""
 
         return text
@@ -1659,17 +1662,17 @@ class VoicePipeline:
         """
         TTS_BYPASS = {"alarm", "timer", "emergency", "critical"}
         if not getattr(self, '_bmo_tts_enabled', True) and priority not in TTS_BYPASS:
-            print(f"[tts] Suppressed (BMO TTS off): {text[:60]}...")
+            log.info(f"[tts] Suppressed (BMO TTS off): {text[:60]}...")
             return
         # Suppress speech during bedtime mode (but allow alarms, timers, emergencies)
         BEDTIME_BYPASS = {"alarm", "timer", "emergency", "critical"}
         scene_svc = getattr(self, '_scene_service', None)
         if scene_svc and scene_svc.get_active() == "bedtime":
             if priority not in BEDTIME_BYPASS:
-                print(f"[tts] Suppressed (bedtime mode): {text[:60]}...")
+                log.info(f"[tts] Suppressed (bedtime mode): {text[:60]}...")
                 return
             else:
-                print(f"[tts] Bedtime bypass ({priority}): {text[:60]}...")
+                log.info(f"[tts] Bedtime bypass ({priority}): {text[:60]}...")
 
         self._emit("status", {"state": "speaking"})
         self._is_speaking = True
@@ -1686,7 +1689,7 @@ class VoicePipeline:
         try:
             cached = self._tts_cache_get(text, speaker)
             if cached:
-                print(f"[tts] Cache hit for: {text[:40]}...")
+                log.info(f"[tts] Cache hit for: {text[:40]}...")
                 self._play_audio(cached)
                 return
 
@@ -1711,23 +1714,23 @@ class VoicePipeline:
                     self._bmo_speak(text, emotion)
                     return
                 except Exception as e:
-                    print(f"[tts] Piper BMO failed ({e}), trying Fish Audio")
+                    log.exception(f"[tts] Piper BMO failed, trying Fish Audio")
 
             try:
                 self._cloud_speak(text, speaker)
                 return
             except Exception as e:
-                print(f"[tts] Fish Audio failed ({e}), trying edge-tts")
+                log.exception(f"[tts] Fish Audio failed, trying edge-tts")
 
             try:
                 self._edge_speak(text)
                 return
             except Exception as e:
-                print(f"[tts] edge-tts failed ({e}), falling back to local")
+                log.exception(f"[tts] edge-tts failed, falling back to local")
 
             self._local_speak(text)
         except Exception as e:
-            print(f"[tts] All TTS failed: {e}")
+            log.exception(f"[tts] All TTS failed")
         finally:
             # Restore persisted volume if we temporarily changed it
             if volume is not None:
@@ -1772,7 +1775,7 @@ class VoicePipeline:
                     f.write(audio_bytes)
             self._tts_cache_evict()
         except Exception as e:
-            print(f"[tts-cache] Save failed: {e}")
+            log.exception(f"[tts-cache] Save failed")
 
     def _tts_cache_evict(self):
         """Evict oldest cache entries if total size exceeds TTS_CACHE_MAX_MB."""
@@ -1797,9 +1800,9 @@ class VoicePipeline:
                     break
                 os.unlink(path)
                 total -= size
-                print(f"[tts-cache] Evicted: {os.path.basename(path)}")
+                log.info(f"[tts-cache] Evicted: {os.path.basename(path)}")
         except Exception as e:
-            print(f"[tts-cache] Eviction error: {e}")
+            log.exception(f"[tts-cache] Eviction error")
 
     def _prewarm_tts_cache(self):
         """Pre-warm TTS cache with common phrases on startup."""
@@ -1827,7 +1830,7 @@ class VoicePipeline:
                 cached += 1
             except Exception:
                 pass
-        print(f"[tts-cache] Pre-warmed {cached}/{len(TTS_PREWARM_PHRASES)} phrases")
+        log.info(f"[tts-cache] Pre-warmed {cached}/{len(TTS_PREWARM_PHRASES)} phrases")
 
     # ── Audio Preprocessing for STT ──────────────────────────────────
 
@@ -1869,7 +1872,7 @@ class VoicePipeline:
         if tts_output == "browser" and self.socketio:
             filename = _os.path.basename(path)
             url = f"/api/tts/audio/{filename}"
-            print(f"[tts] Sending {file_size} bytes to browser: {url}")
+            log.info(f"[tts] Sending {file_size} bytes to browser: {url}")
             self.socketio.emit("tts_audio", {"url": url, "volume": vol})
             # Don't delete file immediately — browser needs time to fetch it
             # Schedule cleanup after 30s
@@ -1880,7 +1883,7 @@ class VoicePipeline:
             threading.Thread(target=_cleanup, daemon=True).start()
             return
 
-        print(f"[tts] Playing {file_size} bytes via ffplay{vol_pct}...")
+        log.info(f"[tts] Playing {file_size} bytes via ffplay{vol_pct}...")
         env = os.environ.copy()
         env["XDG_RUNTIME_DIR"] = "/run/user/1000"
         cmd = ["ffplay", "-nodisp", "-autoexit", "-loglevel", "error"]
@@ -1894,9 +1897,9 @@ class VoicePipeline:
         )
         elapsed = time.time() - start
         if result.returncode != 0:
-            print(f"[tts] ffplay error (rc={result.returncode}, {elapsed:.1f}s): {result.stderr.decode().strip()}")
+            log.warning(f"[tts] ffplay error (rc={result.returncode}, {elapsed:.1f}s): {result.stderr.decode().strip()}")
         else:
-            print(f"[tts] Playback done ({elapsed:.1f}s)")
+            log.info(f"[tts] Playback done ({elapsed:.1f}s)")
 
     def _edge_speak(self, text: str):
         """Generate speech via edge-tts (fast, free) and play locally.
@@ -1921,7 +1924,7 @@ class VoicePipeline:
             _t1 = time.time()
             if result.returncode != 0:
                 raise RuntimeError(f"edge-tts failed: {result.stderr.decode()[:200]}")
-            print(f"[tts] edge-tts generated in {_t1 - _t0:.2f}s")
+            log.info(f"[tts] edge-tts generated in {_t1 - _t0:.2f}s")
             self._play_audio(temp_path)
         finally:
             if getattr(self, "_tts_output_mode", "pi") != "browser":
@@ -1961,7 +1964,7 @@ class VoicePipeline:
 
         if len(chunks) <= 1:
             audio_bytes = fish_audio_tts(chunks[0], voice_id=FISH_AUDIO_VOICE_ID, format="opus")
-            print(f"[tts] Got {len(audio_bytes)} bytes from Fish Audio (opus)")
+            log.info(f"[tts] Got {len(audio_bytes)} bytes from Fish Audio (opus)")
             # Cache single-chunk responses
             self._tts_cache_put(text, speaker, audio_bytes, ext=".opus")
             with tempfile.NamedTemporaryFile(suffix=".opus", delete=False) as f:
@@ -1985,7 +1988,7 @@ class VoicePipeline:
 
             for i, chunk in enumerate(chunks):
                 audio_bytes = next_future.result()
-                print(f"[tts] Got {len(audio_bytes)} bytes from Fish Audio ({i+1}/{len(chunks)})")
+                log.info(f"[tts] Got {len(audio_bytes)} bytes from Fish Audio ({i+1}/{len(chunks)})")
 
                 if i + 1 < len(chunks):
                     next_future = pool.submit(_generate, chunks[i + 1])
@@ -2029,7 +2032,7 @@ class VoicePipeline:
 
         except FileNotFoundError:
             # Fallback: play without pitch shift if sox not available
-            print("[tts] sox not found, playing without pitch shift")
+            log.info("[tts] sox not found, playing without pitch shift")
             subprocess.run(["pw-play", raw_path], capture_output=True)
         finally:
             for p in (raw_path, pitched_path):
@@ -2077,7 +2080,7 @@ class VoicePipeline:
 
             self._play_audio(play_path)
         except FileNotFoundError as e:
-            print(f"[tts] Piper BMO not available: {e}")
+            log.exception(f"[tts] Piper BMO not available")
             raise
         finally:
             for p in (raw_path, prosody_path):
@@ -2112,16 +2115,16 @@ class VoicePipeline:
                     np.dot(embed, profile_embed)
                     / (np.linalg.norm(embed) * np.linalg.norm(profile_embed))
                 )
-                print(f"[speaker] {name}: similarity={similarity:.3f}")
+                log.info(f"[speaker] {name}: similarity={similarity:.3f}")
                 if similarity > 0.75 and similarity > best_score:
                     best_name = name
                     best_score = similarity
 
             if best_name != "unknown":
-                print(f"[speaker] Identified: {best_name} (score={best_score:.2f})")
+                log.info(f"[speaker] Identified: {best_name} (score={best_score:.2f})")
             return best_name
         except Exception as e:
-            print(f"[speaker] Identification failed ({e}), returning unknown")
+            log.exception(f"[speaker] Identification failed, returning unknown")
             return "unknown"
 
     def enroll_speaker(self, name: str, audio_paths: list[str]):
@@ -2141,7 +2144,7 @@ class VoicePipeline:
         self._voice_profiles = profiles
         self._save_voice_profiles_json()
 
-        print(f"[speaker] Enrolled '{name}' from {len(audio_paths)} clips")
+        log.info(f"[speaker] Enrolled '{name}' from {len(audio_paths)} clips")
 
     def get_enrolled_speakers(self) -> list[str]:
         """Return list of enrolled speaker names."""
@@ -2156,7 +2159,7 @@ class VoicePipeline:
         del profiles[name]
         self._voice_profiles = profiles
         self._save_voice_profiles_json()
-        print(f"[speaker] Removed '{name}'")
+        log.info(f"[speaker] Removed '{name}'")
         return True
 
     # ── Helpers ──────────────────────────────────────────────────────

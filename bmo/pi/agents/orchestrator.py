@@ -10,6 +10,9 @@ from agents.base_agent import AgentResult, BaseAgent
 from agents.router import AgentRouter
 from agents.scratchpad import SharedScratchpad
 
+from services.bmo_logging import get_logger
+log = get_logger("orchestrator")
+
 
 class OrchestratorMode(Enum):
     """State machine for the orchestrator."""
@@ -58,7 +61,7 @@ class AgentOrchestrator:
 
             # Skip disabled agents
             if not cfg.get("enabled", True):
-                print(f"[orchestrator] Agent '{agent.config.name}' disabled by settings")
+                log.info(f"[orchestrator] Agent '{agent.config.name}' disabled by settings")
                 return
 
             # Apply overrides (None = keep agent default)
@@ -98,7 +101,7 @@ class AgentOrchestrator:
 
         if agent_override and agent_override != "auto" and agent_override in self.agents:
             agent_name = agent_override
-            print(f"[orchestrator] Agent override: {agent_name}")
+            log.info(f"[orchestrator] Agent override: {agent_name}")
         else:
             agent_name = self.router.route(message)
 
@@ -150,7 +153,7 @@ class AgentOrchestrator:
 
             return result
         except Exception as e:
-            print(f"[orchestrator] Agent '{agent_name}' failed: {e}")
+            log.exception(f"[orchestrator] Agent '{agent_name}' failed")
             return AgentResult(
                 text=f"BMO's {agent_name} agent had a problem: {e}",
                 agent_name=agent_name,
@@ -174,7 +177,7 @@ class AgentOrchestrator:
             if target_agent not in self.agents:
                 continue
 
-            print(f"[orchestrator] Relaying to {target_agent}: {relay_message[:80]}")
+            log.info(f"[orchestrator] Relaying to {target_agent}: {relay_message[:80]}")
             self._emit("agent_relay", {
                 "from": "previous_agent",
                 "to": target_agent,
@@ -285,7 +288,7 @@ class AgentOrchestrator:
             max_steps = self.settings.get("plan_mode.max_plan_steps", 20)
         if len(steps) > max_steps:
             steps = steps[:max_steps]
-            print(f"[orchestrator] Plan truncated to {max_steps} steps (settings limit)")
+            log.info(f"[orchestrator] Plan truncated to {max_steps} steps (settings limit)")
 
         results = []
         failed_step = None

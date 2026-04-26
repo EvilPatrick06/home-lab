@@ -23,22 +23,68 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from flask import Flask, Response, jsonify, render_template, request, send_from_directory
 from flask_socketio import SocketIO
+from services.bmo_logging import get_logger
+log = get_logger("bmo")
 
 # ── App Setup ────────────────────────────────────────────────────────
 
 app = Flask(__name__, template_folder="web/templates", static_folder="web/static")
 
+# Hard cap on inbound request body size — prevents a single bad client from
+# OOM-ing the Pi by streaming an unbounded POST. Per-route validators (for
+# /api/chat etc.) enforce tighter limits on top of this.
+app.config["MAX_CONTENT_LENGTH"] = int(
+    os.environ.get("BMO_MAX_REQUEST_SIZE", str(32 * 1024 * 1024))
+)
+
 
 @app.after_request
 def _cache_policy(response):
-    """Smart caching: static assets cached 1 h, HTML revalidates each load."""
+    """Cache + security headers.
+
+    Cache: static assets cached 1 h, HTML revalidates each load.
+    Security: baseline CSP / frame-options / sniff / referrer / permissions
+    headers so a stray XSS in any rendered field has browser-side mitigation.
+    """
     if "text/html" in response.content_type:
         # HTML: always revalidate (browser still uses ETag / 304)
         response.headers["Cache-Control"] = "no-cache"
     elif request.path.startswith("/static/"):
         # JS / CSS / images: cache 1 hour, revalidate after
         response.headers["Cache-Control"] = "public, max-age=3600, must-revalidate"
+
+    # Defense-in-depth headers (setdefault so per-route can override if needed)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy",
+        "camera=(self), microphone=(self), geolocation=()",
+    )
+    if "text/html" in response.content_type:
+        # 'unsafe-inline' is required for Alpine.js's @click bindings on the
+        # kiosk UI and inline script tags in the IDE template. CDN hosts are
+        # listed for the IDE template's xterm/marked/monaco/socket.io scripts.
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.socket.io; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "img-src 'self' data: blob:; "
+            "font-src 'self' data: https://cdn.jsdelivr.net; "
+            "connect-src 'self' ws: wss:; "
+            "frame-ancestors 'self'; "
+            "base-uri 'self'; "
+            "object-src 'none'",
+        )
     return response
+
+
+# /api/chat input limits. Per-IP rate-limiting is a future-idea (see
+# BMO-SUGGESTIONS-LOG.md) — a per-handler size cap + speaker allowlist
+# block the worst economic-attack shape today.
+MAX_CHAT_MESSAGE_LEN = int(os.environ.get("BMO_MAX_CHAT_MESSAGE_LEN", "16384"))
+ALLOWED_CHAT_SPEAKERS = {"player", "dm", "discord", "kiosk", "user", "unknown"}
 
 
 def _get_secret_key() -> str:
@@ -182,7 +228,7 @@ def init_services():
 
     from agent import BmoAgent
 
-    print("[bmo] Initializing services...")
+    log.info("[bmo] Initializing services...")
 
     service_map = {}
 
@@ -196,9 +242,9 @@ def init_services():
         led_controller = LedController()
         led_controller.start()
         service_map["leds"] = led_controller
-        print("[bmo]   LED controller: OK")
+        log.info("[bmo]   LED controller: OK")
     except Exception as e:
-        print(f"[bmo]   LED controller: SKIPPED ({e})")
+        log.exception(f"[bmo]   LED controller: SKIPPED")
 
     # OLED face display
     oled_face = None
@@ -208,9 +254,9 @@ def init_services():
         oled_face.start()
         service_map["oled_face"] = oled_face
         oled_face.set_expression("warmup")
-        print("[bmo]   OLED face: OK (warmup)")
+        log.info("[bmo]   OLED face: OK (warmup)")
     except Exception as e:
-        print(f"[bmo]   OLED face: SKIPPED ({e})")
+        log.exception(f"[bmo]   OLED face: SKIPPED")
 
     # Voice pipeline (requires pyaudio/mic hardware)
     try:
@@ -220,36 +266,36 @@ def init_services():
         if saved_voice_vol is not None:
             voice._speak_volume = int(saved_voice_vol)
         service_map["voice"] = voice
-        print("[bmo]   Voice pipeline: OK")
+        log.info("[bmo]   Voice pipeline: OK")
     except Exception as e:
-        print(f"[bmo]   Voice pipeline: SKIPPED ({e})")
+        log.exception(f"[bmo]   Voice pipeline: SKIPPED")
 
     # Camera (requires picamera2)
     try:
         from hardware.camera_service import CameraService
         camera = CameraService(socketio=socketio)
         service_map["camera"] = camera
-        print("[bmo]   Camera: OK")
+        log.info("[bmo]   Camera: OK")
     except Exception as e:
-        print(f"[bmo]   Camera: SKIPPED ({e})")
+        log.exception(f"[bmo]   Camera: SKIPPED")
 
     # Smart home / Chromecast
     try:
         from services.smart_home import SmartHomeService
         smart_home = SmartHomeService(socketio=socketio)
         service_map["smart_home"] = smart_home
-        print("[bmo]   Smart home: OK")
+        log.info("[bmo]   Smart home: OK")
     except Exception as e:
-        print(f"[bmo]   Smart home: SKIPPED ({e})")
+        log.exception(f"[bmo]   Smart home: SKIPPED")
 
     # Calendar (Google API)
     try:
         from services.calendar_service import CalendarService
         calendar = CalendarService(socketio=socketio)
         service_map["calendar"] = calendar
-        print("[bmo]   Calendar: OK")
+        log.info("[bmo]   Calendar: OK")
     except Exception as e:
-        print(f"[bmo]   Calendar: SKIPPED ({e})")
+        log.exception(f"[bmo]   Calendar: SKIPPED")
 
     # Dynamic location/timezone
     try:
@@ -257,39 +303,40 @@ def init_services():
         location_service = LocationService()
         location_service.start_polling()
         current_loc = location_service.get_location()
-        print(
-            f"[bmo]   Location: OK ({current_loc.get('location_label') or current_loc.get('timezone', 'unknown')})"
+        log.info(
+            "[bmo]   Location: OK (%s)",
+            current_loc.get("location_label") or current_loc.get("timezone", "unknown"),
         )
-    except Exception as e:
+    except Exception:
         location_service = None
-        print(f"[bmo]   Location: SKIPPED ({e})")
+        log.exception("[bmo]   Location: SKIPPED")
 
     # Weather
     try:
         from services.weather_service import WeatherService
         weather = WeatherService(socketio=socketio, location_service=location_service)
         service_map["weather"] = weather
-        print("[bmo]   Weather: OK")
+        log.info("[bmo]   Weather: OK")
     except Exception as e:
-        print(f"[bmo]   Weather: SKIPPED ({e})")
+        log.exception(f"[bmo]   Weather: SKIPPED")
 
     # Audio output routing (before music so music can use it)
     try:
         from services.audio_output_service import AudioOutputService
         audio_service = AudioOutputService()
         service_map["audio"] = audio_service
-        print("[bmo]   Audio output: OK")
+        log.info("[bmo]   Audio output: OK")
     except Exception as e:
-        print(f"[bmo]   Audio output: SKIPPED ({e})")
+        log.exception(f"[bmo]   Audio output: SKIPPED")
 
     # Music (requires ytmusicapi/vlc)
     try:
         from services.music_service import MusicService
         music = MusicService(smart_home=smart_home, socketio=socketio, audio_service=audio_service)
         service_map["music"] = music
-        print("[bmo]   Music: OK")
+        log.info("[bmo]   Music: OK")
     except Exception as e:
-        print(f"[bmo]   Music: SKIPPED ({e})")
+        log.exception(f"[bmo]   Music: SKIPPED")
 
     # Timers
     try:
@@ -300,14 +347,14 @@ def init_services():
         if saved_alarm_vol is not None:
             timers.alarm_volume = int(saved_alarm_vol)
         service_map["timers"] = timers
-        print("[bmo]   Timers: OK")
+        log.info("[bmo]   Timers: OK")
     except Exception as e:
-        print(f"[bmo]   Timers: SKIPPED ({e})")
+        log.exception(f"[bmo]   Timers: SKIPPED")
 
     # Agent (core — always required)
-    print("[bmo]   Creating agent...")
+    log.info("[bmo]   Creating agent...")
     agent = BmoAgent(services=service_map, socketio=socketio)
-    print("[bmo]   Agent: OK")
+    log.info("[bmo]   Agent: OK")
 
     # Start background services that loaded successfully
     if smart_home:
@@ -315,7 +362,7 @@ def init_services():
         # crashes repeatedly and disrupts PipeWire/Bluetooth audio.
         # Discovery runs lazily on first Cast API call instead.
         # smart_home.start_discovery()
-        print("[bmo]   Smart home: ready (discovery on-demand)")
+        log.info("[bmo]   Smart home: ready (discovery on-demand)")
     if calendar:
         calendar.start_polling()
     if weather:
@@ -328,12 +375,12 @@ def init_services():
             env={**os.environ, "XDG_RUNTIME_DIR": "/run/user/1000",
                  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus"},
         )
-        print("[bmo]   Mic gain: 150%")
+        log.info("[bmo]   Mic gain: 150%")
     except Exception as e:
-        print(f"[bmo]   Mic gain set failed: {e}")
+        log.exception(f"[bmo]   Mic gain set failed")
 
     if voice:
-        print("[bmo]   Starting voice listener...")
+        log.info("[bmo]   Starting voice listener...")
         def _voice_chat(text, speaker="unknown"):
             """Process voice input through the chat agent."""
             try:
@@ -351,7 +398,7 @@ def init_services():
                 result = agent.chat(text, speaker=speaker, client_timezone=_pi_timezone())
                 return result.get("text", "")
             except Exception as e:
-                print(f"[voice] Chat error: {e}")
+                log.exception(f"[voice] Chat error")
                 return ""
         voice._chat_callback = _voice_chat
 
@@ -360,7 +407,7 @@ def init_services():
             try:
                 return agent.chat_stream(text, speaker=speaker, client_timezone=_pi_timezone())
             except Exception as e:
-                print(f"[voice] Stream chat error: {e}")
+                log.exception(f"[voice] Stream chat error")
                 return iter([])
         voice._chat_stream_callback = _voice_chat_stream
 
@@ -427,20 +474,20 @@ def init_services():
         from services.monitoring import HealthChecker
         health_checker = HealthChecker(socketio=socketio, check_interval=60)
         health_checker.start()
-        print("[bmo]   Health checker: OK (60s interval)")
+        log.info("[bmo]   Health checker: OK (60s interval)")
     except Exception as e:
-        print(f"[bmo]   Health checker: SKIPPED ({e})")
+        log.exception(f"[bmo]   Health checker: SKIPPED")
 
     # Start KDE Connect daemon (needed for notification bridge)
     try:
         import shutil
         if shutil.which("kdeconnectd"):
             subprocess.Popen(["kdeconnectd"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            print("[bmo]   KDE Connect daemon: started")
+            log.info("[bmo]   KDE Connect daemon: started")
         else:
-            print("[bmo]   KDE Connect daemon: not installed")
+            log.info("[bmo]   KDE Connect daemon: not installed")
     except Exception as e:
-        print(f"[bmo]   KDE Connect daemon: SKIPPED ({e})")
+        log.exception(f"[bmo]   KDE Connect daemon: SKIPPED")
 
     # Notification service (KDE Connect bridge)
     try:
@@ -448,60 +495,60 @@ def init_services():
         notifier = NotificationService(voice_pipeline=voice, socketio=socketio)
         notifier.start()
         service_map["notifier"] = notifier
-        print("[bmo]   Notifications: OK")
+        log.info("[bmo]   Notifications: OK")
     except Exception as e:
-        print(f"[bmo]   Notifications: SKIPPED ({e})")
+        log.exception(f"[bmo]   Notifications: SKIPPED")
 
     # Scene mode engine
     def _scene_tv_send_key(key):
         if _tv_remote or os.path.exists(_TV_CERTFILE):
             r = _tv_cmd("send_key", key=key)
             if r.get("error"):
-                print(f"[scene] TV key failed: {r['error']}")
+                log.info(f"[scene] TV key failed: {r['error']}")
 
     def _scene_tv_launch(app_name):
         url = TV_APPS.get(app_name, "")
         if url and (_tv_remote or os.path.exists(_TV_CERTFILE)):
             r = _tv_cmd("launch_app", uri=url)
             if r.get("error"):
-                print(f"[scene] TV launch failed: {r['error']}")
+                log.info(f"[scene] TV launch failed: {r['error']}")
 
     def _scene_tv_power_on():
         """Turn TV on only if it's currently off (queries live status)."""
         global _tv_is_on
         if not (_tv_remote or os.path.exists(_TV_CERTFILE)):
-            print("[scene] TV not connected — pair first")
+            log.info("[scene] TV not connected — pair first")
             return False
         status = _tv_cmd("status")
         is_on = status.get("is_on")
         if is_on is True:
-            print("[scene] TV already on, skipping POWER")
+            log.info("[scene] TV already on, skipping POWER")
             return True
         r = _tv_cmd("send_key", key="POWER")
         if not r.get("error"):
             _tv_is_on = True
-            print("[scene] TV powered on")
+            log.info("[scene] TV powered on")
             return True
-        print(f"[scene] TV power on failed: {r.get('error')}")
+        log.info(f"[scene] TV power on failed: {r.get('error')}")
         return False
 
     def _scene_tv_power_off():
         """Turn TV off only if it's currently on (queries live status)."""
         global _tv_is_on
         if not (_tv_remote or os.path.exists(_TV_CERTFILE)):
-            print("[scene] TV not connected — pair first")
+            log.info("[scene] TV not connected — pair first")
             return False
         status = _tv_cmd("status")
         is_on = status.get("is_on")
         if is_on is False:
-            print("[scene] TV already off, skipping POWER")
+            log.info("[scene] TV already off, skipping POWER")
             return True
         r = _tv_cmd("send_key", key="POWER")
         if not r.get("error"):
             _tv_is_on = False
-            print("[scene] TV powered off")
+            log.info("[scene] TV powered off")
             return True
-        print(f"[scene] TV power off failed: {r.get('error')}")
+        log.info(f"[scene] TV power off failed: {r.get('error')}")
         return False
 
     service_map["tv_send_key"] = _scene_tv_send_key
@@ -516,25 +563,25 @@ def init_services():
         service_map["scenes"] = scene_service
         if voice:
             voice._scene_service = scene_service
-        print("[bmo]   Scene engine: OK")
+        log.info("[bmo]   Scene engine: OK")
     except Exception as e:
-        print(f"[bmo]   Scene engine: SKIPPED ({e})")
+        log.exception(f"[bmo]   Scene engine: SKIPPED")
 
     # List service
     try:
         from services.list_service import ListService
         list_service = ListService()
         service_map["lists"] = list_service
-        print("[bmo]   List service: OK")
+        log.info("[bmo]   List service: OK")
     except Exception as e:
-        print(f"[bmo]   List service: SKIPPED ({e})")
+        log.exception(f"[bmo]   List service: SKIPPED")
 
     # Alert service
     try:
         from services.alert_service import AlertService
         alert_service = AlertService(voice_pipeline=voice, socketio=socketio)
         service_map["alerts"] = alert_service
-        print("[bmo]   Alert service: OK")
+        log.info("[bmo]   Alert service: OK")
         # Wire alert service into existing services (created earlier)
         if weather:
             weather.alert_service = alert_service
@@ -543,7 +590,7 @@ def init_services():
         if notifier:
             notifier.alert_service = alert_service
     except Exception as e:
-        print(f"[bmo]   Alert service: SKIPPED ({e})")
+        log.exception(f"[bmo]   Alert service: SKIPPED")
 
     # Routine service
     try:
@@ -554,14 +601,14 @@ def init_services():
             socketio=socketio,
         )
         service_map["routines"] = routine_service
-        print("[bmo]   Routine service: OK")
+        log.info("[bmo]   Routine service: OK")
     except Exception as e:
-        print(f"[bmo]   Routine service: SKIPPED ({e})")
+        log.exception(f"[bmo]   Routine service: SKIPPED")
 
     # Start routine scheduler
     if routine_service:
         routine_service.start()
-        print("[bmo]   Routine scheduler: started")
+        log.info("[bmo]   Routine scheduler: started")
 
     # Personality engine
     try:
@@ -574,26 +621,26 @@ def init_services():
         )
         personality_engine.start()
         service_map["personality"] = personality_engine
-        print("[bmo]   Personality engine: OK")
+        log.info("[bmo]   Personality engine: OK")
     except Exception as e:
-        print(f"[bmo]   Personality engine: SKIPPED ({e})")
+        log.exception(f"[bmo]   Personality engine: SKIPPED")
 
     # Restore system (PipeWire) volume from saved settings
     saved_sys_vol = _load_setting("volume.system", None)
     if saved_sys_vol is not None:
         _set_system_volume(int(saved_sys_vol))
-        print(f"[bmo]   System volume restored: {saved_sys_vol}%")
+        log.info(f"[bmo]   System volume restored: {saved_sys_vol}%")
 
-    print("[bmo] All services initialized!")
+    log.info("[bmo] All services initialized!")
 
     # Warm up Ollama models at startup (brenpoly pattern: keep_alive=-1 preloads into RAM)
     try:
         import ollama as _ollama
         from agent import LOCAL_MODEL
         _ollama.generate(model=LOCAL_MODEL, prompt="", keep_alive=-1)
-        print(f"[bmo]   Ollama model warmed up: {LOCAL_MODEL}")
+        log.info(f"[bmo]   Ollama model warmed up: {LOCAL_MODEL}")
     except Exception as e:
-        print(f"[bmo]   Ollama warmup skipped: {e}")
+        log.exception(f"[bmo]   Ollama warmup skipped")
 
     # Set OLED to warmup expression during init, then idle
     if oled_face:
@@ -912,7 +959,8 @@ def api_wifi_scan():
         networks = _wifi_scan_networks(iface)
         return jsonify({"interface": iface, "networks": networks})
     except RuntimeError as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/wifi/connect", methods=["POST"])
@@ -978,7 +1026,8 @@ def api_service_restart():
         else:
             return jsonify({"error": f"Unknown target: {target}"}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/service/restart-all", methods=["POST"])
@@ -1096,8 +1145,16 @@ def api_chat():
     message = data.get("message", "")
     speaker = data.get("speaker", "unknown")
 
-    if not message:
+    if not isinstance(message, str) or not message:
         return jsonify({"error": "No message provided"}), 400
+    if len(message) > MAX_CHAT_MESSAGE_LEN:
+        return jsonify({
+            "error": f"message too large (max {MAX_CHAT_MESSAGE_LEN} chars)"
+        }), 413
+    # Speaker allowlist — prevents downstream agents from being tricked by
+    # a spoofed `speaker == "DM"` / `"system"` field.
+    if not isinstance(speaker, str) or speaker.lower() not in ALLOWED_CHAT_SPEAKERS:
+        speaker = "unknown"
 
     # Save user message immediately
     _save_chat_message({"role": "user", "text": message, "speaker": speaker, "ts": time.time()})
@@ -1116,6 +1173,27 @@ def api_chat():
     return jsonify(result)
 
 
+_DND_ALLOWED_DATA_ROOTS = [
+    os.path.realpath(os.path.expanduser("~/home-lab/bmo/pi/data")),
+    os.path.realpath(os.path.expanduser("~/home-lab/dnd-app/src/renderer/public/data")),
+]
+
+
+def _safe_dnd_path(raw: str) -> str:
+    """Realpath-jail a DnD asset path to ~/home-lab/bmo/pi/data or the
+    dnd-app shared data tree. Anything else (especially `/etc/passwd`,
+    `~/.ssh/...`, `~/home-lab/bmo/pi/.env`, `/home/patrick/home-lab/bmo/pi/config/token.json`)
+    is rejected. Allows `..` segments inside the allowed roots — load_dnd_context
+    needs that for nested character files."""
+    if not isinstance(raw, str) or not raw:
+        raise PermissionError("path is required")
+    resolved = os.path.realpath(os.path.expanduser(raw))
+    for root in _DND_ALLOWED_DATA_ROOTS:
+        if resolved == root or resolved.startswith(root + os.sep):
+            return resolved
+    raise PermissionError(f"path outside DnD content sandbox: {resolved}")
+
+
 @app.route("/api/dnd/load", methods=["POST"])
 def api_dnd_load():
     """Manually load DnD context with character files and map selection."""
@@ -1124,10 +1202,18 @@ def api_dnd_load():
     maps_dir = data.get("maps_dir", "")
     chosen_map = data.get("map", None)
 
-    if not char_paths:
+    if not char_paths or not isinstance(char_paths, list):
         return jsonify({"error": "No character file paths provided"}), 400
+    if len(char_paths) > 32:
+        return jsonify({"error": "Too many character paths (max 32)"}), 400
 
-    selected_map = agent.load_dnd_context(char_paths, maps_dir, chosen_map)
+    try:
+        safe_chars = [_safe_dnd_path(p) for p in char_paths]
+        safe_maps_dir = _safe_dnd_path(maps_dir) if maps_dir else ""
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
+
+    selected_map = agent.load_dnd_context(safe_chars, safe_maps_dir, chosen_map)
     return jsonify({"ok": True, "map": selected_map})
 
 
@@ -1167,7 +1253,8 @@ def api_dnd_session_get(date):
             messages = json.load(f)
         return jsonify(messages)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/dnd/sessions/<date>/restore", methods=["POST"])
@@ -1195,10 +1282,11 @@ def api_dnd_session_restore(date):
         try:
             recap = agent.generate_session_recap(messages)
         except Exception as e:
-            print(f"[chat] Recap generation failed: {e}")
+            log.exception(f"[chat] Recap generation failed")
         return jsonify({"ok": True, "messages_restored": len(messages), "recap": recap})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/dnd/gamestate")
@@ -1426,7 +1514,8 @@ def api_music_album(browse_id):
     try:
         return jsonify(music.get_album(browse_id))
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/music/playlist/<browse_id>")
@@ -1434,7 +1523,8 @@ def api_music_playlist(browse_id):
     try:
         return jsonify(music.get_playlist(browse_id))
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/music/search/playlists")
@@ -1445,7 +1535,7 @@ def api_music_search_playlists():
     try:
         return jsonify(music.search_playlists(query))
     except Exception as e:
-        print(f"[music] Playlist search error: {e}")
+        log.exception(f"[music] Playlist search error")
         return jsonify([])
 
 
@@ -1551,10 +1641,10 @@ def _ensure_calendar_credentials_path() -> str:
     if os.path.exists(legacy_path):
         try:
             shutil.copy2(legacy_path, local_path)
-            print(f"[calendar] migrated credentials.json from legacy path: {legacy_path}")
+            log.info(f"[calendar] migrated credentials.json from legacy path: {legacy_path}")
             return local_path
         except OSError as e:
-            print(f"[calendar] failed to migrate credentials.json: {e}")
+            log.exception(f"[calendar] failed to migrate credentials.json")
             return legacy_path
 
     return local_path
@@ -1571,10 +1661,10 @@ def _ensure_calendar_token_path() -> str:
     if os.path.exists(legacy_path):
         try:
             shutil.copy2(legacy_path, local_path)
-            print(f"[calendar] migrated token.json from legacy path: {legacy_path}")
+            log.info(f"[calendar] migrated token.json from legacy path: {legacy_path}")
             return local_path
         except OSError as e:
-            print(f"[calendar] failed to migrate token.json: {e}")
+            log.exception(f"[calendar] failed to migrate token.json")
             return legacy_path
 
     return local_path
@@ -1596,7 +1686,7 @@ def _calendar_merge_token_data(new_token_data: dict, existing_token_data: dict |
     existing = existing_token_data or {}
     if not merged.get("refresh_token") and existing.get("refresh_token"):
         merged["refresh_token"] = existing["refresh_token"]
-        print("[calendar] preserving existing refresh_token from prior token.json")
+        log.info("[calendar] preserving existing refresh_token from prior token.json")
     return merged
 
 
@@ -1679,7 +1769,8 @@ def api_calendar_auth_url():
             }
         )
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 def _calendar_auth_html(success: bool, message: str) -> str:
@@ -1853,7 +1944,7 @@ def api_calendar_auth_callback():
         if not creds.token:
             return jsonify({"error": "Token exchange returned no access token"}), 400
 
-        print(f"[calendar] Exchanging auth code: {code[:20]}...")
+        log.info(f"[calendar] Exchanging auth code: {code[:20]}...")
         _calendar_write_token_file(token_path, creds.to_json())
 
         # Reset calendar service to pick up new token
@@ -1880,11 +1971,12 @@ def api_calendar_auth_callback():
             return Response(html, mimetype="text/html")
         return jsonify({"ok": True, "message": success_message})
     except Exception as e:
-        print(f"[calendar] Auth failed: {e}")
+        log.exception(f"[calendar] Auth failed")
         if browser_callback:
             html = _calendar_auth_html(False, str(e))
             return Response(html, mimetype="text/html"), 500
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 # ── Camera API ───────────────────────────────────────────────────────
@@ -1909,17 +2001,17 @@ def api_camera_describe():
     prompt = data.get("prompt", "What do you see?")
 
     def _do_describe():
-        print("[vision] Starting describe thread...")
+        log.info("[vision] Starting describe thread...")
         try:
             description = camera.describe_scene(prompt)
-            print(f"[vision] Got: {description[:80]}...")
+            log.info(f"[vision] Got: {description[:80]}...")
         except Exception as e:
             import traceback
-            print(f"[vision] Error: {e}")
+            log.info(f"[vision] Error: {e}")
             traceback.print_exc()
             description = "Gemini vision failed or you are offline"
         socketio.emit("vision_result", {"description": description})
-        print("[vision] Emitted vision_result")
+        log.info("[vision] Emitted vision_result")
 
     threading.Thread(target=_do_describe, daemon=True).start()
     return jsonify({"ok": True, "message": "Describing..."})
@@ -1990,7 +2082,8 @@ def api_voice_enroll():
             os.unlink(clip_path)
         return jsonify({"ok": True, "name": name, "profiles": voice.get_enrolled_speakers()})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/voice/profiles")
@@ -2247,7 +2340,8 @@ def api_discord_dm_start():
         return jsonify({"error": "Could not find Dungeon voice channel"}), 404
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/discord/dm/stop", methods=["POST"])
@@ -2288,7 +2382,8 @@ def api_discord_dm_stop():
         return jsonify({"ok": True, "recap": recap or ""})
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/discord/dm/narrate", methods=["POST"])
@@ -2316,7 +2411,8 @@ def api_discord_dm_narrate():
         return jsonify({"ok": True})
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/discord/dm/status")
@@ -2341,7 +2437,8 @@ def api_discord_dm_status():
         return jsonify(status)
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 # ── Volume API ───────────────────────────────────────────────────────
@@ -2373,7 +2470,7 @@ def _set_system_volume(level: int):
         subprocess.run(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", str(vol)],
                        capture_output=True, timeout=5, env=env)
     except Exception as e:
-        print(f"[volume] Failed to set system volume: {e}")
+        log.exception(f"[volume] Failed to set system volume")
 
 
 @app.route("/api/volume")
@@ -2547,7 +2644,7 @@ def api_tts_output_set():
     # Update voice pipeline's output mode
     if voice:
         voice._tts_output_mode = output
-    print(f"[tts] Output set to: {output}")
+    log.info(f"[tts] Output set to: {output}")
     return jsonify({"ok": True, "output": output})
 
 
@@ -2577,13 +2674,13 @@ def api_scene_activate():
     name = (request.json or {}).get("scene", "")
     if not name:
         return jsonify({"error": "scene name required"}), 400
-    print(f"[scene-api] Activating scene: {name}")
+    log.info(f"[scene-api] Activating scene: {name}")
 
     def _do_activate():
         try:
             scene_service.activate(name)
         except Exception as e:
-            print(f"[scene-api] Activate failed: {e}")
+            log.exception(f"[scene-api] Activate failed")
             import traceback
             traceback.print_exc()
 
@@ -2601,7 +2698,7 @@ def api_scene_deactivate():
         try:
             scene_service.deactivate()
         except Exception as e:
-            print(f"[scene-api] Deactivate failed: {e}")
+            log.exception(f"[scene-api] Deactivate failed")
             import traceback
             traceback.print_exc()
 
@@ -2625,7 +2722,8 @@ def api_scene_create():
             return jsonify({"ok": True, "message": msg})
         return jsonify({"error": msg}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/scene/<name>", methods=["PUT"])
@@ -2641,7 +2739,8 @@ def api_scene_update(name):
             return jsonify({"ok": True, "message": msg})
         return jsonify({"error": msg}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/scene/<name>", methods=["DELETE"])
@@ -2655,7 +2754,8 @@ def api_scene_delete(name):
             return jsonify({"ok": True, "message": msg})
         return jsonify({"error": msg}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 def _load_setting(key: str, default=None):
@@ -2692,7 +2792,7 @@ def _save_setting(key: str, value):
         with open(settings_path, "w", encoding="utf-8") as f:
             json.dump(settings, f, indent=2)
     except Exception as e:
-        print(f"[settings] Save failed for {key}: {e}")
+        log.exception(f"[settings] Save failed for {key}")
 
 
 # ── Weather API ──────────────────────────────────────────────────────
@@ -2725,22 +2825,22 @@ def api_location_device():
             weather.invalidate_cache()
         if socketio:
             socketio.emit("location_update", updated)
-        print(
-            "[location] Device update accepted:",
+        log.info(
+            "[location] Device update accepted: %s (accuracy_m=%s) from=%s ua=%s",
             updated.get("location_label", ""),
-            f"(accuracy_m={updated.get('accuracy_m', 'n/a')})",
-            f"from={remote_addr or '?'}",
-            f"ua={user_agent[:120]}",
+            updated.get("accuracy_m", "n/a"),
+            remote_addr or "?",
+            user_agent[:120],
         )
         return jsonify(updated)
     except (TypeError, ValueError, KeyError) as exc:
         keys = ",".join(sorted(data.keys())) if isinstance(data, dict) else "n/a"
-        print(
-            "[location] Device update rejected:",
+        log.warning(
+            "[location] Device update rejected: %s keys=%s from=%s ua=%s",
             str(exc),
-            f"keys={keys}",
-            f"from={remote_addr or '?'}",
-            f"ua={user_agent[:120]}",
+            keys,
+            remote_addr or "?",
+            user_agent[:120],
         )
         return jsonify({"error": "Invalid location payload", "detail": str(exc)}), 400
 
@@ -2772,7 +2872,8 @@ def api_device_play(device_name):
         smart_home.play(device_name)
         return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/devices/<device_name>/pause", methods=["POST"])
@@ -2783,7 +2884,8 @@ def api_device_pause(device_name):
         smart_home.pause(device_name)
         return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/devices/<device_name>/stop", methods=["POST"])
@@ -2794,7 +2896,8 @@ def api_device_stop(device_name):
         smart_home.stop(device_name)
         return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/devices/<device_name>/mute", methods=["POST"])
@@ -2806,7 +2909,8 @@ def api_device_mute(device_name):
         smart_home.mute(device_name, data.get("muted", True))
         return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/devices/<device_name>/launch", methods=["POST"])
@@ -2818,7 +2922,8 @@ def api_device_launch(device_name):
         smart_home.launch_app(device_name, data.get("app_id", ""))
         return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/devices/<device_name>/quit", methods=["POST"])
@@ -2829,7 +2934,8 @@ def api_device_quit(device_name):
         smart_home.quit_app(device_name)
         return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/devices/refresh", methods=["POST"])
@@ -2840,7 +2946,8 @@ def api_devices_refresh():
         smart_home.start_discovery()
         return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 # ── Chat Persistence ─────────────────────────────────────────────────
@@ -2860,7 +2967,7 @@ def _load_recent_chat() -> list[dict]:
             with open(RECENT_CHAT_FILE, encoding="utf-8") as f:
                 return json.load(f)
     except Exception as e:
-        print(f"[chat] Failed to load recent chat: {e}")
+        log.exception(f"[chat] Failed to load recent chat")
     return []
 
 
@@ -2878,7 +2985,7 @@ def _save_recent_message(msg: dict):
             with open(RECENT_CHAT_FILE, "w", encoding="utf-8") as f:
                 json.dump(messages, f, ensure_ascii=False)
         except Exception as e:
-            print(f"[chat] Failed to save recent chat: {e}")
+            log.exception(f"[chat] Failed to save recent chat")
 
 
 def _save_dnd_message(msg: dict):
@@ -2913,7 +3020,7 @@ def _auto_resume_after_restart():
         summary = agent._read_and_clear_resume()
         if not summary:
             return
-        print("[chat] Auto-resuming after Code Agent restart")
+        log.info("[chat] Auto-resuming after Code Agent restart")
 
         with app.app_context():
             result = agent.chat(
@@ -2931,7 +3038,7 @@ def _auto_resume_after_restart():
                     "agent_used": "code",
                 })
     except Exception as e:
-        print(f"[chat] Auto-resume failed: {e}")
+        log.exception(f"[chat] Auto-resume failed")
 
 
 def _restore_agent_history():
@@ -2951,7 +3058,7 @@ def _restore_agent_history():
         if msg.get("role") == "user" and agent._is_dnd_request(msg.get("text", "")):
             agent._auto_load_dnd(msg["text"])
             break
-    print(f"[chat] Restored {len(messages)} messages into agent history")
+    log.info(f"[chat] Restored {len(messages)} messages into agent history")
 
 
 @app.route("/api/chat/history")
@@ -2989,9 +3096,9 @@ def api_chat_clear():
                 combined = existing + new_msgs
                 with open(log_file, "w", encoding="utf-8") as f:
                     json.dump(combined, f, ensure_ascii=False)
-                print(f"[chat] Saved {len(new_msgs)} new messages to DnD session log")
+                log.info(f"[chat] Saved {len(new_msgs)} new messages to DnD session log")
         except Exception as e:
-            print(f"[chat] Failed to save DnD session on clear: {e}")
+            log.exception(f"[chat] Failed to save DnD session on clear")
 
     # Clear the recent chat buffer
     try:
@@ -3008,9 +3115,9 @@ def api_chat_clear():
             os.makedirs(DND_LOG_DIR, exist_ok=True)
             with open(gs_file, "w", encoding="utf-8") as f:
                 json.dump(agent._gamestate, f, ensure_ascii=False, indent=2)
-            print(f"[chat] Saved game state to {gs_file}")
+            log.info(f"[chat] Saved game state to {gs_file}")
         except Exception as e:
-            print(f"[chat] Failed to save game state on clear: {e}")
+            log.exception(f"[chat] Failed to save game state on clear")
 
     # Reset agent state
     if agent:
@@ -3026,19 +3133,22 @@ def api_chat_clear():
 
 NOTES_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/notes.json")
 _notes_list: list[dict] = []
+_notes_lock = threading.Lock()
 
 
 def _load_notes():
     global _notes_list
-    try:
-        if os.path.exists(NOTES_FILE):
-            with open(NOTES_FILE, "r", encoding="utf-8") as f:
-                _notes_list = json.load(f)
-    except Exception:
-        _notes_list = []
+    with _notes_lock:
+        try:
+            if os.path.exists(NOTES_FILE):
+                with open(NOTES_FILE, "r", encoding="utf-8") as f:
+                    _notes_list = json.load(f)
+        except Exception:
+            _notes_list = []
 
 
-def _save_notes():
+def _save_notes_locked():
+    """Caller must hold _notes_lock."""
     os.makedirs(os.path.dirname(NOTES_FILE), exist_ok=True)
     with open(NOTES_FILE, "w", encoding="utf-8") as f:
         json.dump(_notes_list, f, ensure_ascii=False)
@@ -3046,7 +3156,8 @@ def _save_notes():
 
 @app.route("/api/notes")
 def api_notes():
-    return jsonify(_notes_list)
+    with _notes_lock:
+        return jsonify(list(_notes_list))
 
 
 @app.route("/api/notes", methods=["POST"])
@@ -3061,30 +3172,33 @@ def api_notes_create():
         "done": False,
         "created": time.time(),
     }
-    _notes_list.append(note)
-    _save_notes()
+    with _notes_lock:
+        _notes_list.append(note)
+        _save_notes_locked()
     return jsonify(note)
 
 
 @app.route("/api/notes/<note_id>", methods=["PUT"])
 def api_notes_update(note_id):
     data = request.json or {}
-    for note in _notes_list:
-        if note["id"] == note_id:
-            if "done" in data:
-                note["done"] = bool(data["done"])
-            if "text" in data:
-                note["text"] = data["text"]
-            _save_notes()
-            return jsonify(note)
+    with _notes_lock:
+        for note in _notes_list:
+            if note["id"] == note_id:
+                if "done" in data:
+                    note["done"] = bool(data["done"])
+                if "text" in data:
+                    note["text"] = data["text"]
+                _save_notes_locked()
+                return jsonify(note)
     return jsonify({"error": "Not found"}), 404
 
 
 @app.route("/api/notes/<note_id>", methods=["DELETE"])
 def api_notes_delete(note_id):
     global _notes_list
-    _notes_list = [n for n in _notes_list if n["id"] != note_id]
-    _save_notes()
+    with _notes_lock:
+        _notes_list = [n for n in _notes_list if n["id"] != note_id]
+        _save_notes_locked()
     return jsonify({"ok": True})
 
 
@@ -3376,7 +3490,7 @@ def _ensure_tv_worker():
             )
             return True
         except Exception as e:
-            print(f"[tv] Failed to start worker: {e}")
+            log.exception(f"[tv] Failed to start worker")
             _tv_proc = None
             return False
 
@@ -3415,25 +3529,25 @@ def init_tv_remote():
             ["adb", "connect", f"{TV_IP}:5555"],
             capture_output=True, timeout=5,
         )
-        print(f"[tv] ADB connected to {TV_IP}:5555")
+        log.info(f"[tv] ADB connected to {TV_IP}:5555")
     except Exception as e:
-        print(f"[tv] ADB connect failed: {e}")
+        log.exception(f"[tv] ADB connect failed")
 
     if not os.path.exists(_TV_CERTFILE) or not os.path.exists(_TV_KEYFILE):
-        print("[tv] No cert files found — pair via the TV tab first")
+        log.info("[tv] No cert files found — pair via the TV tab first")
         return
 
     if not _ensure_tv_worker():
-        print("[tv] Could not start TV worker")
+        log.info("[tv] Could not start TV worker")
         return
 
     result = _tv_cmd("connect_test")
     if result.get("ok"):
         _tv_remote = True
         _tv_is_on = result.get("is_on")
-        print(f"[tv] Connected to TV at {TV_IP} (is_on={_tv_is_on})")
+        log.info(f"[tv] Connected to TV at {TV_IP} (is_on={_tv_is_on})")
     else:
-        print(f"[tv] Connection failed: {result.get('error', '?')} — try pairing via the TV tab")
+        log.info(f"[tv] Connection failed: {result.get('error', '?')} — try pairing via the TV tab")
 
     # Background task: retry TV connection every 60s if not connected
     def _tv_bg_reconnect():
@@ -3447,7 +3561,7 @@ def init_tv_remote():
                     if r.get("ok"):
                         _tv_remote = True
                         _tv_is_on = r.get("is_on")
-                        print(f"[tv] Background reconnect OK — {TV_IP}")
+                        log.info(f"[tv] Background reconnect OK — {TV_IP}")
                 except Exception:
                     pass
     threading.Thread(target=_tv_bg_reconnect, daemon=True).start()
@@ -3455,6 +3569,7 @@ def init_tv_remote():
 
 
 _tv_media_cache = {"title": "", "artist": "", "app": "", "ts": 0}
+_tv_media_lock = threading.Lock()
 
 
 def _parse_media_description(desc: str) -> tuple[str, str]:
@@ -3487,8 +3602,9 @@ def _get_tv_media_title(current_app: str = "") -> dict:
     foreground app. Stale sessions from background apps are ignored.
     """
     now = time.time()
-    if now - _tv_media_cache["ts"] < 3:
-        return {"title": _tv_media_cache["title"], "artist": _tv_media_cache["artist"]}
+    with _tv_media_lock:
+        if now - _tv_media_cache["ts"] < 3:
+            return {"title": _tv_media_cache["title"], "artist": _tv_media_cache["artist"]}
     try:
         # Get media_session: package, state, and description for each session
         r = subprocess.run(
@@ -3521,12 +3637,14 @@ def _get_tv_media_title(current_app: str = "") -> dict:
 
         if not matched:
             # No active playback from the foreground app — clear stale titles
-            _tv_media_cache.update({"title": "", "artist": "", "app": "", "ts": now})
+            with _tv_media_lock:
+                _tv_media_cache.update({"title": "", "artist": "", "app": "", "ts": now})
             return {"title": "", "artist": ""}
 
         # Got a title from media_session description
         if session_title:
-            _tv_media_cache.update({"title": session_title, "artist": session_artist, "app": pkg, "ts": now})
+            with _tv_media_lock:
+                _tv_media_cache.update({"title": session_title, "artist": session_artist, "app": pkg, "ts": now})
             return {"title": session_title, "artist": session_artist}
 
         # Null description (Plex does this) — try notification for this specific app
@@ -3557,20 +3675,23 @@ def _get_tv_media_title(current_app: str = "") -> dict:
                             notif_text = m[1].rstrip(")")
                         if notif_title and notif_title != "null":
                             artist = notif_text if notif_text and notif_text != "null" else ""
-                            _tv_media_cache.update({"title": notif_title, "artist": artist, "app": pkg, "ts": now})
+                            with _tv_media_lock:
+                                _tv_media_cache.update({"title": notif_title, "artist": artist, "app": pkg, "ts": now})
                             return {"title": notif_title, "artist": artist}
                         in_app = False
             except Exception:
                 pass
 
         # Active playback but no title found — keep cached if same app, else clear
-        if pkg == _tv_media_cache.get("app"):
-            _tv_media_cache["ts"] = now
-        else:
-            _tv_media_cache.update({"title": "", "artist": "", "app": pkg, "ts": now})
+        with _tv_media_lock:
+            if pkg == _tv_media_cache.get("app"):
+                _tv_media_cache["ts"] = now
+            else:
+                _tv_media_cache.update({"title": "", "artist": "", "app": pkg, "ts": now})
     except Exception:
         pass
-    return {"title": _tv_media_cache["title"], "artist": _tv_media_cache["artist"]}
+    with _tv_media_lock:
+        return {"title": _tv_media_cache["title"], "artist": _tv_media_cache["artist"]}
 
 
 @app.route("/api/tv/status")
@@ -3604,9 +3725,9 @@ def api_tv_pair_start():
     """Start pairing — TV will show a PIN code."""
     result = _tv_cmd("pair_start")
     if result.get("error"):
-        print(f"[tv] Pairing start failed: {result['error']}")
+        log.info(f"[tv] Pairing start failed: {result['error']}")
         return jsonify(result), 500
-    print("[tv] Pairing started — TV should show PIN")
+    log.info("[tv] Pairing started — TV should show PIN")
     return jsonify(result)
 
 
@@ -3621,10 +3742,10 @@ def api_tv_pair_finish():
 
     result = _tv_cmd("pair_finish", pin=pin)
     if result.get("error"):
-        print(f"[tv] Pairing finish failed: {result['error']}")
+        log.info(f"[tv] Pairing finish failed: {result['error']}")
         return jsonify(result), 500
     _tv_remote = True
-    print(f"[tv] Paired and connected to TV at {TV_IP}!")
+    log.info(f"[tv] Paired and connected to TV at {TV_IP}!")
     return jsonify(result)
 
 
@@ -3751,7 +3872,8 @@ def api_tv_input():
             return jsonify({"ok": True})
         return jsonify({"error": f"ADB failed: {r.stderr.strip()}"}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        log.info(f"[bmo] api error: {e!r}")
+        return jsonify({"error": "internal server error"}), 500
 
 
 @app.route("/api/tv/navigate", methods=["POST"])
@@ -3806,9 +3928,9 @@ def _auto_skip_loop():
                 x1, y1, x2, y2 = int(skip_match.group(2)), int(skip_match.group(3)), int(skip_match.group(4)), int(skip_match.group(5))
                 cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
                 subprocess.run(["adb", "shell", "input", "tap", str(cx), str(cy)], timeout=3)
-                print(f"[tv-autoskip] Tapped skip button at ({cx}, {cy})")
+                log.info(f"[tv-autoskip] Tapped skip button at ({cx}, {cy})")
         except Exception as e:
-            print(f"[tv-autoskip] Error: {e}")
+            log.exception(f"[tv-autoskip] Error")
         time.sleep(3)
 
 
@@ -3827,9 +3949,9 @@ def api_tv_auto_skip_toggle():
         if _tv_auto_skip_thread is None or not _tv_auto_skip_thread.is_alive():
             _tv_auto_skip_thread = threading.Thread(target=_auto_skip_loop, daemon=True)
             _tv_auto_skip_thread.start()
-            print("[tv-autoskip] Started auto-skip thread")
+            log.info("[tv-autoskip] Started auto-skip thread")
     else:
-        print("[tv-autoskip] Stopped auto-skip")
+        log.info("[tv-autoskip] Stopped auto-skip")
     return jsonify({"enabled": _tv_auto_skip})
 
 
@@ -3877,7 +3999,8 @@ def api_notification_devices_refresh():
                 socketio.emit("notification_settings", settings)
             return jsonify(settings)
         except Exception as e:
-            return jsonify({"error": str(e)}), 500
+            log.info(f"[bmo] api error: {e!r}")
+            return jsonify({"error": "internal server error"}), 500
     return jsonify({"error": "Notification service not available"}), 503
 
 
@@ -4223,9 +4346,9 @@ def _bmo_websocket_authorized(auth: object | None) -> bool:
 @socketio.on("connect")
 def on_connect(auth=None):
     if not _bmo_websocket_authorized(auth):
-        print("[ws] Rejected: BMO_API_KEY required for this client")
+        log.info("[ws] Rejected: BMO_API_KEY required for this client")
         return False
-    print("[ws] Client connected")
+    log.info("[ws] Client connected")
     client_tz = _normalize_timezone((auth or {}).get("client_timezone") if isinstance(auth, dict) else None) or _request_client_timezone(default_to_pi=True)
     if timers:
         timers.set_client_timezone(request.sid, client_tz)
@@ -4235,36 +4358,36 @@ def on_connect(auth=None):
         if weather:
             socketio.emit("weather_update", weather.get_current())
     except Exception as e:
-        print(f"[ws] Weather init failed: {e}")
+        log.exception(f"[ws] Weather init failed")
     try:
         if music:
             socketio.emit("music_state", music.get_state())
     except Exception as e:
-        print(f"[ws] Music init failed: {e}")
+        log.exception(f"[ws] Music init failed")
     try:
         if timers:
             socketio.emit("timers_tick", timers.get_all(viewer_timezone=client_tz), room=request.sid)
     except Exception as e:
-        print(f"[ws] Timers init failed: {e}")
+        log.exception(f"[ws] Timers init failed")
     try:
         if calendar:
             next_event = calendar.get_next_event()
             if next_event:
                 socketio.emit("next_event", next_event)
     except Exception as e:
-        print(f"[ws] Calendar init failed: {e}")
+        log.exception(f"[ws] Calendar init failed")
     try:
         expr = oled_face.current_expression if oled_face else "idle"
         socketio.emit("expression", {"expression": expr})
     except Exception as e:
-        print(f"[ws] Expression init failed: {e}")
+        log.exception(f"[ws] Expression init failed")
     try:
         if alert_service:
             recent = alert_service.get_history(5)
             if recent:
                 socketio.emit("recent_alerts", recent)
     except Exception as e:
-        print(f"[ws] Alerts init failed: {e}")
+        log.exception(f"[ws] Alerts init failed")
 
 
 def _finish_chat_response(sid, result, model_override, voice, speaker):
@@ -4348,7 +4471,7 @@ def on_chat_message(data):
         prev_model_override = agent.model_override
         if model_override and model_override != "auto":
             agent.model_override = model_override
-            print(f"[chat] Model override: {model_override} (agent={agent_override or 'auto'})")
+            log.info(f"[chat] Model override: {model_override} (agent={agent_override or 'auto'})")
         else:
             agent.model_override = None
 
@@ -4363,7 +4486,7 @@ def on_chat_message(data):
                         agent.model_override = prev_model_override
                     _finish_chat_response(sid, result, model_override, voice, speaker)
                 except Exception as e:
-                    print(f"[chat] Code Agent error: {e}")
+                    log.exception(f"[chat] Code Agent error")
                     import traceback
                     traceback.print_exc()
                     with app.app_context():
@@ -4388,7 +4511,7 @@ def on_chat_message(data):
 
         _finish_chat_response(request.sid, result, model_override, voice, speaker)
     except Exception as e:
-        print(f"[chat] ERROR in chat_message handler: {e}")
+        log.exception(f"[chat] ERROR in chat_message handler")
         import traceback
         traceback.print_exc()
         emit("chat_response", {"text": f"Oops! BMO's brain got fuzzy: {e}", "speaker": speaker, "commands_executed": []})
@@ -4439,1158 +4562,30 @@ def on_scratchpad_clear(data):
 
 @socketio.on("disconnect")
 def on_disconnect():
-    print("[ws] Client disconnected")
+    log.info("[ws] Client disconnected")
     if timers:
         timers.clear_client(request.sid)
-    # Clean up terminal sessions for this client
-    if _terminal_mgr:
-        _terminal_mgr.close_all(request.sid)
-    # Clean up Windows proxy if this was the proxy client
-    global _win_proxy_sid
-    if request.sid == _win_proxy_sid:
-        _win_proxy_sid = None
-        socketio.emit("ide_win_proxy_status", {"connected": False})
+    # IDE owns its own per-client state (terminal + Windows-proxy).
+    cleanup_client_session(request.sid)
 
 
 # ── IDE Tab API ──────────────────────────────────────────────────────
-
-import shutil as _shutil
-from gevent.event import AsyncResult as _AsyncResult
-
-# Terminal manager (lazy init)
-_terminal_mgr = None
-
-def _get_terminal_mgr():
-    global _terminal_mgr
-    if _terminal_mgr is None:
-        from dev.terminal_service import TerminalManager
-        _terminal_mgr = TerminalManager()
-    return _terminal_mgr
-
-# File watcher (lazy init)
-_file_watcher = None
-
-def _get_file_watcher():
-    global _file_watcher
-    if _file_watcher is None:
-        from dev.file_watcher import FileWatcher
-        def _on_file_change(path, mtime):
-            socketio.emit("ide_file_changed", {"path": path, "mtime": mtime})
-        _file_watcher = FileWatcher(_on_file_change)
-    return _file_watcher
-
-# Windows proxy state
-_win_proxy_sid = None
-_win_proxy_pending: dict[str, _AsyncResult] = {}
-
-# IDE agent jobs
-_ide_jobs: dict[str, dict] = {}
-_ide_job_counter = 0
-_current_running_job_id = None
-_IDE_JOBS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/ide_jobs.json")
-
-
-_ide_jobs_lock = threading.Lock()
-
-def _save_ide_jobs():
-    """Persist IDE jobs to disk, keeping only the last 50."""
-    with _ide_jobs_lock:
-        try:
-            os.makedirs(os.path.dirname(_IDE_JOBS_FILE), exist_ok=True)
-            serializable = {}
-            items = list(_ide_jobs.items())
-            # Keep last 50
-            if len(items) > 50:
-                items = items[-50:]
-            for jid, job in items:
-                # Shallow copy of the job keys
-                s_job = {k: v for k, v in job.items() if not k.startswith("_")}
-                # Make shallow copies of lists to avoid iteration errors during json.dump
-                if "messages" in s_job:
-                    s_job["messages"] = list(s_job["messages"])
-                if "activity_log" in s_job:
-                    s_job["activity_log"] = list(s_job["activity_log"])
-                if "files_touched" in s_job:
-                    s_job["files_touched"] = list(s_job["files_touched"])
-                serializable[jid] = s_job
-            with open(_IDE_JOBS_FILE, "w", encoding="utf-8") as f:
-                json.dump(serializable, f, ensure_ascii=False)
-        except Exception as e:
-            print(f"[ide] Failed to save jobs: {e}")
-
-
-def _load_ide_jobs():
-    """Restore IDE jobs from disk on startup."""
-    global _ide_job_counter
-    try:
-        if os.path.exists(_IDE_JOBS_FILE):
-            with open(_IDE_JOBS_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            for jid, job in data.items():
-                # Don't restore running jobs — they're dead
-                if job.get("status") == "running":
-                    job["status"] = "failed"
-                    job.setdefault("error", "Server restarted")
-                _ide_jobs[jid] = job
-                # Update counter to avoid ID collisions
-                try:
-                    num = int(jid.split("-")[-1])
-                    if num > _ide_job_counter:
-                        _ide_job_counter = num
-                except (ValueError, IndexError):
-                    pass
-    except Exception:
-        pass
-
-
-_load_ide_jobs()
-
-# Language detection for Monaco
-_LANG_MAP = {
-    ".py": "python", ".js": "javascript", ".ts": "typescript", ".tsx": "typescript",
-    ".jsx": "javascript", ".html": "html", ".htm": "html", ".css": "css",
-    ".scss": "scss", ".less": "less", ".json": "json", ".yaml": "yaml",
-    ".yml": "yaml", ".xml": "xml", ".md": "markdown", ".sh": "shell",
-    ".bash": "shell", ".zsh": "shell", ".sql": "sql", ".rs": "rust",
-    ".go": "go", ".java": "java", ".c": "c", ".cpp": "cpp", ".h": "c",
-    ".hpp": "cpp", ".rb": "ruby", ".php": "php", ".lua": "lua",
-    ".toml": "toml", ".ini": "ini", ".cfg": "ini", ".conf": "ini",
-    ".dockerfile": "dockerfile", ".r": "r", ".swift": "swift",
-    ".kt": "kotlin", ".dart": "dart", ".vue": "html",
-}
-
-def _detect_language(path: str) -> str:
-    """Map file extension to Monaco language ID."""
-    basename = os.path.basename(path).lower()
-    if basename == "dockerfile":
-        return "dockerfile"
-    if basename in ("makefile", "gnumakefile"):
-        return "makefile"
-    _, ext = os.path.splitext(basename)
-    return _LANG_MAP.get(ext, "plaintext")
-
-
-def _proxy_to_windows(op: str, params: dict, timeout: float = 10.0) -> dict:
-    """Send a request to the Windows proxy and wait for the response."""
-    if not _win_proxy_sid:
-        return {"error": "Windows proxy not connected"}
-    import uuid
-    request_id = str(uuid.uuid4())
-    result_event = _AsyncResult()
-    _win_proxy_pending[request_id] = result_event
-    try:
-        socketio.emit("win_proxy_request", {
-            "request_id": request_id,
-            "op": op,
-            "params": params,
-        }, room=_win_proxy_sid)
-        result = result_event.get(timeout=timeout)
-        return result
-    except Exception:
-        return {"error": "Windows proxy request timed out"}
-    finally:
-        _win_proxy_pending.pop(request_id, None)
-
-
-# ── IDE File API routes ──────────────────────────────────────────────
-
-@app.route("/api/ide/tree")
-def api_ide_tree():
-    """List directory contents for the file tree."""
-    path = request.args.get("path", "~")
-    machine = request.args.get("machine", "pi")
-    if machine == "win":
-        return jsonify(_proxy_to_windows("list_directory", {"path": path}))
-    from dev.dev_tools import list_directory
-    return jsonify(list_directory(path))
-
-
-@app.route("/api/ide/file/read", methods=["POST"])
-def api_ide_file_read():
-    """Read a file's contents."""
-    data = request.json or {}
-    path = data.get("path", "")
-    machine = data.get("machine", "pi")
-    if machine == "win":
-        result = _proxy_to_windows("read_file", {"path": path, "limit": 50000})
-    else:
-        from dev.dev_tools import read_file
-        result = read_file(path, limit=50000)
-    if "error" not in result:
-        result["language"] = _detect_language(path)
-    return jsonify(result)
-
-
-@app.route("/api/ide/file/write", methods=["POST"])
-def api_ide_file_write():
-    """Write/overwrite a file (IDE save bypasses confirmation)."""
-    data = request.json or {}
-    path = data.get("path", "")
-    content = data.get("content", "")
-    machine = data.get("machine", "pi")
-    if machine == "win":
-        return jsonify(_proxy_to_windows("write_file", {"path": path, "content": content}))
-    path = os.path.expanduser(path)
-    try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
-        watcher = _get_file_watcher()
-        watcher.notify_change(path)
-        return jsonify({"success": True, "path": path})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/ide/file/edit", methods=["POST"])
-def api_ide_file_edit():
-    """Find & replace in a file."""
-    data = request.json or {}
-    path = data.get("path", "")
-    machine = data.get("machine", "pi")
-    if machine == "win":
-        return jsonify(_proxy_to_windows("edit_file", {
-            "path": path,
-            "old_string": data.get("old_string", ""),
-            "new_string": data.get("new_string", ""),
-        }))
-    from dev.dev_tools import edit_file
-    result = edit_file(path, data.get("old_string", ""), data.get("new_string", ""))
-    if result.get("success"):
-        watcher = _get_file_watcher()
-        watcher.notify_change(os.path.expanduser(path))
-    return jsonify(result)
-
-
-@app.route("/api/ide/file/create", methods=["POST"])
-def api_ide_file_create():
-    """Create a new file or directory."""
-    data = request.json or {}
-    path = data.get("path", "")
-    is_dir = data.get("is_dir", False)
-    machine = data.get("machine", "pi")
-    if machine == "win":
-        return jsonify(_proxy_to_windows("create_file", {"path": path, "is_dir": is_dir}))
-    path = os.path.expanduser(path)
-    try:
-        if is_dir:
-            os.makedirs(path, exist_ok=True)
-        else:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, "w", encoding="utf-8") as f:
-                pass
-        return jsonify({"success": True, "path": path})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/ide/file/rename", methods=["POST"])
-def api_ide_file_rename():
-    """Rename a file or directory."""
-    data = request.json or {}
-    machine = data.get("machine", "pi")
-    if machine == "win":
-        return jsonify(_proxy_to_windows("rename_file", {
-            "old_path": data.get("old_path", ""),
-            "new_path": data.get("new_path", ""),
-        }))
-    old = os.path.expanduser(data.get("old_path", ""))
-    new = os.path.expanduser(data.get("new_path", ""))
-    try:
-        os.rename(old, new)
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/ide/file/delete", methods=["POST"])
-def api_ide_file_delete():
-    """Delete a file or directory."""
-    data = request.json or {}
-    path = data.get("path", "")
-    machine = data.get("machine", "pi")
-    if machine == "win":
-        return jsonify(_proxy_to_windows("delete_file", {"path": path}))
-    path = os.path.expanduser(path)
-    try:
-        if os.path.isdir(path):
-            _shutil.rmtree(path)
-        else:
-            os.remove(path)
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/ide/search")
-def api_ide_search():
-    """Global grep search."""
-    pattern = request.args.get("pattern", "")
-    path = request.args.get("path", "~")
-    file_glob = request.args.get("file_glob", "*")
-    machine = request.args.get("machine", "pi")
-    if machine == "win":
-        return jsonify(_proxy_to_windows("grep_files", {
-            "pattern": pattern, "path": path, "file_glob": file_glob,
-        }))
-    from dev.dev_tools import grep_files
-    return jsonify(grep_files(pattern, path, file_glob))
-
-
-@app.route("/api/ide/js-error", methods=["POST"])
-def api_ide_js_error():
-    """Log client-side JS errors for debugging."""
-    data = request.json or {}
-    print(f"[js-error] {data.get('msg', '?')} at {data.get('file', '?')}:{data.get('line', '?')}:{data.get('col', '?')}")
-    if data.get("stack"):
-        for line in data["stack"].split("\n")[:5]:
-            print(f"[js-error]   {line}")
-    return jsonify({"ok": True})
-
-
-@app.route("/api/ide/find")
-def api_ide_find():
-    """Find files by name pattern (for Ctrl+P quick open)."""
-    pattern = request.args.get("pattern", "*")
-    path = request.args.get("path", "~")
-    machine = request.args.get("machine", "pi")
-    if machine == "win":
-        return jsonify(_proxy_to_windows("find_files", {"path": path, "pattern": f"*{pattern}*"}))
-    from dev.dev_tools import find_files
-    return jsonify(find_files(f"**/*{pattern}*", path))
-
-
-# ── IDE Git API ──────────────────────────────────────────────────────
-
-@app.route("/api/ide/git/status")
-def api_ide_git_status():
-    """Get git branch and changed files."""
-    path = request.args.get("path", "~")
-    from dev.dev_tools import git_command
-    branch_result = git_command("rev-parse --abbrev-ref HEAD", path)
-    status_result = git_command("status --porcelain", path)
-    branch = ""
-    if branch_result.get("exit_code", 1) == 0:
-        branch = branch_result.get("output", "").strip()
-    changes = []
-    status_output = ""
-    if status_result.get("exit_code", 1) == 0:
-        status_output = status_result.get("output", "") or ""
-    for line in status_output.splitlines():
-        if len(line) >= 4:
-            status_code = line[:2].strip()
-            filepath = line[3:].strip()
-            changes.append({"status": status_code, "path": filepath})
-    return jsonify({"branch": branch, "changes": changes})
-
-
-@app.route("/api/ide/git/stage", methods=["POST"])
-def api_ide_git_stage():
-    """Stage a file."""
-    data = request.json or {}
-    from dev.dev_tools import git_command
-    return jsonify(git_command(f"add {data.get('path', '')}", data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/unstage", methods=["POST"])
-def api_ide_git_unstage():
-    """Unstage a file."""
-    data = request.json or {}
-    from dev.dev_tools import git_command
-    return jsonify(git_command(f"restore --staged {data.get('path', '')}", data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/commit", methods=["POST"])
-def api_ide_git_commit():
-    """Commit staged changes."""
-    data = request.json or {}
-    msg = data.get("message", "").replace('"', '\\"')
-    from dev.dev_tools import git_command
-    return jsonify(git_command(f'commit -m "{msg}"', data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/log")
-def api_ide_git_log():
-    """Get recent commits."""
-    path = request.args.get("path", "~")
-    count = request.args.get("count", "20")
-    from dev.dev_tools import git_command
-    result = git_command(f"log --oneline -n {count}", path)
-    commits = []
-    for line in (result.get("output", "") or "").splitlines():
-        parts = line.split(" ", 1)
-        if len(parts) == 2:
-            commits.append({"hash": parts[0], "message": parts[1]})
-    return jsonify({"commits": commits})
-
-
-@app.route("/api/ide/git/diff")
-def api_ide_git_diff():
-    """Get diff for a file."""
-    path = request.args.get("path", "")
-    repo = request.args.get("repo", "~")
-    from dev.dev_tools import git_command
-    return jsonify(git_command(f"diff {path}", repo))
-
-
-@app.route("/api/ide/git/checkout", methods=["POST"])
-def api_ide_git_checkout():
-    """Switch branch."""
-    data = request.json or {}
-    from dev.dev_tools import git_command
-    return jsonify(git_command(f"checkout {data.get('branch', '')}", data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/branches")
-def api_ide_git_branches():
-    """List branches."""
-    path = request.args.get("path", "~")
-    from dev.dev_tools import git_command
-    result = git_command("branch -a", path)
-    branches = []
-    current = ""
-    for line in (result.get("output", "") or "").splitlines():
-        line = line.strip()
-        if line.startswith("* "):
-            current = line[2:]
-            branches.append(current)
-        elif line:
-            branches.append(line)
-    return jsonify({"branches": branches, "current": current})
-
-
-@app.route("/api/ide/git/push", methods=["POST"])
-def api_ide_git_push():
-    """Push to remote."""
-    data = request.json or {}
-    from dev.dev_tools import git_command
-    return jsonify(git_command("push", data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/pull", methods=["POST"])
-def api_ide_git_pull():
-    """Pull from remote."""
-    data = request.json or {}
-    from dev.dev_tools import git_command
-    return jsonify(git_command("pull", data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/fetch", methods=["POST"])
-def api_ide_git_fetch():
-    """Fetch from remote."""
-    data = request.json or {}
-    from dev.dev_tools import git_command
-    return jsonify(git_command("fetch --all", data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/stash", methods=["POST"])
-def api_ide_git_stash():
-    """Stash operations: save, pop, list."""
-    data = request.json or {}
-    action = data.get("action", "save")
-    from dev.dev_tools import git_command
-    if action == "save":
-        msg = data.get("message", "")
-        cmd = f'stash push -m "{msg}"' if msg else "stash push"
-    elif action == "pop":
-        cmd = "stash pop"
-    elif action == "list":
-        cmd = "stash list"
-    elif action == "drop":
-        cmd = f"stash drop {data.get('index', 0)}"
-    else:
-        return jsonify({"error": "Invalid action"}), 400
-    return jsonify(git_command(cmd, data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/branch/create", methods=["POST"])
-def api_ide_git_branch_create():
-    """Create and switch to a new branch."""
-    data = request.json or {}
-    name = data.get("name", "")
-    if not name:
-        return jsonify({"error": "Branch name required"}), 400
-    from dev.dev_tools import git_command
-    return jsonify(git_command(f"checkout -b {name}", data.get("repo", "~")))
-
-
-@app.route("/api/ide/git/branch/delete", methods=["POST"])
-def api_ide_git_branch_delete():
-    """Delete a branch."""
-    data = request.json or {}
-    name = data.get("name", "")
-    if not name:
-        return jsonify({"error": "Branch name required"}), 400
-    from dev.dev_tools import git_command
-    return jsonify(git_command(f"branch -d {name}", data.get("repo", "~")))
-
-
-# ── IDE Agent Jobs API ───────────────────────────────────────────────
-
-@app.route("/api/ide/jobs", methods=["GET"])
-def api_ide_jobs_list():
-    """List all IDE agent jobs."""
-    jobs = []
-    for jid, job in _ide_jobs.items():
-        # Shallow messages: just role + text, no heavy content
-        messages = [{"role": m.get("role", ""), "text": m.get("text", "")} for m in job.get("messages", [])]
-        jobs.append({
-            "id": jid,
-            "task": job.get("task", ""),
-            "status": job.get("status", "pending"),
-            "mode": job.get("mode", "normal"),
-            "files_touched": job.get("files_touched", []),
-            "created": job.get("created", 0),
-            "agent_name": job.get("agent_name", "code"),
-            "custom_name": job.get("custom_name"),
-            "archived": job.get("archived", False),
-            "auto_approve": job.get("auto_approve", False),
-            "messages": messages,
-        })
-    return jsonify({"jobs": jobs})
-
-
-@app.route("/api/ide/jobs", methods=["POST"])
-def api_ide_jobs_create():
-    """Spawn a new IDE agent job."""
-    global _ide_job_counter
-    data = request.json or {}
-    task = data.get("task", "")
-    auto_approve = data.get("auto_approve", False)
-    if not task:
-        return jsonify({"error": "No task provided"}), 400
-
-    _ide_job_counter += 1
-    job_id = f"ide-job-{_ide_job_counter}"
-    agent_name = data.get("agent") or "code"
-    job_mode = data.get("mode", "normal")
-    _ide_jobs[job_id] = {
-        "task": task,
-        "status": "running",
-        "mode": job_mode,
-        "auto_approve": auto_approve,
-        "files_touched": [],
-        "created": time.time(),
-        "agent_name": agent_name,
-        "custom_name": None,
-        "messages": [{"role": "user", "text": task, "ts": time.time()}],
-        "activity_log": [],
-        "archived": False,
-        "_cancel": threading.Event(),
-    }
-
-    socketio.emit("ide_job_started", {"id": job_id, "task": task, "agent": agent_name})
-
-    def _run_job():
-        global _current_running_job_id
-        _current_running_job_id = job_id
-
-        def _emit_activity(activity_type, content, **extra):
-            """Emit a structured activity event for the IDE job chat."""
-            entry = {"type": activity_type, "content": content, "ts": time.time(), **extra}
-            _ide_jobs[job_id]["activity_log"].append(entry)
-            payload = {"id": job_id, **entry}
-            socketio.emit("ide_job_activity", payload)
-
-        # Capture stdout/stderr to stream all agent output live
-        # Thread-local: only capture output from the job thread
-        _job_thread_id = threading.current_thread().ident
-
-        class _IdeJobWriter:
-            """Intercepts print() from job thread and streams to IDE chat."""
-            def __init__(self, original, stream_name="stdout"):
-                self._original = original
-                self._stream_name = stream_name
-
-            def write(self, text):
-                self._original.write(text)
-                # Only capture output from the job thread, not voice/timer/etc.
-                if text.strip() and threading.current_thread().ident == _job_thread_id:
-                    _emit_activity("log", text.rstrip("\n"))
-                return len(text)
-
-            def flush(self):
-                self._original.flush()
-
-            def __getattr__(self, name):
-                return getattr(self._original, name)
-
-        import sys as _sys
-        _old_stdout = _sys.stdout
-        _old_stderr = _sys.stderr
-        _sys.stdout = _IdeJobWriter(_old_stdout, "stdout")
-        _sys.stderr = _IdeJobWriter(_old_stderr, "stderr")
-
-        try:
-            resolved_agent = data.get("agent") or "code"
-            model_tier = data.get("model")
-            job_mode = _ide_jobs[job_id].get("mode", "normal")
-            _ide_jobs[job_id]["agent_name"] = resolved_agent
-            socketio.emit("ide_job_agent", {"id": job_id, "agent": resolved_agent})
-            _emit_activity("status", f"Using {resolved_agent} agent (mode: {job_mode})")
-
-            # ── Mode-dependent agent execution ──────────────────────────
-            # Autopilot: auto-continue up to MAX turns, no confirmation
-            # Normal:    single turn, pause for user follow-up
-            # Plan:      first turn = plan only, pause for approval, then execute
-
-            DONE_PHRASES = [
-                "all tasks complete", "all todos complete", "i've completed all",
-                "all done", "everything is done", "finished all", "completed all 8",
-                "that covers all", "all changes have been", "all tasks are done",
-                "i have completed", "tasks are complete",
-            ]
-
-            if job_mode == "autopilot":
-                # ── AUTOPILOT: loop until agent is done or cancelled ──
-                from dev.claude_tools import set_auto_approve
-                set_auto_approve(True)  # Auto-approve destructive commands
-                all_responses = []
-                current_message = task
-                turn = 0
-
-                while True:
-                    turn += 1
-                    if _ide_jobs[job_id]["_cancel"].is_set():
-                        break
-
-                    _emit_activity("thinking", f"🚀 Autopilot turn {turn}...")
-
-                    result = agent.chat(
-                        current_message,
-                        speaker="ide",
-                        agent_override=resolved_agent,
-                    )
-                    response_text = result.get("text", "") if isinstance(result, dict) else str(result)
-                    all_responses.append(response_text)
-
-                    _ide_jobs[job_id]["messages"].append({
-                        "role": "assistant", "text": response_text, "ts": time.time(),
-                    })
-                    _emit_activity("status", f"Turn {turn} done ({len(response_text)} chars)")
-
-                    socketio.emit("ide_job_progress", {
-                        "id": job_id, "text": response_text[-200:], "chunk": response_text,
-                    })
-
-                    response_lower = response_text.lower()
-                    if any(p in response_lower for p in DONE_PHRASES):
-                        _emit_activity("status", "Agent signaled completion")
-                        break
-                    if len(response_text.strip()) < 50 and turn > 1:
-                        _emit_activity("status", "Short response — done")
-                        break
-
-                    current_message = (
-                        "Continue working on the remaining tasks. "
-                        "Do NOT summarize — just keep implementing. "
-                        "When ALL tasks are fully complete, say 'All tasks complete'."
-                    )
-                    _ide_jobs[job_id]["messages"].append({
-                        "role": "user", "text": current_message, "ts": time.time(),
-                    })
-
-                full_text = "\n\n---\n\n".join(all_responses)
-
-            elif job_mode == "plan":
-                # ── PLAN: first get a plan, then wait for approval ──
-                plan_prompt = (
-                    f"Create a DETAILED implementation plan for the following task. "
-                    f"Do NOT implement anything yet — just plan. List every file you'll "
-                    f"change, what you'll change, and in what order. "
-                    f"When the plan is ready, say 'Plan ready for approval'.\n\n{task}"
-                )
-                _emit_activity("thinking", "📋 Plan mode — creating plan...")
-
-                result = agent.chat(
-                    plan_prompt,
-                    speaker="ide",
-                    agent_override=resolved_agent,
-                )
-                full_text = result.get("text", "") if isinstance(result, dict) else str(result)
-
-                _ide_jobs[job_id]["messages"].append({
-                    "role": "assistant", "text": full_text, "ts": time.time(),
-                })
-                socketio.emit("ide_job_progress", {
-                    "id": job_id, "text": full_text[-200:], "chunk": full_text,
-                })
-                _emit_activity("status", "📋 Plan ready — waiting for your approval via follow-up. Say 'approve' or 'go' to start execution.")
-
-                # Mark as waiting — user sends follow-up to continue
-                _ide_jobs[job_id]["status"] = "waiting"
-                _ide_jobs[job_id]["_waiting_for"] = "plan_approval"
-                socketio.emit("ide_job_done", {
-                    "id": job_id, "status": "waiting",
-                    "result": full_text, "waiting_for": "plan_approval",
-                })
-                _save_ide_jobs()
-                return  # Exit — follow-up handler will resume
-
-            else:
-                # ── NORMAL: single turn, confirm before changes ──
-                _emit_activity("thinking", "🛡️ Normal mode — executing with confirmation...")
-
-                normal_prompt = (
-                    f"Work on the following task. Before making any destructive changes "
-                    f"(deleting files, overwriting code), describe what you're about to do "
-                    f"and ask for confirmation.\n\n{task}"
-                )
-                result = agent.chat(
-                    normal_prompt,
-                    speaker="ide",
-                    agent_override=resolved_agent,
-                )
-                full_text = result.get("text", "") if isinstance(result, dict) else str(result)
-
-                _ide_jobs[job_id]["messages"].append({
-                    "role": "assistant", "text": full_text, "ts": time.time(),
-                })
-                socketio.emit("ide_job_progress", {
-                    "id": job_id, "text": full_text[-200:], "chunk": full_text,
-                })
-
-            if _ide_jobs[job_id]["_cancel"].is_set():
-                _ide_jobs[job_id]["status"] = "cancelled"
-                _emit_activity("status", "Job cancelled")
-                socketio.emit("ide_job_done", {"id": job_id, "status": "cancelled"})
-                _save_ide_jobs()
-            else:
-                _ide_jobs[job_id]["status"] = "done"
-                _ide_jobs[job_id]["result"] = full_text
-                _emit_activity("done", f"Completed in {len(all_responses)} turns")
-                socketio.emit("ide_job_done", {
-                    "id": job_id,
-                    "status": "done",
-                    "result": full_text,
-                })
-                _save_ide_jobs()
-        except Exception as e:
-            _ide_jobs[job_id]["status"] = "failed"
-            _ide_jobs[job_id]["error"] = str(e)
-            _ide_jobs[job_id]["messages"].append({"role": "assistant", "text": f"Error: {e}", "ts": time.time()})
-            _emit_activity("error", str(e))
-            socketio.emit("ide_job_done", {
-                "id": job_id,
-                "status": "failed",
-                "error": str(e),
-            })
-            _save_ide_jobs()
-        finally:
-            _sys.stdout = _old_stdout
-            _sys.stderr = _old_stderr
-            _current_running_job_id = None
-            try:
-                from dev.claude_tools import set_auto_approve
-                set_auto_approve(False)
-            except Exception:
-                pass
-
-    threading.Thread(target=_run_job, daemon=True).start()
-    return jsonify({"id": job_id, "status": "running"})
-
-
-@app.route("/api/ide/jobs/<job_id>/cancel", methods=["POST"])
-def api_ide_jobs_cancel(job_id):
-    """Cancel a running job."""
-    job = _ide_jobs.get(job_id)
-    if not job:
-        return jsonify({"error": "Job not found"}), 404
-    cancel_ev = job.get("_cancel")
-    if cancel_ev:
-        cancel_ev.set()
-    job["status"] = "cancelled"
-    socketio.emit("ide_job_done", {"id": job_id, "status": "cancelled"})
-    _save_ide_jobs()
-    return jsonify({"ok": True})
-
-
-@app.route("/api/ide/jobs/<job_id>/followup", methods=["POST"])
-def api_ide_jobs_followup(job_id):
-    """Send a follow-up message to a specific job."""
-    job = _ide_jobs.get(job_id)
-    if not job:
-        return jsonify({"error": "Job not found"}), 404
-    data = request.json or {}
-    msg = data.get("message", "")
-    if not msg:
-        return jsonify({"error": "No message"}), 400
-    job["messages"].append({"role": "user", "text": msg, "ts": time.time()})
-    job["status"] = "running"
-    job["_cancel"] = threading.Event()  # fresh cancel event
-
-    def _run_followup():
-        global _current_running_job_id
-        _current_running_job_id = job_id
-        resolved_agent = job.get("agent_name", "code")
-        job_mode = job.get("mode", "normal")
-
-        def _emit_activity(activity_type, content, **extra):
-            entry = {"type": activity_type, "content": content, "ts": time.time(), **extra}
-            job.setdefault("activity_log", []).append(entry)
-            socketio.emit("ide_job_activity", {"id": job_id, **entry})
-
-        # Thread-local stdout capture
-        _job_thread_id = threading.current_thread().ident
-        class _FUWriter:
-            def __init__(self, orig):
-                self._original = orig
-            def write(self, text):
-                self._original.write(text)
-                if text.strip() and threading.current_thread().ident == _job_thread_id:
-                    _emit_activity("log", text.rstrip("\n"))
-                return len(text)
-            def flush(self):
-                self._original.flush()
-            def __getattr__(self, name):
-                return getattr(self._original, name)
-
-        import sys as _sys
-        _old_stdout, _old_stderr = _sys.stdout, _sys.stderr
-        _sys.stdout = _FUWriter(_old_stdout)
-        _sys.stderr = _FUWriter(_old_stderr)
-
-        try:
-            # Plan approval → switch to autopilot execution
-            waiting_for = job.get("_waiting_for", "")
-            msg_lower = msg.lower().strip()
-            is_plan_approval = waiting_for == "plan_approval" and msg_lower in (
-                "approve", "approved", "go", "do it", "yes", "execute", "start", "lgtm",
-            )
-
-            if is_plan_approval:
-                _emit_activity("status", "📋 Plan approved! Switching to autopilot execution...")
-                job["mode"] = "autopilot"
-                job.pop("_waiting_for", None)
-
-                from dev.claude_tools import set_auto_approve
-                set_auto_approve(True)
-
-                # Execute the original task in autopilot mode
-                original_task = job.get("task", "")
-                current_message = (
-                    f"The plan has been approved. Now IMPLEMENT everything from the plan. "
-                    f"Original task: {original_task}\n\n"
-                    f"Do NOT re-plan. Start implementing immediately. "
-                    f"When ALL tasks are fully complete, say 'All tasks complete'."
-                )
-
-                DONE_PHRASES = [
-                    "all tasks complete", "all todos complete", "i've completed all",
-                    "all done", "everything is done", "finished all",
-                    "all changes have been", "all tasks are done",
-                    "i have completed", "tasks are complete",
-                ]
-
-                turn = 0
-                all_responses = []
-                while True:
-                    turn += 1
-                    if job["_cancel"].is_set():
-                        break
-                    _emit_activity("thinking", f"🚀 Autopilot turn {turn}...")
-                    result = agent.chat(current_message, speaker="ide", agent_override=resolved_agent)
-                    response_text = result.get("text", "") if isinstance(result, dict) else str(result)
-                    all_responses.append(response_text)
-                    job["messages"].append({"role": "assistant", "text": response_text, "ts": time.time()})
-                    _emit_activity("status", f"Turn {turn} done ({len(response_text)} chars)")
-                    socketio.emit("ide_job_progress", {"id": job_id, "text": response_text[-200:], "chunk": response_text})
-
-                    if any(p in response_text.lower() for p in DONE_PHRASES):
-                        _emit_activity("status", "Agent signaled completion")
-                        break
-                    if len(response_text.strip()) < 50 and turn > 1:
-                        break
-
-                    current_message = (
-                        "Continue working on the remaining tasks. "
-                        "Do NOT summarize — just keep implementing. "
-                        "When ALL tasks are fully complete, say 'All tasks complete'."
-                    )
-                    job["messages"].append({"role": "user", "text": current_message, "ts": time.time()})
-
-                full_text = "\n\n---\n\n".join(all_responses)
-            else:
-                # Regular follow-up — single agent call with context
-                _emit_activity("thinking", "Processing follow-up...")
-                result = agent.chat(msg, speaker="ide", agent_override=resolved_agent)
-                full_text = result.get("text", "") if isinstance(result, dict) else str(result)
-                job["messages"].append({"role": "assistant", "text": full_text, "ts": time.time()})
-                socketio.emit("ide_job_progress", {"id": job_id, "text": full_text[-200:], "chunk": full_text})
-
-            if job["_cancel"].is_set():
-                job["status"] = "cancelled"
-                socketio.emit("ide_job_done", {"id": job_id, "status": "cancelled"})
-            else:
-                job["status"] = "done"
-                job["result"] = full_text
-                _emit_activity("done", "Follow-up complete")
-                socketio.emit("ide_job_done", {"id": job_id, "status": "done", "result": full_text})
-            _save_ide_jobs()
-        except Exception as e:
-            job["status"] = "failed"
-            job["error"] = str(e)
-            job["messages"].append({"role": "assistant", "text": f"Error: {e}", "ts": time.time()})
-            _emit_activity("error", str(e))
-            socketio.emit("ide_job_done", {"id": job_id, "status": "failed", "error": str(e)})
-            _save_ide_jobs()
-        finally:
-            _sys.stdout = _old_stdout
-            _sys.stderr = _old_stderr
-            _current_running_job_id = None
-
-    socketio.emit("ide_job_started", {"id": job_id, "task": msg, "agent": job.get("agent_name", "code"), "followup": True})
-    threading.Thread(target=_run_followup, daemon=True).start()
-    return jsonify({"ok": True})
-
-
-@app.route("/api/ide/jobs/<job_id>/messages", methods=["GET"])
-def api_ide_jobs_messages(job_id):
-    """Return conversation history for a job."""
-    job = _ide_jobs.get(job_id)
-    if not job:
-        return jsonify({"error": "Job not found"}), 404
-    messages = [{"role": m.get("role", ""), "text": m.get("text", ""), "ts": m.get("ts", 0)} for m in job.get("messages", [])]
-    activity_log = job.get("activity_log", [])
-    return jsonify({"messages": messages, "activity_log": activity_log, "status": job.get("status", "pending")})
-
-
-@app.route("/api/ide/jobs/<job_id>/rename", methods=["POST"])
-def api_ide_jobs_rename(job_id):
-    """Set a custom name for a job."""
-    job = _ide_jobs.get(job_id)
-    if not job:
-        return jsonify({"error": "Job not found"}), 404
-    data = request.json or {}
-    job["custom_name"] = data.get("name")
-    _save_ide_jobs()
-    return jsonify({"ok": True})
-
-
-@app.route("/api/ide/jobs/<job_id>/mode", methods=["POST"])
-def api_ide_jobs_mode(job_id):
-    """Update the mode for a job (autopilot/normal/plan)."""
-    job = _ide_jobs.get(job_id)
-    if not job:
-        return jsonify({"error": "Job not found"}), 404
-    data = request.json or {}
-    new_mode = data.get("mode", "normal")
-    if new_mode not in ("autopilot", "normal", "plan"):
-        return jsonify({"error": "Invalid mode"}), 400
-    job["mode"] = new_mode
-    _save_ide_jobs()
-    return jsonify({"ok": True, "mode": new_mode})
-
-
-@app.route("/api/ide/jobs/<job_id>/archive", methods=["POST"])
-def api_ide_jobs_archive(job_id):
-    """Archive a job."""
-    job = _ide_jobs.get(job_id)
-    if not job:
-        return jsonify({"error": "Job not found"}), 404
-    job["archived"] = True
-    socketio.emit("ide_job_archived", {"id": job_id})
-    _save_ide_jobs()
-    return jsonify({"ok": True})
-
-
-@app.route("/api/ide/jobs/<job_id>/auto-approve", methods=["POST"])
-def api_ide_jobs_auto_approve(job_id):
-    """Toggle auto-approve for a job."""
-    job = _ide_jobs.get(job_id)
-    if not job:
-        return jsonify({"error": "Job not found"}), 404
-    job["auto_approve"] = not job.get("auto_approve", False)
-    return jsonify({"ok": True, "auto_approve": job["auto_approve"]})
-
-
-@app.route("/api/ide/jobs/<job_id>/delete", methods=["DELETE"])
-def api_ide_jobs_delete(job_id):
-    """Permanently delete a job."""
-    if job_id in _ide_jobs:
-        del _ide_jobs[job_id]
-        socketio.emit("ide_job_deleted", {"id": job_id})
-        _save_ide_jobs()
-        return jsonify({"ok": True})
-    return jsonify({"error": "Job not found"}), 404
-
-
-@app.route("/api/ide/jobs/<job_id>/unarchive", methods=["POST"])
-def api_ide_jobs_unarchive(job_id):
-    """Restore an archived job."""
-    job = _ide_jobs.get(job_id)
-    if not job:
-        return jsonify({"error": "Job not found"}), 404
-    job["archived"] = False
-    job["status"] = "done"
-    socketio.emit("ide_job_unarchived", {"id": job_id})
-    _save_ide_jobs()
-    return jsonify({"ok": True})
-
-
-# ── IDE State Persistence ────────────────────────────────────────────
-
-_IDE_STATE_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/ide_state.json")
-
-
-@app.route("/api/ide/state", methods=["GET"])
-def api_ide_state_get():
-    """Load IDE state (tabs, cursor positions, settings, etc.)."""
-    if os.path.exists(_IDE_STATE_FILE):
-        try:
-            with open(_IDE_STATE_FILE, "r", encoding="utf-8") as f:
-                return jsonify(json.load(f))
-        except Exception:
-            pass
-    return jsonify({
-        "workspaces": ["~/home-lab"],
-        "openTabs": [],
-        "activeTab": None,
-        "cursorPositions": {},
-        "scrollPositions": {},
-        "settings": {
-            "fontSize": 14,
-            "tabSize": 4,
-            "theme": "dark",
-            "autoSave": True,
-            "wordWrap": False,
-        },
-        "activePanel": "explorer",
-        "agentMode": "autopilot",
-        "terminalHistory": [],
-    })
-
-
-@app.route("/api/ide/state", methods=["POST"])
-def api_ide_state_save():
-    """Save IDE state to disk."""
-    data = request.json or {}
-    try:
-        os.makedirs(os.path.dirname(_IDE_STATE_FILE), exist_ok=True)
-        with open(_IDE_STATE_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-        return jsonify({"ok": True})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-# ── IDE Terminal SocketIO events ─────────────────────────────────────
-
-@socketio.on("terminal_open")
-def on_terminal_open(data):
-    """Open a new PTY terminal session."""
-    term_id = data.get("term_id", "term-1")
-    cols = data.get("cols", 80)
-    rows = data.get("rows", 24)
-    sid = request.sid
-    mgr = _get_terminal_mgr()
-
-    def _output_cb(tid, raw_data):
-        socketio.emit("terminal_output", {
-            "term_id": tid,
-            "data": raw_data.decode("utf-8", errors="replace"),
-        }, room=sid)
-
-    mgr.open_terminal(sid, term_id, cols, rows, _output_cb)
-
-
-@socketio.on("terminal_input")
-def on_terminal_input(data):
-    """Send keystrokes to a terminal."""
-    term_id = data.get("term_id", "term-1")
-    input_data = data.get("data", "")
-    mgr = _get_terminal_mgr()
-    session = mgr.get_session(request.sid, term_id)
-    if session:
-        session.write(input_data.encode("utf-8"))
-
-
-@socketio.on("terminal_resize")
-def on_terminal_resize(data):
-    """Resize a terminal."""
-    term_id = data.get("term_id", "term-1")
-    mgr = _get_terminal_mgr()
-    session = mgr.get_session(request.sid, term_id)
-    if session:
-        session.resize(data.get("cols", 80), data.get("rows", 24))
-
-
-@socketio.on("terminal_close")
-def on_terminal_close(data):
-    """Close a specific terminal session."""
-    term_id = data.get("term_id", "term-1")
-    mgr = _get_terminal_mgr()
-    mgr.close_terminal(request.sid, term_id)
-
-
-# ── IDE File Watch SocketIO events ───────────────────────────────────
-
-@socketio.on("ide_watch_file")
-def on_ide_watch_file(data):
-    """Start watching a file for changes."""
-    path = data.get("path", "")
-    if path:
-        watcher = _get_file_watcher()
-        watcher.watch(path)
-
-
-@socketio.on("ide_unwatch_file")
-def on_ide_unwatch_file(data):
-    """Stop watching a file."""
-    path = data.get("path", "")
-    if path:
-        watcher = _get_file_watcher()
-        watcher.unwatch(path)
-
-
-# ── IDE Agent Diff SocketIO events ───────────────────────────────────
-
-@socketio.on("ide_agent_diff_response")
-def on_ide_agent_diff_response(data):
-    """Handle accept/reject of agent edit."""
-    accepted = data.get("accepted", False)
-    path = data.get("path", "")
-    new_content = data.get("new_content", "")
-    if accepted and path and new_content:
-        path = os.path.expanduser(path)
-        try:
-            with open(path, "w", encoding="utf-8") as f:
-                f.write(new_content)
-            watcher = _get_file_watcher()
-            watcher.notify_change(path)
-        except Exception as e:
-            print(f"[ide] Failed to apply agent edit: {e}")
-
-
-# ── Windows Proxy SocketIO events ────────────────────────────────────
-
-@socketio.on("win_proxy_register")
-def on_win_proxy_register(data):
-    """Windows proxy client registers itself."""
-    global _win_proxy_sid
-    _win_proxy_sid = request.sid
-    print(f"[ide] Windows proxy connected (root: {data.get('root', '?')})")
-    socketio.emit("ide_win_proxy_status", {"connected": True, "root": data.get("root", "")})
-
-
-@socketio.on("win_proxy_response")
-def on_win_proxy_response(data):
-    """Windows proxy responds to a request."""
-    request_id = data.get("request_id", "")
-    result = data.get("result", {})
-    pending = _win_proxy_pending.get(request_id)
-    if pending:
-        pending.set(result)
-
+# Routes + helpers + globals + SocketIO handlers all live in routes/ide.py.
+# `register_ide(app, socketio, agent)` is called below after init_services()
+# so the blueprint can resolve a live agent reference.
+from routes.ide import register_ide, cleanup_client_session
 
 # ── Main ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     init_services()
+    # Wire the IDE blueprint + SocketIO handlers now that `agent` is live.
+    register_ide(app, socketio, agent)
     # Restore music playback from last session (if any)
     if music:
         try:
             music.restore_playback()
         except Exception as e:
-            print(f"[bmo] Music restore failed: {e}")
-    print("[bmo] BMO is ready! Access at http://0.0.0.0:5000")
+            log.exception(f"[bmo] Music restore failed")
+    log.info("[bmo] BMO is ready! Access at http://0.0.0.0:5000")
     socketio.run(app, host="0.0.0.0", port=5000, debug=False)

@@ -115,11 +115,32 @@ HIDDEN_DIRS = {'.git', 'node_modules', '__pycache__', '.venv', 'venv',
                '.next', '.nuxt'}
 
 
+_IDE_ALLOWED_ROOTS = [
+    os.path.realpath(os.path.expanduser("~/home-lab")),
+    os.path.realpath(os.path.expanduser("~/.bmo_ide_workspace")),
+    "/tmp",
+]
+
+
 def _resolve_path(path: str) -> str:
-    """Expand ~ and resolve to absolute path safely."""
-    if path.startswith('~'):
-        path = os.path.expanduser(path)
-    return os.path.abspath(path)
+    """Expand ~ and realpath; raise PermissionError if outside _IDE_ALLOWED_ROOTS.
+
+    Path-jail mirrors the main BMO app's `_ide_safe_path` helper. Routes
+    don't need explicit try/except — the @app.errorhandler(PermissionError)
+    below converts any escape into a 403.
+    """
+    if not isinstance(path, str) or not path:
+        raise PermissionError("path is required")
+    resolved = os.path.realpath(os.path.expanduser(path))
+    for root in _IDE_ALLOWED_ROOTS:
+        if resolved == root or resolved.startswith(root + os.sep):
+            return resolved
+    raise PermissionError(f"path outside IDE sandbox: {resolved}")
+
+
+@app.errorhandler(PermissionError)
+def _ide_perm_denied(e):
+    return jsonify({"error": str(e)}), 403
 
 
 def _detect_language(filepath: str) -> str:

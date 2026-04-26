@@ -9,7 +9,10 @@ import os
 import threading
 import time
 
-SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "data", "settings.json")
+from services.bmo_logging import get_logger
+log = get_logger("scene_service")
+
+SETTINGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
 
 BUILTIN_SCENES = {
     "anime": {
@@ -50,7 +53,7 @@ def _load_custom_scenes() -> dict:
                 settings = json.load(f)
             return settings.get("custom_scenes", {})
     except Exception as e:
-        print(f"[scene] Failed to load custom scenes: {e}")
+        log.exception(f"[scene] Failed to load custom scenes")
     return {}
 
 
@@ -66,7 +69,7 @@ def _save_custom_scenes(custom: dict):
         with open(SETTINGS_PATH, "w") as f:
             json.dump(settings, f, indent=2)
     except Exception as e:
-        print(f"[scene] Failed to save custom scenes: {e}")
+        log.exception(f"[scene] Failed to save custom scenes")
 
 
 def _get_all_scenes() -> dict:
@@ -190,7 +193,7 @@ class SceneService:
             config["label"] = name
         custom[key] = config
         _save_custom_scenes(custom)
-        print(f"[scene] Created custom scene: {key}")
+        log.info(f"[scene] Created custom scene: {key}")
         if self._socketio:
             self._socketio.emit("scenes_updated", {"scenes": self.list_scenes()})
         return True, f"Scene '{config['label']}' created"
@@ -207,7 +210,7 @@ class SceneService:
             config["label"] = custom[key].get("label", name)
         custom[key] = config
         _save_custom_scenes(custom)
-        print(f"[scene] Updated custom scene: {key}")
+        log.info(f"[scene] Updated custom scene: {key}")
         if self._socketio:
             self._socketio.emit("scenes_updated", {"scenes": self.list_scenes()})
         return True, f"Scene '{config['label']}' updated"
@@ -226,7 +229,7 @@ class SceneService:
         # If this scene was active, deactivate it
         if self._active_scene == key:
             self._apply_deactivation(skip_restore=False)
-        print(f"[scene] Deleted custom scene: {key}")
+        log.info(f"[scene] Deleted custom scene: {key}")
         if self._socketio:
             self._socketio.emit("scenes_updated", {"scenes": self.list_scenes()})
         return True, f"Scene '{label}' deleted"
@@ -267,13 +270,13 @@ class SceneService:
             except Exception:
                 pass
 
-        print(f"[scene] Captured state: {list(state.keys())}")
+        log.info(f"[scene] Captured state: {list(state.keys())}")
         return state
 
     def _restore_state(self):
         """Restore previously saved state."""
         if not self._saved_state:
-            print("[scene] No saved state to restore")
+            log.info("[scene] No saved state to restore")
             return
 
         # Restore LED
@@ -302,18 +305,18 @@ class SceneService:
                             led.set_color(*color)
                         brightness = led_state.get("brightness", 128)
                         led.set_brightness(brightness)
-                print(f"[scene] Restored LED: disabled={was_disabled}, mode={led_state.get('mode')}, color={led_state.get('color')}")
+                log.info(f"[scene] Restored LED: disabled={was_disabled}, mode={led_state.get('mode')}, color={led_state.get('color')}")
             except Exception as e:
-                print(f"[scene] LED restore failed: {e}")
+                log.exception(f"[scene] LED restore failed")
 
         self._saved_state = {}
-        print("[scene] State restored")
+        log.info("[scene] State restored")
 
     # ── Scene Application ───────────────────────────────────────────
 
     def _apply_scene(self, scene: dict):
         """Apply scene settings to hardware via service objects (no HTTP)."""
-        print(f"[scene] Applying scene settings: {scene}")
+        log.info(f"[scene] Applying scene settings: {scene}")
         led = self._services.get("leds")
         music = self._services.get("music")
         tv_send_key = self._services.get("tv_send_key")
@@ -324,18 +327,18 @@ class SceneService:
             try:
                 if led:
                     led.set_mode("off")
-                print("[scene] LED off")
+                log.info("[scene] LED off")
             except Exception as e:
-                print(f"[scene] LED off failed: {e}")
+                log.exception(f"[scene] LED off failed")
         elif scene.get("rgb_mode"):
             try:
                 if led:
                     led.set_mode(scene["rgb_mode"])
                     if scene.get("rgb_brightness"):
                         led.set_brightness(scene["rgb_brightness"])
-                print(f"[scene] LED {scene['rgb_mode']}")
+                log.info(f"[scene] LED {scene['rgb_mode']}")
             except Exception as e:
-                print(f"[scene] LED mode failed: {e}")
+                log.exception(f"[scene] LED mode failed")
 
         # TV
         tv_power_on = self._services.get("tv_power_on")
@@ -343,17 +346,17 @@ class SceneService:
         if scene.get("tv_off"):
             try:
                 if not tv_power_off:
-                    print("[scene] TV power_off callback not available")
+                    log.info("[scene] TV power_off callback not available")
                     if self._socketio:
                         self._socketio.emit("notification", {"message": "TV not connected — pair in TV tab first", "type": "warning"})
                 else:
                     tv_power_off()
             except Exception as e:
-                print(f"[scene] TV off failed: {e}")
+                log.exception(f"[scene] TV off failed")
         elif scene.get("tv_on"):
             try:
                 if not tv_power_on:
-                    print("[scene] TV power_on callback not available")
+                    log.info("[scene] TV power_on callback not available")
                     if self._socketio:
                         self._socketio.emit("notification", {"message": "TV not connected — pair in TV tab first", "type": "warning"})
                 else:
@@ -361,16 +364,16 @@ class SceneService:
                     time.sleep(3)
                     if scene.get("tv_app") and tv_launch:
                         tv_launch(scene["tv_app"])
-                        print(f"[scene] TV → {scene['tv_app']}")
+                        log.info(f"[scene] TV → {scene['tv_app']}")
             except Exception as e:
-                print(f"[scene] TV launch failed: {e}")
+                log.exception(f"[scene] TV launch failed")
 
         # Music
         if scene.get("music_stop"):
             try:
                 if music and hasattr(music, "stop"):
                     music.stop()
-                print("[scene] Music stopped")
+                log.info("[scene] Music stopped")
             except Exception:
                 pass
         elif scene.get("music_playlist"):
@@ -379,9 +382,9 @@ class SceneService:
                     results = music.search(f"{scene['music_playlist']} mix", limit=1)
                     if results:
                         music.play(results[0])
-                print(f"[scene] Music → {scene['music_playlist']}")
+                log.info(f"[scene] Music → {scene['music_playlist']}")
             except Exception as e:
-                print(f"[scene] Music play failed: {e}")
+                log.exception(f"[scene] Music play failed")
 
     def _apply_deactivation(self, skip_restore: bool = False):
         """Deactivate the current scene."""
@@ -393,7 +396,7 @@ class SceneService:
         if not skip_restore:
             self._restore_state()
 
-        print(f"[scene] {scene_name} deactivated")
+        log.info(f"[scene] {scene_name} deactivated")
 
     # ── Persistence ─────────────────────────────────────────────────
 
@@ -419,7 +422,7 @@ class SceneService:
                         import datetime
                         hour = datetime.datetime.now().hour
                         if 6 <= hour < 20:  # 6 AM to 8 PM
-                            print(f"[scene] Auto-expired bedtime mode (it's {hour}:00, daytime)")
+                            log.info(f"[scene] Auto-expired bedtime mode (it's {hour}:00, daytime)")
                             self._active_scene = None
                             self._saved_state = {}
                             self._save_state()
@@ -431,15 +434,15 @@ class SceneService:
                         age = time.time() - activated_at
                         if age > self._MAX_SCENE_AGE:
                             hours = age / 3600
-                            print(f"[scene] Auto-expired {self._active_scene} (active for {hours:.1f}h, max 4h)")
+                            log.info(f"[scene] Auto-expired {self._active_scene} (active for {hours:.1f}h, max 4h)")
                             self._active_scene = None
                             self._saved_state = {}
                             self._save_state()
                             return
 
-                    print(f"[scene] Restored active scene: {self._active_scene}")
+                    log.info(f"[scene] Restored active scene: {self._active_scene}")
         except Exception as e:
-            print(f"[scene] Load state failed: {e}")
+            log.exception(f"[scene] Load state failed")
 
     def _save_state(self):
         """Save scene state to settings.json."""
@@ -463,4 +466,4 @@ class SceneService:
             with open(SETTINGS_PATH, "w") as f:
                 json.dump(settings, f, indent=2)
         except Exception as e:
-            print(f"[scene] Save state failed: {e}")
+            log.exception(f"[scene] Save state failed")

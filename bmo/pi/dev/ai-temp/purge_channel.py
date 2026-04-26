@@ -63,7 +63,9 @@ def delete_one(msg_id):
 def is_recent(snowflake_id):
     """True if the message is < 14 days old (bulk-delete eligible)."""
     ts_ms = (int(snowflake_id) >> 22) + 1420070400000
-    age = datetime.datetime.utcnow() - datetime.datetime.utcfromtimestamp(ts_ms / 1000)
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    msg_utc = datetime.datetime.fromtimestamp(ts_ms / 1000, tz=datetime.timezone.utc)
+    age = now_utc - msg_utc
     return age.days < 14
 
 

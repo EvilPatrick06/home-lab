@@ -541,7 +541,14 @@ class DMBot(commands.Bot):
         intents.voice_states = True
         intents.members = True
 
-        super().__init__(command_prefix="!", intents=intents)
+        # Default-deny @everyone / role mentions in any reply the bot sends.
+        # Stops user input echoed via f-string from pinging unintended targets
+        # (D&D player typing "@everyone" in a roll command, for example).
+        # Individual user mentions (replies, summons) are still allowed.
+        allowed_mentions = discord.AllowedMentions(
+            everyone=False, roles=False, users=True, replied_user=True,
+        )
+        super().__init__(command_prefix="!", intents=intents, allowed_mentions=allowed_mentions)
         self.session = DMSession()
         self._guild_id: Optional[int] = int(GUILD_ID) if GUILD_ID else None
         self._search_engine = None

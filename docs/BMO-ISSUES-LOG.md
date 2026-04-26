@@ -15,13 +15,13 @@
 
 New entries go at the TOP of their severity section (newest first within each section).
 
-**Process (read this):** This log is the **deferred** backlog, not a duplicate of every commit. Per `[LOG-INSTRUCTIONS.md](./LOG-INSTRUCTIONS.md)`: if a bug is fixed in the same session / PR, we **do not** add a new entry here (the commit + moved archive entry are the record). That can make it look like the log “stopped” — it did not; it only tracks **outstanding** work. When an item is done, it moves to `[BMO-RESOLVED-ISSUES.md](./BMO-RESOLVED-ISSUES.md)` and is removed from here.
+**Process (read this):** This log is the **deferred** backlog, not a duplicate of every commit. Per `[LOG-INSTRUCTIONS.md](./LOG-INSTRUCTIONS.md)`: if a bug is fixed in the same session / PR, we **do not** add a new entry here (the commit + moved archive entry are the record). That can make it look like the log "stopped" — it did not; it only tracks **outstanding** work. When an item is done, it moves to `[BMO-RESOLVED-ISSUES.md](./BMO-RESOLVED-ISSUES.md)` and is removed from here.
 
 ---
 
 # Active BMO Issues
 
-> **2026-04-25** — The prior multi-section backlog was cleared in one Pi-verified pass (env, data paths, JSON vs pickle, journald logging, ruff, docs). Details: `[BMO-RESOLVED-ISSUES.md](./BMO-RESOLVED-ISSUES.md)` → search for **"BMO issues log — full sweep"**. Add new items below as they appear.
+> **2026-04-25 (final)** — Active backlog cleared. The deep-scan fixpack + the per-job lock follow-up + the security-log batch 2 cleanup all landed end-to-end and were verified (`pytest` 746 passed, all live attack-payload curls rejected, services hardened + restarted active). Details: `[BMO-RESOLVED-ISSUES.md](./BMO-RESOLVED-ISSUES.md)` → **"BMO deep-scan fixpack"** + **"BMO `_ide_jobs` per-key write race — full fix"**. Add new items below as they appear.
 
 ## Critical
 

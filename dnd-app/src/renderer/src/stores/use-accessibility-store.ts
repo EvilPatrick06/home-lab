@@ -60,10 +60,26 @@ function persist(state: AccessibilityState): void {
 
 const saved = loadPersistedState()
 
+/**
+ * Default `reducedMotion` from the OS-level `prefers-reduced-motion` media query
+ * when the user hasn't explicitly set it in-app. Falls back to `false` outside a
+ * browser context (e.g. SSR/test) or when matchMedia is unavailable.
+ */
+function detectOsReducedMotion(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
+  try {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  } catch {
+    return false
+  }
+}
+
+const osReducedMotion = detectOsReducedMotion()
+
 export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   uiScale: (saved.uiScale as number) ?? 100,
   colorblindMode: (saved.colorblindMode as ColorblindMode) ?? 'none',
-  reducedMotion: (saved.reducedMotion as boolean) ?? false,
+  reducedMotion: (saved.reducedMotion as boolean) ?? osReducedMotion,
   screenReaderMode: (saved.screenReaderMode as boolean) ?? false,
   tooltipsEnabled: (saved.tooltipsEnabled as boolean) ?? true,
   customKeybindings: (saved.customKeybindings as Record<string, KeyCombo> | null) ?? null,
@@ -115,3 +131,27 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
     persist(get())
   }
 }))
+
+// Track OS `prefers-reduced-motion` changes live and apply them when the user
+// has not explicitly set an in-app override (i.e. saved.reducedMotion is undefined).
+// Once the user toggles the in-app setting, persistence wins and we stop tracking.
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && saved.reducedMotion === undefined) {
+  try {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const listener = (e: MediaQueryListEvent): void => {
+      // Re-check persistence — user may have toggled in-app between events
+      const persisted = loadPersistedState()
+      if (persisted.reducedMotion === undefined) {
+        useAccessibilityStore.setState({ reducedMotion: e.matches })
+      }
+    }
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', listener)
+    } else if (typeof (mq as MediaQueryList & { addListener?: (l: typeof listener) => void }).addListener === 'function') {
+      // Older WebKit
+      ;(mq as MediaQueryList & { addListener: (l: typeof listener) => void }).addListener(listener)
+    }
+  } catch {
+    // matchMedia unavailable in this environment
+  }
+}

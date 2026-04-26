@@ -8,6 +8,21 @@
 (() => {
   'use strict';
 
+  // ── XSS-safe HTML helper ────────────────────────────────────
+  // Used by every `innerHTML = \`...${userField}...\`` site below to escape
+  // server-supplied strings (filenames, branch names, terminal labels, git
+  // change descriptions). Without this an attacker who can plant a file
+  // with HTML in its name gets script execution next time the tree renders.
+  const escapeHtml = (s) => {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+
   // ── State ───────────────────────────────────────────────────
 
   const STORAGE_KEY = 'bmo-ide-state';
@@ -300,9 +315,9 @@
       const arrow = node.isDir
         ? `<span class="arrow">${state.expandedDirs[node.path] ? '▾' : '▸'}</span>`
         : '<span class="arrow"></span>';
-      const icon = node.isDir ? '<span class="icon">📁</span>' : `<span class="icon">${fileIcon(node.name)}</span>`;
+      const icon = node.isDir ? '<span class="icon">📁</span>' : `<span class="icon">${escapeHtml(fileIcon(node.name))}</span>`;
 
-      item.innerHTML = `${arrow}${icon}<span class="name">${node.name}</span>`;
+      item.innerHTML = `${arrow}${icon}<span class="name">${escapeHtml(node.name)}</span>`;
 
       item.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -518,7 +533,7 @@
       tab.className = 'tab' + (f.path === state.activeFile ? ' active' : '');
       tab.innerHTML = `
         ${f.dirty ? '<span class="dirty">•</span>' : ''}
-        <span class="tab-name">${name}</span>
+        <span class="tab-name">${escapeHtml(name)}</span>
         <span class="close-tab">×</span>
       `;
 
@@ -648,7 +663,7 @@
     for (const t of state.terminals) {
       const tab = document.createElement('div');
       tab.className = 'terminal-tab' + (t.id === state.activeTerminal ? ' active' : '');
-      tab.innerHTML = `<span>${t.label}</span><span class="close-term">×</span>`;
+      tab.innerHTML = `<span>${escapeHtml(t.label)}</span><span class="close-term">×</span>`;
       tab.addEventListener('click', (e) => {
         if (e.target.classList.contains('close-term')) {
           closeTerminal(t.id);
@@ -678,7 +693,7 @@
   function renderGitPanel() {
     $('#git-branch').innerHTML = `
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M12 8V16"/></svg>
-      ${state.gitBranch || '(no repo)'}
+      ${escapeHtml(state.gitBranch || '(no repo)')}
     `;
     $('#status-branch-name').textContent = state.gitBranch || 'none';
 
@@ -699,8 +714,8 @@
       const div = document.createElement('div');
       div.className = 'git-change';
       div.innerHTML = `
-        <span class="status ${statusClass}">${c.status}</span>
-        <span class="filepath">${c.path}</span>
+        <span class="status ${statusClass}">${escapeHtml(c.status)}</span>
+        <span class="filepath">${escapeHtml(c.path)}</span>
         <span class="git-file-actions">
           <button class="git-file-btn" data-action="stage" title="Stage">+</button>
           <button class="git-file-btn" data-action="unstage" title="Unstage">−</button>
@@ -855,7 +870,7 @@
         return;
       }
       logEl.innerHTML = commits.map(c =>
-        `<div class="git-log-entry"><span class="git-hash">${c.hash}</span><span class="git-log-msg">${_escapeHtml(c.message)}</span></div>`
+        `<div class="git-log-entry"><span class="git-hash">${escapeHtml(c.hash)}</span><span class="git-log-msg">${_escapeHtml(c.message)}</span></div>`
       ).join('');
     } catch (e) { logEl.innerHTML = '<p style="font-size:11px;color:var(--text-dim)">Failed to load log</p>'; }
   }
@@ -888,8 +903,8 @@
       const div = document.createElement('div');
       div.className = 'search-result';
       div.innerHTML = `
-        <div class="result-file">${r.file.split('/').pop()}</div>
-        <div class="result-line">Line ${r.line}</div>
+        <div class="result-file">${escapeHtml(r.file.split('/').pop())}</div>
+        <div class="result-line">Line ${escapeHtml(String(r.line))}</div>
         <div class="result-content">${escapeHtml(r.content)}</div>
       `;
       div.addEventListener('click', () => openFile(r.file));
@@ -926,8 +941,8 @@
         const div = document.createElement('div');
         div.className = 'quick-open-item';
         div.innerHTML = `
-          <span class="file-name">${filepath.split('/').pop()}</span>
-          <span class="file-path">${filepath}</span>
+          <span class="file-name">${escapeHtml(filepath.split('/').pop())}</span>
+          <span class="file-path">${escapeHtml(filepath)}</span>
         `;
         div.addEventListener('click', () => {
           hideQuickOpen();

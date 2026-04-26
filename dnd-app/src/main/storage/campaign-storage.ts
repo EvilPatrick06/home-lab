@@ -5,6 +5,7 @@ import { isValidUUID } from '../../shared/utils/uuid'
 import { logToFile } from '../log'
 import { atomicWriteFile } from './atomic-write'
 import { CURRENT_SCHEMA_VERSION, migrateData } from './migrations'
+import { withSaveLock } from './save-queue'
 import type { StorageResult } from './types'
 
 let campaignsDirReady: Promise<string> | null = null
@@ -35,43 +36,49 @@ async function fileExists(path: string): Promise<boolean> {
 }
 
 export async function saveCampaign(campaign: Record<string, unknown>): Promise<StorageResult<void>> {
-  try {
-    const id = campaign.id as string
-    if (!id) {
-      return { success: false, error: 'Campaign must have an id' }
-    }
-    if (!isValidUUID(id)) {
-      return { success: false, error: 'Invalid campaign ID' }
-    }
-    campaign.schemaVersion = CURRENT_SCHEMA_VERSION
-    const path = await getCampaignPath(id)
-
-    // Create versioned backup of existing file before overwriting
-    if (await fileExists(path)) {
-      try {
-        const dir = await getCampaignsDir()
-        const versionsDir = join(dir, '.versions', id)
-        await mkdir(versionsDir, { recursive: true })
-        const ts = new Date().toISOString().replace(/[:.]/g, '-')
-        const bakPath = join(versionsDir, `${id}_${ts}.json`)
-        await copyFile(path, bakPath)
-
-        // Prune old versions, keep latest 20
-        const allVersions = (await readdir(versionsDir)).filter((f) => f.endsWith('.json')).sort()
-        if (allVersions.length > 20) {
-          const toDelete = allVersions.slice(0, allVersions.length - 20)
-          await Promise.allSettled(toDelete.map((f) => unlink(join(versionsDir, f))))
-        }
-      } catch {
-        // Non-fatal: versioning failure shouldn't block saving
-      }
-    }
-
-    await atomicWriteFile(path, JSON.stringify(campaign, null, 2))
-    return { success: true }
-  } catch (err) {
-    return { success: false, error: `Failed to save campaign: ${(err as Error).message}` }
+  const id = campaign.id as string
+  if (!id) {
+    return { success: false, error: 'Campaign must have an id' }
   }
+  if (!isValidUUID(id)) {
+    return { success: false, error: 'Invalid campaign ID' }
+  }
+
+  // Serialize concurrent same-id saves so the read → backup → write sequence
+  // is atomic per id.
+  return withSaveLock('campaign', id, async () => {
+    try {
+      campaign.schemaVersion = CURRENT_SCHEMA_VERSION
+      const path = await getCampaignPath(id)
+
+      // Create versioned backup of existing file before overwriting
+      if (await fileExists(path)) {
+        try {
+          const dir = await getCampaignsDir()
+          const versionsDir = join(dir, '.versions', id)
+          await mkdir(versionsDir, { recursive: true })
+          const ts = new Date().toISOString().replace(/[:.]/g, '-')
+          const bakPath = join(versionsDir, `${id}_${ts}.json`)
+          await copyFile(path, bakPath)
+
+          // Prune old versions, keep latest 20
+          const allVersions = (await readdir(versionsDir)).filter((f) => f.endsWith('.json')).sort()
+          if (allVersions.length > 20) {
+            const toDelete = allVersions.slice(0, allVersions.length - 20)
+            await Promise.allSettled(toDelete.map((f) => unlink(join(versionsDir, f))))
+          }
+        } catch (err) {
+          // Non-fatal: versioning failure shouldn't block saving — log breadcrumb
+          logToFile('WARN', `[campaign-storage] version backup failed for ${id}:`, String(err))
+        }
+      }
+
+      await atomicWriteFile(path, JSON.stringify(campaign, null, 2))
+      return { success: true }
+    } catch (err) {
+      return { success: false, error: `Failed to save campaign: ${(err as Error).message}` }
+    }
+  })
 }
 
 export async function loadCampaigns(): Promise<StorageResult<Record<string, unknown>[]>> {

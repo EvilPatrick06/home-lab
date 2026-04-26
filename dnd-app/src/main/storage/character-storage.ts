@@ -5,6 +5,7 @@ import { isValidUUID } from '../../shared/utils/uuid'
 import { logToFile } from '../log'
 import { atomicWriteFile } from './atomic-write'
 import { CURRENT_SCHEMA_VERSION, migrateData } from './migrations'
+import { withSaveLock } from './save-queue'
 import type { StorageResult } from './types'
 
 let charactersDirReady: Promise<string> | null = null
@@ -42,41 +43,50 @@ async function getVersionsDir(characterId: string): Promise<string> {
 }
 
 export async function saveCharacter(character: Record<string, unknown>): Promise<StorageResult<void>> {
-  try {
-    const id = character.id as string
-    if (!id) {
-      return { success: false, error: 'Character must have an id' }
-    }
-    if (!isValidUUID(id)) {
-      return { success: false, error: 'Invalid character ID' }
-    }
-    character.schemaVersion = CURRENT_SCHEMA_VERSION
-    const path = await getCharacterPath(id)
-
-    // Create versioned backup of existing file before overwriting
-    if (await fileExists(path)) {
-      try {
-        const versionsDir = await getVersionsDir(id)
-        const ts = new Date().toISOString().replace(/[:.]/g, '-')
-        const bakPath = join(versionsDir, `${id}_${ts}.json`)
-        await copyFile(path, bakPath)
-
-        // Prune old versions, keep latest 20
-        const allVersions = (await readdir(versionsDir)).filter((f) => f.endsWith('.json')).sort()
-        if (allVersions.length > 20) {
-          const toDelete = allVersions.slice(0, allVersions.length - 20)
-          await Promise.allSettled(toDelete.map((f) => unlink(join(versionsDir, f))))
-        }
-      } catch {
-        // Non-fatal: versioning failure shouldn't block saving
-      }
-    }
-
-    await atomicWriteFile(path, JSON.stringify(character, null, 2), 'utf-8')
-    return { success: true }
-  } catch (err) {
-    return { success: false, error: `Failed to save character: ${(err as Error).message}` }
+  const id = character.id as string
+  if (!id) {
+    return { success: false, error: 'Character must have an id' }
   }
+  if (!isValidUUID(id)) {
+    return { success: false, error: 'Invalid character ID' }
+  }
+
+  // Serialize concurrent saves of the same character so the
+  // read-existing → backup → write sequence is atomic per id.
+  // Without this, an auto-save tick racing a manual save can produce duplicate
+  // version backups and silently drop one writer's content.
+  return withSaveLock('character', id, async () => {
+    try {
+      character.schemaVersion = CURRENT_SCHEMA_VERSION
+      const path = await getCharacterPath(id)
+
+      // Create versioned backup of existing file before overwriting
+      if (await fileExists(path)) {
+        try {
+          const versionsDir = await getVersionsDir(id)
+          const ts = new Date().toISOString().replace(/[:.]/g, '-')
+          const bakPath = join(versionsDir, `${id}_${ts}.json`)
+          await copyFile(path, bakPath)
+
+          // Prune old versions, keep latest 20
+          const allVersions = (await readdir(versionsDir)).filter((f) => f.endsWith('.json')).sort()
+          if (allVersions.length > 20) {
+            const toDelete = allVersions.slice(0, allVersions.length - 20)
+            await Promise.allSettled(toDelete.map((f) => unlink(join(versionsDir, f))))
+          }
+        } catch (err) {
+          // Non-fatal: versioning failure shouldn't block saving — but log so the
+          // silent gap shows up if it ever matters during incident triage.
+          logToFile('WARN', `[character-storage] version backup failed for ${id}:`, String(err))
+        }
+      }
+
+      await atomicWriteFile(path, JSON.stringify(character, null, 2), 'utf-8')
+      return { success: true }
+    } catch (err) {
+      return { success: false, error: `Failed to save character: ${(err as Error).message}` }
+    }
+  })
 }
 
 export interface CharacterVersion {

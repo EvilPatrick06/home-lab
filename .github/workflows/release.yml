@@ -1,15 +1,40 @@
 name: Release
 
+# Triggered by pushing a `v*` tag (e.g. `v2.0.0`).
+# Builds the dnd-app on Windows + Linux runners in parallel, bundles Ollama
+# per platform, and uploads all artifacts to a draft GitHub Release.
+#
+# Auto-update wires up via electron-builder's `latest.yml` / `latest-linux.yml`
+# files which are emitted alongside each artifact and uploaded as part of the
+# same release; electron-updater on the user's machine reads them on next
+# launch and offers the upgrade.
+
 on:
   push:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
-    runs-on: windows-latest
-    permissions:
-      contents: write
+    name: Build & publish (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            release-script: release
+            ollama-platform: windows
+          - os: ubuntu-latest
+            release-script: release:linux
+            ollama-platform: linux
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        working-directory: dnd-app
 
     steps:
       - name: Checkout
@@ -18,13 +43,53 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+          cache-dependency-path: dnd-app/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build & publish release
+      # Bundles the Ollama binary into resources/ollama/{linux,windows}/ so
+      # electron-builder's per-platform extraResources picks it up.
+      - name: Bundle Ollama (${{ matrix.ollama-platform }})
+        run: node scripts/build/fetch-ollama.mjs --platform=${{ matrix.ollama-platform }}
+
+      # Linux .deb / AppImage builds need GTK and friends present on the runner
+      # so electron-builder can wire dependency metadata. Ubuntu runners ship
+      # most of these; this step is a sanity-check no-op when they're already
+      # there. Skipped on Windows.
+      - name: Linux build deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 \
+            xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0 \
+            fakeroot dpkg
+        working-directory: .
+
+      - name: Build & publish
         env:
+          # Auto-injected by Actions; electron-builder picks it up for `--publish always`.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release
+          # Skip auto-discovery of code-signing identities on Windows; signing
+          # is intentionally not configured for this release flow (see
+          # docs/SETUP.md "Build for release"). Without this, electron-builder
+          # would warn loudly about missing certs on every Windows build.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run ${{ matrix.release-script }}
+
+      - name: Upload artifacts (debug)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          path: |
+            dnd-app/dist/*.exe
+            dnd-app/dist/*.AppImage
+            dnd-app/dist/*.deb
+            dnd-app/dist/*.yml
+            dnd-app/dist/*.blockmap
+          if-no-files-found: warn
+          retention-days: 14

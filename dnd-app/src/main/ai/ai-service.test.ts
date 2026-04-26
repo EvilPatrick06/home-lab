@@ -217,12 +217,12 @@ describe('ai-service', () => {
 
       expect(setOllamaUrl).toHaveBeenCalledWith('http://gpu-server:11434')
       expect(writeFileSync).toHaveBeenCalledWith(
-        expect.stringMatching(/ai-config\.json\.tmp$/),
+        expect.stringMatching(/ai-config\.json\..*\.tmp$/),
         expect.stringContaining('mistral'),
         'utf-8'
       )
       expect(renameSync).toHaveBeenCalledWith(
-        expect.stringMatching(/ai-config\.json\.tmp$/),
+        expect.stringMatching(/ai-config\.json\..*\.tmp$/),
         expect.stringMatching(/ai-config\.json$/)
       )
     })

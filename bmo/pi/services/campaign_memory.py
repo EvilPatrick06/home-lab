@@ -111,7 +111,7 @@ class CampaignMemory:
     @staticmethod
     def _now() -> str:
         """Return the current UTC timestamp as an ISO-8601 string."""
-        return datetime.datetime.utcnow().isoformat()
+        return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     @staticmethod
     def _row_to_dict(row: Optional[sqlite3.Row]) -> Optional[dict]:

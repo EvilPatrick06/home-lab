@@ -17,12 +17,15 @@ import threading
 import time
 from enum import Enum
 
+from services.bmo_logging import get_logger
+log = get_logger("monitoring")
+
 try:
     import requests
     REQUESTS_AVAILABLE = True
 except ImportError:
     REQUESTS_AVAILABLE = False
-    print("[monitor] requests not installed — HTTP health checks disabled")
+    log.info("[monitor] requests not installed — HTTP health checks disabled")
 
 try:
     import psutil
@@ -259,7 +262,7 @@ def _send_discord_webhook(level: Severity, service: str, message: str) -> bool:
         )
         return r.status_code in (200, 204)
     except Exception as e:
-        print(f"[monitor] Discord webhook failed: {e}")
+        log.exception(f"[monitor] Discord webhook failed")
         return False
 
 
@@ -310,7 +313,7 @@ class HealthChecker:
                 with open(self._state_file, "r") as f:
                     return json.load(f)
         except Exception as e:
-            print(f"[monitor] Could not load saved state: {e}")
+            log.exception(f"[monitor] Could not load saved state")
         return {}
 
     def _save_prev_status(self):
@@ -320,7 +323,7 @@ class HealthChecker:
             with open(self._state_file, "w") as f:
                 json.dump(self._prev_status, f)
         except Exception as e:
-            print(f"[monitor] Could not save state: {e}")
+            log.exception(f"[monitor] Could not save state")
 
     def _load_discord_alert_state(self) -> dict[str, str]:
         """Load persisted Discord dedupe state across restarts."""
@@ -333,7 +336,7 @@ class HealthChecker:
                     if isinstance(fingerprints, dict):
                         return {str(k): str(v) for k, v in fingerprints.items()}
         except Exception as e:
-            print(f"[monitor] Could not load alert state: {e}")
+            log.exception(f"[monitor] Could not load alert state")
         return {}
 
     def _save_discord_alert_state(self):
@@ -343,20 +346,20 @@ class HealthChecker:
             with open(self._alert_state_file, "w", encoding="utf-8") as f:
                 json.dump(payload, f)
         except Exception as e:
-            print(f"[monitor] Could not save alert state: {e}")
+            log.exception(f"[monitor] Could not save alert state")
 
     # ── Lifecycle ────────────────────────────────────────────────────
 
     def start(self):
         """Start the background health check daemon thread."""
         if self._running:
-            print("[monitor] Already running")
+            log.info("[monitor] Already running")
             return
 
         self._running = True
         self._thread = threading.Thread(target=self._check_loop, daemon=True)
         self._thread.start()
-        print(f"[monitor] Health checker started (interval={self.check_interval}s)")
+        log.info(f"[monitor] Health checker started (interval={self.check_interval}s)")
 
     def stop(self):
         """Stop the health check daemon."""
@@ -364,7 +367,7 @@ class HealthChecker:
         if self._thread:
             self._thread.join(timeout=5)
             self._thread = None
-        print("[monitor] Health checker stopped")
+        log.info("[monitor] Health checker stopped")
 
     # ── Main Check Loop ──────────────────────────────────────────────
 
@@ -380,7 +383,7 @@ class HealthChecker:
             try:
                 self.check_all()
             except Exception as e:
-                print(f"[monitor] Check loop error: {e}")
+                log.exception(f"[monitor] Check loop error")
 
     def check_all(self):
         """Run all health checks and process results."""
@@ -810,11 +813,11 @@ class HealthChecker:
                 capture_output=True, text=True, timeout=5,
             )
             if result.returncode != 0:
-                print(f"[monitor] Docker ps failed: {result.stderr.strip()}")
+                log.warning(f"[monitor] Docker ps failed: {result.stderr.strip()}")
                 return
             containers = [n.strip() for n in result.stdout.strip().split("\n") if n.strip()]
         except Exception as e:
-            print(f"[monitor] Docker discovery failed: {e}")
+            log.exception(f"[monitor] Docker discovery failed")
             return
 
         if not containers:
@@ -1736,7 +1739,7 @@ class HealthChecker:
             if previous in ("down", "degraded") and current == "up":
                 label = self._service_label(name)
                 recovery_msg = f"✅ {label} has recovered and is back online"
-                print(f"[monitor] RECOVERY: {name} is back up")
+                log.info(f"[monitor] RECOVERY: {name} is back up")
 
                 if _send_discord_webhook(Severity.INFO, name, recovery_msg):
                     self._discord_last_fingerprint.pop(name, None)
@@ -1765,7 +1768,7 @@ class HealthChecker:
         """
         # Always log
         prefix = level.value.upper()
-        print(f"[monitor] [{prefix}] {service}: {message}")
+        log.info(f"[monitor] [{prefix}] {service}: {message}")
 
         # SocketIO for critical and warning
         if level in (Severity.CRITICAL, Severity.WARNING) and self.socketio:

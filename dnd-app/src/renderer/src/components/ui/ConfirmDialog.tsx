@@ -1,3 +1,5 @@
+import Modal from './Modal'
+
 interface ConfirmDialogProps {
   open: boolean
   title: string
@@ -24,31 +26,27 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel
 }: ConfirmDialogProps): JSX.Element | null {
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/70" onClick={onCancel} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-sm w-full mx-4">
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        <p className="text-gray-400 text-sm mb-4">{message}</p>
-        <div className="flex gap-3 justify-end">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
-              transition-colors cursor-pointer text-sm"
-          >
-            {cancelLabel}
-          </button>
-          <button
-            onClick={onConfirm}
-            className={`px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm
-              font-semibold text-white ${variantStyles[variant]}`}
-          >
-            {confirmLabel}
-          </button>
-        </div>
+    <Modal open={open} onClose={onCancel} title={title} className="max-w-sm">
+      <p className="text-gray-400 text-sm mb-4">{message}</p>
+      <div className="flex gap-3 justify-end">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
+            transition-colors cursor-pointer text-sm"
+        >
+          {cancelLabel}
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          className={`px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm
+            font-semibold text-white ${variantStyles[variant]}`}
+        >
+          {confirmLabel}
+        </button>
       </div>
-    </div>
+    </Modal>
   )
 }

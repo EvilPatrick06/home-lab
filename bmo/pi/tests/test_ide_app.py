@@ -585,11 +585,28 @@ class TestIndexRoute:
 
 
 class TestResolvePath:
-    def test_tilde_expanded(self):
-        result = _ide_module._resolve_path("~/somefile")
-        assert not result.startswith("~")
+    def test_path_inside_jail_resolved(self):
+        """A path inside ~/home-lab/ resolves to its absolute realpath."""
+        result = _ide_module._resolve_path("~/home-lab/bmo/pi/data")
         assert os.path.isabs(result)
+        assert "home-lab" in result
 
-    def test_absolute_path_unchanged(self, tmp_path):
-        result = _ide_module._resolve_path(str(tmp_path))
-        assert result == str(tmp_path)
+    def test_tmp_allowed(self, tmp_path):
+        """/tmp/* is in the allowlist — used for ephemeral IDE workspaces."""
+        # tmp_path is under /tmp so it's allowed
+        if str(tmp_path).startswith("/tmp"):
+            result = _ide_module._resolve_path(str(tmp_path))
+            assert result == str(tmp_path)
+
+    def test_outside_jail_raises_permission(self):
+        """Paths outside the IDE allowlist (/etc, ~/, etc.) raise PermissionError."""
+        import pytest
+        with pytest.raises(PermissionError):
+            _ide_module._resolve_path("/etc/passwd")
+        with pytest.raises(PermissionError):
+            _ide_module._resolve_path("~/somefile")  # ~/ → /home/patrick (outside ~/home-lab)
+
+    def test_empty_path_raises(self):
+        import pytest
+        with pytest.raises(PermissionError):
+            _ide_module._resolve_path("")

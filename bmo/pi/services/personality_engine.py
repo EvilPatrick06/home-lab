@@ -13,8 +13,8 @@ import time
 
 DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
-QUIPS_FILE = os.path.join(os.path.dirname(__file__), "data", "personality", "quips.json")
-AT_QUOTES_FILE = os.path.join(os.path.dirname(__file__), "data", "personality", "adventure_time_quotes.json")
+QUIPS_FILE = os.path.join(DATA_DIR, "personality", "quips.json")
+AT_QUOTES_FILE = os.path.join(DATA_DIR, "personality", "adventure_time_quotes.json")
 
 # Chattiness → minimum seconds between unprompted speech
 CHATTINESS_COOLDOWNS = {

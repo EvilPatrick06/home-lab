@@ -11,7 +11,10 @@ import subprocess
 import threading
 import time
 
-SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "data", "settings.json")
+from services.bmo_logging import get_logger
+log = get_logger("audio_output_service")
+
+SETTINGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
 
 # Audio function categories that can be independently routed
 AUDIO_FUNCTIONS = ["music", "voice", "effects", "notifications", "all"]
@@ -75,7 +78,7 @@ class AudioOutputService:
         # Check if PipeWire is already running and connectable
         r = subprocess.run(["wpctl", "status"], capture_output=True, text=True, timeout=5, env=env)
         if r.returncode == 0 and "Sinks:" in r.stdout:
-            print("[audio] PipeWire already running")
+            log.info("[audio] PipeWire already running")
             return
 
         # Kill any stale processes and sockets
@@ -91,7 +94,7 @@ class AudioOutputService:
             except OSError:
                 pass
 
-        print("[audio] Starting PipeWire stack (detached)...")
+        log.info("[audio] Starting PipeWire stack (detached)...")
         # Start detached: start_new_session=True puts processes in their own
         # process group so systemd won't kill them when bmo.service restarts.
         devnull = subprocess.DEVNULL
@@ -110,9 +113,9 @@ class AudioOutputService:
         # Verify
         r = subprocess.run(["wpctl", "status"], capture_output=True, text=True, timeout=5, env=env)
         if r.returncode == 0 and "Sinks:" in r.stdout:
-            print("[audio] PipeWire stack started successfully")
+            log.info("[audio] PipeWire stack started successfully")
         else:
-            print(f"[audio] PipeWire stack may not be fully ready: rc={r.returncode}")
+            log.info(f"[audio] PipeWire stack may not be fully ready: rc={r.returncode}")
 
     # ── Device Enumeration ──────────────────────────────────────────
 
@@ -202,18 +205,18 @@ class AudioOutputService:
         """Set the default audio output device for the whole system."""
         rc, _, err = _run(["wpctl", "set-default", str(pw_id)])
         if rc != 0:
-            print(f"[audio] Failed to set default sink {pw_id}: {err}")
+            log.warning(f"[audio] Failed to set default sink {pw_id}: {err}")
             return False
-        print(f"[audio] Default output set to device {pw_id}")
+        log.info(f"[audio] Default output set to device {pw_id}")
         return True
 
     def set_default_input(self, pw_id: int) -> bool:
         """Set the default audio input device (source) for the whole system."""
         rc, _, err = _run(["wpctl", "set-default", str(pw_id)])
         if rc != 0:
-            print(f"[audio] Failed to set default source {pw_id}: {err}")
+            log.warning(f"[audio] Failed to set default source {pw_id}: {err}")
             return False
-        print(f"[audio] Default input set to device {pw_id}")
+        log.info(f"[audio] Default input set to device {pw_id}")
         return True
 
     def set_function_output(self, function: str, pw_id: int) -> bool:
@@ -241,7 +244,7 @@ class AudioOutputService:
             return success
 
         if function not in AUDIO_FUNCTIONS:
-            print(f"[audio] Unknown function: {function}")
+            log.info(f"[audio] Unknown function: {function}")
             return False
 
         # Set as default and move streams so it takes effect immediately
@@ -252,7 +255,7 @@ class AudioOutputService:
             self._routing[function] = pw_id
             self._routing_desc[function] = desc
             self._save_routing()
-        print(f"[audio] {function} routed to device {pw_id}")
+        log.info(f"[audio] {function} routed to device {pw_id}")
         return True
 
     def _get_sink_node_name(self, pw_id: int) -> str | None:
@@ -275,7 +278,7 @@ class AudioOutputService:
         if not sink_name:
             sink_name = self._get_sink_node_name(pw_id)
         if not sink_name:
-            print(f"[audio] Cannot resolve sink name for pw_id {pw_id}")
+            log.info(f"[audio] Cannot resolve sink name for pw_id {pw_id}")
             return
 
         env = os.environ.copy()
@@ -286,7 +289,7 @@ class AudioOutputService:
                 capture_output=True, text=True, timeout=5, env=env,
             )
             if r.returncode != 0:
-                print(f"[audio] pactl list failed: {r.stderr}")
+                log.warning(f"[audio] pactl list failed: {r.stderr}")
                 return
             for line in r.stdout.strip().split("\n"):
                 if not line.strip():
@@ -294,11 +297,11 @@ class AudioOutputService:
                 stream_idx = line.split()[0]
                 rc, _, err = _run(["pactl", "move-sink-input", stream_idx, sink_name])
                 if rc == 0:
-                    print(f"[audio] Moved stream {stream_idx} → {sink_name}")
+                    log.info(f"[audio] Moved stream {stream_idx} → {sink_name}")
                 else:
-                    print(f"[audio] Failed to move stream {stream_idx}: {err}")
+                    log.warning(f"[audio] Failed to move stream {stream_idx}: {err}")
         except Exception as e:
-            print(f"[audio] Stream move failed: {e}")
+            log.exception(f"[audio] Stream move failed")
 
     def get_function_output(self, function: str) -> int | None:
         """Get the device ID assigned to a function, or None for system default."""
@@ -357,7 +360,7 @@ class AudioOutputService:
             proc.stdin.flush()
             out, _ = proc.communicate(timeout=5)
         except Exception as e:
-            print(f"[bt] Scan process error: {e}")
+            log.exception(f"[bt] Scan process error")
             try:
                 proc.kill()
             except Exception:
@@ -385,7 +388,7 @@ class AudioOutputService:
                     if name.upper() == addr.upper():
                         continue
                     devices.append({"address": addr, "name": name})
-        print(f"[bt] Scan found {len(devices)} named devices")
+        log.info(f"[bt] Scan found {len(devices)} named devices")
         return devices
 
     def bluetooth_pair(self, address: str) -> tuple[bool, str]:
@@ -443,7 +446,7 @@ class AudioOutputService:
             proc.stdin.flush()
             out, _ = proc.communicate(timeout=5)
         except Exception as e:
-            print(f"[bt] Pair session error: {e}")
+            log.exception(f"[bt] Pair session error")
             try:
                 proc.kill()
             except Exception:
@@ -461,7 +464,7 @@ class AudioOutputService:
             if address.replace(":", "_").upper() in sink.name.upper() or \
                (sink.description and sink.description not in ("Built-in Audio Digital Stereo (HDMI)", "")):
                 self.set_default_output(sink.pw_id)
-                print(f"[audio] Auto-set BT device {sink.description} (id={sink.pw_id}) as default")
+                log.info(f"[audio] Auto-set BT device {sink.description} (id={sink.pw_id}) as default")
                 break
 
         return True, f"Connected to {address}"
@@ -500,7 +503,7 @@ class AudioOutputService:
                 # Load saved descriptions for re-resolving after reboot
                 self._routing_desc = settings.get("audio_routing_desc", {})
         except Exception as e:
-            print(f"[audio] Failed to load routing: {e}")
+            log.exception(f"[audio] Failed to load routing")
             self._routing = {}
             self._routing_desc = {}
 
@@ -525,17 +528,17 @@ class AudioOutputService:
                     if old_id != current_id:
                         self._routing[func] = current_id
                         updated = True
-                        print(f"[audio] Re-resolved {func}: '{desc}' -> pw_id {current_id} (was {old_id})")
+                        log.info(f"[audio] Re-resolved {func}: '{desc}' -> pw_id {current_id} (was {old_id})")
                     # Apply the first resolved device as system default
                     if not applied_default:
                         self.set_default_output(current_id)
                         applied_default = True
                 else:
-                    print(f"[audio] Cannot resolve saved device for {func}: '{desc}' — not found in current sinks")
+                    log.info(f"[audio] Cannot resolve saved device for {func}: '{desc}' — not found in current sinks")
             if updated:
                 self._save_routing()
         except Exception as e:
-            print(f"[audio] Routing resolve failed: {e}")
+            log.exception(f"[audio] Routing resolve failed")
 
     def _save_routing(self):
         """Save routing preferences to settings.json."""
@@ -550,7 +553,7 @@ class AudioOutputService:
             with open(SETTINGS_PATH, "w") as f:
                 json.dump(settings, f, indent=2)
         except Exception as e:
-            print(f"[audio] Failed to save routing: {e}")
+            log.exception(f"[audio] Failed to save routing")
 
     # ── Convenience ─────────────────────────────────────────────────
 

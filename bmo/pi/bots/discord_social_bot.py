@@ -99,6 +99,16 @@ def _get_db() -> sqlite3.Connection:
         fire_at REAL,
         created_at REAL DEFAULT (unixepoch())
     )""")
+
+    # Indexes for hot-path queries (idempotent — IF NOT EXISTS).
+    # play_history: read by guild + user + recency for "now playing" /
+    # leaderboards. xp_data.level for the leaderboard top-N. reminders.fire_at
+    # is polled every minute by the reminder loop.
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_play_history_guild_played ON play_history(guild_id, played_at)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_play_history_user_played ON play_history(user_id, played_at)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_xp_data_level ON xp_data(level)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_reminders_fire_at ON reminders(fire_at)")
+
     conn.commit()
     return conn
 
@@ -974,7 +984,13 @@ class SocialBot(commands.Bot):
         self._guild_id: Optional[int] = int(GUILD_ID) if GUILD_ID else None
         guild_ids = [self._guild_id] if self._guild_id else None
 
-        super().__init__(command_prefix="!", intents=intents)
+        # Default-deny @everyone / role mentions in any reply the bot sends.
+        # Stops a user setting reminder-text "@everyone phishing-link" from
+        # actually pinging the server.
+        allowed_mentions = discord.AllowedMentions(
+            everyone=False, roles=False, users=True, replied_user=True,
+        )
+        super().__init__(command_prefix="!", intents=intents, allowed_mentions=allowed_mentions)
 
         # Register slash commands
         for cmd in [_play_cmd, _skip_cmd, _queue_cmd, _stop_cmd,

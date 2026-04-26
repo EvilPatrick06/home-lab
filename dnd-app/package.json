@@ -1,6 +1,6 @@
 {
   "name": "dnd-vtt",
-  "version": "1.9.9",
+  "version": "2.0.0",
   "description": "D&D Virtual Tabletop - Desktop app for online Dungeons & Dragons",
   "main": "./out/main/index.js",
   "scripts": {
@@ -8,10 +8,14 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "start": "electron-vite preview",
-    "postinstall": "electron-builder install-app-deps && node -e \"require('fs').cpSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs','src/renderer/public/pdf.worker.min.mjs')\"",
+    "postinstall": "electron-builder install-app-deps && node scripts/build/postinstall.mjs",
     "build:win": "npm run build:index && electron-vite build && electron-builder --win",
+    "build:linux": "npm run build:index && electron-vite build && electron-builder --linux",
+    "build:cross": "npm run build:index && electron-vite build && electron-builder --win --linux",
     "prerelease": "node scripts/build/prerelease-clean.mjs",
     "release": "npm run build:index && electron-vite build && electron-builder --win --publish always",
+    "release:linux": "npm run build:index && electron-vite build && electron-builder --linux --publish always",
+    "release:all": "npm run build:index && electron-vite build && electron-builder --win --linux --publish always",
     "build:index": "node scripts/build/build-chunk-index.mjs",
     "validate:5e": "node scripts/audit/check-5e-cross-refs.mjs",
     "gen:ipc-surface": "node scripts/build/gen-ipc-surface.mjs",
@@ -95,6 +99,15 @@
       "signAndEditExecutable": true,
       "target": [
         "nsis"
+      ],
+      "extraResources": [
+        {
+          "from": "resources/ollama/windows/",
+          "to": "ollama/",
+          "filter": [
+            "**/*"
+          ]
+        }
       ]
     },
     "nsis": {
@@ -109,11 +122,51 @@
       "deleteAppDataOnUninstall": false,
       "allowElevation": true,
       "include": "resources/installer.nsh"
+    },
+    "linux": {
+      "executableName": "dnd-vtt",
+      "icon": "resources/icon.png",
+      "category": "Game",
+      "synopsis": "Electron desktop VTT for D&D 5e",
+      "description": "D&D Virtual Tabletop — Electron desktop app for running Dungeons & Dragons 5e games. Multiplayer over peerjs with optional BMO Pi voice/AI integration.",
+      "maintainer": "EvilPatrick06 <noreply@example.com>",
+      "vendor": "D&D Virtual Tabletop",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "extraResources": [
+        {
+          "from": "resources/ollama/linux/",
+          "to": "ollama/",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
+    },
+    "appImage": {
+      "artifactName": "${name}-${version}-${arch}.AppImage"
+    },
+    "deb": {
+      "artifactName": "${name}-${version}-${arch}.deb",
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libuuid1",
+        "libsecret-1-0"
+      ]
     }
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
     "@electron-toolkit/utils": "^4.0.0",
+    "@langchain/langgraph": "^1.2.0",
     "@tailwindcss/vite": "^4.2.1",
     "@types/node": "^25.3.3",
     "@types/react": "^19.2.14",
@@ -121,6 +174,7 @@
     "@types/three": "^0.183.1",
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "^4.0.18",
+    "dpdm": "^3.14.0",
     "electron": "^40.6.1",
     "electron-builder": "^26.8.1",
     "electron-devtools-installer": "^4.0.0",
@@ -130,7 +184,6 @@
     "knip": "^5.85.0",
     "license-checker": "^25.0.1",
     "lockfile-lint": "^5.0.0",
-    "dpdm": "^3.14.0",
     "npm-check-updates": "^19.6.3",
     "oxlint": "^1.50.0",
     "rollup-plugin-visualizer": "^7.0.0",
@@ -139,8 +192,7 @@
     "type-coverage": "^2.29.7",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "vitest": "^4.0.18",
-    "@langchain/langgraph": "^1.2.0"
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -153,6 +205,7 @@
     "cannon-es": "^0.20.0",
     "dotenv": "^17.3.1",
     "electron-updater": "^6.8.3",
+    "extract-zip": "^2.0.1",
     "fuse.js": "^7.1.0",
     "immer": "^11.1.4",
     "jspdf": "^4.2.0",

@@ -102,7 +102,7 @@ Tool-specific: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEMINI.md), [`.github
 
 - Running on a single Raspberry Pi 5 (`/home/patrick/home-lab/`)
 - 5 BMO systemd services live: `bmo, bmo-fan, bmo-kiosk, bmo-dm-bot, bmo-social-bot`
-- dnd-app installed manually on player laptops (Windows + Mac)
+- dnd-app distributed as **Windows NSIS installer** + **Linux AppImage** + **Linux .deb** (cross-platform from a single electron-builder config)
 - LFS used for D&D 2024 rulebook PDFs (`5.5e References/` — gitignored locally, pulled on-demand)
 
 ## License

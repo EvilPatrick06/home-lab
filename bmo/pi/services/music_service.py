@@ -8,6 +8,9 @@ import time
 import vlc
 from ytmusicapi import YTMusic
 
+from services.bmo_logging import get_logger
+log = get_logger("music_service")
+
 STREAM_URL_TTL = 18000  # 5 hours — re-extract before expiry
 HISTORY_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/music_history.json")
 PLAY_COUNTS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/play_counts.json")
@@ -88,7 +91,7 @@ class MusicService:
             position_sec = float(state.get("position_sec", 0.0) or 0.0)
             song = queue[index]
             status = "paused" if was_paused else "playing"
-            print(f"[music] Restoring ({status}): {song.get('title', '?')} + {len(queue) - index - 1} queued")
+            log.info(f"[music] Restoring ({status}): {song.get('title', '?')} + {len(queue) - index - 1} queued")
             self.play(song, add_to_queue=False)
             if position_sec > 0:
                 # Ensure we don't seek past the known duration.
@@ -103,7 +106,7 @@ class MusicService:
                 self._playback_intent = "playing"
             self._save_playback_state()
         except Exception as e:
-            print(f"[music] Restore playback failed: {e}")
+            log.exception(f"[music] Restore playback failed")
 
     def _restore_seek_position(self, position_sec: float):
         """Seek during restore after allowing media a brief moment to initialize."""
@@ -161,7 +164,7 @@ class MusicService:
         """Validate and set the output device."""
         valid = {OUTPUT_PI, OUTPUT_TV}
         if value not in valid:
-            print(f"[music] Invalid output device '{value}', keeping '{self._output_device}'")
+            log.info(f"[music] Invalid output device '{value}', keeping '{self._output_device}'")
             return
         self._output_device = value
 
@@ -208,7 +211,7 @@ class MusicService:
 
     def play(self, song: dict | None = None, add_to_queue: bool = True):
         """Play a song. If song is None, resume current playback."""
-        print(f"[music] play() called — song={song.get('title') if song else None}, add_to_queue={add_to_queue}")
+        log.info(f"[music] play() called — song={song.get('title') if song else None}, add_to_queue={add_to_queue}")
         if song is None:
             # Resume
             if self._output_device == OUTPUT_PI:
@@ -308,7 +311,7 @@ class MusicService:
 
     def next_track(self):
         """Skip to next track in queue."""
-        print(f"[music] next_track() called — queue_index={self.queue_index}, queue_len={len(self.queue)}, repeat={self.repeat}, autoplay={self.autoplay}")
+        log.info(f"[music] next_track() called — queue_index={self.queue_index}, queue_len={len(self.queue)}, repeat={self.repeat}, autoplay={self.autoplay}")
         if not self.queue:
             return
 
@@ -341,11 +344,11 @@ class MusicService:
                 seed_id = self.history[0].get("song", {}).get("videoId")
 
             if not seed_id:
-                print("[music] Autoplay: no seed song, stopping")
+                log.info("[music] Autoplay: no seed song, stopping")
                 self.stop()
                 return
 
-            print(f"[music] Autoplay: fetching related songs for {seed_id}")
+            log.info(f"[music] Autoplay: fetching related songs for {seed_id}")
             watch = self._ytmusic.get_watch_playlist(seed_id, limit=10)
             tracks = watch.get("tracks", [])
 
@@ -373,17 +376,17 @@ class MusicService:
                 })
 
             if not related:
-                print("[music] Autoplay: no related songs found, stopping")
+                log.info("[music] Autoplay: no related songs found, stopping")
                 self.stop()
                 return
 
             # Add related songs to queue and play the first one
-            print(f"[music] Autoplay: queued {len(related)} related songs")
+            log.info(f"[music] Autoplay: queued {len(related)} related songs")
             self.queue.extend(related)
             self.queue_index = len(self.queue) - len(related)
             self.play(self.queue[self.queue_index], add_to_queue=False)
         except Exception as e:
-            print(f"[music] Autoplay failed: {e}")
+            log.exception(f"[music] Autoplay failed")
             self.stop()
 
     def previous_track(self):
@@ -425,7 +428,7 @@ class MusicService:
 
         # Accept 'pi', 'tv', or a numeric PipeWire sink ID
         if device not in {OUTPUT_PI, OUTPUT_TV} and not device.isdigit():
-            print(f"[music] Invalid device '{device}', ignoring")
+            log.info(f"[music] Invalid device '{device}', ignoring")
             return
 
         # If a numeric sink ID, set it as default PipeWire sink and use Pi playback
@@ -441,7 +444,7 @@ class MusicService:
 
         old_device = self._output_device
         self._output_device = device
-        print(f"[music] Output switched: {old_device} → {device}")
+        log.info(f"[music] Output switched: {old_device} → {device}")
 
         # Resume on the new device if something was playing
         if was_playing and song_to_resume:
@@ -520,7 +523,7 @@ class MusicService:
             return None
         devices = self.smart_home.get_devices()
         if not devices:
-            print("[music] No Chromecast devices found for TV output")
+            log.info("[music] No Chromecast devices found for TV output")
             return None
         return self.smart_home.get_cast(devices[0]["name"])
 
@@ -576,18 +579,18 @@ class MusicService:
                     self._player.set_pause(1)
                     state = self._player.get_state()
                 if state != last_state:
-                    print(f"[music][monitor] VLC state: {last_state} → {state} (has_played={has_played})")
+                    log.info(f"[music][monitor] VLC state: {last_state} → {state} (has_played={has_played})")
                     last_state = state
                 if state == vlc.State.Playing:
                     has_played = True
                 elif state == vlc.State.Error:
-                    print("[music][monitor] VLC error — stopping")
+                    log.warning("[music][monitor] VLC error — stopping")
                     has_played = False
                     self.current_song = None
                     self._emit_state()
                 elif state == vlc.State.Ended and has_played:
                     has_played = False  # Reset for next track
-                    print("[music][monitor] Track ended — advancing")
+                    log.info("[music][monitor] Track ended — advancing")
                     if self.repeat == "one":
                         self.play(self.current_song, add_to_queue=False)
                     else:
@@ -676,11 +679,11 @@ class MusicService:
                     deduped.append(entry)
                 self.history = deduped
                 if len(deduped) < len(raw):
-                    print(f"[music] Deduped history: {len(raw)} → {len(deduped)}")
+                    log.info(f"[music] Deduped history: {len(raw)} → {len(deduped)}")
                     self._save_history()
-                print(f"[music] Loaded {len(self.history)} history entries")
+                log.info(f"[music] Loaded {len(self.history)} history entries")
         except Exception as e:
-            print(f"[music] Failed to load history: {e}")
+            log.exception(f"[music] Failed to load history")
             self.history = []
 
     def _save_history(self):
@@ -689,16 +692,16 @@ class MusicService:
             with open(HISTORY_FILE, "w") as f:
                 json.dump(self.history[:MAX_HISTORY], f)
         except Exception as e:
-            print(f"[music] Failed to save history: {e}")
+            log.exception(f"[music] Failed to save history")
 
     def _load_play_counts(self):
         try:
             if os.path.exists(PLAY_COUNTS_FILE):
                 with open(PLAY_COUNTS_FILE, "r") as f:
                     self.play_counts = json.load(f)
-                print(f"[music] Loaded {len(self.play_counts)} play counts")
+                log.info(f"[music] Loaded {len(self.play_counts)} play counts")
         except Exception as e:
-            print(f"[music] Failed to load play counts: {e}")
+            log.exception(f"[music] Failed to load play counts")
             self.play_counts = {}
 
     def _save_play_counts(self):
@@ -707,7 +710,7 @@ class MusicService:
             with open(PLAY_COUNTS_FILE, "w") as f:
                 json.dump(self.play_counts, f)
         except Exception as e:
-            print(f"[music] Failed to save play counts: {e}")
+            log.exception(f"[music] Failed to save play counts")
 
     def _save_playback_state(self):
         """Persist current queue + position so playback survives restarts."""
@@ -758,7 +761,7 @@ class MusicService:
             with open(PLAYBACK_STATE_FILE, "w") as f:
                 json.dump(state, f)
         except Exception as e:
-            print(f"[music] Failed to save playback state: {e}")
+            log.exception(f"[music] Failed to save playback state")
 
     def _load_playback_state(self) -> dict | None:
         """Load saved playback state from disk."""
@@ -767,10 +770,10 @@ class MusicService:
                 with open(PLAYBACK_STATE_FILE, "r") as f:
                     state = json.load(f)
                 if state.get("queue"):
-                    print(f"[music] Found saved playback state: {len(state['queue'])} tracks")
+                    log.info(f"[music] Found saved playback state: {len(state['queue'])} tracks")
                     return state
         except Exception as e:
-            print(f"[music] Failed to load playback state: {e}")
+            log.exception(f"[music] Failed to load playback state")
         return None
 
     def _clear_playback_state(self):

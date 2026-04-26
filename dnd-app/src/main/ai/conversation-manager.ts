@@ -1,3 +1,4 @@
+import { logToFile } from '../log'
 import { DM_TOOLBOX_CONTEXT, PLANAR_RULES_CONTEXT } from './dm-system-prompt'
 import { assembleSystemPrompt, type GameMode } from './prompt-assembler'
 import { COMBAT_TACTICS_PROMPT } from './prompt-sections/combat-tactics'
@@ -176,14 +177,10 @@ export class ConversationManager {
 
   private async maybeSummarize(): Promise<void> {
     if (!this.summarizeCallback) return
+    if (this.messages.length < MAX_RECENT_MESSAGES) return
 
-    const recentStart = this.summaries.length > 0 ? this.summaries[this.summaries.length - 1].coversUpTo + 1 : 0
-    const recentMessages = this.messages.slice(recentStart)
-
-    if (recentMessages.length < MAX_RECENT_MESSAGES) return
-
-    const halfPoint = Math.floor(recentMessages.length / 2)
-    const toSummarize = recentMessages.slice(0, halfPoint)
+    const halfPoint = Math.floor(this.messages.length / 2)
+    const toSummarize = this.messages.slice(0, halfPoint)
 
     const summaryText = toSummarize
       .map((m) => `${m.role === 'user' ? 'User' : 'DM'}: ${m.content.slice(0, 500)}`)
@@ -191,12 +188,17 @@ export class ConversationManager {
 
     try {
       const summary = await this.summarizeCallback(summaryText)
+      // Prune the summarized half from the active message array. Without this,
+      // `this.messages` (and the on-disk JSON) grew monotonically across long
+      // campaigns even though the API call already truncated. `coversUpTo = -1`
+      // is the new invariant: the latest summary precedes ALL remaining messages.
+      this.messages.splice(0, halfPoint)
       this.summaries.push({
         content: summary,
-        coversUpTo: recentStart + halfPoint - 1
+        coversUpTo: -1
       })
-    } catch {
-      // If summarization fails, continue without
+    } catch (err) {
+      logToFile('WARN', '[ConversationManager] summarize failed:', err instanceof Error ? err.message : String(err))
     }
   }
 
@@ -212,6 +214,21 @@ export class ConversationManager {
     this.messages = data.messages || []
     this.summaries = data.summaries || []
     this.activeCharacterIds = data.activeCharacterIds || []
+
+    // Backward compat: pre-prune format saved `coversUpTo` as an absolute
+    // index into messages[]. Splice the now-summarized prefix away so the
+    // post-prune invariant (latest summary covers messages BEFORE this.messages)
+    // holds for old data on first load.
+    const latest = this.summaries[this.summaries.length - 1]
+    if (latest && typeof latest.coversUpTo === 'number' && latest.coversUpTo >= 0) {
+      const pruneCount = latest.coversUpTo + 1
+      if (pruneCount > 0 && pruneCount <= this.messages.length) {
+        this.messages.splice(0, pruneCount)
+      }
+      // Older summaries' coversUpTo are now meaningless; only the latest is used by
+      // the API path. Set to -1 so the post-prune invariant holds going forward.
+      for (const s of this.summaries) s.coversUpTo = -1
+    }
   }
 }
 

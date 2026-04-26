@@ -441,6 +441,12 @@ def git_command(cmd: str, repo_path: str = ".") -> dict:
     """Run a git command. Free for read ops. Confirms push/reset/force.
 
     Returns: {output, exit_code}
+
+    NOTE: This shell-string form is intended for trusted in-process callers
+    (CLI / agent) only. For HTTP-facing endpoints in app.py that take
+    user-supplied branch / commit-message / repo arguments, use
+    `git_command_args(args, repo_path)` below — it uses subprocess array
+    form so user input cannot become shell metacharacters.
     """
     full_cmd = f"git -C {shlex.quote(os.path.expanduser(repo_path))} {cmd}"
 
@@ -454,6 +460,58 @@ def git_command(cmd: str, repo_path: str = ".") -> dict:
         }
 
     return execute_command(full_cmd)
+
+
+def git_command_args(args: list[str], repo_path: str = ".", timeout: int = 30) -> dict:
+    """Run a git command with explicit argv (no shell). Use this from any HTTP
+    endpoint that accepts user input (branch, commit message, etc).
+
+    args:      list of git arguments — e.g., ["commit", "-m", user_msg]
+    repo_path: directory passed to `git -C`; expanduser'd here.
+
+    Returns: {output, exit_code, truncated} on success; {needs_confirmation,
+    command, reason} when the operation matches destructive_git below.
+    """
+    cmd = ["git", "-C", os.path.expanduser(repo_path), *args]
+
+    # Same destructive checks as git_command, but on the args list (no
+    # injection risk — these are exact-token matches).
+    destructive_first_arg = {"push", "reset", "clean", "branch", "checkout"}
+    is_destructive = False
+    if args:
+        if args[0] == "push":
+            is_destructive = True
+        elif args[0] == "reset" and "--hard" in args:
+            is_destructive = True
+        elif args[0] == "clean" and any(a in ("-f", "-fd", "-ffd") for a in args):
+            is_destructive = True
+        elif args[0] == "branch" and "-D" in args:
+            is_destructive = True
+        elif args[0] == "checkout" and "--force" in args:
+            is_destructive = True
+
+    if is_destructive:
+        return {
+            "needs_confirmation": True,
+            "command": " ".join(shlex.quote(c) for c in cmd),
+            "reason": "Destructive git operation requires confirmation.",
+        }
+
+    try:
+        result = subprocess.run(
+            cmd, shell=False, capture_output=True, text=True, timeout=timeout,
+        )
+        output = result.stdout + result.stderr
+        truncated = len(output) > MAX_OUTPUT_LENGTH
+        return {
+            "output": truncate_output(output),
+            "exit_code": result.returncode,
+            "truncated": truncated,
+        }
+    except subprocess.TimeoutExpired:
+        return {"output": f"Command timed out after {timeout}s", "exit_code": -1}
+    except Exception as e:
+        return {"output": f"Error: {e}", "exit_code": -1}
 
 
 def gh_command(cmd: str) -> dict:

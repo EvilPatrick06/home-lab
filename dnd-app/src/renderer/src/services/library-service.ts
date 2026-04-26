@@ -470,19 +470,31 @@ export function summarizeItem(item: Record<string, unknown>, category: LibraryCa
   }
 }
 
+/**
+ * Adapt a typed content array (Monster[], Spell[], Equipment subset, …) into the
+ * loosely-typed LibraryItem shape used by the Library UI.
+ *
+ * Accepts `readonly unknown[]` so callers can pass any typed array without the
+ * `as unknown as Record<string, unknown>[]` boilerplate that piled up across the
+ * `loadCategoryItems` switch (was 46 sites). Each entry is defensively narrowed
+ * to a record before field access; non-object entries become an empty record.
+ */
 function toLibraryItems(
-  items: Record<string, unknown>[],
+  items: readonly unknown[],
   category: LibraryCategory,
   source: 'official' | 'homebrew' = 'official'
 ): LibraryItem[] {
-  return items.map((item) => ({
-    id: (item.id as string) || (item.name as string) || category,
-    name: (item.name as string) ?? 'Unknown',
-    category,
-    source,
-    summary: summarizeItem(item, category),
-    data: item
-  }))
+  return items.map((raw) => {
+    const item = (raw !== null && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+    return {
+      id: (item.id as string) || (item.name as string) || category,
+      name: (item.name as string) ?? 'Unknown',
+      category,
+      source,
+      summary: summarizeItem(item, category),
+      data: item
+    }
+  })
 }
 
 function homebrewToLibraryItems(entries: HomebrewEntry[], category: LibraryCategory): LibraryItem[] {
@@ -543,63 +555,63 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'monsters': {
       const data = await load5eMonsters()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'creatures': {
       const data = await load5eCreatures()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'npcs': {
       const data = await load5eNpcs()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'spells': {
       const data = await load5eSpells()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'invocations': {
       const data = await load5eInvocations()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'metamagic': {
       const data = await load5eMetamagic()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'classes': {
       const data = await load5eClasses()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'subclasses': {
       const data = await load5eSubclasses()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'species': {
       const data = await load5eSpecies()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'backgrounds': {
       const data = await load5eBackgrounds()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'feats': {
       const data = await load5eFeats()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'supernatural-gifts': {
       const data = await load5eSupernaturalGifts()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'weapons': {
       const eq = await load5eEquipment()
-      return [...toLibraryItems(eq.weapons as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(eq.weapons, category), ...hbItems]
     }
     case 'armor': {
       const eq = await load5eEquipment()
-      return [...toLibraryItems(eq.armor as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(eq.armor, category), ...hbItems]
     }
     case 'gear': {
       const eq = await load5eEquipment()
-      return [...toLibraryItems(eq.gear as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(eq.gear, category), ...hbItems]
     }
     case 'tools': {
       const data = await load5eTools()
@@ -607,19 +619,19 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'magic-items': {
       const data = await load5eMagicItems()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'vehicles': {
       const data = await load5eVehicles()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'mounts': {
       const data = await load5eMounts()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'siege-equipment': {
       const data = await load5eSiegeEquipment()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'trinkets': {
       const data = await load5eTrinkets()
@@ -628,35 +640,35 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
         id: `trinket-${i}`,
         name: typeof t === 'string' ? t : ((t as Record<string, unknown>).name ?? 'Unknown')
       }))
-      return [...toLibraryItems(trinketItems as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(trinketItems, category), ...hbItems]
     }
     case 'settlements': {
       const data = await load5eSettlements()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'traps': {
       const data = await load5eTraps()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'hazards': {
       const data = await load5eHazards()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'poisons': {
       const data = await load5ePoisons()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'diseases': {
       const data = await load5eDiseases()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'curses': {
       const data = await load5eCurses()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'environmental-effects': {
       const data = await load5eEnvironmentalEffects()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'crafting': {
       const data = await load5eCrafting()
@@ -671,11 +683,11 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'downtime': {
       const data = await load5eDowntime()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'encounter-presets': {
       const data = await load5eEncounterPresets()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'treasure-tables': {
       const data = await load5eTreasureTables()
@@ -810,23 +822,23 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'conditions': {
       const data = await load5eConditions()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'weapon-mastery': {
       const data = await load5eWeaponMastery()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'languages': {
       const data = await load5eLanguages()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'skills': {
       const data = await load5eSkills()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'fighting-styles': {
       const data = await load5eFightingStyles()
-      return [...toLibraryItems(data as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(data, category), ...hbItems]
     }
     case 'class-features': {
       const cfData = await load5eClassFeatures()
@@ -882,7 +894,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
           key.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
         ...(val as Record<string, unknown>)
       }))
-      return [...toLibraryItems(items as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(items, category), ...hbItems]
     }
     case 'deities': {
       const data = await load5eDeities()
@@ -906,7 +918,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
           family: nameObj.family
         }
       })
-      return toLibraryItems(items as unknown as Record<string, unknown>[], category)
+      return toLibraryItems(items, category)
     }
     case 'light-sources': {
       const data = await load5eLightSources()
@@ -917,7 +929,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
           key.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
         ...(val as Record<string, unknown>)
       }))
-      return [...toLibraryItems(items as unknown as Record<string, unknown>[], category), ...hbItems]
+      return [...toLibraryItems(items, category), ...hbItems]
     }
     case 'sentient-items': {
       const data = await load5eSentientItems()
@@ -930,7 +942,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
         entries: Array.isArray(val) ? val : [],
         ...(typeof val === 'object' && !Array.isArray(val) ? (val as Record<string, unknown>) : {})
       }))
-      return toLibraryItems(items as unknown as Record<string, unknown>[], category)
+      return toLibraryItems(items, category)
     }
     case 'maps': {
       const items: LibraryItem[] = []

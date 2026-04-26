@@ -20,7 +20,10 @@ import subprocess
 import threading
 import time
 
-SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "data", "settings.json")
+from services.bmo_logging import get_logger
+log = get_logger("notification_service")
+
+SETTINGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
 UNKNOWN_NOTIF_LOG = os.path.expanduser("~/home-lab/bmo/pi/data/logs/unknown_notifications.jsonl")
 MAX_HISTORY = 100
 DEDUP_WINDOW = 10  # seconds — suppress duplicate notifications within this window
@@ -51,14 +54,14 @@ class NotificationService:
             return
 
         if not self._check_kdeconnect():
-            print("[notify] KDE Connect not available — install with: sudo apt install kdeconnect")
+            log.info("[notify] KDE Connect not available — install with: sudo apt install kdeconnect")
             return
 
         self._running = True
         self._discover_devices()
         self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self._thread.start()
-        print(f"[notify] Notification service started ({len(self._devices)} devices)")
+        log.info(f"[notify] Notification service started ({len(self._devices)} devices)")
 
     def stop(self):
         self._running = False
@@ -107,11 +110,11 @@ class NotificationService:
                             self._devices[dev_id] = name
 
             if self._devices:
-                print(f"[notify] Found devices: {', '.join(self._devices.values())}")
+                log.info(f"[notify] Found devices: {', '.join(self._devices.values())}")
             else:
-                print("[notify] No paired KDE Connect devices found")
+                log.info("[notify] No paired KDE Connect devices found")
         except Exception as e:
-            print(f"[notify] Device discovery failed: {e}")
+            log.exception(f"[notify] Device discovery failed")
 
     # ── Monitoring Loop ──────────────────────────────────────────────
 
@@ -151,13 +154,13 @@ class NotificationService:
 
             proc.terminate()
         except Exception as e:
-            print(f"[notify] Monitor loop error: {e}")
+            log.exception(f"[notify] Monitor loop error")
             # Fallback: poll notifications via CLI
             self._poll_loop()
 
     def _poll_loop(self):
         """Fallback: poll for notifications via kdeconnect-cli."""
-        print("[notify] Falling back to polling mode")
+        log.info("[notify] Falling back to polling mode")
         known_ids = set()
         while self._running:
             try:
@@ -187,7 +190,7 @@ class NotificationService:
                 if len(known_ids) > 500:
                     known_ids = set(list(known_ids)[-200:])
             except Exception as e:
-                print(f"[notify] Poll error: {e}")
+                log.exception(f"[notify] Poll error")
             time.sleep(5)
 
     def _process_dbus_signal(self, lines: list[str]):
@@ -280,7 +283,7 @@ class NotificationService:
 
             return app, title, body
         except Exception as e:
-            print(f"[notify] D-Bus property fetch failed: {e}")
+            log.exception(f"[notify] D-Bus property fetch failed")
             return "unknown", "", ""
 
     def _handle_notification(self, app: str, title: str, body: str,
@@ -328,7 +331,7 @@ class NotificationService:
             if len(self._history) > MAX_HISTORY:
                 self._history = self._history[:MAX_HISTORY]
 
-        print(f"[notify] {device} → {app}: {title} — {body[:60]}")
+        log.info(f"[notify] {device} → {app}: {title} — {body[:60]}")
 
         # Log unknown/unrecognized apps for future mapping
         is_unknown = (not app or app == "unknown" or app not in self._get_known_apps())
@@ -352,7 +355,7 @@ class NotificationService:
             try:
                 self.voice.speak(announcement, volume=notif_volume)
             except Exception as e:
-                print(f"[notify] TTS failed: {e}")
+                log.exception(f"[notify] TTS failed")
 
         # Package delivery detection → alert service
         if self.alert_service:
@@ -551,7 +554,7 @@ class NotificationService:
             with open(UNKNOWN_NOTIF_LOG, "a") as f:
                 f.write(json.dumps(entry) + "\n")
         except Exception as e:
-            print(f"[notify] Failed to log unknown notification: {e}")
+            log.exception(f"[notify] Failed to log unknown notification")
 
     def _load_notif_volume(self) -> int:
         """Load notification volume from settings."""
@@ -591,12 +594,12 @@ class NotificationService:
                     capture_output=True, text=True, timeout=10,
                 )
                 if result.returncode == 0:
-                    print(f"[notify] Reply sent via {self._devices.get(dev_id, dev_id)}")
+                    log.info(f"[notify] Reply sent via {self._devices.get(dev_id, dev_id)}")
                     return True
                 else:
-                    print(f"[notify] Reply failed: {result.stderr.strip()}")
+                    log.warning(f"[notify] Reply failed: {result.stderr.strip()}")
             except Exception as e:
-                print(f"[notify] Reply error: {e}")
+                log.exception(f"[notify] Reply error")
 
         return False
 
@@ -639,7 +642,7 @@ class NotificationService:
             with open(SETTINGS_PATH, "w") as f:
                 json.dump(settings, f, indent=2)
         except Exception as e:
-            print(f"[notify] Save settings failed: {e}")
+            log.exception(f"[notify] Save settings failed")
 
     def _load_settings(self):
         try:

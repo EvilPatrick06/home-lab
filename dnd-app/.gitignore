@@ -7,3 +7,6 @@ dist/
 *.log
 # rollup-plugin-visualizer (ANALYZE=1 npm run build)
 bundle-stats.html
+# Bundled Ollama binary — fetched at build time per platform, not source-tracked
+resources/ollama/
+.ollama-download-tmp/

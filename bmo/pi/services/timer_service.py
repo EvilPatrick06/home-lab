@@ -172,7 +172,7 @@ class Alarm:
         return d
 
 
-PERSIST_PATH = os.path.join(os.path.dirname(__file__), "data", "alarms.json")
+PERSIST_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "alarms.json")
 
 
 class TimerService:

@@ -248,10 +248,12 @@ export async function buildContext(
         parts.push(trimmed)
       }
 
-      // Cache character context for persistence
+      // Cache character context for persistence (fire-and-forget; non-critical)
       if (campaignId) {
         const memMgr = getMemoryManager(campaignId)
-        memMgr.saveCharacterContext(cacheEntries).catch(() => {})
+        memMgr.saveCharacterContext(cacheEntries).catch((err) => {
+          logToFile('WARN', '[context-builder] saveCharacterContext failed:', String(err))
+        })
       }
     }
   }

@@ -12,6 +12,128 @@
 
 ---
 
+### [2026-04-25] BMO `app.py` Flask-blueprint refactor — first split: `routes/ide.py` (~1300 lines extracted)
+
+- **Original severity:** medium (suggestion: "Refactor `app.py` (5596 lines) into Flask blueprints")
+- **Category:** future-idea (resolved partial — first blueprint of 7), debt
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Verified:** `pytest tests/` 746 passed, 6 skipped; bmo service `active` after restart; live IDE endpoints respond correctly (`/api/ide/tree`, `/api/ide/jobs`, `/api/ide/git/status`, `/api/ide/git/checkout` with shell-injection payload still rejected, path-jail still blocks `/etc`).
+- **Resolution shape:**
+  1. **New module `bmo/pi/routes/ide.py`** (1403 lines) houses ALL `/api/ide/*` HTTP routes plus the 9 IDE-related SocketIO event handlers (terminal_open/input/resize/close, ide_watch_file/unwatch_file/agent_diff_response, win_proxy_register/response).
+  2. **Blueprint mounted under `url_prefix="/api/ide"`** — route paths inside the file are relative (`/tree`, `/file/read`, `/git/commit`, etc.). Mechanically rewritten by regex from `@app.route("/api/ide/...")` to `@ide_bp.route("/...")`.
+  3. **Globals + helpers moved with the routes**: `_IDE_ALLOWED_ROOTS`, `_ide_safe_path`, `_safe_repo`, `_terminal_mgr` + `_get_terminal_mgr`, `_file_watcher` + `_get_file_watcher`, `_win_proxy_sid`, `_win_proxy_pending`, `_ide_jobs` + `_ide_jobs_lock` + `_ide_job_counter`, `_save_ide_jobs` / `_load_ide_jobs`, the per-job lock helpers (`_job_update`, `_job_append`, `_job_get`), `_LANG_MAP` + `_detect_language`, `_proxy_to_windows`.
+  4. **`register_ide(flask_app, socketio_obj, agent_obj)`** wires it up — called from `app.py` after `init_services()` runs (when `agent` is live). Stamps module-level `socketio` references and registers the blueprint + the 9 SocketIO handlers (which live inside the registration function so they close over the live socketio).
+  5. **`cleanup_client_session(sid)`** exposed for `app.py:on_disconnect` — releases per-client terminal sessions + Windows-proxy registration without app.py needing to know the IDE module's internals.
+  6. **`_resolve_agent()`** late-binds `app.agent` at request time — avoids the import-order trap where the blueprint module loads before `init_services` populates `agent`.
+- **app.py size:** 5903 → 4596 lines (–22%, –1307 lines).
+- **What's left (deferred — opportunistic):** the other 6 blueprints (calendar, music, tv, chat, system, realtime) per the table in the original suggestion. The pattern is now established so each successive split is easier; the choice of which to extract next is driven by which area is being touched.
+- **Files touched:** `bmo/pi/routes/__init__.py` (new, empty), `bmo/pi/routes/ide.py` (new, 1403 lines), `bmo/pi/app.py` (1307 lines removed + 6 lines added: import + register_ide call + on_disconnect simplified to call cleanup_client_session)
+
+---
+
+### [2026-04-25] BMO structured-logging shim — `services/bmo_logging.py` + sweep of app.py + 11 services/agents (~404 prints → log calls)
+
+- **Original severity:** medium (suggestion: "Add structured-logging shim to replace 490 `print()` calls")
+- **Category:** future-idea (resolved), debt
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Verified:** `pytest tests/` 746 passed, 6 skipped; bmo + bots all `active` after restart; `journalctl -u bmo` shows structured records (`2026-04-25 ... [INFO] [bmo] ...`); `BMO_LOG_LEVEL=WARNING` smoke-tested — INFO records suppressed.
+
+**Resolution shape:**
+
+1. **Shim** at `bmo/pi/services/bmo_logging.py`. ~95 lines. `get_logger(name)` returns a configured stdlib logger:
+   - Level from `BMO_LOG_LEVEL` env (`DEBUG | INFO | WARNING | ERROR`), default `INFO`.
+   - Optional rotating file handler via `BMO_LOG_FILE=...` (10 MB × 5, WARNING+ only).
+   - Optional JSON formatter via `BMO_LOG_FORMAT=json` for Loki / Vector shipping (uses a small `_JsonFormatter` class).
+   - Idempotent — re-imports / hot-reloads return the same configured logger; no duplicate handlers.
+   - `propagate=False` so root-logger handlers (Flask / SocketIO sometimes attach one) don't double-emit.
+
+2. **Migration sweep across the highest-print files**:
+
+   | File | print() before | log calls now | Notes |
+   |---|---|---|---|
+   | `app.py` | 157 | 104 info + 50 exception + 3 multi-line manually rewritten | logger name `bmo` |
+   | `services/voice_pipeline.py` | ~110 | 83 info + 25 exception + 2 warning | name `voice_pipeline` |
+   | `services/scene_service.py` | 29 | 19 info + 10 exception | |
+   | `services/music_service.py` | 26 | 17 info + 8 exception + 1 warning | |
+   | `services/audio_output_service.py` | 24 | 14 info + 6 exception + 4 warning | |
+   | `services/notification_service.py` | 16 | 7 info + 8 exception + 1 warning | |
+   | `services/monitoring.py` | 14 | 6 info + 7 exception + 1 warning | |
+   | `services/build_rag_indexes.py` | 12 | 12 info | |
+   | `services/reauth_calendar.py` | 12 | 10 info + 2 warning | |
+   | `agents/mcp_client.py` | 17 | 11 info + 2 exception + 4 warning | |
+   | `agents/orchestrator.py` | 5 | 4 info + 1 exception | |
+   | `agents/router.py` | 1 | 1 exception | |
+
+   Total migrated: **404 sites** across 12 files.
+
+3. **Pattern conversions**:
+   - `print(f"[bmo] X")` → `log.info(f"[bmo] X")`
+   - `except Exception as e: print(f"... ({e})")` → `log.exception("...")` (drops `{e}` since logging captures the stack automatically — the traceback is now attached, not lost)
+   - `print(f"[bmo] X failed: {e}")` (heuristic match on "error"/"failed"/"failure" in the message) → `log.warning(...)`
+   - `flush=True` and `file=sys.stderr` kwargs stripped (logging handles flushing per-record)
+
+4. **What's left:** ~80 `print()` calls remain in lower-priority files (`agents/dnd_dm.py`, `agents/calendar_agent.py`, etc., and the `dev/` tooling). Those are opportunistic-migration: touch a file → migrate its prints in the same PR. The shim is in place, the pattern is established.
+
+**Live behavior wins:**
+- `BMO_LOG_LEVEL=WARNING systemctl edit bmo` — silences chatty INFO firehose for non-debug operation.
+- `except Exception as e:` blocks that previously printed `f"failed: {e}"` and lost the stack trace now produce real `log.exception` records → traceback in `journalctl -u bmo`.
+- `BMO_LOG_FORMAT=json` flips to one-JSON-per-line for future Loki / Vector shipping with no code changes.
+- Module-tagged logger names (`[voice_pipeline]`, `[audio_output_service]`, etc.) — easy `grep` filtering by subsystem.
+
+**Files touched:**
+- `bmo/pi/services/bmo_logging.py` (new)
+- `bmo/pi/app.py` (157 print → 104 log.info + 50 log.exception + 3 hand-rewritten multi-line calls)
+- 11 services/agents in the table above
+
+**Related entries:** Replaces the active suggestion `BMO-SUGGESTIONS-LOG.md` "Add structured-logging shim" + the pre-existing issue `BMO has 490 print() calls in production code` (now substantially reduced; remaining ~80 sites tracked as opportunistic).
+
+---
+
+### [2026-04-25] BMO `_ide_jobs` per-key write race — full fix (per-job RLocks + helpers)
+
+- **Original severity:** medium (was the partial-fix entry left in active log)
+- **Category:** bug, debt
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Verified:** `pytest tests/` 746 passed, 6 skipped; bmo + bots all `active` after restart.
+- **Resolution:** Each new IDE job now stores a `threading.RLock()` at `_ide_jobs[job_id]["_lock"]`. Three small helpers in `app.py` — `_job_update(job_id, **fields)`, `_job_append(job_id, list_field, item)`, `_job_get(job_id, key, default)` — wrap the per-job lock around every read/write so the agent task body's mutations never tear, while the lock is held only for the duration of the dict op (not across `agent.dispatch_tool` calls — no deadlock risk). Replaced 12 raw `_ide_jobs[job_id][...]= / .append(...)` sites in `_run_job` and the cancel/done/failed paths with helper calls. `api_ide_jobs_delete` now does `pop` under the global `_ide_jobs_lock`.
+
+### [2026-04-25] BMO deep-scan fixpack — IDE security, services/data split-brain, /api/chat caps, security headers, race locks, deprecations, DB indexes, str(e) leakage
+
+- **Original severity:** mixed (high / medium / low — 11 BMO entries + several mirrored security entries)
+- **Category:** bug, config, security, perf, debt, docs
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Verified:** `pytest tests/` 744 passed, 6 skipped; `bmo bmo-dm-bot bmo-social-bot` all `active`; live curl probes confirm path-jail / oversize-rejection / shell-injection-blocked / security-headers-present
+- **Resolution summary (per source entry):**
+  1. **Six services split-brain (HIGH)** — `services/timer_service.py:175`, `services/voice_pipeline.py:81,325`, `services/audio_output_service.py:14`, `services/scene_service.py:12`, `services/notification_service.py:23`, `services/personality_engine.py:16-17` all rewrote `os.path.join(os.path.dirname(__file__), "data", ...)` to `os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", ...)` — resolves to canonical `bmo/pi/data/`. Live data migrated from `services/{config,data}/` to canonical (mtime-aware: services-newer wins). Stale `services/{config,data}/` directories removed. (`personality_engine` now uses its existing top-level `DATA_DIR` for QUIPS_FILE / AT_QUOTES_FILE.)
+  2. **/api/ide/file/{read,write,create,delete,rename,edit,tree} arbitrary path access (HIGH security)** — added `_ide_safe_path()` helper at `app.py` near the IDE-Tab-API marker; realpath-jail to `~/home-lab/`, `~/.bmo_ide_workspace`, `/tmp`. Each handler returns 403 outside the jail. Verified with `curl POST /api/ide/file/write {"path":"/etc/foo"...}` → 403.
+  3. **/api/ide/git/{commit,checkout,push,pull,fetch,stage,unstage,log,diff,branches,stash,branch/{create,delete}} shell injection (HIGH security)** — added `git_command_args(args, repo_path)` to `dev/dev_tools.py` (subprocess array form, `shell=False`, same destructive-op confirmation logic). Replaced every f-string-interpolated `git_command(...)` call site in `app.py` with the array form. `repo` arg now path-jailed via `_safe_repo`/`_ide_safe_path`. Each handler validates branch / path / index args (no leading `-`). Verified: `curl POST /api/ide/git/checkout {"branch":"; echo PWNED ;"}` returns `pathspec '; echo PWNED ;' did not match any file(s)` — git treats it as a literal pathspec, no shell expansion.
+  4. **`_notes_list` race (MEDIUM)** — added `_notes_lock`. Every read/append/list-comprehension-rebuild in `api_notes` / `api_notes_create` / `api_notes_update` / `api_notes_delete` / `_load_notes` / `_save_notes_locked` is now under the lock.
+  5. **`_tv_media_cache` race (LOW)** — added `_tv_media_lock`. All four `_tv_media_cache.update(...)` sites + the cache-read at top of `_get_tv_media_title` and final return are under the lock.
+  6. **`_ide_jobs` iteration race (MEDIUM, partial)** — `api_ide_jobs_list` now snapshots `list(_ide_jobs.items())` under `_ide_jobs_lock` before iterating. Per-key writes inside the agent task body are NOT yet wrapped in lock (would risk deadlock if held during agent.dispatch_tool calls); a follow-up entry retains the broader audit.
+  7. **`/api/chat` unbounded message + speaker spoof (MEDIUM security/bug)** — added `MAX_CHAT_MESSAGE_LEN` (env override `BMO_MAX_CHAT_MESSAGE_LEN`, default 16384) and `ALLOWED_CHAT_SPEAKERS` allowlist (`{player,dm,discord,kiosk,user,unknown}`). Oversize → 413. Spoofed speaker → coerced to `"unknown"`. Verified: `curl POST /api/chat {"message":"x"*17000}` → 413.
+  8. **`/api/dnd/load` path traversal (MEDIUM security)** — added `_safe_dnd_path()` realpath-jail to `~/home-lab/bmo/pi/data/` and `~/home-lab/dnd-app/src/renderer/public/data/`. Every path in `char_paths` + `maps_dir` validated; oversized list (>32 chars paths) rejected. Verified: `curl POST /api/dnd/load {"characters":["/etc/passwd"]}` → 403.
+  9. **Flask security headers (MEDIUM security)** — `_cache_policy` after-request now adds `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(self), microphone=(self), geolocation=()`, and a `Content-Security-Policy` for `text/html` responses (allows `cdn.jsdelivr.net` + `cdn.socket.io` for the IDE template; `'unsafe-inline'` retained for Alpine.js `@click=` handlers). Verified via `curl -I http://localhost:5000/`.
+  10. **`MAX_CONTENT_LENGTH` cap (LOW)** — `app.config["MAX_CONTENT_LENGTH"] = int(os.environ.get("BMO_MAX_REQUEST_SIZE", str(32*1024*1024)))` — Flask now rejects request bodies above 32 MB before buffering.
+  11. **`datetime.utcnow()` deprecation (MEDIUM)** — `services/campaign_memory.py:114` and `dev/ai-temp/purge_channel.py:66` rewritten to use `datetime.now(timezone.utc)` + `fromtimestamp(..., tz=timezone.utc)` — produces aware datetimes, future-proof against Python 3.13+ removal.
+  12. **`bmo_social.db` missing indexes (MEDIUM)** — `bots/discord_social_bot.py:_get_db()` now creates `idx_play_history_guild_played`, `idx_play_history_user_played`, `idx_xp_data_level`, `idx_reminders_fire_at` on first connect (idempotent `CREATE INDEX IF NOT EXISTS`). Existing DBs gain the indexes on next bot start.
+  13. **`str(e)` info leakage (MEDIUM-low security)** — sed-replaced 25 of the worst sites (`return jsonify({"error": str(e)}), 500`) with `print(f"[bmo] api error: {e!r}", flush=True); return jsonify({"error": "internal server error"}), 500`. Exception detail now reaches `journalctl -u bmo` (full repr), client gets generic. Remaining ~23 `str(e)` sites use 4xx codes (user-actionable validation errors) and were left intact.
+  14. **`web/static/ide/ide.js` innerHTML XSS (MEDIUM security)** — added `escapeHtml()` helper at top of the IDE IIFE. Wrapped 9 `innerHTML = \`...${userField}...\`` sites (file tree node name, tab name, terminal label, git branch, git change status+path, git log hash, search results file name + line, quick-open file name + path).
+  15. **`web/templates/ide.html` CDN scripts no SRI (MEDIUM security)** — added `integrity="sha384-..." crossorigin="anonymous"` to all 5 CDN `<script>` tags (xterm, addon-fit, socket.io, marked, monaco-editor loader). Hashes computed with `curl | openssl dgst -sha384 | openssl base64`.
+  16. **Discord bot `allowed_mentions` (LOW security)** — `bots/discord_dm_bot.py` and `bots/discord_social_bot.py` `__init__` now pass `allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=True, replied_user=True)` to `commands.Bot.__init__`. `@everyone` / role pings in user-supplied content (reminder text, roll commands) now show as text but do not trigger Discord's notification system.
+- **Deferred (still in active logs):**
+  - **490 `print()` → structured logging migration (MEDIUM)** — too large for one session; multi-PR sweep tracked in `BMO-SUGGESTIONS-LOG.md`.
+  - **`app.py` 5596 lines / cyclomatic 38 / MI=C(0.0) (LOW)** — multi-day blueprint refactor; tracked in `BMO-SUGGESTIONS-LOG.md`.
+  - **`_ide_jobs` per-key write race (MEDIUM, partial fix above)** — full lock-around-mutations in agent task body deferred (deadlock risk during long blocking calls). Iteration race fixed.
+- **Process note:** Per `LOG-INSTRUCTIONS.md` the "fixing in this session" entries should not have been logged in the first place — this batch was logged then immediately fixed when the user said "fix everything." All entries removed from active logs.
+
 ### [2026-04-25] BMO suggestions log — full sweep (design gotchas → DESIGN-CONSTRAINTS, 5e sync, hooks/mcp docs, bandit nosec)
 
 - **Original severity:** info / medium (all active entries in `BMO-SUGGESTIONS-LOG.md` through 2026-04-25)

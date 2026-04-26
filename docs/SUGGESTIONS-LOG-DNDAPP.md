@@ -19,6 +19,35 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-04-25] Bundle Ollama binary inside the AppImage / NSIS installer (currently expects external install on non-Windows)
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** cross-platform sweep
+- **Effort estimate:** 2-4 hours
+
+**Description:** As of the cross-platform pass (2026-04-25), `ollama-manager.ts` does the right thing on Linux/macOS:
+- `detectOllama()` looks for the binary at per-platform standard install locations (`/usr/local/bin/ollama`, `/opt/homebrew/bin/ollama`, `~/.local/bin/ollama`, etc.) and via `command -v`.
+- `downloadOllama()` / `installOllama()` short-circuit with an explicit error pointing the user at `curl -fsSL https://ollama.com/install.sh | sh` (Linux) or the Ollama.app / Homebrew install (macOS).
+
+This means **the in-app "Install Ollama" button is Windows-only**. Linux/macOS users see a "Windows-only — install via {script}" message and have to pre-install Ollama themselves; the app then auto-detects.
+
+A future improvement is to bundle the Ollama binary into the installer (via `extraResources` per platform), the same way the bundled-binary detection already supports (`getBundledOllamaPath()` returns `process.resourcesPath/ollama/ollama` on POSIX).
+
+**What to do:**
+- [ ] Fetch the right architecture's Ollama binary at build time and drop into `dnd-app/resources/ollama/{ollama,ollama.exe}` per target
+- [ ] Add to `extraResources` in `package.json` `build` block, conditionally per platform
+- [ ] Verify the bundled binary is licensed for redistribution (Ollama is MIT, so OK)
+- [ ] Update the in-app "Install Ollama" copy to "Already bundled — start it via the toggle below"
+
+Until then, the current behavior is acceptable: cross-platform users that want local LLMs install Ollama themselves and the app picks it up automatically.
+
+**Related files:** `src/main/ai/ollama-manager.ts` (already platform-aware after the cross-platform pass), `package.json` `build.extraResources`
+
+---
+
 ### [2026-04-24] Add React.memo to ~10 heaviest tree-rendered components
 
 - **Category:** future-idea, performance

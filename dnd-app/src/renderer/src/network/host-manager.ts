@@ -46,8 +46,10 @@ const lastHeartbeat = new Map<string, number>()
 let moderationEnabled = false
 let customBlockedWords: string[] = []
 
-// Game state provider — set by the network store to supply game state for full syncs
-type GameStateProvider = () => unknown
+// Game state provider — set by the network store to supply game state for full syncs.
+// Receives the joining peer's PeerInfo so the provider can filter DM-only data
+// (hidden tokens, unrevealed traps, dm-only handouts/notes, etc.) for non-host peers.
+type GameStateProvider = (peerInfo: PeerInfo) => unknown
 let gameStateProvider: GameStateProvider | null = null
 
 // Ping interval for connection quality
