@@ -81,6 +81,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run ${{ matrix.release-script }}
 
+      # Adds the one-line installer script to the release alongside the
+      # AppImage so users can `curl -fsSL .../install-linux.sh | bash`.
+      # Linux runner only — uploads once per release (Windows would clobber
+      # the same asset with the same content). Runs after publish so the
+      # release exists.
+      - name: Upload Linux install script
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.ref_name }}" scripts/build/install-linux.sh --clobber
+
       - name: Upload artifacts (debug)
         if: always()
         uses: actions/upload-artifact@v4

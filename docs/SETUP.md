@@ -55,7 +55,14 @@ npm run release:all             # Windows + Linux
 
 **Local AI (Ollama):**
 - **Windows** — Ollama binary + GPU runners bundled in the installer (~1.6 GB). Just works.
-- **Linux** — install Ollama yourself before launching: `curl -fsSL https://ollama.com/install.sh | sh`. The app auto-detects it. Linux AppImage stays small (~150 MB) because GitHub Releases caps single-asset uploads at 2 GiB. Cloud AI (Anthropic/Gemini/OpenAI keys) works without Ollama.
+- **Linux** — install Ollama yourself before launching: `curl -fsSL https://ollama.com/install.sh | sh`. The app auto-detects it. Linux AppImage stays small (~230 MB) because GitHub Releases caps single-asset uploads at 2 GiB. Cloud AI (Anthropic/Gemini/OpenAI keys) works without Ollama.
+
+**Linux one-line install** (drops AppImage in `~/Applications/` + adds desktop entry, no manual `chmod` needed):
+```bash
+curl -fsSL https://github.com/EvilPatrick06/home-lab/releases/latest/download/install-linux.sh | bash
+```
+
+Or download `dnd-vtt-2.0.0-x86_64.AppImage` directly, `chmod +x`, and run.
 
 Players install whichever artifact suits their OS from the GitHub Release. DM hosts session, players join via invite code.
 
