@@ -101,7 +101,6 @@
       "icon": "resources/icon.ico",
       "legalTrademarks": "D&D Virtual Tabletop",
       "requestedExecutionLevel": "asInvoker",
-      "signAndEditExecutable": true,
       "target": [
         "nsis"
       ],
@@ -138,15 +137,6 @@
       "vendor": "D&D Virtual Tabletop",
       "target": [
         "AppImage"
-      ],
-      "extraResources": [
-        {
-          "from": "resources/ollama/linux/",
-          "to": "ollama/",
-          "filter": [
-            "**/*"
-          ]
-        }
       ]
     },
     "appImage": {

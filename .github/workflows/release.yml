@@ -1,8 +1,14 @@
 name: Release
 
 # Triggered by pushing a `v*` tag (e.g. `v2.0.0`).
-# Builds the dnd-app on Windows + Linux runners in parallel, bundles Ollama
-# per platform, and uploads all artifacts to a draft GitHub Release.
+# Builds the dnd-app on Windows + Linux runners in parallel and uploads
+# artifacts to a GitHub Release.
+#
+# Ollama bundling: Windows only. Linux AppImage exceeds GitHub Releases'
+# 2 GiB single-asset cap when Ollama is bundled, so Linux ships a small
+# (~150 MB) AppImage and the user installs Ollama via the official script
+# (`curl -fsSL https://ollama.com/install.sh | sh`); the app auto-detects
+# it on next launch.
 #
 # Auto-update wires up via electron-builder's `latest.yml` / `latest-linux.yml`
 # files which are emitted alongside each artifact and uploaded as part of the
@@ -26,10 +32,8 @@ jobs:
         include:
           - os: windows-latest
             release-script: release
-            ollama-platform: windows
           - os: ubuntu-latest
             release-script: release:linux
-            ollama-platform: linux
     runs-on: ${{ matrix.os }}
 
     defaults:
@@ -39,16 +43,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Ollama bundle (~2 GB) + extracted (~5 GB) + electron build output is
-      # tight on the default ~14 GB Actions runner. Pre-clean unused tools.
-      - name: Free disk space (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
-                      /opt/hostedtoolcache/CodeQL
-          df -h
-        working-directory: .
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -61,10 +55,13 @@ jobs:
         run: npm ci
 
       # Bundles the full Ollama distribution (binary + GPU runner libs) into
-      # resources/ollama/{linux,windows}/ so electron-builder's per-platform
-      # extraResources picks it up. ~2 GB download, ~5 GB extracted.
-      - name: Bundle Ollama (${{ matrix.ollama-platform }})
-        run: node scripts/build/fetch-ollama.mjs --platform=${{ matrix.ollama-platform }}
+      # resources/ollama/windows/ so electron-builder's win.extraResources
+      # picks it up. Windows only — Linux AppImage exceeds GitHub's 2 GiB
+      # asset cap with Ollama bundled. Linux users install Ollama themselves
+      # via the official script.
+      - name: Bundle Ollama (Windows)
+        if: matrix.os == 'windows-latest'
+        run: node scripts/build/fetch-ollama.mjs --platform=windows
 
       # AppImage build needs GTK and friends on the runner so the bundled
       # binary can launch its smoke-test. Ubuntu runners ship most of these;
@@ -82,11 +79,6 @@ jobs:
         env:
           # Auto-injected by Actions; electron-builder picks it up for `--publish always`.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Skip auto-discovery of code-signing identities on Windows; signing
-          # is intentionally not configured for this release flow (see
-          # docs/SETUP.md "Build for release"). Without this, electron-builder
-          # would warn loudly about missing certs on every Windows build.
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: npm run ${{ matrix.release-script }}
 
       - name: Upload artifacts (debug)
@@ -97,7 +89,6 @@ jobs:
           path: |
             dnd-app/dist/*.exe
             dnd-app/dist/*.AppImage
-            dnd-app/dist/*.deb
             dnd-app/dist/*.yml
             dnd-app/dist/*.blockmap
           if-no-files-found: warn

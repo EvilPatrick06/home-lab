@@ -53,6 +53,10 @@ npm run release:all             # Windows + Linux
 - **Windows** (NSIS) — full differential update via electron-updater.
 - **Linux AppImage** — full AppImage replace via electron-updater (only when running as AppImage; the running file's path is taken from `process.env.APPIMAGE`).
 
+**Local AI (Ollama):**
+- **Windows** — Ollama binary + GPU runners bundled in the installer (~1.6 GB). Just works.
+- **Linux** — install Ollama yourself before launching: `curl -fsSL https://ollama.com/install.sh | sh`. The app auto-detects it. Linux AppImage stays small (~150 MB) because GitHub Releases caps single-asset uploads at 2 GiB. Cloud AI (Anthropic/Gemini/OpenAI keys) works without Ollama.
+
 Players install whichever artifact suits their OS from the GitHub Release. DM hosts session, players join via invite code.
 
 ## BMO (Raspberry Pi)
@@ -66,10 +70,47 @@ bash setup-bmo.sh
 
 What setup-bmo.sh does:
 1. Installs apt dependencies (Python, audio libs, systemd, I2C tools, etc.)
-2. Creates Python venv at `bmo/pi/venv/` and installs `requirements.txt`
+2. Creates Python venv at `bmo/pi/venv/` and installs from the locked `requirements.txt`
 3. Writes + enables systemd services: `bmo, bmo-fan, bmo-kiosk, bmo-dm-bot, bmo-social-bot`
 4. Creates data directory structure
 5. Optionally prompts to launch services
+
+### Dependency management (pip-tools)
+
+BMO uses [`pip-tools`](https://github.com/jazzband/pip-tools) for deterministic, transitively-pinned dependencies. Top-level deps live in `requirements.in` (similar files exist for CI + tests):
+
+```
+bmo/pi/
+├── requirements.in        ← top-level deps (edit this)
+├── requirements.txt       ← fully resolved lockfile (auto-generated)
+├── requirements-ci.in     ← CI top-level (no Pi-hardware wheels)
+├── requirements-ci.txt    ← CI lockfile
+├── requirements-test.in   ← pytest + linters
+└── requirements-test.txt  ← test lockfile
+```
+
+**To upgrade or add a dep:**
+
+```bash
+cd ~/home-lab/bmo/pi
+# 1. Edit requirements.in — add/change/remove a top-level dep.
+# 2. Regenerate the lockfile (pulls torch from CPU index to avoid CUDA stack):
+venv/bin/pip-compile --extra-index-url https://download.pytorch.org/whl/cpu \
+  -o requirements.txt requirements.in
+# 3. Sync the venv to match:
+venv/bin/pip install -r requirements.txt
+# 4. Repeat for requirements-ci.in / requirements-test.in if those changed.
+```
+
+**To upgrade all transitive pins** (monthly maintenance, surfaces CVEs):
+
+```bash
+venv/bin/pip-compile --upgrade --extra-index-url https://download.pytorch.org/whl/cpu \
+  -o requirements.txt requirements.in
+git diff requirements.txt   # review what bumped
+```
+
+**Why no `[voice]` extra on `discord.py`?** The extra pins `PyNaCl<1.6` (a conservative upstream cap, not a real API requirement) which conflicts with our `PyNaCl>=1.6.2` security pin. Voice features still work — discord.py only uses `nacl.secret.SecretBox` whose API didn't change between 1.5 → 1.6. libopus (the other voice prereq) is a system C library installed via apt, not a Python dep. See the comment block at the top of `requirements.in` for the full rationale.
 
 Configure secrets:
 

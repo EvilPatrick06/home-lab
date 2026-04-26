@@ -92,15 +92,15 @@ export const CURATED_MODELS: CuratedModel[] = [
  * Returns the path if the bundled binary exists, undefined otherwise.
  */
 function getBundledOllamaPath(): string | undefined {
-  // Ollama v0.5+ ships multi-file archives with binary + GPU runner libs.
-  // Layout after fetch-ollama.mjs extracts the whole archive:
-  //   linux: <base>/bin/ollama  + <base>/lib/ollama/runners/*
-  //   win:   <base>/ollama.exe  + <base>/lib/ollama/runners/*
+  // Ollama bundling is Windows-only. Linux AppImage exceeds GitHub Releases'
+  // 2 GiB single-asset cap with Ollama bundled, so Linux users install
+  // Ollama themselves and the app auto-detects via getPlatformInstallCandidates.
+  // Layout (Windows): <base>/ollama.exe + <base>/lib/ollama/runners/*
   // The binary loads its runner libs via path relative to itself, so the lib/
   // dir must sit alongside the binary (which extraResources `**/*` preserves).
-  // In packaged builds extraResources copies resources/ollama/{platform}/ to
-  // <resources>/ollama/. In dev the per-platform tree lives in repo at
-  // dnd-app/resources/ollama/{platform}/.
+  // In packaged builds extraResources copies resources/ollama/windows/ to
+  // <resources>/ollama/. In dev the layout lives in repo at
+  // dnd-app/resources/ollama/windows/.
   const platformDir =
     process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux'
   const binaryRelPath =
