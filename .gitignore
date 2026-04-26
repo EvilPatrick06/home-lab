@@ -29,8 +29,10 @@ nul
 dev-app-update.yml
 resources/chunk-index.json
 
-# Reference PDFs (too large for GitHub even with LFS)
+# D&D PDFs — copyright (Wizards of the Coast). Local-only, never committed.
 5.5e References/
+dnd-app/src/renderer/public/data/5e/npcs/
+*.pdf
 
 # Temporary/working files
 _pdf_text_lines.txt
