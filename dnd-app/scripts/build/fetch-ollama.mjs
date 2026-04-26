@@ -1,21 +1,29 @@
 #!/usr/bin/env node
 /**
- * Fetch the Ollama binary for a target platform and place it at
- * `dnd-app/resources/ollama/{ollama,ollama.exe}` so electron-builder picks it
- * up via the platform-specific `extraResources` entries.
+ * Fetch the Ollama distribution for a target platform and place it under
+ * `dnd-app/resources/ollama/{platform}/` so electron-builder picks it up via
+ * the platform-specific `extraResources` entries (filter `**\/*`).
  *
- * Reads the latest Ollama release from the GitHub API, downloads the right
- * asset for the target platform, extracts the binary, and writes it to the
- * resources tree. Idempotent — skips download if the binary already exists
- * unless `--force` is passed.
+ * Ollama v0.5+ ships multi-file archives: a binary + runner libraries (CPU,
+ * CUDA, ROCm). The binary loads runner libs via path relative to itself, so
+ * we extract the WHOLE archive — not just the binary — and the lib/ dir sits
+ * alongside it.
+ *
+ * Per-platform asset names (as of v0.21.x):
+ *   linux:   ollama-linux-amd64.tar.zst   (binary at bin/ollama, ~2 GB)
+ *   windows: ollama-windows-amd64.zip     (binary at ollama.exe, ~2 GB)
+ *   darwin:  ollama-darwin.tgz            (single-binary, ~120 MB)
  *
  * Usage:
  *   node scripts/build/fetch-ollama.mjs --platform=linux
  *   node scripts/build/fetch-ollama.mjs --platform=windows --force
  *
- * Skips entirely when `BUNDLE_OLLAMA=0` env is set (for slim builds).
+ * Skips entirely when `BUNDLE_OLLAMA=0` env is set (slim builds).
  *
- * Requires Node 22+ (uses `fs/promises.cp`, AbortSignal.timeout, native fetch).
+ * Requires Node 22+ (uses `fs/promises`, AbortSignal.timeout, native fetch).
+ * Requires `tar` on PATH — Win10+, Ubuntu, macOS all ship it. Modern tar
+ * (libarchive on Win/macOS, GNU tar 1.31+ on Linux) handles .tar.zst, .tgz,
+ * and .zip natively.
  */
 
 import { execFileSync } from 'node:child_process'
@@ -56,36 +64,38 @@ if (!['linux', 'windows', 'darwin'].includes(targetPlatform)) {
 }
 
 // ── Per-platform config ──
+//
+// `binaryRelPath` is where the main `ollama` (or `ollama.exe`) binary ends up
+// inside the extracted tree. Used for the idempotency check + chmod.
 
 const PLATFORMS = {
   linux: {
-    asset: 'ollama-linux-amd64.tgz',
-    binaryInArchive: 'bin/ollama',
-    outputName: 'ollama',
-    extract: extractTgz
+    asset: 'ollama-linux-amd64.tar.zst',
+    binaryRelPath: 'bin/ollama',
+    // tar's --zstd needs zstd CLI (preinstalled on Ubuntu 22+ runners)
+    extractArgs: (archive, dest) => ['--zstd', '-xf', archive, '-C', dest]
   },
   windows: {
     asset: 'ollama-windows-amd64.zip',
-    binaryInArchive: 'ollama.exe',
-    outputName: 'ollama.exe',
-    extract: extractZip
+    binaryRelPath: 'ollama.exe',
+    // Win10+ tar uses libarchive — handles .zip natively
+    extractArgs: (archive, dest) => ['-xf', archive, '-C', dest]
   },
   darwin: {
     asset: 'ollama-darwin.tgz',
-    binaryInArchive: 'ollama',
-    outputName: 'ollama',
-    extract: extractTgz
+    binaryRelPath: 'ollama',
+    extractArgs: (archive, dest) => ['-xzf', archive, '-C', dest]
   }
 }
 
 const config = PLATFORMS[targetPlatform]
 const outputDir = join(PROJECT_ROOT, 'resources', 'ollama', targetPlatform)
-const outputPath = join(outputDir, config.outputName)
+const binaryPath = join(outputDir, config.binaryRelPath)
 
-// Skip if already present
-if (existsSync(outputPath) && !force) {
-  const sizeMb = (statSync(outputPath).size / 1024 / 1024).toFixed(1)
-  console.log(`[fetch-ollama] ${outputPath} already exists (${sizeMb} MB) — skipping.`)
+// Skip if binary already present at expected path
+if (existsSync(binaryPath) && !force) {
+  const sizeMb = (statSync(binaryPath).size / 1024 / 1024).toFixed(1)
+  console.log(`[fetch-ollama] ${binaryPath} already exists (${sizeMb} MB) — skipping.`)
   console.log('[fetch-ollama] Pass --force to re-download.')
   process.exit(0)
 }
@@ -120,22 +130,31 @@ if (!existsSync(archivePath) || force) {
   console.log(`[fetch-ollama] Reusing cached archive at ${archivePath}`)
 }
 
-// ── Extract binary ──
+// ── Extract whole archive into outputDir ──
+//
+// The whole tree is needed: lib/ollama/runners/ siblings of the binary are
+// loaded at runtime by the binary itself for CPU/CUDA/ROCm acceleration.
 
 await mkdir(outputDir, { recursive: true })
-console.log(`[fetch-ollama] Extracting ${config.binaryInArchive} → ${outputPath}`)
-await config.extract(archivePath, config.binaryInArchive, outputPath)
+console.log(`[fetch-ollama] Extracting ${config.asset} → ${outputDir}`)
+execFileSync('tar', config.extractArgs(archivePath, outputDir), { stdio: 'inherit' })
 
 // chmod +x for POSIX
 if (targetPlatform !== 'windows') {
-  await chmod(outputPath, 0o755)
+  if (!existsSync(binaryPath)) {
+    console.error(
+      `[fetch-ollama] Binary not found at expected path after extraction: ${binaryPath}`
+    )
+    process.exit(1)
+  }
+  await chmod(binaryPath, 0o755)
 }
 
 // Cleanup tmp
 await rm(tmpDir, { recursive: true, force: true })
 
-const finalSizeMb = (statSync(outputPath).size / 1024 / 1024).toFixed(1)
-console.log(`[fetch-ollama] OK — ${outputPath} (${finalSizeMb} MB)`)
+const finalSizeMb = (statSync(binaryPath).size / 1024 / 1024).toFixed(1)
+console.log(`[fetch-ollama] OK — binary at ${binaryPath} (${finalSizeMb} MB)`)
 
 // ── Helpers ──
 
@@ -156,7 +175,8 @@ async function fetchJson(url) {
 async function downloadTo(url, dest) {
   const res = await fetch(url, {
     headers: { 'User-Agent': 'dnd-vtt-build' },
-    signal: AbortSignal.timeout(10 * 60_000) // 10 min — these are big files
+    // 30 min — these are 2 GB files
+    signal: AbortSignal.timeout(30 * 60_000)
   })
   if (!res.ok || !res.body) {
     throw new Error(`Download failed: HTTP ${res.status}`)
@@ -174,7 +194,7 @@ async function downloadTo(url, dest) {
     downloaded += value.length
     if (totalBytes > 0) {
       const pct = Math.floor((downloaded / totalBytes) * 100)
-      if (pct - lastLogPct >= 10) {
+      if (pct - lastLogPct >= 5) {
         process.stdout.write(`[fetch-ollama] ${pct}%\r`)
         lastLogPct = pct
       }
@@ -186,25 +206,4 @@ async function downloadTo(url, dest) {
     file.on('error', rej)
   })
   process.stdout.write('\n')
-}
-
-async function extractTgz(archive, member, dest) {
-  // Use system tar — available on every CI runner (incl. Windows since Win10).
-  // Extract a single member to stdout, redirect to destination.
-  const buf = execFileSync('tar', ['-xzOf', archive, member], { maxBuffer: 1024 * 1024 * 1024 })
-  await import('node:fs/promises').then((m) => m.writeFile(dest, buf))
-}
-
-async function extractZip(archive, member, dest) {
-  // `extract-zip` is a direct prod dep already (see plugin-installer.ts swap),
-  // but we don't want to ship it for build. Use a one-shot via node's zlib +
-  // PowerShell on Windows, or `unzip` on POSIX.
-  if (process.platform === 'win32') {
-    const ps = `Expand-Archive -Force -Path '${archive.replace(/'/g, "''")}' -DestinationPath '${dirname(dest).replace(/'/g, "''")}'`
-    execFileSync('powershell', ['-NoProfile', '-Command', ps], { stdio: 'inherit' })
-    // The extracted layout puts ollama.exe at the top of the destination
-  } else {
-    // unzip is available on every Linux runner and macOS by default
-    execFileSync('unzip', ['-o', '-j', archive, member, '-d', dirname(dest)], { stdio: 'inherit' })
-  }
 }

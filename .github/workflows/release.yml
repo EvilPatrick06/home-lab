@@ -40,6 +40,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Ollama bundle (~2 GB) + extracted (~5 GB) + electron build output is
+      # tight on the default ~14 GB Actions runner. Pre-clean unused tools.
+      - name: Free disk space (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL
+          df -h
+        working-directory: .
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -50,8 +60,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Bundles the Ollama binary into resources/ollama/{linux,windows}/ so
-      # electron-builder's per-platform extraResources picks it up.
+      # Bundles the full Ollama distribution (binary + GPU runner libs) into
+      # resources/ollama/{linux,windows}/ so electron-builder's per-platform
+      # extraResources picks it up. ~2 GB download, ~5 GB extracted.
       - name: Bundle Ollama (${{ matrix.ollama-platform }})
         run: node scripts/build/fetch-ollama.mjs --platform=${{ matrix.ollama-platform }}
 

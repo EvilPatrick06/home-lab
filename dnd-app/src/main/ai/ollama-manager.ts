@@ -92,22 +92,30 @@ export const CURATED_MODELS: CuratedModel[] = [
  * Returns the path if the bundled binary exists, undefined otherwise.
  */
 function getBundledOllamaPath(): string | undefined {
-  // In production, electron-builder's per-platform `extraResources` flattens
-  //   resources/ollama/{linux,windows}/{ollama,ollama.exe}
-  // into the installed app's resources tree, so the runtime path is just
-  //   process.resourcesPath/ollama/{ollama,ollama.exe}
-  // In dev, scripts/build/fetch-ollama.mjs writes the per-platform tree to
-  //   dnd-app/resources/ollama/{linux,windows}/{ollama,ollama.exe}
-  const ollamaName = process.platform === 'win32' ? 'ollama.exe' : 'ollama'
-  const platformDir = process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux'
-  const resourcePaths = [
-    // Packaged build — flat layout from extraResources `to: ollama/`
-    join(process.resourcesPath ?? '', 'ollama', ollamaName),
-    // Dev — fetch-ollama.mjs writes the per-platform layout
-    join(app.getAppPath(), 'resources', 'ollama', platformDir, ollamaName)
+  // Ollama v0.5+ ships multi-file archives with binary + GPU runner libs.
+  // Layout after fetch-ollama.mjs extracts the whole archive:
+  //   linux: <base>/bin/ollama  + <base>/lib/ollama/runners/*
+  //   win:   <base>/ollama.exe  + <base>/lib/ollama/runners/*
+  // The binary loads its runner libs via path relative to itself, so the lib/
+  // dir must sit alongside the binary (which extraResources `**/*` preserves).
+  // In packaged builds extraResources copies resources/ollama/{platform}/ to
+  // <resources>/ollama/. In dev the per-platform tree lives in repo at
+  // dnd-app/resources/ollama/{platform}/.
+  const platformDir =
+    process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux'
+  const binaryRelPath =
+    process.platform === 'linux'
+      ? join('bin', 'ollama')
+      : process.platform === 'win32'
+        ? 'ollama.exe'
+        : 'ollama' // darwin .tgz is single-binary at top level
+  const baseDirs = [
+    join(process.resourcesPath ?? '', 'ollama'),
+    join(app.getAppPath(), 'resources', 'ollama', platformDir)
   ]
 
-  for (const candidate of resourcePaths) {
+  for (const base of baseDirs) {
+    const candidate = join(base, binaryRelPath)
     if (existsSync(candidate)) {
       return candidate
     }
