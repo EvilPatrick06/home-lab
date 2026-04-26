@@ -2,6 +2,11 @@
   "name": "dnd-vtt",
   "version": "2.0.0",
   "description": "D&D Virtual Tabletop - Desktop app for online Dungeons & Dragons",
+  "homepage": "https://github.com/EvilPatrick06/home-lab",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EvilPatrick06/home-lab.git"
+  },
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
