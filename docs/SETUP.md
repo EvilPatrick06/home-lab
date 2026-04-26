@@ -23,7 +23,7 @@ git lfs pull    # downloads PDFs (~1.7 GB). Skip if you don't need local ruleboo
 
 ## dnd-app (VTT)
 
-Develops on Linux and Windows. Ships as **Windows NSIS** + **Linux AppImage** + **Linux .deb**.
+Develops on Linux and Windows. Ships as **Windows NSIS** + **Linux AppImage**.
 
 ```bash
 cd dnd-app
@@ -40,7 +40,7 @@ npx tsc --noEmit                # type check
 # Production build (no publish — local artifacts in dist/)
 npm run build                   # electron-vite build (current platform; no installer)
 npm run build:win               # Windows NSIS installer
-npm run build:linux             # Linux AppImage + .deb
+npm run build:linux             # Linux AppImage
 npm run build:cross             # Both (Linux host needs `wine` for the Windows cross-compile)
 
 # Release (publishes to GitHub Releases — requires GH_TOKEN env var)
@@ -52,7 +52,6 @@ npm run release:all             # Windows + Linux
 **Auto-update behaviour:**
 - **Windows** (NSIS) — full differential update via electron-updater.
 - **Linux AppImage** — full AppImage replace via electron-updater (only when running as AppImage; the running file's path is taken from `process.env.APPIMAGE`).
-- **Linux .deb** — handled by APT; in-app updater no-ops there. Distribute the `.deb` to friends-of-the-DM who'd rather use system package management; ship the AppImage to everyone else.
 
 Players install whichever artifact suits their OS from the GitHub Release. DM hosts session, players join via invite code.
 

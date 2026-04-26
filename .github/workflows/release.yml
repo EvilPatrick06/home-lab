@@ -66,18 +66,16 @@ jobs:
       - name: Bundle Ollama (${{ matrix.ollama-platform }})
         run: node scripts/build/fetch-ollama.mjs --platform=${{ matrix.ollama-platform }}
 
-      # Linux .deb / AppImage builds need GTK and friends present on the runner
-      # so electron-builder can wire dependency metadata. Ubuntu runners ship
-      # most of these; this step is a sanity-check no-op when they're already
-      # there. Skipped on Windows.
+      # AppImage build needs GTK and friends on the runner so the bundled
+      # binary can launch its smoke-test. Ubuntu runners ship most of these;
+      # this step is a sanity-check no-op when already present. Skipped on Windows.
       - name: Linux build deps
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 \
-            xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0 \
-            fakeroot dpkg
+            xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0
         working-directory: .
 
       - name: Build & publish
