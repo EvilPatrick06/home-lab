@@ -9,22 +9,30 @@ import {
   saveSyncMeta,
   clearSyncMeta,
 } from '../services/persistence.js';
-import { pullSave, pushSave, upsertProfile } from '../services/cloudSync.js';
+import { pullSave, pushSave, upsertProfile, subscribeSaves } from '../services/cloudSync.js';
 
 const LOCAL_DEBOUNCE_MS = 500;
-const CLOUD_DEBOUNCE_MS = 3000;
+const CLOUD_DEBOUNCE_MS = 500;
 const RETRY_DELAYS_MS = [1000, 4000, 16000];
+const BROADCAST_CHANNEL = 'dungeon-scholar:state';
 
 /**
  * Combined local + cloud persistence hook.
  *
- * Sync behavior on sign-in (or session resume):
+ * Local: every change is debounced ~500 ms to localStorage. Always on.
+ * Cloud: when signed in, every change is debounced ~500 ms to Supabase.
+ *
+ * Live updates:
+ *   - BroadcastChannel: same browser, other tabs apply changes immediately.
+ *   - Supabase Realtime: other devices apply changes when their saves row changes.
+ *
+ * Sign-in pull (smart merge using sync meta):
  *   - empty cloud + empty local                    → no-op
  *   - cloud has data + empty local                 → cloud wins silently
  *   - empty cloud + local has data                 → push local silently
  *   - both have data, never synced before          → CHOOSER (real first-time conflict)
  *   - both have data, cloud unchanged since sync   → push if local is dirty, else no-op
- *   - both have data, cloud changed, local clean   → cloud wins silently (another device updated)
+ *   - both have data, cloud changed, local clean   → cloud wins silently
  *   - both have data, cloud changed, local dirty   → CHOOSER (real concurrent conflict)
  *
  * @param defaultState  initial blob if nothing is stored anywhere
@@ -48,29 +56,48 @@ export function usePlayerState(defaultState, user = null) {
   const localTimeoutRef = useRef(null);
   const cloudTimeoutRef = useRef(null);
   const retryAttemptRef = useRef(0);
+  // Track the cloud's most recent updated_at known to this client. Used to
+  // dedupe Realtime echoes of our own pushes.
+  const lastKnownCloudUpdatedAtRef = useRef(null);
+  const broadcastChannelRef = useRef(null);
+  // When applying a remote update (from BroadcastChannel or Realtime),
+  // bypass the public setState's side effects (push, broadcast).
+  const applyingRemoteRef = useRef(false);
 
   const userRef = useRef(user);
-  // user?.id is stable across token-refresh re-projections, so use it (not the
-  // user object reference) as the effect dep.
   const userId = user?.id ?? null;
   useEffect(() => { userRef.current = user; }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Update sync meta in both ref-mirrored React state and localStorage.
   const writeSyncMeta = useCallback((meta) => {
     saveSyncMeta(meta);
     setLastSyncedAt(meta.lastSyncedAt);
   }, []);
+
+  // Apply a state from a remote source (Realtime or another tab) without
+  // triggering broadcast/push back out.
+  const applyRemoteState = useCallback((nextState, cloudUpdatedAt) => {
+    applyingRemoteRef.current = true;
+    try {
+      latestRef.current = nextState;
+      setStateInternal(nextState);
+      saveToLocalStorage(nextState);
+      if (cloudUpdatedAt) {
+        lastKnownCloudUpdatedAtRef.current = cloudUpdatedAt;
+        writeSyncMeta({ lastSyncedAt: cloudUpdatedAt, dirty: false });
+      }
+    } finally {
+      applyingRemoteRef.current = false;
+    }
+  }, [writeSyncMeta]);
 
   const pushNow = useCallback(async () => {
     const u = userRef.current;
     if (!u) return;
     setStatus('saving');
     try {
-      await pushSave(u.id, latestRef.current);
-      // Cloud's updated_at is now() server-side; we approximate with client now.
-      // Mismatches under a few seconds don't matter for our comparisons.
-      const nowIso = new Date().toISOString();
-      writeSyncMeta({ lastSyncedAt: nowIso, dirty: false });
+      const { updatedAt } = await pushSave(u.id, latestRef.current);
+      lastKnownCloudUpdatedAtRef.current = updatedAt;
+      writeSyncMeta({ lastSyncedAt: updatedAt, dirty: false });
       setStatus('idle');
       retryAttemptRef.current = 0;
     } catch (err) {
@@ -94,9 +121,6 @@ export function usePlayerState(defaultState, user = null) {
     saveToLocalStorage(latestRef.current);
   }, []);
 
-  // Flush any pending cloud push immediately. Used by tab-visibility / blur
-  // handlers and beforeunload so changes don't sit in a debounce window when
-  // the user switches browsers.
   const flushCloud = useCallback(() => {
     if (cloudTimeoutRef.current) {
       clearTimeout(cloudTimeoutRef.current);
@@ -116,39 +140,56 @@ export function usePlayerState(defaultState, user = null) {
         localTimeoutRef.current = null;
       }, LOCAL_DEBOUNCE_MS);
 
-      // Mark dirty so the next sign-in pull knows we have unpushed changes.
-      if (userRef.current) {
-        const meta = loadSyncMeta();
-        if (!meta.dirty) saveSyncMeta({ ...meta, dirty: true });
+      // Don't broadcast/push back if we're applying a remote update.
+      if (!applyingRemoteRef.current) {
+        // Broadcast to other tabs in the same browser (signed-in or not — local
+        // sync helps even guest users with multiple tabs open).
+        if (broadcastChannelRef.current) {
+          try {
+            broadcastChannelRef.current.postMessage({ type: 'state', state: resolved });
+          } catch { /* channel may be closed */ }
+        }
 
-        if (cloudTimeoutRef.current) clearTimeout(cloudTimeoutRef.current);
-        cloudTimeoutRef.current = setTimeout(() => {
-          cloudTimeoutRef.current = null;
-          pushNow();
-        }, CLOUD_DEBOUNCE_MS);
+        if (userRef.current) {
+          const meta = loadSyncMeta();
+          if (!meta.dirty) saveSyncMeta({ ...meta, dirty: true });
+
+          if (cloudTimeoutRef.current) clearTimeout(cloudTimeoutRef.current);
+          cloudTimeoutRef.current = setTimeout(() => {
+            cloudTimeoutRef.current = null;
+            pushNow();
+          }, CLOUD_DEBOUNCE_MS);
+        }
       }
 
       return resolved;
     });
   }, [pushNow]);
 
-  // Flush listeners: tab close, tab hidden, window blur. Each is a moment
-  // where pending writes could otherwise sit unpushed.
+  // BroadcastChannel for cross-tab same-browser live updates.
   useEffect(() => {
-    const onUnload = () => {
-      flushLocal();
-      flushCloud();
+    if (typeof BroadcastChannel === 'undefined') return; // older browsers
+    const channel = new BroadcastChannel(BROADCAST_CHANNEL);
+    broadcastChannelRef.current = channel;
+    channel.onmessage = (ev) => {
+      if (!ev?.data || ev.data.type !== 'state') return;
+      // Don't apply if we're already showing the same state (cheap reference check).
+      if (ev.data.state === latestRef.current) return;
+      applyRemoteState(ev.data.state, null);
     };
+    return () => {
+      try { channel.close(); } catch { /* ignore */ }
+      if (broadcastChannelRef.current === channel) broadcastChannelRef.current = null;
+    };
+  }, [applyRemoteState]);
+
+  // Flush listeners.
+  useEffect(() => {
+    const onUnload = () => { flushLocal(); flushCloud(); };
     const onVisibility = () => {
-      if (document.visibilityState === 'hidden') {
-        flushLocal();
-        flushCloud();
-      }
+      if (document.visibilityState === 'hidden') { flushLocal(); flushCloud(); }
     };
-    const onBlur = () => {
-      flushLocal();
-      flushCloud();
-    };
+    const onBlur = () => { flushLocal(); flushCloud(); };
     window.addEventListener('beforeunload', onUnload);
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('blur', onBlur);
@@ -169,11 +210,12 @@ export function usePlayerState(defaultState, user = null) {
       }
       clearSyncMeta();
       setLastSyncedAt(null);
+      lastKnownCloudUpdatedAtRef.current = null;
     }
     retryAttemptRef.current = 0;
   }, [userId]);
 
-  // Sign-in / session-resume handler: pull cloud, decide branch using sync meta.
+  // Sign-in / session-resume handler.
   useEffect(() => {
     if (!user) {
       setMergeRequired(false);
@@ -185,7 +227,6 @@ export function usePlayerState(defaultState, user = null) {
 
     (async () => {
       try {
-        // Best-effort profile upsert; ignore errors (profile is cosmetic).
         upsertProfile(user.id, user.githubLogin, user.avatarUrl).catch(() => {});
 
         const cloud = await pullSave(user.id);
@@ -198,27 +239,21 @@ export function usePlayerState(defaultState, user = null) {
 
         if (!cloudHasData && !localHasData) return;
         if (cloudHasData && !localHasData) {
-          // Cloud wins silently.
-          latestRef.current = cloudData;
-          setStateInternal(cloudData);
-          saveToLocalStorage(cloudData);
-          writeSyncMeta({ lastSyncedAt: cloud.updatedAt, dirty: false });
+          applyRemoteState(cloudData, cloud.updatedAt);
           return;
         }
         if (!cloudHasData && localHasData) {
-          // Local wins silently — push to cloud.
-          await pushSave(user.id, local);
-          writeSyncMeta({ lastSyncedAt: new Date().toISOString(), dirty: false });
+          const { updatedAt } = await pushSave(user.id, local);
+          lastKnownCloudUpdatedAtRef.current = updatedAt;
+          writeSyncMeta({ lastSyncedAt: updatedAt, dirty: false });
           return;
         }
 
-        // Both sides have data. Use sync meta to decide.
         const meta = loadSyncMeta();
         const lastSync = meta.lastSyncedAt;
         const wasDirty = !!meta.dirty;
 
         if (!lastSync) {
-          // Never synced this device with this account → real first-time conflict.
           setLocalPreview(local);
           setCloudPreview(cloudData);
           setMergeRequired(true);
@@ -229,25 +264,22 @@ export function usePlayerState(defaultState, user = null) {
         const lastSyncTime = new Date(lastSync).getTime();
 
         if (cloudTime <= lastSyncTime) {
-          // Cloud hasn't changed since we last synced. If local is dirty, push.
           if (wasDirty) {
-            await pushSave(user.id, local);
-            writeSyncMeta({ lastSyncedAt: new Date().toISOString(), dirty: false });
+            const { updatedAt } = await pushSave(user.id, local);
+            lastKnownCloudUpdatedAtRef.current = updatedAt;
+            writeSyncMeta({ lastSyncedAt: updatedAt, dirty: false });
+          } else {
+            // We're already in sync. Track the cloud's updated_at for Realtime dedup.
+            lastKnownCloudUpdatedAtRef.current = cloud.updatedAt;
           }
           return;
         }
 
-        // Cloud has changed since our last sync.
         if (!wasDirty) {
-          // We have no unsaved changes → another device updated; take cloud silently.
-          latestRef.current = cloudData;
-          setStateInternal(cloudData);
-          saveToLocalStorage(cloudData);
-          writeSyncMeta({ lastSyncedAt: cloud.updatedAt, dirty: false });
+          applyRemoteState(cloudData, cloud.updatedAt);
           return;
         }
 
-        // Cloud changed AND we have unsaved local edits → real conflict.
         setLocalPreview(local);
         setCloudPreview(cloudData);
         setMergeRequired(true);
@@ -258,7 +290,19 @@ export function usePlayerState(defaultState, user = null) {
     })();
 
     return () => { active = false; };
-  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId, applyRemoteState, writeSyncMeta]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Realtime subscription for cross-device live updates.
+  useEffect(() => {
+    if (!userId) return;
+    const unsub = subscribeSaves(userId, (cloud) => {
+      // Skip echoes of our own push.
+      if (cloud.updatedAt === lastKnownCloudUpdatedAtRef.current) return;
+      const cloudData = migrateIfNeeded(cloud.data, cloud.schemaVer);
+      applyRemoteState(cloudData, cloud.updatedAt);
+    });
+    return unsub;
+  }, [userId, applyRemoteState]);
 
   const resolveMerge = useCallback(async (choice) => {
     if (!user) return;
@@ -270,22 +314,28 @@ export function usePlayerState(defaultState, user = null) {
     }
     if (choice === 'local') {
       try {
-        await pushSave(user.id, latestRef.current);
-        writeSyncMeta({ lastSyncedAt: new Date().toISOString(), dirty: false });
+        const { updatedAt } = await pushSave(user.id, latestRef.current);
+        lastKnownCloudUpdatedAtRef.current = updatedAt;
+        writeSyncMeta({ lastSyncedAt: updatedAt, dirty: false });
       } catch (err) {
         setStatus('offline');
       }
     } else if (choice === 'cloud' && cloudPreview) {
-      latestRef.current = cloudPreview;
-      setStateInternal(cloudPreview);
-      saveToLocalStorage(cloudPreview);
-      // Use the cloud blob's timestamp if we still have it; otherwise now.
-      writeSyncMeta({ lastSyncedAt: new Date().toISOString(), dirty: false });
+      applyRemoteState(cloudPreview, null);
+      // We don't have the cloud's updated_at handy here, so do a quick pull
+      // to sync our lastKnownCloudUpdatedAt + lastSyncedAt.
+      try {
+        const fresh = await pullSave(user.id);
+        if (fresh) {
+          lastKnownCloudUpdatedAtRef.current = fresh.updatedAt;
+          writeSyncMeta({ lastSyncedAt: fresh.updatedAt, dirty: false });
+        }
+      } catch { /* ignore — local already replaced */ }
     }
     setMergeRequired(false);
     setLocalPreview(null);
     setCloudPreview(null);
-  }, [user, cloudPreview, writeSyncMeta]);
+  }, [user, cloudPreview, writeSyncMeta, applyRemoteState]);
 
   const sync = { mergeRequired, localPreview, cloudPreview, resolveMerge, status, lastSyncedAt };
   return [state, setState, sync];

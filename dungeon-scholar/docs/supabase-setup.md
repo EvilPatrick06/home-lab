@@ -35,7 +35,14 @@ create policy "own profile" on profiles for all
   using (auth.uid() = id)        with check (auth.uid() = id);
 create policy "own save"    on saves    for all
   using (auth.uid() = user_id)   with check (auth.uid() = user_id);
+
+-- Enable Realtime so signed-in clients receive cross-device live updates.
+alter publication supabase_realtime add table saves;
 ```
+
+If you set up the project before this Realtime line existed, run that single
+`alter publication ...` statement on its own in the SQL editor — it's a no-op
+if the table is already in the publication.
 
 ## 3. Register a GitHub OAuth app
 

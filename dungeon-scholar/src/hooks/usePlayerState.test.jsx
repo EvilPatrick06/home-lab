@@ -7,11 +7,12 @@ import { hasMeaningfulData } from '../services/persistence.js';
 
 vi.mock('../services/cloudSync.js', () => ({
   pullSave: vi.fn(),
-  pushSave: vi.fn(() => Promise.resolve()),
+  pushSave: vi.fn(() => Promise.resolve({ updatedAt: '2026-04-30T00:00:00Z' })),
   upsertProfile: vi.fn(() => Promise.resolve()),
+  subscribeSaves: vi.fn(() => () => {}),
 }));
 
-import { pullSave, pushSave, upsertProfile } from '../services/cloudSync.js';
+import { pullSave, pushSave, upsertProfile, subscribeSaves } from '../services/cloudSync.js';
 
 const USER = { id: 'u1', githubLogin: 'pat', avatarUrl: 'a.png' };
 
@@ -140,9 +141,9 @@ describe('usePlayerState — steady-state cloud writes', () => {
     upsertProfile.mockReset();
   });
 
-  it('debounces cloud writes ~3s after a state change', async () => {
+  it('debounces cloud writes briefly and pushes the latest state', async () => {
     pullSave.mockResolvedValueOnce(null);
-    pushSave.mockResolvedValue();
+    pushSave.mockResolvedValue({ updatedAt: '2026-04-30T00:00:00Z' });
 
     const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
     await waitFor(() => expect(pullSave).toHaveBeenCalled());
@@ -153,23 +154,22 @@ describe('usePlayerState — steady-state cloud writes', () => {
       result.current[1]({ level: 4, totalXp: 3, library: [] });
     });
 
-    // Wait long enough for the 3s cloud debounce to fire and the push to land.
-    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 5000 });
+    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 2000 });
     const lastPush = pushSave.mock.calls.at(-1)[1];
     expect(lastPush.level).toBe(4);
-  }, 8000);
+  }, 5000);
 
   it('flips status to "saving" then back to "idle" on success', async () => {
     pullSave.mockResolvedValueOnce(null);
-    pushSave.mockResolvedValue();
+    pushSave.mockResolvedValue({ updatedAt: '2026-04-30T00:00:00Z' });
 
     const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
     await waitFor(() => expect(pullSave).toHaveBeenCalled());
 
     act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
-    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 5000 });
+    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 2000 });
     await waitFor(() => expect(result.current[2].status).toBe('idle'));
-  }, 8000);
+  }, 5000);
 
   it('retries on push failure with backoff and ends in "offline"', async () => {
     pullSave.mockResolvedValueOnce(null);
@@ -261,7 +261,7 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
       updatedAt: '2026-04-29T10:00:00Z', // unchanged since last sync
       schemaVer: 1,
     });
-    pushSave.mockResolvedValue();
+    pushSave.mockResolvedValue({ updatedAt: '2026-04-29T10:01:00Z' });
 
     const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
     await waitFor(() => expect(pushSave).toHaveBeenCalled());

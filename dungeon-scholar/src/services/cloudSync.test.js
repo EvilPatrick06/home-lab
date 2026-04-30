@@ -45,14 +45,17 @@ describe('cloudSync', () => {
     expect(result).toEqual({ data, updatedAt: '2026-04-29T10:00:00Z', schemaVer: 1 });
   });
 
-  it('pushSave upserts the blob with user_id, schema_ver, and updated_at', async () => {
+  it('pushSave upserts and returns the updatedAt it set', async () => {
     const blob = { level: 4 };
-    await pushSave('u1', blob);
+    const result = await pushSave('u1', blob);
     const arg = upsert.mock.calls[0][0];
     expect(arg.user_id).toBe('u1');
     expect(arg.data).toBe(blob);
     expect(arg.schema_ver).toBe(1);
     expect(typeof arg.updated_at).toBe('string');
+    // pushSave's return must match exactly what it sent so the caller can
+    // record lastSyncedAt without consulting the client clock again.
+    expect(result.updatedAt).toBe(arg.updated_at);
   });
 
   it('deleteCloudSave deletes by user_id', async () => {

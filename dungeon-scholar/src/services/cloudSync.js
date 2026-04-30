@@ -19,15 +19,56 @@ export async function pullSave(userId) {
 /**
  * Upsert the player state for a user. Caller is responsible for
  * ensuring `userId` matches the authenticated user.
+ *
+ * Returns { updatedAt } — the timestamp now stored on the row, so the
+ * caller can record exactly what's in the cloud without depending on
+ * client clock skew.
  */
 export async function pushSave(userId, blob) {
+  const updatedAt = new Date().toISOString();
   const { error } = await supabase.from('saves').upsert({
     user_id: userId,
     data: blob,
-    updated_at: new Date().toISOString(),
+    updated_at: updatedAt,
     schema_ver: CURRENT_SCHEMA_VER,
   });
   if (error) throw error;
+  return { updatedAt };
+}
+
+/**
+ * Subscribe to Realtime updates on the saves row for a given user.
+ * The callback fires whenever the row is INSERTed or UPDATEd by anyone
+ * (including this client — caller is responsible for deduping its own
+ * pushes via the returned updatedAt).
+ *
+ * Returns an unsubscribe function. Caller MUST call it on cleanup.
+ *
+ * NOTE: Realtime must be enabled on the `saves` table in Supabase. Run
+ * `alter publication supabase_realtime add table saves;` once in the
+ * SQL editor.
+ */
+export function subscribeSaves(userId, onUpdate) {
+  if (!supabase || !userId) return () => {};
+  const channel = supabase
+    .channel(`saves:${userId}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'saves', filter: `user_id=eq.${userId}` },
+      (payload) => {
+        const row = payload.new;
+        if (!row) return;
+        onUpdate({
+          data: row.data,
+          updatedAt: row.updated_at,
+          schemaVer: row.schema_ver,
+        });
+      }
+    )
+    .subscribe();
+  return () => {
+    try { supabase.removeChannel(channel); } catch { /* ignore */ }
+  };
 }
 
 /** Delete only the cloud save row. Profile remains. */
