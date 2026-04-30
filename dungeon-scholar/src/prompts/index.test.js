@@ -47,6 +47,13 @@ describe('ORG_PROMPTS', () => {
       expect(p.prompt).toMatch(/fantasy/i);
     }
   });
+
+  it('every prompt contains both a good and a bad exemplar', () => {
+    for (const p of ORG_PROMPTS) {
+      expect(p.prompt).toMatch(/✅ GOOD/);
+      expect(p.prompt).toMatch(/❌ BAD|❌ FANTASY LEAK|❌ NEVER/);
+    }
+  });
 });
 
 describe('CompTIA prompt', () => {
