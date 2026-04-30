@@ -87,7 +87,9 @@ describe('migrateTutorialIndex', () => {
   it('passes through indices already in the new range', () => {
     // If the saved index is 8+ (impossible from old data), assume it's already on the new flow.
     // Returning the same index means it stays put. Valid range is [0, TUTORIAL_STEPS.length - 1].
-    expect(migrateTutorialIndex(10)).toBe(10);
+    expect(migrateTutorialIndex(8)).toBe(8);   // first index beyond old range
+    expect(migrateTutorialIndex(10)).toBe(10); // mid-range
+    expect(migrateTutorialIndex(13)).toBe(13); // last valid index
   });
 });
 
