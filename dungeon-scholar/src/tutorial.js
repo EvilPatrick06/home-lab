@@ -127,6 +127,34 @@ export const TUTORIAL_STEPS = [
   },
 ];
 
+// Old 8-step Awakening order, used to remap saved tutorialStepIndex
+// values from journals exported before the overhaul. The new TUTORIAL_STEPS
+// reorders + inserts steps; we look up the old step's id at the saved
+// position and find its new index.
+const OLD_TUTORIAL_ORDER = [
+  'welcome',
+  'forge_tome',
+  'inscribe_tome',
+  'study_scroll',
+  'solve_riddle',
+  'face_trial',
+  'consult_oracle',
+  'enter_dungeon',
+];
+
+export const migrateTutorialIndex = (savedIndex) => {
+  const max = TUTORIAL_STEPS.length - 1;
+  if (typeof savedIndex !== 'number' || Number.isNaN(savedIndex)) return 0;
+  if (savedIndex < 0) return 0;
+  if (savedIndex < OLD_TUTORIAL_ORDER.length) {
+    const id = OLD_TUTORIAL_ORDER[savedIndex];
+    const newIdx = TUTORIAL_STEPS.findIndex(s => s.id === id);
+    return newIdx >= 0 ? newIdx : 0;
+  }
+  if (savedIndex > max) return max;
+  return savedIndex;
+};
+
 export const snapshotBaselines = (state) => {
   const lib = state.library || [];
   return {

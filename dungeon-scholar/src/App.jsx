@@ -7,7 +7,7 @@ import { MergeChooser } from './components/MergeChooser.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift } from 'lucide-react';
-import { TUTORIAL_STEPS, snapshotBaselines } from './tutorial';
+import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
 
 const TITLES = [
   { min: 1, max: 4, name: 'Apprentice' },
@@ -1154,6 +1154,10 @@ export default function DungeonScholarApp() {
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target.result);
+        // Remap saved tutorial step index if it came from a pre-overhaul journal.
+        if (typeof data.tutorialStepIndex === 'number' && !data.tutorialCompleted) {
+          data.tutorialStepIndex = migrateTutorialIndex(data.tutorialStepIndex);
+        }
         // Migration: if old single-tome format, wrap it
         if (data.library === undefined) {
           // Old format had no library — leave new state mostly default but keep stats
