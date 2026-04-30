@@ -25,6 +25,18 @@ npm run dev
 
 Open http://localhost:5173 — make sure it works before deploying.
 
+## Accounts & cloud sync (optional)
+
+Dungeon Scholar saves your progress to your browser's localStorage automatically — no setup required.
+
+For optional **cloud sync** across devices, the project uses Supabase + GitHub OAuth. To enable it on a fork:
+
+1. Follow `docs/supabase-setup.md` (one-time dashboard work, ~10 minutes).
+2. Copy `.env.example` → `.env.local` and fill in the two values from your Supabase project.
+3. Add the same two values as repo secrets at **Settings → Secrets and variables → Actions** so deploys pick them up.
+
+If `.env.local` is missing, the app skips the sign-in button and runs as a pure local app.
+
 ## Deploy to GitHub Pages
 
 1. **Make a new public repo** on GitHub. The repo name will be in your URL, so pick something you like (e.g. `dungeon-scholar`).
