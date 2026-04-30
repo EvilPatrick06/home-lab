@@ -41,7 +41,11 @@ export function usePlayerState(defaultState, user = null) {
   const cloudTimeoutRef = useRef(null);
   const retryAttemptRef = useRef(0);
   const userRef = useRef(user);
-  useEffect(() => { userRef.current = user; }, [user]);
+  // Use user?.id (not the user object) so we don't react to token-refresh
+  // re-projections (Supabase emits TOKEN_REFRESHED → useAuth produces a new
+  // user object with the same id; we don't want that to count as a sign-in).
+  const userId = user?.id ?? null;
+  useEffect(() => { userRef.current = user; }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pushNow = useCallback(async () => {
     const u = userRef.current;
@@ -115,12 +119,12 @@ export function usePlayerState(defaultState, user = null) {
 
   // On sign-out: abort pending cloud write and reset retry state.
   useEffect(() => {
-    if (!user && cloudTimeoutRef.current) {
+    if (!userId && cloudTimeoutRef.current) {
       clearTimeout(cloudTimeoutRef.current);
       cloudTimeoutRef.current = null;
     }
     retryAttemptRef.current = 0;
-  }, [user]);
+  }, [userId]);
 
   // Sign-in handler: pull cloud, decide branch.
   useEffect(() => {
@@ -172,7 +176,7 @@ export function usePlayerState(defaultState, user = null) {
     })();
 
     return () => { active = false; };
-  }, [user]);
+  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const resolveMerge = useCallback(async (choice) => {
     if (!user) return;

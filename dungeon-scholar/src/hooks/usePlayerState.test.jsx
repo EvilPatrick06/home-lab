@@ -185,4 +185,21 @@ describe('usePlayerState — steady-state cloud writes', () => {
     await waitFor(() => expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4), { timeout: 30000 });
     await waitFor(() => expect(result.current[2].status).toBe('offline'));
   }, 35000);
+
+  it('does not re-pull cloud when user is re-projected with same id (token refresh)', async () => {
+    pullSave.mockResolvedValue(null);
+
+    const { rerender } = renderHook(
+      ({ user }) => usePlayerState(DEFAULT, user),
+      { initialProps: { user: USER } }
+    );
+
+    await waitFor(() => expect(pullSave).toHaveBeenCalledTimes(1));
+
+    // Simulate Supabase TOKEN_REFRESHED → useAuth produces a fresh user
+    // object reference with the same id. The merge logic must NOT re-run.
+    rerender({ user: { ...USER } });
+    await new Promise((r) => setTimeout(r, 50));
+    expect(pullSave).toHaveBeenCalledTimes(1);
+  });
 });
