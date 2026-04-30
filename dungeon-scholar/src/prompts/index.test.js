@@ -113,3 +113,16 @@ describe('CMMC prompt', () => {
     expect(c.prompt).toMatch(/practice|control/i);
   });
 });
+
+describe('EC-Council prompt', () => {
+  it('is registered with id="eccouncil" and lists CEH', () => {
+    const e = ORG_PROMPTS.find(p => p.id === 'eccouncil');
+    expect(e).toBeDefined();
+    expect(e.commonExams.some(x => x.includes('CEH'))).toBe(true);
+  });
+  it('mentions kill chain and tools like nmap or Metasploit', () => {
+    const e = ORG_PROMPTS.find(p => p.id === 'eccouncil');
+    expect(e.prompt).toMatch(/kill[- ]chain|cyber kill chain/i);
+    expect(e.prompt).toMatch(/nmap|Metasploit/i);
+  });
+});
