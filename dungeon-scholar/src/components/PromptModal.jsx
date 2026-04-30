@@ -1,154 +1,220 @@
-import { useState } from 'react';
-import { Wand2, X, Check } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Wand2, X, Check, ArrowLeft } from 'lucide-react';
+import { ORG_PROMPTS } from '../prompts/index.js';
 
-export default function PromptModal({ onClose }) {
-  const [copied, setCopied] = useState(false);
-  const prompt = `You are creating a tome file for Dungeon Scholar, a fantasy-themed cybersecurity study app. I will provide study materials (notes, PDFs, slides, videos, transcripts). Generate a single JSON object with the following structure:
+const EXAM_TARGET_LEAVE_BLANK = '<leave blank to let me infer from materials>';
+const EXAM_TARGET_LINE_REGEX = /EXAM TARGET: <[^>]+>/;
 
-{
-  "metadata": {
-    "title": "Course Name",
-    "description": "Brief description",
-    "subject": "Cybersecurity",
-    "author": "Optional — your name or source author",
-    "difficulty": 3,
-    "tags": ["cert-prep", "security-plus", "exam-2024"],
-    "version": "1.0"
-  },
-  "knowledgeBase": "A comprehensive text reference covering all key concepts from the materials. Used by the Oracle (AI tutor) to answer student questions. Should be thorough.",
-  "flashcards": [
-    {
-      "id": "fc1",
-      "front": "Term or question",
-      "back": "Definition or answer",
-      "hint": "Optional hint"
-    }
-  ],
-  "quiz": [
-    {
-      "id": "q1",
-      "type": "multiplechoice",
-      "question": "Question text?",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctIndex": 0,
-      "explanation": "Why this is correct",
-      "hint": "Optional hint"
-    },
-    {
-      "id": "q2",
-      "type": "truefalse",
-      "question": "Statement to evaluate",
-      "correctAnswer": true,
-      "explanation": "Why",
-      "hint": "Optional hint"
-    },
-    {
-      "id": "q3",
-      "type": "fillblank",
-      "question": "The ___ protocol encrypts web traffic.",
-      "acceptedAnswers": ["HTTPS", "https", "TLS"],
-      "explanation": "Why",
-      "hint": "Optional hint"
-    }
-  ],
-  "labs": [
-    {
-      "id": "lab1",
-      "title": "Lab Title",
-      "scenario": "Background context for the lab",
-      "steps": [
-        {
-          "prompt": "Step instruction or question",
-          "options": ["A", "B", "C"],
-          "correctIndex": 1,
-          "explanation": "Why"
-        },
-        {
-          "prompt": "Free response step",
-          "acceptedAnswers": ["answer1", "answer 1"],
-          "explanation": "Why"
-        }
-      ]
-    }
-  ]
+function buildFinalPrompt(promptTemplate, examTarget) {
+  const target = examTarget.trim() || EXAM_TARGET_LEAVE_BLANK;
+  return promptTemplate.replace(EXAM_TARGET_LINE_REGEX, `EXAM TARGET: ${target}`);
 }
 
-REQUIREMENTS:
-- Generate at least 50 flashcards, 50 quiz questions, and 5 labs
-- Mix quiz types (multiplechoice, truefalse, fillblank)
-- Make labs realistic scenarios (incident response, configuration, analysis)
-- Every item needs a unique id
-- Knowledge base should be substantial (cover everything)
-- Output ONLY the JSON, no markdown code fences, no commentary
-
-METADATA FIELDS (in metadata object):
-- title (required), description (required), version (required)
-- subject (optional but recommended): broad subject area like "Cybersecurity", "Computer Science", "Networking"
-- author (optional): the source author or course creator if known
-- difficulty (optional, integer 1-5): 1=intro, 5=expert
-- tags (optional, array of short strings): topical tags like "owasp-top-10", "tcpip", "cert-prep"
-
-OUTPUT FORMAT:
-- Save the result as a downloadable .json file (filename: tome-[course-name].json) using whatever file/download capability you have available
-- If you cannot create a downloadable file, then output the JSON inside a single code block so I can copy it cleanly
-- Do not split the JSON across multiple messages — it must be one complete object
-
-Now wait for me to provide the study materials, then generate the tome file.`;
-
-  const copy = () => {
-    let success = false;
+function copyToClipboard(text) {
+  let success = false;
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
     try {
-      const ta = document.createElement('textarea');
-      ta.value = prompt;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      ta.style.top = '0';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      try {
-        success = document.execCommand('copy');
-      } catch (e) {
-        success = false;
-      }
-      document.body.removeChild(ta);
+      success = document.execCommand('copy');
     } catch (e) {
       success = false;
     }
-    if (!success && navigator.clipboard) {
-      navigator.clipboard.writeText(prompt).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }).catch(() => {});
-      return;
-    }
-    setCopied(success);
+    document.body.removeChild(ta);
+  } catch (e) {
+    success = false;
+  }
+  if (!success && navigator.clipboard) {
+    return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+  }
+  return Promise.resolve(success);
+}
+
+const MODAL_SHELL_STYLE = {
+  background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+  border: '3px double rgba(245, 158, 11, 0.6)',
+  boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
+};
+
+function ModalShell({ children, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
+      <div
+        className="rounded max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative"
+        style={MODAL_SHELL_STYLE}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function OrgPicker({ orgs, onPick, onClose }) {
+  return (
+    <>
+      <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
+        <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
+          <Wand2 className="w-5 h-5" /> ✦ Spell of Tome Creation ✦
+        </h3>
+        <button
+          onClick={onClose}
+          aria-label="close"
+          className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+      <div className="p-4 overflow-y-auto flex-1">
+        <p className="text-sm text-amber-100/80 mb-4 italic">
+          &ldquo;Choose the order whose exams thou wouldst conquer. Each holds a tome-forging spell tuned to its trials.&rdquo;
+        </p>
+        <div className="space-y-2">
+          {orgs.map((org) => (
+            <button
+              key={org.id}
+              onClick={() => onPick(org.id)}
+              className="w-full text-left p-3 rounded transition border-2 border-amber-700/50 hover:border-amber-400 hover:bg-amber-900/20 text-amber-100 italic"
+              style={{ background: 'rgba(10, 6, 4, 0.5)' }}
+            >
+              <div className="font-bold flex items-center gap-2">
+                <span className="text-2xl">{org.emoji}</span>
+                <span className="text-amber-300">{org.name}</span>
+              </div>
+              <div className="text-xs text-amber-100/60 mt-1 ml-9">{org.subtitle}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onCopy, onBack, onClose }) {
+  return (
+    <>
+      <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
+        <button
+          onClick={onBack}
+          aria-label="back"
+          className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
+          <span className="text-2xl">{org.emoji}</span>
+          ✦ {org.name} Tome Spell ✦
+        </h3>
+        <button
+          onClick={onClose}
+          aria-label="close"
+          className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+      <div className="p-4 overflow-y-auto flex-1">
+        <label className="block mb-3">
+          <span className="text-xs text-amber-300 italic block mb-1">
+            ✦ Name thy chosen trial — Exam Target (optional)
+          </span>
+          <input
+            type="text"
+            value={examTarget}
+            onChange={(e) => setExamTarget(e.target.value)}
+            placeholder={org.examTargetPlaceholder}
+            maxLength={250}
+            className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
+            style={{ background: 'rgba(10, 6, 4, 0.7)', borderColor: 'rgba(120, 53, 15, 0.7)' }}
+          />
+        </label>
+        <p className="text-xs text-amber-100/70 mb-2 italic">
+          &ldquo;Speak this incantation to any AI familiar (Claude, ChatGPT, Gemini), then offer them your study materials.&rdquo;
+        </p>
+        <pre
+          data-testid="prompt-preview"
+          className="rounded p-4 text-xs whitespace-pre-wrap overflow-auto max-h-[40vh]"
+          style={{
+            background: 'rgba(10, 6, 4, 0.7)',
+            border: '1px solid rgba(120, 53, 15, 0.5)',
+            color: '#fcd34d',
+            fontFamily: 'monospace',
+          }}
+        >
+          {finalPrompt}
+        </pre>
+      </div>
+      <div className="p-4 border-t border-amber-700/50 flex gap-2">
+        <button
+          onClick={onCopy}
+          className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+          style={{
+            background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
+            boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
+          }}
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4" /> Inscribed!
+            </>
+          ) : (
+            <>📜 Copy the Spell</>
+          )}
+        </button>
+      </div>
+    </>
+  );
+}
+
+export default function PromptModal({ onClose }) {
+  const [selectedOrg, setSelectedOrg] = useState(null);
+  const [examTarget, setExamTarget] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const org = selectedOrg ? ORG_PROMPTS.find((o) => o.id === selectedOrg) : null;
+
+  const finalPrompt = useMemo(() => {
+    if (!org) return '';
+    return buildFinalPrompt(org.prompt, examTarget);
+  }, [org, examTarget]);
+
+  const onCopy = async () => {
+    const ok = await copyToClipboard(finalPrompt);
+    setCopied(ok);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const onBack = () => {
+    setSelectedOrg(null);
+    setExamTarget('');
+    setCopied(false);
+  };
+
+  if (!selectedOrg) {
+    return (
+      <ModalShell onClose={onClose}>
+        <OrgPicker orgs={ORG_PROMPTS} onPick={setSelectedOrg} onClose={onClose} />
+      </ModalShell>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
-        border: '3px double rgba(245, 158, 11, 0.6)', boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
-      }}>
-        <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
-          <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
-            <Wand2 className="w-5 h-5" /> ✦ Spell of Tome Creation ✦
-          </h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300"><X className="w-5 h-5" /></button>
-        </div>
-        <div className="p-4 overflow-y-auto flex-1">
-          <p className="text-sm text-amber-100/80 mb-3 italic">"Speak this incantation to any AI familiar (Claude, ChatGPT, Gemini), then offer them your study materials. They shall forge a sacred tome you may import into the library."</p>
-          <pre className="rounded p-4 text-xs whitespace-pre-wrap overflow-auto max-h-[50vh]" style={{ background: 'rgba(10, 6, 4, 0.7)', border: '1px solid rgba(120, 53, 15, 0.5)', color: '#fcd34d', fontFamily: 'monospace' }}>{prompt}</pre>
-        </div>
-        <div className="p-4 border-t border-amber-700/50 flex gap-2">
-          <button onClick={copy} className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
-            style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)' }}>
-            {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <>📜 Copy the Spell</>}
-          </button>
-        </div>
-      </div>
-    </div>
+    <ModalShell onClose={onClose}>
+      <PromptViewer
+        org={org}
+        examTarget={examTarget}
+        setExamTarget={setExamTarget}
+        finalPrompt={finalPrompt}
+        copied={copied}
+        onCopy={onCopy}
+        onBack={onBack}
+        onClose={onClose}
+      />
+    </ModalShell>
   );
 }
