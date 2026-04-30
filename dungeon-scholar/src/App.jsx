@@ -3979,6 +3979,7 @@ function InventoryScreen({ playerState, setScreen }) {
 // Reusable card for daily and weekly quests (identical visual treatment).
 function QuestCard({ q, onClaim }) {
   const pct = Math.min(100, (q.progress / q.target) * 100);
+  const goldReward = Math.max(1, Math.floor(q.xp * 0.1));
   return (
     <div className="p-5 rounded relative" style={{
       background: q.claimed
@@ -4038,15 +4039,22 @@ function QuestCard({ q, onClaim }) {
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <div className="text-xs text-purple-300 italic">
-          ✦ Reward: <span className="text-amber-300 font-bold">+{q.xp} XP</span>
+        <div className="text-xs text-purple-300 italic flex items-center gap-2 flex-wrap">
+          <span>✦ Reward:</span>
+          <span className="text-amber-300 font-bold">+{q.xp} XP</span>
+          <span className="text-amber-700">•</span>
+          <span className="text-amber-300 font-bold inline-flex items-center gap-0.5">
+            <Coins className="w-3 h-3" /> +{goldReward}
+          </span>
         </div>
         {q.claimed ? (
-          <span className="text-xs text-emerald-400 italic font-bold">CLAIMED</span>
+          <span className="text-xs text-emerald-400 italic font-bold flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" /> CLAIMED
+          </span>
         ) : q.claimable ? (
           <button
             onClick={() => onClaim(q.id)}
-            className="px-3 py-1.5 rounded text-xs font-bold text-amber-950 border-2 border-amber-300 italic flex items-center gap-1"
+            className="px-3 py-1.5 rounded text-xs font-bold text-amber-950 border-2 border-amber-300 italic flex items-center gap-1 hover:scale-105 active:scale-95 transition"
             style={{
               background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
               boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)',
@@ -4055,7 +4063,9 @@ function QuestCard({ q, onClaim }) {
             <Gift className="w-3 h-3" /> Claim
           </button>
         ) : (
-          <span className="text-xs text-amber-700 italic">In Progress...</span>
+          <span className="text-xs text-amber-700/70 italic flex items-center gap-1">
+            <Clock className="w-3 h-3" /> In Progress
+          </span>
         )}
       </div>
     </div>
@@ -4114,12 +4124,14 @@ function QuestSection({ tagline, subtitle, emptyMsg, quests, onClaim, onClaimAll
 
 // One step of a story chain. Three visual states: claimed (narrative revealed),
 // current (title + progress, narrative hidden), locked (sealed).
-function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal, onClaim }) {
+function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal, chainBonusXp, onClaim }) {
   // status: 'claimed' | 'current' | 'locked'
   const isClaimed = status === 'claimed';
   const isCurrent = status === 'current';
   const isLocked = status === 'locked';
   const pct = target > 0 ? Math.min(100, (progress / target) * 100) : 0;
+  const totalXp = step.xp + (isFinal && chainBonusXp ? chainBonusXp : 0);
+  const goldReward = Math.max(1, Math.floor(totalXp * 0.1));
 
   const bg = isClaimed
     ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)'
@@ -4198,8 +4210,16 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
           )}
 
           <div className="flex items-center justify-between gap-2 mt-3">
-            <div className={`text-xs italic ${isLocked ? 'text-amber-700/50' : 'text-purple-300'}`}>
-              ✦ Reward: <span className={isLocked ? 'text-amber-700/60' : 'text-amber-300 font-bold'}>+{step.xp} XP</span>
+            <div className={`text-xs italic flex items-center gap-2 flex-wrap ${isLocked ? 'text-amber-700/50' : 'text-purple-300'}`}>
+              <span>✦ Reward:</span>
+              <span className={isLocked ? 'text-amber-700/60' : 'text-amber-300 font-bold'}>+{step.xp} XP</span>
+              <span className={isLocked ? 'text-amber-700/40' : 'text-amber-700'}>•</span>
+              <span className={`font-bold inline-flex items-center gap-0.5 ${isLocked ? 'text-amber-700/60' : 'text-amber-300'}`}>
+                <Coins className="w-3 h-3" /> +{goldReward}
+              </span>
+              {isFinal && chainBonusXp > 0 && !isLocked && (
+                <span className="text-purple-300/80">(includes chain bonus)</span>
+              )}
             </div>
             {isClaimed ? (
               <span className="text-xs text-emerald-400 italic font-bold">CLAIMED</span>
@@ -4306,6 +4326,7 @@ function StoryChainView({ chainStatus, onClaimStep }) {
               progress={status === 'current' ? progress : 0}
               target={status === 'current' ? target : 0}
               isFinal={isFinal}
+              chainBonusXp={chain.rewardXp || 0}
               onClaim={() => onClaimStep(chain.id)}
             />
           );
