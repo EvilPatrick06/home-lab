@@ -1987,7 +1987,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             <Settings className="w-5 h-5" /> ⚔ Manage Your Saga ⚔
           </h3>
           <div className="flex flex-wrap gap-3">
-            {playerState.tutorialCompleted && (
+            {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
+              <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+                style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+                <Compass className="w-4 h-4" /> Begin Tutorial
+              </button>
+            )}
+            {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
               <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
                 style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
                 <Compass className="w-4 h-4" /> Replay Tutorial
@@ -3305,7 +3311,7 @@ ${fullKb}
         <div className="flex flex-col">
           <div className="text-xs text-amber-700 italic tracking-wider">⚜ MODE OF INQUIRY ⚜</div>
           <div className="text-[10px] italic mt-0.5" style={{ color: mode === 'oracle' ? '#fcd34d' : '#86efac' }}>
-            {mode === 'oracle' ? '⚠ Uses Claude.ai message quota' : '✓ Free — no quota used'}
+            {mode === 'oracle' ? '🔮 AI-powered' : '📜 Local tome search'}
           </div>
         </div>
         <div className="flex gap-2 items-center">
@@ -3359,13 +3365,6 @@ ${fullKb}
                 <Wand2 className="w-16 h-16 mx-auto text-amber-400 mb-3" style={{ filter: 'drop-shadow(0 0 12px rgba(245, 158, 11, 0.6))' }} />
                 <div className="italic text-lg">Speak, brave scholar...</div>
                 <div className="text-sm mt-2 italic">The Oracle awaits your questions on <span className="text-amber-300">{courseSet.metadata.title}</span></div>
-                <div className="mt-4 mx-auto max-w-md p-3 rounded text-xs italic" style={{
-                  background: 'rgba(120, 53, 15, 0.4)',
-                  border: '1px solid rgba(245, 158, 11, 0.6)',
-                  color: '#fde047',
-                }}>
-                  ⚠ <span className="font-bold">A Word of Warning:</span> Each consultation with the Oracle draws upon thy Claude.ai message reserves. Should thy quota run dry, the Tome Search shall answer in its stead — at no cost.
-                </div>
                 <div className="text-xs mt-3 text-amber-700 italic max-w-md mx-auto">The Oracle searches the tome for truth and shall reference its sources.</div>
               </>
             ) : (
@@ -3373,13 +3372,6 @@ ${fullKb}
                 <BookOpen className="w-16 h-16 mx-auto text-amber-400 mb-3" style={{ filter: 'drop-shadow(0 0 12px rgba(245, 158, 11, 0.6))' }} />
                 <div className="italic text-lg">Search the tome directly...</div>
                 <div className="text-sm mt-2 italic">No magic shall be summoned — only the tome's own pages of <span className="text-amber-300">{courseSet.metadata.title}</span></div>
-                <div className="mt-4 mx-auto max-w-md p-3 rounded text-xs italic" style={{
-                  background: 'rgba(6, 78, 59, 0.4)',
-                  border: '1px solid rgba(16, 185, 129, 0.5)',
-                  color: '#a7f3d0',
-                }}>
-                  ✓ <span className="font-bold">Free of Cost:</span> Tome Search consumes no message quota — only the tome's own pages are searched.
-                </div>
                 <div className="text-xs mt-3 text-amber-700 italic max-w-md mx-auto">Type a term, concept, or question and the most relevant passages shall be revealed.</div>
               </>
             )}
