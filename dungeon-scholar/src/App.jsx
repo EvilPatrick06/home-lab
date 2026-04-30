@@ -1105,7 +1105,9 @@ export default function DungeonScholarApp() {
 
   // === Story Quest Chain System ===
   // Initialize storyProgress for any chain not yet seen, snapshotting current
-  // counter values as the baseline so progress measures NEW activity.
+  // counter values as the baseline so progress measures NEW activity. Re-runs
+  // if storyProgress is wiped (e.g., by a cloud-sync apply that races past
+  // the initial mount-time init) — the inner check makes this idempotent.
   useEffect(() => {
     setPlayerState(prev => {
       let changed = false;
@@ -1125,7 +1127,7 @@ export default function DungeonScholarApp() {
       return changed ? { ...prev, storyProgress: next } : prev;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [playerState.storyProgress]);
 
   const storyChainStatus = useMemo(() => {
     return STORY_CHAINS.map(chain => {
@@ -1162,8 +1164,14 @@ export default function DungeonScholarApp() {
     setPlayerState(prev => {
       const chain = STORY_CHAINS.find(c => c.id === chainId);
       if (!chain) return prev;
-      const sp = prev.storyProgress?.[chainId];
-      if (!sp || sp.completed) return prev;
+      // Defensive init: if storyProgress is missing (cloud-sync race), treat
+      // the chain as freshly started with baseline 0 so existing progress
+      // counts. Mirrors the storyChainStatus memo's fallback default.
+      let sp = prev.storyProgress?.[chainId];
+      if (!sp) {
+        sp = { stepIndex: 0, baseline: 0, completed: false, claimedSteps: [] };
+      }
+      if (sp.completed) return prev;
       const step = chain.steps[sp.stepIndex];
       if (!step) return prev;
       const current = getCounterValue(prev, step.counter);
