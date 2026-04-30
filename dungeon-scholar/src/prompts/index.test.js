@@ -70,3 +70,18 @@ describe('CompTIA prompt', () => {
     expect(c.prompt).toMatch(/BEST|MOST|FIRST/);
   });
 });
+
+describe('AWS prompt', () => {
+  it('is registered with id="aws" and lists Security Specialty', () => {
+    const a = ORG_PROMPTS.find(p => p.id === 'aws');
+    expect(a).toBeDefined();
+    expect(a.commonExams.some(e => e.includes('SCS'))).toBe(true);
+  });
+
+  it('mentions IAM, KMS, and Well-Architected', () => {
+    const a = ORG_PROMPTS.find(p => p.id === 'aws');
+    expect(a.prompt).toMatch(/IAM/);
+    expect(a.prompt).toMatch(/KMS/);
+    expect(a.prompt).toMatch(/Well-Architected/i);
+  });
+});
