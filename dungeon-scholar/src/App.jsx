@@ -1520,7 +1520,6 @@ export default function DungeonScholarApp() {
             onAction={(stepId) => {
               if (stepId === 'forge_tome') setShowPromptModal(true);
               else if (stepId === 'library_tour') setScreen('library');
-              else if (stepId === 'inscribe_tome') {/* user must complete naturally */ }
               else if (stepId === 'study_scroll') { trackModeUse('flashcards'); setScreen('flashcards'); }
               else if (stepId === 'solve_riddle') { trackModeUse('quiz'); setScreen('quiz'); }
               else if (stepId === 'face_trial') { trackModeUse('lab'); setScreen('lab'); }
