@@ -1391,6 +1391,7 @@ export default function DungeonScholarApp() {
             onImportCode={() => setShowImportCodeModal(true)}
             onShowPrompt={() => setShowPromptModal(true)}
             playerState={playerState}
+            signedIn={!!user}
             onExportProgress={exportProgress}
             onImportProgress={() => progressFileInputRef.current?.click()}
             onResetProgress={resetProgress}
@@ -1931,7 +1932,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
   );
 }
 
-function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, onExportProgress, onImportProgress, onResetProgress, onOpenLibrary, onRestartTutorial }) {
+function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onExportProgress, onImportProgress, onResetProgress, onOpenLibrary, onRestartTutorial }) {
   if (!courseSet) {
     return (
       <div className="space-y-6">
@@ -2061,7 +2062,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
                 <Compass className="w-4 h-4" /> Replay Tutorial
               </button>
             )}
-            <SignInButton />
+            {!signedIn && <SignInButton />}
             <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
               style={{ background: 'rgba(41, 12, 12, 0.7)' }}>
               <RotateCcw className="w-4 h-4" /> Begin Anew
@@ -2218,7 +2219,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               <Compass className="w-4 h-4" /> Replay Tutorial
             </button>
           )}
-          <SignInButton />
+          {!signedIn && <SignInButton />}
           <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
             style={{ background: 'rgba(41, 12, 12, 0.7)' }}>
             <RotateCcw className="w-4 h-4" /> Begin Anew
