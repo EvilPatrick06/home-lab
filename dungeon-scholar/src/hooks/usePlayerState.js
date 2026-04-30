@@ -9,6 +9,8 @@ import {
 import { pullSave, pushSave, upsertProfile } from '../services/cloudSync.js';
 
 const LOCAL_DEBOUNCE_MS = 500;
+const CLOUD_DEBOUNCE_MS = 3000;
+const RETRY_DELAYS_MS = [1000, 4000, 16000];
 
 /**
  * Combined local + cloud persistence hook.
@@ -36,6 +38,31 @@ export function usePlayerState(defaultState, user = null) {
 
   const latestRef = useRef(state);
   const localTimeoutRef = useRef(null);
+  const cloudTimeoutRef = useRef(null);
+  const retryAttemptRef = useRef(0);
+  const userRef = useRef(user);
+  useEffect(() => { userRef.current = user; }, [user]);
+
+  const pushNow = useCallback(async () => {
+    const u = userRef.current;
+    if (!u) return;
+    setStatus('saving');
+    try {
+      await pushSave(u.id, latestRef.current);
+      setStatus('idle');
+      retryAttemptRef.current = 0;
+    } catch (err) {
+      const next = retryAttemptRef.current;
+      if (next < RETRY_DELAYS_MS.length) {
+        retryAttemptRef.current = next + 1;
+        setStatus('saving');
+        setTimeout(() => { pushNow(); }, RETRY_DELAYS_MS[next]);
+      } else {
+        setStatus('offline');
+        retryAttemptRef.current = 0;
+      }
+    }
+  }, []);
 
   const flushLocal = useCallback(() => {
     if (localTimeoutRef.current) {
@@ -56,19 +83,44 @@ export function usePlayerState(defaultState, user = null) {
         localTimeoutRef.current = null;
       }, LOCAL_DEBOUNCE_MS);
 
+      // Schedule cloud write only when signed in.
+      if (userRef.current) {
+        if (cloudTimeoutRef.current) clearTimeout(cloudTimeoutRef.current);
+        cloudTimeoutRef.current = setTimeout(() => {
+          cloudTimeoutRef.current = null;
+          pushNow();
+        }, CLOUD_DEBOUNCE_MS);
+      }
+
       return resolved;
     });
-  }, []);
+  }, [pushNow]);
 
-  // beforeunload flush
+  // beforeunload flush — flush both local and pending cloud
   useEffect(() => {
-    const onUnload = () => flushLocal();
+    const onUnload = () => {
+      flushLocal();
+      if (cloudTimeoutRef.current) {
+        clearTimeout(cloudTimeoutRef.current);
+        cloudTimeoutRef.current = null;
+        pushNow();
+      }
+    };
     window.addEventListener('beforeunload', onUnload);
     return () => {
       window.removeEventListener('beforeunload', onUnload);
       flushLocal();
     };
-  }, [flushLocal]);
+  }, [flushLocal, pushNow]);
+
+  // On sign-out: abort pending cloud write and reset retry state.
+  useEffect(() => {
+    if (!user && cloudTimeoutRef.current) {
+      clearTimeout(cloudTimeoutRef.current);
+      cloudTimeoutRef.current = null;
+    }
+    retryAttemptRef.current = 0;
+  }, [user]);
 
   // Sign-in handler: pull cloud, decide branch.
   useEffect(() => {

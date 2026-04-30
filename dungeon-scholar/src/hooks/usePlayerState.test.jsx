@@ -131,3 +131,58 @@ describe('usePlayerState — sign-in branches (silent)', () => {
     expect(result.current[0].level).toBe(3);
   });
 });
+
+describe('usePlayerState — steady-state cloud writes', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    pullSave.mockReset();
+    pushSave.mockReset();
+    upsertProfile.mockReset();
+  });
+
+  it('debounces cloud writes ~3s after a state change', async () => {
+    pullSave.mockResolvedValueOnce(null);
+    pushSave.mockResolvedValue();
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+
+    act(() => {
+      result.current[1]({ level: 2, totalXp: 1, library: [] });
+      result.current[1]({ level: 3, totalXp: 2, library: [] });
+      result.current[1]({ level: 4, totalXp: 3, library: [] });
+    });
+
+    // Wait long enough for the 3s cloud debounce to fire and the push to land.
+    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 5000 });
+    const lastPush = pushSave.mock.calls.at(-1)[1];
+    expect(lastPush.level).toBe(4);
+  }, 8000);
+
+  it('flips status to "saving" then back to "idle" on success', async () => {
+    pullSave.mockResolvedValueOnce(null);
+    pushSave.mockResolvedValue();
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+
+    act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
+    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 5000 });
+    await waitFor(() => expect(result.current[2].status).toBe('idle'));
+  }, 8000);
+
+  it('retries on push failure with backoff and ends in "offline"', async () => {
+    pullSave.mockResolvedValueOnce(null);
+    pushSave.mockRejectedValue(new Error('net'));
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+
+    act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
+
+    // 4 attempts in total: initial + 3 retries with delays 1s/4s/16s.
+    // Generous timeout to cover the full backoff window.
+    await waitFor(() => expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4), { timeout: 30000 });
+    await waitFor(() => expect(result.current[2].status).toBe('offline'));
+  }, 35000);
+});
