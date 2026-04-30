@@ -2206,19 +2206,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
             <Upload className="w-4 h-4" /> Restore Journal
           </button>
-          {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
-            <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-              style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
-              <Compass className="w-4 h-4" /> Restart Tutorial
-            </button>
-          )}
           {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
             <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
               style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
               <Compass className="w-4 h-4" /> Begin Tutorial
             </button>
           )}
-          {playerState.tutorialCompleted && (
+          {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
             <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
               style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
               <Compass className="w-4 h-4" /> Replay Tutorial
