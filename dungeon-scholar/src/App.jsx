@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { usePlayerState } from './hooks/usePlayerState.js';
 import { SignInButton } from './components/SignInButton.jsx';
+import { consumeOAuthCallback } from './services/supabase.js';
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines } from './tutorial';
 
@@ -522,6 +523,13 @@ export default function DungeonScholarApp() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const fileInputRef = useRef(null);
   const progressFileInputRef = useRef(null);
+
+  // Consume OAuth ?code=... on mount (returns false if no callback in URL).
+  useEffect(() => {
+    consumeOAuthCallback().catch((err) => {
+      console.error('OAuth callback exchange failed:', err);
+    });
+  }, []);
 
   // Show welcome modal on first launch (when tutorial hasn't been started yet)
   useEffect(() => {
@@ -2951,6 +2959,13 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   const currentStep = steps[step];
 
   const submitStep = (correct) => {
+    const stepItem = {
+      id: `${selectedLab.id}_step_${step}`,
+      question: currentStep?.prompt || currentStep?.question,
+      explanation: currentStep?.explanation,
+      _type: 'lab',
+    };
+    if (recordAnswer) recordAnswer(correct, stepItem);
     setFeedback({ correct, explanation: currentStep?.explanation });
     if (correct) {
       awardXP(15);
