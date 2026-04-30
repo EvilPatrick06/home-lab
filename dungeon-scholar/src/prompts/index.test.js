@@ -126,3 +126,17 @@ describe('EC-Council prompt', () => {
     expect(e.prompt).toMatch(/nmap|Metasploit/i);
   });
 });
+
+describe('GIAC prompt', () => {
+  it('is registered with id="giac" and lists GSEC + GCIH', () => {
+    const g = ORG_PROMPTS.find(p => p.id === 'giac');
+    expect(g).toBeDefined();
+    expect(g.commonExams).toContain('GSEC');
+    expect(g.commonExams).toContain('GCIH');
+  });
+  it('mentions open-book and tool output', () => {
+    const g = ORG_PROMPTS.find(p => p.id === 'giac');
+    expect(g.prompt).toMatch(/open[- ]book/i);
+    expect(g.prompt).toMatch(/Wireshark|Volatility|Sysmon/);
+  });
+});
