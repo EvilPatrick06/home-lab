@@ -3326,7 +3326,7 @@ ${fullKb}
 
     let fallbackReason = null;
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("https://dungeon-scholar-oracle.patrick-home-lab.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
