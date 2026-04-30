@@ -120,7 +120,7 @@ export const TUTORIAL_STEPS = [
   {
     id: 'manage_saga',
     title: 'Preserve Thy Saga',
-    description: 'Thy progress may be preserved or restored via the Manage Your Saga panel below. Save thy journal, share thy tomes, replay this Awakening — all from there. Thou hast walked every hall. Step forth, Initiated.',
+    description: 'Within the Manage Your Saga panel below thou mayest replay this Awakening, sign in to safeguard thy saga across devices, or begin anew if thy heart craves fresh ground. Thou hast walked every hall. Step forth, Initiated.',
     completionLabel: 'Complete the Awakening',
     autoComplete: false,
     xp: 20,
