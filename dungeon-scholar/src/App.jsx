@@ -741,6 +741,22 @@ export default function DungeonScholarApp() {
   const courseSet = activeTome?.data || null;
   const tomeProgress = activeTome?.progress || blankTomeProgress();
 
+  // Pre-shuffled activity decks. Reshuffled ONLY when the active tome changes
+  // (or on hard refresh). Keeps card/quiz order stable across navigation and
+  // across cloud-sync echoes that re-create the courseSet reference.
+  const [shuffledActivities, setShuffledActivities] = useState({ flashcards: [], quiz: [] });
+  useEffect(() => {
+    if (!courseSet) {
+      setShuffledActivities({ flashcards: [], quiz: [] });
+      return;
+    }
+    setShuffledActivities({
+      flashcards: shuffleArray(courseSet.flashcards || []),
+      quiz: shuffleArray(courseSet.quiz || []),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerState.activeTomeId]);
+
   const showNotif = (msg, type = 'info') => {
     setNotification({ msg, type });
     setTimeout(() => setNotification(null), 3000);
@@ -1722,6 +1738,7 @@ export default function DungeonScholarApp() {
         {screen === 'flashcards' && courseSet && (
           <FlashcardsMode
             courseSet={courseSet}
+            cards={shuffledActivities.flashcards}
             tomeProgress={tomeProgress}
             playerState={playerState}
             awardXP={awardXP}
@@ -1732,6 +1749,7 @@ export default function DungeonScholarApp() {
         {screen === 'quiz' && courseSet && (
           <QuizMode
             courseSet={courseSet}
+            questions={shuffledActivities.quiz}
             tomeProgress={tomeProgress}
             playerState={playerState}
             awardXP={awardXP}
@@ -3063,12 +3081,13 @@ function ChallengeRenderer({ challenge, onAnswer, powerups, setPowerups, usedFif
   return null;
 }
 
-function FlashcardsMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement }) {
+function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement }) {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [reviewed, setReviewed] = useState(0);
-  // Shuffle once per tome session so the player doesn't always start on card 0.
-  const cards = useMemo(() => shuffleArray(courseSet.flashcards || []), [courseSet]);
+  // Pre-shuffled deck comes from App level (stable across re-renders / cloud
+  // sync). Fall back to the raw flashcards if a parent hasn't provided one.
+  const cards = (cardsProp && cardsProp.length) ? cardsProp : (courseSet.flashcards || []);
   const card = cards[index];
 
   const rate = (rating) => {
@@ -3118,13 +3137,14 @@ function FlashcardsMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, 
   );
 }
 
-function QuizMode({ courseSet, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress }) {
+function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress }) {
   const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
-  // Shuffle once per tome session so the same riddles don't always come first.
-  const questions = useMemo(() => shuffleArray(courseSet.quiz || []), [courseSet]);
+  // Pre-shuffled deck comes from App level (stable across re-renders / cloud
+  // sync). Fall back to the raw quiz array if a parent hasn't provided one.
+  const questions = (questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || []);
   const q = questions[index];
 
   const handleAnswer = (correct) => {
