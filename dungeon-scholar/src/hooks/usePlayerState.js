@@ -59,10 +59,24 @@ export function usePlayerState(defaultState, user = null) {
   // Track the cloud's most recent updated_at known to this client. Used to
   // dedupe Realtime echoes of our own pushes.
   const lastKnownCloudUpdatedAtRef = useRef(null);
+  // Rolling ring buffer of JSON fingerprints of recent local states. When a
+  // Realtime echo arrives, if the incoming cloud snapshot matches a state we
+  // ever held locally, it's a self-echo (or a stale delivery overtaken by a
+  // newer local change) and must be ignored — applying it would revert work.
+  const recentLocalHashesRef = useRef([]);
   const broadcastChannelRef = useRef(null);
   // When applying a remote update (from BroadcastChannel or Realtime),
   // bypass the public setState's side effects (push, broadcast).
   const applyingRemoteRef = useRef(false);
+
+  const trackLocalHash = (s) => {
+    try {
+      const hash = JSON.stringify(s);
+      const buf = recentLocalHashesRef.current;
+      buf.push(hash);
+      if (buf.length > 50) buf.shift();
+    } catch { /* ignore stringify failures (cyclic, etc.) */ }
+  };
 
   const userRef = useRef(user);
   const userId = user?.id ?? null;
@@ -80,6 +94,7 @@ export function usePlayerState(defaultState, user = null) {
     try {
       latestRef.current = nextState;
       setStateInternal(nextState);
+      trackLocalHash(nextState);
       saveToLocalStorage(nextState);
       if (cloudUpdatedAt) {
         lastKnownCloudUpdatedAtRef.current = cloudUpdatedAt;
@@ -133,6 +148,7 @@ export function usePlayerState(defaultState, user = null) {
     setStateInternal((prev) => {
       const resolved = typeof next === 'function' ? next(prev) : next;
       latestRef.current = resolved;
+      trackLocalHash(resolved);
 
       if (localTimeoutRef.current) clearTimeout(localTimeoutRef.current);
       localTimeoutRef.current = setTimeout(() => {
@@ -173,8 +189,12 @@ export function usePlayerState(defaultState, user = null) {
     broadcastChannelRef.current = channel;
     channel.onmessage = (ev) => {
       if (!ev?.data || ev.data.type !== 'state') return;
-      // Don't apply if we're already showing the same state (cheap reference check).
-      if (ev.data.state === latestRef.current) return;
+      // BroadcastChannel structured-clones on send, so reference equality
+      // against latestRef would never match — use the hash dedup instead.
+      try {
+        const incomingHash = JSON.stringify(ev.data.state);
+        if (recentLocalHashesRef.current.includes(incomingHash)) return;
+      } catch { /* fall through and apply */ }
       applyRemoteState(ev.data.state, null);
     };
     return () => {
@@ -296,8 +316,19 @@ export function usePlayerState(defaultState, user = null) {
   useEffect(() => {
     if (!userId) return;
     const unsub = subscribeSaves(userId, (cloud) => {
-      // Skip echoes of our own push.
+      // Fast path: exact updatedAt match → known echo of our last push.
       if (cloud.updatedAt === lastKnownCloudUpdatedAtRef.current) return;
+      // Robust path: any cloud snapshot whose content matches a state we
+      // recently held locally is either our own push reflected back or a
+      // stale Realtime delivery already overtaken by a newer local change.
+      // Either way, applying it would revert work — skip.
+      try {
+        const cloudHash = JSON.stringify(cloud.data);
+        if (recentLocalHashesRef.current.includes(cloudHash)) {
+          lastKnownCloudUpdatedAtRef.current = cloud.updatedAt;
+          return;
+        }
+      } catch { /* fall through and apply */ }
       const cloudData = migrateIfNeeded(cloud.data, cloud.schemaVer);
       applyRemoteState(cloudData, cloud.updatedAt);
     });
