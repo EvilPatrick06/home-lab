@@ -5,6 +5,7 @@ import { consumeOAuthCallback, signOut } from './services/supabase.js';
 import { useAuth } from './hooks/useAuth.js';
 import { MergeChooser } from './components/MergeChooser.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
+import { AccountPanel } from './components/AccountPanel.jsx';
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines } from './tutorial';
 
@@ -1208,6 +1209,15 @@ export default function DungeonScholarApp() {
             }
             sync.resolveMerge(choice);
           }}
+        />
+      )}
+
+      {showAccountPanel && (
+        <AccountPanel
+          user={user}
+          syncStatus={sync.status}
+          lastSyncedAt={null}
+          onClose={() => setShowAccountPanel(false)}
         />
       )}
 
