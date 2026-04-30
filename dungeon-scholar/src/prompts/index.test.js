@@ -48,3 +48,18 @@ describe('ORG_PROMPTS', () => {
     }
   });
 });
+
+describe('CompTIA prompt', () => {
+  it('is registered in ORG_PROMPTS', () => {
+    const c = ORG_PROMPTS.find(p => p.id === 'comptia');
+    expect(c).toBeDefined();
+    expect(c.name).toBe('CompTIA');
+    expect(c.commonExams).toContain('Security+ SY0-701');
+  });
+
+  it('CompTIA prompt mentions PBQ and BEST/MOST qualifiers', () => {
+    const c = ORG_PROMPTS.find(p => p.id === 'comptia');
+    expect(c.prompt).toMatch(/PBQ|performance-based/i);
+    expect(c.prompt).toMatch(/BEST|MOST|FIRST/);
+  });
+});
