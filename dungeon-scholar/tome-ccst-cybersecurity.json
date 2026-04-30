@@ -1,0 +1,2257 @@
+{
+  "metadata": {
+    "title": "Cisco CCST Cybersecurity (100-160)",
+    "description": "Exam-prep tome covering all five domains of the Cisco Certified Support Technician Cybersecurity (100-160) blueprint: Essential Security Principles, Basic Network Security Concepts, Endpoint Security Concepts, Vulnerability Assessment and Risk Management, and Incident Handling.",
+    "subject": "Cybersecurity",
+    "author": "Generated from Cisco CCST Cybersecurity Objective Domains and Certification Guide",
+    "difficulty": 2,
+    "tags": [
+      "cert-prep",
+      "100-160",
+      "CCST",
+      "Cisco",
+      "cybersecurity",
+      "entry-level",
+      "network-security",
+      "endpoint-security",
+      "incident-response",
+      "risk-management"
+    ],
+    "version": "1.0"
+  },
+  "knowledgeBase": "=== Domain 1: Essential Security Principles ===\n\nDomain 1: CIA triad and core security goals. The CIA triad \u2014 confidentiality, integrity, and availability \u2014 is the foundational model that defines what security controls are trying to protect. Confidentiality means information is disclosed only to authorized parties; encryption, access controls, and steganography support it. Integrity means data is not altered without authorization; hashing (SHA-256), digital signatures, and checksums detect tampering. Availability means authorized users can access systems and data when needed; redundancy, backups, DDoS protection, and patch management support it. Every threat and control on the CCST exam can be mapped back to which leg of the triad it affects, so when answering scenario questions, ask first which leg is being attacked or protected.\n\nDomain 1: Vulnerability vs threat vs exploit vs risk. These four terms get conflated constantly and Cisco loves to test the distinction. A vulnerability is a weakness in a system (an unpatched SMB service, a weak password). A threat is something or someone with the potential to exploit a vulnerability (a ransomware operator, a careless employee). An exploit is the actual code, technique, or action used to take advantage of a vulnerability (an EternalBlue payload). Risk is the probability and impact of a threat successfully exploiting a vulnerability (the likelihood the unpatched SMB box gets ransomware times the cost of recovery). Risk = Threat \u00d7 Vulnerability \u00d7 Impact in informal terms; you cannot have risk without all three components.\n\nDomain 1: Defense in depth and hardening. Defense in depth is the practice of layering security controls so that the failure of any single control does not result in a compromise. Typical layers are physical (locks, badges), perimeter (firewalls, WAFs), network (segmentation, IDS/IPS), endpoint (EDR, host firewall), application (input validation, secure coding), and data (encryption, DLP). Hardening is the process of reducing the attack surface of a single system: disabling unused services, closing unused ports, removing default accounts, applying patches, enforcing least privilege, and configuring secure defaults. CIS Benchmarks and DISA STIGs are the most-cited hardening guides on the exam.\n\nDomain 1: Threat actors and motivations. Attackers fall into rough categories: script kiddies use existing tools without deep knowledge; hacktivists attack for ideological reasons (Anonymous-style); cybercriminals want financial gain (ransomware operators, carders); insiders are current or former employees with legitimate access; nation-state actors and APTs have geopolitical objectives, large budgets, and patience measured in years; competitors engage in industrial espionage. Knowing the actor type changes the appropriate response \u2014 a script kiddie hitting your web server is different from an APT staging a multi-year exfiltration. The Cisco code of ethics for security professionals stresses lawful, authorized testing only and respect for confidentiality of client data.\n\nDomain 1: Common threats and social engineering. Malware is an umbrella term covering viruses (need a host file and user action), worms (self-propagating), trojans (disguised as legitimate software), ransomware (encrypts data for extortion), rootkits (hide presence at OS or kernel level), spyware, and adware. A botnet is a network of compromised hosts (bots) controlled by an attacker for DDoS, spam, or cryptomining. Social engineering exploits humans, not technology: phishing (mass email), spear phishing (targeted), whaling (targets executives), vishing (voice/phone), smishing (SMS), pretexting (fabricated scenario), tailgating (following someone through a door), and shoulder surfing. The defense is awareness training plus technical controls like email filtering and MFA.\n\nDomain 1: Access management and AAA. AAA stands for Authentication (proving identity), Authorization (granting permissions), and Accounting (logging what was done). RADIUS is the dominant network-access AAA protocol \u2014 UDP 1812 for auth, 1813 for accounting, encrypts only the password field, and combines authentication and authorization in one exchange. TACACS+ is Cisco's alternative \u2014 TCP 49, encrypts the entire payload, and separates the three As. Multi-factor authentication combines factors from at least two of: something you know (password), something you have (token, phone), something you are (fingerprint, face), somewhere you are (geolocation), something you do (typing pattern). Phishing-resistant MFA (FIDO2 hardware keys, certificate-based) is preferred over SMS or push because SMS is vulnerable to SIM swap and push is vulnerable to MFA fatigue.\n\nDomain 1: Encryption methods, hashing, and PKI. Symmetric encryption uses one shared key for both encrypt and decrypt \u2014 fast, used for bulk data; AES (128/192/256) is the modern standard, DES and 3DES are deprecated. Asymmetric encryption uses a public/private key pair \u2014 slower, used for key exchange and signatures; RSA (2048+ bits) and ECC are modern, ECC offers equivalent strength at smaller key sizes. Hashing is one-way \u2014 produces a fixed-size digest used for integrity, not encryption; SHA-256 and SHA-3 are current, MD5 and SHA-1 are broken. PKI uses X.509 certificates signed by a Certificate Authority (CA) to bind a public key to an identity; the trust chain runs from a root CA through intermediate CAs to the end-entity cert. Data states require different protections: data in transit (TLS, IPsec, SSH), data at rest (BitLocker, LUKS, database TDE), data in use (memory encryption, secure enclaves, homomorphic encryption).\n\n=== Domain 2: Basic Network Security Concepts ===\n\nDomain 2: TCP/IP protocol vulnerabilities. Each core protocol carries its own attack surface. TCP is connection-oriented and uses a three-way handshake (SYN, SYN-ACK, ACK); SYN floods exhaust the half-open connection queue. UDP is connectionless and stateless, easily spoofed, and the basis for amplification attacks (DNS, NTP, memcached reflection). HTTP is plaintext \u2014 credentials, cookies, and session tokens are visible to any sniffer; HTTPS (HTTP over TLS) is the fix. ARP has no authentication, so ARP poisoning lets an attacker impersonate the gateway and become a man-in-the-middle. ICMP can be abused for redirects, smurf amplification, and covert channels. DHCP starvation exhausts the pool, and rogue DHCP servers hand out malicious gateway/DNS settings. DNS cache poisoning and DNS hijacking redirect users to attacker-controlled sites \u2014 DNSSEC and DoH/DoT mitigate this.\n\nDomain 2: IP addressing, segmentation, and CIDR. IPv4 is 32 bits in dotted-decimal (192.168.1.10), IPv6 is 128 bits in hex with colons (2001:db8::1). Private IPv4 ranges (RFC 1918) are 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16; these are not routable on the public internet and require NAT to reach external networks. CIDR notation expresses a prefix length: /24 means 24 network bits and 8 host bits (255.255.255.0, 256 addresses, 254 usable). MAC addresses are 48-bit Layer 2 identifiers, the first 24 bits being the OUI (vendor ID); they are spoofable and not a security boundary by themselves. Network segmentation splits the network into smaller zones (VLANs, subnets, microsegmentation) so a compromise in one zone does not freely spread to others \u2014 the principle behind Zero Trust.\n\nDomain 2: NAT, public vs private, and DMZ. NAT (Network Address Translation) maps private IPs to one or more public IPs, both extending the limited IPv4 space and providing a coarse layer of obscurity (private hosts are not directly addressable from outside). PAT (Port Address Translation), or NAT overload, lets many private hosts share one public IP via unique source ports. A DMZ (demilitarized zone) is a buffer subnet between the untrusted internet and the trusted internal LAN where public-facing servers (web, mail, DNS) live; the design ensures that compromise of a DMZ host does not give an attacker direct access to internal systems. Modern designs often replace the classic DMZ with a reverse proxy plus zero-trust segmentation, but the exam still tests the classic three-zone (internet / DMZ / inside) model.\n\nDomain 2: Network infrastructure, virtualization, and cloud. A honeypot is a decoy system designed to attract attackers so their tactics can be observed and signatures collected; a honeynet is a network of honeypots. A proxy server sits between clients and servers, providing caching, content filtering, and anonymity (forward proxy) or load balancing and TLS termination (reverse proxy). An IDS (intrusion detection system) detects and alerts but does not block \u2014 it sits out-of-band on a SPAN port. An IPS (intrusion prevention system) is inline and can drop, reset, or quarantine traffic. Virtualization runs multiple guest OSes on one hypervisor (Type 1 bare-metal like ESXi or Hyper-V; Type 2 hosted like VirtualBox); risks include VM escape and side-channel attacks. Cloud models are IaaS (you manage OS up), PaaS (you manage app and data), SaaS (you manage data only); the shared responsibility model defines what the provider secures versus what the customer secures.\n\nDomain 2: Secure SoHo wireless. A small-office/home-office (SoHo) wireless network should use WPA3-Personal where supported, falling back to WPA2-Personal with AES (CCMP) \u2014 never WEP or WPA. The SSID identifies the network; hiding the SSID is security through obscurity and is trivially bypassed by passive sniffing. MAC address filtering allows only listed MACs to associate; it raises the bar slightly but MACs are easily spoofed. A strong pre-shared key (12+ random characters) is far more important than hiding the SSID. The router's admin password must be changed from the default, the firmware kept current, WPS disabled (vulnerable to PIN brute force), and remote management disabled unless explicitly needed. Separate the guest network from the main LAN.\n\nDomain 2: ACLs, firewalls, VPNs, and NAC. An access control list (ACL) on a router or switch permits or denies traffic based on source/destination IP, protocol, and port; ACLs are processed top-down with an implicit deny-all at the end, so order matters. Firewalls evolved from packet filters (stateless, header-only) to stateful firewalls (track connection state) to next-generation firewalls or NGFWs (application awareness, IPS, user-ID, TLS inspection). A VPN tunnels traffic over an untrusted network with confidentiality and integrity \u2014 IPsec for site-to-site, TLS-based SSL VPN for remote-access, and WireGuard as a modern alternative. NAC (Network Access Control) authenticates and posture-checks devices before granting LAN access; 802.1X is the standard, often paired with RADIUS and a posture agent that verifies patch level, AV status, and disk encryption.\n\n=== Domain 3: Endpoint Security Concepts ===\n\nDomain 3: Operating system security across Windows, macOS, and Linux. Windows uses NTFS permissions (Read, Write, Modify, Full Control) and a token-based access model; UAC (User Account Control) prompts when a process requests elevation. Windows Defender (now Microsoft Defender Antivirus) is the built-in AV/EDR with cloud-delivered protection, controlled folder access, and tamper protection. macOS uses Unix-style permissions plus Gatekeeper (signature/notarization checks) and SIP (System Integrity Protection) to lock down system files. Linux uses POSIX rwx permissions (owner/group/other), with SELinux or AppArmor for mandatory access control. Privilege escalation is the act of going from low-privilege to high-privilege \u2014 sudo misconfigurations, SUID binaries, kernel exploits, and Windows token impersonation are classic vectors.\n\nDomain 3: CLI and PowerShell for security work. PowerShell is Windows' object-based shell and the standard tool for endpoint administration and incident response. Get-Process lists running processes, Get-Service lists services, Get-NetTCPConnection lists open TCP sockets (the modern netstat replacement), Get-WinEvent reads the event log, and Get-LocalUser/Get-LocalGroupMember enumerate local accounts. Linux equivalents are ps, systemctl, ss or netstat, journalctl, and getent. Cisco IOS uses an EXEC mode (user/privileged) and a configuration mode; show running-config displays the active config, show ip interface brief summarizes interfaces, and show access-lists displays ACL hit counts.\n\nDomain 3: Endpoint assessment tools \u2014 netstat, nslookup, tcpdump. netstat displays network connections, listening ports, routing tables, and protocol statistics; netstat -an shows all sockets numerically, netstat -b on Windows shows the binary owning each socket. The CCST blueprint specifically lists netstat as a required endpoint assessment tool. nslookup performs DNS queries \u2014 useful for verifying DNS records, troubleshooting name resolution, and checking for DNS hijacking; nslookup example.com queries the default server, nslookup example.com 8.8.8.8 forces Google's resolver. tcpdump is a packet capture tool on Linux/Unix; tcpdump -i eth0 host 10.0.0.1 captures only traffic to/from that host, -w file.pcap writes to a pcap for later analysis in Wireshark. Windows uses pktmon or Wireshark instead.\n\nDomain 3: Compliance, asset management, and BYOD. Hardware and software asset management (CIS Controls 1 and 2) is the foundation of every other security control \u2014 you cannot protect what you do not know you have. Regulatory frameworks each carry specific scope: PCI DSS protects cardholder data for any merchant or service provider handling payment cards; HIPAA protects PHI for US healthcare entities and their business associates; GDPR protects personal data of EU residents regardless of where the processor is located, with breach notification within 72 hours. BYOD (bring your own device) programs need device management (MDM), data containerization or app wrapping, encryption, remote-wipe capability, and clear acceptable-use policies signed by employees. The same controls extended to corporate devices are typically delivered via UEM (unified endpoint management).\n\nDomain 3: Updates, patching, and log interpretation. Patch management covers OS updates (Windows Update, WSUS, MECM/SCCM, apt/yum), application updates, driver updates, and firmware (BIOS/UEFI, NIC, BMC). Critical patches should be deployed within days; routine within 30 days under most policies. Windows Event Viewer organizes logs into Application, Security, System, and Setup channels \u2014 Security log Event ID 4624 is a successful logon, 4625 is a failed logon, 4720 is account creation, 4732 is privileged group membership change. Linux uses syslog, journald, or rsyslog writing to /var/log. Centralized logging via syslog (UDP/TCP 514) or a SIEM is essential because attackers often clear local logs. Anomaly indicators include impossible-travel logons, after-hours admin activity, sudden spikes in outbound traffic, and unexpected new services.\n\nDomain 3: Malware detection and removal workflow. The standard process is identify (alerts, AV/EDR detection, user report), contain (disconnect from network \u2014 pull the cable or disable the NIC, do not just power off, which destroys volatile evidence), eradicate (run full scans with multiple engines, remove persistence \u2014 scheduled tasks, run keys, services, WMI subscriptions), recover (rebuild from known-good image when in doubt, restore data from clean backups), and follow up (root-cause analysis, lessons learned). For ransomware specifically, never pay without legal/executive approval; isolate immediately; preserve a copy of the encrypted data and ransom note for forensics; restore from offline backups. The 3-2-1 backup rule \u2014 three copies, two media types, one offsite \u2014 assumes at least one copy is offline or immutable.\n\n=== Domain 4: Vulnerability Assessment and Risk Management ===\n\nDomain 4: Vulnerability management lifecycle. Vulnerability management is a continuous process: discover (asset inventory plus scanning), assess (rank by CVSS score and business context), prioritize (consider exploitability and exposure, not just CVSS), remediate (patch, configuration change, compensating control), verify (rescan to confirm fix), and report. Identification methods split into active reconnaissance (sending traffic \u2014 port scans, vulnerability scans, banner grabs) and passive reconnaissance (no traffic to target \u2014 OSINT, DNS records, certificate transparency logs, search engines like Shodan). Active recon is louder and more legally risky; passive recon is stealthier but lower-fidelity.\n\nDomain 4: Scanning tools, CVEs, and CVSS. Nmap is the dominant port scanner \u2014 nmap -sS performs a stealth SYN scan, -sU scans UDP, -sV detects service versions, -O fingerprints the OS, -A enables aggressive scan (OS, version, scripts, traceroute). Nessus, Qualys, OpenVAS, and Rapid7 InsightVM are credentialed vulnerability scanners that authenticate to the host and check installed software against a vulnerability database. CVE (Common Vulnerabilities and Exposures) is a unique identifier for a publicly disclosed vulnerability, format CVE-YYYY-NNNN; CVSS (Common Vulnerability Scoring System) gives a 0-10 severity score where 9.0-10 is Critical, 7.0-8.9 High, 4.0-6.9 Medium, 0.1-3.9 Low. The CVSS base score does not account for your environment \u2014 exploitability, exposure, and asset value modify real-world priority.\n\nDomain 4: Threat intelligence sources and limitations. Threat intel sources include vendor reports (Talos, Mandiant, CrowdStrike), government feeds (CISA alerts, US-CERT), ISACs (industry sharing groups like FS-ISAC), commercial subscription feeds, and open-source feeds (MISP, AlienVault OTX). Tactical intel (IOCs \u2014 IPs, hashes, domains) is short-lived; operational intel (TTPs) is more durable; strategic intel (geopolitical context, motivations) shapes long-term posture. Limitations: feeds may be noisy, stale, or false-positive-laden; IOCs decay rapidly as attackers rotate infrastructure; over-reliance on signatures misses novel attacks. Documentation must be updated proactively before, during, and after incidents \u2014 runbooks, network diagrams, asset inventories, and contact lists become useless if they drift from reality.\n\nDomain 4: Risk management strategies and ranking. Risk equals likelihood times impact. The four classic risk responses are mitigate (apply controls to reduce likelihood or impact, such as patching or segmentation), transfer (insurance, outsourcing to a more capable provider), avoid (stop the activity entirely \u2014 for example, decommission a vulnerable system), and accept (formally document that the residual risk is tolerable for the business value). Risks are typically ranked Low, Medium, High, and Extremely High (or Critical) in a heat map combining likelihood and impact. Quantitative risk uses dollar figures: SLE (Single Loss Expectancy) = asset value \u00d7 exposure factor; ARO is annualized rate of occurrence; ALE = SLE \u00d7 ARO. Qualitative risk uses ranked categories without precise numbers \u2014 faster but less defensible to auditors.\n\nDomain 4: Data classification and security assessments. Common classification tiers are Public, Internal, Confidential, and Restricted (or Top Secret in government schemes); each tier has handling rules for storage, transmission, retention, and destruction. PII (personally identifiable information), PHI (protected health information under HIPAA), PCI (payment card data), and IP (intellectual property) carry the heaviest controls. Security assessments cover information security policy, change management process, computer operations, and information assurance \u2014 auditors verify that policy matches practice and practice matches evidence (logs, tickets, signed approvals). SOC 2 Type II reports and ISO 27001 audits are common third-party attestations.\n\nDomain 4: Disaster recovery and business continuity. A disaster recovery plan (DRP) covers IT-system recovery after a disruptive event; a business continuity plan (BCP) covers the broader business \u2014 facilities, people, suppliers, communications. RTO (Recovery Time Objective) is the maximum tolerable downtime; RPO (Recovery Point Objective) is the maximum tolerable data loss measured in time. Backup strategies: full (everything, slow), incremental (only changes since last backup, fast but slow restore), differential (changes since last full, middle ground); the 3-2-1 rule remains the industry baseline. Disaster recovery sites range from cold (hardware only, days to come up), warm (hardware plus some data, hours), to hot (live replication, near-zero RTO). DR controls are categorized as preventive (stop the disaster \u2014 UPS, redundant power), detective (notice it \u2014 monitoring, fire alarm), and corrective (recover \u2014 failover, restore from backup).\n\n=== Domain 5: Incident Handling ===\n\nDomain 5: SIEM, SOAR, and security monitoring. A SIEM (Security Information and Event Management) collects logs from across the environment, normalizes them, correlates events, and raises alerts on rules or anomalies \u2014 Splunk, Microsoft Sentinel, Elastic Security, IBM QRadar, and ArcSight are common. SOAR (Security Orchestration, Automation, and Response) layers playbook-driven automation on top of the SIEM, executing containment and enrichment steps without human intervention \u2014 Cortex XSOAR, Splunk SOAR, and Tines are examples. SIEM answers what happened; SOAR answers what to do about it automatically. Tier-1 SOC analysts triage SIEM alerts, escalate true positives to Tier 2 for investigation, and Tier 3 handles complex incidents and threat hunting. The escalation criteria depend on severity, asset criticality, and confidence \u2014 never sit on an alert that involves a domain controller, a known-bad IOC match, or evidence of lateral movement.\n\nDomain 5: Reading packet captures and log entries. A packet capture (PCAP) recorded by tcpdump or Wireshark shows full Layer 2-7 detail: each packet has timestamps, source and destination IP/port, flags (SYN, ACK, FIN, RST, PSH), and payload. Suspicious patterns include long-lived outbound connections to unknown IPs (possible C2), DNS queries to unusual TLDs or with very long subdomain names (DNS tunneling), large outbound transfers during off-hours (exfiltration), and SMB or RDP traffic between workstations (lateral movement). Log entries to learn by sight: 4625 (Windows failed logon \u2014 Logon Type 3 is network, 10 is RDP), 4688 (process creation), Apache 401/403/500 series, syslog facility/severity codes. Correlation across sources is what turns isolated events into an incident.\n\nDomain 5: Cyber Kill Chain, MITRE ATT&CK, and Diamond Model. Lockheed Martin's Cyber Kill Chain has seven stages: Reconnaissance, Weaponization, Delivery, Exploitation, Installation, Command and Control (C2), and Actions on Objectives \u2014 defenders aim to break the chain at the earliest possible stage. MITRE ATT&CK is a knowledge base of adversary tactics (the why \u2014 Initial Access, Persistence, Privilege Escalation, etc.) and techniques (the how \u2014 T1078 Valid Accounts, T1059 Command and Scripting Interpreter), used for threat-informed defense, gap analysis, and red-team exercises. The Diamond Model represents an intrusion as four corners \u2014 adversary, capability, infrastructure, victim \u2014 connected by edges; pivoting on any corner reveals related events. TTPs (Tactics, Techniques, and Procedures) describe attacker behavior at increasing specificity: the tactic is the goal, the technique is the method, the procedure is the exact implementation.\n\nDomain 5: Evidence handling and chain of custody. Digital evidence must be collected in a forensically sound manner: capture volatile data first (memory, network connections, running processes \u2014 order of volatility per RFC 3227), then non-volatile (disk images), and document everything. A bit-for-bit forensic image is taken with dd, FTK Imager, or EnCase, and its hash (SHA-256) recorded immediately so any later tampering is detectable. Chain of custody documents who collected the evidence, when, where, how it was stored, and every transfer between parties \u2014 a single gap can render evidence inadmissible in court. Original evidence is sealed; analysis is performed only on verified copies. Sources of evidence (artifacts) include disk images, memory dumps, network captures, log files, application data, registry hives, browser history, and cloud audit logs.\n\nDomain 5: Compliance frameworks and notification. Each compliance framework imposes its own incident reporting clock. GDPR requires notification to the supervisory authority within 72 hours of becoming aware of a personal-data breach. HIPAA requires notification of affected individuals within 60 days for breaches involving more than 500 records, and to HHS without unreasonable delay. PCI DSS requires immediate notification to the card brands and acquiring bank, and a forensic investigation by a PFI (PCI Forensic Investigator) for confirmed compromises. FERPA covers US student educational records. FISMA governs US federal agencies and their contractors and ties into the NIST RMF. State breach-notification laws (all 50 US states have one, with California and New York being strictest) often run concurrently with federal rules \u2014 the strictest applicable rule wins.\n\nDomain 5: NIST 800-61 incident response lifecycle. NIST Special Publication 800-61 Rev. 2 defines four phases. Preparation is everything done before an incident: policy, plan, procedures, IR team, tooling, training, tabletop exercises. Detection and Analysis is identifying that an incident is occurring and characterizing scope, vector, impact, and affected systems \u2014 the SIEM and SOC analysts live here. Containment, Eradication, and Recovery \u2014 short-term containment isolates the threat (network segmentation, account disable), long-term containment applies temporary fixes while a clean rebuild is staged, eradication removes the root cause (malware, compromised accounts, attacker tooling), recovery restores systems to production with monitoring and validation. Post-Incident Activity covers lessons learned, root-cause analysis, evidence retention, and updates to policy, controls, and runbooks. The lifecycle is a loop, not a line \u2014 lessons feed back into preparation.\n",
+  "flashcards": [
+    {
+      "id": "fc1",
+      "front": "Define the CIA triad and give one example control for each leg.",
+      "back": "Confidentiality \u2014 only authorized parties can read the data; example: AES-256 disk encryption. Integrity \u2014 data has not been altered without authorization; example: SHA-256 hashes on backups, digital signatures. Availability \u2014 authorized users can access the resource when needed; example: redundant power, load balancing, DDoS protection.",
+      "hint": "Three legs of the security stool.",
+      "objective": "1.1"
+    },
+    {
+      "id": "fc2",
+      "front": "Difference between vulnerability, threat, exploit, and risk.",
+      "back": "Vulnerability \u2014 a weakness (unpatched CVE, weak password). Threat \u2014 an actor or event with potential to harm (a ransomware gang, a flood). Exploit \u2014 the actual code or technique used to take advantage of a vulnerability. Risk \u2014 the probability and impact of a threat successfully exploiting a vulnerability. You need all of vulnerability, threat, and impact for risk to exist.",
+      "objective": "1.1"
+    },
+    {
+      "id": "fc3",
+      "front": "What is defense in depth?",
+      "back": "Layering multiple, overlapping security controls so the failure of any single control does not result in compromise. Typical layers: physical, perimeter, network, endpoint, application, data. The goal is that an attacker must defeat several independent controls.",
+      "objective": "1.1"
+    },
+    {
+      "id": "fc4",
+      "front": "What does it mean to harden a system?",
+      "back": "Reducing the attack surface of a system: disable unused services, close unused ports, remove default and unused accounts, apply the latest patches, enforce least privilege, configure secure defaults. CIS Benchmarks and DISA STIGs are the most-cited hardening references.",
+      "objective": "1.1"
+    },
+    {
+      "id": "fc5",
+      "front": "List five categories of threat actor and a typical motivation for each.",
+      "back": "Script kiddie \u2014 uses existing tools, motivated by curiosity or notoriety. Hacktivist \u2014 ideological/political (Anonymous-style). Cybercriminal \u2014 financial gain (ransomware, fraud). Insider \u2014 disgruntled employee, financial gain, or accidental. Nation-state / APT \u2014 geopolitical, espionage, sabotage; long-term, well-funded.",
+      "objective": "1.1"
+    },
+    {
+      "id": "fc6",
+      "front": "What is an attack vector? Give three common examples.",
+      "back": "An attack vector is the path or method by which an attacker reaches a target. Examples: phishing email with malicious attachment, exposed RDP on the internet, vulnerable third-party software/library (supply chain), removable USB media, compromised credentials.",
+      "objective": "1.1"
+    },
+    {
+      "id": "fc7",
+      "front": "Differentiate phishing, spear phishing, whaling, vishing, and smishing.",
+      "back": "Phishing \u2014 mass-distributed deceptive email. Spear phishing \u2014 targeted at a specific individual or small group with personalized content. Whaling \u2014 spear phishing aimed at executives or high-value targets. Vishing \u2014 voice/phone-based social engineering. Smishing \u2014 SMS-based phishing.",
+      "objective": "1.2"
+    },
+    {
+      "id": "fc8",
+      "front": "What is a botnet and what is it typically used for?",
+      "back": "A network of compromised hosts (bots) under the control of a command-and-control (C2) operator. Common uses: distributed denial of service (DDoS), spam relay, credential stuffing, cryptomining, and click fraud. The Mirai botnet famously weaponized IoT devices.",
+      "objective": "1.2"
+    },
+    {
+      "id": "fc9",
+      "front": "What is an Advanced Persistent Threat (APT)?",
+      "back": "A sophisticated, often nation-state-backed adversary that establishes long-term covert access to a target network. Characterized by stealth, custom malware, slow data exfiltration, and patience measured in months or years. Examples include APT28 (Fancy Bear) and APT29 (Cozy Bear).",
+      "objective": "1.2"
+    },
+    {
+      "id": "fc10",
+      "front": "Define authentication, authorization, and accounting (AAA).",
+      "back": "Authentication \u2014 proving you are who you claim to be (password, certificate, biometric). Authorization \u2014 determining what an authenticated identity is allowed to do (RBAC, ABAC, ACLs). Accounting \u2014 recording what was done (logs, audit trails) for billing, compliance, or forensics.",
+      "objective": "1.3"
+    },
+    {
+      "id": "fc11",
+      "front": "RADIUS vs TACACS+ \u2014 port, transport, and what each encrypts.",
+      "back": "RADIUS \u2014 UDP 1812 (auth) / 1813 (accounting), encrypts only the password field, combines authentication and authorization. TACACS+ \u2014 TCP 49, encrypts the entire payload, separates authentication, authorization, and accounting. RADIUS is the dominant standard for network access; TACACS+ is Cisco-favored for device administration.",
+      "objective": "1.3"
+    },
+    {
+      "id": "fc12",
+      "front": "Name the five MFA factor categories.",
+      "back": "Something you know (password, PIN). Something you have (hardware token, smart card, phone). Something you are (fingerprint, face, iris). Somewhere you are (geolocation, IP). Something you do (typing cadence, gait). MFA must combine factors from at least two different categories.",
+      "objective": "1.3"
+    },
+    {
+      "id": "fc13",
+      "front": "Symmetric vs asymmetric encryption \u2014 typical use case for each.",
+      "back": "Symmetric \u2014 one shared key, fast, used for bulk data encryption (AES-128/192/256, ChaCha20). Asymmetric \u2014 public/private key pair, slower, used for key exchange, digital signatures, and identity (RSA-2048+, ECC). Real systems combine the two: asymmetric to exchange a session key, symmetric to encrypt the actual data (this is exactly what TLS does).",
+      "objective": "1.4"
+    },
+    {
+      "id": "fc14",
+      "front": "What does a hash function do, and how does it differ from encryption?",
+      "back": "A cryptographic hash takes arbitrary input and produces a fixed-size digest. It is one-way (no decrypt) and collision-resistant. Used for integrity checks and password storage (with salt). Encryption is reversible with the right key; hashing is not. SHA-256 and SHA-3 are current; MD5 and SHA-1 are broken and should not be used for security.",
+      "objective": "1.4"
+    },
+    {
+      "id": "fc15",
+      "front": "What is PKI and what is the role of a Certificate Authority?",
+      "back": "Public Key Infrastructure binds public keys to identities using X.509 certificates signed by a trusted Certificate Authority (CA). The chain of trust goes from a root CA (self-signed, in the browser/OS trust store) through intermediate CAs to the end-entity certificate. PKI underpins TLS, code signing, and S/MIME.",
+      "objective": "1.4"
+    },
+    {
+      "id": "fc16",
+      "front": "Three states of data and one appropriate protection for each.",
+      "back": "Data in transit \u2014 between systems on a network; protect with TLS, IPsec, SSH. Data at rest \u2014 stored on disk, tape, or cloud storage; protect with full-disk encryption (BitLocker, LUKS), database TDE, or object-storage SSE. Data in use \u2014 being actively processed in memory; protect with secure enclaves (Intel SGX, AMD SEV), homomorphic encryption, or strong process isolation.",
+      "objective": "1.4"
+    },
+    {
+      "id": "fc17",
+      "front": "Examples of weak vs strong cryptographic algorithms.",
+      "back": "Weak / deprecated: DES, 3DES, RC4, MD5, SHA-1, SSL 2.0/3.0, TLS 1.0/1.1, RSA-1024. Strong / current: AES-128/256, ChaCha20-Poly1305, SHA-256/SHA-3, TLS 1.2/1.3, RSA-2048+, ECC P-256/P-384, Ed25519. Cisco exam framing: prefer modern, NIST-approved algorithms with adequate key length.",
+      "objective": "1.4"
+    },
+    {
+      "id": "fc18",
+      "front": "Describe the TCP three-way handshake and the SYN-flood attack.",
+      "back": "Three-way handshake: client sends SYN, server replies SYN-ACK, client replies ACK; the connection is then ESTABLISHED. A SYN flood sends many SYNs (often with spoofed sources) and never completes the handshake, exhausting the server's half-open connection queue and causing legitimate connections to be dropped. Mitigations: SYN cookies, increased backlog, rate limiting, upstream DDoS scrubbing.",
+      "objective": "2.1"
+    },
+    {
+      "id": "fc19",
+      "front": "Why is HTTP a security problem and what replaces it?",
+      "back": "HTTP transmits requests, responses, headers, cookies, and credentials in plaintext, so anyone on the path can sniff or modify them. HTTPS (HTTP over TLS) encrypts the entire HTTP exchange, authenticates the server via X.509 certificate, and protects integrity. Modern browsers warn or block plain HTTP for sensitive contexts.",
+      "objective": "2.1"
+    },
+    {
+      "id": "fc20",
+      "front": "What is ARP poisoning (ARP spoofing)?",
+      "back": "ARP has no authentication. An attacker on the same broadcast domain sends crafted ARP replies claiming to own the gateway's IP, causing victims' ARP caches to map the gateway IP to the attacker's MAC. Now traffic to the gateway flows through the attacker \u2014 a classic Layer 2 man-in-the-middle. Defenses: dynamic ARP inspection (DAI), DHCP snooping, static ARP entries on critical hosts, and 802.1X for port-level access control.",
+      "objective": "2.1"
+    },
+    {
+      "id": "fc21",
+      "front": "Name two common DNS-based attacks.",
+      "back": "DNS cache poisoning \u2014 injecting forged records into a resolver's cache so users are sent to attacker-controlled IPs. DNS hijacking / redirection \u2014 compromising registrar accounts or recursive resolver settings to redirect lookups. Other DNS abuse: DNS tunneling (covert C2 over DNS queries), domain generation algorithms (DGA) used by malware, and homograph/typosquat domains. DNSSEC, DoH/DoT, and DNS firewalls (RPZ) are mitigations.",
+      "objective": "2.1"
+    },
+    {
+      "id": "fc22",
+      "front": "What are the RFC 1918 private IPv4 address ranges?",
+      "back": "10.0.0.0/8 (10.0.0.0 \u2013 10.255.255.255), 172.16.0.0/12 (172.16.0.0 \u2013 172.31.255.255), and 192.168.0.0/16 (192.168.0.0 \u2013 192.168.255.255). These are not routable on the public internet. NAT translates them to public addresses for outbound traffic.",
+      "objective": "2.2"
+    },
+    {
+      "id": "fc23",
+      "front": "What does CIDR /24 mean, and how many usable hosts does it have?",
+      "back": "/24 means the first 24 bits are the network and the last 8 are host bits. Subnet mask 255.255.255.0. Total addresses = 2^8 = 256, minus the network address and broadcast address, leaves 254 usable hosts. /23 doubles to 510 usable hosts, /25 halves to 126.",
+      "objective": "2.2"
+    },
+    {
+      "id": "fc24",
+      "front": "What is network segmentation and why does it matter for security?",
+      "back": "Splitting the network into smaller zones (VLANs, subnets, microsegments) so that compromise in one zone does not freely spread to others. Limits blast radius, enforces least-privilege at the network layer, and is foundational to Zero Trust. PCI DSS requires segmentation between cardholder data environment and other networks.",
+      "objective": "2.2"
+    },
+    {
+      "id": "fc25",
+      "front": "Define DMZ and explain the classic three-zone topology.",
+      "back": "A DMZ (demilitarized zone) is a buffer subnet between the untrusted internet and the trusted internal LAN where public-facing servers (web, mail, DNS) live. Typical topology: outside firewall faces the internet, internal firewall faces the LAN, the DMZ sits between them. Compromise of a DMZ host gives the attacker a foothold but not direct access to internal systems.",
+      "objective": "2.3"
+    },
+    {
+      "id": "fc26",
+      "front": "Describe NAT and how PAT differs.",
+      "back": "NAT (Network Address Translation) maps private IPs to public IPs. Static NAT \u2014 one-to-one fixed mapping. Dynamic NAT \u2014 pool of public IPs assigned as needed. PAT (Port Address Translation, aka NAT overload) \u2014 many private hosts share one public IP via unique source port assignments. PAT is what virtually every home router uses.",
+      "objective": "2.2"
+    },
+    {
+      "id": "fc27",
+      "front": "IDS vs IPS \u2014 placement and action.",
+      "back": "IDS (Intrusion Detection System) is out-of-band, often on a SPAN/mirror port; it detects and alerts but does not block. IPS (Intrusion Prevention System) is inline; it can drop, reset, or quarantine traffic in real time. Tradeoff: IPS can stop attacks but a misconfigured signature blocks legitimate traffic. Modern NGFWs combine firewall, IPS, and application awareness.",
+      "objective": "2.3"
+    },
+    {
+      "id": "fc28",
+      "front": "What is a honeypot?",
+      "back": "A decoy system intentionally deployed to attract attackers so their tools, techniques, and infrastructure can be observed. Has no production use, so any traffic to it is suspicious by definition. A honeynet is a network of honeypots simulating a larger environment. Useful for early warning and threat intel collection.",
+      "objective": "2.3"
+    },
+    {
+      "id": "fc29",
+      "front": "Forward proxy vs reverse proxy.",
+      "back": "Forward proxy \u2014 sits between clients and the internet; provides caching, content filtering, and outbound visibility (Squid, corporate web proxy). Reverse proxy \u2014 sits in front of servers; provides load balancing, TLS termination, WAF capability, and hides backend topology (NGINX, HAProxy, Cloudflare).",
+      "objective": "2.3"
+    },
+    {
+      "id": "fc30",
+      "front": "Why is WEP unacceptable, and what should a SoHo network use?",
+      "back": "WEP uses RC4 with a short, statically-shared key and weak IV; full keys can be recovered in minutes with passive sniffing. WPA2-Personal with AES (CCMP) is the minimum acceptable; WPA3-Personal is preferred where supported because it uses SAE (Simultaneous Authentication of Equals) and is resistant to offline dictionary attacks.",
+      "objective": "2.4"
+    },
+    {
+      "id": "fc31",
+      "front": "Is hiding the SSID an effective security control?",
+      "back": "No. The SSID is broadcast in probe-request and association frames whenever a client connects, so any passive sniffer captures it within seconds. Hidden SSID is security through obscurity and breaks roaming for some clients. Use a strong WPA2/WPA3 passphrase instead.",
+      "objective": "2.4"
+    },
+    {
+      "id": "fc32",
+      "front": "What is MAC address filtering and what is its main weakness?",
+      "back": "An access list of permitted MAC addresses on the wireless AP or switch port. Weakness: MAC addresses are sent in cleartext in every frame and are trivially spoofed (ifconfig hw ether on Linux, registry edit on Windows). Adds a small speed bump, not a real security boundary.",
+      "objective": "2.4"
+    },
+    {
+      "id": "fc33",
+      "front": "How is an ACL processed, and what is the implicit final rule?",
+      "back": "Top-down, first match wins. Once a packet matches a permit or deny, processing stops for that packet. There is an implicit deny-all at the end of every ACL \u2014 anything not explicitly permitted is dropped. This is why the order of entries matters: a more-specific rule must come before a more-general one.",
+      "objective": "2.5"
+    },
+    {
+      "id": "fc34",
+      "front": "Stateful firewall vs next-generation firewall (NGFW).",
+      "back": "Stateful firewall \u2014 tracks connection state (TCP handshake, flow tuple) so return traffic for established sessions is permitted automatically. Next-generation firewall \u2014 adds application identification (Layer 7), user identity (AD integration), integrated IPS, TLS inspection, URL/category filtering, and threat intelligence feeds. Cisco Firepower, Palo Alto, and Fortinet FortiGate are NGFW examples.",
+      "objective": "2.5"
+    },
+    {
+      "id": "fc35",
+      "front": "Site-to-site VPN vs remote-access VPN.",
+      "back": "Site-to-site \u2014 connects two networks (branch to HQ, on-prem to cloud) typically with IPsec; routers/firewalls at each end maintain the tunnel; users do not need any client software. Remote-access \u2014 individual user device connects in (corporate laptop to HQ); typically TLS-based SSL VPN or IPsec with a client; supports per-user authentication and posture checks.",
+      "objective": "2.5"
+    },
+    {
+      "id": "fc36",
+      "front": "What does NAC do and what standard underpins it?",
+      "back": "Network Access Control authenticates and posture-checks devices before granting LAN access. Posture checks verify patch level, antivirus status, disk encryption, and similar. The IEEE 802.1X standard provides the port-based authentication framework, typically paired with RADIUS and a posture agent. Cisco ISE is the dominant enterprise NAC product.",
+      "objective": "2.5"
+    },
+    {
+      "id": "fc37",
+      "front": "What is Microsoft Defender Antivirus and what does Tamper Protection do?",
+      "back": "The built-in AV/EDR for Windows 10/11 and Server 2016+. Provides real-time scanning, cloud-delivered protection, controlled folder access (anti-ransomware), and behavioral detection. Tamper Protection prevents local administrators or malware from disabling Defender, modifying its settings, or removing its definitions \u2014 even from PowerShell or the registry.",
+      "objective": "3.1"
+    },
+    {
+      "id": "fc38",
+      "front": "Linux file permissions: what does chmod 750 mean?",
+      "back": "Three octal digits for owner, group, and other. 7 = rwx (4+2+1), 5 = r-x (4+0+1), 0 = --- . So 750 = owner full, group read/execute, other nothing. Useful for directories where only the owner should write but the group can traverse and read.",
+      "objective": "3.1"
+    },
+    {
+      "id": "fc39",
+      "front": "Define privilege escalation and name two common Windows vectors.",
+      "back": "The act of going from a lower-privileged context (standard user) to a higher one (administrator, SYSTEM). Windows vectors: unquoted service paths, weak service permissions, AlwaysInstallElevated, DLL hijacking, token impersonation, kernel exploits, and abuse of UAC bypass techniques. Linux vectors: SUID binaries, sudo misconfigurations, writable /etc/passwd, and kernel exploits.",
+      "objective": "3.1"
+    },
+    {
+      "id": "fc40",
+      "front": "What does Windows UAC do?",
+      "back": "User Account Control prompts when a process requests elevation to administrator privileges, even when run by an administrator. It splits the admin token into a standard token and an elevated token; processes use the standard token by default and only get the elevated one after the prompt. Goal is to limit the impact of malware running as a logged-in admin.",
+      "objective": "3.1"
+    },
+    {
+      "id": "fc41",
+      "front": "What does netstat do? Give a useful flag combination.",
+      "back": "Displays network connections, listening ports, routing tables, and protocol statistics. Useful: netstat -an shows all sockets numerically (no DNS/service name lookup), netstat -anob on Windows shows the binary owning each socket (admin required). On modern Windows, Get-NetTCPConnection in PowerShell is the object-based replacement.",
+      "objective": "3.2"
+    },
+    {
+      "id": "fc42",
+      "front": "What does nslookup do and how do you query a non-default server?",
+      "back": "Performs DNS lookups for A, AAAA, MX, TXT, NS, and other records. Default usage: nslookup example.com queries the system's configured resolver. To force a specific resolver: nslookup example.com 8.8.8.8 sends the query to Google's resolver. dig is the more powerful Linux/Unix alternative; Resolve-DnsName is the PowerShell version.",
+      "objective": "3.2"
+    },
+    {
+      "id": "fc43",
+      "front": "What does tcpdump do and what does 'tcpdump -i eth0 host 10.0.0.1' capture?",
+      "back": "tcpdump is a command-line packet capture tool. The example captures all traffic on interface eth0 where either the source or destination IP is 10.0.0.1. Add -w file.pcap to write to a file for later analysis in Wireshark. Common filters: port 443, tcp port 80, src host x.x.x.x, not arp.",
+      "objective": "3.2"
+    },
+    {
+      "id": "fc44",
+      "front": "Why is asset inventory the foundation of every other security control?",
+      "back": "You cannot patch, monitor, or defend what you do not know exists. Unknown shadow IT, forgotten test servers, and unmanaged personal devices are how attackers find easy initial footholds. CIS Controls 1 (hardware inventory) and 2 (software inventory) are deliberately first because the rest assume an accurate asset list.",
+      "objective": "3.3"
+    },
+    {
+      "id": "fc45",
+      "front": "PCI DSS vs HIPAA vs GDPR \u2014 one-line scope for each.",
+      "back": "PCI DSS \u2014 protects payment card data for any merchant or service provider that stores, processes, or transmits cardholder data. HIPAA \u2014 protects PHI (protected health information) for US healthcare entities and their business associates. GDPR \u2014 protects personal data of EU residents regardless of where the processor is located, with breach notification within 72 hours.",
+      "objective": "3.3"
+    },
+    {
+      "id": "fc46",
+      "front": "What controls should a BYOD program include?",
+      "back": "Mobile device management (MDM) or unified endpoint management (UEM) enrollment, device encryption, screen-lock and PIN policy, remote-wipe capability, app-distribution control, separation of corporate and personal data (containerization), acceptable-use policy with employee sign-off, and rules for lost/stolen reporting. Without these, a personal phone is an unmanaged path into corporate data.",
+      "objective": "3.3"
+    },
+    {
+      "id": "fc47",
+      "front": "Order of priority when applying patches across an environment.",
+      "back": "Critical/Internet-exposed/actively-exploited first (often within days), then High severity, then Medium, then Low. Within each tier, prioritize by exposure (internet-facing > internal > air-gapped) and asset criticality (domain controllers, ICS, sensitive databases). Test on a small ring before broad deployment to catch breakage. Emergency out-of-band patches for actively exploited zero-days bypass the normal cadence.",
+      "objective": "3.4"
+    },
+    {
+      "id": "fc48",
+      "front": "What are the four log channels in Windows Event Viewer and what does each contain?",
+      "back": "Application \u2014 events from installed apps (errors, warnings, info from MSSQL, Exchange, IIS). Security \u2014 auth events, object access, privilege use (4624 logon, 4625 failed logon, 4688 process create). System \u2014 OS-level events (drivers, services, hardware). Setup \u2014 Windows installation and feature changes. Forwarded Events \u2014 collected from other machines. PowerShell Operational has its own Applications and Services log.",
+      "objective": "3.5"
+    },
+    {
+      "id": "fc49",
+      "front": "What does Windows Event ID 4625 mean and what should you check next?",
+      "back": "4625 is a failed logon attempt. Next: check the Logon Type (3 = network/SMB, 10 = RDP, 2 = interactive at console, 8 = network cleartext), the source workstation/IP, the targeted account, and the failure reason (sub-status code \u2014 0xC000006A is wrong password, 0xC0000064 is unknown account). A burst of 4625s from one IP against many accounts is password spraying.",
+      "objective": "3.5"
+    },
+    {
+      "id": "fc50",
+      "front": "What is syslog and what default port does it use?",
+      "back": "syslog is a standardized message-logging protocol used by Unix/Linux hosts and most network devices. Default UDP port 514 (TCP 514 or TLS 6514 for reliable/encrypted variants). Each message has a facility (auth, daemon, mail, kern...) and a severity (0 emergency through 7 debug). Centralized syslog or a SIEM aggregator is critical because attackers often clear local logs.",
+      "objective": "3.5"
+    },
+    {
+      "id": "fc51",
+      "front": "Steps in a malware-removal workflow.",
+      "back": "1) Identify (alert, AV/EDR detection, user report, anomaly). 2) Isolate (disconnect from network \u2014 pull the cable or disable the NIC, do not power off and lose volatile evidence). 3) Investigate (capture memory and disk if forensic value exists, document IOCs). 4) Eradicate (remove persistence: scheduled tasks, run keys, services, WMI subscriptions; full scan with multiple engines). 5) Recover (rebuild from known-good image when in doubt, restore data from clean backups). 6) Learn (root-cause analysis, update controls).",
+      "objective": "3.6"
+    },
+    {
+      "id": "fc52",
+      "front": "What is the 3-2-1 backup rule?",
+      "back": "Three copies of the data, on two different media types, with one copy offsite (and ideally offline or immutable). Modern variant: 3-2-1-1-0 \u2014 three copies, two media, one offsite, one offline/immutable, zero backup errors after verification. Defends against ransomware that targets reachable backups.",
+      "objective": "3.6"
+    },
+    {
+      "id": "fc53",
+      "front": "What is a SUID binary on Linux and why is it security-relevant?",
+      "back": "A binary with the setuid bit set (chmod u+s or chmod 4755) runs with the privileges of its owner regardless of who executes it. /usr/bin/passwd is SUID-root because users need to update /etc/shadow. If an attacker finds an SUID-root binary with a vulnerability, exploiting it gives root. Auditing SUID binaries (find / -perm -4000) is a standard hardening step.",
+      "objective": "3.1"
+    },
+    {
+      "id": "fc54",
+      "front": "Active vs passive reconnaissance.",
+      "back": "Active recon \u2014 sends traffic to the target (port scans, banner grabs, vulnerability scans, web crawl). High fidelity but loud and potentially illegal without authorization. Passive recon \u2014 no traffic to target (OSINT, DNS records, certificate transparency logs, Shodan, GitHub search, social media, WHOIS). Stealthy and lawful but lower-fidelity. A real assessment uses passive first, then targeted active.",
+      "objective": "4.1"
+    },
+    {
+      "id": "fc55",
+      "front": "What does 'nmap -sS -sV -p 1-1024 target.example.com' do?",
+      "back": "-sS performs a stealth SYN scan (sends SYN, observes SYN-ACK or RST without completing the handshake). -sV detects service versions by banner-grabbing and probing. -p 1-1024 limits the scan to the well-known port range. The result is a list of open ports with identified services and version strings.",
+      "objective": "4.1"
+    },
+    {
+      "id": "fc56",
+      "front": "What is a CVE and what does the identifier format tell you?",
+      "back": "Common Vulnerabilities and Exposures \u2014 a unique identifier for a publicly disclosed software vulnerability. Format: CVE-YYYY-NNNN where YYYY is the year of assignment (not necessarily disclosure) and NNNN is a sequence number (now variable length: CVE-2024-3094 is the xz backdoor). MITRE manages the registry; NVD enriches each entry with CVSS scoring.",
+      "objective": "4.2"
+    },
+    {
+      "id": "fc57",
+      "front": "CVSS severity bands.",
+      "back": "0.0 None, 0.1-3.9 Low, 4.0-6.9 Medium, 7.0-8.9 High, 9.0-10.0 Critical (CVSS v3). The base score reflects intrinsic vulnerability characteristics; temporal and environmental scores adjust for exploit availability and your specific deployment. A high CVSS does not always mean high real-world risk \u2014 exposure, exploitability, and asset value also matter.",
+      "objective": "4.2"
+    },
+    {
+      "id": "fc58",
+      "front": "Three sources of threat intelligence and one limitation of each.",
+      "back": "Vendor reports (Talos, Mandiant, CrowdStrike) \u2014 high quality but sometimes vendor-biased. Government feeds (CISA alerts) \u2014 authoritative but slower. ISACs (industry sharing groups) \u2014 sector-specific but require membership. Limitations: IOCs decay rapidly as attackers rotate infrastructure, feeds may be noisy or stale, and signature-only intel misses novel attacks.",
+      "objective": "4.2"
+    },
+    {
+      "id": "fc59",
+      "front": "Why update documentation proactively before, during, and after an incident?",
+      "back": "Before: runbooks, network diagrams, contact lists, and asset inventories are useless if they drift from reality \u2014 the response slows because nobody knows the current truth. During: real-time notes preserve the timeline for forensics and post-mortem. After: lessons-learned updates feed back into the runbook so the next incident is handled better, and audit/compliance bodies expect to see this evidence.",
+      "objective": "4.2"
+    },
+    {
+      "id": "fc60",
+      "front": "Difference between vulnerability and risk.",
+      "back": "A vulnerability is a weakness on its own. Risk is the combination of a vulnerability with a credible threat and a meaningful impact. An unpatched IIS 6 server in an air-gapped lab is a vulnerability but minimal risk. The same server exposed to the internet hosting customer payment data is a high risk. Always evaluate exposure and impact, not just CVSS.",
+      "objective": "4.3"
+    },
+    {
+      "id": "fc61",
+      "front": "Four classic risk treatment strategies.",
+      "back": "Mitigate \u2014 apply controls to reduce likelihood or impact (patch, segment, monitor). Transfer \u2014 shift the risk to another party (insurance, outsourcing). Avoid \u2014 eliminate the activity that creates the risk (decommission the system, do not enter the market). Accept \u2014 formally document that the residual risk is tolerable. Each requires written sign-off from a risk owner with appropriate authority.",
+      "objective": "4.3"
+    },
+    {
+      "id": "fc62",
+      "front": "What do SLE, ARO, and ALE mean in quantitative risk?",
+      "back": "SLE (Single Loss Expectancy) = asset value \u00d7 exposure factor (the % of asset value lost in a single event). ARO (Annualized Rate of Occurrence) = expected events per year. ALE (Annualized Loss Expectancy) = SLE \u00d7 ARO. ALE gives an annual dollar figure that justifies (or fails to justify) the cost of a control whose annual cost should be less than the ALE reduction it provides.",
+      "objective": "4.3"
+    },
+    {
+      "id": "fc63",
+      "front": "Common data classifications and what drives the tier choice.",
+      "back": "Public (marketing material), Internal (org charts, internal-only docs), Confidential (PII, contracts, source code), Restricted/Top Secret (regulated PHI, payment card data, classified info). Drivers: legal/regulatory requirements (HIPAA, PCI), competitive sensitivity, contractual obligations, and the harm caused if the data is disclosed. Each tier has handling rules for storage, transmission, retention, and destruction.",
+      "objective": "4.3"
+    },
+    {
+      "id": "fc64",
+      "front": "RTO vs RPO.",
+      "back": "RTO (Recovery Time Objective) \u2014 maximum tolerable downtime from incident to service restoration. RPO (Recovery Point Objective) \u2014 maximum tolerable data loss measured in time (an RPO of 1 hour means you can lose at most 1 hour of data, so you need backups/replication at least hourly). RTO drives DR-site readiness; RPO drives backup frequency and replication strategy.",
+      "objective": "4.4"
+    },
+    {
+      "id": "fc65",
+      "front": "Cold, warm, and hot DR sites.",
+      "back": "Cold \u2014 facility and basic infrastructure only; hardware, data, and applications must be brought in. Cheapest, slowest (days). Warm \u2014 hardware and some data in place but not actively running; needs final sync and application start. Hours. Hot \u2014 fully running with live data replication; near-zero RTO and RPO. Most expensive. Cloud DR (pilot light, warm standby, multi-site active-active) maps onto these tiers.",
+      "objective": "4.4"
+    },
+    {
+      "id": "fc66",
+      "front": "Full vs incremental vs differential backup.",
+      "back": "Full \u2014 copies everything; longest backup, fastest restore (one tape/file). Incremental \u2014 copies changes since the last backup of any kind; fastest backup, slowest restore (must apply full + every incremental in order). Differential \u2014 copies changes since the last full backup; middle ground. Common pattern: weekly full + daily incremental, or weekly full + daily differential.",
+      "objective": "4.4"
+    },
+    {
+      "id": "fc67",
+      "front": "Categories of disaster recovery controls.",
+      "back": "Preventive \u2014 stop or reduce the disaster (UPS, redundant power, generator, fire suppression, redundant ISPs). Detective \u2014 notice the disaster (smoke alarm, environmental sensor, monitoring). Corrective \u2014 recover after the disaster (failover, backup restore, alternate site). NIST also distinguishes deterrent (warning signs), compensating (alternative when the primary control is impractical), and directive (policy/procedure).",
+      "objective": "4.4"
+    },
+    {
+      "id": "fc68",
+      "front": "What is a tabletop exercise and why run one?",
+      "back": "A discussion-based simulation where the IR team and stakeholders walk through a hypothetical incident scenario step by step. Tests the plan, surfaces gaps in roles/authority/contacts, and trains people without disrupting production. Cheap, fast, and required by many compliance frameworks (HIPAA, PCI DSS) at least annually.",
+      "objective": "4.4"
+    },
+    {
+      "id": "fc69",
+      "front": "What is the purpose of a vulnerability database like NVD?",
+      "back": "NVD (National Vulnerability Database) is the US-government repository of CVE entries enriched with CVSS scoring, CPE (platform identifiers), references, and CWE classification. It is what scanners and SIEMs match against to flag known issues. Limitations: not all vulnerabilities have CVEs (especially zero-days and bespoke app flaws), enrichment can lag the assignment by weeks, and CPE matching is imprecise.",
+      "objective": "4.2"
+    },
+    {
+      "id": "fc70",
+      "front": "Difference between qualitative and quantitative risk assessment.",
+      "back": "Qualitative \u2014 uses ranked categories (Low/Medium/High/Critical) and subjective expert input; fast, easy to communicate, but not directly comparable across organizations. Quantitative \u2014 uses dollar figures (SLE, ARO, ALE) and statistical models; objective and useful for cost/benefit decisions, but data-hungry and harder to defend. Most real assessments are hybrid: quantitative where data exists, qualitative everywhere else.",
+      "objective": "4.3"
+    },
+    {
+      "id": "fc71",
+      "front": "What does a SIEM do and how does SOAR extend it?",
+      "back": "SIEM (Security Information and Event Management) collects logs from across the environment, normalizes them, correlates events, and raises alerts on rules or anomalies (Splunk, Microsoft Sentinel, Elastic Security, QRadar). SOAR (Security Orchestration, Automation, and Response) layers playbook-driven automation on top of the SIEM to execute containment and enrichment actions \u2014 disable a user, isolate a host, query a threat-intel feed \u2014 without human intervention. SIEM = what happened; SOAR = automated response.",
+      "objective": "5.1"
+    },
+    {
+      "id": "fc72",
+      "front": "Three suspicious patterns to look for in network traffic.",
+      "back": "(1) Long-lived outbound connections to unfamiliar IPs \u2014 possible C2 beaconing. (2) DNS queries with very long subdomain names or unusual TLDs \u2014 possible DNS tunneling or DGA. (3) Large outbound transfers during off-hours \u2014 possible data exfiltration. Also: SMB/RDP between workstations (lateral movement), unexpected protocol on a familiar port, and connections to known-bad indicators from threat intel.",
+      "objective": "5.1"
+    },
+    {
+      "id": "fc73",
+      "front": "Cyber Kill Chain \u2014 name the seven stages.",
+      "back": "Reconnaissance, Weaponization, Delivery, Exploitation, Installation, Command and Control (C2), and Actions on Objectives. The defender's goal is to break the chain at the earliest possible stage. Kill Chain is linear and adversary-centric; MITRE ATT&CK is more granular and matrix-shaped.",
+      "objective": "5.2"
+    },
+    {
+      "id": "fc74",
+      "front": "What is MITRE ATT&CK and what does a technique ID look like?",
+      "back": "A knowledge base of adversary tactics (the why) and techniques (the how) derived from real-world observations. Tactics: Initial Access, Execution, Persistence, Privilege Escalation, Defense Evasion, Credential Access, Discovery, Lateral Movement, Collection, Command and Control, Exfiltration, Impact. Technique IDs look like T1078 (Valid Accounts), T1059 (Command and Scripting Interpreter), with sub-techniques like T1059.001 (PowerShell). Used for threat-informed defense, gap analysis, and red-team scoping.",
+      "objective": "5.2"
+    },
+    {
+      "id": "fc75",
+      "front": "Four corners of the Diamond Model.",
+      "back": "Adversary, Capability, Infrastructure, Victim \u2014 connected by edges. Every intrusion event involves all four; pivoting on any corner often reveals related events (the same C2 infrastructure tied to a new victim, the same capability used by a new adversary). Useful for tracking adversary campaigns and grouping events into intrusion sets.",
+      "objective": "5.2"
+    },
+    {
+      "id": "fc76",
+      "front": "What does TTP stand for, and how do the three terms relate?",
+      "back": "Tactics, Techniques, and Procedures \u2014 a hierarchy of attacker behavior. Tactic \u2014 the high-level goal (e.g., Initial Access). Technique \u2014 the method to achieve the goal (e.g., Spearphishing Attachment). Procedure \u2014 the specific implementation by a particular actor (e.g., 'APT29 sends a Word doc with a macro that downloads a Cobalt Strike beacon from this URL'). Procedures are the most volatile, tactics the most stable.",
+      "objective": "5.2"
+    },
+    {
+      "id": "fc77",
+      "front": "What is the order of volatility for digital evidence collection (RFC 3227)?",
+      "back": "Most to least volatile: 1) CPU registers and cache. 2) RAM (memory dump). 3) Network state \u2014 routing table, ARP cache, process table, kernel statistics, open sockets. 4) Temporary file systems. 5) Disk. 6) Remote logging and monitoring data. 7) Physical configuration and network topology. 8) Archival media. Always capture more volatile evidence first, because powering off or even letting the system idle destroys it.",
+      "objective": "5.2"
+    },
+    {
+      "id": "fc78",
+      "front": "What is chain of custody and why does it matter?",
+      "back": "A documented record of who collected the evidence, when, where, how it was stored, and every transfer between parties, with timestamps and signatures. A single gap can render evidence inadmissible in court \u2014 the opposing side can argue tampering. Original evidence is sealed; analysis is done on verified bit-for-bit copies whose hashes match the original.",
+      "objective": "5.2"
+    },
+    {
+      "id": "fc79",
+      "front": "Common digital evidence sources (artifacts).",
+      "back": "Disk images (full or logical), memory dumps, network captures (PCAPs), log files (host, application, network device), Windows registry hives, browser history and cache, prefetch and ShimCache, $MFT and journal files, email archives, application databases, cloud audit logs (CloudTrail, Azure Activity), EDR telemetry, and physical artifacts (USB devices, paper).",
+      "objective": "5.2"
+    },
+    {
+      "id": "fc80",
+      "front": "GDPR breach notification timeline.",
+      "back": "72 hours from the moment the controller becomes aware of a personal-data breach to notify the supervisory authority. If notification is delayed, the controller must provide a justification. Affected individuals must also be notified 'without undue delay' if the breach is likely to result in a high risk to their rights and freedoms. Maximum fines reach 4% of global annual turnover or \u20ac20 million, whichever is greater.",
+      "objective": "5.3"
+    },
+    {
+      "id": "fc81",
+      "front": "HIPAA breach notification requirements.",
+      "back": "Notify affected individuals within 60 days of discovery. For breaches affecting 500 or more individuals, notify HHS and prominent local media within 60 days. For breaches affecting fewer than 500, log them and report to HHS annually. Business associates must notify the covered entity 'without unreasonable delay' and no later than 60 days.",
+      "objective": "5.3"
+    },
+    {
+      "id": "fc82",
+      "front": "Name and one-line scope: GDPR, HIPAA, PCI DSS, FERPA, FISMA.",
+      "back": "GDPR \u2014 personal data of EU residents. HIPAA \u2014 protected health information (PHI) for US healthcare entities and their business associates. PCI DSS \u2014 payment card data for any merchant or service provider that handles it. FERPA \u2014 US student educational records. FISMA \u2014 US federal agency information systems and contractors handling federal data.",
+      "objective": "5.3"
+    },
+    {
+      "id": "fc83",
+      "front": "Four phases of NIST 800-61 incident response lifecycle.",
+      "back": "1) Preparation \u2014 policy, plan, IR team, tooling, training, exercises. 2) Detection and Analysis \u2014 identify that an incident is occurring; characterize scope, vector, and impact. 3) Containment, Eradication, and Recovery \u2014 short-term containment to stop bleeding, eradicate root cause, recover systems with monitoring. 4) Post-Incident Activity \u2014 lessons learned, evidence retention, updates to controls and runbooks. The cycle loops; lessons feed back into Preparation.",
+      "objective": "5.4"
+    },
+    {
+      "id": "fc84",
+      "front": "Short-term vs long-term containment.",
+      "back": "Short-term containment \u2014 immediate steps to stop active damage: isolate the host (disconnect, NIC disable, switch port shut), disable the compromised account, block the attacker IP at the firewall. Goal is to buy time. Long-term containment \u2014 temporary fixes (clean rebuild ready, additional monitoring, network segmentation) applied while a full eradication and rebuild is staged. Together they bridge from incident detection to clean recovery.",
+      "objective": "5.4"
+    },
+    {
+      "id": "fc85",
+      "front": "What goes into the Lessons Learned phase?",
+      "back": "A facilitated meeting (typically within two weeks of incident closure) covering: timeline of events, what worked, what did not, root cause, contributing factors, gaps in detection/response, recommended changes (technical, procedural, training), and assigned owners with due dates. Output: a written report, an updated runbook, and a backlog of improvement tickets. Without this step, the same incident happens again.",
+      "objective": "5.4"
+    },
+    {
+      "id": "fc86",
+      "front": "Why never just power off a compromised system?",
+      "back": "Powering off destroys the contents of RAM, which holds running malware, decryption keys, network connections, injected processes, and other volatile evidence that a forensic analyst needs. The correct first step is to isolate from the network (pull the cable or disable the NIC) while leaving the system running, capture a memory image, then proceed per IR plan. Pulling the plug is acceptable only when active destruction (e.g., wiper malware) is in progress.",
+      "objective": "5.4"
+    },
+    {
+      "id": "fc87",
+      "front": "What is a SOC tier structure?",
+      "back": "Tier 1 \u2014 alert triage; classify, investigate basics, escalate true positives. Tier 2 \u2014 incident investigation; deeper analysis, scope, containment recommendations. Tier 3 \u2014 advanced forensics, threat hunting, malware analysis, IR engagement. Often supported by a SOC manager and threat intel function. Modern XDR platforms automate much of Tier 1, freeing analysts for higher-tier work.",
+      "objective": "5.1"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "type": "multiplechoice",
+      "question": "A finance team's database server has been encrypted by ransomware and the team cannot access quarterly earnings data. Operations have stopped while IT works on recovery. Which leg of the CIA triad is MOST directly impacted by the inability to access the data?",
+      "options": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Non-repudiation"
+      ],
+      "correctIndex": 2,
+      "explanation": "Brave scholar, ransomware that prevents access to data is fundamentally an availability attack. Confidentiality would be impacted only if the attacker also exfiltrated and threatened to publish the data (double extortion). Integrity is affected because the encryption alters the files, but the user-visible damage in the scenario is loss of access \u2014 availability. Non-repudiation is not part of the CIA triad.",
+      "objective": "1.1"
+    },
+    {
+      "id": "q2",
+      "type": "multiplechoice",
+      "question": "An auditor finds an internet-facing Linux server running an unpatched OpenSSH version with a known critical CVE. No exploit has been observed in the wild and no attacker has targeted the server yet. Which term BEST describes the unpatched OpenSSH version itself?",
+      "options": [
+        "Threat",
+        "Vulnerability",
+        "Exploit",
+        "Risk"
+      ],
+      "correctIndex": 1,
+      "explanation": "The unpatched software is a weakness \u2014 a vulnerability. A threat is the actor or event that could take advantage of it. An exploit is the actual code or technique. Risk is the combination of the vulnerability with a credible threat and meaningful impact. Cisco loves to test the precise distinction.",
+      "objective": "1.1"
+    },
+    {
+      "id": "q3",
+      "type": "multiplechoice",
+      "question": "A small company's only firewall rule is 'deny all from internet, permit all from inside'. The CISO wants to add additional layers so that a compromise of one control does not result in a full breach. Which security principle BEST describes this approach?",
+      "options": [
+        "Least privilege",
+        "Defense in depth",
+        "Separation of duties",
+        "Need to know"
+      ],
+      "correctIndex": 1,
+      "explanation": "Defense in depth is exactly the layering of multiple, overlapping controls so the failure of one does not result in compromise. Least privilege limits permissions to the minimum required. Separation of duties splits sensitive tasks across multiple people. Need to know restricts data access to those with a legitimate purpose.",
+      "objective": "1.1"
+    },
+    {
+      "id": "q4",
+      "type": "multiplechoice",
+      "question": "A new server build includes the OS default accounts, the OS default services, and the OS default firewall configuration. Before placing it in production, which action represents system hardening MOST PRIMARILY?",
+      "options": [
+        "Adding a second NIC for redundancy",
+        "Enabling DHCP so the server gets an IP automatically",
+        "Disabling unused services, removing default accounts, and applying current patches",
+        "Joining the server to the domain"
+      ],
+      "correctIndex": 2,
+      "explanation": "Hardening is the deliberate reduction of attack surface. Disabling unused services, removing default accounts, applying patches, and configuring secure defaults is the textbook definition. Adding NICs is for resilience, DHCP is convenience, and domain join is identity integration \u2014 none reduce the attack surface on their own.",
+      "objective": "1.1"
+    },
+    {
+      "id": "q5",
+      "type": "truefalse",
+      "question": "A script kiddie and a nation-state APT typically warrant the same level of incident response, since both are external attackers.",
+      "correctAnswer": false,
+      "explanation": "Threat actor profile changes the appropriate response. A script kiddie generally uses noisy off-the-shelf tools and is contained quickly. An APT may have months of stealth access, custom malware, and broader objectives \u2014 requiring deeper investigation, longer containment, and likely external IR firms and law enforcement engagement.",
+      "objective": "1.1"
+    },
+    {
+      "id": "q6",
+      "type": "multiplechoice",
+      "question": "An employee receives an email appearing to come from the CFO asking the employee to urgently wire $48,000 to a new vendor. The email address is subtly misspelled. Which attack does this MOST PRECISELY describe?",
+      "options": [
+        "Smishing",
+        "Whaling",
+        "Business Email Compromise (BEC) / spear phishing",
+        "Vishing"
+      ],
+      "correctIndex": 2,
+      "explanation": "Targeted, financially motivated email impersonating an executive asking for a wire transfer is BEC, a form of spear phishing. Whaling targets the executive themselves (CFO is the victim, not the impersonator). Smishing is SMS-based. Vishing is voice-based.",
+      "objective": "1.2"
+    },
+    {
+      "id": "q7",
+      "type": "multiplechoice",
+      "question": "Several thousand IoT cameras around the world are simultaneously generating UDP traffic toward a single victim's web server, taking the site offline. Which threat does this scenario MOST DIRECTLY illustrate?",
+      "options": [
+        "Ransomware",
+        "DDoS via botnet",
+        "Insider threat",
+        "SQL injection"
+      ],
+      "correctIndex": 1,
+      "explanation": "Coordinated traffic from many compromised devices toward a single victim is a distributed denial-of-service launched from a botnet. Mirai is the canonical example of an IoT botnet. Ransomware encrypts data; insider threats originate inside; SQL injection abuses input handling.",
+      "objective": "1.2"
+    },
+    {
+      "id": "q8",
+      "type": "multiplechoice",
+      "question": "An attacker calls the help desk pretending to be a senior executive locked out of their account, applying time pressure and name-dropping. The help desk agent resets the password without verifying identity. Which attack BEST describes this?",
+      "options": [
+        "Tailgating",
+        "Pretexting / vishing",
+        "Watering hole",
+        "Smishing"
+      ],
+      "correctIndex": 1,
+      "explanation": "A fabricated story (pretext) delivered over the phone (vishing) to trick someone into bypassing a process is pretexting/vishing. Tailgating is following someone through a physical door. Watering hole is compromising a site the target visits. Smishing is SMS-based.",
+      "objective": "1.2"
+    },
+    {
+      "id": "q9",
+      "type": "multiplechoice",
+      "question": "An organization wants to deter casual outsiders from following authorized employees into a secure data center. Which control BEST addresses tailgating?",
+      "options": [
+        "Requiring strong passwords on the badge system",
+        "Installing a mantrap (interlocking double-door vestibule) at the entrance",
+        "Adding more cameras inside the data center",
+        "Encrypting badge data at rest"
+      ],
+      "correctIndex": 1,
+      "explanation": "A mantrap allows only one person through at a time and is the canonical anti-tailgating control. Stronger passwords, more cameras, and encryption help in their own ways but do not physically prevent an unauthorized person from slipping in behind an authorized one.",
+      "objective": "1.2"
+    },
+    {
+      "id": "q10",
+      "type": "multiplechoice",
+      "question": "A network administrator wants to deploy AAA for managing access to Cisco network devices, with separation between authentication, authorization, and accounting and full payload encryption. Which protocol BEST fits these requirements?",
+      "options": [
+        "RADIUS",
+        "TACACS+",
+        "Kerberos",
+        "LDAP"
+      ],
+      "correctIndex": 1,
+      "explanation": "TACACS+ separates the three As, runs over TCP 49, and encrypts the entire payload \u2014 the standard choice for device administration. RADIUS combines auth and authz, encrypts only the password field, and is more common for network access (802.1X, VPN). Kerberos and LDAP are directory-related rather than AAA.",
+      "objective": "1.3"
+    },
+    {
+      "id": "q11",
+      "type": "fillblank",
+      "question": "The standard UDP port number used by RADIUS for authentication is ____.",
+      "acceptedAnswers": [
+        "1812",
+        "UDP 1812",
+        "1812/udp"
+      ],
+      "explanation": "RADIUS uses UDP 1812 for authentication and UDP 1813 for accounting (the legacy ports were 1645/1646). TACACS+ in contrast uses TCP 49.",
+      "objective": "1.3"
+    },
+    {
+      "id": "q12",
+      "type": "multiplechoice",
+      "question": "A user's MFA setup is 'password + SMS code'. The company is concerned about phishing-resistant MFA. Which option provides the MOST phishing-resistant authentication?",
+      "options": [
+        "Password + SMS one-time code",
+        "Password + push notification on phone",
+        "Password + FIDO2 hardware security key",
+        "Password + email-delivered code"
+      ],
+      "correctIndex": 2,
+      "explanation": "FIDO2/WebAuthn hardware keys cryptographically bind the authentication to the actual web origin, defeating phishing sites that proxy credentials. SMS is vulnerable to SIM swap. Push is vulnerable to MFA fatigue / push-bombing. Email codes can be intercepted if the inbox is compromised.",
+      "objective": "1.3"
+    },
+    {
+      "id": "q13",
+      "type": "truefalse",
+      "question": "A password policy requiring 8 characters with mixed case, a digit, and a symbol is more secure than a 16-character passphrase made of random words.",
+      "correctAnswer": false,
+      "explanation": "Length beats complexity. A 16-character random passphrase has vastly higher entropy than an 8-character mixed string and is also easier for users to remember, meaning fewer reuses and post-it notes. Modern guidance (NIST SP 800-63B) explicitly removes mandatory complexity rules in favor of length and breached-password screening.",
+      "objective": "1.3"
+    },
+    {
+      "id": "q14",
+      "type": "multiplechoice",
+      "question": "A development team needs to encrypt a large daily backup file before uploading it to cloud storage. Performance is the priority. Which encryption approach is MOST appropriate?",
+      "options": [
+        "RSA-2048 for the entire file",
+        "AES-256 in GCM mode for the file, with a per-backup key",
+        "MD5 hashing of the file",
+        "Base64 encoding the file"
+      ],
+      "correctIndex": 1,
+      "explanation": "AES is symmetric, fast, and the standard for bulk data; GCM provides both confidentiality and integrity. RSA is asymmetric and far too slow for large files \u2014 it is used to wrap a symmetric key, not encrypt bulk data. MD5 is a hash, not encryption. Base64 is encoding, not encryption.",
+      "objective": "1.4"
+    },
+    {
+      "id": "q15",
+      "type": "multiplechoice",
+      "question": "An incident responder needs to verify that a downloaded ISO has not been tampered with. The vendor publishes a SHA-256 digest on their website. Which property of the hash function makes this verification possible?",
+      "options": [
+        "The hash can be reversed to reveal the original file",
+        "The hash is a fixed-size, one-way digest such that any change in the input changes the output",
+        "The hash encrypts the file with the vendor's public key",
+        "The hash compresses the file for faster download"
+      ],
+      "correctIndex": 1,
+      "explanation": "Cryptographic hashes are one-way, fixed-size, and collision-resistant \u2014 any change to the input produces a wildly different output. Hashes do not encrypt and cannot be reversed (otherwise they would be useless for password storage). Compression and encryption are different functions.",
+      "objective": "1.4"
+    },
+    {
+      "id": "q16",
+      "type": "multiplechoice",
+      "question": "When a user types https://bank.example into a browser, the browser receives an X.509 certificate. Which statement BEST describes how the browser decides whether to trust the certificate?",
+      "options": [
+        "It checks that the certificate file size is under 4 KB",
+        "It validates the chain of signatures up to a Certificate Authority in the OS or browser trust store",
+        "It pings the bank's IP address to confirm the server exists",
+        "It checks that the certificate is at least 30 days old"
+      ],
+      "correctIndex": 1,
+      "explanation": "TLS trust is based on PKI \u2014 the browser walks the certificate chain from the end-entity cert through intermediate CAs to a root CA in its trust store, verifying each signature, the validity period, the subject name, and revocation status. File size, age, and ICMP reachability are not part of the trust decision.",
+      "objective": "1.4"
+    },
+    {
+      "id": "q17",
+      "type": "multiplechoice",
+      "question": "A laptop's hard drive is encrypted with BitLocker. The user is currently logged in and reading a sensitive PDF in the editor. Which state of data describes the PDF being read in memory at this moment?",
+      "options": [
+        "Data at rest",
+        "Data in transit",
+        "Data in use",
+        "Data in motion"
+      ],
+      "correctIndex": 2,
+      "explanation": "Active processing in memory is data in use. Data at rest is what BitLocker protects on disk. Data in transit/motion is on a network. Data in use is the hardest to protect \u2014 secure enclaves (Intel SGX, AMD SEV) and homomorphic encryption are emerging answers.",
+      "objective": "1.4"
+    },
+    {
+      "id": "q18",
+      "type": "multiplechoice",
+      "question": "A web server is suddenly unresponsive. tcpdump shows millions of TCP SYN packets arriving from many spoofed source IPs, but the corresponding ACKs never come back. Which attack BEST matches this traffic pattern?",
+      "options": [
+        "UDP reflection",
+        "ARP poisoning",
+        "SYN flood",
+        "DNS poisoning"
+      ],
+      "correctIndex": 2,
+      "explanation": "A SYN flood deliberately leaves the TCP three-way handshake half-open, exhausting the server's connection backlog. UDP reflection uses spoofed UDP, not SYN. ARP poisoning is a Layer 2 attack on the local segment. DNS poisoning targets resolvers.",
+      "objective": "2.1"
+    },
+    {
+      "id": "q19",
+      "type": "fillblank",
+      "question": "Type the three TCP control flags exchanged, in order, during the standard TCP three-way handshake (separate with spaces or commas).",
+      "acceptedAnswers": [
+        "SYN SYN-ACK ACK",
+        "SYN, SYN-ACK, ACK",
+        "syn syn-ack ack",
+        "SYN SYNACK ACK",
+        "SYN, SYNACK, ACK"
+      ],
+      "explanation": "Client sends SYN, server replies SYN-ACK, client replies ACK. After the ACK the connection is ESTABLISHED. Memorizing this sequence makes SYN floods and many TCP-state attacks instantly recognizable.",
+      "objective": "2.1"
+    },
+    {
+      "id": "q20",
+      "type": "multiplechoice",
+      "question": "An attacker on the same VLAN as the corporate gateway sends gratuitous ARP replies claiming the gateway IP belongs to the attacker's MAC. Within seconds the attacker can read other users' traffic. Which mitigation is MOST EFFECTIVE on a managed switch?",
+      "options": [
+        "Enabling MAC address filtering on the wireless AP",
+        "Configuring DHCP snooping and Dynamic ARP Inspection (DAI)",
+        "Adding more bandwidth to the uplink",
+        "Disabling ICMP on the gateway"
+      ],
+      "correctIndex": 1,
+      "explanation": "DHCP snooping builds a binding table of legitimate IP-to-MAC mappings; Dynamic ARP Inspection uses that table to drop forged ARP messages. MAC filtering on Wi-Fi does not help on the wired VLAN. Bandwidth and disabling ICMP are unrelated.",
+      "objective": "2.1"
+    },
+    {
+      "id": "q21",
+      "type": "multiplechoice",
+      "question": "A user complains that browsing 'mybank.com' silently lands on a phishing site that looks identical to the real one. The DNS records on the user's router point to a public DNS resolver they do not recognize. Which attack does this BEST describe?",
+      "options": [
+        "ARP poisoning",
+        "DNS hijacking via altered router DNS settings",
+        "TCP session hijacking",
+        "Smurf attack"
+      ],
+      "correctIndex": 1,
+      "explanation": "Malware or weak router credentials allow attackers to change the DNS server settings on the home router, redirecting all lookups through attacker-controlled infrastructure that returns malicious IPs for chosen domains. This is router-level DNS hijacking.",
+      "objective": "2.1"
+    },
+    {
+      "id": "q22",
+      "type": "multiplechoice",
+      "question": "Which of the following IPv4 address ranges is RFC 1918 private and therefore not routable on the public internet?",
+      "options": [
+        "169.254.0.0/16",
+        "100.64.0.0/10",
+        "172.16.0.0/12",
+        "224.0.0.0/4"
+      ],
+      "correctIndex": 2,
+      "explanation": "172.16.0.0/12 is private (along with 10.0.0.0/8 and 192.168.0.0/16). 169.254.0.0/16 is APIPA link-local. 100.64.0.0/10 is carrier-grade NAT shared address space, not RFC 1918. 224.0.0.0/4 is multicast.",
+      "objective": "2.2"
+    },
+    {
+      "id": "q23",
+      "type": "fillblank",
+      "question": "How many usable host addresses are in a /26 IPv4 subnet? (Answer with a number.)",
+      "acceptedAnswers": [
+        "62"
+      ],
+      "explanation": "/26 has 6 host bits (32-26). 2^6 = 64 total addresses, minus the network address and broadcast address = 62 usable hosts.",
+      "objective": "2.2"
+    },
+    {
+      "id": "q24",
+      "type": "multiplechoice",
+      "question": "PCI DSS requires segmentation between the cardholder data environment (CDE) and other corporate networks to limit scope. The cheapest way to implement this on existing infrastructure is MOST OFTEN to use what?",
+      "options": [
+        "A dedicated physical building",
+        "VLANs and ACLs/firewall rules between them",
+        "Air-gapped fiber lines",
+        "Faster CPUs in the firewall"
+      ],
+      "correctIndex": 1,
+      "explanation": "VLANs combined with ACLs or firewall rules provide logical segmentation that PCI DSS accepts when properly enforced. Physical air gaps and dedicated buildings work but are far more expensive. Faster CPUs do not provide segmentation.",
+      "objective": "2.2"
+    },
+    {
+      "id": "q25",
+      "type": "multiplechoice",
+      "question": "An organization places its public-facing web, mail, and DNS servers in a separate subnet between the internet-facing firewall and the internal firewall. Compromise of a server in this subnet should NOT give the attacker direct access to internal systems. What is this design called?",
+      "options": [
+        "VPN concentrator",
+        "Honeynet",
+        "DMZ",
+        "VLAN trunk"
+      ],
+      "correctIndex": 2,
+      "explanation": "A DMZ (demilitarized zone) is a buffer subnet between untrusted and trusted zones. A honeynet is a network of decoys. A VPN concentrator terminates VPN tunnels. A VLAN trunk carries multiple VLANs between switches.",
+      "objective": "2.3"
+    },
+    {
+      "id": "q26",
+      "type": "multiplechoice",
+      "question": "A security team wants to passively observe attacker behavior on a decoy system that has no production purpose. Any traffic to it should be considered suspicious by definition. Which technology BEST fits?",
+      "options": [
+        "Reverse proxy",
+        "Honeypot",
+        "Forward proxy",
+        "Load balancer"
+      ],
+      "correctIndex": 1,
+      "explanation": "A honeypot exists solely to attract attackers; traffic to it is always suspicious. Reverse proxies front production servers, forward proxies front clients, and load balancers distribute traffic across production servers \u2014 all are real production infrastructure, not decoys.",
+      "objective": "2.3"
+    },
+    {
+      "id": "q27",
+      "type": "multiplechoice",
+      "question": "Two appliances are being evaluated. Appliance A sits inline and can drop malicious traffic in real time. Appliance B sits on a SPAN port and only generates alerts. A is therefore an example of what, and B of what?",
+      "options": [
+        "A is IDS, B is IPS",
+        "A is IPS, B is IDS",
+        "Both are IDS",
+        "Both are IPS"
+      ],
+      "correctIndex": 1,
+      "explanation": "Inline + can drop = IPS (Intrusion Prevention System). Out-of-band + alert-only = IDS (Intrusion Detection System). The placement and action are the defining differences. NGFWs often integrate both functions.",
+      "objective": "2.3"
+    },
+    {
+      "id": "q28",
+      "type": "multiplechoice",
+      "question": "A small office is configuring its new wireless router. The owner wants the strongest encryption available on a network that will host both modern laptops and a few older devices. Which configuration is MOST APPROPRIATE?",
+      "options": [
+        "WEP with a 13-character key",
+        "WPA-Personal with TKIP",
+        "WPA3-Personal where supported, falling back to WPA2-Personal with AES (CCMP)",
+        "Open network with MAC filtering only"
+      ],
+      "correctIndex": 2,
+      "explanation": "WPA3-Personal uses SAE and resists offline dictionary attacks; WPA2-Personal with AES/CCMP is the minimum acceptable fallback. WEP is broken in minutes. WPA with TKIP is deprecated. MAC filtering alone leaves traffic unencrypted.",
+      "objective": "2.4"
+    },
+    {
+      "id": "q29",
+      "type": "truefalse",
+      "question": "Hiding the SSID of a Wi-Fi network provides meaningful protection against attackers because the network becomes invisible.",
+      "correctAnswer": false,
+      "explanation": "The SSID is broadcast by every connecting client in probe-request and association frames. Any passive sniffer captures it within seconds. Hiding the SSID is security through obscurity and breaks roaming for some clients. A strong WPA2/WPA3 passphrase is the actual control.",
+      "objective": "2.4"
+    },
+    {
+      "id": "q30",
+      "type": "multiplechoice",
+      "question": "A network administrator builds a standard ACL to permit only the 10.10.20.0/24 subnet to access a sensitive server, then applies it on the inbound interface. Users from 10.10.20.0/24 still cannot reach the server. Which is the MOST LIKELY cause?",
+      "options": [
+        "ACLs require a default-permit rule at the end",
+        "The ACL has only a permit statement; the implicit deny-all is blocking everything else, but the permit is missing or mistyped",
+        "Standard ACLs cannot match on source address",
+        "ACLs cannot be applied inbound, only outbound"
+      ],
+      "correctIndex": 1,
+      "explanation": "Every ACL ends with an implicit deny-all. If users cannot reach the server, the most common causes are a typo in the permit statement, the wrong direction, the wrong interface, or the wrong protocol. Standard ACLs do match on source address, ACLs can be inbound or outbound, and there is no default-permit.",
+      "objective": "2.5"
+    },
+    {
+      "id": "q31",
+      "type": "fillblank",
+      "question": "Type the Cisco IOS command (in privileged exec mode) that displays all configured access lists with their hit counts.",
+      "acceptedAnswers": [
+        "show access-lists",
+        "show access-list",
+        "sh access-lists",
+        "sh access-list"
+      ],
+      "explanation": "show access-lists displays every configured ACL with line numbers and per-line match counts \u2014 invaluable for proving which entries are actually being hit.",
+      "objective": "2.5"
+    },
+    {
+      "id": "q32",
+      "type": "multiplechoice",
+      "question": "A remote employee needs encrypted access to internal corporate applications from a coffee shop Wi-Fi. The company already uses TLS for its web apps, but database admin tools require direct LAN-style connectivity. Which technology BEST provides what the employee needs?",
+      "options": [
+        "A site-to-site IPsec tunnel between the coffee shop and HQ",
+        "A remote-access VPN client on the employee's laptop",
+        "Plain HTTP with strong passwords",
+        "An open guest VLAN"
+      ],
+      "correctIndex": 1,
+      "explanation": "Remote-access VPNs (TLS-based SSL VPN or IPsec client) authenticate the user and tunnel their traffic securely back to corporate, giving LAN-style connectivity from anywhere. Site-to-site is for fixed networks, not individuals on coffee-shop Wi-Fi.",
+      "objective": "2.5"
+    },
+    {
+      "id": "q33",
+      "type": "multiplechoice",
+      "question": "A NAC solution should ensure that only devices meeting corporate policy (current OS patches, AV running, disk encrypted) are allowed onto the wired and wireless LAN. Which standard protocol underpins this port-based authentication?",
+      "options": [
+        "802.11ax",
+        "802.1Q",
+        "802.1X",
+        "802.3af"
+      ],
+      "correctIndex": 2,
+      "explanation": "802.1X is the IEEE standard for port-based network access control, typically paired with EAP and a RADIUS server. 802.11ax is Wi-Fi 6, 802.1Q is VLAN tagging, 802.3af is Power over Ethernet.",
+      "objective": "2.5"
+    },
+    {
+      "id": "q34",
+      "type": "multiplechoice",
+      "question": "A junior engineer wants to verify which interfaces on a Cisco switch are up, what their IP addresses are, and what protocol state they are in. Which command provides the MOST CONCISE summary?",
+      "options": [
+        "show running-config",
+        "show ip interface brief",
+        "show vlan",
+        "show mac address-table"
+      ],
+      "correctIndex": 1,
+      "explanation": "show ip interface brief gives the one-line-per-interface summary of IP, status, and protocol state \u2014 the standard quick-look. show running-config dumps the full config (verbose), show vlan lists VLANs, show mac address-table lists learned MACs.",
+      "objective": "2.5"
+    },
+    {
+      "id": "q35",
+      "type": "multiplechoice",
+      "question": "A Windows 11 administrator wants to ensure that even local administrators cannot disable Microsoft Defender Antivirus or remove its definitions. Which feature BEST addresses this?",
+      "options": [
+        "Controlled folder access",
+        "Tamper Protection",
+        "SmartScreen",
+        "Credential Guard"
+      ],
+      "correctIndex": 1,
+      "explanation": "Tamper Protection in Microsoft Defender prevents disabling of real-time protection, removing definitions, or changing settings \u2014 even from PowerShell, registry, or Group Policy. Controlled folder access is anti-ransomware file protection. SmartScreen filters URLs/downloads. Credential Guard isolates LSASS secrets.",
+      "objective": "3.1"
+    },
+    {
+      "id": "q36",
+      "type": "fillblank",
+      "question": "On a Linux system, type the chmod numeric mode that grants the owner full access (rwx), the group read and execute, and others nothing.",
+      "acceptedAnswers": [
+        "750",
+        "0750"
+      ],
+      "explanation": "rwx = 7, r-x = 5, --- = 0. Combined: 750. The leading 0 (0750) is acceptable in some contexts (octal literal).",
+      "objective": "3.1"
+    },
+    {
+      "id": "q37",
+      "type": "multiplechoice",
+      "question": "A penetration tester gains a low-privileged shell on a Linux server. They search for SUID binaries with 'find / -perm -4000 -type f 2>/dev/null'. Why is this command useful for them?",
+      "options": [
+        "It lists hidden files that the user could read",
+        "It finds binaries that run with the privileges of their owner regardless of the executor \u2014 a common privilege-escalation vector",
+        "It lists files modified in the last day",
+        "It locates open network sockets"
+      ],
+      "correctIndex": 1,
+      "explanation": "SUID-root binaries run with root privileges no matter who launches them. A vulnerable SUID binary (or one that calls subcommands without absolute paths) can give the attacker root. Auditing SUID binaries is also a defender's hardening step.",
+      "objective": "3.1"
+    },
+    {
+      "id": "q38",
+      "type": "multiplechoice",
+      "question": "An incident responder needs to see every TCP socket on a Windows host along with the executable that owns each. Which command (run as administrator) BEST provides this?",
+      "options": [
+        "netstat -r",
+        "netstat -an",
+        "netstat -anob",
+        "netstat -e"
+      ],
+      "correctIndex": 2,
+      "explanation": "netstat -anob shows all sockets numerically and the binary owning each (admin required). -an alone shows sockets without process info. -r shows the routing table. -e shows interface stats. PowerShell's Get-NetTCPConnection paired with Get-Process gives the same info more flexibly.",
+      "objective": "3.2"
+    },
+    {
+      "id": "q39",
+      "type": "fillblank",
+      "question": "Type the nslookup command that queries example.com using Google's public DNS resolver at 8.8.8.8.",
+      "acceptedAnswers": [
+        "nslookup example.com 8.8.8.8",
+        "nslookup  example.com  8.8.8.8"
+      ],
+      "explanation": "Format: nslookup <name> <server>. This bypasses the system's configured resolver, useful when troubleshooting cache poisoning or DNS hijacking on the local resolver.",
+      "objective": "3.2"
+    },
+    {
+      "id": "q40",
+      "type": "multiplechoice",
+      "question": "A Linux administrator wants to capture all packets on interface eth0 destined to or from 10.0.0.5 and save them to a file for later analysis in Wireshark. Which command BEST accomplishes this?",
+      "options": [
+        "tcpdump -i eth0 host 10.0.0.5 -w capture.pcap",
+        "tcpdump 10.0.0.5 > capture.txt",
+        "ping -c 100 10.0.0.5 > capture.pcap",
+        "netstat -an | grep 10.0.0.5"
+      ],
+      "correctIndex": 0,
+      "explanation": "-i eth0 selects the interface, 'host 10.0.0.5' filters to traffic to/from that IP, -w writes a pcap file readable by Wireshark or tshark. Redirecting tcpdump output to a text file loses the binary structure; ping is not a capture tool; netstat shows sockets, not packets.",
+      "objective": "3.2"
+    },
+    {
+      "id": "q41",
+      "type": "multiplechoice",
+      "question": "A new compliance auditor asks the IT team to produce a complete inventory of every laptop, server, and network device. The team scrambles because no central source of truth exists. Which CIS Control is the team failing PRIMARILY?",
+      "options": [
+        "CIS Control 1 \u2014 Inventory and Control of Enterprise Assets",
+        "CIS Control 13 \u2014 Network Monitoring and Defense",
+        "CIS Control 17 \u2014 Incident Response Management",
+        "CIS Control 20 \u2014 Penetration Testing"
+      ],
+      "correctIndex": 0,
+      "explanation": "CIS Control 1 is hardware asset inventory \u2014 first because every other control assumes you know what you have. The team's gap is not detection, IR, or pentesting; it is the foundational inventory itself.",
+      "objective": "3.3"
+    },
+    {
+      "id": "q42",
+      "type": "multiplechoice",
+      "question": "A regional hospital stores patient diagnoses, treatment notes, and billing records in an electronic health record system. Which compliance framework MOST DIRECTLY governs this data?",
+      "options": [
+        "PCI DSS",
+        "HIPAA",
+        "GDPR",
+        "FERPA"
+      ],
+      "correctIndex": 1,
+      "explanation": "HIPAA governs protected health information (PHI) for US covered entities and their business associates. PCI DSS would apply if the billing system stored card data. GDPR applies to EU residents. FERPA applies to student educational records.",
+      "objective": "3.3"
+    },
+    {
+      "id": "q43",
+      "type": "multiplechoice",
+      "question": "An organization launches a BYOD program. Employees will use their personal phones for corporate email and apps. Which control set is MOST CRITICAL to include?",
+      "options": [
+        "Mandatory CPU upgrades on all phones",
+        "MDM enrollment, device encryption, screen-lock policy, remote-wipe capability, and clear acceptable-use policy",
+        "Free phone insurance",
+        "A vendor-locked SIM card"
+      ],
+      "correctIndex": 1,
+      "explanation": "MDM/UEM with encryption, lock, remote wipe, and AUP is the standard BYOD baseline \u2014 without these, a lost phone is an immediate data breach. CPU upgrades and SIM locks miss the security goal.",
+      "objective": "3.3"
+    },
+    {
+      "id": "q44",
+      "type": "multiplechoice",
+      "question": "A vulnerability scan shows that a critical, internet-facing web server is missing a vendor patch released last week for an actively exploited zero-day with CVSS 9.8. The patch has been tested in QA. According to standard patch-management practice, which is the NEXT step?",
+      "options": [
+        "Wait for the next monthly maintenance window",
+        "Apply the patch out-of-band as soon as possible, with a backout plan",
+        "Disable the server's NIC permanently",
+        "Replace the server with new hardware"
+      ],
+      "correctIndex": 1,
+      "explanation": "An actively exploited internet-facing critical vulnerability is the textbook out-of-band patch case. Waiting for the monthly window leaves the server exposed; permanent NIC disable kills the service; hardware replacement is unnecessary.",
+      "objective": "3.4"
+    },
+    {
+      "id": "q45",
+      "type": "multiplechoice",
+      "question": "A SOC analyst pulls Windows Security log entries and sees a burst of Event ID 4625 events with Logon Type 3 originating from a single external IP, against many different account names. Which attack does this MOST LIKELY indicate?",
+      "options": [
+        "Pass-the-hash on the domain controller",
+        "Password spraying / brute force against SMB",
+        "Privilege escalation via a SUID binary",
+        "DNS tunneling"
+      ],
+      "correctIndex": 1,
+      "explanation": "4625 = failed logon. Logon Type 3 = network logon (SMB, RPC). Many accounts from one source IP = password spraying or brute force. Pass-the-hash usually succeeds (4624 with NTLM). Privilege escalation and DNS tunneling do not produce that signature.",
+      "objective": "3.5"
+    },
+    {
+      "id": "q46",
+      "type": "fillblank",
+      "question": "The standard UDP port number used by syslog is ____.",
+      "acceptedAnswers": [
+        "514",
+        "UDP 514",
+        "514/udp"
+      ],
+      "explanation": "syslog defaults to UDP 514. Reliable variants run over TCP 514, and TLS-encrypted syslog runs over TCP 6514.",
+      "objective": "3.5"
+    },
+    {
+      "id": "q47",
+      "type": "multiplechoice",
+      "question": "An EDR alerts on suspicious behavior on a user laptop. The responder's FIRST containment action should MOST APPROPRIATELY be to:",
+      "options": [
+        "Power off the laptop immediately",
+        "Disconnect the laptop from the network (cable/Wi-Fi) while leaving it powered on",
+        "Reformat the disk",
+        "Send an email asking the user what they were doing"
+      ],
+      "correctIndex": 1,
+      "explanation": "Powering off destroys volatile evidence in RAM (running malware, decryption keys, network state). Network isolation stops further damage and lateral movement while preserving memory for forensic capture. Reformatting destroys evidence. Asking the user is fine but not a containment action and not the FIRST step.",
+      "objective": "3.6"
+    },
+    {
+      "id": "q48",
+      "type": "multiplechoice",
+      "question": "A company's backup strategy stores nightly full backups on a NAS in the same server room as the production servers. A fire destroys both. Which backup principle was MOST CLEARLY violated?",
+      "options": [
+        "Backups should be encrypted",
+        "Backups should follow the 3-2-1 rule (three copies, two media types, one offsite)",
+        "Backups should be tested monthly",
+        "Backups should be incremental, not full"
+      ],
+      "correctIndex": 1,
+      "explanation": "The 3-2-1 rule explicitly requires at least one offsite copy precisely to survive site-wide disasters. Encryption, testing, and backup type do not address co-location with production.",
+      "objective": "3.6"
+    },
+    {
+      "id": "q49",
+      "type": "multiplechoice",
+      "question": "A user reports that browser pop-ups have started appearing and the homepage has changed. AV detects an adware infection. Which step in the malware-removal workflow is MOST APPROPRIATELY done LAST?",
+      "options": [
+        "Identify the malware on the system",
+        "Isolate the affected host from the network",
+        "Eradicate persistence and run a full multi-engine scan",
+        "Conduct a post-incident review and update controls"
+      ],
+      "correctIndex": 3,
+      "explanation": "Identify, isolate, eradicate, recover, review. Lessons learned and control updates close the loop after recovery, ensuring the next instance is detected sooner or prevented entirely.",
+      "objective": "3.6"
+    },
+    {
+      "id": "q50",
+      "type": "truefalse",
+      "question": "apt-get and Windows Update are both considered patch management tools.",
+      "correctAnswer": true,
+      "explanation": "Both apply software updates. apt (or apt-get) is Debian/Ubuntu's package manager, used for OS and app updates on Linux. Windows Update handles OS, driver, and (with Microsoft Update enabled) some application patches on Windows. Enterprise environments wrap both in WSUS/MECM, Satellite, or third-party tools.",
+      "objective": "3.4"
+    },
+    {
+      "id": "q51",
+      "type": "multiplechoice",
+      "question": "A pentester wants to learn about a target's exposed assets without sending any traffic to those assets. Which technique MOST APPROPRIATELY fits this requirement?",
+      "options": [
+        "Aggressive nmap scan with -A",
+        "OSINT research using Shodan, certificate transparency logs, and public DNS",
+        "Sending crafted SYN packets to port 443",
+        "Running a credentialed vulnerability scan"
+      ],
+      "correctIndex": 1,
+      "explanation": "Passive recon uses public sources without touching the target \u2014 Shodan, CT logs, WHOIS, search engines, social media. Aggressive nmap, SYN probes, and credentialed scans all generate traffic to the target and are active recon.",
+      "objective": "4.1"
+    },
+    {
+      "id": "q52",
+      "type": "fillblank",
+      "question": "Type the nmap flag that performs a TCP SYN (half-open / stealth) scan.",
+      "acceptedAnswers": [
+        "-sS",
+        "-ss"
+      ],
+      "explanation": "-sS sends a SYN, observes SYN-ACK (open) or RST (closed), and never completes the handshake. Lower CPU on the target and historically less likely to be logged than a full connect (-sT).",
+      "objective": "4.1"
+    },
+    {
+      "id": "q53",
+      "type": "multiplechoice",
+      "question": "A vulnerability scanner reports that internal host 10.20.30.40 is missing a patch for a CVE with CVSS 10.0. The host is on an isolated lab VLAN with no internet access and no production data. Which factor MOST APPROPRIATELY tempers the prioritization of remediating this finding?",
+      "options": [
+        "The CVSS base score",
+        "The age of the vulnerability",
+        "The exposure and asset value (compensating context)",
+        "The vendor of the scanner"
+      ],
+      "correctIndex": 2,
+      "explanation": "CVSS base does not account for your environment. A critical CVE on an isolated lab box with no sensitive data is real-world lower priority than a Medium CVE on an internet-facing server holding customer PII. Always factor exposure, exploitability, and asset value.",
+      "objective": "4.2"
+    },
+    {
+      "id": "q54",
+      "type": "multiplechoice",
+      "question": "Which CVSS v3.1 base score range corresponds to a 'Critical' severity rating?",
+      "options": [
+        "0.1 \u2013 3.9",
+        "4.0 \u2013 6.9",
+        "7.0 \u2013 8.9",
+        "9.0 \u2013 10.0"
+      ],
+      "correctIndex": 3,
+      "explanation": "CVSS v3.1: 0.0 None, 0.1-3.9 Low, 4.0-6.9 Medium, 7.0-8.9 High, 9.0-10.0 Critical. These bands appear constantly on the exam.",
+      "objective": "4.2"
+    },
+    {
+      "id": "q55",
+      "type": "multiplechoice",
+      "question": "An organization wants to consume threat intelligence that is most relevant to its industry sector and includes peer-shared, member-only feeds. Which source BEST fits?",
+      "options": [
+        "A random pastebin scraper",
+        "A sector ISAC such as FS-ISAC for finance or H-ISAC for healthcare",
+        "Generic vendor marketing whitepapers",
+        "Internet-wide port scans"
+      ],
+      "correctIndex": 1,
+      "explanation": "ISACs (Information Sharing and Analysis Centers) are sector-specific peer-sharing groups and provide some of the most actionable threat intel for their industries. Pastebin, marketing whitepapers, and internet scans are far less targeted.",
+      "objective": "4.2"
+    },
+    {
+      "id": "q56",
+      "type": "truefalse",
+      "question": "Updating runbooks, contact lists, and network diagrams after an incident is optional and can be skipped if the incident was minor.",
+      "correctAnswer": false,
+      "explanation": "Documentation updates are critical regardless of incident size \u2014 small incidents reveal small gaps that may matter in the next big one, and most compliance frameworks (PCI DSS, HIPAA, NIST 800-61) require post-incident documentation. Drift between runbook and reality is a leading reason responses go badly.",
+      "objective": "4.2"
+    },
+    {
+      "id": "q57",
+      "type": "multiplechoice",
+      "question": "A risk register has the following entry: a critical Apache vulnerability on an internet-facing server hosting customer payment forms. Which risk treatment is MOST APPROPRIATE as a first response?",
+      "options": [
+        "Accept the risk and document the decision",
+        "Mitigate by patching the server and adding a WAF rule",
+        "Transfer the risk by buying cyber insurance",
+        "Avoid by shutting down the company website"
+      ],
+      "correctIndex": 1,
+      "explanation": "Patch + WAF is direct mitigation that addresses both likelihood and impact at modest cost. Accept is inappropriate for a critical, exploitable, exposure with regulated data. Transfer (insurance) does not fix the technical issue. Avoid (shutting down the website) is disproportionate.",
+      "objective": "4.3"
+    },
+    {
+      "id": "q58",
+      "type": "multiplechoice",
+      "question": "An asset is valued at $200,000. A specific incident type would cause an estimated 25% loss, and historical data suggests it occurs roughly twice per year. Calculate the ALE.",
+      "options": [
+        "$50,000",
+        "$100,000",
+        "$200,000",
+        "$25,000"
+      ],
+      "correctIndex": 1,
+      "explanation": "SLE = $200,000 \u00d7 0.25 = $50,000. ARO = 2. ALE = SLE \u00d7 ARO = $100,000. ALE is the annualized expected loss and the upper bound of what controls should reasonably cost annually.",
+      "objective": "4.3"
+    },
+    {
+      "id": "q59",
+      "type": "multiplechoice",
+      "question": "An organization classifies its data into Public, Internal, Confidential, and Restricted. Customer Social Security Numbers should MOST APPROPRIATELY be classified as which tier?",
+      "options": [
+        "Public",
+        "Internal",
+        "Confidential",
+        "Restricted"
+      ],
+      "correctIndex": 3,
+      "explanation": "SSNs are highly sensitive PII with both legal and contractual handling requirements; Restricted is the typical highest tier with the strictest handling rules. Confidential is reasonable in some schemes but Restricted is the safer answer when offered.",
+      "objective": "4.3"
+    },
+    {
+      "id": "q60",
+      "type": "multiplechoice",
+      "question": "A company defines an RTO of 2 hours and an RPO of 15 minutes for its order-entry system. Which statement BEST captures what these targets require?",
+      "options": [
+        "The system can be down for up to 15 minutes and may lose up to 2 hours of data",
+        "The system can be down for up to 2 hours, and at most 15 minutes of data may be lost",
+        "Both downtime and data loss must be zero",
+        "RTO and RPO are interchangeable terms"
+      ],
+      "correctIndex": 1,
+      "explanation": "RTO is the maximum tolerable downtime (2 hours). RPO is the maximum tolerable data loss measured in time (15 minutes \u2014 meaning backups/replication must run at least every 15 minutes). They are not interchangeable.",
+      "objective": "4.4"
+    },
+    {
+      "id": "q61",
+      "type": "multiplechoice",
+      "question": "A medium-sized business has tight budget but wants a usable disaster recovery option. They can tolerate a few hours of downtime but cannot afford fully-replicated infrastructure. Which DR site type BEST balances cost and recovery time?",
+      "options": [
+        "Cold site",
+        "Warm site",
+        "Hot site",
+        "Mobile site"
+      ],
+      "correctIndex": 1,
+      "explanation": "Cold = facility only (cheapest, days to recover). Warm = hardware plus periodic data sync, hours to recover. Hot = live replication, near-zero RTO, most expensive. The 'few hours' tolerance plus tight budget points to a warm site.",
+      "objective": "4.4"
+    },
+    {
+      "id": "q62",
+      "type": "multiplechoice",
+      "question": "An organization runs full backups every Sunday and incremental backups every other day. The production database fails on a Friday evening. To restore, the team must apply backups in which order?",
+      "options": [
+        "Friday's incremental only",
+        "Sunday's full only",
+        "Sunday's full, then Monday, Tuesday, Wednesday, Thursday, Friday incrementals in order",
+        "Friday's incremental, then Sunday's full"
+      ],
+      "correctIndex": 2,
+      "explanation": "Incremental backups capture only the changes since the last backup of any kind. To rebuild, apply the latest full first, then every incremental in chronological order. Differentials would simplify to full + latest differential.",
+      "objective": "4.4"
+    },
+    {
+      "id": "q63",
+      "type": "multiplechoice",
+      "question": "A UPS, a generator, and redundant power feeds are deployed in a data center. From a disaster-recovery control category standpoint, these are PRIMARILY:",
+      "options": [
+        "Detective controls",
+        "Preventive controls",
+        "Corrective controls",
+        "Compensating controls"
+      ],
+      "correctIndex": 1,
+      "explanation": "Preventive controls aim to stop the disaster from causing service interruption. Detective notices it (smoke alarm, monitoring). Corrective recovers afterward (backup restore). Compensating substitutes for an impractical primary control.",
+      "objective": "4.4"
+    },
+    {
+      "id": "q64",
+      "type": "multiplechoice",
+      "question": "An IR team meets quarterly to walk through hypothetical incident scenarios in a conference room without touching real systems, identifying who would do what. Which exercise type does this BEST describe?",
+      "options": [
+        "Red team engagement",
+        "Tabletop exercise",
+        "Penetration test",
+        "Live-fire fail-over drill"
+      ],
+      "correctIndex": 1,
+      "explanation": "Tabletop exercises are discussion-based simulations \u2014 cheap, fast, low-risk, and required by HIPAA, PCI DSS, and others at least annually. Red team and pentests are technical engagements; live fail-over drills actually invoke DR systems.",
+      "objective": "4.4"
+    },
+    {
+      "id": "q65",
+      "type": "multiplechoice",
+      "question": "A vulnerability scanner with credentialed access reports a much longer list of findings than the same scanner without credentials. Which is the MOST LIKELY reason?",
+      "options": [
+        "Credentialed scans send more packets per second",
+        "Credentialed scans can read installed-software inventory and registry/file metadata, exposing patch and configuration issues invisible from the network",
+        "Credentialed scans bypass firewall rules",
+        "Credentialed scans test more ports"
+      ],
+      "correctIndex": 1,
+      "explanation": "With valid credentials the scanner authenticates to the host and inspects installed software, registry, file versions, and configuration \u2014 finding missing patches and weak settings that simply are not visible from the network.",
+      "objective": "4.2"
+    },
+    {
+      "id": "q66",
+      "type": "multiplechoice",
+      "question": "A compliance team must justify spending $30,000 per year on a control that is expected to reduce the ALE for a particular risk from $80,000 to $20,000. Which statement BEST evaluates this proposal financially?",
+      "options": [
+        "The control is not cost effective because $30,000 is too expensive",
+        "The control reduces ALE by $60,000 for a $30,000 cost \u2014 a positive net of $30,000 per year",
+        "The control should be free since it is for security",
+        "ALE math does not apply to security spending"
+      ],
+      "correctIndex": 1,
+      "explanation": "ALE reduction ($80k - $20k = $60k) minus control cost ($30k) = +$30k net annual benefit. ALE-vs-cost is exactly the framework used to justify control spending in quantitative risk analysis.",
+      "objective": "4.3"
+    },
+    {
+      "id": "q67",
+      "type": "truefalse",
+      "question": "A vulnerability that is publicly disclosed with a CVE identifier is, by definition, a high risk for every organization that runs the affected software.",
+      "correctAnswer": false,
+      "explanation": "A CVE describes a vulnerability \u2014 its risk depends on exposure, exploitability, asset value, and compensating controls in your specific environment. A critical CVE on an air-gapped lab box is far lower risk than a medium CVE on an internet-facing payment server. Risk is contextual.",
+      "objective": "4.3"
+    },
+    {
+      "id": "q68",
+      "type": "multiplechoice",
+      "question": "A SOC analyst sees a Splunk alert correlating multiple log sources: a successful logon at 02:14 from an unusual country, immediately followed by privileged group additions and outbound traffic to a known-malicious IP. Which platform PRIMARILY produced this correlation?",
+      "options": [
+        "Antivirus signature engine",
+        "SIEM",
+        "Hardware load balancer",
+        "Backup software"
+      ],
+      "correctIndex": 1,
+      "explanation": "Multi-source log correlation and rule-based alerting is the SIEM's core function (Splunk, Sentinel, QRadar, Elastic). AV reasons about a single endpoint, load balancers distribute traffic, backup software protects data.",
+      "objective": "5.1"
+    },
+    {
+      "id": "q69",
+      "type": "multiplechoice",
+      "question": "After the SIEM raises the alert in the previous scenario, an automation playbook immediately disables the user account in Active Directory, blocks the outbound IP at the firewall, and opens an incident ticket \u2014 all without a human clicking. Which technology is PRIMARILY responsible for this automated response?",
+      "options": [
+        "IDS",
+        "SOAR",
+        "DLP",
+        "Honeypot"
+      ],
+      "correctIndex": 1,
+      "explanation": "SOAR (Security Orchestration, Automation, and Response) executes playbooks across security tools to automate containment and enrichment. IDS detects but does not act, DLP focuses on data exfiltration prevention, honeypots are decoys.",
+      "objective": "5.1"
+    },
+    {
+      "id": "q70",
+      "type": "multiplechoice",
+      "question": "A packet capture shows a workstation generating DNS queries with very long, base64-looking subdomain labels to a single second-level domain every 30 seconds for hours. Which threat does this MOST LIKELY indicate?",
+      "options": [
+        "ARP poisoning",
+        "DNS tunneling for command-and-control or data exfiltration",
+        "DHCP starvation",
+        "Buffer overflow on the DNS server"
+      ],
+      "correctIndex": 1,
+      "explanation": "Long, encoded subdomain labels at periodic intervals to one domain are the hallmark of DNS tunneling \u2014 malware encodes C2 messages or exfiltrated data into DNS queries. ARP poisoning is Layer 2, DHCP starvation exhausts the address pool, buffer overflow is a memory bug.",
+      "objective": "5.1"
+    },
+    {
+      "id": "q71",
+      "type": "multiplechoice",
+      "question": "Which framework consists of seven sequential adversary stages: Reconnaissance, Weaponization, Delivery, Exploitation, Installation, Command and Control, and Actions on Objectives?",
+      "options": [
+        "MITRE ATT&CK",
+        "Lockheed Martin Cyber Kill Chain",
+        "Diamond Model",
+        "NIST Cybersecurity Framework"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Cyber Kill Chain is Lockheed Martin's seven-stage model, designed for defenders to identify the earliest possible intervention point. ATT&CK is a granular tactics/techniques matrix. Diamond Model has four corners. NIST CSF has six functions (Govern, Identify, Protect, Detect, Respond, Recover).",
+      "objective": "5.2"
+    },
+    {
+      "id": "q72",
+      "type": "multiplechoice",
+      "question": "A threat hunter wants to map observed adversary behavior to a standardized, granular catalog of tactics and techniques to find detection gaps. Which framework BEST supports this?",
+      "options": [
+        "Cyber Kill Chain",
+        "MITRE ATT&CK",
+        "OWASP Top 10",
+        "PCI DSS Requirements"
+      ],
+      "correctIndex": 1,
+      "explanation": "MITRE ATT&CK is specifically designed for threat-informed defense and detection-gap analysis, with tactics (the why) and techniques like T1078 Valid Accounts (the how). Kill Chain is higher-level and linear. OWASP Top 10 is web app risks. PCI DSS is compliance.",
+      "objective": "5.2"
+    },
+    {
+      "id": "q73",
+      "type": "multiplechoice",
+      "question": "An intrusion is described as: adversary X used capability Y over infrastructure Z to compromise victim W. Pivoting on the same infrastructure later reveals additional victims of the same adversary. Which model BEST fits this analytic approach?",
+      "options": [
+        "Cyber Kill Chain",
+        "Diamond Model",
+        "PASTA threat modeling",
+        "STRIDE"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Diamond Model has four corners \u2014 adversary, capability, infrastructure, victim \u2014 with edges; pivoting on any corner often reveals related events. STRIDE and PASTA are threat modeling for design. Kill Chain is sequential, not relational.",
+      "objective": "5.2"
+    },
+    {
+      "id": "q74",
+      "type": "multiplechoice",
+      "question": "An IR team responds to a live ransomware infection on a server. According to the order of volatility (RFC 3227), which evidence should be collected FIRST?",
+      "options": [
+        "An image of the spinning disk",
+        "A memory (RAM) capture",
+        "Backups from a year ago",
+        "Building access logs"
+      ],
+      "correctIndex": 1,
+      "explanation": "RAM is most volatile and contains running malware, decryption keys, network connections, and injected processes. Disk is non-volatile. Old backups and physical access logs are static and can be collected later. Capture volatile first.",
+      "objective": "5.2"
+    },
+    {
+      "id": "q75",
+      "type": "multiplechoice",
+      "question": "An evidence bag is opened by a forensic examiner. The chain-of-custody form shows a 6-day gap with no entry, and during that time the laptop was stored in an unlocked office drawer. What is the MOST LIKELY consequence?",
+      "options": [
+        "No consequence; the evidence is still admissible",
+        "The evidence may be challenged or excluded in court because the chain of custody has a gap",
+        "The hash of the disk image will automatically change",
+        "The laptop's clock will reset"
+      ],
+      "correctIndex": 1,
+      "explanation": "A break in chain of custody allows the opposing side to argue tampering and can render evidence inadmissible. Hashes do not change on their own, and the laptop clock has nothing to do with it. Strict, gapless documentation is non-negotiable.",
+      "objective": "5.2"
+    },
+    {
+      "id": "q76",
+      "type": "multiplechoice",
+      "question": "A multinational firm discovers a personal-data breach affecting EU residents. Under GDPR, the supervisory authority must MOST APPROPRIATELY be notified within what time frame?",
+      "options": [
+        "24 hours",
+        "72 hours",
+        "30 days",
+        "90 days"
+      ],
+      "correctIndex": 1,
+      "explanation": "GDPR Article 33 requires notification to the supervisory authority within 72 hours of becoming aware of a personal-data breach, with justification if delayed. Affected individuals must be notified 'without undue delay' if there is high risk to their rights and freedoms.",
+      "objective": "5.3"
+    },
+    {
+      "id": "q77",
+      "type": "fillblank",
+      "question": "Type the number of hours within which GDPR requires a personal-data breach to be reported to the supervisory authority. (Answer with the number only.)",
+      "acceptedAnswers": [
+        "72"
+      ],
+      "explanation": "GDPR Article 33 \u2014 72 hours from becoming aware of the breach.",
+      "objective": "5.3"
+    },
+    {
+      "id": "q78",
+      "type": "multiplechoice",
+      "question": "A US healthcare provider experiences a data breach affecting 1,200 patients. Beyond notifying the affected individuals, HIPAA also requires notification to which other party within 60 days?",
+      "options": [
+        "The local police only",
+        "The US Department of Health and Human Services (HHS) and prominent local media",
+        "The Federal Reserve",
+        "ISO/IEC directly"
+      ],
+      "correctIndex": 1,
+      "explanation": "For breaches affecting 500+ individuals, HIPAA requires notification to HHS and prominent local media within 60 days. Smaller breaches are logged and reported to HHS annually. Police involvement depends on the criminal nature of the incident.",
+      "objective": "5.3"
+    },
+    {
+      "id": "q79",
+      "type": "multiplechoice",
+      "question": "A school district maintains digital records of student grades, transcripts, and disciplinary history. Which US compliance framework MOST DIRECTLY applies to these records?",
+      "options": [
+        "HIPAA",
+        "PCI DSS",
+        "FERPA",
+        "FISMA"
+      ],
+      "correctIndex": 2,
+      "explanation": "FERPA (Family Educational Rights and Privacy Act) protects US student educational records. HIPAA is healthcare. PCI DSS is payment cards. FISMA governs US federal agencies and contractors handling federal data.",
+      "objective": "5.3"
+    },
+    {
+      "id": "q80",
+      "type": "multiplechoice",
+      "question": "A federal agency contractor handles citizen data on behalf of a US federal agency. Which compliance framework MOST DIRECTLY applies to their information system security requirements?",
+      "options": [
+        "GDPR",
+        "FERPA",
+        "FISMA",
+        "PCI DSS"
+      ],
+      "correctIndex": 2,
+      "explanation": "FISMA (Federal Information Security Management Act / Modernization Act) governs US federal agencies and ties to NIST RMF and SP 800-53 control families. Contractors handling federal data must comply.",
+      "objective": "5.3"
+    },
+    {
+      "id": "q81",
+      "type": "multiplechoice",
+      "question": "According to NIST SP 800-61 Rev. 2, which phase includes activities like building the IR team, writing the IR plan, training analysts, and running tabletop exercises?",
+      "options": [
+        "Detection and Analysis",
+        "Containment, Eradication, and Recovery",
+        "Preparation",
+        "Post-Incident Activity"
+      ],
+      "correctIndex": 2,
+      "explanation": "Preparation covers everything done before an incident: policy, plan, team, tooling, training, and exercises. Detection and Analysis identifies and characterizes incidents. Containment/Eradication/Recovery handles the active incident. Post-Incident Activity covers lessons learned.",
+      "objective": "5.4"
+    },
+    {
+      "id": "q82",
+      "type": "multiplechoice",
+      "question": "During an incident, the IR team blocks an attacker IP at the perimeter firewall and disables the compromised user account in AD to halt active damage. Which sub-phase of NIST 800-61 BEST describes these actions?",
+      "options": [
+        "Long-term containment",
+        "Short-term containment",
+        "Eradication",
+        "Recovery"
+      ],
+      "correctIndex": 1,
+      "explanation": "Short-term containment is the immediate stop-the-bleeding step: isolate, block, disable. Long-term containment applies temporary fixes while a clean rebuild is staged. Eradication removes root cause. Recovery restores systems to production.",
+      "objective": "5.4"
+    },
+    {
+      "id": "q83",
+      "type": "multiplechoice",
+      "question": "After fully resolving a phishing-driven credential-theft incident, the IR team holds a meeting two weeks later to review what worked, what failed, and what to change. Which NIST 800-61 phase does this MOST DIRECTLY represent?",
+      "options": [
+        "Preparation",
+        "Detection and Analysis",
+        "Containment, Eradication, and Recovery",
+        "Post-Incident Activity (Lessons Learned)"
+      ],
+      "correctIndex": 3,
+      "explanation": "Post-Incident Activity covers lessons learned, root-cause analysis, evidence retention, and updates to controls and runbooks. The output feeds back into Preparation for the next incident.",
+      "objective": "5.4"
+    },
+    {
+      "id": "q84",
+      "type": "truefalse",
+      "question": "Powering off a compromised system immediately is the safest first step because it stops any further damage and preserves all forensic evidence.",
+      "correctAnswer": false,
+      "explanation": "Powering off destroys volatile evidence in RAM \u2014 running malware, decryption keys, open network connections, injected processes. The correct first step is to isolate from the network (pull the cable or disable the NIC) while leaving the system running, then capture memory. Pulling the plug is acceptable only when active destruction (e.g., wiper malware) is in progress.",
+      "objective": "5.4"
+    },
+    {
+      "id": "q85",
+      "type": "multiplechoice",
+      "question": "A SOC has Tier 1, Tier 2, and Tier 3 analysts. A Tier 1 analyst opens a SIEM alert that matches a known-bad threat-intel IOC tied to lateral movement against a domain controller. According to standard SOC practice, the analyst's NEXT step is MOST APPROPRIATELY to:",
+      "options": [
+        "Close the alert as a false positive to clear the queue",
+        "Escalate to Tier 2 immediately given the asset criticality and IOC match",
+        "Wait until end of shift to review",
+        "Send a polite email to the user asking what they were doing"
+      ],
+      "correctIndex": 1,
+      "explanation": "An IOC match against a domain controller is a high-confidence, high-impact alert that meets escalation criteria \u2014 never let it sit at Tier 1. Tier 2 has the depth to scope and contain. Closing as false positive without investigation is dangerous. Waiting wastes critical time.",
+      "objective": "5.1"
+    },
+    {
+      "id": "q86",
+      "type": "fillblank",
+      "question": "Type the term (3-letter abbreviation) used for the standardized adversary behavior categories \u2014 Tactics, ____ , and Procedures.",
+      "acceptedAnswers": [
+        "Techniques",
+        "techniques",
+        "TTP"
+      ],
+      "explanation": "TTP = Tactics, Techniques, and Procedures. Tactic = goal, Technique = method, Procedure = specific implementation. MITRE ATT&CK is built around TTPs.",
+      "objective": "5.2"
+    },
+    {
+      "id": "q87",
+      "type": "multiplechoice",
+      "question": "A forensic analyst takes a bit-for-bit image of a suspect drive and immediately computes a SHA-256 hash, then performs all analysis on a verified copy. What is the PRIMARY purpose of recording the hash at acquisition?",
+      "options": [
+        "To compress the disk image to save space",
+        "To prove later that the working copy and any analysis output are derived from unaltered original evidence",
+        "To encrypt the image so investigators cannot read it",
+        "To speed up the imaging process"
+      ],
+      "correctIndex": 1,
+      "explanation": "Hashing at acquisition establishes a verifiable baseline. Recomputing the hash later proves no bytes have changed \u2014 central to chain of custody and admissibility. Hashing does not compress or encrypt and is computed alongside, not in place of, imaging.",
+      "objective": "5.2"
+    }
+  ],
+  "labs": [
+    {
+      "id": "lab1",
+      "title": "Investigate a suspected spear-phishing email targeting the finance team",
+      "scenario": "A finance analyst forwards a suspicious email to the security team. The email appears to be from the CFO and reads: 'Need you to wire $48,500 to our new vendor today \u2014 see attached invoice. Don't loop in AP, this is confidential until contract finalizes. \u2014 Sent from my iPhone'. The attached PDF is named 'Invoice_Q4_Final.pdf'. The sender shows as 'Aaron Cline <[email protected]>' but the actual CFO's address is '[email protected]'. The analyst did not click the link or open the attachment. You are the on-call SOC analyst.",
+      "objective": "1.2",
+      "steps": [
+        {
+          "prompt": "Which type of attack does this email MOST PRECISELY represent?",
+          "options": [
+            "Generic mass phishing",
+            "Business Email Compromise (BEC) / spear phishing impersonating an executive",
+            "Vishing",
+            "Smishing"
+          ],
+          "correctIndex": 1,
+          "explanation": "Targeted, personalized, executive-impersonation, financial pressure, and instruction to bypass normal process \u2014 textbook BEC. Note the lookalike domain (cflnance.com vs cfinance.com) and the urgency/secrecy social-engineering levers."
+        },
+        {
+          "prompt": "List the IOCs (indicators of compromise) you would extract from this email and submit to the SIEM and threat-intel platform. Type them as comma-separated values.",
+          "acceptedAnswers": [
+            "sender email, attachment hash, sender domain",
+            "[email protected], cflnance.com, attachment SHA-256",
+            "sender address, sender domain, attachment hash, subject line",
+            "sender, domain, attachment hash"
+          ],
+          "explanation": "Extract the spoofed sender address, the lookalike domain (cflnance.com), the attachment hash (SHA-256 of the PDF), and the subject line. Optionally any URLs in the body. Submitting these IOCs lets the SIEM detect anyone else who received it and threat-intel platforms can correlate with known campaigns."
+        },
+        {
+          "prompt": "The analyst confirms three other people in finance received nearly identical emails this morning. Which is the BEST containment action across the organization?",
+          "options": [
+            "Send an email to all employees telling them not to fall for phishing",
+            "Quarantine all matching messages from mailboxes via the email security gateway, block the sender domain at the gateway, and submit the lookalike domain to a takedown service",
+            "Reset every employee's password",
+            "Disconnect the entire finance department's machines from the network"
+          ],
+          "correctIndex": 1,
+          "explanation": "Proportional and effective: pull the messages from inboxes via the gateway, block the sending domain so future messages are stopped at the edge, and pursue takedown of the lookalike domain to limit the campaign. Mass password resets and disconnecting whole departments are disproportionate to a phishing email that was reported, not clicked."
+        },
+        {
+          "prompt": "After containment, which preventive control would BEST reduce the success rate of similar BEC attempts in the future?",
+          "options": [
+            "Disable email entirely",
+            "Implement DMARC, DKIM, and SPF on the company's domains, plus a clearly-labeled banner on emails from external senders, plus financial-process controls requiring out-of-band verification for wire transfers",
+            "Buy more antivirus licenses",
+            "Require all emails to be in plaintext"
+          ],
+          "correctIndex": 1,
+          "explanation": "BEC is part technical, part process. SPF/DKIM/DMARC reduces spoofing of your own domain. External-sender banners flag lookalike domains visually. The single most effective control against the wire-transfer payload is a process rule: any wire request from an executive must be verified by phone (out-of-band) before payment. Defense in depth at the protocol, gateway, user-awareness, and business-process layers."
+        },
+        {
+          "prompt": "Which of the following is the BEST way to document this incident for future reference and compliance?",
+          "options": [
+            "Delete the email and move on",
+            "Open a ticket recording the timeline, IOCs, affected mailboxes, containment actions, and lessons learned; preserve the original messages and attachment sample in the IR evidence store",
+            "Post the full email contents to the company's public wiki",
+            "Forward the original email to all employees as a learning example"
+          ],
+          "correctIndex": 1,
+          "explanation": "A documented ticket with timeline, IOCs, and actions is what compliance audits and the next analyst need. Original messages and the attachment sample (in a secure sandbox) preserve evidence. Posting publicly or forwarding the live phish would propagate harm."
+        }
+      ]
+    },
+    {
+      "id": "lab2",
+      "title": "Diagnose and fix a broken ACL blocking legitimate traffic",
+      "scenario": "Users on the 10.10.20.0/24 subnet report they cannot reach the database server at 10.10.50.10. Other subnets connect fine. The network engineer applied an ACL inbound on R1's GigabitEthernet0/1 (the 10.10.20.0/24-facing interface) earlier today. Output of 'show access-lists' on R1 reads:\n\nExtended IP access list DB_ACCESS\n    10 permit tcp 10.10.20.0 0.0.0.255 host 10.10.50.10 eq 1433 (0 matches)\n    20 permit icmp 10.10.20.0 0.0.0.255 host 10.10.50.10 (0 matches)\n\nA traceroute from a 10.10.20.0/24 host to 10.10.50.10 fails on the first hop. Output of 'show ip interface gi0/1' confirms 'Inbound access list is DB_ACCESS'.",
+      "objective": "2.5",
+      "steps": [
+        {
+          "prompt": "Both ACL entries show 0 matches even though users are actively trying to connect. Which is the MOST LIKELY cause?",
+          "options": [
+            "The database server is offline",
+            "The ACL has an implicit deny-all at the end and is missing required permit entries (e.g., return ARP/DHCP/DNS or established TCP from the same subnet) \u2014 the traffic is being dropped before it can match",
+            "The ACL was applied outbound, not inbound",
+            "Standard ACLs cannot match TCP ports"
+          ],
+          "correctIndex": 1,
+          "explanation": "Brave engineer, the 0-match counters and the failing first-hop traceroute together point to the implicit deny-all blocking everything. The ACL only permits TCP/1433 and ICMP to one specific host \u2014 every other packet (DNS, DHCP, ARP-related, established return traffic to other servers) hits the implicit deny. Inbound ACLs filter traffic entering the router from the user side, so the user's packets are getting through to be evaluated, but anything not explicitly permitted is dropped."
+        },
+        {
+          "prompt": "Which Cisco IOS command displays the ACL with line numbers and per-line hit counts to confirm the diagnosis?",
+          "options": [
+            "show running-config",
+            "show ip route",
+            "show access-lists",
+            "show interfaces"
+          ],
+          "correctIndex": 2,
+          "explanation": "show access-lists is the canonical verification \u2014 it shows every line, line number, and per-line match count. show running-config shows configuration but not hit counts. show ip route is the routing table. show interfaces is interface stats."
+        },
+        {
+          "prompt": "Type the IOS command (entered in privileged exec) that resets the ACL hit counters to zero so you can prove your fix is working from a clean baseline.",
+          "acceptedAnswers": [
+            "clear access-list counters",
+            "clear access-list counters DB_ACCESS",
+            "clear ip access-list counters"
+          ],
+          "explanation": "clear access-list counters resets all counters; appending the ACL name resets only that one. After your fix, watching the counters increment proves traffic is now matching the permit lines."
+        },
+        {
+          "prompt": "The engineer now wants to fix the ACL so the original intent (allow 10.10.20.0/24 to reach the DB on TCP 1433 and ICMP) is preserved AND general internet/DNS/AD traffic from this user subnet is not collateral-damaged. Type the additional ACL line (in IOS extended ACL syntax) that would permit any other established TCP return traffic from the user subnet.",
+          "acceptedAnswers": [
+            "permit tcp 10.10.20.0 0.0.0.255 any established",
+            "permit tcp any any established",
+            "30 permit tcp 10.10.20.0 0.0.0.255 any established"
+          ],
+          "explanation": "The 'established' keyword matches TCP packets with ACK or RST set \u2014 return traffic for connections initiated from inside. Better practice in modern designs: use a stateful firewall (or reflexive ACLs / zone-based firewall on IOS) instead of mixing user-subnet ACLs with stateful behavior."
+        },
+        {
+          "prompt": "Why is it generally safer to apply an ACL outbound on the destination-facing interface rather than inbound on the source-facing interface, when the ACL is meant to protect a single server?",
+          "options": [
+            "Outbound ACLs run faster",
+            "Outbound ACLs avoid blocking unrelated traffic from the source subnet that just happens to be flowing through the router (DNS, DHCP, AD) \u2014 the ACL only filters traffic actually destined to the protected server",
+            "Inbound ACLs do not work on Cisco routers",
+            "Outbound ACLs do not have an implicit deny"
+          ],
+          "correctIndex": 1,
+          "explanation": "Scoping the ACL to the destination interface narrows what it sees to traffic actually trying to reach that target. Inbound on the user interface forces every packet from the user subnet to be evaluated, so a too-restrictive ACL accidentally blocks unrelated traffic \u2014 exactly the failure mode in this scenario. There is no 'outbound has no implicit deny' rule; the implicit deny applies to all ACLs."
+        }
+      ]
+    },
+    {
+      "id": "lab3",
+      "title": "Configure a secure SoHo wireless network for a small consulting firm",
+      "scenario": "A four-person consulting firm has just unboxed a new dual-band wireless router. The owner asks you to configure it for the office. Constraints: employees use modern laptops and one team member still uses an older 2018 phone; clients sometimes visit and need internet access; the firm handles client documents that include some PII. The router's stock firmware shipped with default admin credentials and an open guest network enabled.",
+      "objective": "2.4",
+      "steps": [
+        {
+          "prompt": "Which encryption configuration is MOST APPROPRIATE for the main employee SSID?",
+          "options": [
+            "Open with MAC address filtering",
+            "WEP with a long key",
+            "WPA3-Personal where supported, WPA2-Personal/AES (CCMP) as the compatibility fallback",
+            "WPA-Personal with TKIP"
+          ],
+          "correctIndex": 2,
+          "explanation": "WPA3-Personal uses SAE and resists offline dictionary attacks; WPA2/AES is the floor for any business use. WEP is broken in minutes, WPA/TKIP is deprecated, and open + MAC filtering leaves traffic completely unencrypted on the air."
+        },
+        {
+          "prompt": "Which step is MOST IMPORTANT to perform IMMEDIATELY after first power-on, before connecting any client devices?",
+          "options": [
+            "Hide the SSID",
+            "Enable MAC address filtering",
+            "Change the default admin password and update the router's firmware",
+            "Disable the 5 GHz radio"
+          ],
+          "correctIndex": 2,
+          "explanation": "Default admin credentials are public knowledge; routers exposed to the internet with default creds are taken over within hours. Firmware updates close known vulnerabilities. Hiding SSIDs is security through obscurity, MAC filtering is trivially bypassed, and disabling 5 GHz hurts performance for no security gain."
+        },
+        {
+          "prompt": "Visiting clients should be able to reach the internet but MUST NOT be able to reach the consulting firm's file server or laptops. Which configuration BEST achieves this?",
+          "options": [
+            "Give clients the main Wi-Fi password",
+            "Create a separate guest SSID on an isolated VLAN/network with client-isolation enabled and no route to the internal LAN",
+            "Put a firewall rule on every employee laptop",
+            "Tell visiting clients to use their own mobile hotspots"
+          ],
+          "correctIndex": 1,
+          "explanation": "A dedicated guest network on its own VLAN with client isolation prevents lateral access into the corporate LAN. Sharing the main password violates segmentation and lets a guest's compromised device reach everything. Per-host firewalls help but are not the right answer to network segmentation."
+        },
+        {
+          "prompt": "Type the configuration setting that should be DISABLED on the router because of its known vulnerability to PIN brute force.",
+          "acceptedAnswers": [
+            "WPS",
+            "Wi-Fi Protected Setup",
+            "wps"
+          ],
+          "explanation": "WPS (Wi-Fi Protected Setup) PIN authentication has a long-known weakness that lets attackers brute-force the PIN in hours. Disable WPS entirely; the convenience is not worth the exposure."
+        },
+        {
+          "prompt": "An employee asks if hiding the SSID will prevent attackers from connecting. Which is the BEST response?",
+          "options": [
+            "Yes \u2014 a hidden SSID is invisible to attackers",
+            "Hiding the SSID is security through obscurity; the SSID is broadcast in client probe and association frames anyway and is easily captured. Use a strong WPA3/WPA2 passphrase instead.",
+            "Yes, but only for 5 GHz radios",
+            "It depends on the router's antenna pattern"
+          ],
+          "correctIndex": 1,
+          "explanation": "Any client connecting to the network broadcasts the SSID in probe-request and association frames, and any passive sniffer captures it within seconds. Hiding the SSID also breaks roaming for some devices. The actual control is a strong passphrase plus modern WPA."
+        }
+      ]
+    },
+    {
+      "id": "lab4",
+      "title": "Investigate suspicious outbound traffic on a Linux workstation",
+      "scenario": "A finance employee's Ubuntu workstation has been triggering data-loss alerts: large outbound transfers to an unusual external IP (185.X.Y.Z) every night between 02:00 and 03:00. The workstation is otherwise idle at that time. You SSH in to investigate, with full sudo. The user's account was logged out, no scheduled task is visible in cron for the user, and AV reports clean. You suspect a persistent connection from an unknown process.",
+      "objective": "3.2",
+      "steps": [
+        {
+          "prompt": "Which command would BEST show every TCP connection on the host along with the process and PID owning each socket?",
+          "options": [
+            "ping 185.X.Y.Z",
+            "sudo netstat -tnpa  (or  sudo ss -tnpa)",
+            "ifconfig",
+            "uname -a"
+          ],
+          "correctIndex": 1,
+          "explanation": "netstat -tnpa (or the modern ss -tnpa) lists TCP sockets numerically with process/PID \u2014 exactly what you need to map a suspicious connection back to a binary. Ping tests reachability, ifconfig shows interface config, uname shows kernel info."
+        },
+        {
+          "prompt": "Output of 'sudo ss -tnpa' shows an ESTABLISHED connection from the workstation to 185.X.Y.Z:443 owned by PID 4421, process name 'helper-svc'. Type the Linux command (using PID 4421) that shows the full path of the binary backing this process.",
+          "acceptedAnswers": [
+            "ls -l /proc/4421/exe",
+            "readlink /proc/4421/exe",
+            "ls /proc/4421/exe",
+            "readlink -f /proc/4421/exe"
+          ],
+          "explanation": "/proc/<pid>/exe is a symlink to the on-disk binary that the process was started from. ls -l or readlink on it reveals the actual path even when the process has been renamed in ps. This is a foundational Linux IR move."
+        },
+        {
+          "prompt": "The binary path resolves to /tmp/.cache/.helper which is owned by the local user. Which is the MOST LIKELY persistence mechanism to check NEXT?",
+          "options": [
+            "BIOS settings",
+            "User systemd unit (~/.config/systemd/user/), user crontab (crontab -l), .bashrc and .profile, and any enabled XDG autostart entries",
+            "Browser bookmarks",
+            "File permissions on /etc/passwd"
+          ],
+          "correctIndex": 1,
+          "explanation": "User-level persistence on Linux lives in user systemd units, the user's crontab, shell init scripts (.bashrc/.profile), and XDG autostart files. Malware running as the user (no root needed) most often hides in one of these. /etc/passwd permissions matter for privilege escalation, not persistence; BIOS and bookmarks are red herrings."
+        },
+        {
+          "prompt": "You want to capture the actual outbound traffic between the workstation and 185.X.Y.Z for the next hour to a file you can analyze in Wireshark. Type the tcpdump command that captures all packets on interface eth0 to/from 185.X.Y.Z and writes to /tmp/case123.pcap.",
+          "acceptedAnswers": [
+            "sudo tcpdump -i eth0 host 185.X.Y.Z -w /tmp/case123.pcap",
+            "tcpdump -i eth0 host 185.X.Y.Z -w /tmp/case123.pcap",
+            "sudo tcpdump -i eth0 host 185.X.Y.Z -w  /tmp/case123.pcap"
+          ],
+          "explanation": "-i eth0 selects the interface, 'host 185.X.Y.Z' filters to that IP only, -w writes pcap-format. Resulting file opens directly in Wireshark or tshark for protocol analysis."
+        },
+        {
+          "prompt": "Per the malware-removal workflow, the FIRST containment action for this workstation should be to:",
+          "options": [
+            "Power it off so the malware stops running",
+            "Disconnect the workstation from the network (cable/Wi-Fi) while leaving it powered on so volatile memory and the live process can be captured",
+            "Reformat the disk",
+            "Wait until tomorrow to see if it happens again"
+          ],
+          "correctIndex": 1,
+          "explanation": "Power-off destroys RAM contents \u2014 the live malware, decryption keys, network state, and forensically valuable evidence. Network isolation stops further damage and lateral movement while preserving the system for memory capture and disk imaging."
+        }
+      ]
+    },
+    {
+      "id": "lab5",
+      "title": "Triage a burst of Windows Security log events on a domain controller",
+      "scenario": "An EDR platform raised a low-confidence anomaly alert for a domain controller (DC01). You open the Windows Security log via Event Viewer and see, in the past 30 minutes:\n\n- 1,847 Event ID 4625 entries (failed logon)\n  Logon Type: 3\n  Source Network Address: a single external IP, 203.0.113.45\n  Targeted accounts: a long list of common names (jsmith, mwilson, jdoe, admin, administrator, sa, guest, ...)\n  Sub Status: 0xC000006A (wrong password)\n\n- 4 Event ID 4624 entries (successful logon)\n  Logon Type: 3\n  Source: same IP\n  Account: 'svc-backup'\n  Followed within 60 seconds by Event ID 4732 (member added to privileged group: Domain Admins)\n\nThe svc-backup account was previously documented as a low-privilege account used by the backup software.",
+      "objective": "3.5",
+      "steps": [
+        {
+          "prompt": "Which attack pattern do the 1,847 failed-logon events MOST DIRECTLY indicate?",
+          "options": [
+            "Privilege escalation via SUID",
+            "Password spraying / brute force against SMB or LDAP from a single source IP against many accounts",
+            "DNS tunneling",
+            "ARP poisoning"
+          ],
+          "correctIndex": 1,
+          "explanation": "Many account names from one source IP with status 0xC000006A (wrong password) is textbook password spraying. Logon Type 3 is network logon, consistent with SMB or LDAP. Privilege escalation, DNS tunneling, and ARP poisoning produce different signatures."
+        },
+        {
+          "prompt": "The four successful logons (Event ID 4624) for svc-backup, immediately followed by Event ID 4732 adding the account to Domain Admins, MOST DIRECTLY indicates what?",
+          "options": [
+            "Routine backup operations",
+            "An adversary who guessed or replayed the svc-backup password and is now escalating privileges by adding the account to Domain Admins",
+            "A normal scheduled-task trigger",
+            "A misconfigured group policy"
+          ],
+          "correctIndex": 1,
+          "explanation": "A previously-low-privilege service account suddenly logging in from an external IP and being added to Domain Admins is privilege escalation in progress. Backup operations do not modify Domain Admins membership, and scheduled tasks/GPO would not produce 4732 from an external login session."
+        },
+        {
+          "prompt": "Type the Windows Security log Event ID that records 'a member was added to a security-enabled global group' (the event you saw promoting svc-backup).",
+          "acceptedAnswers": [
+            "4732",
+            "Event ID 4732",
+            "Event 4732"
+          ],
+          "explanation": "4732 is membership added to a security-enabled local group; the closely-related events are 4728 (global group) and 4756 (universal group). The exact ID depends on the group scope, but 4732 is the canonical one to memorize for Domain Admins-style additions."
+        },
+        {
+          "prompt": "What is the MOST APPROPRIATE FIRST containment action?",
+          "options": [
+            "Power off the domain controller immediately",
+            "Disable the svc-backup account, force logoff of any active sessions on DC01, and block 203.0.113.45 at the perimeter firewall \u2014 escalate to Tier 2/IR lead simultaneously",
+            "Wait until business hours to investigate further",
+            "Reset every user's password in the domain"
+          ],
+          "correctIndex": 1,
+          "explanation": "Disable the compromised account (revokes the Domain Admins membership effectively), force logoff to terminate active sessions, and block the source IP \u2014 this stops the active attack while preserving the DC for forensic capture. Powering off the DC destroys volatile evidence and can break authentication for the entire domain. Mass password resets come later, after scope is understood."
+        },
+        {
+          "prompt": "Which of the following represents the BEST follow-up action to validate the scope of the compromise?",
+          "options": [
+            "Hash and image DC01's disk; collect a memory dump if feasible; review all 4624/4625/4672/4720/4732/4738 events on every DC; check for newly-created accounts, service installations, and lateral-movement indicators on member servers; and engage the IR lead",
+            "Reboot DC01 and hope the attacker leaves",
+            "Send an email to all employees telling them not to click links",
+            "Update the antivirus definitions on every workstation"
+          ],
+          "correctIndex": 0,
+          "explanation": "Scoping requires evidence preservation and broad log review across all DCs and member servers. Brave defender, an attacker who reaches Domain Admins may have already created backdoor accounts (4720), installed services (7045 in System log), or laterally moved (4624 from the DC's IP toward member servers). Patching workstations after a DC compromise is closing the wrong door."
+        }
+      ]
+    },
+    {
+      "id": "lab6",
+      "title": "Triage a vulnerability scan and prioritize remediation",
+      "scenario": "A weekly Nessus scan of the production environment has just completed. The report contains 1,247 findings across 423 hosts. You have one week and limited engineer time. Sample top findings:\n\n1) WEB-01 (DMZ, public-facing, hosts customer payment forms): CVE-2024-XXXX in Apache, CVSS 9.8, exploit available, missing patch released last Tuesday.\n2) LAB-DC1 (isolated lab VLAN, no internet access, no production data): CVE-2023-YYYY in Windows SMB, CVSS 9.0, exploit available.\n3) PRINT-04 (office printer, internal): CVE-2024-ZZZZ default credentials, CVSS 7.2, no exploit observed.\n4) DEV-22 (engineer's workstation, internal): outdated Firefox, CVSS 6.1, exploit-in-the-wild but requires user to visit attacker page.\n5) MAIL-01 (Exchange, internet-facing): CVE-2024-WWWW in Exchange, CVSS 8.8, no public exploit yet, vendor patch out for 3 days.",
+      "objective": "4.2",
+      "steps": [
+        {
+          "prompt": "Which finding should be remediated FIRST?",
+          "options": [
+            "WEB-01 (CVSS 9.8, internet-facing, payment data, exploit available, patch out)",
+            "LAB-DC1 (CVSS 9.0, exploit available, but isolated lab with no production data)",
+            "PRINT-04 default credentials (CVSS 7.2, internal)",
+            "DEV-22 outdated Firefox (CVSS 6.1)"
+          ],
+          "correctIndex": 0,
+          "explanation": "Highest exposure (internet-facing) + highest impact (payment data, PCI-DSS scope) + highest exploitability (public exploit) + highest CVSS = clear top priority. CVSS alone is not enough \u2014 exposure and asset value drive prioritization."
+        },
+        {
+          "prompt": "Why is LAB-DC1 NOT the first priority despite having a 9.0 CVSS and a public exploit?",
+          "options": [
+            "Because Windows is not affected by SMB vulnerabilities",
+            "Because exposure and asset value are low \u2014 the lab is isolated, holds no production data, and has no network path for an external attacker; real-world risk is far lower than CVSS base implies",
+            "Because CVSS 9.0 is actually low severity",
+            "Because lab systems are out of scope for any vulnerability management program"
+          ],
+          "correctIndex": 1,
+          "explanation": "CVSS base score does not factor in your environment. An isolated lab box without internet access cannot be reached by remote exploitation of an SMB CVE. It still must be patched, but it is not the first call when an exploit-available, internet-facing critical finding sits next to it. (Lab systems are NOT out of scope \u2014 that's a misconception; they should be in the program but prioritized by real risk.)"
+        },
+        {
+          "prompt": "Type the term used to describe the comprehensive 0-10 score that NVD assigns to CVEs to indicate severity.",
+          "acceptedAnswers": [
+            "CVSS",
+            "cvss",
+            "Common Vulnerability Scoring System"
+          ],
+          "explanation": "CVSS = Common Vulnerability Scoring System. Versions 3.1 and 4.0 are current. The score is broken into Base, Temporal, and Environmental metrics \u2014 Base is what NVD publishes, Environmental is yours to compute."
+        },
+        {
+          "prompt": "MAIL-01 has CVSS 8.8 with no public exploit yet. Which approach is MOST APPROPRIATE for it?",
+          "options": [
+            "Deprioritize it indefinitely because there is no public exploit",
+            "Treat it as high priority \u2014 internet-facing, high CVSS, and Exchange CVEs historically gain public exploits within days; patch within the standard high-severity window after testing in a maintenance ring, with monitoring for IOCs in the meantime",
+            "Apply the patch tonight without any testing",
+            "Decommission the entire mail server"
+          ],
+          "correctIndex": 1,
+          "explanation": "Internet-facing Exchange + high CVSS = high priority even without a public exploit yet \u2014 Exchange weaponization is fast. Test in a small ring, then patch broadly within days, with monitoring tuned to relevant IOCs. Indefinite deprioritization is risky; untested same-night patches risk service outage; decommissioning is disproportionate."
+        },
+        {
+          "prompt": "After the immediate critical/high items are remediated, which of the following is the BEST way to track and report remediation progress to leadership?",
+          "options": [
+            "Email the raw 1,247-line scan report",
+            "Maintain a risk-ranked dashboard in the GRC/ticketing system showing per-finding owner, due date, status, and trends over time \u2014 with leadership reporting summarized by severity, exposure, and business unit",
+            "Print every finding and pin it to the wall",
+            "Wait for next week's scan and start over"
+          ],
+          "correctIndex": 1,
+          "explanation": "Leadership needs trend and accountability, not raw findings. A ranked dashboard with ownership and due dates is what compliance auditors and executives consume. Continuous re-prioritization (not waiting a week) is essential to vulnerability management."
+        }
+      ]
+    },
+    {
+      "id": "lab7",
+      "title": "Choose risk treatment strategies for a small accounting firm",
+      "scenario": "You are advising a small accounting firm with 25 employees. The firm's risk register has the following four entries:\n\nA) Risk: Office is in a flood zone; water damage could destroy on-prem servers. Probability: low but real. Impact: total loss of on-prem infrastructure.\nB) Risk: Cyber liability for client data breach. Probability: medium. Impact: potentially $500k+ in legal/notification costs.\nC) Risk: Junior staff occasionally forward client docs to personal Gmail to work from home. Probability: high. Impact: medium (data leakage).\nD) Risk: Outdated, unsupported on-prem ERP system. The vendor went out of business; no patches. Used by 3 people for legacy reports only. Probability of compromise: medium. Impact: low (data is also in the new system).",
+      "objective": "4.3",
+      "steps": [
+        {
+          "prompt": "For risk A (flood damage to on-prem servers), which treatment combination is MOST APPROPRIATE?",
+          "options": [
+            "Accept (note in register and move on)",
+            "Mitigate (raise the server room, install water sensors and a sump pump) AND transfer (carry property insurance) \u2014 combined with offsite/cloud backups for resilience",
+            "Avoid (sell the building and disband the firm)",
+            "Transfer only (rely entirely on insurance)"
+          ],
+          "correctIndex": 1,
+          "explanation": "Real risk treatment is rarely one strategy. Mitigate the likelihood/impact (sensors, raised floor, offsite backups), AND transfer the residual financial impact (insurance). Pure accept ignores manageable mitigations; pure transfer leaves operational downtime unaddressed; avoid by selling the building is disproportionate."
+        },
+        {
+          "prompt": "For risk B (cyber liability), which strategy BEST captures the role of cyber insurance?",
+          "options": [
+            "Mitigate \u2014 insurance prevents breaches",
+            "Transfer \u2014 insurance does not prevent the breach, but it shifts the financial impact (legal fees, notification costs, regulatory fines where insurable) to the insurer in exchange for a premium",
+            "Avoid \u2014 buying insurance means the firm avoids the risk entirely",
+            "Accept \u2014 insurance is the same as accepting the risk"
+          ],
+          "correctIndex": 1,
+          "explanation": "Insurance is the textbook risk transfer. It does not reduce probability or impact of the breach itself \u2014 it shifts who pays the financial fallout. Mitigation (technical controls, training) is what reduces probability; insurance complements but does not replace mitigation."
+        },
+        {
+          "prompt": "Type the risk-treatment strategy that BEST applies to risk C (staff forwarding client docs to personal Gmail) when the appropriate response is to apply controls (DLP rules, training, secure remote-work options) so the behavior decreases or is detected.",
+          "acceptedAnswers": [
+            "mitigate",
+            "mitigation",
+            "Mitigate"
+          ],
+          "explanation": "Mitigate \u2014 apply controls to reduce likelihood and impact. DLP rules block the forwarding, training reduces the desire to do it, and providing a sanctioned remote-work tool removes the underlying motivation. Accept here would be inappropriate given high probability and regulatory implications."
+        },
+        {
+          "prompt": "For risk D (outdated unsupported ERP, low impact, used for legacy reports only by 3 people), which treatment is MOST DEFENSIBLE?",
+          "options": [
+            "Mitigate by writing custom patches in-house",
+            "Avoid the risk by decommissioning the legacy ERP \u2014 export needed reports, retire the system, remove the attack surface entirely",
+            "Transfer to insurance",
+            "Accept indefinitely with no compensating control"
+          ],
+          "correctIndex": 1,
+          "explanation": "When a system is unsupported, low value, and used by few people, eliminating it (avoid) is often cheaper than perpetually mitigating around it. Custom in-house patching of an ERP is risky and unsustainable. Transfer doesn't address the technical exposure. Accept without compensating controls is poor practice for a known-vulnerable system."
+        },
+        {
+          "prompt": "Which of the following BEST describes who must approve each risk treatment decision in a mature risk-management program?",
+          "options": [
+            "The IT help desk technician",
+            "The risk owner \u2014 someone with the authority and accountability appropriate to the level of risk (e.g., a department head for medium risk; the CEO or board for high/extreme risk) \u2014 with documented sign-off",
+            "Only the security analyst who identified the risk",
+            "Whoever is on call that night"
+          ],
+          "correctIndex": 1,
+          "explanation": "Risk acceptance especially must be signed off by someone with authority commensurate with the risk level \u2014 auditors will look for written, dated approval from a named risk owner. Junior IT staff, lone analysts, and on-call engineers typically lack the authority to formally accept business risk."
+        }
+      ]
+    },
+    {
+      "id": "lab8",
+      "title": "Respond to a SIEM-correlated incident from initial alert through lessons learned",
+      "scenario": "Your Microsoft Sentinel SIEM raises a high-severity alert at 03:14 AM:\n\nCorrelation rule: 'Impossible travel + privileged action'\nUser: [email protected]\nEvents:\n- 02:51:22 successful Azure AD logon from IP 203.0.113.10 (Bucharest, Romania)\n- 02:54:08 same user, successful logon from IP 198.51.100.9 (Dallas, TX) \u2014 Madison's normal location\n- 02:55:14 [email protected] adds [email protected] to 'Global Administrators' role\n- 02:55:31 first-time MFA registration from Bucharest IP\n- 02:56:00 OAuth consent grant to a new third-party app 'BlueDocs Sync'\n\nMadison is not traveling and is asleep at home. The IR runbook is loaded.",
+      "objective": "5.4",
+      "steps": [
+        {
+          "prompt": "Which NIST SP 800-61 phase are you currently in?",
+          "options": [
+            "Preparation",
+            "Detection and Analysis",
+            "Containment, Eradication, and Recovery",
+            "Post-Incident Activity"
+          ],
+          "correctIndex": 1,
+          "explanation": "An alert has fired and you are characterizing scope, vector, and impact \u2014 that is Detection and Analysis. Preparation built the rule and runbook beforehand. Containment is the next phase, after you've confirmed and scoped."
+        },
+        {
+          "prompt": "Which SHORT-TERM containment actions are MOST APPROPRIATE within the first 5 minutes?",
+          "options": [
+            "Wait until 8 AM to call Madison and confirm",
+            "Disable Madison's account, revoke all active sessions and OAuth tokens, block the Bucharest IP, remove the unauthorized user from Global Administrators, revoke the BlueDocs Sync OAuth grant \u2014 and trigger SOAR playbook to do all of this automatically if available",
+            "Reboot Madison's laptop remotely",
+            "Reset every user's MFA in the tenant"
+          ],
+          "correctIndex": 1,
+          "explanation": "Brave defender, this is account takeover with privilege escalation in progress \u2014 short-term containment must stop the bleeding now. Disable the account, revoke sessions/tokens (active session tokens survive password change), kill the unauthorized GA role membership, and revoke the rogue OAuth grant. SOAR automation is exactly what playbooks are built for. Waiting until 8 AM gives the attacker 5 hours of GA access; tenant-wide MFA reset is disproportionate."
+        },
+        {
+          "prompt": "Type the framework whose tactic 'Initial Access' technique 'T1078 \u2014 Valid Accounts' would be the appropriate mapping for this attacker behavior in your incident report.",
+          "acceptedAnswers": [
+            "MITRE ATT&CK",
+            "ATT&CK",
+            "MITRE ATTACK",
+            "MITRE Att&ck",
+            "mitre att&ck"
+          ],
+          "explanation": "MITRE ATT&CK technique IDs (T-numbers) are the standard for documenting attacker behavior. T1078 Valid Accounts is initial access via legitimate credentials; the privilege-escalation step would map to T1098.003 (Additional Cloud Roles); the OAuth grant maps to T1098.001 / T1556."
+        },
+        {
+          "prompt": "Once short-term containment is in place, which forensic evidence should be preserved BEFORE you proceed to long-term containment and eradication?",
+          "options": [
+            "Nothing \u2014 go straight to eradication",
+            "Azure AD sign-in logs, audit logs, MFA-method changes, OAuth consent records, mailbox audit logs (in case of mail-rule modifications), and a list of every action the attacker took during their session \u2014 exported and hashed for chain of custody",
+            "Only the original SIEM alert email",
+            "Backup tapes from a year ago"
+          ],
+          "correctIndex": 1,
+          "explanation": "Cloud incidents leave evidence in cloud audit trails \u2014 Azure AD sign-in logs, audit logs, OAuth consent records, mailbox rules. Export and hash before retention windows expire (some default to 30-90 days). Without this, scope and lessons-learned analysis are guesswork."
+        },
+        {
+          "prompt": "Which post-incident activity BEST ensures this specific attack pattern is harder to succeed in the future?",
+          "options": [
+            "Delete the SIEM rule that fired",
+            "Hold a lessons-learned meeting; require phishing-resistant MFA for privileged accounts; restrict who can grant OAuth consent (admin consent for risky apps); add detection for first-time admin role assignments and first-time OAuth grants; document all of this in the runbook",
+            "Send a company-wide email apologizing",
+            "Power off the affected user's laptop permanently"
+          ],
+          "correctIndex": 1,
+          "explanation": "The lessons-learned phase converts a bad night into a stronger posture. Phishing-resistant MFA on admins defeats the credential-replay path. OAuth-consent governance prevents the rogue app grant. New detections close the gap between this attack and the next variant. Updated runbooks let the next analyst respond faster. Deleting the rule, sending apologies, or powering off a laptop addresses none of these."
+        }
+      ]
+    },
+    {
+      "id": "lab9",
+      "title": "Preserve evidence and maintain chain of custody for a suspected insider-threat case",
+      "scenario": "HR informs the security team that an engineer, Tom, gave 2 weeks notice yesterday to join a competitor. Today, DLP flagged Tom uploading 6 GB of source code to a personal Dropbox account from his work laptop at 18:42, after office hours. Legal wants the case preserved for possible litigation. Tom's laptop is currently powered on, locked, sitting on his desk in an empty office. You and one other analyst arrive on-site at 19:30.",
+      "objective": "5.2",
+      "steps": [
+        {
+          "prompt": "Which is the MOST APPROPRIATE FIRST action upon arriving at Tom's desk?",
+          "options": [
+            "Power off the laptop immediately to prevent further data exfiltration",
+            "Photograph the scene (laptop position, screen state, peripherals, any USB devices) and document the physical state and time of arrival in your case notebook BEFORE touching anything",
+            "Log in with Tom's credentials to see what he was doing",
+            "Take the laptop home and image it later"
+          ],
+          "correctIndex": 1,
+          "explanation": "Forensic procedure starts with documentation of the scene as found. Photographs and notes establish state at the moment of seizure \u2014 critical for chain of custody and admissibility. Powering off destroys volatile evidence. Logging in alters timestamps and contaminates evidence. Removing the device without documentation breaks chain of custody from the start."
+        },
+        {
+          "prompt": "Per the order of volatility (RFC 3227), which evidence should you collect FIRST given the laptop is currently powered on?",
+          "options": [
+            "A logical copy of the user's home directory",
+            "A volatile-data capture: memory image (RAM), open network connections, running processes, logged-on users \u2014 using a forensically sound tool from external read-only media",
+            "Old backup tapes from the file server",
+            "Building access logs"
+          ],
+          "correctIndex": 1,
+          "explanation": "RAM and live system state are most volatile. Capturing them while the laptop is still running preserves running processes (the Dropbox client?), open file handles, and possibly decryption keys for any encrypted volumes. After volatile capture, then proceed to disk imaging."
+        },
+        {
+          "prompt": "After volatile capture, you take a bit-for-bit forensic image of the disk and immediately compute a SHA-256 hash. Type the BEST reason to record the hash IMMEDIATELY at acquisition.",
+          "acceptedAnswers": [
+            "to prove integrity",
+            "to verify integrity later",
+            "to detect tampering",
+            "chain of custody",
+            "evidence integrity",
+            "to prove the image has not been altered",
+            "integrity verification"
+          ],
+          "explanation": "Hashing at acquisition establishes a verifiable baseline. If anyone later questions whether the image was tampered with, recomputing the hash and comparing proves bit-level integrity. Without the immediately-recorded hash, defense counsel can argue the evidence was modified during analysis."
+        },
+        {
+          "prompt": "Which document MUST accompany the laptop and the disk image from the moment of seizure through every transfer between custodians, with timestamps and signatures at every step?",
+          "options": [
+            "The vendor warranty card",
+            "The chain-of-custody form / log",
+            "The end-user license agreement",
+            "The original purchase receipt"
+          ],
+          "correctIndex": 1,
+          "explanation": "The chain of custody form records every person who handles the evidence, when, where, why, and how it was stored. Any gap is grounds for the opposing side to argue tampering and seek exclusion. Vendor docs, EULAs, and receipts are unrelated."
+        },
+        {
+          "prompt": "After analysis is complete, the case may go to court. Which of the following is the BEST practice for handling the original evidence versus any analysis copies?",
+          "options": [
+            "Analyze directly on the original drive to keep things simple",
+            "Seal the original evidence; perform all analysis on verified bit-for-bit copies whose hashes match the original; document hash verification before and after each analysis session",
+            "Delete the original after the image is made",
+            "Share the original with the competitor's lawyers"
+          ],
+          "correctIndex": 1,
+          "explanation": "Original evidence is sealed and preserved untouched. Analysis happens on verified copies. Hashes are checked before and after each session to prove the working copy matches the original. Working on the original risks alteration. Deleting the original destroys evidence. Sharing with adverse parties is a legal disaster."
+        }
+      ]
+    }
+  ]
+}
