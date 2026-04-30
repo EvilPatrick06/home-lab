@@ -85,3 +85,17 @@ describe('AWS prompt', () => {
     expect(a.prompt).toMatch(/Well-Architected/i);
   });
 });
+
+describe('Cisco prompt', () => {
+  it('is registered with id="cisco" and lists CCNA', () => {
+    const c = ORG_PROMPTS.find(p => p.id === 'cisco');
+    expect(c).toBeDefined();
+    expect(c.commonExams.some(e => e.includes('CCNA'))).toBe(true);
+  });
+
+  it('mentions IOS and CLI commands', () => {
+    const c = ORG_PROMPTS.find(p => p.id === 'cisco');
+    expect(c.prompt).toMatch(/IOS/);
+    expect(c.prompt).toMatch(/show |configure terminal|CLI/);
+  });
+});
