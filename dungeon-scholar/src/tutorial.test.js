@@ -7,19 +7,57 @@ describe('tutorial module sanity', () => {
   });
 });
 
-describe('TUTORIAL_STEPS (legacy 8-step shape)', () => {
-  it('has 8 steps in the legacy order', () => {
-    expect(TUTORIAL_STEPS).toHaveLength(8);
+describe('TUTORIAL_STEPS (14-step shape)', () => {
+  it('has 14 steps in the new order', () => {
+    expect(TUTORIAL_STEPS).toHaveLength(14);
     expect(TUTORIAL_STEPS.map(s => s.id)).toEqual([
       'welcome',
       'forge_tome',
       'inscribe_tome',
+      'library_tour',
       'study_scroll',
       'solve_riddle',
       'face_trial',
+      'vault_intro',
       'consult_oracle',
+      'quest_board',
       'enter_dungeon',
+      'view_achievements',
+      'view_titles_levels',
+      'manage_saga',
     ]);
+  });
+
+  it('total XP across all steps is 425', () => {
+    const total = TUTORIAL_STEPS.reduce((s, step) => s + (step.xp || 0), 0);
+    expect(total).toBe(425);
+  });
+
+  it('every step with autoComplete:true has an autoCondition', () => {
+    for (const step of TUTORIAL_STEPS) {
+      if (step.autoComplete) {
+        expect(step.autoCondition, `step ${step.id} missing autoCondition`).toBeDefined();
+      }
+    }
+  });
+
+  it('every step with actionLabel triggers a known onAction id', () => {
+    // The corresponding handler in App.jsx onAction must handle each of these ids.
+    // This test enforces that the set of action-bearing steps stays in sync with
+    // the dispatch table (manually mirrored — string list below).
+    const knownActionIds = new Set([
+      'forge_tome',
+      'library_tour',
+      'vault_intro',
+      'quest_board',
+      'view_achievements',
+      'view_titles_levels',
+    ]);
+    for (const step of TUTORIAL_STEPS) {
+      if (step.actionLabel) {
+        expect(knownActionIds.has(step.id), `step ${step.id} has actionLabel but no known dispatch`).toBe(true);
+      }
+    }
   });
 });
 
