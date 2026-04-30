@@ -99,3 +99,17 @@ describe('Cisco prompt', () => {
     expect(c.prompt).toMatch(/show |configure terminal|CLI/);
   });
 });
+
+describe('CMMC prompt', () => {
+  it('is registered with id="cmmc" and references NIST 800-171', () => {
+    const c = ORG_PROMPTS.find(p => p.id === 'cmmc');
+    expect(c).toBeDefined();
+    expect(c.prompt).toMatch(/800-171/);
+  });
+
+  it('mentions Levels 1-3 and control assessment', () => {
+    const c = ORG_PROMPTS.find(p => p.id === 'cmmc');
+    expect(c.prompt).toMatch(/Level [123]/);
+    expect(c.prompt).toMatch(/practice|control/i);
+  });
+});
