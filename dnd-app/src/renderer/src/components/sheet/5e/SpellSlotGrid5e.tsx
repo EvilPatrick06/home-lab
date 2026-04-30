@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 interface SpellSlotGridProps {
   label: string
   slotLevels: Record<string, { max: number; current: number }>
@@ -6,7 +8,7 @@ interface SpellSlotGridProps {
   isPact?: boolean
 }
 
-export default function SpellSlotGrid5e({
+function SpellSlotGrid5e({
   label,
   slotLevels,
   onSlotClick,
@@ -66,3 +68,5 @@ function ordinal(n: number): string {
   if (n === 3) return 'rd'
   return 'th'
 }
+
+export default memo(SpellSlotGrid5e)

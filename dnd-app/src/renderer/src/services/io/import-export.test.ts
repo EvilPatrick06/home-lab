@@ -69,7 +69,8 @@ import {
   exportCharacter,
   importAllData,
   importCampaign,
-  importCharacter
+  importCharacter,
+  migrateBackupPayload
 } from './import-export'
 
 describe('import-export', () => {
@@ -453,5 +454,90 @@ describe('import-export', () => {
       expect(localStorageMap.has('other-key')).toBe(false)
       expect(localStorageMap.get('dnd-vtt-theme')).toBe('dark')
     })
+  })
+})
+
+describe('migrateBackupPayload', () => {
+  it('returns input unchanged when version is already current (v3)', () => {
+    const v3 = {
+      version: 3,
+      characters: [{ id: 'c1' }],
+      books: { config: {}, data: [] }
+    }
+    expect(migrateBackupPayload(v3)).toBe(v3)
+  })
+
+  it('returns input unchanged when version is invalid (NaN, < 1, > current)', () => {
+    const a = { version: 'oops' as unknown as number }
+    const b = { version: 0 }
+    const c = { version: 999 }
+    expect(migrateBackupPayload(a)).toBe(a)
+    expect(migrateBackupPayload(b)).toBe(b)
+    expect(migrateBackupPayload(c)).toBe(c)
+  })
+
+  it('walks v1 → v2 → v3, adding fields from each step', () => {
+    const v1 = {
+      version: 1,
+      characters: [{ id: 'c1' }],
+      campaigns: [],
+      bastions: [],
+      appSettings: {},
+      preferences: {}
+    }
+    const result = migrateBackupPayload(v1)
+
+    expect(result.version).toBe(3)
+    // From v1 → v2 step:
+    expect(result.customCreatures).toEqual([])
+    expect(result.homebrew).toEqual([])
+    // From v2 → v3 step:
+    expect(result.gameStates).toEqual([])
+    expect(result.aiConversations).toEqual([])
+    expect(result.imageLibrary).toEqual([])
+    expect(result.mapLibrary).toEqual([])
+    expect(result.shopTemplates).toEqual([])
+    expect(result.books).toEqual({ config: { customBooks: [] }, data: [] })
+    // Untouched fields:
+    expect(result.characters).toEqual([{ id: 'c1' }])
+  })
+
+  it('walks v2 → v3, adding only the v3 fields', () => {
+    const v2 = {
+      version: 2,
+      characters: [],
+      campaigns: [],
+      bastions: [],
+      customCreatures: [{ id: 'cr-existing' }],
+      homebrew: [{ id: 'hb-existing' }],
+      appSettings: {},
+      preferences: {}
+    }
+    const result = migrateBackupPayload(v2)
+
+    expect(result.version).toBe(3)
+    // v2 → v3 fields appear:
+    expect(result.gameStates).toEqual([])
+    expect(result.books).toEqual({ config: { customBooks: [] }, data: [] })
+    // Existing v2 fields are preserved (not overwritten by defaults):
+    expect(result.customCreatures).toEqual([{ id: 'cr-existing' }])
+    expect(result.homebrew).toEqual([{ id: 'hb-existing' }])
+  })
+
+  it('preserves existing array values in additive fields rather than defaulting to empty', () => {
+    const v2WithSomeV3Fields = {
+      version: 2,
+      characters: [],
+      campaigns: [],
+      bastions: [],
+      customCreatures: [],
+      homebrew: [],
+      appSettings: {},
+      preferences: {},
+      // Hand-edited backup someone else stashed a v3 array into:
+      mapLibrary: [{ id: 'm1', name: 'Cave' }]
+    }
+    const result = migrateBackupPayload(v2WithSomeV3Fields)
+    expect(result.mapLibrary).toEqual([{ id: 'm1', name: 'Cave' }])
   })
 })

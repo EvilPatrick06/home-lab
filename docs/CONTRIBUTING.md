@@ -108,6 +108,35 @@ some stuff
 - **Wait — actually our codebase uses PascalCase for component files** (`CharacterSheet5ePage.tsx`). Match what's there. Biome enforces.
 - **Tests colocated:** `foo.test.ts` next to `foo.ts`, vitest.
 
+### React performance (dnd-app/)
+
+`React.memo` is the cheap default for components that meet **any** of these:
+- **List items** rendered via `.map()` (e.g., `<SpellCardView>`, `<MagicItemCard5e>`, `<MessageBubble>`). One sibling change re-renders all without memo.
+- **Heavy DOM / many children** (`<MonsterStatBlockView>`, `<PlayerHUDOverlay>`).
+- **High-frequency render paths** — anything inside the game canvas, character sheet, or chat panel that re-renders on every game-state tick or cursor move.
+
+Wrap with the named-function form so React DevTools still shows the right name:
+
+```ts
+import { memo } from 'react'
+
+function MyCard({ item }: Props): JSX.Element { /* ... */ }
+export default memo(MyCard)
+```
+
+For named exports, keep the `Impl` suffix on the inner function so the memoized name owns the public export:
+
+```ts
+function MyRowImpl({ row }: Props): JSX.Element { /* ... */ }
+export const MyRow = memo(MyRowImpl)
+```
+
+**Pitfall — callback props need `useCallback` upstream.** If a parent passes a fresh closure every render (`onClick={() => doX(id)}`), shallow equality fails and the memo is a no-op. Stabilize callbacks with `useCallback` in the parent OR pass a stable handler keyed on the row id.
+
+**Pitfall — object props need stable references.** If the parent constructs `{...spread, foo: bar}` each render, shallow equality fails. Either memoize the object with `useMemo` upstream or hoist it.
+
+**When NOT to memo:** top-level page components that own most of the store subscriptions — they re-render anyway when the subscribed slices change, and memo just adds equality-check overhead. Memoize their **children**, not the page.
+
 ### Python (bmo/)
 
 - **Python 3.11 + type hints.**

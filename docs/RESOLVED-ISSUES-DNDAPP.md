@@ -12,6 +12,124 @@
 
 ---
 
+### [2026-04-26] React.memo applied to top tree-rendered components + convention doc
+
+- **Original severity:** low
+- **Category:** future-idea, performance
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** React memoization audit
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-26
+
+**Problem:** The original log entry claimed "0 files use `React.memo`" — true at the time of the audit, but stale by the time of fix (`PlayerCard`, `ChatPanel/MessageBubble/FileAttachment`, `BottomChatMessage`, `DiceResult`, `CharacterCard` had already been wrapped in earlier work). The "memoization is half-broken" framing still applied: ~376 `useMemo`/`useCallback` calls upstream of components that themselves weren't memoized → no reference-equality payoff.
+
+**Resolution:** Static analysis (no React DevTools — interactive tool) to identify the heaviest list-item / heavy-DOM / high-frequency-render targets, then wrapped 7 components in `memo()`:
+
+| File | Why |
+|---|---|
+| `library/SpellCardView.tsx` | List item in spell library — heavy DOM per card |
+| `game/dm/MonsterStatBlockView.tsx` | List item in DM stat-block view, complex |
+| `sheet/5e/MagicItemCard5e.tsx` | List item in equipment view |
+| `sheet/5e/FeatureCard5e.tsx` (`FeatureRow`, `FeatPickerRow`) | Two list-item exports |
+| `sheet/5e/HitPointsBar5e.tsx` | High-frequency game-state-driven |
+| `sheet/5e/SpellSlotGrid5e.tsx` | Game-state-driven, simple props |
+| `game/overlays/PlayerHUDOverlay.tsx` | High-frequency, drag-positioned overlay |
+
+Pattern used: `function FooImpl(...) { ... }` then `export default memo(Foo)` (or `export const Foo = memo(FooImpl)` for named exports). Default shallow-equality — no custom `arePropsEqual` needed; callers either already pass stable references (callbacks via `useCallback`, objects via `useMemo`) or memo is harmless when shallow doesn't match.
+
+`MapCanvas` left un-memoized: 909-line Pixi container that subscribes to many stores internally — memoizing the parent would re-render anyway when any subscribed slice changes; tokens themselves are Pixi sprites, not React. Conditionally adding profiling-driven custom equality is its own (deferred) project.
+
+**Convention added:** `docs/CONTRIBUTING.md` → new "React performance (dnd-app/)" subsection covering when to wrap (list items / heavy DOM / high-frequency), the `Impl`-suffix named-export pattern, the two pitfalls (callback props need `useCallback` upstream; object props need `useMemo`), and when NOT to memo (top-level page components that own most store subscriptions).
+
+**Verification:** `npx tsc --noEmit` clean; `npx vitest run` → 6340/6340 tests pass; `npx biome check` clean (after `--write` reordered imports — alphabetical within group).
+
+**Files touched:** the 7 component files above; `docs/CONTRIBUTING.md`.
+
+---
+
+### [2026-04-25] `ConversationManager.messages` grows unbounded across a long campaign — disk + memory cost
+
+- **Original severity:** low
+- **Category:** debt, performance
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** AI conversation memory audit (Tier B deep dive)
+- **Resolved by:** Claude Opus
+- **Commit:** `998a080`
+- **Date resolved:** 2026-04-25
+
+**Problem:** `ConversationManager.maybeSummarize` added entries to `this.summaries` when message count exceeded `MAX_RECENT_MESSAGES = 10`, but never pruned `this.messages` itself — only the API path truncated via the token-budget loop. `serialize()` wrote the full array to disk, so per-campaign on-disk size grew monotonically (~1.3 MB/year at 50 msgs/session weekly).
+
+**Resolution:** `maybeSummarize` now `splice(0, halfPoint)`s the messages it summarized. New invariant: `coversUpTo: -1` means "the latest summary precedes ALL remaining messages" — no absolute index dependency. `restore()` includes backward-compat: pre-prune saves stored an absolute `coversUpTo`; on first load we splice the prefix away and reset `coversUpTo = -1` so the post-prune invariant holds going forward.
+
+**Files touched:** `src/main/ai/conversation-manager.ts:178-203` (prune in `maybeSummarize`), `:213-232` (backward-compat `restore`).
+
+---
+
+### [2026-04-25] Concurrent `saveCharacter(sameId)` races — auto-save vs manual save can lose data
+
+- **Original severity:** low
+- **Category:** bug, debt
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** storage concurrent-write audit (Tier A deep dive)
+- **Resolved by:** Claude Opus
+- **Commit:** `998a080`
+- **Date resolved:** 2026-04-25
+
+**Problem:** `saveCharacter`'s sequence (read existing → copy to `.versions/` → prune to 20 → atomic-write) was three separate awaits with no mutex around the trio. Two concurrent calls with the same id (auto-save tick racing manual save) could interleave: each saw the same "old" state, each wrote its own version backup, and the second `atomicWriteFile` silently overwrote the first. Same shape applied to `campaign-storage`, `bastion-storage`, etc.
+
+**Resolution:** New `src/main/storage/save-queue.ts` module with `withSaveLock(scope, id, fn)`. Per-`(scope, id)` serializer using a `Map<string, Promise>`: each call chains off the previous promise for its key before starting. Errors propagate but don't poison the lock — the next caller starts fresh. `character-storage.saveCharacter` now wraps the full read→backup→write trio in `withSaveLock('character', id, ...)`.
+
+**Files touched:** `src/main/storage/save-queue.ts` (new), `src/main/storage/character-storage.ts:58-89` (wrap in lock).
+
+---
+
+### [2026-04-25] Three "fire-and-forget" promise sites swallow errors silently
+
+- **Original severity:** low
+- **Category:** debt
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** floating-promise / empty-catch audit
+- **Resolved by:** Claude Opus
+- **Commit:** `998a080`
+- **Date resolved:** 2026-04-25
+
+**Problem:** Three sites kicked off async work and silently dropped errors with empty `catch {}` blocks — each a debugging black hole when the underlying op failed:
+
+| File | Original line | Impact when it failed |
+|---|---|---|
+| `src/main/ai/context-builder.ts` | 254 | Cache miss next session; no visibility |
+| `src/main/ai/conversation-manager.ts` | 198 | Summary lost; messages never compress |
+| `src/main/storage/character-storage.ts` | 70 | Version history gap, no warning |
+
+**Resolution:** Each `catch {}` now `logToFile('WARN', '<scope>', ...)`. Behavior unchanged (still non-fatal); just leaves a breadcrumb when the silent failure happens.
+
+**Files touched:** `src/main/ai/context-builder.ts:254-256`, `src/main/ai/conversation-manager.ts:200-202`, `src/main/storage/character-storage.ts:77-81`.
+
+---
+
+### [2026-04-25] PDF.js worker `postinstall` script breaks silently on pdfjs-dist layout changes
+
+- **Original severity:** low
+- **Category:** config, debt
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** build/release audit
+- **Resolved by:** Claude Opus
+- **Commit:** `998a080`
+- **Date resolved:** 2026-04-25
+
+**Problem:** `package.json:11` had an inline `node -e` postinstall that hard-coded `node_modules/pdfjs-dist/build/pdf.worker.min.mjs`. If pdfjs-dist v5 (or any future major) renamed/moved the worker, `cpSync` threw `ENOENT` and `npm install` exited non-zero with no actionable error context. Inline `-e` strings inside a JSON file were also unreviewable.
+
+**Resolution:** Moved logic to `dnd-app/scripts/build/postinstall.mjs`. Pre-flight checks `existsSync(source)`; if missing, prints the resolved path + the actual installed pdfjs version (read from `node_modules/pdfjs-dist/package.json`) + a hint to update the script. `package.json:postinstall` now calls `node scripts/build/postinstall.mjs`.
+
+**Files touched:** `dnd-app/scripts/build/postinstall.mjs` (new), `dnd-app/package.json:16` (call new script).
+
+---
+
 ### [2026-04-25] dnd-app cross-platform — Linux AppImage + .deb alongside Windows NSIS, including auto-update
 
 - **Original severity:** medium (was Windows-only despite "cross-platform" claim in docs)

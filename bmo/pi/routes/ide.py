@@ -34,6 +34,8 @@ from services.bmo_logging import get_logger
 
 log = get_logger("ide")
 
+from state import STATE
+
 # Module-level handles set by register_ide(). These start as None so the
 # import-time decoration of routes still works; SocketIO handlers and any
 # call site that needs `_resolve_agent().chat(...)` resolves them at request time
@@ -100,18 +102,15 @@ def _get_file_watcher():
         _file_watcher = FileWatcher(_on_file_change)
     return _file_watcher
 
-# Windows proxy state
-_win_proxy_sid = None
-_win_proxy_pending: dict[str, _AsyncResult] = {}
+# (Windows-proxy state moved to state.STATE.win_proxy_sid / state.STATE.win_proxy_pending)
 
-# IDE agent jobs
-_ide_jobs: dict[str, dict] = {}
+# (IDE jobs collection moved to state.STATE.ide_jobs)
 
 
 def _job_update(job_id: str, **fields) -> None:
-    """Apply per-key writes to `_ide_jobs[job_id]` under its per-job RLock.
+    """Apply per-key writes to `STATE.ide_jobs[job_id]` under its per-job RLock.
     Falls back silently if the job no longer exists (already cancelled/cleaned)."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return
     lock = job.get("_lock")
@@ -124,8 +123,8 @@ def _job_update(job_id: str, **fields) -> None:
 
 
 def _job_append(job_id: str, list_field: str, item) -> None:
-    """Append `item` to `_ide_jobs[job_id][list_field]` under per-job RLock."""
-    job = _ide_jobs.get(job_id)
+    """Append `item` to `STATE.ide_jobs[job_id][list_field]` under per-job RLock."""
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return
     lock = job.get("_lock")
@@ -137,9 +136,9 @@ def _job_append(job_id: str, list_field: str, item) -> None:
 
 
 def _job_get(job_id: str, key: str, default=None):
-    """Read `_ide_jobs[job_id][key]` under per-job RLock — guards against
+    """Read `STATE.ide_jobs[job_id][key]` under per-job RLock — guards against
     a teardown elsewhere replacing the dict mid-read."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return default
     lock = job.get("_lock")
@@ -147,20 +146,19 @@ def _job_get(job_id: str, key: str, default=None):
         return job.get(key, default)
     with lock:
         return job.get(key, default)
-_ide_job_counter = 0
-_current_running_job_id = None
+# STATE.ide_job_counter, STATE.current_running_job_id — moved to state.STATE
 _IDE_JOBS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/ide_jobs.json")
 
 
-_ide_jobs_lock = threading.Lock()
+# (moved to state.STATE.ide_jobs_lock)
 
 def _save_ide_jobs():
     """Persist IDE jobs to disk, keeping only the last 50."""
-    with _ide_jobs_lock:
+    with STATE.ide_jobs_lock:
         try:
             os.makedirs(os.path.dirname(_IDE_JOBS_FILE), exist_ok=True)
             serializable = {}
-            items = list(_ide_jobs.items())
+            items = list(STATE.ide_jobs.items())
             # Keep last 50
             if len(items) > 50:
                 items = items[-50:]
@@ -183,7 +181,6 @@ def _save_ide_jobs():
 
 def _load_ide_jobs():
     """Restore IDE jobs from disk on startup."""
-    global _ide_job_counter
     try:
         if os.path.exists(_IDE_JOBS_FILE):
             with open(_IDE_JOBS_FILE, "r", encoding="utf-8") as f:
@@ -193,12 +190,12 @@ def _load_ide_jobs():
                 if job.get("status") == "running":
                     job["status"] = "failed"
                     job.setdefault("error", "Server restarted")
-                _ide_jobs[jid] = job
+                STATE.ide_jobs[jid] = job
                 # Update counter to avoid ID collisions
                 try:
                     num = int(jid.split("-")[-1])
-                    if num > _ide_job_counter:
-                        _ide_job_counter = num
+                    if num > STATE.ide_job_counter:
+                        STATE.ide_job_counter = num
                 except (ValueError, IndexError):
                     pass
     except Exception:
@@ -234,24 +231,24 @@ def _detect_language(path: str) -> str:
 
 def _proxy_to_windows(op: str, params: dict, timeout: float = 10.0) -> dict:
     """Send a request to the Windows proxy and wait for the response."""
-    if not _win_proxy_sid:
+    if not STATE.win_proxy_sid:
         return {"error": "Windows proxy not connected"}
     import uuid
     request_id = str(uuid.uuid4())
     result_event = _AsyncResult()
-    _win_proxy_pending[request_id] = result_event
+    STATE.win_proxy_pending[request_id] = result_event
     try:
         socketio.emit("win_proxy_request", {
             "request_id": request_id,
             "op": op,
             "params": params,
-        }, room=_win_proxy_sid)
+        }, room=STATE.win_proxy_sid)
         result = result_event.get(timeout=timeout)
         return result
     except Exception:
         return {"error": "Windows proxy request timed out"}
     finally:
-        _win_proxy_pending.pop(request_id, None)
+        STATE.win_proxy_pending.pop(request_id, None)
 
 
 # ── IDE File API routes ──────────────────────────────────────────────
@@ -701,9 +698,9 @@ def api_ide_jobs_list():
     """List all IDE agent jobs."""
     jobs = []
     # Snapshot under the lock — prevents RuntimeError("dictionary changed size
-    # during iteration") if a job-runner greenlet appends to _ide_jobs mid-iter.
-    with _ide_jobs_lock:
-        snapshot = list(_ide_jobs.items())
+    # during iteration") if a job-runner greenlet appends to STATE.ide_jobs mid-iter.
+    with STATE.ide_jobs_lock:
+        snapshot = list(STATE.ide_jobs.items())
     for jid, job in snapshot:
         # Shallow messages: just role + text, no heavy content
         messages = [{"role": m.get("role", ""), "text": m.get("text", "")} for m in job.get("messages", [])]
@@ -726,24 +723,23 @@ def api_ide_jobs_list():
 @ide_bp.route("/jobs", methods=["POST"])
 def api_ide_jobs_create():
     """Spawn a new IDE agent job."""
-    global _ide_job_counter
     data = request.json or {}
     task = data.get("task", "")
     auto_approve = data.get("auto_approve", False)
     if not task:
         return jsonify({"error": "No task provided"}), 400
 
-    with _ide_jobs_lock:
-        _ide_job_counter += 1
-        job_id = f"ide-job-{_ide_job_counter}"
+    with STATE.ide_jobs_lock:
+        STATE.ide_job_counter += 1
+        job_id = f"ide-job-{STATE.ide_job_counter}"
         agent_name = data.get("agent") or "code"
         job_mode = data.get("mode", "normal")
         # `_lock` is a per-job RLock — agent task body wraps every mutation
-        # of `_ide_jobs[job_id]` with `with _ide_jobs[job_id]["_lock"]:` so
+        # of `STATE.ide_jobs[job_id]` with `with STATE.ide_jobs[job_id]["_lock"]:` so
         # concurrent reads/writes on the same job don't tear, while writes
         # on different jobs run in parallel under gevent's cooperative
         # scheduling.
-        _ide_jobs[job_id] = {
+        STATE.ide_jobs[job_id] = {
             "task": task,
             "status": "running",
             "mode": job_mode,
@@ -762,8 +758,7 @@ def api_ide_jobs_create():
     socketio.emit("ide_job_started", {"id": job_id, "task": task, "agent": agent_name})
 
     def _run_job():
-        global _current_running_job_id
-        _current_running_job_id = job_id
+        STATE.current_running_job_id = job_id
 
         def _emit_activity(activity_type, content, **extra):
             """Emit a structured activity event for the IDE job chat."""
@@ -958,7 +953,7 @@ def api_ide_jobs_create():
         finally:
             _sys.stdout = _old_stdout
             _sys.stderr = _old_stderr
-            _current_running_job_id = None
+            STATE.current_running_job_id = None
             try:
                 from dev.claude_tools import set_auto_approve
                 set_auto_approve(False)
@@ -972,7 +967,7 @@ def api_ide_jobs_create():
 @ide_bp.route("/jobs/<job_id>/cancel", methods=["POST"])
 def api_ide_jobs_cancel(job_id):
     """Cancel a running job."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
     cancel_ev = job.get("_cancel")
@@ -987,7 +982,7 @@ def api_ide_jobs_cancel(job_id):
 @ide_bp.route("/jobs/<job_id>/followup", methods=["POST"])
 def api_ide_jobs_followup(job_id):
     """Send a follow-up message to a specific job."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
     data = request.json or {}
@@ -999,8 +994,7 @@ def api_ide_jobs_followup(job_id):
     job["_cancel"] = threading.Event()  # fresh cancel event
 
     def _run_followup():
-        global _current_running_job_id
-        _current_running_job_id = job_id
+        STATE.current_running_job_id = job_id
         resolved_agent = job.get("agent_name", "code")
         job_mode = job.get("mode", "normal")
 
@@ -1116,7 +1110,7 @@ def api_ide_jobs_followup(job_id):
         finally:
             _sys.stdout = _old_stdout
             _sys.stderr = _old_stderr
-            _current_running_job_id = None
+            STATE.current_running_job_id = None
 
     socketio.emit("ide_job_started", {"id": job_id, "task": msg, "agent": job.get("agent_name", "code"), "followup": True})
     threading.Thread(target=_run_followup, daemon=True).start()
@@ -1126,7 +1120,7 @@ def api_ide_jobs_followup(job_id):
 @ide_bp.route("/jobs/<job_id>/messages", methods=["GET"])
 def api_ide_jobs_messages(job_id):
     """Return conversation history for a job."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
     messages = [{"role": m.get("role", ""), "text": m.get("text", ""), "ts": m.get("ts", 0)} for m in job.get("messages", [])]
@@ -1137,7 +1131,7 @@ def api_ide_jobs_messages(job_id):
 @ide_bp.route("/jobs/<job_id>/rename", methods=["POST"])
 def api_ide_jobs_rename(job_id):
     """Set a custom name for a job."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
     data = request.json or {}
@@ -1149,7 +1143,7 @@ def api_ide_jobs_rename(job_id):
 @ide_bp.route("/jobs/<job_id>/mode", methods=["POST"])
 def api_ide_jobs_mode(job_id):
     """Update the mode for a job (autopilot/normal/plan)."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
     data = request.json or {}
@@ -1164,7 +1158,7 @@ def api_ide_jobs_mode(job_id):
 @ide_bp.route("/jobs/<job_id>/archive", methods=["POST"])
 def api_ide_jobs_archive(job_id):
     """Archive a job."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
     job["archived"] = True
@@ -1176,7 +1170,7 @@ def api_ide_jobs_archive(job_id):
 @ide_bp.route("/jobs/<job_id>/auto-approve", methods=["POST"])
 def api_ide_jobs_auto_approve(job_id):
     """Toggle auto-approve for a job."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
     job["auto_approve"] = not job.get("auto_approve", False)
@@ -1186,8 +1180,8 @@ def api_ide_jobs_auto_approve(job_id):
 @ide_bp.route("/jobs/<job_id>/delete", methods=["DELETE"])
 def api_ide_jobs_delete(job_id):
     """Permanently delete a job."""
-    with _ide_jobs_lock:
-        existed = _ide_jobs.pop(job_id, None) is not None
+    with STATE.ide_jobs_lock:
+        existed = STATE.ide_jobs.pop(job_id, None) is not None
     if existed:
         socketio.emit("ide_job_deleted", {"id": job_id})
         _save_ide_jobs()
@@ -1198,7 +1192,7 @@ def api_ide_jobs_delete(job_id):
 @ide_bp.route("/jobs/<job_id>/unarchive", methods=["POST"])
 def api_ide_jobs_unarchive(job_id):
     """Restore an archived job."""
-    job = _ide_jobs.get(job_id)
+    job = STATE.ide_jobs.get(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
     job["archived"] = False
@@ -1368,8 +1362,7 @@ def register_ide(flask_app, socketio_obj, agent_obj):
     @socketio.on("win_proxy_register")
     def on_win_proxy_register(data):
         """Windows proxy client registers itself."""
-        global _win_proxy_sid
-        _win_proxy_sid = request.sid
+        STATE.win_proxy_sid = request.sid
         log.info(f"[ide] Windows proxy connected (root: {data.get('root', '?')})")
         socketio.emit("ide_win_proxy_status", {"connected": True, "root": data.get("root", "")})
 
@@ -1380,7 +1373,7 @@ def register_ide(flask_app, socketio_obj, agent_obj):
         """Windows proxy responds to a request."""
         request_id = data.get("request_id", "")
         result = data.get("result", {})
-        pending = _win_proxy_pending.get(request_id)
+        pending = STATE.win_proxy_pending.get(request_id)
         if pending:
             pending.set(result)
 
@@ -1391,13 +1384,12 @@ def cleanup_client_session(sid: str) -> None:
     """Called from `app.py:on_disconnect` so the IDE module can release its
     own per-client state (terminal sessions, Windows-proxy registration)
     when a SocketIO client disconnects."""
-    global _win_proxy_sid
     if _terminal_mgr is not None:
         try:
             _terminal_mgr.close_all(sid)
         except Exception:
             log.exception("[ide] terminal cleanup on disconnect failed")
-    if sid == _win_proxy_sid:
-        _win_proxy_sid = None
+    if sid == STATE.win_proxy_sid:
+        STATE.win_proxy_sid = None
         if socketio is not None:
             socketio.emit("ide_win_proxy_status", {"connected": False})

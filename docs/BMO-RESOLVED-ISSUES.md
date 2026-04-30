@@ -12,6 +12,208 @@
 
 ---
 
+### [2026-04-26] Test coverage tracker — `pytest-cov` + branch coverage with explicit production source list
+
+- **Original severity:** low (suggestion: "Test coverage tracker: enable `pytest --cov=bmo/pi --cov-report=term --cov-report=html`")
+- **Category:** future-idea (resolved), test, tooling
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-26
+- **Resolution:** Wired pytest-cov with branch coverage and a production-only source list. Headline baseline: **2%** across ~18K production statements (honest — current test surface is just the DB-index regression tests + a couple smoke tests). No fail-threshold set on purpose; coverage is for navigation, not gating.
+  - `bmo/pi/.coveragerc` (new) — `[run]` source list mirrors the complexity ratchet's SCOPE (`agent.py app.py cli.py state.py` + `agents/ bots/ hardware/ mcp_servers/ routes/ services/ wake/`); `branch = True`; `[report] exclude_lines` covers `pragma: no cover`, `raise NotImplementedError`, `if TYPE_CHECKING:`, `if __name__ == '__main__':`.
+  - `bmo/pi/pytest.ini` — added a one-line pointer comment to `.coveragerc` and the recommended invocation.
+  - `bmo/pi/requirements-test.in` — pinned `pytest-cov>=4.1`.
+  - `.gitignore` — added `**/htmlcov/`, `**/.coverage`, `**/.coverage.*`, `**/coverage.xml`.
+- **Why a separate `.coveragerc` and not `[coverage:*]` sections in `pytest.ini`:** coverage.py does NOT read `pytest.ini`. Initial attempt used `[coverage:run]` in pytest.ini; it was silently ignored (test files showed up in coverage data despite the `omit` list). `.coveragerc` is the canonical config file coverage.py looks for.
+- **Why an explicit `source` list and not `source = .` + `omit`:** pytest-cov / coverage.py's `omit` glob matching against `tests/*` failed to filter test files when `source = .` was used (likely due to relative-vs-absolute path matching). An explicit allow-list is unambiguous and matches the same SCOPE the complexity ratchet uses, so the two tools agree on "what counts as production code."
+- **Verified:** `venv/bin/python -m pytest tests/test_db_indexes.py --cov --cov-branch --cov-report=term` → 6 passed, coverage report shows ALL production modules tracked, NO `tests/` or `dev/` files in the report. HTML report writes to `htmlcov/index.html` (gitignored); raw `.coverage` data file gitignored.
+- **Known cosmetic issue (not blocking):** at pytest exit when gevent has been imported by tests, coverage.py's atexit hook races with gevent's monkey-patch teardown and prints `ImportError: cannot import name 'sleep' from 'gevent'`. Tests pass; results are written; the trace is harmless. Workaround would be to opt out of gevent imports for the index tests' conftest, but that's out of scope.
+- **Pairs with:** the complexity ratchet (`scripts/check-complexity.py` from yesterday's resolved entry). High-CC functions with 0% coverage are the highest-priority refactor-and-test targets — `app.py::init_services` (cc=38, 0% covered), `bots/discord_social_bot.py::_guesstheanime_cmd` (cc=45, 0% covered), etc. The two tools are complementary navigational tools.
+- **Files:** `bmo/pi/.coveragerc` (new), `bmo/pi/pytest.ini` (pointer comment), `bmo/pi/requirements-test.in` (pinned pytest-cov), `.gitignore` (coverage artifacts).
+
+---
+
+### [2026-04-26] Cyclomatic-complexity ratchet for `bmo/pi` — per-function CC baseline + git-diff regression gate
+
+- **Original severity:** low (suggestion: "Wire `radon` into the Pi pre-merge gate — fail PRs that drop maintainability index below baseline")
+- **Category:** future-idea (resolved), debt, tooling, test
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-26
+- **Resolution:** Implemented as **option (b) — ratchet**, not the originally-suggested absolute-threshold gate. The gate is "code can get better, never worse on touched files":
+  - `bmo/pi/scripts/check-complexity.py` (new) — Python CLI. Diffs `radon cc --min=D --json` of git-touched .py files against a pinned baseline. Fails the gate iff a baseline D+ function's complexity went UP, OR a touched file gained a NEW D+ function.
+  - `bmo/pi/.complexity-baseline.json` (new) — committed snapshot, 14 files / 32 D+ functions. Worst offenders today: `bots/discord_social_bot.py::_guesstheanime_cmd` (cc=45), `_guessthegame_cmd` (cc=39), `app.py::init_services` (cc=38), `services/monitoring.py::get_status` (cc=36), `services/timer_service.py::_load_alarms` (cc=33).
+  - `bmo/pi/requirements-test.in` — pinned `radon>=6.0` (was already installed ad-hoc; now properly tracked).
+- **Why ratchet over absolute threshold:** an absolute "fail any function above C(15)" gate would block every PR until the existing offenders are refactored — useless. The ratchet preserves the freedom to commit while preventing new debt; net-positive refactors land via `--update-baseline`.
+- **Why per-function CC and not radon's MI:** `radon mi` saturates at 0.00 for `app.py` / `voice_pipeline.py` / `discord_social_bot.py` (the formula's domain doesn't fit dense files), making MI useless as a regression metric. Per-function CC is precise.
+- **Touched-file detection:** `git diff --name-only $BASE_REF...HEAD` with `BASE_REF` resolution: `--base-ref` flag → `BASE_REF` env → `origin/$GITHUB_BASE_REF` (Actions) → `origin/master`. With `--all-files`, every .py under SCOPE is checked.
+- **SCOPE:** top-level `agent.py app.py cli.py state.py` + dirs `agents/ bots/ hardware/ mcp_servers/ routes/ services/ wake/`. Excluded: `tests/ dev/ kiosk/ ide_app/ scripts/ web/` — non-production source or templates.
+- **Verified:**
+  - `--update-baseline` writes 32 D+ functions across 14 files, sorted-key JSON for stable diffs.
+  - `--all-files` against current code → "OK - 89 touched file(s); no D+ regressions."
+  - Manually mutated baseline (lowered `init_services` to cc=20, removed `api_status_summary`) → both rules fired correctly: regression message + new-function message. Baseline restored via `--update-baseline`.
+- **CI wiring:** out of scope for this entry (deferred to whenever the Pi-CI workflow lands). The script is callable today as `venv/bin/python scripts/check-complexity.py`; once a workflow exists, one shell line wires it in.
+- **Files:** `bmo/pi/scripts/check-complexity.py` (new), `bmo/pi/.complexity-baseline.json` (new), `bmo/pi/requirements-test.in` (radon pinned).
+
+---
+
+### [2026-04-25] `VoicePipeline._speak_volume` AttributeError on first TTS call — uninitialized attribute crashed every fresh boot's startup pre-warm
+
+- **Original severity:** medium (boot-time crash on a non-fatal code path; surfaced as an `AttributeError` traceback in `journalctl -u bmo` on every restart, but caught by an outer except so the service stayed alive)
+- **Category:** bug
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Symptom:** Every BMO restart printed `AttributeError: 'VoicePipeline' object has no attribute '_speak_volume'` from `services/voice_pipeline.py:1680` during the TTS pre-warm. Spotted while restarting the service to apply an unrelated CSP fix.
+- **Root cause:** `_speak_volume` is mutated by the kiosk volume slider's WebSocket handler. Until the slider was moved at least once after boot, the attribute didn't exist on the `VoicePipeline` instance. Two readers handled this differently:
+  - `_play_audio` (line 1867) used defensive `getattr(self, "_speak_volume", None)` — safe.
+  - `speak()` (line 1680) used direct `self._speak_volume` to capture `original_volume` for the save/restore — crashed.
+  - Initial-state setup at line 964 explicitly noted *not* to reset the attribute ("set by the volume slider and should persist") — author was aware of the lifecycle but missed that no initializer existed in `__init__`.
+- **Fix:** `bmo/pi/services/voice_pipeline.py:196` — added `self._speak_volume = None` next to the other voice settings in `__init__`. `None` is the canonical "no per-call override" sentinel that all downstream readers (`_play_audio`, the save/restore in `speak()`) already handle correctly, so no other code needed to change.
+- **Verified:** Service `active` after restart, `journalctl --since "20 seconds ago" | grep AttributeError` returns nothing, the alarm-reminder TTS played end-to-end (`Cache hit for: Hey! Don't forget: Saved Alarm! → Playing 18284 bytes via ffplay → Playback done (3.2s)`) — that is the exact code path that previously crashed.
+- **Lesson:** When a class has multiple readers of an attribute and only some are defensive (`getattr`-with-default), it is a smell that the attribute lacks an `__init__` initializer. Either initialize once and read direct everywhere, or always read via `getattr(..., default)`. Mixing the two leaves a latent NPE-style bug for the unprotected reader.
+- **Files touched:** `bmo/pi/services/voice_pipeline.py` (one-line addition + 2-line comment in `__init__`)
+
+---
+
+### [2026-04-25] EXPLAIN QUERY PLAN regression tests for `bmo_social.db` indexes — drift detection for the index fixpack
+
+- **Original severity:** low (suggestion: "Add `EXPLAIN QUERY PLAN` test for `bmo_social.db` reminder polling — guard against future regressions")
+- **Category:** future-idea (resolved), performance, test
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Resolution:** Created `bmo/pi/tests/test_db_indexes.py` with 6 EXPLAIN QUERY PLAN tests that lock in the index work from the prior fixpack. Each test:
+  1. Spins up a fresh SQLite at a tmp path
+  2. Calls the bot's actual `_get_db()` so schema + indexes are created exactly the way the live bot creates them (drift-detection — if a future PR drops an index from the schema, the test fails)
+  3. Runs `EXPLAIN QUERY PLAN` for the actual production query string (line numbers cited in test docstrings)
+  4. Asserts the expected index name appears in the plan
+- **Coverage:**
+  - `test_reminder_poll_uses_index` — `idx_reminders_fire_at` for the per-minute reminder loop
+  - `test_xp_leaderboard_uses_xp_index` — `idx_xp_data_xp` for `ORDER BY xp DESC LIMIT 10`
+  - `test_server_play_count_uses_guild_index` — `idx_play_history_guild_played` (leading column) for `WHERE guild_id = ?`
+  - `test_server_top_tracks_uses_guild_index` — same composite index for the GROUP BY
+  - `test_user_in_guild_play_count_uses_some_index` — accepts either play_history index for `guild_id + user_id`
+  - `test_all_documented_indexes_exist` — schema-sanity guard (catches "index dropped from `_get_db()` but query still depends on it")
+- **Side fix:** While surveying production queries, discovered the previously-added `idx_xp_data_level` was speculative — actual leaderboard query at `bots/discord_social_bot.py:5794` uses `ORDER BY xp DESC`, not `level`. Added `idx_xp_data_xp ON xp_data(xp DESC)` to `_get_db()` schema. Old `idx_xp_data_level` retained — cheap, may matter for a future level-sorted view.
+- **Verified:** `venv/bin/python -m pytest tests/test_db_indexes.py -v` → 6 passed
+- **Files:** `bmo/pi/tests/test_db_indexes.py` (new), `bmo/pi/bots/discord_social_bot.py` (added xp index + comment update)
+
+---
+
+### [2026-04-25] BMO bot services: tighten `StartLimitBurst=5` + `failed`-state alert message in monitoring
+
+- **Original severity:** low (suggestion: "Replace ad-hoc systemd `Restart=on-failure` + `RestartSec=10` with proper `BurstLimit` + journal-watch alert")
+- **Category:** future-idea (resolved), debt
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Verified:** `pytest tests/` 746 passed; `pytest tests/test_monitoring*.py` 36 passed; bmo `active` after restart; `systemctl show -p StartLimitBurst` returns 5 for both bot services.
+- **Resolution shape:**
+  1. **`kiosk/bmo-dm-bot.service` + `kiosk/bmo-social-bot.service`** — `StartLimitBurst=10 → 5` (5 restarts in 5 min, then systemd marks the service `failed` and stops auto-retrying). The earlier sandbox-hardening sweep had already added the burst limit at value 10; this sweep tightens to the original suggestion's value of 5.
+  2. **`/etc/systemd/system/bmo-{dm,social}-bot.service`** — synced from repo, `daemon-reload` applied, live `StartLimitBurst=5` confirmed.
+  3. **`services/monitoring.py:_check_systemd_services()`** — already polled + alerted on state changes via existing `_emit_alert()` + `_send_discord_if_allowed()` (state-change dedupe). Added a state-specific message for `state == "failed"`:
+     - Generic states (`activating`, `inactive`, etc.): `⚙️ {label} is {state} — run: sudo systemctl restart {svc}` (existing).
+     - **`failed` state** (new): `🛑 {label} hit StartLimitBurst (5 restarts in 5 min) and stopped auto-retrying — run: sudo systemctl reset-failed {svc} && sudo systemctl restart {svc}`.
+     - **Bot services bumped to `Severity.CRITICAL`** when in `failed` state (vs WARNING for transient `activating`) — louder Discord ping.
+- **What changed about the alerting flow:** The existing dedupe (`_send_discord_if_allowed`'s state-change tracking) means flapping services don't spam Discord — exactly one ping per state transition. So a service that goes `running → activating → failed` produces one Discord notification (for `failed`); subsequent polls while still failed don't re-alert.
+- **Smoke-test path (manual, not run in this session):** `sudo systemctl edit bmo-dm-bot.service` → add `ExecStart=/bin/false` override → wait 5 × 10s = 50s for systemd to hit the burst limit → service goes `failed` → BMO's monitoring loop polls within 60s → Discord webhook fires with the 🛑 message. Recovery: revert override, `sudo systemctl daemon-reload && sudo systemctl reset-failed bmo-dm-bot && sudo systemctl restart bmo-dm-bot`.
+- **Files touched:** `bmo/pi/kiosk/bmo-dm-bot.service`, `bmo/pi/kiosk/bmo-social-bot.service`, `/etc/systemd/system/bmo-{dm,social}-bot.service` (live sync), `bmo/pi/services/monitoring.py` (state-specific message + severity bump).
+
+---
+
+### [2026-04-25] BMO `flask-limiter` per-IP rate limits on cost-sensitive routes (chat, dnd-load, narrate)
+
+- **Original severity:** medium (suggestion: "Add `flask-limiter` for per-IP rate limits on the LLM-routing endpoints")
+- **Category:** future-idea (resolved), security, performance
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Verified:** `pytest tests/` 746 passed; bmo `active` after restart; live LAN curl returns `X-RateLimit-Limit: 30, Remaining: 29` headers; spam test triggered HTTP 429 at exactly request 31 (the 30/min cap); localhost curls have NO X-RateLimit headers (exempt as designed).
+- **Resolution shape:**
+  1. **Dep added:** `flask-limiter` to `requirements.in` + `requirements-ci.in`. Re-locked both with `pip-compile --extra-index-url https://download.pytorch.org/whl/cpu`. Result: `flask-limiter==4.1.1` + `limits==5.8.0` + 3 transitive deps installed.
+  2. **Limiter setup in `app.py`** (after the security/cache headers, before the route handlers):
+     - Module-level `limiter = Limiter(key_func=_rate_limit_key, default_limits=[BMO_DEFAULT_RATE_LIMIT (default 120/min)], default_limits_exempt_when=_is_localhost_request, storage_uri="memory://", headers_enabled=True, swallow_errors=True)`.
+     - `_rate_limit_key()` returns the remote IP for non-localhost, sentinel `__localhost_exempt__` for `127.0.0.1` / `::1` / `localhost`.
+     - `_is_localhost_request()` short-circuits ALL limits for localhost via `default_limits_exempt_when` — kiosk + bot internal loopback never trip a 429.
+     - `swallow_errors=True` — if the in-memory storage barfs (rare), allow the request rather than 500.
+  3. **Per-route limits** (env-overridable):
+     - `RATE_LIMIT_CHAT = "30 per minute"` → `@limiter.limit(RATE_LIMIT_CHAT)` on `/api/chat`
+     - `RATE_LIMIT_DND_LOAD = "15 per minute"` → on `/api/dnd/load`
+     - `RATE_LIMIT_NARRATE = "30 per minute"` → on `/api/discord/dm/narrate`
+     - Default 120/min covers everything else (including blueprint routes like `/api/ide/*`).
+  4. **Pairs with existing protections:**
+     - `MAX_CHAT_MESSAGE_LEN=16384` caps per-request size → bounds *cost per request*
+     - `BMO_API_KEY` middleware (when set) gates the front door → bounds *who can call*
+     - flask-limiter caps requests-per-minute → bounds *how often each caller can call*
+  5. **What's NOT decorated (intentional):**
+     - `/api/ide/jobs` POST — already has the default 120/min limit + IDE blueprint goes through the existing `_ide_safe_path` jail. Adding stricter per-route limits there would have required a circular-import workaround in the blueprint module.
+     - `/api/calendar/*`, `/api/music/*` — read-mostly + cached + don't hit billable LLMs.
+- **Configuration knobs (env vars, all optional):**
+  - `BMO_DEFAULT_RATE_LIMIT="120 per minute"` (catch-all)
+  - `BMO_CHAT_RATE_LIMIT="30 per minute"`
+  - `BMO_DND_LOAD_RATE_LIMIT="15 per minute"`
+  - `BMO_NARRATE_RATE_LIMIT="30 per minute"`
+- **Files touched:** `bmo/pi/requirements.in`, `bmo/pi/requirements-ci.in`, `bmo/pi/requirements.txt`, `bmo/pi/requirements-ci.txt`, `bmo/pi/app.py` (Limiter setup + 3 `@limiter.limit` decorators).
+
+---
+
+### [2026-04-25] BMO `pip-tools` migration — `requirements.in` / `requirements-ci.in` / `requirements-test.in` + locked `*.txt` outputs
+
+- **Original severity:** low (suggestion: "Migrate to `pip-tools` for deterministic transitive pins")
+- **Category:** future-idea (resolved), security, debt
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Verified:** `pytest tests/` 746 passed, 6 skipped; bmo + bots all `active` after restart; `/health` ok; voice-deps smoke test passed (`discord.py 2.7.1 + PyNaCl 1.6.2 + SecretBox.encrypt()` works).
+- **Resolution shape:**
+  1. **Three `.in` files** with top-level deps + comments: `requirements.in`, `requirements-ci.in`, `requirements-test.in`. Edit-and-recompile is the new dep-update workflow.
+  2. **Three locked `.txt` outputs** generated via `pip-compile --extra-index-url https://download.pytorch.org/whl/cpu -o requirements.txt requirements.in` (analogous for ci + test). Each has every transitive pinned to an exact version with comments showing which top-level pulled it in (e.g. `# via resemblyzer`, `# via -r requirements.in`).
+  3. **CPU-only torch resolution** — the `--extra-index-url` flag pulls `torch==2.11.0+cpu` from PyTorch's CPU wheels index instead of the default PyPI which ships CUDA-laden wheels. Without this, the lock would re-introduce the 4.5+ GB nvidia stack on Pi (resolved-issue from prior sweeps).
+  4. **`setup-bmo.sh` + `install-venv.sh`** unchanged in invocation — they still do `pip install torch --index-url https://download.pytorch.org/whl/cpu` first, then `pip install -r requirements.txt`. The locked file is what gets read.
+  5. **`docs/SETUP.md` updated** with a new "Dependency management (pip-tools)" subsection: file layout, edit-and-recompile workflow, monthly `pip-compile --upgrade` for surface CVEs.
+- **Pre-existing constraint conflict surfaced + resolved:** `discord.py[voice]` 2.6+ pins `PyNaCl < 1.6` (conservative upstream cap), conflicting with our `PyNaCl >= 1.6.2` security pin. The live venv had both coexisting because pip's permissive install layered them — but pip-tools' strict resolver refused to lock that state. Fix: drop the `[voice]` extra; declare `discord.py>=2.6,<3.0` + `PyNaCl>=1.6.2` separately. The extra only encoded `PyNaCl<1.6` (we already explicit) + a README note about libopus (system C lib, installed via apt). Voice still works because discord.py only uses `nacl.secret.SecretBox` whose API didn't change between 1.5 → 1.6 — verified by SecretBox round-trip smoke test.
+- **piwheels name-normalization quirk also defeated:** `discord.py` (dot) → `discord-py` (dash) name-normalization on piwheels can cause pip-compile to resolve to the abandoned `discord-py 0.9.2` package. The explicit `>=2.6,<3.0` version pin defeats this fallback because 0.9.2 doesn't satisfy.
+- **Files touched:**
+  - new: `bmo/pi/requirements.in`, `bmo/pi/requirements-ci.in`, `bmo/pi/requirements-test.in`
+  - regenerated: `bmo/pi/requirements.txt` (404 lines, 153 packages), `bmo/pi/requirements-ci.txt` (434 lines, ~150), `bmo/pi/requirements-test.txt` (64 lines, 24)
+  - updated: `bmo/setup-bmo.sh` (added pip-tools comment block), `docs/SETUP.md` (new subsection)
+- **Wins (now realized):**
+  - Reproducible installs across machines — every transitive pinned to an exact version.
+  - When a transitive dep gets a CVE, pinning it is one-line in `requirements.in` instead of grafting onto an opaque list.
+  - Generated comments make "why is X in my venv?" greppable (`grep "via" requirements.txt | grep <dep>`).
+  - `pip-compile --upgrade` once a month surfaces any new CVEs as version bumps in the diff.
+
+---
+
+### [2026-04-25] BMO shared-state consolidation — `bmo/pi/state.py` `AppState` singleton
+
+- **Original severity:** medium (suggestion: "Consolidate global mutable state behind an `AppState` class")
+- **Category:** future-idea (resolved), debt
+- **Domain:** bmo
+- **Resolved by:** Claude Opus
+- **Date resolved:** 2026-04-25
+- **Verified:** `pytest tests/` 746 passed, 6 skipped; bmo + bots all `active` after restart; `/health`, `/api/notes`, `/api/ide/jobs`, `/api/chat/history` all respond correctly through the new singleton.
+- **Resolution shape:**
+  1. **New module `bmo/pi/state.py`** — single `AppState` dataclass with `STATE = AppState()` singleton. Field categories:
+     - **Locks:** `chat_lock`, `notes_lock`, `tv_media_lock`, `tv_proc_lock`, `ide_jobs_lock` (all gevent-aware via `monkey.patch_all`).
+     - **Collections:** `notes_list`, `tv_media_cache`, `ide_jobs`, `win_proxy_pending`.
+     - **Single-value state:** `ide_job_counter`, `current_running_job_id`, `win_proxy_sid`.
+  2. **`app.py`** migrated — every `_chat_lock`, `_notes_list`, `_notes_lock`, `_tv_media_cache`, `_tv_media_lock`, `_tv_proc_lock` reference rewrites to `STATE.<name>`. 44 STATE.* references in app.py. Old global definitions replaced with comments pointing to `state.STATE`. `global` declarations stripped (attribute reassignment on the singleton doesn't need `global`).
+  3. **`routes/ide.py`** migrated — every `_ide_jobs`, `_ide_jobs_lock`, `_ide_job_counter`, `_current_running_job_id`, `_win_proxy_sid`, `_win_proxy_pending` rewrites to `STATE.<name>`. 48 STATE.* references in routes/ide.py.
+  4. **What stays in module-local globals (intentional):**
+     - **Singleton service objects** (`_terminal_mgr`, `_file_watcher` in routes/ide.py; `agent`, `voice`, `weather`, `music`, etc. in app.py) — these are lazy-initialized service handles, not "state."
+     - **TV singletons** (`_tv_remote`, `_tv_loop`, `_tv_proc`, etc.) — TV-specific; will move to `routes/tv.py` when that blueprint extracts.
+     - **App config** (`MAX_CHAT_MESSAGE_LEN`, `BMO_API_KEY`, `ALLOWED_CHAT_SPEAKERS`) — env-var-derived constants live next to handlers that use them.
+- **Wins (now realized):**
+  - Lock discipline is pattern-matchable in code review: "did this handler take `STATE.<X>_lock` before mutating `STATE.<X>`?"
+  - Future blueprint extractions (`routes/chat.py`, `routes/calendar.py`, etc.) `from state import STATE` instead of growing back the same globals — exactly what `routes/ide.py` would have needed if I'd done blueprint split AFTER state consolidation.
+  - Tests can mock `STATE` or instantiate fresh `AppState()` per-test instead of monkey-patching module globals.
+  - Single grep for `STATE.` shows every shared-state touch site.
+- **Pairs with:** the in-progress blueprint refactor (suggestion above) — every future blueprint extraction pulls from `STATE` instead of duplicating globals.
+- **Files touched:** `bmo/pi/state.py` (new, 78 lines), `bmo/pi/app.py` (44 STATE.* refs), `bmo/pi/routes/ide.py` (48 STATE.* refs).
+
+---
+
 ### [2026-04-25] BMO `app.py` Flask-blueprint refactor — first split: `routes/ide.py` (~1300 lines extracted)
 
 - **Original severity:** medium (suggestion: "Refactor `app.py` (5596 lines) into Flask blueprints")

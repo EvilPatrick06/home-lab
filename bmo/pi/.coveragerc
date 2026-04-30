@@ -1,0 +1,34 @@
+# pytest-cov / coverage.py config for bmo/pi.
+# Run: venv/bin/python -m pytest --cov --cov-branch --cov-report=term --cov-report=html
+# Output: terminal summary + htmlcov/index.html (gitignored).
+#
+# IMPORTANT for greenlet-heavy code: gevent-spawned code paths in app.py /
+# voice_pipeline.py / discord_social_bot.py often look "uncovered" because
+# pytest doesn't run the gevent loop — many of those branches ARE exercised
+# in production. Treat coverage as a navigation tool ("which D+ functions
+# from .complexity-baseline.json have any tests at all?"), not a quality
+# gate. No fail-threshold set on purpose.
+
+[run]
+# Explicit source list (production code only). Same SCOPE as the
+# complexity ratchet in scripts/check-complexity.py for consistency.
+source =
+    agent.py
+    app.py
+    cli.py
+    state.py
+    agents
+    bots
+    hardware
+    mcp_servers
+    routes
+    services
+    wake
+branch = True
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+    if TYPE_CHECKING:
+    if __name__ == .__main__.:

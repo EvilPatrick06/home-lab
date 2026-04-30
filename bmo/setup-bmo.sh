@@ -87,6 +87,13 @@ if [ ! -d "DnD" ]; then
 fi
 
 # ── 5. Python Virtual Environment ────────────────────────────────
+# Install order:
+#   1. CPU-only torch FIRST so resemblyzer / openwakeword don't pull the
+#      4.5+ GB GPU stack from PyPI's default index.
+#   2. requirements.txt — fully resolved + transitively pinned via pip-tools
+#      (top-level deps live in requirements.in; regenerate with
+#      `pip-compile --extra-index-url https://download.pytorch.org/whl/cpu
+#       -o requirements.txt requirements.in`).
 log "Setting up Python venv (PyTorch CPU-only first — no GPU on Pi)..."
 cd ~/home-lab/bmo/pi
 python3 -m venv venv

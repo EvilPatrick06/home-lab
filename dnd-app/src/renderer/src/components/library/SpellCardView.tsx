@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 interface SpellData {
   name?: string
   level?: number
@@ -73,7 +75,7 @@ interface SpellCardViewProps {
   spell: Record<string, unknown>
 }
 
-export default function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
+function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
   const s = spell as unknown as SpellData
   const levelSchool =
     s.level === 0 || s.level === undefined
@@ -161,3 +163,5 @@ export default function SpellCardView({ spell }: SpellCardViewProps): JSX.Elemen
     </div>
   )
 }
+
+export default memo(SpellCardView)

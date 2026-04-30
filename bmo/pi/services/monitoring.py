@@ -1149,10 +1149,22 @@ class HealthChecker:
                     }
                     severity = Severity.CRITICAL if svc in self._CRITICAL_SERVICES else Severity.WARNING
                     label = self._service_label(key)
-                    self._emit_alert(
-                        severity, key,
-                        f"⚙️ {label} is {state} — run: sudo systemctl restart {svc}",
-                    )
+                    # `failed` means systemd hit StartLimitBurst and gave up
+                    # auto-restarting (won't recover on its own). Louder alert
+                    # so it's distinguishable from a transient `activating`.
+                    if state == "failed":
+                        msg = (
+                            f"🛑 {label} hit StartLimitBurst (5 restarts in 5 min) "
+                            f"and stopped auto-retrying — run: "
+                            f"sudo systemctl reset-failed {svc} && sudo systemctl restart {svc}"
+                        )
+                        # Bump bot service severity to CRITICAL when truly failed
+                        # (vs WARNING for transient activating/inactive states).
+                        if svc.startswith("bmo-") and svc.endswith("-bot"):
+                            severity = Severity.CRITICAL
+                    else:
+                        msg = f"⚙️ {label} is {state} — run: sudo systemctl restart {svc}"
+                    self._emit_alert(severity, key, msg)
             except Exception as e:
                 self._service_status[key] = {
                     "status": "unknown", "last_check": now,

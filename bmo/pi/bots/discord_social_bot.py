@@ -101,12 +101,19 @@ def _get_db() -> sqlite3.Connection:
     )""")
 
     # Indexes for hot-path queries (idempotent — IF NOT EXISTS).
-    # play_history: read by guild + user + recency for "now playing" /
-    # leaderboards. xp_data.level for the leaderboard top-N. reminders.fire_at
-    # is polled every minute by the reminder loop.
+    # play_history: read by guild + user + recency for "now playing" + the
+    # `WHERE guild_id = ?` total/COUNT queries; the composite leading column
+    # (guild_id / user_id) means a bare WHERE on that column also uses the
+    # index via prefix-match.
+    # xp_data: leaderboard `ORDER BY xp DESC LIMIT N` uses idx_xp_data_xp.
+    # The legacy idx_xp_data_level is kept in case a future "level leaderboard"
+    # ever needs it; today no production query orders by level.
+    # reminders: polled every minute via `WHERE fire_at <= ?` — the index
+    # converts the poll from a full-table scan into a SCAN-then-stop.
     conn.execute("CREATE INDEX IF NOT EXISTS idx_play_history_guild_played ON play_history(guild_id, played_at)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_play_history_user_played ON play_history(user_id, played_at)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_xp_data_level ON xp_data(level)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_xp_data_xp ON xp_data(xp DESC)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_reminders_fire_at ON reminders(fire_at)")
 
     conn.commit()

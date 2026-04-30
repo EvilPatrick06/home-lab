@@ -1,0 +1,82 @@
+{
+  "files": {
+    "agent.py": {
+      "_summarize_character": 29,
+      "chat_stream": 21
+    },
+    "agents/dnd_dm.py": {
+      "load_dnd_context": 27
+    },
+    "app.py": {
+      "_finish_chat_response": 23,
+      "_get_tv_media_title": 28,
+      "api_calendar_auth_callback": 27,
+      "api_status_summary": 28,
+      "init_services": 38
+    },
+    "bots/discord_dm_bot.py": {
+      "_loot_cmd": 24
+    },
+    "bots/discord_social_bot.py": {
+      "_guesstheanime_cmd": 45,
+      "_guessthegame_cmd": 39,
+      "_guessthemovie_cmd": 33,
+      "_guesstheshow_cmd": 33,
+      "_musicquiz_cmd": 26,
+      "_on_track_end": 26,
+      "_on_user_speech": 22,
+      "on_message": 24
+    },
+    "hardware/oled_face.py": {
+      "_render_frame": 21
+    },
+    "services/campaign_memory.py": {
+      "build_dm_context": 21
+    },
+    "services/monitoring.py": {
+      "_check_pi_resources": 21,
+      "_check_pihole": 30,
+      "get_status": 36
+    },
+    "services/notification_service.py": {
+      "_format_announcement": 30
+    },
+    "services/routine_service.py": {
+      "trigger_routine": 23
+    },
+    "services/scene_service.py": {
+      "_apply_scene": 27
+    },
+    "services/timer_service.py": {
+      "_load_alarms": 33,
+      "_next_local_occurrence": 24,
+      "advance_repeat": 21
+    },
+    "services/tv_worker.py": {
+      "handle": 22
+    },
+    "services/voice_pipeline.py": {
+      "_process_one_turn": 24,
+      "_wake_listen_cycle_oww": 27,
+      "speak": 21
+    }
+  },
+  "generated_at": "2026-04-26",
+  "method": "Per-function ratchet on cyclomatic complexity. Records every function rated D or worse (cc >= 21). A touched file regresses iff a baseline function's cc went UP, or a new D+ function appeared. Regenerate via --update-baseline after a refactor.",
+  "scope_dirs": [
+    "agents",
+    "bots",
+    "hardware",
+    "mcp_servers",
+    "routes",
+    "services",
+    "wake"
+  ],
+  "scope_top_level": [
+    "agent.py",
+    "app.py",
+    "cli.py",
+    "state.py"
+  ],
+  "version": 1
+}

@@ -1,0 +1,73 @@
+# bmo/pi — same stack as requirements.txt for CI (ubuntu-latest, x86_64 / arm64)
+# Omitted: Pi hardware-only wheels (see requirements.txt) — conftest mocks those imports.
+# Install order in CI:
+#   python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   python -m pip install -r requirements-ci.txt
+#   python -m pip install -r requirements-test.txt
+
+setuptools>=78.1.1,<82
+
+# Core AI
+ollama
+
+# Wake word detection
+openwakeword
+
+# Speaker verification
+resemblyzer
+
+# TTS — local fallback only (cloud primary is Fish Audio)
+piper-tts
+
+# Vision — local fallback only (cloud primary is Google Vision)
+opencv-python-headless
+
+# Audio
+pyaudio
+sounddevice
+numpy
+
+# Web framework
+flask
+flask-socketio
+flask-limiter
+gevent
+gevent-websocket
+
+# Google APIs (Calendar)
+google-api-python-client
+google-auth-oauthlib
+
+# Smart home / Chromecast
+pychromecast
+
+# TV Remote
+androidtvremote2
+
+# Music
+ytmusicapi
+yt-dlp
+python-vlc
+
+# CLI
+rich
+
+# MCP (Model Context Protocol)
+mcp
+httpx
+sseclient-py
+
+# Cloud API helpers
+requests
+
+# Used directly at app / bots import time
+python-dotenv
+# discord.py without `[voice]` extra to avoid PyNaCl<1.6 cap conflict with
+# our PyNaCl>=1.6.2 security pin. See requirements.in for full rationale.
+discord.py>=2.6,<3.0
+PyNaCl>=1.6.2
+edge-tts
+scipy
+
+# Imaging (in requirements.txt with Pi block; keep for tests / vision helpers)
+Pillow

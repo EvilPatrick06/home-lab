@@ -133,13 +133,25 @@ export async function importCampaign(): Promise<Record<string, unknown> | null> 
 const BACKUP_VERSION = 3
 const BACKUP_FILTER = [{ name: 'D&D VTT Backup', extensions: ['dndbackup'] }]
 
-/** Normalize v1–v2 backup shapes to the v3 field layout (additive fields only). */
-function migrateBackupPayload(raw: Record<string, unknown>): Record<string, unknown> {
-  const v = Number(raw.version)
-  if (v < 1 || v >= BACKUP_VERSION) return raw
-  return {
+/**
+ * Per-version forward migrations. Keyed by the TARGET version, so `BACKUP_MIGRATIONS[2]`
+ * upgrades a v1 payload to v2 shape. Each entry must accept the prior version's payload
+ * shape and return the next version's. The walker (`migrateBackupPayload`) chains them.
+ *
+ * When bumping `BACKUP_VERSION`, add a new key here and write the field-level transform.
+ * Mirror of `src/main/storage/migrations.ts`'s `MIGRATIONS` table — same pattern, different
+ * domain (file backup format, not on-disk character/campaign records).
+ */
+const BACKUP_MIGRATIONS: Record<number, (raw: Record<string, unknown>) => Record<string, unknown>> = {
+  // v1 → v2: customCreatures + homebrew arrays were added to the export surface.
+  2: (raw) => ({
     ...raw,
-    version: BACKUP_VERSION,
+    customCreatures: Array.isArray(raw.customCreatures) ? raw.customCreatures : [],
+    homebrew: Array.isArray(raw.homebrew) ? raw.homebrew : []
+  }),
+  // v2 → v3: game-state snapshots, AI conversations, and image/map/shop/books libraries.
+  3: (raw) => ({
+    ...raw,
     gameStates: Array.isArray(raw.gameStates) ? raw.gameStates : [],
     aiConversations: Array.isArray(raw.aiConversations) ? raw.aiConversations : [],
     imageLibrary: Array.isArray(raw.imageLibrary) ? raw.imageLibrary : [],
@@ -149,7 +161,24 @@ function migrateBackupPayload(raw: Record<string, unknown>): Record<string, unkn
       raw.books && typeof raw.books === 'object'
         ? raw.books
         : { config: { customBooks: [] }, data: [] }
+  })
+}
+
+/**
+ * Walk a backup payload forward through `BACKUP_MIGRATIONS` until it reaches `BACKUP_VERSION`.
+ * Each step is responsible for one version bump, so the diff between adjacent versions
+ * stays small and reviewable. Exported for unit tests.
+ */
+export function migrateBackupPayload(raw: Record<string, unknown>): Record<string, unknown> {
+  let v = Number(raw.version)
+  if (!Number.isFinite(v) || v < 1 || v >= BACKUP_VERSION) return raw
+  let cur = raw
+  while (v < BACKUP_VERSION) {
+    v += 1
+    const step = BACKUP_MIGRATIONS[v]
+    if (step) cur = step(cur)
   }
+  return { ...cur, version: BACKUP_VERSION }
 }
 
 const PREFERENCE_PREFIX = 'dnd-vtt-'

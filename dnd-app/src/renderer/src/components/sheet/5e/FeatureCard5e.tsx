@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { formatPrerequisites } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
 import type { FeatData } from '../../../types/data'
@@ -9,7 +9,7 @@ interface FeatureRowProps {
   onRemove?: () => void
 }
 
-export function FeatureRow({ feature, onRemove }: FeatureRowProps): JSX.Element {
+function FeatureRowImpl({ feature, onRemove }: FeatureRowProps): JSX.Element {
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="border-b border-gray-800 last:border-0">
@@ -58,7 +58,7 @@ interface FeatPickerRowProps {
   onSelect: (feat: FeatData) => void
 }
 
-export function FeatPickerRow({ feat, character, onSelect }: FeatPickerRowProps): JSX.Element {
+function FeatPickerRowImpl({ feat, character, onSelect }: FeatPickerRowProps): JSX.Element {
   const [expanded, setExpanded] = useState(false)
   const meetsPrereqs = meetsFeatPrerequisites(character, feat.prerequisites)
   return (
@@ -98,3 +98,6 @@ export function FeatPickerRow({ feat, character, onSelect }: FeatPickerRowProps)
     </div>
   )
 }
+
+export const FeatureRow = memo(FeatureRowImpl)
+export const FeatPickerRow = memo(FeatPickerRowImpl)

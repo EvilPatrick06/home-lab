@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
+import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
-import { useNetworkStore } from '../../../stores/network-store'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 
@@ -11,7 +11,7 @@ interface HitPointsBar5eProps {
   readonly?: boolean
 }
 
-export default function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBar5eProps): JSX.Element {
+function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBar5eProps): JSX.Element {
   const saveCharacter = useCharacterStore((s) => s.saveCharacter)
   const [editingHP, setEditingHP] = useState(false)
   const [hpCurrent, setHpCurrent] = useState(effectiveCharacter.hitPoints.current)
@@ -153,3 +153,5 @@ export default function HitPointsBar5e({ character, effectiveCharacter, readonly
     </div>
   )
 }
+
+export default memo(HitPointsBar5e)

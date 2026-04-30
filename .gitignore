@@ -127,3 +127,9 @@ docs/RESOLVED-SECURITY-ISSUES.md
 # Test artifacts at root
 test-results*.txt
 **/venv/
+
+# pytest-cov / coverage.py artifacts (HTML report + raw data file)
+**/htmlcov/
+**/.coverage
+**/.coverage.*
+**/coverage.xml

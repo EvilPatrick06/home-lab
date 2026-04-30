@@ -1,0 +1,92 @@
+# BMO — Python dependencies for Raspberry Pi 5
+# Pin setuptools for known CVEs (pip/venv build)
+setuptools>=78.1.1,<82
+#
+# PyTorch: install CPU-only BEFORE the rest, or a plain `pip install -r` on Linux aarch64
+# may resolve torch from PyPI with CUDA + nvidia wheels (~4.5+ GB) — useless on Pi 5.
+#   ./venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   ./venv/bin/pip install -r requirements.txt
+# Or: bash scripts/install-venv.sh
+#
+# resemblyzer / openwakeword pull torch; order matters. Do not add a bare `torch` line here
+# without the CPU install step above (setup-bmo.sh and install-venv.sh do it right).
+
+# Core AI
+ollama
+
+# Wake word detection
+openwakeword
+
+# Speaker verification
+resemblyzer
+
+# TTS — local fallback only (cloud primary is Fish Audio)
+piper-tts
+
+# Vision — local fallback only (cloud primary is Google Vision)
+opencv-python-headless
+
+# Audio
+pyaudio
+sounddevice
+numpy
+
+# Web framework
+flask
+flask-socketio
+# flask-limiter — per-IP rate limits on cost-sensitive routes (chat, dnd-load,
+# ide-jobs). Localhost exempt; memory-backed (single-process gevent — fine).
+flask-limiter
+gevent
+gevent-websocket
+
+# Google APIs (Calendar)
+google-api-python-client
+google-auth-oauthlib
+
+# Smart home / Chromecast
+pychromecast
+
+# TV Remote
+androidtvremote2
+
+# Music
+ytmusicapi
+yt-dlp
+python-vlc
+
+# CLI
+rich
+
+# MCP (Model Context Protocol)
+mcp
+httpx
+sseclient-py
+
+# Cloud API helpers
+requests
+
+# Used directly by app / bots (were missing from this file; fresh venvs failed)
+python-dotenv
+# discord.py — pin >=2.6 to defeat pip-compile's tendency to pick the
+# unrelated abandoned `discord-py 0.9.2` (dash vs dot is a real footgun
+# on piwheels' name-normalization).
+#
+# IMPORTANT: NOT using `[voice]` extra. The extra pins `PyNaCl<1.6`
+# (conservative upstream cap, not a real API requirement) which conflicts
+# with the `PyNaCl>=1.6.2` security pin below. discord.py only uses
+# `nacl.secret.SecretBox` whose API is identical in 1.5 / 1.6, so voice
+# works with the unrolled deps. libopus (the other voice prereq) is a
+# system C library, installed via apt by setup-bmo.sh, not a Python dep.
+discord.py>=2.6,<3.0
+# PyNaCl — voice encryption + security pin (CVE-2025-69277 fixed in 1.6.2+)
+PyNaCl>=1.6.2
+edge-tts
+scipy
+
+# Hardware — Pi-specific
+RPi.GPIO
+smbus2
+luma.oled
+spidev
+Pillow

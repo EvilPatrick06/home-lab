@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { type ExtractedCondition, extractConditionsFromDescription } from '../../../services/combat/condition-extractor'
 import type { MonsterAction } from '../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../types/monster'
@@ -48,7 +49,7 @@ function ActionQuickRef({ action }: { action: MonsterAction }): JSX.Element {
   )
 }
 
-export default function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockViewProps): JSX.Element {
+function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockViewProps): JSX.Element {
   if (compact) {
     const keyActions = [...monster.actions, ...(monster.bonusActions || []), ...(monster.reactions || [])].filter(
       (a) => a.toHit !== undefined || a.saveDC !== undefined || a.damageDice
@@ -334,3 +335,5 @@ export default function MonsterStatBlockView({ monster, compact = false }: Monst
     </div>
   )
 }
+
+export default memo(MonsterStatBlockView)

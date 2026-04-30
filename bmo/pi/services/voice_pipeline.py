@@ -193,6 +193,9 @@ class VoicePipeline:
         self._stt_provider = voice_settings.get("stt_provider", "auto")
         self._wake_enabled = voice_settings.get("wake_enabled", True)
         self._bmo_tts_enabled = voice_settings.get("bmo_tts_enabled", True)
+        # None = play at system default volume (no per-call override). The web
+        # volume slider mutates this; speak() temporarily overrides + restores.
+        self._speak_volume = None
 
     # ── Model Loading (local fallback models) ─────────────────────────
 

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { getMagicItemEffects } from '../../../data/effect-definitions'
 import type { Character5e } from '../../../types/character-5e'
 
@@ -29,7 +30,7 @@ const RARITY_LABEL: Record<string, string> = {
   artifact: 'Artifact'
 }
 
-export default function MagicItemCard5e({
+function MagicItemCard5e({
   item,
   index,
   character,
@@ -292,3 +293,5 @@ export default function MagicItemCard5e({
     </div>
   )
 }
+
+export default memo(MagicItemCard5e)

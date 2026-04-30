@@ -26,6 +26,8 @@ from flask_socketio import SocketIO
 from services.bmo_logging import get_logger
 log = get_logger("bmo")
 
+from state import STATE
+
 # ── App Setup ────────────────────────────────────────────────────────
 
 app = Flask(__name__, template_folder="web/templates", static_folder="web/static")
@@ -62,13 +64,15 @@ def _cache_policy(response):
         "camera=(self), microphone=(self), geolocation=()",
     )
     if "text/html" in response.content_type:
-        # 'unsafe-inline' is required for Alpine.js's @click bindings on the
-        # kiosk UI and inline script tags in the IDE template. CDN hosts are
-        # listed for the IDE template's xterm/marked/monaco/socket.io scripts.
+        # 'unsafe-eval' is REQUIRED: Alpine.js compiles its `x-data` / `@click`
+        # / `x-show` expressions via `new AsyncFunction(expr)` at runtime, which
+        # CSP classifies as `eval`. Without it the kiosk buttons silently fail.
+        # 'unsafe-inline' covers inline <script> blocks in the IDE template.
+        # CDN hosts cover the IDE's xterm / marked / monaco / socket.io scripts.
         response.headers.setdefault(
             "Content-Security-Policy",
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.socket.io; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
             "img-src 'self' data: blob:; "
             "font-src 'self' data: https://cdn.jsdelivr.net; "
@@ -80,11 +84,58 @@ def _cache_policy(response):
     return response
 
 
-# /api/chat input limits. Per-IP rate-limiting is a future-idea (see
-# BMO-SUGGESTIONS-LOG.md) — a per-handler size cap + speaker allowlist
-# block the worst economic-attack shape today.
+# /api/chat input limits. Per-handler size cap + speaker allowlist + per-IP
+# rate-limit (see Limiter setup below) block the worst economic-attack shape.
 MAX_CHAT_MESSAGE_LEN = int(os.environ.get("BMO_MAX_CHAT_MESSAGE_LEN", "16384"))
 ALLOWED_CHAT_SPEAKERS = {"player", "dm", "discord", "kiosk", "user", "unknown"}
+
+
+# ── Rate limiting (cost-sensitive routes) ─────────────────────────────
+# flask-limiter caps per-IP request rate on routes that hit billable cloud
+# LLMs (Anthropic / Gemini / Groq / Fish Audio). Pairs with the MAX_CHAT_*
+# size cap (per-request cost) + the BMO_API_KEY auth (front door) — together
+# they bound the worst-case bill from a hostile / buggy LAN client.
+#
+# Per-route limits are env-overridable via BMO_*_RATE_LIMIT (e.g.
+# `BMO_CHAT_RATE_LIMIT="30 per minute"`). Localhost (kiosk + bot internal
+# loopback) is exempt so the kiosk's natural request rate doesn't trip it.
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+
+def _rate_limit_key():
+    """Per-IP key. Localhost returns a sentinel so the @limiter.exempt
+    test below skips counting kiosk / loopback traffic."""
+    addr = (get_remote_address() or "")
+    if addr in ("127.0.0.1", "::1", "localhost"):
+        return "__localhost_exempt__"
+    return addr
+
+
+def _is_localhost_request():
+    """Used by limiter `default_limits_exempt_when` to skip ALL limits for
+    requests originating on localhost."""
+    addr = (get_remote_address() or "")
+    return addr in ("127.0.0.1", "::1", "localhost")
+
+
+limiter = Limiter(
+    key_func=_rate_limit_key,
+    default_limits=[os.environ.get("BMO_DEFAULT_RATE_LIMIT", "120 per minute")],
+    default_limits_exempt_when=_is_localhost_request,
+    storage_uri="memory://",  # single-process gevent — fine
+    headers_enabled=True,     # adds X-RateLimit-* response headers
+    swallow_errors=True,      # if storage fails, log + allow (don't deny)
+)
+# attach to the Flask app — done after `app = Flask(...)` above
+limiter.init_app(app)
+
+
+# Per-route limits (set as constants so they're env-overridable in one place)
+RATE_LIMIT_CHAT = os.environ.get("BMO_CHAT_RATE_LIMIT", "30 per minute")
+RATE_LIMIT_DND_LOAD = os.environ.get("BMO_DND_LOAD_RATE_LIMIT", "15 per minute")
+RATE_LIMIT_IDE_JOBS = os.environ.get("BMO_IDE_JOBS_RATE_LIMIT", "10 per minute")
+RATE_LIMIT_NARRATE = os.environ.get("BMO_NARRATE_RATE_LIMIT", "30 per minute")
 
 
 def _get_secret_key() -> str:
@@ -1140,6 +1191,7 @@ def _strip_markdown(text: str) -> str:
     return VoicePipeline._strip_markdown(text)
 
 @app.route("/api/chat", methods=["POST"])
+@limiter.limit(RATE_LIMIT_CHAT)
 def api_chat():
     data = request.json or {}
     message = data.get("message", "")
@@ -1195,6 +1247,7 @@ def _safe_dnd_path(raw: str) -> str:
 
 
 @app.route("/api/dnd/load", methods=["POST"])
+@limiter.limit(RATE_LIMIT_DND_LOAD)
 def api_dnd_load():
     """Manually load DnD context with character files and map selection."""
     data = request.json or {}
@@ -2387,6 +2440,7 @@ def api_discord_dm_stop():
 
 
 @app.route("/api/discord/dm/narrate", methods=["POST"])
+@limiter.limit(RATE_LIMIT_NARRATE)
 def api_discord_dm_narrate():
     """Forward narration text to the DM bot for TTS in Discord VC."""
     data = request.json or {}
@@ -2971,11 +3025,11 @@ def _load_recent_chat() -> list[dict]:
     return []
 
 
-_chat_lock = threading.Lock()
+# (moved to state.STATE.chat_lock)
 
 def _save_recent_message(msg: dict):
     """Append a message to the recent chat buffer (rolling, all chats)."""
-    with _chat_lock:
+    with STATE.chat_lock:
         try:
             messages = _load_recent_chat()
             messages.append(msg)
@@ -3132,32 +3186,30 @@ def api_chat_clear():
 # ── Notes API ────────────────────────────────────────────────────────
 
 NOTES_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/notes.json")
-_notes_list: list[dict] = []
-_notes_lock = threading.Lock()
+# STATE.notes_list, STATE.notes_lock — moved to state.STATE.notes_list / state.STATE.notes_lock
 
 
 def _load_notes():
-    global _notes_list
-    with _notes_lock:
+    with STATE.notes_lock:
         try:
             if os.path.exists(NOTES_FILE):
                 with open(NOTES_FILE, "r", encoding="utf-8") as f:
-                    _notes_list = json.load(f)
+                    STATE.notes_list = json.load(f)
         except Exception:
-            _notes_list = []
+            STATE.notes_list = []
 
 
 def _save_notes_locked():
-    """Caller must hold _notes_lock."""
+    """Caller must hold STATE.notes_lock."""
     os.makedirs(os.path.dirname(NOTES_FILE), exist_ok=True)
     with open(NOTES_FILE, "w", encoding="utf-8") as f:
-        json.dump(_notes_list, f, ensure_ascii=False)
+        json.dump(STATE.notes_list, f, ensure_ascii=False)
 
 
 @app.route("/api/notes")
 def api_notes():
-    with _notes_lock:
-        return jsonify(list(_notes_list))
+    with STATE.notes_lock:
+        return jsonify(list(STATE.notes_list))
 
 
 @app.route("/api/notes", methods=["POST"])
@@ -3172,8 +3224,8 @@ def api_notes_create():
         "done": False,
         "created": time.time(),
     }
-    with _notes_lock:
-        _notes_list.append(note)
+    with STATE.notes_lock:
+        STATE.notes_list.append(note)
         _save_notes_locked()
     return jsonify(note)
 
@@ -3181,8 +3233,8 @@ def api_notes_create():
 @app.route("/api/notes/<note_id>", methods=["PUT"])
 def api_notes_update(note_id):
     data = request.json or {}
-    with _notes_lock:
-        for note in _notes_list:
+    with STATE.notes_lock:
+        for note in STATE.notes_list:
             if note["id"] == note_id:
                 if "done" in data:
                     note["done"] = bool(data["done"])
@@ -3195,9 +3247,8 @@ def api_notes_update(note_id):
 
 @app.route("/api/notes/<note_id>", methods=["DELETE"])
 def api_notes_delete(note_id):
-    global _notes_list
-    with _notes_lock:
-        _notes_list = [n for n in _notes_list if n["id"] != note_id]
+    with STATE.notes_lock:
+        STATE.notes_list = [n for n in STATE.notes_list if n["id"] != note_id]
         _save_notes_locked()
     return jsonify({"ok": True})
 
@@ -3465,13 +3516,13 @@ _tv_loop_thread = None
 _TV_WORKER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tv_worker.py")
 _TV_PYTHON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "venv", "bin", "python3")
 _tv_proc = None
-_tv_proc_lock = threading.Lock()
+# (moved to state.STATE.tv_proc_lock)
 
 
 def _ensure_tv_worker():
     """Start the long-lived TV worker subprocess if not running."""
     global _tv_proc
-    with _tv_proc_lock:
+    with STATE.tv_proc_lock:
         if _tv_proc is not None and _tv_proc.poll() is None:
             return True
         try:
@@ -3502,7 +3553,7 @@ def _tv_cmd(action, **kwargs):
         return {"error": "TV worker not running"}
     cmd_data = {"action": action, **kwargs}
     try:
-        with _tv_proc_lock:
+        with STATE.tv_proc_lock:
             if _tv_proc is None or _tv_proc.poll() is not None:
                 _tv_proc = None
                 if not _ensure_tv_worker():
@@ -3568,8 +3619,7 @@ def init_tv_remote():
 
 
 
-_tv_media_cache = {"title": "", "artist": "", "app": "", "ts": 0}
-_tv_media_lock = threading.Lock()
+# STATE.tv_media_cache, STATE.tv_media_lock — moved to state.STATE.tv_media_cache / state.STATE.tv_media_lock
 
 
 def _parse_media_description(desc: str) -> tuple[str, str]:
@@ -3602,9 +3652,9 @@ def _get_tv_media_title(current_app: str = "") -> dict:
     foreground app. Stale sessions from background apps are ignored.
     """
     now = time.time()
-    with _tv_media_lock:
-        if now - _tv_media_cache["ts"] < 3:
-            return {"title": _tv_media_cache["title"], "artist": _tv_media_cache["artist"]}
+    with STATE.tv_media_lock:
+        if now - STATE.tv_media_cache["ts"] < 3:
+            return {"title": STATE.tv_media_cache["title"], "artist": STATE.tv_media_cache["artist"]}
     try:
         # Get media_session: package, state, and description for each session
         r = subprocess.run(
@@ -3637,14 +3687,14 @@ def _get_tv_media_title(current_app: str = "") -> dict:
 
         if not matched:
             # No active playback from the foreground app — clear stale titles
-            with _tv_media_lock:
-                _tv_media_cache.update({"title": "", "artist": "", "app": "", "ts": now})
+            with STATE.tv_media_lock:
+                STATE.tv_media_cache.update({"title": "", "artist": "", "app": "", "ts": now})
             return {"title": "", "artist": ""}
 
         # Got a title from media_session description
         if session_title:
-            with _tv_media_lock:
-                _tv_media_cache.update({"title": session_title, "artist": session_artist, "app": pkg, "ts": now})
+            with STATE.tv_media_lock:
+                STATE.tv_media_cache.update({"title": session_title, "artist": session_artist, "app": pkg, "ts": now})
             return {"title": session_title, "artist": session_artist}
 
         # Null description (Plex does this) — try notification for this specific app
@@ -3675,23 +3725,23 @@ def _get_tv_media_title(current_app: str = "") -> dict:
                             notif_text = m[1].rstrip(")")
                         if notif_title and notif_title != "null":
                             artist = notif_text if notif_text and notif_text != "null" else ""
-                            with _tv_media_lock:
-                                _tv_media_cache.update({"title": notif_title, "artist": artist, "app": pkg, "ts": now})
+                            with STATE.tv_media_lock:
+                                STATE.tv_media_cache.update({"title": notif_title, "artist": artist, "app": pkg, "ts": now})
                             return {"title": notif_title, "artist": artist}
                         in_app = False
             except Exception:
                 pass
 
         # Active playback but no title found — keep cached if same app, else clear
-        with _tv_media_lock:
-            if pkg == _tv_media_cache.get("app"):
-                _tv_media_cache["ts"] = now
+        with STATE.tv_media_lock:
+            if pkg == STATE.tv_media_cache.get("app"):
+                STATE.tv_media_cache["ts"] = now
             else:
-                _tv_media_cache.update({"title": "", "artist": "", "app": pkg, "ts": now})
+                STATE.tv_media_cache.update({"title": "", "artist": "", "app": pkg, "ts": now})
     except Exception:
         pass
-    with _tv_media_lock:
-        return {"title": _tv_media_cache["title"], "artist": _tv_media_cache["artist"]}
+    with STATE.tv_media_lock:
+        return {"title": STATE.tv_media_cache["title"], "artist": STATE.tv_media_cache["artist"]}
 
 
 @app.route("/api/tv/status")
