@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { usePlayerState } from './hooks/usePlayerState.js';
+import { SignInButton } from './components/SignInButton.jsx';
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines } from './tutorial';
 
@@ -2009,6 +2010,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
                 <Compass className="w-4 h-4" /> Replay Tutorial
               </button>
             )}
+            <SignInButton />
             <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
               style={{ background: 'rgba(41, 12, 12, 0.7)' }}>
               <RotateCcw className="w-4 h-4" /> Begin Anew
@@ -2171,6 +2173,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               <Compass className="w-4 h-4" /> Replay Tutorial
             </button>
           )}
+          <SignInButton />
           <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
             style={{ background: 'rgba(41, 12, 12, 0.7)' }}>
             <RotateCcw className="w-4 h-4" /> Begin Anew
