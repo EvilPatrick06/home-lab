@@ -35,8 +35,10 @@ describe('consumeOAuthCallback', () => {
     const result = await consumeOAuthCallback();
     expect(result).toBe(true);
     expect(exchangeCodeForSession).toHaveBeenCalledTimes(1);
+    // Must pass the bare code, not the full query string.
+    expect(exchangeCodeForSession).toHaveBeenCalledWith('abc');
     expect(window.location.search).not.toContain('code=');
     expect(window.location.search).not.toContain('state=');
-    expect(window.location.search).toContain('keep=this'); // unrelated params untouched
+    expect(window.location.search).toContain('keep=this');
   });
 });

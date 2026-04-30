@@ -46,7 +46,9 @@ export async function consumeOAuthCallback() {
   const url = new URL(window.location.href);
   const code = url.searchParams.get('code');
   if (!code) return false;
-  await supabase.auth.exchangeCodeForSession(window.location.search);
+  // Supabase SDK expects the bare auth code (PKCE flow), NOT the full
+  // ?code=...&state=... query string.
+  await supabase.auth.exchangeCodeForSession(code);
   url.searchParams.delete('code');
   url.searchParams.delete('state');
   window.history.replaceState({}, '', url.toString());
