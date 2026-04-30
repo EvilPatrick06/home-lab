@@ -1,7 +1,19 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { usePlayerState } from './usePlayerState.js';
 import { STORAGE_KEY, loadFromLocalStorage } from '../services/persistence.js';
+import { hasMeaningfulData } from '../services/persistence.js';
+
+vi.mock('../services/cloudSync.js', () => ({
+  pullSave: vi.fn(),
+  pushSave: vi.fn(() => Promise.resolve()),
+  upsertProfile: vi.fn(() => Promise.resolve()),
+}));
+
+import { pullSave, pushSave, upsertProfile } from '../services/cloudSync.js';
+
+const USER = { id: 'u1', githubLogin: 'pat', avatarUrl: 'a.png' };
 
 const DEFAULT = { level: 1, totalXp: 0, library: [] };
 
@@ -61,5 +73,61 @@ describe('usePlayerState — local-only behavior', () => {
     });
 
     expect(loadFromLocalStorage()).toEqual({ level: 9, totalXp: 99, library: [] });
+  });
+});
+
+describe('usePlayerState — sign-in branches (silent)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    pullSave.mockReset();
+    pushSave.mockReset();
+    upsertProfile.mockReset();
+  });
+
+  it('empty cloud + empty local → no-op (no merge chooser, nothing pushed)', async () => {
+    pullSave.mockResolvedValueOnce(null);
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalledWith('u1'));
+    expect(pushSave).not.toHaveBeenCalled();
+    expect(result.current[2].mergeRequired).toBe(false);
+  });
+
+  it('cloud has data + empty local → cloud overwrites local silently', async () => {
+    pullSave.mockResolvedValueOnce({
+      data: { level: 5, totalXp: 100, library: [{ id: 'a' }] },
+      updatedAt: '2026-04-29T00:00:00Z', schemaVer: 1,
+    });
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(result.current[0].level).toBe(5));
+    expect(pushSave).not.toHaveBeenCalled();
+    expect(result.current[2].mergeRequired).toBe(false);
+  });
+
+  it('empty cloud + local has data → local pushed to cloud silently', async () => {
+    localStorage.setItem('dungeon-scholar:save:v1',
+      JSON.stringify({ level: 3, totalXp: 50, library: [] }));
+    pullSave.mockResolvedValueOnce(null);
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pushSave).toHaveBeenCalled());
+    const [pushedUid, pushedBlob] = pushSave.mock.calls[0];
+    expect(pushedUid).toBe('u1');
+    expect(pushedBlob.level).toBe(3);
+    expect(result.current[2].mergeRequired).toBe(false);
+  });
+
+  it('cloud has data + local has data → mergeRequired flag goes true', async () => {
+    localStorage.setItem('dungeon-scholar:save:v1',
+      JSON.stringify({ level: 3, totalXp: 50, library: [{ id: 'b' }] }));
+    pullSave.mockResolvedValueOnce({
+      data: { level: 7, totalXp: 200, library: [{ id: 'a' }] },
+      updatedAt: '2026-04-29T00:00:00Z', schemaVer: 1,
+    });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(result.current[2].mergeRequired).toBe(true));
+    expect(pushSave).not.toHaveBeenCalled();
+    // local hasn't changed yet — chooser will resolve.
+    expect(result.current[0].level).toBe(3);
   });
 });
