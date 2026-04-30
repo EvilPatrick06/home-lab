@@ -520,7 +520,6 @@ export default function DungeonScholarApp() {
   const [showAchievements, setShowAchievements] = useState(false);
   const [showTitles, setShowTitles] = useState(false);
   const [showPasteModal, setShowPasteModal] = useState(false);
-  const [exportFallbackData, setExportFallbackData] = useState(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [shareTomeId, setShareTomeId] = useState(null);
   const [editMetadataTomeId, setEditMetadataTomeId] = useState(null);
@@ -528,7 +527,6 @@ export default function DungeonScholarApp() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showAccountPanel, setShowAccountPanel] = useState(false);
   const fileInputRef = useRef(null);
-  const progressFileInputRef = useRef(null);
 
   // Consume OAuth ?code=... on mount (returns false if no callback in URL).
   useEffect(() => {
@@ -1119,61 +1117,6 @@ export default function DungeonScholarApp() {
     return true;
   };
 
-  const exportProgress = () => {
-    const data = JSON.stringify(playerState, null, 2);
-    let downloadAttempted = false;
-    try {
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `scholar-journal-${Date.now()}.json`;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      downloadAttempted = true;
-      setTimeout(() => {
-        try { document.body.removeChild(a); } catch {}
-        try { URL.revokeObjectURL(url); } catch {}
-      }, 100);
-    } catch (err) {
-      downloadAttempted = false;
-    }
-    // Always also surface the modal so the user has a guaranteed way to save
-    // (download triggers from artifact iframes are often silently blocked)
-    setExportFallbackData(data);
-    if (downloadAttempted) {
-      showNotif('Download attempted — if it didn\'t work, copy the text manually', 'info');
-    }
-  };
-
-  const importProgress = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const data = JSON.parse(ev.target.result);
-        // Remap saved tutorial step index if it came from a pre-overhaul journal.
-        if (typeof data.tutorialStepIndex === 'number' && !data.tutorialCompleted) {
-          data.tutorialStepIndex = migrateTutorialIndex(data.tutorialStepIndex);
-        }
-        // Migration: if old single-tome format, wrap it
-        if (data.library === undefined) {
-          // Old format had no library — leave new state mostly default but keep stats
-          setPlayerState({ ...DEFAULT_STATE, ...data, library: [], activeTomeId: null });
-        } else {
-          setPlayerState({ ...DEFAULT_STATE, ...data });
-        }
-        showNotif('Journal restored', 'success');
-      } catch {
-        showNotif('Failed to read journal', 'error');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
-
   const resetProgress = () => {
     setShowResetConfirm(true);
   };
@@ -1392,8 +1335,6 @@ export default function DungeonScholarApp() {
             onShowPrompt={() => setShowPromptModal(true)}
             playerState={playerState}
             signedIn={!!user}
-            onExportProgress={exportProgress}
-            onImportProgress={() => progressFileInputRef.current?.click()}
             onResetProgress={resetProgress}
             onOpenLibrary={() => setScreen('library')}
             onRestartTutorial={() => {
@@ -1502,14 +1443,12 @@ export default function DungeonScholarApp() {
         )}
 
         <input type="file" ref={fileInputRef} accept=".json" onChange={handleImportFile} className="hidden" />
-        <input type="file" ref={progressFileInputRef} accept=".json" onChange={importProgress} className="hidden" />
 
         {showPromptModal && <PromptModal onClose={() => setShowPromptModal(false)} />}
         {showPasteModal && <PasteTomeModal onClose={() => setShowPasteModal(false)} onSubmit={handlePasteImport} />}
         {showImportCodeModal && <ImportCodeModal onClose={() => setShowImportCodeModal(false)} onSubmit={handleShareCodeImport} />}
         {shareTomeId && <ShareTomeModal tome={playerState.library.find(t => t.id === shareTomeId)} onClose={() => setShareTomeId(null)} />}
         {editMetadataTomeId && <MetadataEditModal tome={playerState.library.find(t => t.id === editMetadataTomeId)} onSave={(updates) => { updateTomeMetadata(editMetadataTomeId, updates); setEditMetadataTomeId(null); showNotif('Tome metadata updated', 'success'); }} onClose={() => setEditMetadataTomeId(null)} />}
-        {exportFallbackData && <ExportFallbackModal data={exportFallbackData} onClose={() => setExportFallbackData(null)} />}
         {showResetConfirm && <ResetConfirmModal onConfirm={confirmReset} onCancel={() => setShowResetConfirm(false)} />}
         {showAchievements && <AchievementsModal playerState={playerState} onClose={() => setShowAchievements(false)} />}
         {showWelcomeModal && <WelcomeModal onStart={startTutorial} onSkip={skipTutorial} />}
@@ -1932,7 +1871,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
   );
 }
 
-function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onExportProgress, onImportProgress, onResetProgress, onOpenLibrary, onRestartTutorial }) {
+function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onResetProgress, onOpenLibrary, onRestartTutorial }) {
   if (!courseSet) {
     return (
       <div className="space-y-6">
@@ -2048,14 +1987,6 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             <Settings className="w-5 h-5" /> ⚔ Manage Your Saga ⚔
           </h3>
           <div className="flex flex-wrap gap-3">
-            <button onClick={onExportProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30 italic"
-              style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
-              <Download className="w-4 h-4" /> Preserve Journal
-            </button>
-            <button onClick={onImportProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30 italic"
-              style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
-              <Upload className="w-4 h-4" /> Restore Journal
-            </button>
             {playerState.tutorialCompleted && (
               <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
                 style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
@@ -2199,14 +2130,6 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           <Settings className="w-5 h-5" /> ⚔ Manage Your Saga ⚔
         </h3>
         <div className="flex flex-wrap gap-3">
-          <button onClick={onExportProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30 italic"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
-            <Download className="w-4 h-4" /> Preserve Journal
-          </button>
-          <button onClick={onImportProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30 italic"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
-            <Upload className="w-4 h-4" /> Restore Journal
-          </button>
           {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
             <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
               style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
@@ -4446,96 +4369,6 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
             }}
           >
             ⚔ Erase Saga ⚔
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ExportFallbackModal({ data, onClose }) {
-  const [copied, setCopied] = useState(false);
-  const textareaRef = useRef(null);
-
-  const copy = () => {
-    let success = false;
-    try {
-      const ta = textareaRef.current;
-      if (ta) {
-        ta.focus();
-        ta.select();
-        try { success = document.execCommand('copy'); } catch { success = false; }
-      }
-    } catch { success = false; }
-    if (!success && navigator.clipboard) {
-      navigator.clipboard.writeText(data).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }).catch(() => {});
-      return;
-    }
-    setCopied(success);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
-        border: '3px double rgba(245, 158, 11, 0.6)',
-        boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
-      }}>
-        <div className="absolute top-2 left-2 text-amber-500 text-sm">⚜</div>
-        <div className="absolute top-2 right-2 text-amber-500 text-sm">⚜</div>
-        <div className="absolute bottom-2 left-2 text-amber-500 text-sm">⚜</div>
-        <div className="absolute bottom-2 right-2 text-amber-500 text-sm">⚜</div>
-
-        <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
-          <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
-            <Download className="w-5 h-5" /> ✦ Preserve Thy Journal ✦
-          </h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
-          <div className="p-3 rounded text-sm italic" style={{
-            background: 'rgba(120, 53, 15, 0.4)',
-            border: '1px solid rgba(245, 158, 11, 0.5)',
-            color: '#fde047',
-          }}>
-            ⚠ Direct download was blocked by the realm's wards. Copy thy journal text and save it to a <span className="font-mono">.json</span> file, or paste it back later via Restore Journal.
-          </div>
-          <textarea
-            ref={textareaRef}
-            value={data}
-            readOnly
-            className="flex-1 min-h-[300px] p-3 rounded border-2 focus:outline-none text-amber-50 font-mono text-xs"
-            style={{
-              background: 'rgba(10, 6, 4, 0.7)',
-              borderColor: 'rgba(180, 83, 9, 0.5)',
-              fontFamily: 'monospace',
-            }}
-            onFocus={(e) => e.target.select()}
-          />
-        </div>
-        <div className="p-4 border-t border-amber-700/50 flex gap-2">
-          <button
-            onClick={onClose}
-            className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
-          >
-            Close
-          </button>
-          <button
-            onClick={copy}
-            className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
-            style={{
-              background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
-              boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
-            }}
-          >
-            {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <><Copy className="w-4 h-4" /> Copy Journal</>}
           </button>
         </div>
       </div>
