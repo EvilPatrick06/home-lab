@@ -153,3 +153,17 @@ describe('Google prompt', () => {
     expect(g.prompt).toMatch(/Cloud KMS|Cloud IAM/);
   });
 });
+
+describe('ISACA prompt', () => {
+  it('is registered with id="isaca" and lists CISA + CISM', () => {
+    const i = ORG_PROMPTS.find(p => p.id === 'isaca');
+    expect(i).toBeDefined();
+    expect(i.commonExams).toContain('CISA');
+    expect(i.commonExams).toContain('CISM');
+  });
+  it('mentions audit and risk', () => {
+    const i = ORG_PROMPTS.find(p => p.id === 'isaca');
+    expect(i.prompt).toMatch(/audit/i);
+    expect(i.prompt).toMatch(/risk/i);
+  });
+});
