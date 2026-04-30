@@ -194,3 +194,24 @@ describe('Microsoft prompt', () => {
     expect(m.prompt).toMatch(/Conditional Access/);
   });
 });
+
+describe('Generic prompt', () => {
+  it('is registered with id="generic" and lists no specific exams', () => {
+    const g = ORG_PROMPTS.find(p => p.id === 'generic');
+    expect(g).toBeDefined();
+    expect(g.commonExams).toEqual([]);
+  });
+  it('mentions inferring style from EXAM TARGET or materials', () => {
+    const g = ORG_PROMPTS.find(p => p.id === 'generic');
+    expect(g.prompt).toMatch(/infer/i);
+  });
+});
+
+describe('ORG_PROMPTS final shape', () => {
+  it('has exactly 11 entries', () => {
+    expect(ORG_PROMPTS).toHaveLength(11);
+  });
+  it('places Generic last in the picker order', () => {
+    expect(ORG_PROMPTS[ORG_PROMPTS.length - 1].id).toBe('generic');
+  });
+});
