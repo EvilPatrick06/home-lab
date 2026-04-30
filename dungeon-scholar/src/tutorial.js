@@ -80,11 +80,7 @@ export const snapshotBaselines = (state) => {
     libraryCount: lib.length,
     cardsReviewed: lib.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0),
     quizAnswered: lib.reduce((s, t) => s + (t.progress?.quizAnswered || 0), 0),
-    labSteps: lib.reduce((s, t) => {
-      const labCompleted = t.progress?.labsCompleted || 0;
-      const labStepInVault = (t.progress?.mistakeVault || []).filter(m => m._type === 'lab').length;
-      return s + labCompleted + labStepInVault;
-    }, 0),
+    labsAttempted: lib.reduce((s, t) => s + (t.progress?.labsAttempted || 0), 0),
     oracleMessages: lib.reduce((s, t) => s + ((t.progress?.chatHistory || []).filter(m => m.role === 'user').length), 0),
     dungeonAttempts: state.dungeonAttempts || 0,
   };

@@ -460,6 +460,7 @@ const blankTomeProgress = () => ({
   cardsReviewed: 0,
   quizAnswered: 0,
   labsCompleted: 0,
+  labsAttempted: 0,
   oracleMessages: 0,
   runsCompleted: 0,
   bossesDefeated: 0,
@@ -584,13 +585,10 @@ export default function DungeonScholarApp() {
   // tutorial step's auto-condition is met *relative to the baseline captured
   // when this step began*, and advance.
   const totalCardsAcrossLib = useMemo(() => playerState.library.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0), [playerState.library]);
-  const totalLabStepsAcrossLib = useMemo(() => {
-    return playerState.library.reduce((s, t) => {
-      const labCompleted = t.progress?.labsCompleted || 0;
-      const labStepInVault = (t.progress?.mistakeVault || []).filter(m => m._type === 'lab').length;
-      return s + labCompleted + labStepInVault;
-    }, 0);
-  }, [playerState.library]);
+  const totalLabsAttemptedAcrossLib = useMemo(
+    () => playerState.library.reduce((s, t) => s + (t.progress?.labsAttempted || 0), 0),
+    [playerState.library]
+  );
   const totalOracleAcrossLib = useMemo(() => playerState.library.reduce((s, t) => s + ((t.progress?.chatHistory || []).filter(m => m.role === 'user').length), 0), [playerState.library]);
   const totalRunsAcrossLib = useMemo(() => playerState.library.reduce((s, t) => s + (t.progress?.runsCompleted || 0), 0), [playerState.library]);
   const totalQuizAnsweredAcrossLib = useMemo(() => playerState.library.reduce((s, t) => s + (t.progress?.quizAnswered || 0), 0), [playerState.library]);
@@ -621,7 +619,7 @@ export default function DungeonScholarApp() {
         met = totalQuizAnsweredAcrossLib > (baseline.quizAnswered || 0);
         break;
       case 'lab_step':
-        met = totalLabStepsAcrossLib > (baseline.labSteps || 0);
+        met = totalLabsAttemptedAcrossLib > (baseline.labsAttempted || 0);
         break;
       case 'oracle_used':
         met = totalOracleAcrossLib > (baseline.oracleMessages || 0);
@@ -640,7 +638,7 @@ export default function DungeonScholarApp() {
     playerState.dungeonAttempts,
     totalCardsAcrossLib,
     totalQuizAnsweredAcrossLib,
-    totalLabStepsAcrossLib,
+    totalLabsAttemptedAcrossLib,
     totalOracleAcrossLib,
     totalRunsAcrossLib,
   ]);
@@ -751,6 +749,24 @@ export default function DungeonScholarApp() {
       const newAnswered = prev.totalAnswered + 1;
       const newCorrect = prev.totalCorrect + (correct ? 1 : 0);
       let next = { ...prev, totalAnswered: newAnswered, totalCorrect: newCorrect };
+
+      // Bump labsAttempted on every lab answer (success or failure) for tutorial detection.
+      if (item && item._type === 'lab' && prev.activeTomeId) {
+        next = {
+          ...next,
+          library: next.library.map(t =>
+            t.id === prev.activeTomeId
+              ? {
+                  ...t,
+                  progress: {
+                    ...t.progress,
+                    labsAttempted: (t.progress?.labsAttempted || 0) + 1,
+                  },
+                }
+              : t
+          ),
+        };
+      }
 
       // Add to active tome's mistake vault if wrong
       if (!correct && item && prev.activeTomeId) {

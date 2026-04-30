@@ -23,14 +23,14 @@ describe('TUTORIAL_STEPS (legacy 8-step shape)', () => {
   });
 });
 
-describe('snapshotBaselines (legacy)', () => {
+describe('snapshotBaselines', () => {
   it('returns zeros for an empty state', () => {
     const result = snapshotBaselines({});
     expect(result).toEqual({
       libraryCount: 0,
       cardsReviewed: 0,
       quizAnswered: 0,
-      labSteps: 0,
+      labsAttempted: 0,
       oracleMessages: 0,
       dungeonAttempts: 0,
     });
@@ -46,21 +46,18 @@ describe('snapshotBaselines (legacy)', () => {
     expect(snapshotBaselines(state).cardsReviewed).toBe(8);
   });
 
-  it('sums labSteps as labsCompleted plus lab-typed mistakeVault entries', () => {
+  it('sums labsAttempted across all tomes', () => {
     const state = {
       library: [
-        {
-          progress: {
-            labsCompleted: 2,
-            mistakeVault: [
-              { _type: 'lab', id: 'a' },
-              { _type: 'quiz', id: 'b' },
-              { _type: 'lab', id: 'c' },
-            ],
-          },
-        },
+        { progress: { labsAttempted: 2 } },
+        { progress: { labsAttempted: 3 } },
+        { progress: {} }, // missing field defaults to 0
       ],
     };
-    expect(snapshotBaselines(state).labSteps).toBe(4); // 2 completed + 2 lab vault entries
+    expect(snapshotBaselines(state).labsAttempted).toBe(5);
+  });
+
+  it('returns zero labsAttempted for empty state', () => {
+    expect(snapshotBaselines({}).labsAttempted).toBe(0);
   });
 });
