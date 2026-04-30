@@ -4,6 +4,7 @@ import { CMMC_PROMPT, CMMC_PROMPT_META } from './cmmc.js';
 import { COMPTIA_PROMPT, COMPTIA_PROMPT_META } from './comptia.js';
 import { ECCOUNCIL_PROMPT, ECCOUNCIL_PROMPT_META } from './eccouncil.js';
 import { GIAC_PROMPT, GIAC_PROMPT_META } from './giac.js';
+import { GOOGLE_PROMPT, GOOGLE_PROMPT_META } from './google.js';
 
 export const ORG_PROMPTS = [
   { ...AWS_PROMPT_META, prompt: AWS_PROMPT },
@@ -12,4 +13,5 @@ export const ORG_PROMPTS = [
   { ...COMPTIA_PROMPT_META, prompt: COMPTIA_PROMPT },
   { ...ECCOUNCIL_PROMPT_META, prompt: ECCOUNCIL_PROMPT },
   { ...GIAC_PROMPT_META, prompt: GIAC_PROMPT },
+  { ...GOOGLE_PROMPT_META, prompt: GOOGLE_PROMPT },
 ];

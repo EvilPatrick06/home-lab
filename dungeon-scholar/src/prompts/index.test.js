@@ -140,3 +140,16 @@ describe('GIAC prompt', () => {
     expect(g.prompt).toMatch(/Wireshark|Volatility|Sysmon/);
   });
 });
+
+describe('Google prompt', () => {
+  it('is registered with id="google" and lists Cloud Security Engineer', () => {
+    const g = ORG_PROMPTS.find(p => p.id === 'google');
+    expect(g).toBeDefined();
+    expect(g.commonExams.some(e => e.includes('Cloud Security'))).toBe(true);
+  });
+  it('mentions GCP services like IAM, VPC SC, KMS', () => {
+    const g = ORG_PROMPTS.find(p => p.id === 'google');
+    expect(g.prompt).toMatch(/VPC SC|VPC Service Controls/);
+    expect(g.prompt).toMatch(/Cloud KMS|Cloud IAM/);
+  });
+});
