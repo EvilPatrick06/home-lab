@@ -203,3 +203,88 @@ describe('usePlayerState — steady-state cloud writes', () => {
     expect(pullSave).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('usePlayerState — smart sign-in merge using sync meta', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    pullSave.mockReset();
+    pushSave.mockReset();
+    upsertProfile.mockReset();
+  });
+
+  it('cloud changed + local not dirty → silently takes cloud (no chooser)', async () => {
+    // Local has stale data from a previous sync.
+    localStorage.setItem('dungeon-scholar:save:v1',
+      JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    // Last sync recorded T0; not dirty.
+    localStorage.setItem('dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: false }));
+
+    pullSave.mockResolvedValueOnce({
+      data: { level: 9, totalXp: 500, library: [{ id: 'a' }, { id: 'b' }] },
+      updatedAt: '2026-04-29T11:00:00Z', // newer than lastSyncedAt
+      schemaVer: 1,
+    });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+
+    await waitFor(() => expect(result.current[0].level).toBe(9));
+    expect(result.current[2].mergeRequired).toBe(false);
+    expect(pushSave).not.toHaveBeenCalled();
+  });
+
+  it('cloud changed + local dirty → fires merge chooser (real conflict)', async () => {
+    localStorage.setItem('dungeon-scholar:save:v1',
+      JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem('dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }));
+
+    pullSave.mockResolvedValueOnce({
+      data: { level: 9, totalXp: 500, library: [{ id: 'a' }, { id: 'b' }] },
+      updatedAt: '2026-04-29T11:00:00Z',
+      schemaVer: 1,
+    });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(result.current[2].mergeRequired).toBe(true));
+    expect(pushSave).not.toHaveBeenCalled();
+  });
+
+  it('cloud unchanged + local dirty → pushes (no chooser)', async () => {
+    localStorage.setItem('dungeon-scholar:save:v1',
+      JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem('dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }));
+
+    pullSave.mockResolvedValueOnce({
+      data: { level: 5, totalXp: 100, library: [{ id: 'a' }] },
+      updatedAt: '2026-04-29T10:00:00Z', // unchanged since last sync
+      schemaVer: 1,
+    });
+    pushSave.mockResolvedValue();
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pushSave).toHaveBeenCalled());
+    expect(result.current[2].mergeRequired).toBe(false);
+  });
+
+  it('cloud unchanged + local not dirty → no-op (no push, no chooser)', async () => {
+    localStorage.setItem('dungeon-scholar:save:v1',
+      JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem('dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: false }));
+
+    pullSave.mockResolvedValueOnce({
+      data: { level: 5, totalXp: 100, library: [{ id: 'a' }] },
+      updatedAt: '2026-04-29T10:00:00Z',
+      schemaVer: 1,
+    });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+    // give the effect's microtasks a chance to settle
+    await new Promise((r) => setTimeout(r, 50));
+    expect(pushSave).not.toHaveBeenCalled();
+    expect(result.current[2].mergeRequired).toBe(false);
+  });
+});
