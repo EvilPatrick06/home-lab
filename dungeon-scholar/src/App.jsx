@@ -278,6 +278,7 @@ const STORY_CHAINS = [
     icon: '🌟',
     rewardTitleId: 'pathwalker',
     rewardXp: 1000,
+    rewardGold: 250,
     steps: [
       {
         id: 'ap_step1',
@@ -820,12 +821,19 @@ export default function DungeonScholarApp() {
     if (reason) showNotif(`+${amount} gold — ${reason}`, 'xp');
   };
 
+  const ACHIEVEMENT_GOLD = 50;
   const checkAchievement = (id) => {
     setPlayerState(prev => {
       if (prev.achievements.includes(id)) return prev;
       const ach = ACHIEVEMENTS.find(a => a.id === id);
-      if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement'), 50);
-      return { ...prev, achievements: [...prev.achievements, id] };
+      if (ach) {
+        setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name} (+${ACHIEVEMENT_GOLD} gold)`, 'achievement'), 50);
+      }
+      return {
+        ...prev,
+        achievements: [...prev.achievements, id],
+        gold: (prev.gold || 0) + ACHIEVEMENT_GOLD,
+      };
     });
   };
 
@@ -1164,10 +1172,16 @@ export default function DungeonScholarApp() {
       const stepXp = step.xp;
       const bonusXp = isFinal ? (chain.rewardXp || 0) : 0;
       const totalXp = stepXp + bonusXp;
-      const gold = Math.max(1, Math.floor(totalXp * 0.1));
-      setTimeout(() => showNotif(`+${stepXp} XP, +${gold} gold — ${step.title}`, 'xp'), 50);
+      // Per-step gold tracks XP at 10%. Chain completion grants an explicit
+      // chain.rewardGold on top (defaults to 10% of rewardXp if unset).
+      const stepGold = Math.max(1, Math.floor(stepXp * 0.1));
+      const chainGold = isFinal
+        ? (chain.rewardGold ?? Math.floor((chain.rewardXp || 0) * 0.1))
+        : 0;
+      const totalGold = stepGold + chainGold;
+      setTimeout(() => showNotif(`+${stepXp} XP, +${stepGold} gold — ${step.title}`, 'xp'), 50);
       if (isFinal && bonusXp > 0) {
-        setTimeout(() => showNotif(`+${bonusXp} XP — Chain Complete: ${chain.title}`, 'xp'), 200);
+        setTimeout(() => showNotif(`+${bonusXp} XP, +${chainGold} gold — Chain Complete: ${chain.title}`, 'xp'), 200);
       }
 
       const nextStepIndex = sp.stepIndex + 1;
@@ -1178,7 +1192,7 @@ export default function DungeonScholarApp() {
         ...prev,
         xp: prev.xp + totalXp,
         totalXp: prev.totalXp + totalXp,
-        gold: (prev.gold || 0) + gold,
+        gold: (prev.gold || 0) + totalGold,
         storyProgress: {
           ...prev.storyProgress,
           [chainId]: {
@@ -4178,14 +4192,15 @@ function QuestSection({ tagline, subtitle, emptyMsg, quests, onClaim, onClaimAll
 
 // One step of a story chain. Three visual states: claimed (narrative revealed),
 // current (title + progress, narrative hidden), locked (sealed).
-function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal, chainBonusXp, onClaim }) {
+function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal, chainBonusXp, chainBonusGold, onClaim }) {
   // status: 'claimed' | 'current' | 'locked'
   const isClaimed = status === 'claimed';
   const isCurrent = status === 'current';
   const isLocked = status === 'locked';
   const pct = target > 0 ? Math.min(100, (progress / target) * 100) : 0;
+  const stepGold = Math.max(1, Math.floor(step.xp * 0.1));
   const totalXp = step.xp + (isFinal && chainBonusXp ? chainBonusXp : 0);
-  const goldReward = Math.max(1, Math.floor(totalXp * 0.1));
+  const goldReward = isFinal ? stepGold + (chainBonusGold || 0) : stepGold;
 
   const bg = isClaimed
     ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)'
@@ -4347,6 +4362,14 @@ function StoryChainView({ chainStatus, onClaimStep }) {
                   ✦ Bonus XP: <span className="text-amber-300 font-bold">+{chain.rewardXp}</span>
                 </span>
               )}
+              {(chain.rewardGold ?? Math.floor((chain.rewardXp || 0) * 0.1)) > 0 && (
+                <span className="text-purple-300 italic inline-flex items-center gap-1">
+                  ✦ Bonus
+                  <span className="text-amber-300 font-bold inline-flex items-center gap-0.5">
+                    <Coins className="w-3 h-3" /> +{chain.rewardGold ?? Math.floor((chain.rewardXp || 0) * 0.1)}
+                  </span>
+                </span>
+              )}
             </div>
             <div className="h-1.5 rounded-full overflow-hidden border border-amber-800 mt-3" style={{ background: 'rgba(10, 6, 4, 0.7)' }}>
               <div className="h-full transition-all duration-500" style={{
@@ -4385,6 +4408,7 @@ function StoryChainView({ chainStatus, onClaimStep }) {
               target={status === 'current' ? target : 0}
               isFinal={isFinal}
               chainBonusXp={chain.rewardXp || 0}
+              chainBonusGold={chain.rewardGold ?? Math.floor((chain.rewardXp || 0) * 0.1)}
               onClaim={() => onClaimStep(chain.id)}
             />
           );
