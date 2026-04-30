@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { usePlayerState } from './hooks/usePlayerState.js';
 import { SignInButton } from './components/SignInButton.jsx';
-import { consumeOAuthCallback } from './services/supabase.js';
+import { consumeOAuthCallback, signOut } from './services/supabase.js';
+import { useAuth } from './hooks/useAuth.js';
+import { MergeChooser } from './components/MergeChooser.jsx';
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines } from './tutorial';
 
@@ -509,7 +511,8 @@ const DEFAULT_STATE = {
 
 export default function DungeonScholarApp() {
   const [screen, setScreen] = useState('home');
-  const [playerState, setPlayerState] = usePlayerState(DEFAULT_STATE);
+  const { user } = useAuth();
+  const [playerState, setPlayerState, sync] = usePlayerState(DEFAULT_STATE, user);
   const [notification, setNotification] = useState(null);
   const [showPromptModal, setShowPromptModal] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
@@ -1192,6 +1195,19 @@ export default function DungeonScholarApp() {
       <div className="fixed inset-0 pointer-events-none" style={{
         background: 'radial-gradient(circle at 20% 80%, rgba(255,140,0,0.08), transparent 40%), radial-gradient(circle at 80% 20%, rgba(220,38,38,0.06), transparent 40%)',
       }} />
+
+      {sync.mergeRequired && (
+        <MergeChooser
+          localState={sync.localPreview}
+          cloudState={sync.cloudPreview}
+          onResolve={async (choice) => {
+            if (choice === 'cancel') {
+              await signOut();
+            }
+            sync.resolveMerge(choice);
+          }}
+        />
+      )}
 
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded border-2 backdrop-blur-md ${
