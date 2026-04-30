@@ -7,6 +7,7 @@ import { GIAC_PROMPT, GIAC_PROMPT_META } from './giac.js';
 import { GOOGLE_PROMPT, GOOGLE_PROMPT_META } from './google.js';
 import { ISACA_PROMPT, ISACA_PROMPT_META } from './isaca.js';
 import { ISC2_PROMPT, ISC2_PROMPT_META } from './isc2.js';
+import { MICROSOFT_PROMPT, MICROSOFT_PROMPT_META } from './microsoft.js';
 
 export const ORG_PROMPTS = [
   { ...AWS_PROMPT_META, prompt: AWS_PROMPT },
@@ -18,4 +19,5 @@ export const ORG_PROMPTS = [
   { ...GOOGLE_PROMPT_META, prompt: GOOGLE_PROMPT },
   { ...ISACA_PROMPT_META, prompt: ISACA_PROMPT },
   { ...ISC2_PROMPT_META, prompt: ISC2_PROMPT },
+  { ...MICROSOFT_PROMPT_META, prompt: MICROSOFT_PROMPT },
 ];

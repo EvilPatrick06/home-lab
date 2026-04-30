@@ -180,3 +180,17 @@ describe('(ISC)² prompt', () => {
     expect(i.prompt).toMatch(/8 domains|eight domains/i);
   });
 });
+
+describe('Microsoft prompt', () => {
+  it('is registered with id="microsoft" and lists SC-200 + AZ-500', () => {
+    const m = ORG_PROMPTS.find(p => p.id === 'microsoft');
+    expect(m).toBeDefined();
+    expect(m.commonExams).toContain('SC-200');
+    expect(m.commonExams).toContain('AZ-500');
+  });
+  it('mentions KQL and Conditional Access', () => {
+    const m = ORG_PROMPTS.find(p => p.id === 'microsoft');
+    expect(m.prompt).toMatch(/KQL|Kusto/);
+    expect(m.prompt).toMatch(/Conditional Access/);
+  });
+});
