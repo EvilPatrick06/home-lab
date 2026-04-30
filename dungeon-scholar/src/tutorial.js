@@ -84,7 +84,7 @@ export const TUTORIAL_STEPS = [
   {
     id: 'quest_board',
     title: 'The Quest Board',
-    description: 'Daily quests await on the Quest Board. Complete them as thou dost study to claim experience as bonus reward.',
+    description: 'Daily quests await on the Quest Board. Complete them as thou dost study to claim experience as thy bonus reward.',
     completionLabel: 'Visit the Quest Board',
     autoComplete: false,
     xp: 20,

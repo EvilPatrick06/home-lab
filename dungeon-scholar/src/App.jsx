@@ -4,6 +4,7 @@ import { SignInButton } from './components/SignInButton.jsx';
 import { consumeOAuthCallback, signOut } from './services/supabase.js';
 import { useAuth } from './hooks/useAuth.js';
 import { MergeChooser } from './components/MergeChooser.jsx';
+import { ProfileChip } from './components/ProfileChip.jsx';
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines } from './tutorial';
 
@@ -524,6 +525,7 @@ export default function DungeonScholarApp() {
   const [editMetadataTomeId, setEditMetadataTomeId] = useState(null);
   const [showImportCodeModal, setShowImportCodeModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showAccountPanel, setShowAccountPanel] = useState(false);
   const fileInputRef = useRef(null);
   const progressFileInputRef = useRef(null);
 
@@ -1354,6 +1356,13 @@ export default function DungeonScholarApp() {
                 <div className="text-xs text-amber-700 tracking-wider">DRAGONS</div>
               </div>
             </div>
+            {user && (
+              <ProfileChip
+                user={user}
+                syncStatus={sync.status}
+                onOpen={() => setShowAccountPanel(true)}
+              />
+            )}
           </div>
         </div>
 
@@ -1500,12 +1509,17 @@ export default function DungeonScholarApp() {
             onSkip={skipTutorial}
             onAction={(stepId) => {
               if (stepId === 'forge_tome') setShowPromptModal(true);
+              else if (stepId === 'library_tour') setScreen('library');
               else if (stepId === 'inscribe_tome') {/* user must complete naturally */ }
               else if (stepId === 'study_scroll') { trackModeUse('flashcards'); setScreen('flashcards'); }
               else if (stepId === 'solve_riddle') { trackModeUse('quiz'); setScreen('quiz'); }
               else if (stepId === 'face_trial') { trackModeUse('lab'); setScreen('lab'); }
+              else if (stepId === 'vault_intro') setScreen('vault');
               else if (stepId === 'consult_oracle') { trackModeUse('chat'); setScreen('chat'); }
+              else if (stepId === 'quest_board') setScreen('quests');
               else if (stepId === 'enter_dungeon') { trackModeUse('dungeon'); setScreen('dungeon'); }
+              else if (stepId === 'view_achievements') setShowAchievements(true);
+              else if (stepId === 'view_titles_levels') setShowTitles(true);
             }}
           /> )}
         {showTitles && (
@@ -3983,7 +3997,7 @@ function WelcomeModal({ onStart, onSkip }) {
             "Long has the realm awaited thy arrival. Within these halls, knowledge becomes adventure — riddles become quests, scrolls become spells of memory, and every studied page brings thee closer to mastery."
           </p>
           <p className="text-amber-100/70 italic text-sm">
-            Wouldst thou follow the path of the Scholar's Awakening? An eight-step tutorial shall guide thee through each of these sacred halls. Or thou mayest set forth alone, if thy spirit demands it.
+            Wouldst thou follow the path of the Scholar's Awakening? A fourteen-step tutorial shall guide thee through each of these sacred halls. Or thou mayest set forth alone, if thy spirit demands it.
           </p>
           <div className="text-xs text-amber-700 italic mt-4">
             ✦ Completing the Awakening grants the title <span className="text-amber-300 font-bold">The Initiated</span> ✦
@@ -4075,7 +4089,7 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
               ) : (
                 <button
                   onClick={() => {
-                    if (step.id === 'forge_tome') onAction(step.id);
+                    if (step.actionLabel) onAction(step.id);
                     onAdvance(step.id);
                   }}
                   className="flex-1 py-2 rounded text-sm font-bold text-amber-50 border-2 border-purple-300 italic"
