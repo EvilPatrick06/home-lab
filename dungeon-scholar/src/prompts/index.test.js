@@ -167,3 +167,16 @@ describe('ISACA prompt', () => {
     expect(i.prompt).toMatch(/risk/i);
   });
 });
+
+describe('(ISC)² prompt', () => {
+  it('is registered with id="isc2" and lists CISSP', () => {
+    const i = ORG_PROMPTS.find(p => p.id === 'isc2');
+    expect(i).toBeDefined();
+    expect(i.commonExams).toContain('CISSP');
+  });
+  it('mentions manager mindset and 8 domains', () => {
+    const i = ORG_PROMPTS.find(p => p.id === 'isc2');
+    expect(i.prompt).toMatch(/manager.{0,30}mindset|think like a manager/i);
+    expect(i.prompt).toMatch(/8 domains|eight domains/i);
+  });
+});

@@ -6,6 +6,7 @@ import { ECCOUNCIL_PROMPT, ECCOUNCIL_PROMPT_META } from './eccouncil.js';
 import { GIAC_PROMPT, GIAC_PROMPT_META } from './giac.js';
 import { GOOGLE_PROMPT, GOOGLE_PROMPT_META } from './google.js';
 import { ISACA_PROMPT, ISACA_PROMPT_META } from './isaca.js';
+import { ISC2_PROMPT, ISC2_PROMPT_META } from './isc2.js';
 
 export const ORG_PROMPTS = [
   { ...AWS_PROMPT_META, prompt: AWS_PROMPT },
@@ -16,4 +17,5 @@ export const ORG_PROMPTS = [
   { ...GIAC_PROMPT_META, prompt: GIAC_PROMPT },
   { ...GOOGLE_PROMPT_META, prompt: GOOGLE_PROMPT },
   { ...ISACA_PROMPT_META, prompt: ISACA_PROMPT },
+  { ...ISC2_PROMPT_META, prompt: ISC2_PROMPT },
 ];
