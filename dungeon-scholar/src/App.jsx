@@ -491,6 +491,49 @@ const decodeTomeShareCode = (code) => {
   }
 };
 
+// Maps a story-step counter id to a player-facing action description, used by
+// StoryStepCard to tell the user what to actually DO for the current step.
+const COUNTER_ACTIONS = {
+  cardsReviewed:  { icon: '📜', verb: 'Study',    noun: 'sacred scroll' },
+  totalCorrect:   { icon: '✨', verb: 'Get',      noun: 'correct answer' },
+  quizAnswered:   { icon: '🔮', verb: 'Answer',   noun: 'riddle' },
+  labsCompleted:  { icon: '⚗️', verb: 'Complete', noun: 'trial of skill' },
+  runsCompleted:  { icon: '⚔️', verb: 'Complete', noun: 'dungeon delve' },
+  bossesDefeated: { icon: '🐉', verb: 'Defeat',   noun: 'dungeon lord' },
+  oracleMessages: { icon: '🪄', verb: 'Consult',  noun: 'Oracle whisper' },
+  vaultBanished:  { icon: '🗡️', verb: 'Banish',   noun: 'vault foe' },
+  currentStreak:  { icon: '⭐', verb: 'Build',    noun: 'answer streak' },
+};
+
+const formatStoryAction = (counter, target) => {
+  const a = COUNTER_ACTIONS[counter];
+  if (!a) return `Reach ${target} progress`;
+  const noun = target === 1 ? a.noun : `${a.noun}s`;
+  return `${a.icon} ${a.verb} ${target} ${noun}`;
+};
+
+// Fisher-Yates shuffle. Returns a new array; doesn't mutate input.
+const shuffleArray = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+// Some AI-generated tomes use `stages` instead of `steps` for lab steps. Normalize
+// at import time so the rest of the app can rely on the canonical `steps` field.
+// Idempotent — won't touch labs that already have `steps`.
+const normalizeTomeData = (data) => {
+  if (!data || !Array.isArray(data.labs)) return data;
+  const labs = data.labs.map(lab => {
+    if (!lab || lab.steps || !Array.isArray(lab.stages)) return lab;
+    return { ...lab, steps: lab.stages };
+  });
+  return { ...data, labs };
+};
+
 const blankTomeProgress = () => ({
   cardsReviewed: 0,
   quizAnswered: 0,
@@ -648,33 +691,29 @@ export default function DungeonScholarApp() {
     const step = TUTORIAL_STEPS[playerState.tutorialStepIndex];
     if (!step || !step.autoComplete) return;
 
-    // If baselines are missing (e.g., older save file or tutorial restarted before this fix),
-    // initialize them now so this step's progress is measured from this moment forward.
-    if (!playerState.tutorialBaselines) {
-      setPlayerState(prev => ({ ...prev, tutorialBaselines: snapshotBaselines(prev) }));
-      return;
-    }
-
-    const baseline = playerState.tutorialBaselines;
+    // Absolute checks: a returning user who already has a tome / studied card /
+    // beaten the dungeon should not have to redo it. The previous "delta from
+    // baseline" approach broke when users took an action that didn't change
+    // the net count (e.g., delete-then-re-add a tome to satisfy step 3).
     let met = false;
     switch (step.autoCondition) {
       case 'has_tome':
-        met = playerState.library.length > (baseline.libraryCount || 0);
+        met = playerState.library.length > 0;
         break;
       case 'studied_card':
-        met = totalCardsAcrossLib > (baseline.cardsReviewed || 0);
+        met = totalCardsAcrossLib > 0;
         break;
       case 'solved_quiz':
-        met = totalQuizAnsweredAcrossLib > (baseline.quizAnswered || 0);
+        met = totalQuizAnsweredAcrossLib > 0;
         break;
       case 'lab_step':
-        met = totalLabsAttemptedAcrossLib > (baseline.labsAttempted || 0);
+        met = totalLabsAttemptedAcrossLib > 0;
         break;
       case 'oracle_used':
-        met = totalOracleAcrossLib > (baseline.oracleMessages || 0);
+        met = totalOracleAcrossLib > 0;
         break;
       case 'dungeon_completed':
-        met = (playerState.dungeonAttempts || 0) > (baseline.dungeonAttempts || 0);
+        met = (playerState.dungeonAttempts || 0) > 0;
         break;
     }
     if (met) advanceTutorial(step.id);
@@ -682,7 +721,6 @@ export default function DungeonScholarApp() {
     playerState.tutorialStarted,
     playerState.tutorialCompleted,
     playerState.tutorialStepIndex,
-    playerState.tutorialBaselines,
     playerState.library.length,
     playerState.dungeonAttempts,
     totalCardsAcrossLib,
@@ -1199,7 +1237,7 @@ export default function DungeonScholarApp() {
     setPlayerState(prev => {
       const newEntry = {
         id: generateTomeId(),
-        data,
+        data: normalizeTomeData(data),
         addedAt: Date.now(),
         lastOpened: Date.now(),
         progress: blankTomeProgress(),
@@ -2481,6 +2519,8 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
   const [questionTimes, setQuestionTimes] = useState([]);
   const [questionStartTime, setQuestionStartTime] = useState(null);
   const [showFeedback, setShowFeedback] = useState(null);
+  // Items already drawn this run — avoids back-to-back repeats. Resets per startRun.
+  const usedItemIdsRef = useRef(new Set());
 
   const TOTAL_WAVES = 5;
   const isBossWave = wave === TOTAL_WAVES;
@@ -2503,6 +2543,7 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
       hint: modifiers.includes('no_powerups') ? 0 : 2,
       freeze: modifiers.includes('no_powerups') ? 0 : 1,
     });
+    usedItemIdsRef.current = new Set();
     setPhase('playing');
     if (trackDungeonAttempt) trackDungeonAttempt();
     drawChallenge(1);
@@ -2521,11 +2562,21 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
       pool = [...quiz, ...quiz, ...flashcards, ...labs];
     }
     if (pool.length === 0) pool = [...flashcards, ...quiz, ...labs];
-    const item = pool[Math.floor(Math.random() * pool.length)];
+    // Filter out items already drawn this run. If that exhausts the pool, the
+    // run is small enough that some repeats are unavoidable — clear the used
+    // set so we can keep going.
+    const used = usedItemIdsRef.current;
+    let candidates = pool.filter(p => p?.id && !used.has(p.id));
+    if (candidates.length === 0) {
+      used.clear();
+      candidates = pool;
+    }
+    const item = candidates[Math.floor(Math.random() * candidates.length)];
     if (!item) {
       setPhase('victory');
       return;
     }
+    if (item.id) used.add(item.id);
     let type = 'flashcard';
     if (quiz.includes(item)) type = 'quiz';
     else if (labs.includes(item)) type = 'lab';
@@ -2993,7 +3044,8 @@ function FlashcardsMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, 
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [reviewed, setReviewed] = useState(0);
-  const cards = courseSet.flashcards || [];
+  // Shuffle once per tome session so the player doesn't always start on card 0.
+  const cards = useMemo(() => shuffleArray(courseSet.flashcards || []), [courseSet]);
   const card = cards[index];
 
   const rate = (rating) => {
@@ -3048,7 +3100,8 @@ function QuizMode({ courseSet, tomeProgress, awardXP, recordAnswer, checkAchieve
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
-  const questions = courseSet.quiz || [];
+  // Shuffle once per tome session so the same riddles don't always come first.
+  const questions = useMemo(() => shuffleArray(courseSet.quiz || []), [courseSet]);
   const q = questions[index];
 
   const handleAnswer = (correct) => {
@@ -3179,14 +3232,15 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           }}>
             <div className="font-bold text-rose-300 text-lg italic">{lab.title}</div>
             {lab.scenario && <div className="text-sm text-amber-100/70 mt-1 italic">{lab.scenario}</div>}
-            <div className="text-xs text-amber-700 mt-2 italic">⚔ {lab.steps?.length || 0} stages ⚔</div>
+            <div className="text-xs text-amber-700 mt-2 italic">⚔ {(lab.steps || lab.stages)?.length || 0} stages ⚔</div>
           </button>
         ))}
       </div>
     );
   }
 
-  const steps = selectedLab.steps || [];
+  // Tolerate AI-generated tomes that use `stages` instead of `steps`.
+  const steps = selectedLab.steps || selectedLab.stages || [];
   const currentStep = steps[step];
 
   const submitStep = (correct) => {
@@ -3371,7 +3425,7 @@ function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievemen
       });
     });
     (courseSet.labs || []).forEach(lab => {
-      const stepsText = (lab.steps || []).map(s => `${s.prompt || s.question || ''} ${s.explanation || ''}`).join(' ');
+      const stepsText = (lab.steps || lab.stages || []).map(s => `${s.prompt || s.question || ''} ${s.explanation || ''}`).join(' ');
       const text = `${lab.title || ''} ${lab.scenario || ''} ${stepsText}`;
       items.push({
         id: lab.id,
@@ -4180,17 +4234,21 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
             )}
           </h4>
 
-          {isClaimed && (
-            <p className="text-xs text-amber-100/80 italic mt-2 leading-relaxed">
+          {(isClaimed || isCurrent) && step.narrative && (
+            <p className={`text-xs italic mt-2 leading-relaxed ${isCurrent ? 'text-amber-100/85' : 'text-amber-100/80'}`}>
               {step.narrative}
             </p>
           )}
 
           {isCurrent && (
             <>
-              <p className="text-xs text-purple-300/80 italic mt-1">
-                Complete the trial — its tale shall be told upon thy claim.
-              </p>
+              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded text-xs font-bold italic" style={{
+                background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.4), rgba(41, 24, 12, 0.7))',
+                border: '1px solid rgba(245, 158, 11, 0.5)',
+                color: '#fde047',
+              }}>
+                ✦ Task: {formatStoryAction(step.counter, step.target)}
+              </div>
               <div className="mt-3">
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-amber-700 italic">Progress</span>

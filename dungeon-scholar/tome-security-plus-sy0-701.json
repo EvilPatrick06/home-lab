@@ -2959,7 +2959,7 @@
       "title": "Mapping Controls at NorthRidge Hospital",
       "objective": "1.1",
       "scenario": "You're a security analyst at NorthRidge Hospital. The CISO is preparing for a HIPAA audit and asks you to classify each control in the environment by category (Technical, Managerial, Operational, Physical) and type (Preventive, Deterrent, Detective, Corrective, Compensating, Directive). The audit packet will rely on your mapping.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "The first item is a network firewall ACL that blocks all inbound traffic to internal subnets except for a few approved services. How should this control be classified?",
@@ -3009,7 +3009,7 @@
       "title": "Diagnosing the CIA Impact at AuroraTech",
       "objective": "1.2",
       "scenario": "AuroraTech's SOC has three open incidents this morning. You're triaging and need to map each to its primary CIA impact and identify the right next step. The incident summaries are below.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Incident A: A laptop hard drive containing unencrypted customer financial records was stolen from a parked car. The data has not yet appeared on any leak site. Which CIA element is MOST DIRECTLY at risk?",
@@ -3059,7 +3059,7 @@
       "title": "The Friday Afternoon Firewall Push",
       "objective": "1.3",
       "scenario": "You're the change manager at WestPort Logistics. A network engineer submits an urgent change request at 3pm Friday: deploy a firewall rule update to block a newly disclosed attacker C2 IP being used in an active campaign. The next CAB meeting is Monday. The engineer asks for an exception.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Which approach BEST balances urgency with change management discipline?",
@@ -3109,7 +3109,7 @@
       "title": "Securing the Customer Portal at MesaBank",
       "objective": "1.4",
       "scenario": "MesaBank is reviewing the cryptography on its customer portal. The team has provided you with a few configuration excerpts and decisions to evaluate. The goal is end-to-end protection of credentials, session traffic, and stored sensitive data.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Excerpt 1 from the auth service: passwords are stored using SHA-256 with no salt and no iteration count. After a breach, GPU rigs cracked the hashes in hours. Which immediate change is MOST important?",
@@ -3159,7 +3159,7 @@
       "title": "Profiling the Adversary at FrontlineMfg",
       "objective": "2.1",
       "scenario": "FrontlineMfg's SOC has three open investigations. You're the senior analyst — leadership wants you to characterize the threat actor profile in each so resources are appropriately allocated. Each summary describes only what's been observed so far.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Investigation 1: a custom PE loader (not seen in any threat intel feed), 8 months of dwell time, lateral movement focused on engineering R&D file shares and CAD systems. Which threat actor profile is MOST consistent?",
@@ -3209,7 +3209,7 @@
       "title": "The Multi-Vector Phishing Campaign at HighPlainsMutual",
       "objective": "2.2",
       "scenario": "HighPlainsMutual Insurance reports a wave of suspicious activity. You're investigating the initial access vectors used. Several artifacts have been collected — your job is to map each to the correct threat vector.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Artifact 1: an email impersonating the CFO sent from a look-alike domain (highplain5mutual.com) requesting an urgent wire transfer to a new vendor. Which vector is being used?",
@@ -3259,7 +3259,7 @@
       "title": "Triaging the Findings at PineRidgeRetail",
       "objective": "2.3",
       "scenario": "You're a vulnerability analyst at PineRidgeRetail. The latest scanner output and a recent pen test report have surfaced four critical-rated findings. Your job is to identify each vulnerability class and recommend mitigation.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Finding 1: in the login form, submitting the username 'admin'-- (with two trailing dashes) successfully authenticates without a password. Which vulnerability class is this?",
@@ -3309,7 +3309,7 @@
       "title": "Decoding the Beaconing Workstation",
       "objective": "2.4",
       "scenario": "An EDR agent on a finance workstation (FIN-WS-042) flags an unusual process. SOC analysts pull supporting logs. You'll review the artifacts and make response decisions.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Sysmon Event 1 shows: ProcessGuid=... Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe CommandLine='powershell.exe -nop -w hidden -enc JABwAGEAdABoAD0A...[long base64]' ParentImage=C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE. The user opened an Excel attachment 30 seconds prior. Which response is MOST appropriate FIRST?",
@@ -3359,7 +3359,7 @@
       "title": "Hardening the Manufacturing OT Network",
       "objective": "2.5",
       "scenario": "AshtonSteel runs a manufacturing facility with a flat network — corporate IT, OT (PLCs, HMIs), and a guest VLAN all reachable from each other in many cases. After a competitor was hit by ransomware that crossed from IT to OT, leadership asks you to design mitigations.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Which foundational mitigation MOST directly limits ransomware crossing from IT to OT?",
@@ -3409,7 +3409,7 @@
       "title": "Cloud Migration Responsibility Mapping at SilverPeakCo",
       "objective": "3.1",
       "scenario": "SilverPeakCo is migrating from on-premises servers to a mix of AWS services. The CISO needs a clear understanding of who is responsible for what across IaaS, PaaS, and SaaS workloads.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "For an EC2 instance running a customer-managed Linux web server (IaaS), who is responsible for OS patching?",
@@ -3459,7 +3459,7 @@
       "title": "Designing the Layered Network at OakharborCorp",
       "objective": "3.2",
       "scenario": "OakharborCorp is rebuilding its network architecture after a recent compromise. You're advising on defensive layering — perimeter firewall, application protection, admin access path, and monitoring.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "At the perimeter, OakharborCorp wants to inspect HTTP request bodies for SQL injection and other OWASP Top 10 patterns specifically for traffic to its public web app. Which device BEST fits?",
@@ -3509,7 +3509,7 @@
       "title": "Protecting Cardholder Data at GoldenCrestRetail",
       "objective": "3.3",
       "scenario": "GoldenCrestRetail handles credit card payments and stores customer PII. You're designing controls covering data at rest, in transit, and in use, plus data flow restrictions to reduce PCI scope.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "For analysts and developers who need to work with realistic data without seeing actual cardholder numbers, which technique BEST removes the live values from non-production environments?",
@@ -3559,7 +3559,7 @@
       "title": "DR Planning at FidelityCenturyBank",
       "objective": "3.4",
       "scenario": "FidelityCenturyBank's CISO and BCP coordinator need a credible DR plan after a ransomware near-miss elsewhere in the industry. You're synthesizing requirements from the Business Impact Analysis into actionable infrastructure decisions.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "The BIA establishes that the loan origination system has an RTO of 1 hour and an RPO of 5 minutes. Which DR site classification BEST meets the RTO?",
@@ -3609,7 +3609,7 @@
       "title": "Hardening the Branch Office Wireless and Endpoints",
       "objective": "4.1",
       "scenario": "WildernessOutfitters is opening a new branch with corporate workstations, BYOD-friendly wireless, and a dedicated POS terminal. You're designing the hardening baseline.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "For the corporate wireless, you need authentication that resists offline dictionary attacks against captured exchanges. Which standard BEST satisfies this?",
@@ -3659,7 +3659,7 @@
       "title": "Asset Inventory After the M&A at LakeshoreInsuranceGroup",
       "objective": "4.2",
       "scenario": "Lakeshore just completed a merger with a regional insurer. The combined inventory is a mess — spreadsheets, multiple discovery tools, and uncertainty about cloud assets. You're tasked with building an authoritative inventory.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "During an active incident, the SOC needs to know every system running a vulnerable Java library version. Which authoritative source BEST supports this query?",
@@ -3709,7 +3709,7 @@
       "title": "Triaging the Quarterly Scan at MountainPlazaBank",
       "objective": "4.3",
       "scenario": "The latest authenticated vulnerability scan returned 3,200 findings across MountainPlaza's environment. The team needs to triage and prioritize. You have CVSS scores, exposure context, and the CISA KEV catalog available.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Two findings each have CVSS 9.8: Finding A is on an internet-facing web server and is in CISA's KEV catalog. Finding B is on an isolated internal lab system. Which finding takes priority?",
@@ -3759,7 +3759,7 @@
       "title": "Building the Detection Pipeline at NorthPineUtilities",
       "objective": "4.4",
       "scenario": "NorthPineUtilities is standing up a new SOC. You're advising on the alerting and monitoring architecture: log sources, central platform, response automation, and operational metrics.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Which platform category is purpose-built for centralized log collection, normalization, correlation, and alerting across diverse sources?",
@@ -3809,7 +3809,7 @@
       "title": "Tightening Enterprise Capabilities at ClearwaterFinancial",
       "objective": "4.5",
       "scenario": "After a phishing wave at peer institutions, ClearwaterFinancial wants to harden its enterprise email, DNS, NAC, and endpoint defenses. You're prescribing layered improvements.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "To break the kill chain for users who click phishing links so the malicious domain fails to resolve regardless of which user device clicks, which control is MOST efficient?",
@@ -3859,7 +3859,7 @@
       "title": "Modernizing Identity at PineCrestSaaS",
       "objective": "4.6",
       "scenario": "PineCrestSaaS supports enterprise customers with SSO integration and is reviewing its own internal admin access. You're advising on protocols, factor types, and elevation patterns.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "PineCrestSaaS needs to integrate SSO with enterprise customer IdPs using XML-based assertions exchanged between the customer's IdP and PineCrest's service. Which protocol MOST closely matches?",
@@ -3909,7 +3909,7 @@
       "title": "Automating the Phishing Triage at TimberlineCO",
       "objective": "4.7",
       "scenario": "TimberlineCO's SOC handles 100+ phishing reports per week. Each requires the same enrichment: VirusTotal lookup, sender reputation, URL detonation, IOC extraction, ticket creation. Analysts are burning out. You're designing the automation.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Which platform category BEST automates the repetitive enrichment and ticket creation steps?",
@@ -3959,7 +3959,7 @@
       "title": "Responding to the Ransomware Incident at GreenfieldClinic",
       "objective": "4.8",
       "scenario": "GreenfieldClinic's SOC analyst confirms ransomware activity: file encryption observed across multiple file servers, ransom notes appearing, security logs showing event 1102 (audit log cleared) on a domain controller. You're leading response.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Per CompTIA's incident response model, which step comes IMMEDIATELY after identification of this incident?",
@@ -4009,7 +4009,7 @@
       "title": "Reading the Data: Forensic Triage at HighlandRailroad",
       "objective": "4.9",
       "scenario": "HighlandRailroad's SOC has indications of unauthorized access. You're reviewing data from multiple sources — Windows Event Logs, Sysmon, AWS CloudTrail, and DNS query logs. Your job is to identify the right log for each question.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "You need to find the first time a specific user account FAILED to authenticate to a Windows domain controller and from which source workstation. Which Windows Event ID is MOST relevant?",
@@ -4059,7 +4059,7 @@
       "title": "Drafting the Governance Hierarchy at SilverHorizonHealth",
       "objective": "5.1",
       "scenario": "SilverHorizonHealth is preparing for a HIPAA audit. The CISO wants the governance documentation hierarchy clear and defensible. You're advising on the difference between document types and ownership roles.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Which document is MANDATORY and specifies a particular technical configuration like 'AES-256 for data at rest, TLS 1.2+ for data in transit'?",
@@ -4109,7 +4109,7 @@
       "title": "Quantifying Risk at OakforestRetail",
       "objective": "5.2",
       "scenario": "OakforestRetail's risk committee is evaluating a proposed control investment. You're walking through the quantitative analysis and treatment options.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "The Single Loss Expectancy (SLE) for a server outage is $40,000 and the Annualized Rate of Occurrence (ARO) is 0.5. What is the Annualized Loss Expectancy (ALE)?",
@@ -4159,7 +4159,7 @@
       "title": "Evaluating the New SaaS Vendor at PinnacleFinance",
       "objective": "5.3",
       "scenario": "PinnacleFinance's procurement team is engaging a new SaaS vendor that will store customer PII. You're advising the security review process.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Which artifact BEST supports a thorough security due diligence review of the vendor?",
@@ -4209,7 +4209,7 @@
       "title": "Compliance Crosswalk at HemlockHealthcare",
       "objective": "5.4",
       "scenario": "HemlockHealthcare operates in the US, processes credit cards, and has European patients receiving telemedicine. You're walking through which regulations apply and what each requires.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "An EU resident exercises their right to know what personal data Hemlock holds about them and requests deletion of unnecessary data. Which regulation MOST directly grants these rights?",
@@ -4259,7 +4259,7 @@
       "title": "Designing the Assessment Program at MeadowlarkInsuranceCo",
       "objective": "5.5",
       "scenario": "Meadowlark wants a layered security assessment program — internal audit, penetration testing, and adversary simulation. You're advising on what type fits each goal.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "Meadowlark wants to demonstrate to customers that controls related to Security, Availability, and Confidentiality have been operating effectively over a year-long period. Which attestation BEST satisfies this need?",
@@ -4309,7 +4309,7 @@
       "title": "Designing the Awareness Program at WhitePineCounty",
       "objective": "5.6",
       "scenario": "WhitePineCounty's CISO is rebuilding the security awareness program after years of mandatory annual training producing no measurable behavior change. You're advising on metrics, content, and culture.",
-      "stages": [
+      "steps": [
         {
           "type": "multiplechoice",
           "prompt": "After six months of quarterly phishing simulations, click rate dropped from 18% to 6% and report rate climbed from 5% to 35%. Which interpretation BEST captures program health?",
