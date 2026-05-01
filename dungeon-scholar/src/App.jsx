@@ -7,7 +7,7 @@ import { MergeChooser } from './components/MergeChooser.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
 import PromptModal from './components/PromptModal.jsx';
-import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package } from 'lucide-react';
+import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
 import { gradeAnswer } from './services/oracleGrader.js';
 
@@ -362,30 +362,85 @@ const SPECIAL_TITLES = {
 };
 
 // === Items & Inventory ===
-// Categories: consumables (single-use potions/buffs), cosmetics (titles/borders/skins),
-// upgrades (permanent passives). The shop in Phase 7 sells these; effects are
-// activated by the systems they belong to (combat, profile, etc).
+// Five shop categories matching Phase 7's tabs. Each item belongs to one.
+//   apothecary — consumable potions/buffs (per-run effects)
+//   wardrobe   — titles, borders, profile flourishes
+//   stable     — pet familiars (full mechanics arrive in Phase 18)
+//   armory     — cosmetic weapon skins
+//   sanctum    — permanent passive upgrades (one-time purchase, capped where noted)
 const ITEM_CATEGORIES = {
-  consumables: { label: 'Apothecary', icon: '⚗️', color: 'rose' },
-  cosmetics:   { label: 'Wardrobe',   icon: '👑', color: 'purple' },
-  upgrades:    { label: 'Sanctum',    icon: '🏛️', color: 'amber' },
+  apothecary: { label: 'Apothecary', icon: '⚗️', color: 'rose',    blurb: 'Potions and brews to aid thy delve.' },
+  wardrobe:   { label: 'Wardrobe',   icon: '👑', color: 'purple',  blurb: 'Titles, borders, and flourishes for thy profile.' },
+  stable:     { label: 'Stable',     icon: '🐾', color: 'emerald', blurb: 'Familiars to walk the dungeon at thy side. (Awaiting Phase 18.)' },
+  armory:     { label: 'Armory',     icon: '⚔️', color: 'sapphire', blurb: 'Cosmetic blades and shields for the discerning scholar.' },
+  sanctum:    { label: 'Sanctum',    icon: '🏛️', color: 'amber',   blurb: 'Permanent boons — purchased once, carried forever.' },
 };
 
 const ITEMS = [
-  // Consumables — Phase 7 shop stocks them; Phase 16 crafting expands the list.
-  { id: 'minor_heal_tonic', name: 'Minor Healing Tonic', description: 'Restore one life when sipped within the dungeon.', icon: '🧪', category: 'consumables', effect: 'heal_1' },
-  { id: 'foresight_scroll', name: 'Scroll of Foresight', description: 'Reveal the category of the next riddle before it is posed.', icon: '📜', category: 'consumables', effect: 'preview_next' },
-  { id: 'scholars_brew',    name: "Scholar's Brew",      description: 'A bracing tea — gain +25% XP for the next three riddles.', icon: '☕', category: 'consumables', effect: 'xp_buff_3' },
-  { id: 'shield_draught',   name: 'Shield Draught',      description: 'Replenish a single dungeon shield (Phase 14).',           icon: '🛡️', category: 'consumables', effect: 'refill_shield' },
-  // Cosmetics — visual flourishes; equipping mechanics arrive later.
-  { id: 'iron_circlet',     name: 'Iron Circlet',        description: 'A modest crown of forged iron — befits a rising scholar.', icon: '👑', category: 'cosmetics', effect: 'border_iron' },
-  { id: 'gilded_quill',     name: 'Gilded Quill',        description: 'A quill of beaten gold — adorns thy profile with a flourish.', icon: '🪶', category: 'cosmetics', effect: 'avatar_quill' },
-  // Upgrades — permanent passives, applied at run start once owned.
-  { id: 'reinforced_tome',  name: 'Reinforced Tome',     description: '+1 maximum life in every dungeon delve.',          icon: '📔', category: 'upgrades', effect: 'perm_max_hp_1' },
-  { id: 'lucky_coin',       name: 'Lucky Coin',          description: '+5% gold drop from all sources.',                  icon: '🪙', category: 'upgrades', effect: 'perm_gold_5pct' },
+  // === Apothecary (consumables) ===
+  { id: 'minor_heal_tonic',  name: 'Minor Healing Tonic',     description: 'Restore one life when sipped within the dungeon.',                     icon: '🧪', category: 'apothecary', effect: 'heal_1',         price: 30 },
+  { id: 'greater_heal_tonic',name: 'Greater Healing Draught', description: 'Restore two lives in a single delve.',                                 icon: '⚗️', category: 'apothecary', effect: 'heal_2',         price: 75 },
+  { id: 'foresight_scroll',  name: 'Scroll of Foresight',     description: 'Reveal the category of the next riddle before it is posed.',           icon: '📜', category: 'apothecary', effect: 'preview_next',   price: 40 },
+  { id: 'scholars_brew',     name: "Scholar's Brew",          description: 'A bracing tea — gain +25% XP for the next three riddles of a delve.',  icon: '☕', category: 'apothecary', effect: 'xp_buff_3',      price: 50 },
+  { id: 'shield_draught',    name: 'Shield Draught',          description: 'Replenish a single dungeon shield (used in Phase 14 combat).',         icon: '🛡️', category: 'apothecary', effect: 'refill_shield',  price: 60 },
+  { id: 'tinkers_oil',       name: "Tinker's Oil",            description: 'Restore a spent power-up (50/50 or Hint) within a delve.',             icon: '🪔', category: 'apothecary', effect: 'refill_powerup', price: 45 },
+  { id: 'phoenix_ember',     name: 'Phoenix Ember',           description: 'Revive once after defeat — consumed on use.',                          icon: '🔥', category: 'apothecary', effect: 'revive_once',    price: 200 },
+
+  // === Wardrobe (cosmetics — profile/title flair) ===
+  { id: 'iron_circlet',      name: 'Iron Circlet',            description: 'A modest crown of forged iron — befits a rising scholar.',             icon: '👑', category: 'wardrobe',   effect: 'border_iron',    price: 150, oneTime: true },
+  { id: 'silver_circlet',    name: 'Silver Circlet',          description: 'A keen-eyed silver crown for the seasoned reader.',                    icon: '🪙', category: 'wardrobe',   effect: 'border_silver',  price: 400, oneTime: true },
+  { id: 'gilded_quill',      name: 'Gilded Quill',            description: 'A quill of beaten gold — adorns thy profile with a flourish.',         icon: '🪶', category: 'wardrobe',   effect: 'avatar_quill',   price: 200, oneTime: true },
+  { id: 'starbound_cloak',   name: 'Cloak of the Starbound',  description: 'A velvet cloak studded with constellations — a profile background.',    icon: '🌌', category: 'wardrobe',   effect: 'bg_starbound',   price: 350, oneTime: true },
+  { id: 'tome_emblem',       name: 'Tome Emblem',             description: 'A small heraldic crest of an open tome, displayed beside thy title.',   icon: '📔', category: 'wardrobe',   effect: 'emblem_tome',    price: 120, oneTime: true },
+
+  // === Stable (pets — placeholder until Phase 18 wires the mechanics) ===
+  { id: 'wise_owl_egg',      name: 'Wise Owl Egg',            description: 'Awaits hatching when the Stable opens (Phase 18).',                    icon: '🥚', category: 'stable',     effect: 'pet_owl',        price: 300, oneTime: true, locked: true },
+  { id: 'dragon_hatchling',  name: 'Dragon Hatchling',        description: 'A tiny ember of a beast — slumbering until the Stable awakens.',       icon: '🐉', category: 'stable',     effect: 'pet_dragon',     price: 600, oneTime: true, locked: true },
+  { id: 'mimic_pup',         name: 'Mimic Pup',               description: 'A mischievous treasure-hunter, awaiting its master in the Stable.',    icon: '🪙', category: 'stable',     effect: 'pet_mimic',      price: 400, oneTime: true, locked: true },
+
+  // === Armory (cosmetic weapons) ===
+  { id: 'oaken_blade',       name: 'Oaken Practice Blade',    description: 'A simple training blade — purely cosmetic.',                           icon: '🗡️', category: 'armory',     effect: 'weapon_oaken',   price: 100, oneTime: true },
+  { id: 'gilded_sabre',      name: 'Gilded Sabre',            description: 'A flourished sabre of beaten gold — adorns thy avatar in battle.',      icon: '⚔️', category: 'armory',     effect: 'weapon_sabre',   price: 350, oneTime: true },
+  { id: 'arcane_grimoire',   name: 'Arcane Grimoire',         description: 'A floating tome that hovers beside thee — for casters at heart.',      icon: '📖', category: 'armory',     effect: 'weapon_grim',    price: 500, oneTime: true },
+
+  // === Sanctum (permanent passive upgrades) ===
+  // permUpgrades counters live in playerState.permUpgrades; capped per item.
+  { id: 'reinforced_tome',   name: 'Reinforced Tome',         description: '+1 maximum life in every dungeon delve. Stacks up to 3 times.',         icon: '📔', category: 'sanctum',    effect: 'perm_max_hp',     price: 500, permKey: 'maxHp',           cap: 3 },
+  { id: 'lucky_coin',        name: 'Lucky Coin',              description: '+5% gold drop from all sources. Stacks up to 4 times (max +20%).',      icon: '🪙', category: 'sanctum',    effect: 'perm_gold_pct',   price: 600, permKey: 'goldDropPct',    cap: 4, step: 5 },
+  { id: 'apprentice_pouch',  name: "Apprentice's Pouch",      description: '+1 starting potion in every delve. Stacks up to 3 times.',              icon: '🎒', category: 'sanctum',    effect: 'perm_start_pot',  price: 450, permKey: 'startingPotions',cap: 3 },
+  { id: 'sage_focus',        name: 'Sage Focus',              description: '+5% XP from runs. Stacks up to 4 times (max +20%).',                    icon: '✨', category: 'sanctum',    effect: 'perm_xp_pct',     price: 700, permKey: 'xpBonusPct',     cap: 4, step: 5 },
+  { id: 'fortune_charm',     name: 'Fortune Charm',           description: '+1% rare drop chance from chests. Stacks up to 5 times.',               icon: '🔮', category: 'sanctum',    effect: 'perm_rare_pct',   price: 800, permKey: 'rareDropPct',    cap: 5, step: 1 },
 ];
 
 const findItem = (id) => ITEMS.find(it => it.id === id);
+
+// Permanent-upgrade items are purchased N times, capped per item. This computes
+// the player's current count, what the next purchase would cost, and whether
+// they can buy more.
+const sanctumCount = (state, item) => {
+  if (item.category !== 'sanctum' || !item.permKey) return 0;
+  const counts = state.permUpgrades || {};
+  const step = item.step || 1;
+  const raw = counts[item.permKey] || 0;
+  return Math.floor(raw / step);
+};
+
+const sanctumAtCap = (state, item) => sanctumCount(state, item) >= (item.cap || 1);
+
+// Deterministic daily shop stock — pick N items from a category's pool keyed
+// on the date so every player sees the same rotation that day. Locked items
+// (e.g. Stable pets pre-Phase 18) are still picked but rendered as "Sealed".
+const pickShopStock = (dateStr, category, n = 4) => {
+  const pool = ITEMS.filter((it) => it.category === category);
+  if (pool.length === 0) return [];
+  const seed = dateStr.split('').reduce((acc, c, i) => acc + c.charCodeAt(0) * (category.charCodeAt(i % category.length) + 1), 0);
+  const shuffled = [...pool];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.abs(Math.sin(seed + i)) * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, Math.min(n, shuffled.length));
+};
 
 
 
@@ -588,7 +643,14 @@ const DEFAULT_STATE = {
   storyProgress: {},           // { [chainId]: { stepIndex, baseline, completed, claimedSteps: [] } }
   // Currency & Inventory
   gold: 0,
-  inventory: {},               // { [itemId]: count }
+  inventory: {},               // { [itemId]: count } — consumables and cosmetics
+  permUpgrades: {              // Sanctum stacks; raw counts (multiply by step for actual percent)
+    maxHp: 0,
+    goldDropPct: 0,
+    startingPotions: 0,
+    xpBonusPct: 0,
+    rareDropPct: 0,
+  },
 };
 
 
@@ -836,6 +898,43 @@ export default function DungeonScholarApp() {
     if (!amount || amount <= 0) return;
     setPlayerState(prev => ({ ...prev, gold: (prev.gold || 0) + amount }));
     if (reason) showNotif(`+${amount} gold — ${reason}`, 'xp');
+  };
+
+  // Returns { ok, reason } so the caller can render an error inline.
+  const purchaseItem = (itemId) => {
+    const item = findItem(itemId);
+    if (!item) return { ok: false, reason: 'Unknown ware.' };
+    if (item.locked) return { ok: false, reason: 'This ware is sealed until a future age.' };
+
+    const owned = (playerState.inventory || {})[itemId] || 0;
+    if (item.oneTime && owned > 0) return { ok: false, reason: 'Thou already ownest this.' };
+    if (item.category === 'sanctum' && sanctumAtCap(playerState, item)) {
+      return { ok: false, reason: 'Thou hast reached the cap of this boon.' };
+    }
+    if ((playerState.gold || 0) < item.price) {
+      return { ok: false, reason: 'Insufficient gold to claim this ware.' };
+    }
+
+    setPlayerState(prev => {
+      const next = {
+        ...prev,
+        gold: (prev.gold || 0) - item.price,
+        inventory: {
+          ...(prev.inventory || {}),
+          [item.id]: ((prev.inventory || {})[item.id] || 0) + 1,
+        },
+      };
+      if (item.category === 'sanctum' && item.permKey) {
+        const step = item.step || 1;
+        next.permUpgrades = {
+          ...(prev.permUpgrades || {}),
+          [item.permKey]: ((prev.permUpgrades || {})[item.permKey] || 0) + step,
+        };
+      }
+      return next;
+    });
+    setTimeout(() => showNotif(`Acquired: ${item.name} (-${item.price} gold)`, 'success'), 50);
+    return { ok: true };
   };
 
   const ACHIEVEMENT_GOLD = 50;
@@ -1562,6 +1661,13 @@ export default function DungeonScholarApp() {
               })()}
             </button>
             <button
+              onClick={() => setScreen('shop')}
+              className="p-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500"
+              title="Marketplace"
+            >
+              <ShoppingBag className="w-5 h-5 text-amber-300" />
+            </button>
+            <button
               onClick={() => setShowAchievements(true)}
               className="p-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500"
               title="Hall of Glory"
@@ -1719,6 +1825,9 @@ export default function DungeonScholarApp() {
         )}
         {screen === 'inventory' && (
           <InventoryScreen playerState={playerState} setScreen={setScreen} />
+        )}
+        {screen === 'shop' && (
+          <ShopScreen playerState={playerState} setScreen={setScreen} onPurchase={purchaseItem} />
         )}
         {screen === 'dungeon' && courseSet && (
           <DungeonRun
@@ -2467,6 +2576,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           icon={<ScrollText className="w-8 h-8" />}
           color="purple"
           onClick={() => setScreen('quests')}
+        />
+        <ModeCard
+          title="The Marketplace"
+          desc="Spend thy hard-won gold on potions, cosmetics, and permanent boons. Wares rotate at each dawn."
+          icon={<ShoppingBag className="w-8 h-8" />}
+          color="amber"
+          onClick={() => setScreen('shop')}
         />
       </div>
 
@@ -4214,6 +4330,240 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
 }
 
 
+function ShopScreen({ playerState, setScreen, onPurchase }) {
+  const [activeTab, setActiveTab] = useState('apothecary');
+  const [pendingPurchase, setPendingPurchase] = useState(null); // item object
+  const [purchaseError, setPurchaseError] = useState(null);
+
+  // Daily-rotating stock — recomputes when the date string changes (refreshes
+  // at midnight). Memoized so revisits within the same day reuse the picks.
+  const today = todayDateStr();
+  const stockByCategory = useMemo(() => {
+    const out = {};
+    Object.keys(ITEM_CATEGORIES).forEach((catId) => {
+      out[catId] = pickShopStock(today, catId, 4);
+    });
+    return out;
+  }, [today]);
+
+  const tabs = Object.entries(ITEM_CATEGORIES).map(([id, cat]) => ({ id, ...cat }));
+  const currentCat = ITEM_CATEGORIES[activeTab];
+  const currentStock = stockByCategory[activeTab] || [];
+
+  const isOwned = (item) => {
+    if (!item.oneTime) return false;
+    return ((playerState.inventory || {})[item.id] || 0) > 0;
+  };
+  const sanctumLevel = (item) => sanctumCount(playerState, item);
+  const sanctumCap = (item) => item.cap || 1;
+
+  const tryBuy = () => {
+    if (!pendingPurchase) return;
+    const result = onPurchase(pendingPurchase.id);
+    if (result.ok) {
+      setPendingPurchase(null);
+      setPurchaseError(null);
+    } else {
+      setPurchaseError(result.reason);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(245, 158, 11, 0.6)',
+        boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-amber-500 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-amber-500 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-amber-500 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-amber-500 text-sm">⚜</div>
+
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <ShoppingBag className="w-10 h-10 text-amber-300" style={{ filter: 'drop-shadow(0 0 10px rgba(245, 158, 11, 0.6))' }} />
+            <div>
+              <h2 className="text-2xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}>
+                The Marketplace
+              </h2>
+              <div className="text-xs text-amber-400 tracking-[0.2em] italic">
+                ⚜ ROTATING WARES — {today} ⚜
+              </div>
+              <div className="text-xs text-amber-100/70 italic mt-1">
+                Stock changes at the breaking of each dawn.
+              </div>
+            </div>
+          </div>
+          <div className="px-4 py-2 rounded border-2 border-amber-700/60 flex items-center gap-2" style={{
+            background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.5), rgba(41, 24, 12, 0.85))',
+            boxShadow: '0 0 10px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(0,0,0,0.4)',
+          }}>
+            <Coins className="w-5 h-5 text-amber-300" style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }} />
+            <span className="text-amber-200 font-bold italic text-lg tabular-nums">{playerState.gold || 0}</span>
+            <span className="text-amber-700 italic text-xs">gold</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 flex-wrap">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTab(t.id)}
+            className="px-4 py-2.5 rounded font-bold italic text-sm border-2 flex items-center gap-2 transition"
+            style={{
+              borderColor: activeTab === t.id ? 'rgba(245, 158, 11, 0.85)' : 'rgba(126, 34, 206, 0.5)',
+              background: activeTab === t.id
+                ? 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6), rgba(41, 24, 12, 0.95))'
+                : 'rgba(31, 12, 41, 0.5)',
+              color: activeTab === t.id ? '#fde047' : '#d8b4fe',
+              boxShadow: activeTab === t.id ? '0 0 15px rgba(245, 158, 11, 0.35)' : 'none',
+            }}
+          >
+            <span>{t.icon}</span>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <p className="text-amber-100/70 italic text-sm">{currentCat.blurb}</p>
+
+      {currentStock.length === 0 ? (
+        <div className="text-center py-12 text-amber-700 italic">
+          The shelves are bare in this hall today.
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-4">
+          {currentStock.map((item) => {
+            const owned = isOwned(item);
+            const atCap = item.category === 'sanctum' && sanctumAtCap(playerState, item);
+            const canAfford = (playerState.gold || 0) >= item.price;
+            const locked = item.locked;
+            const disabled = owned || atCap || locked || !canAfford;
+            const buttonLabel = locked ? 'Sealed'
+              : owned ? 'Owned'
+              : atCap ? `Maxed (${sanctumLevel(item)}/${sanctumCap(item)})`
+              : !canAfford ? 'Insufficient gold'
+              : 'Purchase';
+            return (
+              <div key={item.id} className="p-5 rounded relative" style={{
+                background: locked
+                  ? 'linear-gradient(135deg, rgba(15, 8, 20, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)'
+                  : owned || atCap
+                    ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.9) 100%)'
+                    : 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                border: locked
+                  ? '1px solid rgba(60, 35, 80, 0.4)'
+                  : owned || atCap
+                    ? '2px solid rgba(16, 185, 129, 0.6)'
+                    : '2px solid rgba(126, 34, 206, 0.5)',
+                boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)',
+              }}>
+                <div className="absolute top-1 left-1 text-amber-700/60 text-xs">⚜</div>
+                <div className="absolute top-1 right-1 text-amber-700/60 text-xs">⚜</div>
+                <div className="absolute bottom-1 left-1 text-amber-700/60 text-xs">⚜</div>
+                <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
+
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="text-3xl flex-shrink-0">{item.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                      <h3 className={`font-bold italic text-sm ${locked ? 'text-amber-700/70' : 'text-amber-200'}`}
+                          style={!locked ? { textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' } : undefined}>
+                        {item.name}
+                      </h3>
+                      {item.category === 'sanctum' && (
+                        <span className="text-xs text-emerald-300 italic">
+                          {sanctumLevel(item)}/{sanctumCap(item)}
+                        </span>
+                      )}
+                    </div>
+                    <p className={`text-xs italic mt-1 ${locked ? 'text-amber-700/50' : 'text-amber-100/70'}`}>
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-xs italic flex items-center gap-1">
+                    <Coins className="w-4 h-4 text-amber-300" />
+                    <span className={`font-bold tabular-nums ${canAfford ? 'text-amber-300' : 'text-red-300'}`}>{item.price}</span>
+                    <span className="text-amber-700">gold</span>
+                  </div>
+                  <button
+                    onClick={() => { if (!disabled) { setPendingPurchase(item); setPurchaseError(null); } }}
+                    disabled={disabled}
+                    className="px-3 py-1.5 rounded text-xs font-bold italic border-2 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={disabled
+                      ? { background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.4)', color: '#a78bfa' }
+                      : { background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', borderColor: '#fde047', color: '#451a03', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}
+                  >
+                    {locked ? <Lock className="w-3 h-3" /> : owned || atCap ? <Check className="w-3 h-3" /> : <Coins className="w-3 h-3" />}
+                    {buttonLabel}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {pendingPurchase && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
+          <div className="rounded max-w-md w-full overflow-hidden flex flex-col relative" style={{
+            background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.99) 0%, rgba(10, 6, 4, 1) 100%)',
+            border: '3px double rgba(245, 158, 11, 0.7)',
+            boxShadow: '0 0 60px rgba(245, 158, 11, 0.4)',
+          }}>
+            <div className="absolute top-2 left-2 text-amber-500 text-lg">⚜</div>
+            <div className="absolute top-2 right-2 text-amber-500 text-lg">⚜</div>
+            <div className="absolute bottom-2 left-2 text-amber-500 text-lg">⚜</div>
+            <div className="absolute bottom-2 right-2 text-amber-500 text-lg">⚜</div>
+
+            <div className="p-6 space-y-4 text-center">
+              <div className="text-5xl">{pendingPurchase.icon}</div>
+              <div>
+                <h3 className="text-xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.4)' }}>
+                  Purchase {pendingPurchase.name}?
+                </h3>
+                <p className="text-sm text-amber-100/80 italic mt-2">{pendingPurchase.description}</p>
+              </div>
+              <div className="px-4 py-3 rounded border border-amber-700/60 inline-flex items-center gap-2" style={{ background: 'rgba(120, 53, 15, 0.4)' }}>
+                <span className="text-xs text-amber-700 italic">Cost:</span>
+                <Coins className="w-4 h-4 text-amber-300" />
+                <span className="text-amber-200 font-bold italic tabular-nums">{pendingPurchase.price}</span>
+                <span className="text-xs text-amber-700 italic">gold</span>
+              </div>
+              <div className="text-xs text-amber-100/60 italic">
+                Thou hast <span className="text-amber-300 font-bold">{playerState.gold || 0}</span> gold.
+              </div>
+              {purchaseError && (
+                <div className="px-3 py-2 rounded text-sm italic border border-red-500/60 text-red-200" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                  {purchaseError}
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t border-amber-700/50 flex gap-2">
+              <button onClick={() => { setPendingPurchase(null); setPurchaseError(null); }}
+                className="flex-1 py-3 rounded border-2 border-amber-700 text-amber-200 italic"
+                style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+                Cancel
+              </button>
+              <button onClick={tryBuy}
+                className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+                style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)' }}>
+                <Coins className="w-4 h-4" /> Confirm Purchase
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function InventoryScreen({ playerState, setScreen }) {
   const inv = playerState.inventory || {};
   const totalItems = Object.values(inv).reduce((s, n) => s + (n || 0), 0);
@@ -4271,8 +4621,12 @@ function InventoryScreen({ playerState, setScreen }) {
           <Package className="w-16 h-16 mx-auto text-purple-300/50 mb-4" />
           <p className="text-amber-100/70 italic mb-2">Thy hoard lies empty, scholar.</p>
           <p className="text-xs text-amber-700 italic max-w-md mx-auto">
-            Earn gold by answering riddles, conquering dungeons, and claiming quests. The marketplace shall open in time — until then, let thy purse grow heavy.
+            Earn gold by answering riddles, conquering dungeons, and claiming quests — then visit the Marketplace to purchase potions, finery, and permanent boons.
           </p>
+          <button onClick={() => setScreen('shop')} className="mt-4 px-4 py-2 rounded text-sm font-bold italic border-2 border-amber-300 text-amber-950 inline-flex items-center gap-2"
+            style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}>
+            <ShoppingBag className="w-4 h-4" /> Visit the Marketplace
+          </button>
         </div>
       ) : (
         <div className="space-y-6">
@@ -4323,8 +4677,11 @@ function InventoryScreen({ playerState, setScreen }) {
         </div>
       )}
 
-      <div className="text-center text-xs text-amber-700 italic pt-2">
-        ✦ The Marketplace shall open its doors anon ✦
+      <div className="text-center pt-2">
+        <button onClick={() => setScreen('shop')} className="px-4 py-2 rounded text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30 inline-flex items-center gap-2"
+          style={{ background: 'rgba(41, 24, 12, 0.5)' }}>
+          <ShoppingBag className="w-3.5 h-3.5" /> Browse the Marketplace
+        </button>
       </div>
     </div>
   );
