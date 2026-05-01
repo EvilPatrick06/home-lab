@@ -9,6 +9,7 @@ import { AccountPanel } from './components/AccountPanel.jsx';
 import PromptModal from './components/PromptModal.jsx';
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
+import { gradeAnswer } from './services/oracleGrader.js';
 
 const TITLES = [
   { min: 1, max: 4, name: 'Apprentice' },
@@ -2627,10 +2628,13 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
     setQuestionStartTime(Date.now());
   };
 
-  const handleAnswer = (correct, item) => {
+  // Apply the consequences of a verdict (XP / streak / lives / mistakes) and
+  // schedule the wave-advance. Split out so Oracle-graded answers can defer
+  // these effects until the player Continues (giving the override a chance
+  // to flip the verdict before lives are taken).
+  const applyAnswerEffects = (correct, item) => {
     const timeTaken = (Date.now() - questionStartTime) / 1000;
     setQuestionTimes(prev => [...prev, timeTaken]);
-    setShowFeedback({ correct, explanation: item.explanation, skipped: item._skipped });
     recordAnswer(correct, { ...item, _type: currentChallenge._type });
 
     if (correct) {
@@ -2654,22 +2658,59 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
       setMistakesThisRun(m => m + 1);
       if (isBossWave) setLivesLostInBoss(l => l + 1);
     }
+  };
 
-    setTimeout(() => {
-      setShowFeedback(null);
-      const newLives = correct ? lives : lives - 1;
-      if (newLives <= 0) {
-        setPhase('defeat');
-        return;
-      }
-      if (isBossWave) {
-        setPhase('victory');
-        return;
-      }
-      const nextWave = wave + 1;
-      setWave(nextWave);
-      drawChallenge(nextWave);
-    }, 2000);
+  const advanceAfterFeedback = (correct) => {
+    setShowFeedback(null);
+    const newLives = correct ? lives : lives - 1;
+    if (newLives <= 0) {
+      setPhase('defeat');
+      return;
+    }
+    if (isBossWave) {
+      setPhase('victory');
+      return;
+    }
+    const nextWave = wave + 1;
+    setWave(nextWave);
+    drawChallenge(nextWave);
+  };
+
+  const handleAnswer = (correct, item, extra = {}) => {
+    const oracleGraded = extra.source === 'oracle' || extra.source === 'fallback';
+    setShowFeedback({
+      correct,
+      explanation: item.explanation,
+      skipped: item._skipped,
+      item,
+      ...extra,
+      awaitContinue: oracleGraded,
+    });
+
+    if (oracleGraded) {
+      // Defer effects until Continue so the player can override before the
+      // run takes its toll. applyAnswerEffects fires from continueDungeon.
+      return;
+    }
+
+    applyAnswerEffects(correct, item);
+    setTimeout(() => advanceAfterFeedback(correct), 2000);
+  };
+
+  // After Oracle grading, the user reads feedback (and may override) then
+  // clicks Continue — at which point we apply effects and advance.
+  const continueDungeon = () => {
+    if (!showFeedback) return;
+    const { correct, item } = showFeedback;
+    applyAnswerEffects(correct, item);
+    advanceAfterFeedback(correct);
+  };
+
+  // Override the Oracle's verdict. Effects are still deferred to Continue.
+  const overrideDungeonVerdict = (newCorrect) => {
+    setShowFeedback(prev => prev && prev.correct !== newCorrect
+      ? { ...prev, correct: newCorrect, overridden: true }
+      : prev);
   };
 
   const handleSkip = () => {
@@ -2847,15 +2888,53 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
       </div>
 
       {showFeedback && (
-        <div className="p-4 rounded border-2" style={{
+        <div className="p-4 rounded border-2 space-y-3" style={{
           background: showFeedback.correct ? 'rgba(6, 78, 59, 0.6)' : 'rgba(127, 29, 29, 0.6)',
           borderColor: showFeedback.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
         }}>
-          <div className="font-bold text-lg flex items-center gap-2 italic">
+          <div className="font-bold text-lg flex items-center gap-2 italic flex-wrap">
             {showFeedback.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
-            {showFeedback.correct ? '⚔ Strike True! ⚔' : (showFeedback.skipped ? '↳ Skipped — A Life is Forfeit' : '✗ The Blow Falters')}
+            <span>{showFeedback.correct ? '⚔ Strike True! ⚔' : (showFeedback.skipped ? '↳ Skipped — A Life is Forfeit' : '✗ The Blow Falters')}</span>
+            {showFeedback.overridden && (
+              <span className="text-xs px-2 py-0.5 rounded border border-amber-400/60 text-amber-200 italic">overridden</span>
+            )}
+            {showFeedback.source === 'oracle' && (
+              <span className="text-xs px-2 py-0.5 rounded border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
+                <Wand2 className="w-3 h-3" /> Graded by the Oracle
+              </span>
+            )}
+            {showFeedback.source === 'fallback' && (
+              <span className="text-xs px-2 py-0.5 rounded border border-amber-700/60 text-amber-300 italic" title={showFeedback.fallbackReason || ''}>
+                Tome match (Oracle silent)
+              </span>
+            )}
           </div>
-          {showFeedback.explanation && <p className="text-sm text-amber-100/80 mt-2 italic">{showFeedback.explanation}</p>}
+          {showFeedback.oracleFeedback && (
+            <p className="text-sm text-amber-100/90 italic leading-relaxed">{showFeedback.oracleFeedback}</p>
+          )}
+          {showFeedback.explanation && (
+            <p className="text-sm text-amber-100/70 italic"><span className="text-purple-300">From the tome:</span> {showFeedback.explanation}</p>
+          )}
+          {showFeedback.awaitContinue && (
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-amber-900/40 flex-wrap">
+              <div className="flex gap-2">
+                {!showFeedback.correct && (
+                  <button onClick={() => overrideDungeonVerdict(true)} className="px-3 py-1.5 rounded text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+                    <Check className="w-3 h-3" /> Mark as correct
+                  </button>
+                )}
+                {showFeedback.correct && (
+                  <button onClick={() => overrideDungeonVerdict(false)} className="px-3 py-1.5 rounded text-xs italic border-2 border-red-500 text-red-200 flex items-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                    <X className="w-3 h-3" /> Mark as wrong
+                  </button>
+                )}
+              </div>
+              <button onClick={continueDungeon} className="px-4 py-2 rounded text-sm font-bold italic border-2 border-amber-300 text-amber-950 flex items-center gap-2"
+                style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}>
+                Continue <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -2906,10 +2985,28 @@ function ChallengeRenderer({ challenge, onAnswer, powerups, setPowerups, usedFif
   const [showHint, setShowHint] = useState(false);
   const [textAnswer, setTextAnswer] = useState('');
   const [labStep, setLabStep] = useState(0);
+  const [grading, setGrading] = useState(false);
 
   useEffect(() => {
-    setRevealed(false); setHiddenOptions([]); setShowHint(false); setTextAnswer(''); setLabStep(0);
+    setRevealed(false); setHiddenOptions([]); setShowHint(false); setTextAnswer(''); setLabStep(0); setGrading(false);
   }, [challenge]);
+
+  const submitFillBlank = async () => {
+    if (!textAnswer.trim() || grading) return;
+    setGrading(true);
+    const verdict = await gradeAnswer({
+      question: challenge.question,
+      expectedAnswer: challenge.correctAnswer,
+      acceptedAnswers: challenge.acceptedAnswers,
+      userAnswer: textAnswer,
+    });
+    setGrading(false);
+    onAnswer(verdict.correct, challenge, {
+      source: verdict.source,
+      oracleFeedback: verdict.feedback,
+      fallbackReason: verdict.fallbackReason,
+    });
+  };
 
   const useFiftyFifty = () => {
     if (powerups.fiftyfifty <= 0 || usedFiftyFifty || challenge._type !== 'quiz' || !challenge.options) return;
@@ -3014,12 +3111,15 @@ function ChallengeRenderer({ challenge, onAnswer, powerups, setPowerups, usedFif
         {isFIB && (
           <div className="space-y-3">
             <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim()) { const correct = (challenge.acceptedAnswers || [challenge.correctAnswer]).some(a => a && a.toLowerCase().trim() === textAnswer.toLowerCase().trim()); onAnswer(correct, challenge); } }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitFillBlank(); }}
+              disabled={grading}
               placeholder="Inscribe thy answer..." className="w-full p-3 rounded border-2 focus:outline-none italic text-amber-50"
               style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }} autoFocus />
-            <button onClick={() => { const correct = (challenge.acceptedAnswers || [challenge.correctAnswer]).some(a => a && a.toLowerCase().trim() === textAnswer.toLowerCase().trim()); onAnswer(correct, challenge); }}
-              disabled={!textAnswer.trim()} className="w-full py-3 font-bold rounded disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic"
-              style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>Submit Thy Answer</button>
+            <button onClick={submitFillBlank}
+              disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>
+              {grading ? (<><Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...</>) : 'Submit Thy Answer'}
+            </button>
           </div>
         )}
       </div>
@@ -3142,13 +3242,14 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
+  const [grading, setGrading] = useState(false);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
   const questions = (questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || []);
   const q = questions[index];
 
-  const handleAnswer = (correct) => {
-    setAnswered({ correct });
+  const handleAnswer = (correct, extra = {}) => {
+    setAnswered({ correct, ...extra });
     recordAnswer(correct, q);
     const newQuizCount = (tomeProgress?.quizAnswered || 0) + 1;
     updateTomeProgress({ quizAnswered: newQuizCount });
@@ -3166,6 +3267,43 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
         return ns;
       });
     } else setStreak(0);
+  };
+
+  const submitFillBlankWithOracle = async () => {
+    if (!textAnswer.trim() || grading) return;
+    setGrading(true);
+    const verdict = await gradeAnswer({
+      question: q.question,
+      expectedAnswer: q.correctAnswer,
+      acceptedAnswers: q.acceptedAnswers,
+      userAnswer: textAnswer,
+    });
+    setGrading(false);
+    handleAnswer(verdict.correct, {
+      oracleFeedback: verdict.feedback,
+      source: verdict.source,
+      fallbackReason: verdict.fallbackReason,
+    });
+  };
+
+  // Override the verdict from the Oracle. Adjusts streak and counters since
+  // we already recorded the original verdict.
+  const overrideVerdict = (newCorrect) => {
+    setAnswered(prev => {
+      if (!prev) return prev;
+      if (prev.correct === newCorrect) return prev;
+      // Re-record so totalCorrect / streak stay accurate.
+      recordAnswer(newCorrect, q);
+      if (newCorrect) {
+        // Going wrong → correct: refund some XP, restart streak at 1.
+        awardXP(10);
+        setStreak(1);
+      } else {
+        // correct → wrong: zero streak.
+        setStreak(0);
+      }
+      return { ...prev, correct: newCorrect, overridden: true };
+    });
   };
 
   const handleSkip = () => {
@@ -3213,29 +3351,62 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
         {!answered && isFIB && (
           <div className="space-y-3">
             <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim()) { const correct = (q.acceptedAnswers || [q.correctAnswer]).some(a => a && a.toLowerCase().trim() === textAnswer.toLowerCase().trim()); handleAnswer(correct); } }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitFillBlankWithOracle(); }}
+              disabled={grading}
               placeholder="Inscribe thy answer..." className="w-full p-3 rounded border-2 focus:outline-none italic text-amber-50"
               style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }} autoFocus />
-            <button onClick={() => { const correct = (q.acceptedAnswers || [q.correctAnswer]).some(a => a && a.toLowerCase().trim() === textAnswer.toLowerCase().trim()); handleAnswer(correct); }}
-              disabled={!textAnswer.trim()} className="w-full py-3 font-bold rounded disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic"
-              style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>Submit Thy Answer</button>
+            <button onClick={submitFillBlankWithOracle}
+              disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>
+              {grading ? (<><Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...</>) : 'Submit Thy Answer'}
+            </button>
           </div>
         )}
         {answered && (
           <div className="space-y-3">
-            <div className="p-4 rounded border-2" style={{
+            <div className="p-4 rounded border-2 space-y-2" style={{
               background: answered.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
               borderColor: answered.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
             }}>
-              <div className="font-bold flex items-center gap-2 italic">
+              <div className="font-bold flex items-center gap-2 italic flex-wrap">
                 {answered.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
-                {answered.correct ? '⚔ Strike True! ⚔' : (answered.skipped ? '↳ Skipped — Added to Tome of Failures' : '✗ The Blow Falters')}
+                <span>{answered.correct ? '⚔ Strike True! ⚔' : (answered.skipped ? '↳ Skipped — Added to Tome of Failures' : '✗ The Blow Falters')}</span>
+                {answered.overridden && (
+                  <span className="text-xs px-2 py-0.5 rounded border border-amber-400/60 text-amber-200 italic">overridden</span>
+                )}
+                {answered.source === 'oracle' && (
+                  <span className="text-xs px-2 py-0.5 rounded border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
+                    <Wand2 className="w-3 h-3" /> Graded by the Oracle
+                  </span>
+                )}
+                {answered.source === 'fallback' && (
+                  <span className="text-xs px-2 py-0.5 rounded border border-amber-700/60 text-amber-300 italic" title={answered.fallbackReason || ''}>
+                    Tome match (Oracle silent)
+                  </span>
+                )}
               </div>
-              {q.explanation && <p className="text-sm text-amber-100/80 mt-2 italic">{q.explanation}</p>}
+              {answered.oracleFeedback && (
+                <p className="text-sm text-amber-100/90 italic leading-relaxed">{answered.oracleFeedback}</p>
+              )}
+              {q.explanation && <p className="text-sm text-amber-100/70 italic"><span className="text-purple-300">From the tome:</span> {q.explanation}</p>}
               {!answered.correct && q.correctAnswer !== undefined && (
-                <p className="text-sm text-amber-100/70 mt-2 italic">The truth was: <span className="text-emerald-300">{isMC ? q.options[q.correctIndex] : isTF ? String(q.correctAnswer) : q.correctAnswer}</span></p>
+                <p className="text-sm text-amber-100/70 italic">The truth was: <span className="text-emerald-300">{isMC ? q.options[q.correctIndex] : isTF ? String(q.correctAnswer) : q.correctAnswer}</span></p>
               )}
             </div>
+            {isFIB && (answered.source === 'oracle' || answered.source === 'fallback') && (
+              <div className="flex gap-2 flex-wrap">
+                {!answered.correct && (
+                  <button onClick={() => overrideVerdict(true)} className="flex-1 py-2 rounded text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center justify-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+                    <Check className="w-3 h-3" /> Mark as correct
+                  </button>
+                )}
+                {answered.correct && (
+                  <button onClick={() => overrideVerdict(false)} className="flex-1 py-2 rounded text-xs italic border-2 border-red-500 text-red-200 flex items-center justify-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                    <X className="w-3 h-3" /> Mark as wrong
+                  </button>
+                )}
+              </div>
+            )}
             <button onClick={next} className="w-full py-3 font-bold rounded text-amber-50 border-2 border-purple-400 italic" style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>Next Riddle →</button>
           </div>
         )}
@@ -3261,6 +3432,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   const [step, setStep] = useState(0);
   const [textAnswer, setTextAnswer] = useState('');
   const [feedback, setFeedback] = useState(null);
+  const [grading, setGrading] = useState(false);
   const labs = courseSet.labs || [];
 
   if (!selectedLab) {
@@ -3286,7 +3458,9 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   const steps = selectedLab.steps || selectedLab.stages || [];
   const currentStep = steps[step];
 
-  const submitStep = (correct) => {
+  // Multiple-choice steps and Oracle-graded text steps both flow through here
+  // once a verdict exists. `extra` carries Oracle feedback/source for display.
+  const submitStep = (correct, extra = {}) => {
     const stepItem = {
       id: `${selectedLab.id}_step_${step}`,
       question: currentStep?.prompt || currentStep?.question,
@@ -3294,8 +3468,8 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
       _type: 'lab',
     };
     if (recordAnswer) recordAnswer(correct, stepItem);
-    setFeedback({ correct, explanation: currentStep?.explanation });
-    if (correct) {
+    setFeedback({ correct, explanation: currentStep?.explanation, ...extra });
+    if (correct && !extra.awaitContinue) {
       awardXP(15);
       setTimeout(() => {
         if (step + 1 >= steps.length) {
@@ -3311,7 +3485,54 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           setStep(step + 1); setTextAnswer(''); setFeedback(null);
         }
       }, 1500);
-    } else setTimeout(() => setFeedback(null), 2000);
+    } else if (!extra.awaitContinue) {
+      setTimeout(() => setFeedback(null), 2000);
+    }
+  };
+
+  // Continue manually after Oracle-graded feedback (or override). Awards XP if
+  // the final verdict was correct, then advances or finishes the trial.
+  const continueAfterGrade = () => {
+    const correct = !!feedback?.correct;
+    if (correct) {
+      awardXP(15);
+      if (step + 1 >= steps.length) {
+        const newCount = (tomeProgress?.labsCompleted || 0) + 1;
+        updateTomeProgress({ labsCompleted: newCount });
+        checkAchievement('first_lab');
+        const totalLabsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.labsCompleted || 0), 0) + 1;
+        if (totalLabsAcrossLib >= 10) checkAchievement('lab_master');
+        if (totalLabsAcrossLib >= 25) checkAchievement('lab_grandmaster');
+        setSelectedLab(null);
+      } else {
+        setStep(step + 1);
+        setTextAnswer('');
+      }
+    }
+    setFeedback(null);
+  };
+
+  const submitTextWithOracle = async () => {
+    if (!textAnswer.trim() || grading) return;
+    setGrading(true);
+    const verdict = await gradeAnswer({
+      question: currentStep?.prompt || currentStep?.question,
+      expectedAnswer: currentStep?.answer,
+      acceptedAnswers: currentStep?.acceptedAnswers,
+      userAnswer: textAnswer,
+    });
+    setGrading(false);
+    submitStep(verdict.correct, {
+      awaitContinue: true,
+      oracleFeedback: verdict.feedback,
+      source: verdict.source,
+      fallbackReason: verdict.fallbackReason,
+    });
+  };
+
+  // Override the verdict (user disagrees with the Oracle).
+  const overrideVerdict = (newCorrect) => {
+    setFeedback(prev => prev ? { ...prev, correct: newCorrect, overridden: true } : prev);
   };
 
   const skipStep = () => {
@@ -3362,14 +3583,12 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               <div className="space-y-2">
                 <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)}
                   placeholder="Inscribe thy answer..." className="w-full p-3 rounded border-2 focus:outline-none italic text-amber-50"
+                  disabled={grading}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitTextWithOracle(); }}
                   style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }} />
-                <button onClick={() => {
-                  const accepted = currentStep.acceptedAnswers || [currentStep.answer];
-                  const correct = accepted.some(a => a && a.toLowerCase().trim() === textAnswer.toLowerCase().trim());
-                  submitStep(correct);
-                }} disabled={!textAnswer.trim()} className="w-full py-3 font-bold rounded disabled:opacity-50 text-amber-50 border-2 border-rose-400 italic"
+                <button onClick={submitTextWithOracle} disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded disabled:opacity-50 text-amber-50 border-2 border-rose-400 italic flex items-center justify-center gap-2"
                   style={{ background: 'linear-gradient(to bottom, #f43f5e 0%, #9f1239 100%)', boxShadow: '0 0 20px rgba(244, 63, 94, 0.4)' }}>
-                  Submit Stage
+                  {grading ? (<><Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...</>) : 'Submit Stage'}
                 </button>
               </div>
             )}
@@ -3386,15 +3605,53 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           </div>
         )}
         {feedback && (
-          <div className="p-4 rounded border-2" style={{
+          <div className="p-4 rounded border-2 space-y-3" style={{
             background: feedback.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
             borderColor: feedback.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
           }}>
-            <div className="font-bold flex items-center gap-2 italic">
+            <div className="font-bold flex items-center gap-2 italic flex-wrap">
               {feedback.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
-              {feedback.correct ? '⚔ Stage Conquered! ⚔' : (feedback.skipped ? '↳ Skipped — Trial Abandoned' : '✗ Try Again, Brave One')}
+              <span>{feedback.correct ? '⚔ Stage Conquered! ⚔' : (feedback.skipped ? '↳ Skipped — Trial Abandoned' : '✗ Try Again, Brave One')}</span>
+              {feedback.overridden && (
+                <span className="text-xs px-2 py-0.5 rounded border border-amber-400/60 text-amber-200 italic">overridden</span>
+              )}
+              {feedback.source === 'oracle' && (
+                <span className="text-xs px-2 py-0.5 rounded border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
+                  <Wand2 className="w-3 h-3" /> Graded by the Oracle
+                </span>
+              )}
+              {feedback.source === 'fallback' && (
+                <span className="text-xs px-2 py-0.5 rounded border border-amber-700/60 text-amber-300 italic" title={feedback.fallbackReason || ''}>
+                  Tome match (Oracle silent)
+                </span>
+              )}
             </div>
-            {feedback.explanation && <p className="text-sm text-amber-100/80 mt-2 italic">{feedback.explanation}</p>}
+            {feedback.oracleFeedback && (
+              <p className="text-sm text-amber-100/90 italic leading-relaxed">{feedback.oracleFeedback}</p>
+            )}
+            {feedback.explanation && (
+              <p className="text-sm text-amber-100/70 italic"><span className="text-purple-300">From the tome:</span> {feedback.explanation}</p>
+            )}
+            {feedback.awaitContinue && (
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-amber-900/40 flex-wrap">
+                <div className="flex gap-2">
+                  {!feedback.correct && (
+                    <button onClick={() => overrideVerdict(true)} className="px-3 py-1.5 rounded text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+                      <Check className="w-3 h-3" /> Mark as correct
+                    </button>
+                  )}
+                  {feedback.correct && (
+                    <button onClick={() => overrideVerdict(false)} className="px-3 py-1.5 rounded text-xs italic border-2 border-red-500 text-red-200 flex items-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                      <X className="w-3 h-3" /> Mark as wrong
+                    </button>
+                  )}
+                </div>
+                <button onClick={continueAfterGrade} className="px-4 py-2 rounded text-sm font-bold italic border-2 border-amber-300 text-amber-950 flex items-center gap-2"
+                  style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}>
+                  Continue <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
