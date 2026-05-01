@@ -390,11 +390,11 @@ const ITEMS = [
   { id: 'tinkers_oil',       name: "Tinker's Oil",            description: 'Restore a spent power-up (50/50 or Hint) within a delve.',             icon: '🪔', category: 'apothecary', effect: 'refill_powerup', price: 45 },
   { id: 'phoenix_ember',     name: 'Phoenix Ember',           description: 'Revive once after defeat — consumed on use.',                          icon: '🔥', category: 'apothecary', effect: 'revive_once',    price: 200 },
 
-  // === Wardrobe (cosmetics — profile/title flair) ===
-  { id: 'iron_circlet',      name: 'Iron Circlet',            description: 'A modest crown of forged iron — befits a rising scholar.',             icon: '👑', category: 'wardrobe',   effect: 'border_iron',    price: 150, oneTime: true },
-  { id: 'silver_circlet',    name: 'Silver Circlet',          description: 'A keen-eyed silver crown for the seasoned reader.',                    icon: '🪙', category: 'wardrobe',   effect: 'border_silver',  price: 400, oneTime: true },
+  // === Wardrobe (cosmetics + equippable head/cloak items) ===
+  { id: 'iron_circlet',      name: 'Iron Circlet',            description: 'A modest crown of forged iron. Equip for +1 max HP in the dungeon.',    icon: '👑', category: 'wardrobe',   effect: 'border_iron',    price: 150, oneTime: true, slot: 'head'  },
+  { id: 'silver_circlet',    name: 'Silver Circlet',          description: 'A keen-eyed silver crown. Equip for +1 max HP and +1 shield.',          icon: '🪙', category: 'wardrobe',   effect: 'border_silver',  price: 400, oneTime: true, slot: 'head'  },
   { id: 'gilded_quill',      name: 'Gilded Quill',            description: 'A quill of beaten gold — adorns thy profile with a flourish.',         icon: '🪶', category: 'wardrobe',   effect: 'avatar_quill',   price: 200, oneTime: true },
-  { id: 'starbound_cloak',   name: 'Cloak of the Starbound',  description: 'A velvet cloak studded with constellations — a profile background.',    icon: '🌌', category: 'wardrobe',   effect: 'bg_starbound',   price: 350, oneTime: true },
+  { id: 'starbound_cloak',   name: 'Cloak of the Starbound',  description: 'A velvet cloak studded with constellations. Equip to ignore thy first wrong answer each delve.', icon: '🌌', category: 'wardrobe',   effect: 'bg_starbound',   price: 350, oneTime: true, slot: 'cloak' },
   { id: 'tome_emblem',       name: 'Tome Emblem',             description: 'A small heraldic crest of an open tome, displayed beside thy title.',   icon: '📔', category: 'wardrobe',   effect: 'emblem_tome',    price: 120, oneTime: true },
 
   // === Stable (pets — placeholder until Phase 18 wires the mechanics) ===
@@ -402,10 +402,10 @@ const ITEMS = [
   { id: 'dragon_hatchling',  name: 'Dragon Hatchling',        description: 'A tiny ember of a beast — slumbering until the Stable awakens.',       icon: '🐉', category: 'stable',     effect: 'pet_dragon',     price: 600, oneTime: true, locked: true },
   { id: 'mimic_pup',         name: 'Mimic Pup',               description: 'A mischievous treasure-hunter, awaiting its master in the Stable.',    icon: '🪙', category: 'stable',     effect: 'pet_mimic',      price: 400, oneTime: true, locked: true },
 
-  // === Armory (cosmetic weapons) ===
-  { id: 'oaken_blade',       name: 'Oaken Practice Blade',    description: 'A simple training blade — purely cosmetic.',                           icon: '🗡️', category: 'armory',     effect: 'weapon_oaken',   price: 100, oneTime: true },
-  { id: 'gilded_sabre',      name: 'Gilded Sabre',            description: 'A flourished sabre of beaten gold — adorns thy avatar in battle.',      icon: '⚔️', category: 'armory',     effect: 'weapon_sabre',   price: 350, oneTime: true },
-  { id: 'arcane_grimoire',   name: 'Arcane Grimoire',         description: 'A floating tome that hovers beside thee — for casters at heart.',      icon: '📖', category: 'armory',     effect: 'weapon_grim',    price: 500, oneTime: true },
+  // === Armory (equippable weapons) ===
+  { id: 'oaken_blade',       name: 'Oaken Practice Blade',    description: 'A simple training blade. Equip for +1 score per foe felled.',           icon: '🗡️', category: 'armory',     effect: 'weapon_oaken',   price: 100, oneTime: true, slot: 'weapon' },
+  { id: 'gilded_sabre',      name: 'Gilded Sabre',            description: 'A flourished sabre of beaten gold. Equip for +50% gold from foes.',     icon: '⚔️', category: 'armory',     effect: 'weapon_sabre',   price: 350, oneTime: true, slot: 'weapon' },
+  { id: 'arcane_grimoire',   name: 'Arcane Grimoire',         description: 'A floating tome that hovers beside thee. Equip for +25% XP from foes.',  icon: '📖', category: 'armory',     effect: 'weapon_grim',    price: 500, oneTime: true, slot: 'weapon' },
 
   // === Sanctum (permanent passive upgrades) ===
   // permUpgrades counters live in playerState.permUpgrades; capped per item.
@@ -842,6 +842,14 @@ const DEFAULT_STATE = {
   // Currency & Inventory
   gold: 0,
   inventory: {},               // { [itemId]: count } — consumables and cosmetics
+  // Currently-equipped item ids per slot. Equipment grants in-dungeon
+  // bonuses (HP, shields, XP/gold mults) and renders on the player sprite.
+  equipped: {
+    weapon: null,
+    head: null,
+    cloak: null,
+    pet: null,
+  },
   permUpgrades: {              // Sanctum stacks; raw counts (multiply by step for actual percent)
     maxHp: 0,
     goldDropPct: 0,
@@ -1133,6 +1141,27 @@ export default function DungeonScholarApp() {
     });
     setTimeout(() => showNotif(`Acquired: ${item.name} (-${item.price} gold)`, 'success'), 50);
     return { ok: true };
+  };
+
+  // Equip an inventory item. Items with no `slot` are not equippable.
+  const equipItem = (itemId) => {
+    const item = findItem(itemId);
+    if (!item || !item.slot) return { ok: false, reason: 'This ware cannot be equipped.' };
+    if (item.locked) return { ok: false, reason: 'This ware is sealed until a future age.' };
+    if (!((playerState.inventory || {})[itemId] || 0)) return { ok: false, reason: 'Thou dost not own this.' };
+    setPlayerState(prev => ({
+      ...prev,
+      equipped: { ...(prev.equipped || {}), [item.slot]: itemId },
+    }));
+    setTimeout(() => showNotif(`Equipped: ${item.name}`, 'success'), 50);
+    return { ok: true };
+  };
+
+  const unequipSlot = (slot) => {
+    setPlayerState(prev => ({
+      ...prev,
+      equipped: { ...(prev.equipped || {}), [slot]: null },
+    }));
   };
 
   const ACHIEVEMENT_GOLD = 50;
@@ -2022,7 +2051,12 @@ export default function DungeonScholarApp() {
           />
         )}
         {screen === 'inventory' && (
-          <InventoryScreen playerState={playerState} setScreen={setScreen} />
+          <InventoryScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onEquip={equipItem}
+            onUnequip={unequipSlot}
+          />
         )}
         {screen === 'shop' && (
           <ShopScreen playerState={playerState} setScreen={setScreen} onPurchase={purchaseItem} />
@@ -5595,8 +5629,9 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
   );
 }
 
-function InventoryScreen({ playerState, setScreen }) {
+function InventoryScreen({ playerState, setScreen, onEquip, onUnequip }) {
   const inv = playerState.inventory || {};
+  const equipped = playerState.equipped || {};
   const totalItems = Object.values(inv).reduce((s, n) => s + (n || 0), 0);
 
   const itemsByCategory = Object.keys(ITEM_CATEGORIES).reduce((acc, cat) => {
@@ -5605,6 +5640,13 @@ function InventoryScreen({ playerState, setScreen }) {
       .map(it => ({ ...it, count: inv[it.id] }));
     return acc;
   }, {});
+
+  const SLOTS = [
+    { id: 'weapon', label: 'Weapon', icon: '⚔️' },
+    { id: 'head',   label: 'Head',   icon: '👑' },
+    { id: 'cloak',  label: 'Cloak',  icon: '🌌' },
+    { id: 'pet',    label: 'Pet',    icon: '🐾' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -5644,6 +5686,52 @@ function InventoryScreen({ playerState, setScreen }) {
         </div>
       </div>
 
+      {/* Loadout — current equipment per slot. Always shown, even with no
+          inventory, so the player has a clear hint that gear exists. */}
+      <div className="rounded p-4 relative" style={{
+        background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(10, 6, 4, 0.92) 100%)',
+        border: '2px solid rgba(245, 158, 11, 0.45)',
+        boxShadow: '0 0 12px rgba(245, 158, 11, 0.15), inset 0 0 12px rgba(0,0,0,0.5)',
+      }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xl">⚔</span>
+          <h3 className="text-base font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245,158,11,0.3)' }}>
+            Loadout
+          </h3>
+          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+          <span className="text-[10px] text-amber-700 italic">Equipped gear is active inside the dungeon.</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {SLOTS.map((s) => {
+            const equippedId = equipped[s.id];
+            const item = equippedId ? findItem(equippedId) : null;
+            return (
+              <div key={s.id} className="p-3 rounded flex items-center gap-2" style={{
+                background: 'rgba(31,17,8,0.6)',
+                border: `1px solid ${item ? 'rgba(245,158,11,0.6)' : 'rgba(120,53,15,0.4)'}`,
+              }}>
+                <div className="text-2xl">{item ? item.icon : s.icon}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] text-amber-700 italic uppercase tracking-wider">{s.label}</div>
+                  <div className="text-xs text-amber-200 italic truncate">
+                    {item ? item.name : <span className="text-amber-700/60">— Empty —</span>}
+                  </div>
+                </div>
+                {item && onUnequip && (
+                  <button
+                    onClick={() => onUnequip(s.id)}
+                    className="text-[10px] text-amber-600 hover:text-amber-300 italic underline"
+                    title="Unequip"
+                  >
+                    Doff
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {totalItems === 0 ? (
         <div className="text-center py-16 px-6 rounded relative" style={{
           background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)',
@@ -5677,11 +5765,15 @@ function InventoryScreen({ playerState, setScreen }) {
                   </span>
                 </div>
                 <div className="grid md:grid-cols-2 gap-3">
-                  {items.map(it => (
+                  {items.map(it => {
+                    const isEquipped = it.slot && equipped[it.slot] === it.id;
+                    return (
                     <div key={it.id} className="p-4 rounded relative" style={{
                       background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.65) 0%, rgba(10, 6, 4, 0.95) 100%)',
-                      border: '2px solid rgba(126, 34, 206, 0.45)',
-                      boxShadow: '0 0 12px rgba(168, 85, 247, 0.12), inset 0 0 15px rgba(0,0,0,0.5)',
+                      border: `2px solid ${isEquipped ? 'rgba(245, 158, 11, 0.7)' : 'rgba(126, 34, 206, 0.45)'}`,
+                      boxShadow: isEquipped
+                        ? '0 0 14px rgba(245, 158, 11, 0.3), inset 0 0 15px rgba(0,0,0,0.5)'
+                        : '0 0 12px rgba(168, 85, 247, 0.12), inset 0 0 15px rgba(0,0,0,0.5)',
                     }}>
                       <div className="absolute top-1 left-1 text-amber-700/60 text-xs">⚜</div>
                       <div className="absolute top-1 right-1 text-amber-700/60 text-xs">⚜</div>
@@ -5693,14 +5785,45 @@ function InventoryScreen({ playerState, setScreen }) {
                           <div className="flex items-baseline justify-between gap-2">
                             <h4 className="font-bold text-amber-200 italic text-sm" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' }}>
                               {it.name}
+                              {isEquipped && <span className="ml-2 text-[10px] text-amber-400 italic">(Equipped)</span>}
                             </h4>
                             <span className="text-xs text-amber-300 font-bold italic tabular-nums">×{it.count}</span>
                           </div>
                           <p className="text-xs text-amber-100/70 italic mt-1">{it.description}</p>
+                          {it.slot && !it.locked && (
+                            <div className="mt-2 flex items-center gap-2">
+                              {isEquipped ? (
+                                <button
+                                  onClick={() => onUnequip && onUnequip(it.slot)}
+                                  className="px-2 py-1 rounded text-[11px] italic"
+                                  style={{
+                                    background: 'rgba(31,17,8,0.7)',
+                                    border: '1px solid rgba(245,158,11,0.6)',
+                                    color: '#fbbf24',
+                                  }}
+                                >
+                                  Unequip
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => onEquip && onEquip(it.id)}
+                                  className="px-2 py-1 rounded text-[11px] italic"
+                                  style={{
+                                    background: 'rgba(120,53,15,0.55)',
+                                    border: '1px solid rgba(245,158,11,0.6)',
+                                    color: '#fde047',
+                                  }}
+                                >
+                                  Equip ({it.slot})
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );

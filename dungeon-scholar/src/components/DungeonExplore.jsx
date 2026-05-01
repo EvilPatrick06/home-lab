@@ -3,7 +3,19 @@
 // a question from the active tome. Correct = mob defeated. Wrong = -1 HP.
 // Reach the boss room and survive its 5-question gauntlet to win the run.
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Heart, Coins, Trophy, Skull } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+
+// === Equipment effects ==================================================
+// In-dungeon stat bonuses for equipped items. Items live in App.jsx ITEMS;
+// these effects apply only inside the delve.
+const EQUIP_EFFECTS = {
+  iron_circlet:    { maxHpBonus: 1 },
+  silver_circlet:  { maxHpBonus: 1, shieldBonus: 1 },
+  starbound_cloak: { firstWrongFree: true },
+  oaken_blade:     { mobScoreBonus: 1 },
+  gilded_sabre:    { goldMul: 1.5 },
+  arcane_grimoire: { xpMul: 1.25 },
+};
 
 export const TILE = {
   WALL: 0,
@@ -18,12 +30,16 @@ const VIEW_W = 25;
 const VIEW_H = 17;
 const CANVAS_W = VIEW_W * TILE_PX;
 const CANVAS_H = VIEW_H * TILE_PX;
-const MOVE_MS = 150;
-const WALK_FRAME_MS = 150;
+const MOVE_MS = 110;
+const WALK_FRAME_MS = 100;
+// Held-key movement: after the initial keydown move, repeat at this cadence.
+const HOLD_REPEAT_MS = 130;
 const MOB_MOVE_MIN_MS = 1400;
 const MOB_MOVE_MAX_MS = 2800;
 
 const isWalkable = (t) => t === TILE.FLOOR || t === TILE.DOOR || t === TILE.STAIRS_UP || t === TILE.STAIRS_DOWN;
+
+const DIR_DELTAS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 
 // === Biomes ============================================================
 export const BIOMES = {
@@ -165,20 +181,20 @@ const ROOM_TEMPLATES = [
   ]},
 ];
 
-export const ROOMS_BY_DIFFICULTY = { apprentice: 5, adept: 8, master: 12, mythic: 16 };
+export const ROOMS_BY_DIFFICULTY = { apprentice: 8, adept: 12, master: 18, mythic: 24 };
 export const SIZE_BY_DIFFICULTY = {
-  apprentice: { w: 60,  h: 40 },
-  adept:      { w: 75,  h: 50 },
-  master:     { w: 90,  h: 60 },
-  mythic:     { w: 110, h: 70 },
+  apprentice: { w: 80,  h: 55 },
+  adept:      { w: 100, h: 70 },
+  master:     { w: 130, h: 90 },
+  mythic:     { w: 160, h: 110 },
 };
 
-// HP, XP/gold multipliers per difficulty.
+// HP, shields, XP/gold multipliers per difficulty.
 export const DIFF_CONFIG = {
-  apprentice: { hp: 3, xpMul: 1,   goldMul: 1,    label: 'Apprentice', completeAchievement: null,             rewardTitleId: null },
-  adept:      { hp: 3, xpMul: 1.5, goldMul: 1.25, label: 'Adept',      completeAchievement: 'adept_complete',  rewardTitleId: 'adeptVeteran' },
-  master:     { hp: 2, xpMul: 2,   goldMul: 1.5,  label: 'Master',     completeAchievement: 'master_complete', rewardTitleId: 'masterSlayer' },
-  mythic:     { hp: 1, xpMul: 3,   goldMul: 2,    label: 'Mythic',     completeAchievement: 'mythic_complete', rewardTitleId: 'mythicSage' },
+  apprentice: { hp: 5, shields: 2, xpMul: 1,   goldMul: 1,    label: 'Apprentice', completeAchievement: null,             rewardTitleId: null },
+  adept:      { hp: 4, shields: 2, xpMul: 1.5, goldMul: 1.25, label: 'Adept',      completeAchievement: 'adept_complete',  rewardTitleId: 'adeptVeteran' },
+  master:     { hp: 2, shields: 1, xpMul: 2,   goldMul: 1.5,  label: 'Master',     completeAchievement: 'master_complete', rewardTitleId: 'masterSlayer' },
+  mythic:     { hp: 1, shields: 0, xpMul: 3,   goldMul: 2,    label: 'Mythic',     completeAchievement: 'mythic_complete', rewardTitleId: 'mythicSage' },
 };
 
 // Biome → boss kind. IDs match BOSS_TYPES in App.jsx for run-history display.
@@ -302,16 +318,24 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
   const decoKinds = DECO_BY_BIOME[biome] || DECO_BY_BIOME.halls;
   const mobKind = MOB_BY_BIOME[biome] || MOB_BY_BIOME.halls;
 
+  // Pack rooms with decorations and mobs. Spawn room stays light so the
+  // player isn't ambushed at start; boss room has a couple of decorations
+  // (no mobs) flanking the lord.
   rooms.forEach((room, idx) => {
     const isSpawn = idx === 0;
     const isBoss = idx === rooms.length - 1 && rooms.length > 1;
-    const decoCount = isBoss ? 1 : isSpawn ? 1 : 2 + Math.floor(rng() * 3);
-    const mobCount = (isBoss || isSpawn) ? 0 : Math.floor(rng() * 3);
+    const roomArea = room.w * room.h;
+    // Density: ~1 deco per 8 tiles, capped, plus a small base.
+    const decoBase = isSpawn ? 1 : isBoss ? 2 : 4;
+    const decoCount = decoBase + Math.floor(roomArea / 10) + Math.floor(rng() * 3);
+    const mobCount = (isBoss || isSpawn) ? 0 : 3 + Math.floor(rng() * 4); // 3..6
 
     for (let i = 0; i < decoCount; i++) {
       const tx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
       const ty = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
       if (map[ty]?.[tx] !== TILE.FLOOR) continue;
+      // Avoid stacking on top of existing decorations.
+      if (decorations.some((d) => d.x === tx && d.y === ty)) continue;
       const kind = decoKinds[Math.floor(rng() * decoKinds.length)];
       decorations.push({ kind, x: tx, y: ty });
     }
@@ -320,6 +344,9 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
       const tx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
       const ty = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
       if (map[ty]?.[tx] !== TILE.FLOOR) continue;
+      // Don't stack mobs on the same tile or on a decoration.
+      if (mobs.some((m) => m.x === tx && m.y === ty)) continue;
+      if (decorations.some((d) => d.x === tx && d.y === ty)) continue;
       mobs.push({
         kind: mobKind,
         x: tx, y: ty,
@@ -708,62 +735,185 @@ const BOSS_DISPLAY = {
   riddler:  { name: 'The Riddler',  icon: '🃏' },
 };
 
-// === Player sprite ======================================================
-function drawPlayer(ctx, px, py, facing, walkFrame) {
+// === Equipped weapon overlay ===========================================
+// Drawn after the player so it sits on top. Hand position depends on facing.
+function drawWeapon(ctx, weaponId, cx, py, facing) {
+  if (!weaponId) return;
+  const handX = facing === 'left' ? cx - 12
+              : facing === 'right' ? cx + 10
+              : cx + 9; // up/down — show on the right side
+  const handY = py + 24;
+
+  if (weaponId === 'oaken_blade') {
+    ctx.fillStyle = '#8b4513';
+    ctx.fillRect(handX, handY - 14, 2, 16);
+    ctx.fillStyle = '#3a2a1c';
+    ctx.fillRect(handX - 2, handY, 6, 2);
+    ctx.fillStyle = '#fde68a';
+    ctx.fillRect(handX, handY - 15, 2, 2);
+  } else if (weaponId === 'gilded_sabre') {
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(handX, handY - 14, 2, 15);
+    ctx.fillRect(handX + 1, handY - 15, 1, 1);
+    ctx.fillRect(handX - 1, handY - 13, 1, 1);
+    ctx.fillStyle = '#92400e';
+    ctx.fillRect(handX - 2, handY, 6, 2);
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(handX, handY - 14, 1, 1);
+    // golden glow
+    ctx.fillStyle = 'rgba(251,191,36,0.25)';
+    ctx.fillRect(handX - 1, handY - 16, 4, 2);
+  } else if (weaponId === 'arcane_grimoire') {
+    // floating tome with violet glow
+    ctx.fillStyle = 'rgba(168,85,247,0.35)';
+    ctx.fillRect(handX - 6, handY - 16, 14, 14);
+    ctx.fillStyle = '#7c2d12';
+    ctx.fillRect(handX - 4, handY - 14, 10, 10);
+    ctx.fillStyle = '#a3471a';
+    ctx.fillRect(handX - 4, handY - 14, 10, 1);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(handX - 2, handY - 12, 6, 1);
+    ctx.fillRect(handX - 2, handY - 10, 6, 1);
+    ctx.fillRect(handX - 2, handY - 8, 6, 1);
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(handX - 1, handY - 14, 1, 1);
+  }
+}
+
+// === Player sprite (more detailed; equipment-aware) =====================
+function drawPlayer(ctx, px, py, facing, walkFrame, equipped = {}) {
   const cx = px + TILE_PX / 2;
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+
+  // Soft shadow under the player
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
   ctx.beginPath();
-  ctx.ellipse(cx, py + TILE_PX - 6, 12, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, py + TILE_PX - 5, 14, 5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  const headTop = py + 6;
-  const bodyTop = headTop + 12;
-  const legTop = bodyTop + 12;
+  const headTop = py + 4;
+  const headHeight = 14;
+  const bodyTop = headTop + headHeight - 1;
+  const bodyHeight = 15;
+  const legTop = bodyTop + bodyHeight - 1;
+  const legHeight = 12;
 
+  // === Cloak (back layer; visible when facing up/sides) ===
+  const isStarbound = equipped.cloak === 'starbound_cloak';
+  const cloakBase = isStarbound ? '#1e1b4b' : '#5a1d1d';
+  const cloakEdge = isStarbound ? '#3730a3' : '#3a0e0e';
   if (facing !== 'down') {
-    ctx.fillStyle = '#5a1d1d';
-    ctx.fillRect(cx - 8, bodyTop + 2, 16, 12);
-    ctx.fillStyle = '#3a0e0e';
-    ctx.fillRect(cx - 8, bodyTop + 12, 16, 2);
-  }
-
-  ctx.fillStyle = '#2a1810';
-  ctx.fillRect(cx - 8, headTop, 16, 4);
-  ctx.fillRect(cx - 9, headTop + 2, 18, 2);
-  ctx.fillRect(cx - 8, headTop + 4, 16, 8);
-  ctx.fillStyle = '#1a0e08';
-  ctx.fillRect(cx - 6, headTop + 4, 12, 6);
-  if (facing !== 'up') {
-    ctx.fillStyle = '#fde047';
-    if (facing === 'down') {
-      ctx.fillRect(cx - 4, headTop + 7, 2, 2);
-      ctx.fillRect(cx + 2, headTop + 7, 2, 2);
-    } else if (facing === 'right') {
-      ctx.fillRect(cx + 1, headTop + 7, 2, 2);
-    } else if (facing === 'left') {
-      ctx.fillRect(cx - 3, headTop + 7, 2, 2);
+    ctx.fillStyle = cloakBase;
+    ctx.fillRect(cx - 9, bodyTop + 1, 18, bodyHeight - 1);
+    ctx.fillStyle = cloakEdge;
+    ctx.fillRect(cx - 9, bodyTop + bodyHeight - 1, 18, 2);
+    ctx.fillRect(cx - 10, bodyTop + 4, 1, 10);
+    ctx.fillRect(cx + 9, bodyTop + 4, 1, 10);
+    if (isStarbound) {
+      ctx.fillStyle = '#a5b4fc';
+      ctx.fillRect(cx - 5, bodyTop + 4, 1, 1);
+      ctx.fillRect(cx + 3, bodyTop + 7, 1, 1);
+      ctx.fillRect(cx - 1, bodyTop + 10, 1, 1);
+      ctx.fillRect(cx + 5, bodyTop + 13, 1, 1);
     }
   }
 
+  // === Head — circlet (if equipped) overrides the hood ===
+  const headEquip = equipped.head;
+  if (headEquip === 'iron_circlet' || headEquip === 'silver_circlet') {
+    // Hair + skin
+    ctx.fillStyle = '#3b1f0a';
+    ctx.fillRect(cx - 7, headTop, 14, 4);
+    ctx.fillStyle = '#e8c4a0';
+    ctx.fillRect(cx - 7, headTop + 4, 14, 9);
+    // Circlet band
+    const band = headEquip === 'silver_circlet' ? '#e2e8f0' : '#9ca3af';
+    const bandShade = headEquip === 'silver_circlet' ? '#94a3b8' : '#52525b';
+    const gem = headEquip === 'silver_circlet' ? '#22d3ee' : '#fde047';
+    ctx.fillStyle = band;
+    ctx.fillRect(cx - 8, headTop + 2, 16, 2);
+    ctx.fillStyle = bandShade;
+    ctx.fillRect(cx - 8, headTop + 4, 16, 1);
+    ctx.fillStyle = gem;
+    ctx.fillRect(cx - 1, headTop + 1, 2, 2);
+  } else {
+    // Default hood
+    ctx.fillStyle = '#2a1810';
+    ctx.fillRect(cx - 8, headTop, 16, 4);
+    ctx.fillRect(cx - 9, headTop + 2, 18, 2);
+    ctx.fillRect(cx - 8, headTop + 4, 16, headHeight - 4);
+    ctx.fillStyle = '#1a0e08';
+    ctx.fillRect(cx - 6, headTop + 4, 12, 7);
+  }
+
+  // Eyes (visible when not facing up — except when wearing a circlet, eyes
+  // are clearly visible since the face isn't shadowed by a hood)
+  if (facing !== 'up') {
+    const showCirclet = headEquip === 'iron_circlet' || headEquip === 'silver_circlet';
+    ctx.fillStyle = showCirclet ? '#1a0e08' : '#fde047';
+    if (facing === 'down') {
+      ctx.fillRect(cx - 4, headTop + 8, 2, 2);
+      ctx.fillRect(cx + 2, headTop + 8, 2, 2);
+      // Mouth (only with circlet — visible face)
+      if (showCirclet) {
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(cx - 2, headTop + 11, 4, 1);
+      }
+    } else if (facing === 'right') {
+      ctx.fillRect(cx + 1, headTop + 8, 2, 2);
+    } else if (facing === 'left') {
+      ctx.fillRect(cx - 3, headTop + 8, 2, 2);
+    }
+  }
+
+  // === Body / tunic ===
   ctx.fillStyle = '#7c2d12';
-  ctx.fillRect(cx - 7, bodyTop, 14, 12);
+  ctx.fillRect(cx - 8, bodyTop, 16, bodyHeight);
   ctx.fillStyle = '#a3471a';
-  ctx.fillRect(cx - 7, bodyTop, 14, 2);
+  ctx.fillRect(cx - 8, bodyTop, 16, 2);
+  ctx.fillStyle = '#c2410c';
+  ctx.fillRect(cx - 8, bodyTop + bodyHeight - 5, 16, 1);
   ctx.fillStyle = '#1a0e08';
-  ctx.fillRect(cx - 7, bodyTop + 9, 14, 2);
+  ctx.fillRect(cx - 8, bodyTop + bodyHeight - 4, 16, 2);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 1, bodyTop + bodyHeight - 4, 2, 2);
+  // V-neck collar
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 1, bodyTop, 2, 2);
 
+  // === Arms ===
   ctx.fillStyle = '#7c2d12';
-  if (facing === 'left') ctx.fillRect(cx - 9, bodyTop + 2, 3, 7);
-  else if (facing === 'right') ctx.fillRect(cx + 6, bodyTop + 2, 3, 7);
-  else { ctx.fillRect(cx - 9, bodyTop + 2, 2, 7); ctx.fillRect(cx + 7, bodyTop + 2, 2, 7); }
+  if (facing === 'left') {
+    ctx.fillRect(cx - 10, bodyTop + 3, 3, 9);
+    ctx.fillStyle = '#e8c4a0';
+    ctx.fillRect(cx - 10, bodyTop + 12, 3, 2);
+  } else if (facing === 'right') {
+    ctx.fillRect(cx + 7, bodyTop + 3, 3, 9);
+    ctx.fillStyle = '#e8c4a0';
+    ctx.fillRect(cx + 7, bodyTop + 12, 3, 2);
+  } else {
+    ctx.fillRect(cx - 10, bodyTop + 3, 3, 9);
+    ctx.fillRect(cx + 7, bodyTop + 3, 3, 9);
+    ctx.fillStyle = '#e8c4a0';
+    ctx.fillRect(cx - 10, bodyTop + 12, 3, 2);
+    ctx.fillRect(cx + 7, bodyTop + 12, 3, 2);
+  }
 
-  ctx.fillStyle = '#1c1410';
+  // === Legs (animated) ===
   const stepDelta = walkFrame === 1 ? 1 : walkFrame === 3 ? -1 : 0;
-  ctx.fillRect(cx - 6, legTop + stepDelta, 5, 8 - Math.abs(stepDelta));
-  ctx.fillRect(cx + 1, legTop - stepDelta, 5, 8 - Math.abs(stepDelta));
+  ctx.fillStyle = '#3a2418';
+  ctx.fillRect(cx - 6, legTop + stepDelta,         5, legHeight - 3 - Math.abs(stepDelta));
+  ctx.fillRect(cx + 1, legTop - stepDelta,         5, legHeight - 3 - Math.abs(stepDelta));
+  // Boots
   ctx.fillStyle = '#0a0604';
-  ctx.fillRect(cx - 6, legTop + 6 + stepDelta, 5, 2);
-  ctx.fillRect(cx + 1, legTop + 6 - stepDelta, 5, 2);
+  ctx.fillRect(cx - 7, legTop + legHeight - 4 + stepDelta, 6, 3);
+  ctx.fillRect(cx + 1, legTop + legHeight - 4 - stepDelta, 6, 3);
+  // Boot trim
+  ctx.fillStyle = '#3a2418';
+  ctx.fillRect(cx - 7, legTop + legHeight - 4 + stepDelta, 6, 1);
+  ctx.fillRect(cx + 1, legTop + legHeight - 4 - stepDelta, 6, 1);
+
+  // === Equipped weapon (top layer) ===
+  drawWeapon(ctx, equipped.weapon, cx, py, facing);
 }
 
 // === Combat helpers =====================================================
@@ -799,7 +949,7 @@ function checkAnswerCorrect(question, choice) {
 }
 
 // === BattleModal ========================================================
-function BattleModal({ battle, biome, onAnswer }) {
+function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemaining }) {
   if (!battle) return null;
   const q = battle.questions[battle.questionIdx];
   if (!q) return null;
@@ -807,7 +957,7 @@ function BattleModal({ battle, biome, onAnswer }) {
   const total = battle.questions.length;
   const stepNum = battle.questionIdx + 1;
 
-  const [revealResult, setRevealResult] = useState(null); // {correct, choice}
+  const [revealResult, setRevealResult] = useState(null);
 
   const handle = (choice) => {
     if (revealResult) return;
@@ -819,7 +969,6 @@ function BattleModal({ battle, biome, onAnswer }) {
     }, 900);
   };
 
-  // Reset reveal when question advances (new q in same battle).
   useEffect(() => { setRevealResult(null); }, [battle.questionIdx, battle.type]);
 
   const options = q.type === 'truefalse' ? ['True', 'False'] : (q.options || []);
@@ -875,6 +1024,31 @@ function BattleModal({ battle, biome, onAnswer }) {
             {q.explanation && (
               <div className="mt-1 text-amber-200/80">{q.explanation}</div>
             )}
+          </div>
+        )}
+        {!isBoss && canFlee && (
+          <button
+            onClick={() => { if (!revealResult) onFlee(); }}
+            disabled={!!revealResult}
+            className="mt-3 px-3 py-2 rounded italic w-full text-sm"
+            style={{
+              background: 'rgba(31,24,12,0.55)',
+              border: '1px solid rgba(59,130,246,0.6)',
+              color: '#93c5fd',
+              cursor: revealResult ? 'default' : 'pointer',
+            }}
+          >
+            🛡️ Flee — costs 1 shield ({shieldsRemaining} remaining)
+          </button>
+        )}
+        {!isBoss && !canFlee && (
+          <div className="mt-3 text-xs italic text-amber-700/80 text-center">
+            ⚜ No shields remain to flee with. ⚜
+          </div>
+        )}
+        {isBoss && (
+          <div className="mt-3 text-xs italic text-amber-700/80 text-center">
+            ⚜ No flight from a dungeon lord. ⚜
           </div>
         )}
       </div>
@@ -991,6 +1165,29 @@ export default function DungeonExplore({
   const [difficulty, setDifficulty] = useState(defaultDifficulty);
   const diffConfig = DIFF_CONFIG[difficulty] || DIFF_CONFIG.apprentice;
 
+  // Equipment — read from playerState. Compute combined dungeon bonuses
+  // once per loadout change and apply at run start.
+  const equipped = playerState?.equipped || {};
+  const equipBonuses = useMemo(() => {
+    const slots = [equipped.weapon, equipped.head, equipped.cloak].filter(Boolean);
+    const acc = { maxHpBonus: 0, shieldBonus: 0, xpMul: 1, goldMul: 1, mobScoreBonus: 0, firstWrongFree: false };
+    slots.forEach((id) => {
+      const eff = EQUIP_EFFECTS[id];
+      if (!eff) return;
+      if (eff.maxHpBonus)    acc.maxHpBonus += eff.maxHpBonus;
+      if (eff.shieldBonus)   acc.shieldBonus += eff.shieldBonus;
+      if (eff.xpMul)         acc.xpMul *= eff.xpMul;
+      if (eff.goldMul)       acc.goldMul *= eff.goldMul;
+      if (eff.mobScoreBonus) acc.mobScoreBonus += eff.mobScoreBonus;
+      if (eff.firstWrongFree) acc.firstWrongFree = true;
+    });
+    return acc;
+  }, [equipped.weapon, equipped.head, equipped.cloak]);
+
+  const permUp = playerState?.permUpgrades || {};
+  const effectiveMaxHp     = diffConfig.hp + equipBonuses.maxHpBonus + (permUp.maxHp || 0);
+  const effectiveMaxShield = Math.max(0, diffConfig.shields + equipBonuses.shieldBonus);
+
   const biomeId = useMemo(() => pickBiomeForSubject(subject), [subject]);
   const biome = BIOMES[biomeId] || BIOMES.halls;
 
@@ -1002,7 +1199,9 @@ export default function DungeonExplore({
   // Run state
   const [pos, setPos] = useState(initial.spawn);
   const [facing, setFacing] = useState('down');
-  const [hp, setHp] = useState(diffConfig.hp);
+  const [hp, setHp] = useState(effectiveMaxHp);
+  const [shields, setShields] = useState(effectiveMaxShield);
+  const [firstWrongUsed, setFirstWrongUsed] = useState(false);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
@@ -1022,14 +1221,20 @@ export default function DungeonExplore({
 
   const stateRef = useRef({});
   useLayoutEffect(() => {
-    stateRef.current = { pos, facing, biome, initial, hp, maxHp: diffConfig.hp, battle, runState, score };
+    stateRef.current = {
+      pos, facing, biome, initial, hp, maxHp: effectiveMaxHp,
+      shields, maxShields: effectiveMaxShield, battle, runState, score, equipped,
+    };
   });
 
-  // Reset on map regen / difficulty change. Reset HP, mobs, run state etc.
+  // Reset on map regen / difficulty change / loadout change. Reset HP,
+  // shields, mobs, run state etc.
   useEffect(() => {
     setPos(initial.spawn);
     setFacing('down');
-    setHp(diffConfig.hp);
+    setHp(effectiveMaxHp);
+    setShields(effectiveMaxShield);
+    setFirstWrongUsed(false);
     setScore(0);
     setStreak(0);
     setMaxStreak(0);
@@ -1042,7 +1247,7 @@ export default function DungeonExplore({
     runQuestionLogRef.current = [];
     runStartTimeRef.current = Date.now();
     trackedAttemptRef.current = false;
-  }, [initial, diffConfig.hp]);
+  }, [initial, effectiveMaxHp, effectiveMaxShield]);
 
   // Tutorial: track that the player entered the dungeon.
   useEffect(() => {
@@ -1066,28 +1271,52 @@ export default function DungeonExplore({
     });
   };
 
+  // === Held-key movement ================================================
+  // Track which direction keys are held so the player can walk
+  // continuously by holding a key. The rAF loop repeats the move at
+  // HOLD_REPEAT_MS cadence; the initial press fires immediately.
+  const heldKeysRef = useRef(new Set());
+  const lastMoveAtRef = useRef(0);
+  const dirOfKey = (key) => {
+    switch (key) {
+      case 'ArrowUp': case 'w': case 'W':    return 'up';
+      case 'ArrowDown': case 's': case 'S':  return 'down';
+      case 'ArrowLeft': case 'a': case 'A':  return 'left';
+      case 'ArrowRight': case 'd': case 'D': return 'right';
+      default: return null;
+    }
+  };
+
   useEffect(() => {
-    const onKey = (e) => {
-      if (battle) return; // swallow movement during battles
+    const onKeyDown = (e) => {
+      if (battle) return;
       if (runState !== 'alive') {
         if (e.key === 'Escape' && onExit) onExit();
         return;
       }
-      let dx = 0, dy = 0, dir = null;
-      switch (e.key) {
-        case 'ArrowUp': case 'w': case 'W':    dy = -1; dir = 'up';    break;
-        case 'ArrowDown': case 's': case 'S':  dy = 1;  dir = 'down';  break;
-        case 'ArrowLeft': case 'a': case 'A':  dx = -1; dir = 'left';  break;
-        case 'ArrowRight': case 'd': case 'D': dx = 1;  dir = 'right'; break;
-        case 'Escape': if (onExit) onExit(); return;
-        default: return;
-      }
+      if (e.key === 'Escape') { if (onExit) onExit(); return; }
+      const dir = dirOfKey(e.key);
+      if (!dir) return;
       e.preventDefault();
-      tryMove(dx, dy, dir);
+      if (!heldKeysRef.current.has(dir)) {
+        heldKeysRef.current.add(dir);
+        const [dx, dy] = DIR_DELTAS[dir];
+        tryMove(dx, dy, dir);
+        lastMoveAtRef.current = performance.now();
+      }
     };
-    window.addEventListener('keydown', onKey);
+    const onKeyUp = (e) => {
+      const dir = dirOfKey(e.key);
+      if (dir) heldKeysRef.current.delete(dir);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
     if (containerRef.current) containerRef.current.focus();
-    return () => window.removeEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      heldKeysRef.current.clear();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [battle, runState, initial.map, onExit]);
 
@@ -1136,25 +1365,30 @@ export default function DungeonExplore({
       catch { /* journal write — best effort */ }
     }
     if (correct) {
-      setScore((s) => s + 1);
+      const scoreGain = 1 + (battle?.type === 'mob' ? equipBonuses.mobScoreBonus : 0);
+      setScore((s) => s + scoreGain);
       setStreak((s) => {
         const next = s + 1;
         setMaxStreak((m) => Math.max(m, next));
         return next;
       });
-      if (battle?.type === 'mob' && awardXP) awardXP(10, 'Foe felled');
-      if (battle?.type === 'mob' && awardGold) awardGold(5, 'Foe felled');
+      if (battle?.type === 'mob' && awardXP) awardXP(Math.floor(10 * equipBonuses.xpMul), 'Foe felled');
+      if (battle?.type === 'mob' && awardGold) awardGold(Math.floor(5 * equipBonuses.goldMul), 'Foe felled');
     } else {
       setMistakes((m) => m + 1);
       setStreak(0);
-      setHp((h) => h - 1);
+      // Cloak of the Starbound: first wrong answer of the run does no damage.
+      if (equipBonuses.firstWrongFree && !firstWrongUsed) {
+        setFirstWrongUsed(true);
+      } else {
+        setHp((h) => h - 1);
+      }
     }
 
     // Mob: always remove the mob whether right or wrong (no infinite-fight loop).
     if (battle?.type === 'mob') {
       mobsRef.current.splice(battle.mobIdx, 1);
       setBattle(null);
-      // HP=0 check happens via the runState effect below.
       return;
     }
 
@@ -1162,20 +1396,25 @@ export default function DungeonExplore({
     if (battle?.type === 'boss') {
       const nextIdx = battle.questionIdx + 1;
       if (nextIdx >= battle.questions.length) {
-        // Boss gauntlet complete — if HP > 0 (after this answer's effect) we win.
         setBattle(null);
-        // HP-after-this-answer is current hp - (correct ? 0 : 1). We use a
-        // flushSync-like trick by deferring the win check to a useEffect on
-        // hp, but simpler: schedule a microtask that checks final hp via the
-        // ref'd state.
         setTimeout(() => {
           if (stateRef.current.hp > 0) finishRun(true, {});
-          // else death effect already triggered via hp<=0 watcher
         }, 0);
       } else {
         setBattle({ ...battle, questionIdx: nextIdx });
       }
     }
+  };
+
+  // Flee a non-boss battle. Costs 1 shield, removes the mob, closes modal.
+  const onBattleFlee = () => {
+    if (!battle || battle.type !== 'mob') return;
+    if (shields <= 0) return;
+    setShields((s) => s - 1);
+    if (typeof battle.mobIdx === 'number') {
+      mobsRef.current.splice(battle.mobIdx, 1);
+    }
+    setBattle(null);
   };
 
   // Watch HP — if it drops to 0 or below, end the run.
@@ -1195,8 +1434,8 @@ export default function DungeonExplore({
     let xpAwarded = 0;
     let goldAwarded = 0;
     if (won) {
-      xpAwarded = Math.floor(100 * diffConfig.xpMul);
-      goldAwarded = Math.floor(100 * diffConfig.goldMul);
+      xpAwarded = Math.floor(100 * diffConfig.xpMul * equipBonuses.xpMul);
+      goldAwarded = Math.floor(100 * diffConfig.goldMul * equipBonuses.goldMul);
       if (awardXP) awardXP(xpAwarded, `${diffConfig.label} Dungeon Cleared`);
       if (awardGold) awardGold(goldAwarded, `${diffConfig.label} Dungeon Cleared`);
       if (checkAchievement) {
@@ -1233,7 +1472,7 @@ export default function DungeonExplore({
       won: !!won,
       score,
       livesRemaining: finalHp,
-      maxLives: diffConfig.hp,
+      maxLives: effectiveMaxHp,
       mistakes,
       maxStreak,
       durationSec,
@@ -1250,7 +1489,7 @@ export default function DungeonExplore({
     setEndSummary({
       score,
       hp: finalHp,
-      maxHp: diffConfig.hp,
+      maxHp: effectiveMaxHp,
       mistakes,
       maxStreak,
       xpAwarded,
@@ -1295,6 +1534,27 @@ export default function DungeonExplore({
       const ax = start.x + (target.x - start.x) * eased;
       const ay = start.y + (target.y - start.y) * eased;
       animPosRef.current = { x: ax, y: ay };
+
+      // Held-key repeat: while a direction is held, fire moves at HOLD_REPEAT_MS
+      // cadence. The first move on keydown was already fired in the handler.
+      if (!s.battle && s.runState === 'alive' && heldKeysRef.current.size > 0) {
+        if (now - lastMoveAtRef.current >= HOLD_REPEAT_MS) {
+          // If multiple keys are held, prefer the most recently added (insertion-ordered Set).
+          const keys = Array.from(heldKeysRef.current);
+          const dir = keys[keys.length - 1];
+          const [dx, dy] = DIR_DELTAS[dir];
+          setFacing(dir);
+          setPos((p) => {
+            const nx = p.x + dx;
+            const ny = p.y + dy;
+            if (ny < 0 || ny >= s.initial.map.length) return p;
+            if (nx < 0 || nx >= s.initial.map[0].length) return p;
+            if (!isWalkable(s.initial.map[ny][nx])) return p;
+            return { x: nx, y: ny };
+          });
+          lastMoveAtRef.current = now;
+        }
+      }
 
       const moving = t < 1;
       const walkFrame = moving ? Math.floor(now / WALK_FRAME_MS) % 4 : 0;
@@ -1371,7 +1631,7 @@ export default function DungeonExplore({
 
       const ppx = ax * TILE_PX - cameraX;
       const ppy = ay * TILE_PX - cameraY;
-      drawPlayer(ctx, ppx, ppy, s.facing, walkFrame);
+      drawPlayer(ctx, ppx, ppy, s.facing, walkFrame, s.equipped);
 
       const grad = ctx.createRadialGradient(
         CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.4,
@@ -1390,31 +1650,64 @@ export default function DungeonExplore({
       ctx.fillStyle = s.biome.accentSolid;
       ctx.fillText(`${s.biome.icon}  ${s.biome.name}`, 16, 14);
 
-      // HP hearts (top-right). Maxes at 5 hearts; beyond that show "x N".
-      const hudHpW = Math.min(s.maxHp, 5) * 22 + 30;
+      // HP hearts + shield icons (top-right). Hearts get a fixed slot; shields
+      // sit immediately to their left.
+      const heartCount = Math.min(s.maxHp, 6);
+      const hudHpW = heartCount * 20 + 16 + (s.maxHp > 6 ? 36 : 0);
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
       ctx.fillRect(CANVAS_W - hudHpW - 8, 8, hudHpW, 28);
-      for (let i = 0; i < Math.min(s.maxHp, 5); i++) {
-        const hx = CANVAS_W - hudHpW + i * 22;
+      for (let i = 0; i < heartCount; i++) {
+        const hx = CANVAS_W - hudHpW + 4 + i * 20;
         const hy = 14;
         ctx.fillStyle = i < s.hp ? '#ef4444' : '#3a1414';
-        // Heart shape via two circles + triangle
         ctx.beginPath();
-        ctx.arc(hx + 6,  hy + 6, 5, 0, Math.PI * 2);
-        ctx.arc(hx + 12, hy + 6, 5, 0, Math.PI * 2);
+        ctx.arc(hx + 5,  hy + 5, 5, 0, Math.PI * 2);
+        ctx.arc(hx + 11, hy + 5, 5, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(hx + 1, hy + 8);
-        ctx.lineTo(hx + 17, hy + 8);
-        ctx.lineTo(hx + 9, hy + 18);
+        ctx.moveTo(hx,      hy + 6);
+        ctx.lineTo(hx + 16, hy + 6);
+        ctx.lineTo(hx + 8,  hy + 16);
         ctx.closePath();
         ctx.fill();
+        // Highlight on full heart for crispness
+        if (i < s.hp) {
+          ctx.fillStyle = '#fca5a5';
+          ctx.fillRect(hx + 3, hy + 3, 1, 1);
+          ctx.fillRect(hx + 9, hy + 3, 1, 1);
+        }
       }
-      if (s.maxHp > 5) {
+      if (s.maxHp > 6) {
         ctx.fillStyle = '#fde047';
-        ctx.font = "12px 'Cinzel', Georgia, serif";
-        ctx.fillText(`× ${s.hp}/${s.maxHp}`, CANVAS_W - 36, 14);
+        ctx.font = "11px 'Cinzel', Georgia, serif";
+        ctx.fillText(`×${s.hp}/${s.maxHp}`, CANVAS_W - 40, 16);
         ctx.font = "16px 'Cinzel', Georgia, serif";
+      }
+
+      // Shields, immediately left of HP.
+      if (s.maxShields > 0) {
+        const shieldCount = Math.min(s.maxShields, 4);
+        const hudShW = shieldCount * 18 + 12;
+        const shX = CANVAS_W - hudHpW - 8 - hudShW - 6;
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(shX, 8, hudShW, 28);
+        for (let i = 0; i < shieldCount; i++) {
+          const sx = shX + 6 + i * 18;
+          const sy = 12;
+          ctx.fillStyle = i < s.shields ? '#3b82f6' : '#1e3a5f';
+          ctx.beginPath();
+          ctx.moveTo(sx,      sy);
+          ctx.lineTo(sx + 12, sy);
+          ctx.lineTo(sx + 12, sy + 8);
+          ctx.lineTo(sx + 6,  sy + 14);
+          ctx.lineTo(sx,      sy + 8);
+          ctx.closePath();
+          ctx.fill();
+          if (i < s.shields) {
+            ctx.fillStyle = '#fde047';
+            ctx.fillRect(sx + 5, sy + 3, 2, 4);
+          }
+        }
       }
 
       // Score + difficulty (bottom-right)
@@ -1461,7 +1754,7 @@ export default function DungeonExplore({
                   opacity: unlocked ? 1 : 0.5,
                   cursor: unlocked ? 'pointer' : 'not-allowed',
                 }}
-                title={unlocked ? `${info.label} — ${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP` : 'Locked'}
+                title={unlocked ? `${info.label} — ${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP · ${DIFF_CONFIG[id].shields} 🛡️` : 'Locked'}
               >
                 {info.icon} {info.label}
               </button>
@@ -1496,7 +1789,14 @@ export default function DungeonExplore({
             imageRendering: 'pixelated',
           }}
         />
-        <BattleModal battle={battle} biome={biome} onAnswer={onBattleAnswer} />
+        <BattleModal
+          battle={battle}
+          biome={biome}
+          onAnswer={onBattleAnswer}
+          onFlee={onBattleFlee}
+          canFlee={shields > 0}
+          shieldsRemaining={shields}
+        />
         <EndRunOverlay
           runState={runState}
           biome={biome}
