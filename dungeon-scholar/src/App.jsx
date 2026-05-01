@@ -359,6 +359,9 @@ const SPECIAL_TITLES = {
   streaker: { name: 'The Devoted', desc: 'Maintain a 7-day study streak' },
   initiated: { name: 'The Initiated', desc: 'Complete the Scholar\'s Awakening tutorial' },
   pathwalker: { name: 'Pathwalker', desc: 'Complete The Apprentice\'s Path story chain' },
+  adeptVeteran: { name: 'Adept Veteran', desc: 'Complete a dungeon delve on Adept difficulty' },
+  masterSlayer: { name: 'Master Slayer', desc: 'Complete a dungeon delve on Master difficulty' },
+  mythicSage: { name: 'Mythic Sage', desc: 'Complete a dungeon delve on Mythic difficulty' },
 };
 
 // === Items & Inventory ===
@@ -413,6 +416,92 @@ const ITEMS = [
 ];
 
 const findItem = (id) => ITEMS.find(it => it.id === id);
+
+// === Difficulty Tiers (Phase 8) ===
+// Each tier scales waves, lives, available power-ups, and XP/gold multipliers.
+// Apprentice is always unlocked; higher tiers gate on level/runs/achievements
+// per the unlock predicate. Tier-specific rewards (achievement + special title)
+// fire on first completion at that tier.
+const DIFFICULTIES = {
+  apprentice: {
+    label: 'Apprentice',
+    icon: '🛡️',
+    color: 'sapphire',
+    lives: 3,
+    waves: 5,
+    powerups: { fiftyfifty: 2, hint: 2, freeze: 1 },
+    xpMultiplier: 1,
+    goldMultiplier: 1,
+    description: 'The path of the novice. Three lives, five chambers, all aids permitted.',
+    unlockText: null,
+    completeAchievement: null,
+    rewardTitleId: null,
+  },
+  adept: {
+    label: 'Adept',
+    icon: '⚔️',
+    color: 'purple',
+    lives: 3,
+    waves: 7,
+    powerups: { fiftyfifty: 1, hint: 1, freeze: 0 },
+    xpMultiplier: 1.5,
+    goldMultiplier: 1.25,
+    description: "A seasoned reader's gauntlet. Seven chambers, fewer aids, sharper teeth.",
+    unlockText: 'Reach level 10 — or complete 5 dungeon delves.',
+    completeAchievement: 'adept_complete',
+    rewardTitleId: 'adeptVeteran',
+  },
+  master: {
+    label: 'Master',
+    icon: '👑',
+    color: 'amber',
+    lives: 2,
+    waves: 10,
+    powerups: { fiftyfifty: 1, hint: 0, freeze: 0 },
+    xpMultiplier: 2,
+    goldMultiplier: 1.5,
+    description: "A master's trial. Two lives, ten chambers, but a single aid in thy hand.",
+    unlockText: 'Reach level 25 — or earn both Dragonslayer and Flawless Victory.',
+    completeAchievement: 'master_complete',
+    rewardTitleId: 'masterSlayer',
+  },
+  mythic: {
+    label: 'Mythic',
+    icon: '🌟',
+    color: 'rose',
+    lives: 1,
+    waves: 12,
+    powerups: { fiftyfifty: 0, hint: 0, freeze: 0 },
+    xpMultiplier: 3,
+    goldMultiplier: 2,
+    description: 'A trial of legend. One life, twelve chambers, no quarter — only glory or oblivion.',
+    unlockText: 'Reach level 50 — or complete a Master delve.',
+    completeAchievement: 'mythic_complete',
+    rewardTitleId: 'mythicSage',
+  },
+};
+
+const DIFFICULTY_ORDER = ['apprentice', 'adept', 'master', 'mythic'];
+
+// Returns true if the player meets the unlock requirement for a difficulty.
+// Apprentice is always unlocked. Higher tiers gate on level / runs / specific
+// achievements per the spec.
+const isDifficultyUnlocked = (state, diffId) => {
+  if (diffId === 'apprentice') return true;
+  const totalRuns = (state.library || []).reduce((s, t) => s + (t.progress?.runsCompleted || 0), 0);
+  const ach = state.achievements || [];
+  if (diffId === 'adept') {
+    return (state.level || 1) >= 10 || totalRuns >= 5;
+  }
+  if (diffId === 'master') {
+    return (state.level || 1) >= 25 || (ach.includes('flawless') && ach.includes('first_boss'));
+  }
+  if (diffId === 'mythic') {
+    return (state.level || 1) >= 50 || ach.includes('master_complete');
+  }
+  return false;
+};
+
 
 // Permanent-upgrade items are purchased N times, capped per item. This computes
 // the player's current count, what the next purchase would cost, and whether
@@ -506,6 +595,10 @@ const ACHIEVEMENTS = [
 
   { id: 'all_modes', name: 'Versatile Scholar', desc: 'Use all 5 study modes at least once', icon: '🎭', category: 'special' },
   { id: 'tome_master', name: 'Tome Master', desc: 'Import a tome and complete every mode', icon: '📔', category: 'special' },
+
+  { id: 'adept_complete', name: 'Adept Confirmed', desc: 'Complete a dungeon delve on Adept difficulty', icon: '⚔️', category: 'difficulty' },
+  { id: 'master_complete', name: 'Master of the Path', desc: 'Complete a dungeon delve on Master difficulty', icon: '👑', category: 'difficulty' },
+  { id: 'mythic_complete', name: 'Mythic Conqueror', desc: 'Complete a dungeon delve on Mythic difficulty', icon: '🌟', category: 'difficulty' },
 ];
 
 const xpForLevel = (lvl) => Math.floor(100 * Math.pow(lvl, 1.5));
@@ -2662,6 +2755,7 @@ function ModeCard({ title, desc, icon, color, onClick, featured }) {
 function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer, checkAchievement, unlockSpecialTitle, updateProgress, updateTomeProgress, trackDungeonAttempt, playerState, onExit }) {
   const [phase, setPhase] = useState('setup');
   const [modifiers, setModifiers] = useState([]);
+  const [difficulty, setDifficulty] = useState('apprentice');
   const [lives, setLives] = useState(3);
   const [maxLives, setMaxLives] = useState(3);
   const [wave, setWave] = useState(1);
@@ -2680,13 +2774,20 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
   // Items already drawn this run — avoids back-to-back repeats. Resets per startRun.
   const usedItemIdsRef = useRef(new Set());
 
-  const TOTAL_WAVES = 5;
+  const diffConfig = DIFFICULTIES[difficulty] || DIFFICULTIES.apprentice;
+  const TOTAL_WAVES = diffConfig.waves;
   const isBossWave = wave === TOTAL_WAVES;
+  const permUp = playerState.permUpgrades || {};
+  // Sanctum percentages on top of the difficulty base multipliers.
+  const xpMultiplier = diffConfig.xpMultiplier * (1 + (permUp.xpBonusPct || 0) / 100);
+  const goldMultiplier = diffConfig.goldMultiplier * (1 + (permUp.goldDropPct || 0) / 100);
 
   const startRun = () => {
-    let startLives = 3;
+    // Base lives from difficulty + Sanctum maxHp stacks. Hardcore forces 1.
+    // Cleric blessing adds +1 (was previously a flat "begin with 4").
+    let startLives = diffConfig.lives + (permUp.maxHp || 0);
+    if (modifiers.includes('extra_life')) startLives += 1;
     if (modifiers.includes('hardcore')) startLives = 1;
-    if (modifiers.includes('extra_life')) startLives = 4;
     setLives(startLives);
     setMaxLives(startLives);
     setWave(1);
@@ -2697,9 +2798,9 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
     setLivesLostInBoss(0);
     setQuestionTimes([]);
     setPowerups({
-      fiftyfifty: modifiers.includes('no_powerups') ? 0 : 2,
-      hint: modifiers.includes('no_powerups') ? 0 : 2,
-      freeze: modifiers.includes('no_powerups') ? 0 : 1,
+      fiftyfifty: modifiers.includes('no_powerups') ? 0 : diffConfig.powerups.fiftyfifty,
+      hint: modifiers.includes('no_powerups') ? 0 : diffConfig.powerups.hint,
+      freeze: modifiers.includes('no_powerups') ? 0 : diffConfig.powerups.freeze,
     });
     usedItemIdsRef.current = new Set();
     setPhase('playing');
@@ -2756,7 +2857,7 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
     if (correct) {
       const baseXP = isBossWave ? 50 : (15 + wave * 5);
       const streakBonus = Math.floor(streak / 5) * 10;
-      const xp = baseXP + streakBonus;
+      const xp = Math.floor((baseXP + streakBonus) * xpMultiplier);
       awardXP(xp);
       setScore(s => s + (100 + streak * 10));
       setStreak(s => {
@@ -2857,7 +2958,9 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
         if (lives === 1) checkAchievement('comeback');
         if (modifiers.length >= 1) checkAchievement('cursed_run');
         if (modifiers.length >= 2) checkAchievement('double_curse');
-        const initialPowerups = modifiers.includes('no_powerups') ? 0 : 5;
+        const initialPowerups = modifiers.includes('no_powerups')
+          ? 0
+          : (diffConfig.powerups.fiftyfifty + diffConfig.powerups.hint + diffConfig.powerups.freeze);
         const usedPowerups = initialPowerups - (powerups.fiftyfifty + powerups.hint + powerups.freeze);
         if (usedPowerups === 0) checkAchievement('no_powerups_win');
         const avgTime = questionTimes.reduce((a, b) => a + b, 0) / questionTimes.length;
@@ -2865,12 +2968,21 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
           checkAchievement('speed_demon');
           unlockSpecialTitle('speedrunner');
         }
-        const completionXP = 100 + (modifiers.length * 50);
-        awardXP(completionXP, 'Quest Complete');
-        // Phase 6: 50 gold for clearing the dungeon + 50 for the boss kill.
-        // Phase 8 will tier the dungeon-clear bonus by difficulty.
+        const completionXP = Math.floor((100 + (modifiers.length * 50)) * xpMultiplier);
+        awardXP(completionXP, `${diffConfig.label} Quest Complete`);
+        // Phase 8: gold scales by difficulty (Apprentice 100 → Mythic 200) plus
+        // any Sanctum goldDropPct stacks.
         if (awardGold) {
-          awardGold(100, 'Dungeon Cleared');
+          const baseGold = 100;
+          awardGold(Math.floor(baseGold * goldMultiplier), `${diffConfig.label} Dungeon Cleared`);
+        }
+        // Phase 8: difficulty-specific achievement + special title on first
+        // completion at this tier.
+        if (diffConfig.completeAchievement) {
+          checkAchievement(diffConfig.completeAchievement);
+        }
+        if (diffConfig.rewardTitleId) {
+          unlockSpecialTitle(diffConfig.rewardTitleId);
         }
       }
     }
@@ -2898,8 +3010,72 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
             </h2>
           </div>
           <p className="text-amber-100/80 mb-6 italic leading-relaxed">
-            "Five chambers stand between you and the dungeon lord. Survive the trials, claim the glory. Fall, and your saga ends in shadow..."
+            "{diffConfig.waves} chambers stand between you and the dungeon lord. Survive the trials, claim the glory. Fall, and your saga ends in shadow..."
           </p>
+          <div className="mb-6">
+            <h3 className="font-bold text-amber-300 mb-3 italic tracking-wider">⚜ TIER OF TRIAL ⚜</h3>
+            <div className="grid md:grid-cols-2 gap-2">
+              {DIFFICULTY_ORDER.map((dId) => {
+                const d = DIFFICULTIES[dId];
+                const unlocked = isDifficultyUnlocked(playerState, dId);
+                const selected = difficulty === dId;
+                return (
+                  <button
+                    key={dId}
+                    onClick={() => unlocked && setDifficulty(dId)}
+                    disabled={!unlocked}
+                    className="p-3 rounded text-left border-2 transition disabled:cursor-not-allowed relative"
+                    style={{
+                      background: !unlocked
+                        ? 'linear-gradient(135deg, rgba(15, 8, 20, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)'
+                        : selected
+                          ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.7) 0%, rgba(41, 24, 12, 0.95) 100%)'
+                          : 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                      borderColor: !unlocked
+                        ? 'rgba(60, 35, 80, 0.4)'
+                        : selected
+                          ? 'rgba(245, 158, 11, 0.85)'
+                          : 'rgba(126, 34, 206, 0.5)',
+                      boxShadow: selected ? '0 0 18px rgba(245, 158, 11, 0.4)' : 'inset 0 0 10px rgba(0,0,0,0.4)',
+                      opacity: unlocked ? 1 : 0.6,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">{d.icon}</span>
+                      <span className={`font-bold italic text-sm ${unlocked ? 'text-amber-200' : 'text-amber-700/70'}`} style={unlocked ? { textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' } : undefined}>
+                        {d.label}
+                      </span>
+                      {!unlocked && <Lock className="w-3.5 h-3.5 text-amber-700/70 ml-auto" />}
+                      {selected && unlocked && <Check className="w-4 h-4 text-amber-300 ml-auto" />}
+                    </div>
+                    <p className={`text-xs italic ${unlocked ? 'text-amber-100/70' : 'text-amber-700/60'}`}>
+                      {d.description}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                      <span className={unlocked ? 'text-purple-300' : 'text-purple-300/40'}>
+                        ❤ {d.lives} {d.lives === 1 ? 'life' : 'lives'}
+                      </span>
+                      <span className={unlocked ? 'text-purple-300' : 'text-purple-300/40'}>
+                        ⚔ {d.waves} chambers
+                      </span>
+                      <span className={unlocked ? 'text-amber-300' : 'text-amber-300/40'}>
+                        ✦ {d.xpMultiplier}× XP
+                      </span>
+                      <span className={unlocked ? 'text-amber-300' : 'text-amber-300/40'}>
+                        🪙 {d.goldMultiplier}× gold
+                      </span>
+                    </div>
+                    {!unlocked && d.unlockText && (
+                      <div className="mt-2 text-xs text-amber-700/80 italic flex items-start gap-1">
+                        <Lock className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                        <span>{d.unlockText}</span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <div className="mb-6">
             <h3 className="font-bold text-amber-300 mb-3 italic tracking-wider">⚜ ANCIENT CURSES ⚜</h3>
             <div className="grid md:grid-cols-2 gap-2">
