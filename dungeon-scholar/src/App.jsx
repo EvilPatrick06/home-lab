@@ -776,7 +776,32 @@ const blankTomeProgress = () => ({
   labProgress: {},
   mistakeVault: [],
   chatHistory: [],
+  runHistory: [],            // Phase 10: per-tome list of completed/failed dungeon runs
 });
+
+// === Run History (Phase 10) ===
+// Aggregates statistics across a tome's runHistory for the personal-records
+// header. All runs included whether won or lost; "fastest win" filters to wins.
+const summarizeRunHistory = (history) => {
+  const runs = Array.isArray(history) ? history : [];
+  const wins = runs.filter(r => r.won);
+  const fastestWin = wins.reduce((best, r) => (best == null || r.durationSec < best.durationSec) ? r : best, null);
+  const highestScore = runs.reduce((best, r) => (best == null || (r.score || 0) > (best.score || 0)) ? r : best, null);
+  const longestStreak = runs.reduce((best, r) => (best == null || (r.maxStreak || 0) > (best.maxStreak || 0)) ? r : best, null);
+  const totalWins = wins.length;
+  const totalRuns = runs.length;
+  const winRate = totalRuns > 0 ? (totalWins / totalRuns) : 0;
+  return { runs, wins, fastestWin, highestScore, longestStreak, totalWins, totalRuns, winRate };
+};
+
+const formatDuration = (sec) => {
+  if (!sec || !isFinite(sec)) return '—';
+  const total = Math.round(sec);
+  if (total < 60) return `${total}s`;
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}m ${s.toString().padStart(2, '0')}s`;
+};
 
 const DEFAULT_STATE = {
   level: 1,
@@ -2001,6 +2026,9 @@ export default function DungeonScholarApp() {
         {screen === 'shop' && (
           <ShopScreen playerState={playerState} setScreen={setScreen} onPurchase={purchaseItem} />
         )}
+        {screen === 'history' && (
+          <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
+        )}
         {screen === 'dungeon' && courseSet && (
           <DungeonRun
             courseSet={courseSet}
@@ -2015,6 +2043,7 @@ export default function DungeonScholarApp() {
             updateTomeProgress={updateTomeProgress}
             trackDungeonAttempt={trackDungeonAttempt}
             onExit={() => setScreen('home')}
+            onViewHistory={() => setScreen('history')}
           />
         )}
         {screen === 'flashcards' && courseSet && (
@@ -2756,6 +2785,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           color="amber"
           onClick={() => setScreen('shop')}
         />
+        <ModeCard
+          title="Chronicle of Delves"
+          desc={`Review past dungeon runs, personal records, and per-question reviews. ${(tomeProgress?.runHistory || []).length} delve${(tomeProgress?.runHistory || []).length === 1 ? '' : 's'} chronicled.`}
+          icon={<Scroll className="w-8 h-8" />}
+          color="purple"
+          onClick={() => setScreen('history')}
+        />
       </div>
 
       <OrnatePanel color="amber">
@@ -2831,7 +2867,7 @@ function ModeCard({ title, desc, icon, color, onClick, featured }) {
   );
 }
 
-function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer, checkAchievement, unlockSpecialTitle, updateProgress, updateTomeProgress, trackDungeonAttempt, playerState, onExit }) {
+function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer, checkAchievement, unlockSpecialTitle, updateProgress, updateTomeProgress, trackDungeonAttempt, playerState, onExit, onViewHistory }) {
   const [phase, setPhase] = useState('setup');
   const [modifiers, setModifiers] = useState([]);
   const [difficulty, setDifficulty] = useState('apprentice');
@@ -2856,6 +2892,21 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
   const [showFeedback, setShowFeedback] = useState(null);
   // Items already drawn this run — avoids back-to-back repeats. Resets per startRun.
   const usedItemIdsRef = useRef(new Set());
+  // Phase 10: per-question log accumulated through the run, persisted into
+  // tomeProgress.runHistory at end-of-run. Reset per startRun.
+  const runQuestionLogRef = useRef([]);
+  const runStartTimeRef = useRef(null);
+
+  const logRunQuestion = (item, correct, timeSec) => {
+    runQuestionLogRef.current.push({
+      id: item?.id || `q_${runQuestionLogRef.current.length}`,
+      prompt: item?.question || item?.front || item?.term || item?.prompt || '(question unavailable)',
+      correct: !!correct,
+      timeSec: typeof timeSec === 'number' ? Math.round(timeSec * 10) / 10 : 0,
+      type: item?._type || item?.type,
+      bossKind: item?._bossKind,
+    });
+  };
 
   const diffConfig = DIFFICULTIES[difficulty] || DIFFICULTIES.apprentice;
   const TOTAL_WAVES = diffConfig.waves;
@@ -2888,6 +2939,8 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
       freeze: modifiers.includes('no_powerups') ? 0 : diffConfig.powerups.freeze,
     });
     usedItemIdsRef.current = new Set();
+    runQuestionLogRef.current = [];
+    runStartTimeRef.current = Date.now();
     setPhase('playing');
     if (trackDungeonAttempt) trackDungeonAttempt();
     drawChallenge(1);
@@ -2938,6 +2991,7 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
     const timeTaken = (Date.now() - questionStartTime) / 1000;
     setQuestionTimes(prev => [...prev, timeTaken]);
     recordAnswer(correct, { ...item, _type: currentChallenge._type });
+    logRunQuestion({ ...item, _type: currentChallenge._type }, correct, timeTaken);
 
     if (correct) {
       const baseXP = isBossWave ? 50 : (15 + wave * 5);
@@ -3020,8 +3074,36 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
     handleAnswer(false, { ...currentChallenge, _skipped: true });
   };
 
+  // Phase 10: persist a run-history entry on either outcome.
+  const saveRunToHistory = (won) => {
+    const durationSec = runStartTimeRef.current
+      ? (Date.now() - runStartTimeRef.current) / 1000
+      : 0;
+    const entry = {
+      runId: `run_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      date: new Date().toISOString(),
+      difficulty,
+      bossId,
+      won: !!won,
+      score,
+      livesRemaining: lives,
+      maxLives,
+      mistakes: mistakesThisRun,
+      maxStreak,
+      durationSec,
+      modifiers: [...modifiers],
+      totalQuestions: runQuestionLogRef.current.length,
+      questionLog: [...runQuestionLogRef.current],
+    };
+    const existing = tomeProgress?.runHistory || [];
+    // Cap at 100 entries per tome — anything older is dropped on push.
+    const trimmed = [...existing, entry].slice(-100);
+    updateTomeProgress({ runHistory: trimmed });
+  };
+
   useEffect(() => {
     if (phase === 'victory') {
+      saveRunToHistory(true);
       checkAchievement('first_run');
       if (isBossWave || wave >= TOTAL_WAVES) {
         checkAchievement('first_boss');
@@ -3073,6 +3155,9 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
           unlockSpecialTitle(diffConfig.rewardTitleId);
         }
       }
+    }
+    if (phase === 'defeat') {
+      saveRunToHistory(false);
     }
   }, [phase]);
 
@@ -3242,9 +3327,15 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
           <div><div className="text-2xl font-bold text-orange-400">{maxStreak}</div><div className="text-xs text-amber-700 tracking-wider">BEST STREAK</div></div>
           <div><div className="text-2xl font-bold text-cyan-400">{wave - 1}</div><div className="text-xs text-amber-700 tracking-wider">CHAMBERS</div></div>
         </div>
-        <div className="flex gap-3 justify-center">
+        <RunQuestionReview log={runQuestionLogRef.current} />
+        <div className="flex gap-3 justify-center flex-wrap">
           <button onClick={() => setPhase('setup')} className="px-6 py-3 font-bold rounded text-amber-50 border-2 border-red-400 italic"
             style={{ background: 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)', boxShadow: '0 0 15px rgba(220, 38, 38, 0.5)' }}>Rise Again</button>
+          {onViewHistory && (
+            <button onClick={onViewHistory} className="px-6 py-3 rounded border-2 border-purple-500 text-purple-200 italic flex items-center gap-2" style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+              <Scroll className="w-4 h-4" /> View Chronicle
+            </button>
+          )}
           <button onClick={onExit} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.8)' }}>Return to Hearth</button>
         </div>
       </div>
@@ -3269,9 +3360,15 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
           <div><div className="text-2xl font-bold text-red-400">{mistakesThisRun}</div><div className="text-xs text-amber-700 tracking-wider">MISTAKES</div></div>
           <div><div className="text-2xl font-bold text-emerald-400">{lives}/{maxLives}</div><div className="text-xs text-amber-700 tracking-wider">LIVES LEFT</div></div>
         </div>
-        <div className="flex gap-3 justify-center">
+        <RunQuestionReview log={runQuestionLogRef.current} />
+        <div className="flex gap-3 justify-center flex-wrap">
           <button onClick={() => setPhase('setup')} className="px-6 py-3 font-bold rounded text-amber-950 border-2 border-amber-300 italic"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)' }}>Quest Anew</button>
+          {onViewHistory && (
+            <button onClick={onViewHistory} className="px-6 py-3 rounded border-2 border-purple-500 text-purple-200 italic flex items-center gap-2" style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+              <Scroll className="w-4 h-4" /> View Chronicle
+            </button>
+          )}
           <button onClick={onExit} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.8)' }}>Return to Hearth</button>
         </div>
       </div>
@@ -3357,7 +3454,10 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
           boss={BOSS_TYPES[bossId]}
           courseSet={courseSet}
           initialLives={lives}
-          recordAnswer={(correct, item) => recordAnswer(correct, { ...item, _type: 'quiz' })}
+          recordAnswer={(correct, item) => {
+            recordAnswer(correct, { ...item, _type: 'quiz' });
+            logRunQuestion({ ...item, _type: 'quiz' }, correct, 0);
+          }}
           onWin={() => {
             // Treat as if the player landed a final correct answer on the boss
             // wave. handleAnswer will fire all the standard victory hooks
@@ -3394,6 +3494,49 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
             </button>
           </div>
         </>
+      )}
+    </div>
+  );
+}
+
+// Per-question review block shown on the dungeon victory/defeat screens.
+// Collapsible — defaults to closed for fast retries; expand to study the
+// individual answers from this run.
+function RunQuestionReview({ log }) {
+  const [open, setOpen] = useState(false);
+  const total = (log || []).length;
+  if (total === 0) return null;
+  const wrong = log.filter(q => !q.correct).length;
+  return (
+    <div className="max-w-2xl mx-auto rounded text-left" style={{
+      background: 'rgba(31, 12, 41, 0.7)',
+      border: '1px solid rgba(126, 34, 206, 0.5)',
+      boxShadow: 'inset 0 0 12px rgba(0,0,0,0.5)',
+    }}>
+      <button onClick={() => setOpen(o => !o)} className="w-full px-4 py-3 flex items-center gap-2 italic">
+        <Scroll className="w-4 h-4 text-purple-300" />
+        <span className="text-purple-200 font-bold">Question Review</span>
+        <span className="text-xs text-amber-100/70">— {total} answered, {wrong} missed</span>
+        {open ? <ChevronUp className="w-4 h-4 text-purple-300 ml-auto" /> : <ChevronDown className="w-4 h-4 text-purple-300 ml-auto" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-1 max-h-80 overflow-y-auto">
+          {log.map((q, i) => (
+            <div key={i} className="flex items-start gap-2 text-xs italic" style={{ background: 'rgba(10, 6, 4, 0.5)', padding: '6px 8px', borderRadius: '4px' }}>
+              {q.correct
+                ? <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                : <X className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />}
+              <div className="flex-1 min-w-0">
+                <div className="text-amber-100/80 truncate">{q.prompt}</div>
+                <div className="text-amber-700">
+                  {q.type ? <span>{q.type}</span> : null}
+                  {q.bossKind ? <span> · {BOSS_TYPES[q.bossKind]?.name || q.bossKind}</span> : null}
+                  {q.timeSec ? <span> · {q.timeSec}s</span> : null}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -5048,6 +5191,173 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
   );
 }
 
+
+function RunHistoryScreen({ playerState, setScreen }) {
+  const activeTome = playerState.library?.find(t => t.id === playerState.activeTomeId);
+  const tomeProgress = activeTome?.progress || blankTomeProgress();
+  const tomeTitle = activeTome?.data?.metadata?.title || 'Unknown Tome';
+  const summary = useMemo(() => summarizeRunHistory(tomeProgress.runHistory), [tomeProgress.runHistory]);
+  const [expanded, setExpanded] = useState(null); // runId
+
+  const sorted = useMemo(
+    () => [...summary.runs].sort((a, b) => new Date(b.date) - new Date(a.date)),
+    [summary.runs]
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(168, 85, 247, 0.6)',
+        boxShadow: '0 0 30px rgba(168, 85, 247, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-purple-400 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-purple-400 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-purple-400 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-purple-400 text-sm">⚜</div>
+
+        <div className="flex items-center gap-3 mb-3">
+          <Scroll className="w-10 h-10 text-purple-300" style={{ filter: 'drop-shadow(0 0 10px rgba(168, 85, 247, 0.6))' }} />
+          <div>
+            <h2 className="text-2xl font-bold text-purple-200 italic" style={{ textShadow: '0 0 12px rgba(168, 85, 247, 0.4)' }}>
+              The Chronicle of Delves
+            </h2>
+            <div className="text-xs text-purple-400 tracking-[0.2em] italic">
+              ⚜ {tomeTitle} ⚜
+            </div>
+          </div>
+        </div>
+
+        {summary.totalRuns === 0 ? (
+          <p className="text-amber-100/60 italic text-sm">No delves recorded for this tome yet. Brave the dungeon to inscribe thy first chapter.</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+            <RecordTile
+              label="Total Delves"
+              value={`${summary.totalRuns}`}
+              sub={`${summary.totalWins}W · ${summary.totalRuns - summary.totalWins}L`}
+            />
+            <RecordTile
+              label="Win Rate"
+              value={`${Math.round(summary.winRate * 100)}%`}
+              sub={summary.totalRuns < 5 ? `(${summary.totalRuns}/5 for stable rate)` : null}
+            />
+            <RecordTile
+              label="Highest Score"
+              value={summary.highestScore ? summary.highestScore.score.toLocaleString() : '—'}
+              sub={summary.highestScore ? DIFFICULTIES[summary.highestScore.difficulty]?.label : null}
+            />
+            <RecordTile
+              label="Fastest Win"
+              value={summary.fastestWin ? formatDuration(summary.fastestWin.durationSec) : '—'}
+              sub={summary.fastestWin ? DIFFICULTIES[summary.fastestWin.difficulty]?.label : null}
+            />
+            <RecordTile
+              label="Longest Streak"
+              value={summary.longestStreak ? `${summary.longestStreak.maxStreak}` : '—'}
+              sub={summary.longestStreak ? DIFFICULTIES[summary.longestStreak.difficulty]?.label : null}
+            />
+          </div>
+        )}
+      </div>
+
+      {summary.totalRuns === 0 ? (
+        <div className="text-center py-12">
+          <button onClick={() => setScreen('dungeon')} className="px-5 py-3 rounded font-bold italic border-2 border-red-400 text-amber-50 inline-flex items-center gap-2"
+            style={{ background: 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)', boxShadow: '0 0 18px rgba(220, 38, 38, 0.4)' }}>
+            <Swords className="w-4 h-4" /> Begin a Delve
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {sorted.map(run => {
+            const diff = DIFFICULTIES[run.difficulty] || DIFFICULTIES.apprentice;
+            const boss = BOSS_TYPES[run.bossId];
+            const isOpen = expanded === run.runId;
+            const dateLabel = new Date(run.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            return (
+              <div key={run.runId} className="rounded relative overflow-hidden" style={{
+                background: run.won
+                  ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)'
+                  : 'linear-gradient(135deg, rgba(127, 29, 29, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                border: run.won ? '2px solid rgba(16, 185, 129, 0.55)' : '2px solid rgba(239, 68, 68, 0.5)',
+              }}>
+                <button
+                  onClick={() => setExpanded(isOpen ? null : run.runId)}
+                  className="w-full p-4 text-left flex items-center gap-3 flex-wrap"
+                >
+                  <span className="text-2xl flex-shrink-0">{boss?.icon || '⚔'}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-sm font-bold italic ${run.won ? 'text-emerald-200' : 'text-red-200'}`}>
+                        {run.won ? '⚔ Victory' : '✗ Defeat'}
+                      </span>
+                      <span className="text-xs text-amber-200 italic">{diff.icon} {diff.label}</span>
+                      {boss && <span className="text-xs text-purple-300 italic">vs {boss.name}</span>}
+                      {run.modifiers?.length > 0 && (
+                        <span className="text-xs text-amber-700 italic">⚜ {run.modifiers.length} curse{run.modifiers.length === 1 ? '' : 's'}</span>
+                      )}
+                    </div>
+                    <div className="text-xs text-amber-700 italic mt-0.5">{dateLabel}</div>
+                  </div>
+                  <div className="flex flex-wrap gap-3 text-xs">
+                    <span className="text-amber-300"><Gem className="w-3 h-3 inline" /> {run.score?.toLocaleString() || 0}</span>
+                    <span className="text-orange-300"><Flame className="w-3 h-3 inline" /> {run.maxStreak || 0}</span>
+                    <span className="text-red-300">❤ {run.livesRemaining}/{run.maxLives}</span>
+                    <span className="text-purple-300">⏱ {formatDuration(run.durationSec)}</span>
+                  </div>
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-amber-400" /> : <ChevronDown className="w-4 h-4 text-amber-400" />}
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 border-t border-amber-900/40 pt-3 space-y-2">
+                    <div className="text-xs text-purple-300 italic">
+                      Mistakes this run: <span className="text-amber-200 font-bold">{run.mistakes}</span> · Total questions: <span className="text-amber-200 font-bold">{run.totalQuestions}</span>
+                    </div>
+                    {(run.questionLog || []).length === 0 ? (
+                      <div className="text-xs text-amber-700 italic">No per-question log was captured for this delve.</div>
+                    ) : (
+                      <div className="space-y-1">
+                        {run.questionLog.map((q, i) => (
+                          <div key={i} className="flex items-start gap-2 text-xs italic" style={{ background: 'rgba(10, 6, 4, 0.5)', padding: '6px 8px', borderRadius: '4px' }}>
+                            {q.correct
+                              ? <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                              : <X className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-amber-100/80 truncate">{q.prompt}</div>
+                              <div className="text-amber-700">
+                                {q.type ? <span>type: {q.type}</span> : null}
+                                {q.bossKind ? <span> · {BOSS_TYPES[q.bossKind]?.name || q.bossKind}</span> : null}
+                                {q.timeSec ? <span> · {q.timeSec}s</span> : null}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RecordTile({ label, value, sub }) {
+  return (
+    <div className="p-3 rounded relative" style={{
+      background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.45) 0%, rgba(41, 24, 12, 0.85) 100%)',
+      border: '1px solid rgba(245, 158, 11, 0.4)',
+      boxShadow: 'inset 0 0 12px rgba(0,0,0,0.4)',
+    }}>
+      <div className="text-xs text-amber-700 tracking-[0.15em] italic uppercase">{label}</div>
+      <div className="text-xl font-bold text-amber-200 italic tabular-nums" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' }}>{value}</div>
+      {sub && <div className="text-xs text-amber-100/60 italic">{sub}</div>}
+    </div>
+  );
+}
 
 function ShopScreen({ playerState, setScreen, onPurchase }) {
   const [activeTab, setActiveTab] = useState('apothecary');
