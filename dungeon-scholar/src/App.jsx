@@ -7,6 +7,7 @@ import { MergeChooser } from './components/MergeChooser.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
 import PromptModal from './components/PromptModal.jsx';
+import DungeonExplore from './components/DungeonExplore.jsx';
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
 import { gradeAnswer } from './services/oracleGrader.js';
@@ -2029,6 +2030,9 @@ export default function DungeonScholarApp() {
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
+        {screen === 'explore' && (
+          <DungeonExplore onExit={() => setScreen('home')} />
+        )}
         {screen === 'dungeon' && courseSet && (
           <DungeonRun
             courseSet={courseSet}
@@ -2791,6 +2795,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           icon={<Scroll className="w-8 h-8" />}
           color="purple"
           onClick={() => setScreen('history')}
+        />
+        <ModeCard
+          title="Dungeon Explore"
+          desc="A new realm — walk a top-down dungeon by tile. Mobs, treasure, and combat shall arrive in time."
+          icon={<Castle className="w-8 h-8" />}
+          color="rose"
+          onClick={() => setScreen('explore')}
         />
       </div>
 
