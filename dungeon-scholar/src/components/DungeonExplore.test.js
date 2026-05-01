@@ -88,14 +88,17 @@ describe('generateMap', () => {
     expect(foundStairs).toBe(true);
   });
 
-  it('produces corridors with from/to indices and tile lists', () => {
-    const out = generateMap({ difficulty: 'apprentice', rng: seedRng(100) });
-    if (out.rooms.length < 2) return;
-    expect(out.corridors.length).toBe(out.rooms.length - 1);
-    out.corridors.forEach((c, i) => {
-      expect(c.from).toBe(i);
-      expect(c.to).toBe(i + 1);
-      expect(Array.isArray(c.tiles)).toBe(true);
+  it('populates decorations, mobs, and boss lists', () => {
+    const out = generateMap({ difficulty: 'adept', biome: 'crypt', rng: seedRng(100) });
+    expect(Array.isArray(out.decorations)).toBe(true);
+    expect(Array.isArray(out.mobs)).toBe(true);
+    if (out.rooms.length > 1) {
+      expect(out.boss).toBeTruthy();
+      expect(out.boss.kind).toBeTruthy();
+    }
+    out.mobs.forEach((m) => {
+      expect(m.kind).toBeTruthy();
+      expect(m.bounds).toBeTruthy();
     });
   });
 

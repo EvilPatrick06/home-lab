@@ -1,9 +1,9 @@
-// DungeonExplore — Phase 12 (Pokémon-feel revision).
-// Canvas-rendered top-down RPG: large viewport (~1200×816), pixel-style
-// sprites with walk animation, biome-themed tile textures, room-level fog
-// of war with a player aura, dungeon size scaling with difficulty.
+// Dungeon Delve — top-down RPG view that replaces the old wave-based delve.
+// Player walks the world; bumping into mobs opens a battle modal that asks
+// a question from the active tome. Correct = mob defeated. Wrong = -1 HP.
+// Reach the boss room and survive its 5-question gauntlet to win the run.
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Heart, Coins, Trophy, Skull } from 'lucide-react';
 
 export const TILE = {
   WALL: 0,
@@ -13,29 +13,24 @@ export const TILE = {
   STAIRS_DOWN: 4,
 };
 
-// === Render constants ===================================================
 const TILE_PX = 48;
-const VIEW_W = 25;            // viewport width in tiles
-const VIEW_H = 17;            // viewport height in tiles
-const CANVAS_W = VIEW_W * TILE_PX;  // 1200
-const CANVAS_H = VIEW_H * TILE_PX;  //  816
-const PLAYER_AURA_RADIUS = 3;
-const MOVE_MS = 150;          // tile-to-tile move duration
-const WALK_FRAME_MS = 150;    // walk animation cycle period
+const VIEW_W = 25;
+const VIEW_H = 17;
+const CANVAS_W = VIEW_W * TILE_PX;
+const CANVAS_H = VIEW_H * TILE_PX;
+const MOVE_MS = 150;
+const WALK_FRAME_MS = 150;
+const MOB_MOVE_MIN_MS = 1400;
+const MOB_MOVE_MAX_MS = 2800;
 
 const isWalkable = (t) => t === TILE.FLOOR || t === TILE.DOOR || t === TILE.STAIRS_UP || t === TILE.STAIRS_DOWN;
 
 // === Biomes ============================================================
-// Each biome carries a canvas color palette (separate from old DOM colors)
-// keyed by tile type. The palette feeds into the per-biome tile drawer.
 export const BIOMES = {
   crypt: {
-    id: 'crypt',
-    name: 'Crypt of Cryptography',
-    icon: '🗝️',
+    id: 'crypt', name: 'Crypt of Cryptography', icon: '🗝️',
     flavor: 'Mossy stone tombs, encoded sigils etched on every wall.',
-    accent: 'rgba(168, 85, 247, 0.4)',
-    accentSolid: '#a855f7',
+    accent: 'rgba(168, 85, 247, 0.4)', accentSolid: '#a855f7',
     palette: {
       wallBase: '#1a1422', wallTop: '#2a1f36', wallShade: '#0d0814', wallDetail: '#a855f7',
       floorBase: '#241a30', floorAlt: '#2a2038', floorDetail: '#3d2a48', floorAccent: '#7c3aed',
@@ -43,12 +38,9 @@ export const BIOMES = {
     decoChance: 0.12,
   },
   sewers: {
-    id: 'sewers',
-    name: 'Sewers of OWASP',
-    icon: '🕸️',
+    id: 'sewers', name: 'Sewers of OWASP', icon: '🕸️',
     flavor: 'Dripping pipes and graffiti scrawled by long-departed pen-testers.',
-    accent: 'rgba(16, 185, 129, 0.4)',
-    accentSolid: '#10b981',
+    accent: 'rgba(16, 185, 129, 0.4)', accentSolid: '#10b981',
     palette: {
       wallBase: '#1a2820', wallTop: '#284030', wallShade: '#0e1c14', wallDetail: '#10b981',
       floorBase: '#142820', floorAlt: '#1a3024', floorDetail: '#284030', floorAccent: '#10b981',
@@ -56,12 +48,9 @@ export const BIOMES = {
     decoChance: 0.18,
   },
   tower: {
-    id: 'tower',
-    name: 'Tower of Network Defense',
-    icon: '🗼',
+    id: 'tower', name: 'Tower of Network Defense', icon: '🗼',
     flavor: 'Glittering steel walkways, every door a port — opened or sealed.',
-    accent: 'rgba(59, 130, 246, 0.4)',
-    accentSolid: '#3b82f6',
+    accent: 'rgba(59, 130, 246, 0.4)', accentSolid: '#3b82f6',
     palette: {
       wallBase: '#1c2838', wallTop: '#2a4060', wallShade: '#0e1828', wallDetail: '#3b82f6',
       floorBase: '#16243a', floorAlt: '#1c2c44', floorDetail: '#2a3c5c', floorAccent: '#60a5fa',
@@ -69,12 +58,9 @@ export const BIOMES = {
     decoChance: 0.15,
   },
   halls: {
-    id: 'halls',
-    name: 'Halls of the Hardware',
-    icon: '⚙️',
+    id: 'halls', name: 'Halls of the Hardware', icon: '⚙️',
     flavor: 'Ancient circuitry pulses behind iron grates, fans humming low.',
-    accent: 'rgba(245, 158, 11, 0.4)',
-    accentSolid: '#f59e0b',
+    accent: 'rgba(245, 158, 11, 0.4)', accentSolid: '#f59e0b',
     palette: {
       wallBase: '#2a1a14', wallTop: '#4a2a1c', wallShade: '#1a0e0a', wallDetail: '#f59e0b',
       floorBase: '#2a1c14', floorAlt: '#3a2418', floorDetail: '#4a2e1c', floorAccent: '#fbbf24',
@@ -82,12 +68,9 @@ export const BIOMES = {
     decoChance: 0.14,
   },
   wastes: {
-    id: 'wastes',
-    name: 'Wastes of WiFi',
-    icon: '📡',
+    id: 'wastes', name: 'Wastes of WiFi', icon: '📡',
     flavor: 'A windswept plain where signals scream and antennas sway.',
-    accent: 'rgba(217, 119, 6, 0.4)',
-    accentSolid: '#d97706',
+    accent: 'rgba(217, 119, 6, 0.4)', accentSolid: '#d97706',
     palette: {
       wallBase: '#3a3018', wallTop: '#5a4a28', wallShade: '#241c0e', wallDetail: '#d97706',
       floorBase: '#3a2e16', floorAlt: '#4a3c20', floorDetail: '#5a4830', floorAccent: '#fbbf24',
@@ -142,15 +125,7 @@ const ROOM_TEMPLATES = [
     [1,1,1,1,1,1,1,1,1,1,1],
   ]},
   { id: 'hall-v', tiles: [
-    [1,1,1],
-    [1,1,1],
-    [1,1,1],
-    [1,1,1],
-    [1,1,1],
-    [1,1,1],
-    [1,1,1],
-    [1,1,1],
-    [1,1,1],
+    [1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],
   ]},
   { id: 'l-shape', tiles: [
     [1,1,1,1,0,0,0,0],
@@ -196,6 +171,37 @@ export const SIZE_BY_DIFFICULTY = {
   adept:      { w: 75,  h: 50 },
   master:     { w: 90,  h: 60 },
   mythic:     { w: 110, h: 70 },
+};
+
+// HP, XP/gold multipliers per difficulty.
+export const DIFF_CONFIG = {
+  apprentice: { hp: 3, xpMul: 1,   goldMul: 1,    label: 'Apprentice', completeAchievement: null,             rewardTitleId: null },
+  adept:      { hp: 3, xpMul: 1.5, goldMul: 1.25, label: 'Adept',      completeAchievement: 'adept_complete',  rewardTitleId: 'adeptVeteran' },
+  master:     { hp: 2, xpMul: 2,   goldMul: 1.5,  label: 'Master',     completeAchievement: 'master_complete', rewardTitleId: 'masterSlayer' },
+  mythic:     { hp: 1, xpMul: 3,   goldMul: 2,    label: 'Mythic',     completeAchievement: 'mythic_complete', rewardTitleId: 'mythicSage' },
+};
+
+// Biome → boss kind. IDs match BOSS_TYPES in App.jsx for run-history display.
+const DECO_BY_BIOME = {
+  crypt:  ['bones', 'candle'],
+  sewers: ['mushroom', 'puddle'],
+  tower:  ['terminal', 'cable'],
+  halls:  ['gear', 'capacitor'],
+  wastes: ['cactus', 'antenna'],
+};
+const MOB_BY_BIOME = {
+  crypt:  'wraith',
+  sewers: 'slime',
+  tower:  'sentry',
+  halls:  'spark',
+  wastes: 'scorpion',
+};
+const BOSS_BY_BIOME = {
+  crypt:  'lich',
+  sewers: 'hydra',
+  tower:  'sphinx',
+  halls:  'behemoth',
+  wastes: 'riddler',
 };
 
 const templateRect = (template, x, y) => ({
@@ -259,28 +265,20 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
     rooms.push(candidate);
   }
 
-  const corridors = [];
   for (let i = 1; i < rooms.length; i++) {
     const a = rectCenter(rooms[i - 1]);
     const b = rectCenter(rooms[i]);
     const horizontalFirst = rng() < 0.5;
-    const tiles = [];
     const carveH = (y, x1, x2) => {
       const [lo, hi] = x1 < x2 ? [x1, x2] : [x2, x1];
       for (let x = lo; x <= hi; x++) {
-        if (map[y][x] === TILE.WALL) {
-          map[y][x] = TILE.FLOOR;
-          tiles.push({ x, y });
-        }
+        if (map[y][x] === TILE.WALL) map[y][x] = TILE.FLOOR;
       }
     };
     const carveV = (x, y1, y2) => {
       const [lo, hi] = y1 < y2 ? [y1, y2] : [y2, y1];
       for (let y = lo; y <= hi; y++) {
-        if (map[y][x] === TILE.WALL) {
-          map[y][x] = TILE.FLOOR;
-          tiles.push({ x, y });
-        }
+        if (map[y][x] === TILE.WALL) map[y][x] = TILE.FLOOR;
       }
     };
     if (horizontalFirst) {
@@ -290,31 +288,59 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
       carveV(a.x, a.y, b.y);
       carveH(b.y, a.x, b.x);
     }
-    corridors.push({ from: i - 1, to: i, tiles });
   }
 
+  let bossPos = null;
   if (rooms.length > 1) {
     const last = rectCenter(rooms[rooms.length - 1]);
     map[last.y][last.x] = TILE.STAIRS_DOWN;
+    bossPos = { x: last.x, y: Math.max(rooms[rooms.length - 1].y + 1, last.y - 1) };
   }
 
+  const decorations = [];
+  const mobs = [];
+  const decoKinds = DECO_BY_BIOME[biome] || DECO_BY_BIOME.halls;
+  const mobKind = MOB_BY_BIOME[biome] || MOB_BY_BIOME.halls;
+
+  rooms.forEach((room, idx) => {
+    const isSpawn = idx === 0;
+    const isBoss = idx === rooms.length - 1 && rooms.length > 1;
+    const decoCount = isBoss ? 1 : isSpawn ? 1 : 2 + Math.floor(rng() * 3);
+    const mobCount = (isBoss || isSpawn) ? 0 : Math.floor(rng() * 3);
+
+    for (let i = 0; i < decoCount; i++) {
+      const tx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
+      const ty = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
+      if (map[ty]?.[tx] !== TILE.FLOOR) continue;
+      const kind = decoKinds[Math.floor(rng() * decoKinds.length)];
+      decorations.push({ kind, x: tx, y: ty });
+    }
+
+    for (let i = 0; i < mobCount; i++) {
+      const tx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
+      const ty = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
+      if (map[ty]?.[tx] !== TILE.FLOOR) continue;
+      mobs.push({
+        kind: mobKind,
+        x: tx, y: ty,
+        bounds: { x: room.x, y: room.y, w: room.w, h: room.h },
+        nextMoveAt: 0,
+      });
+    }
+  });
+
+  const boss = bossPos
+    ? { kind: BOSS_BY_BIOME[biome] || BOSS_BY_BIOME.halls, x: bossPos.x, y: bossPos.y }
+    : null;
+
   const spawn = rooms.length > 0 ? rectCenter(rooms[0]) : { x: 1, y: 1 };
-  return { map, rooms, corridors, spawn, width, height, biome };
+  return { map, rooms, decorations, mobs, boss, spawn, width, height, biome };
 }
 
 export function generateStarterMap(opts = {}) {
   return generateMap({ difficulty: 'apprentice', biome: 'halls', ...opts });
 }
 
-const roomIndexAt = (rooms, x, y) => {
-  for (let i = 0; i < rooms.length; i++) {
-    const r = rooms[i];
-    if (x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h) return i;
-  }
-  return null;
-};
-
-// Cheap deterministic hash so per-tile decoration is stable across renders.
 const tileSeed = (x, y) => {
   let h = (x * 73856093) ^ (y * 19349663);
   h = (h ^ (h >>> 13)) * 1274126177;
@@ -325,14 +351,10 @@ const tileSeed = (x, y) => {
 function drawWall(ctx, p, px, py) {
   ctx.fillStyle = p.wallBase;
   ctx.fillRect(px, py, TILE_PX, TILE_PX);
-  // Top highlight
   ctx.fillStyle = p.wallTop;
   ctx.fillRect(px, py, TILE_PX, 4);
-  // Bottom shadow
   ctx.fillStyle = p.wallShade;
   ctx.fillRect(px, py + TILE_PX - 6, TILE_PX, 6);
-  // Brick mortar
-  ctx.fillStyle = p.wallShade;
   ctx.fillRect(px, py + 16, TILE_PX, 1);
   ctx.fillRect(px, py + 32, TILE_PX, 1);
   ctx.fillRect(px + 24, py + 4,  1, 12);
@@ -343,11 +365,9 @@ function drawWall(ctx, p, px, py) {
 function drawFloor(ctx, p, px, py, decoChance, seed) {
   ctx.fillStyle = p.floorBase;
   ctx.fillRect(px, py, TILE_PX, TILE_PX);
-  // Subtle tile lines
   ctx.fillStyle = p.floorAlt;
   ctx.fillRect(px, py, TILE_PX, 1);
   ctx.fillRect(px, py, 1, TILE_PX);
-  // Decoration — tufts/cracks/circuits depending on biome chance
   if (seed < decoChance) {
     ctx.fillStyle = p.floorDetail;
     const ox = 8 + Math.floor((seed * 1000) % 28);
@@ -365,13 +385,11 @@ function drawFloor(ctx, p, px, py, decoChance, seed) {
 function drawStairs(ctx, p, px, py) {
   ctx.fillStyle = p.floorBase;
   ctx.fillRect(px, py, TILE_PX, TILE_PX);
-  // Concentric chevrons descending
   ctx.fillStyle = p.wallShade;
   for (let i = 0; i < 5; i++) {
     const inset = i * 4;
     ctx.fillRect(px + 6 + inset, py + 6 + inset, TILE_PX - 12 - inset * 2, 3);
   }
-  // Glow
   ctx.fillStyle = p.floorAccent;
   ctx.fillRect(px + 22, py + 22, 4, 4);
 }
@@ -395,17 +413,304 @@ function drawTile(ctx, biome, type, px, py) {
   else drawWall(ctx, p, px, py);
 }
 
-function drawHidden(ctx, px, py) {
-  ctx.fillStyle = '#050302';
-  ctx.fillRect(px, py, TILE_PX, TILE_PX);
+// === Decoration sprites =================================================
+function drawBones(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = '#e7e5db';
+  ctx.fillRect(cx - 8, cy - 1, 16, 3);
+  ctx.fillRect(cx - 9, cy - 4, 3, 4);
+  ctx.fillRect(cx - 9, cy + 1, 3, 4);
+  ctx.fillRect(cx + 6, cy - 4, 3, 4);
+  ctx.fillRect(cx + 6, cy + 1, 3, 4);
+  ctx.fillStyle = '#9a9892';
+  ctx.fillRect(cx - 2, cy - 1, 1, 3);
+}
+function drawCandle(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#3d2a1c';
+  ctx.fillRect(cx - 3, cy, 6, 2);
+  ctx.fillStyle = '#fde68a';
+  ctx.fillRect(cx - 2, cy - 8, 4, 8);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(cx, cy - 11, 1, 3);
+  ctx.fillStyle = '#fb923c';
+  ctx.fillRect(cx - 1, cy - 14, 3, 4);
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(cx, cy - 13, 1, 2);
+}
+function drawMushroom(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(cx - 2, cy - 3, 4, 8);
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 7, cy - 8, 14, 5);
+  ctx.fillRect(cx - 5, cy - 11, 10, 3);
+  ctx.fillStyle = '#fef9c3';
+  ctx.fillRect(cx - 4, cy - 7, 2, 2);
+  ctx.fillRect(cx + 1, cy - 9, 2, 2);
+  ctx.fillRect(cx + 3, cy - 6, 2, 2);
+}
+function drawPuddle(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#0f766e';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 12, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#5eead4';
+  ctx.fillRect(cx - 8, cy - 2, 4, 1);
+  ctx.fillRect(cx + 2, cy + 1, 5, 1);
+}
+function drawTerminal(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - 8, cy - 12, 16, 14);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 7, cy - 11, 14, 9);
+  ctx.fillStyle = '#22d3ee';
+  ctx.fillRect(cx - 6, cy - 9, 8, 1);
+  ctx.fillRect(cx - 6, cy - 7, 6, 1);
+  ctx.fillRect(cx - 6, cy - 5, 9, 1);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(cx - 6, cy + 1, 12, 2);
+}
+function drawCable(ctx, px, py) {
+  const cy = py + TILE_PX / 2 + 8;
+  ctx.strokeStyle = '#1e3a8a';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(px + 6, cy);
+  ctx.bezierCurveTo(px + 16, cy - 12, px + 32, cy + 12, px + 42, cy);
+  ctx.stroke();
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+function drawGear(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = '#a3a3a3';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#404040';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#a3a3a3';
+  for (let i = 0; i < 8; i++) {
+    const a = (i * Math.PI) / 4;
+    const tx = cx + Math.cos(a) * 11;
+    const ty = cy + Math.sin(a) * 11;
+    ctx.fillRect(Math.round(tx - 2), Math.round(ty - 2), 4, 4);
+  }
+}
+function drawCapacitor(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(cx - 4, cy - 10, 8, 12);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 3, cy - 9, 6, 2);
+  ctx.fillStyle = '#a8a29e';
+  ctx.fillRect(cx - 5, cy - 11, 10, 1);
+  ctx.fillRect(cx - 1, cy - 13, 2, 3);
+}
+function drawCactus(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(cx - 3, cy - 16, 6, 16);
+  ctx.fillRect(cx - 7, cy - 8, 4, 6);
+  ctx.fillRect(cx + 3, cy - 11, 4, 7);
+  ctx.fillStyle = '#86efac';
+  ctx.fillRect(cx - 2, cy - 16, 1, 16);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx, cy - 17, 1, 1);
+}
+function drawAntenna(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#52525b';
+  ctx.fillRect(cx, cy - 18, 1, 18);
+  ctx.fillRect(cx - 6, cy - 14, 13, 1);
+  ctx.fillRect(cx - 4, cy - 10, 9, 1);
+  ctx.fillRect(cx - 2, cy - 6,  5, 1);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(cx, cy - 20, 1, 2);
 }
 
+const DECO_DRAWERS = {
+  bones: drawBones, candle: drawCandle, mushroom: drawMushroom, puddle: drawPuddle,
+  terminal: drawTerminal, cable: drawCable, gear: drawGear, capacitor: drawCapacitor,
+  cactus: drawCactus, antenna: drawAntenna,
+};
+
+// === Mob sprites ========================================================
+function drawWraith(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 400) * 2;
+  ctx.fillStyle = 'rgba(168,85,247,0.55)';
+  ctx.fillRect(cx - 8, cy - 6, 16, 16);
+  ctx.fillStyle = 'rgba(168,85,247,0.85)';
+  ctx.fillRect(cx - 7, cy - 10, 14, 6);
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx - 4, cy - 7, 2, 2);
+  ctx.fillRect(cx + 2, cy - 7, 2, 2);
+}
+function drawSlime(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const wob = Math.sin(t / 250) * 1.5;
+  ctx.fillStyle = '#10b981';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 9 + wob, 7 - wob / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#34d399';
+  ctx.fillRect(cx - 6, cy - 4, 4, 1);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(cx - 3, cy - 1, 2, 2);
+  ctx.fillRect(cx + 1, cy - 1, 2, 2);
+}
+function drawSentry(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(cx - 7, cy - 4, 14, 12);
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - 7, cy + 6, 14, 4);
+  ctx.fillStyle = '#3b82f6';
+  ctx.fillRect(cx - 5, cy - 6, 10, 5);
+  const blink = (Math.floor(t / 120) % 6) === 0;
+  ctx.fillStyle = blink ? '#fef9c3' : '#ef4444';
+  ctx.fillRect(cx - 1, cy - 4, 2, 2);
+}
+function drawSpark(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const r = 4 + Math.sin(t / 150) * 2;
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fef9c3';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r / 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    const a = (t / 200) + (i * Math.PI) / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * 5, cy + Math.sin(a) * 5);
+    ctx.lineTo(cx + Math.cos(a) * 9, cy + Math.sin(a) * 9);
+    ctx.stroke();
+  }
+}
+function drawScorpion(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2;
+  const wig = Math.sin(t / 200) * 1.5;
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(cx - 6, cy - 2, 12, 6);
+  ctx.fillRect(cx + 4, cy - 5 + wig, 4, 4);
+  ctx.fillRect(cx + 7, cy - 8 + wig, 2, 3);
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx + 8, cy - 9 + wig, 1, 1);
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 9, cy - 1, 4, 2);
+  ctx.fillRect(cx - 9, cy + 2, 4, 2);
+}
+
+const MOB_DRAWERS = {
+  wraith: drawWraith, slime: drawSlime, sentry: drawSentry, spark: drawSpark, scorpion: drawScorpion,
+};
+
+// === Boss sprites =======================================================
+function drawLich(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 - 4;
+  ctx.fillStyle = 'rgba(168,85,247,0.4)';
+  ctx.fillRect(cx - 16, cy + 8, 32, 16);
+  ctx.fillStyle = '#a855f7';
+  ctx.fillRect(cx - 12, cy - 10, 24, 24);
+  ctx.fillStyle = '#1a0e2a';
+  ctx.fillRect(cx - 8, cy - 6, 16, 12);
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx - 5, cy - 2, 3, 3);
+  ctx.fillRect(cx + 2, cy - 2, 3, 3);
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(cx - 10, cy - 14, 20, 4);
+  ctx.fillRect(cx - 2, cy - 18, 4, 4);
+  ctx.fillStyle = 'rgba(168,85,247,0.6)';
+  const sw = 2 + Math.sin(t / 200) * 1;
+  ctx.fillRect(cx - 14, cy - 12, sw, 2);
+  ctx.fillRect(cx + 12, cy - 12, sw, 2);
+}
+function drawHydra(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 8;
+  ctx.fillStyle = '#065f46';
+  ctx.fillRect(cx - 14, cy - 4, 28, 12);
+  for (let i = 0; i < 3; i++) {
+    const off = (i - 1) * 8;
+    const sway = Math.sin(t / 300 + i) * 3;
+    ctx.fillStyle = '#10b981';
+    ctx.fillRect(cx - 3 + off + sway, cy - 18, 6, 14);
+    ctx.fillStyle = '#065f46';
+    ctx.fillRect(cx - 4 + off + sway, cy - 22, 8, 6);
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(cx - 2 + off + sway, cy - 20, 1, 1);
+    ctx.fillRect(cx + 1 + off + sway, cy - 20, 1, 1);
+  }
+}
+function drawSphinx(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(cx - 12, cy - 14, 24, 28);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 12, cy + 10, 24, 6);
+  ctx.fillStyle = '#3b82f6';
+  ctx.fillRect(cx - 10, cy - 12, 20, 8);
+  const blink = (Math.floor(t / 150) % 4) === 0;
+  ctx.fillStyle = blink ? '#fef9c3' : '#ef4444';
+  ctx.fillRect(cx - 2, cy - 9, 4, 3);
+  ctx.fillStyle = '#60a5fa';
+  ctx.fillRect(cx - 11, cy - 4, 22, 2);
+}
+function drawBehemoth(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(cx - 14, cy - 12, 28, 26);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 12, cy - 10, 24, 4);
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 6, cy - 5, 4, 4);
+  ctx.fillRect(cx + 2, cy - 5, 4, 4);
+  ctx.fillStyle = '#fb923c';
+  const glow = (Math.floor(t / 200) % 2) === 0 ? 1 : 0;
+  if (glow) ctx.fillRect(cx - 5, cy - 4, 2, 2);
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(cx - 8, cy + 4, 16, 4);
+}
+function drawRiddler(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const flap = Math.sin(t / 250) * 4;
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(cx - 14 - flap, cy - 4, 12, 6);
+  ctx.fillRect(cx + 2 + flap, cy - 4, 12, 6);
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx - 8, cy - 10, 16, 18);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 1, cy - 4, 2, 2);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(cx - 4, cy - 7, 2, 2);
+  ctx.fillRect(cx + 2, cy - 7, 2, 2);
+}
+
+const BOSS_DRAWERS = {
+  lich: drawLich, hydra: drawHydra, sphinx: drawSphinx, behemoth: drawBehemoth, riddler: drawRiddler,
+};
+
+const BOSS_DISPLAY = {
+  lich:     { name: 'The Lich',     icon: '💀' },
+  hydra:    { name: 'The Hydra',    icon: '🐉' },
+  sphinx:   { name: 'The Sphinx',   icon: '🦁' },
+  behemoth: { name: 'The Behemoth', icon: '🪨' },
+  riddler:  { name: 'The Riddler',  icon: '🃏' },
+};
+
 // === Player sprite ======================================================
-// Hooded adventurer drawn at runtime — 32×40 px centered in a 48×48 tile.
-// Walk frame: 0/2 = neutral, 1 = left foot, 3 = right foot.
 function drawPlayer(ctx, px, py, facing, walkFrame) {
   const cx = px + TILE_PX / 2;
-  // Shadow
   ctx.fillStyle = 'rgba(0,0,0,0.4)';
   ctx.beginPath();
   ctx.ellipse(cx, py + TILE_PX - 6, 12, 4, 0, 0, Math.PI * 2);
@@ -415,7 +720,6 @@ function drawPlayer(ctx, px, py, facing, walkFrame) {
   const bodyTop = headTop + 12;
   const legTop = bodyTop + 12;
 
-  // Cape (visible mostly when facing up/sides)
   if (facing !== 'down') {
     ctx.fillStyle = '#5a1d1d';
     ctx.fillRect(cx - 8, bodyTop + 2, 16, 12);
@@ -423,15 +727,12 @@ function drawPlayer(ctx, px, py, facing, walkFrame) {
     ctx.fillRect(cx - 8, bodyTop + 12, 16, 2);
   }
 
-  // Head — hood
   ctx.fillStyle = '#2a1810';
   ctx.fillRect(cx - 8, headTop, 16, 4);
   ctx.fillRect(cx - 9, headTop + 2, 18, 2);
   ctx.fillRect(cx - 8, headTop + 4, 16, 8);
-  // Face shadow inside hood
   ctx.fillStyle = '#1a0e08';
   ctx.fillRect(cx - 6, headTop + 4, 12, 6);
-  // Eyes (only visible when not facing up)
   if (facing !== 'up') {
     ctx.fillStyle = '#fde047';
     if (facing === 'down') {
@@ -444,36 +745,205 @@ function drawPlayer(ctx, px, py, facing, walkFrame) {
     }
   }
 
-  // Body (tunic)
   ctx.fillStyle = '#7c2d12';
   ctx.fillRect(cx - 7, bodyTop, 14, 12);
-  // Tunic highlight
   ctx.fillStyle = '#a3471a';
   ctx.fillRect(cx - 7, bodyTop, 14, 2);
-  // Belt
   ctx.fillStyle = '#1a0e08';
   ctx.fillRect(cx - 7, bodyTop + 9, 14, 2);
 
-  // Arms
   ctx.fillStyle = '#7c2d12';
-  if (facing === 'left') {
-    ctx.fillRect(cx - 9, bodyTop + 2, 3, 7);
-  } else if (facing === 'right') {
-    ctx.fillRect(cx + 6, bodyTop + 2, 3, 7);
-  } else {
-    ctx.fillRect(cx - 9, bodyTop + 2, 2, 7);
-    ctx.fillRect(cx + 7, bodyTop + 2, 2, 7);
-  }
+  if (facing === 'left') ctx.fillRect(cx - 9, bodyTop + 2, 3, 7);
+  else if (facing === 'right') ctx.fillRect(cx + 6, bodyTop + 2, 3, 7);
+  else { ctx.fillRect(cx - 9, bodyTop + 2, 2, 7); ctx.fillRect(cx + 7, bodyTop + 2, 2, 7); }
 
-  // Legs (animated)
   ctx.fillStyle = '#1c1410';
   const stepDelta = walkFrame === 1 ? 1 : walkFrame === 3 ? -1 : 0;
-  ctx.fillRect(cx - 6, legTop + stepDelta,         5, 8 - Math.abs(stepDelta));
-  ctx.fillRect(cx + 1, legTop - stepDelta,         5, 8 - Math.abs(stepDelta));
-  // Boots
+  ctx.fillRect(cx - 6, legTop + stepDelta, 5, 8 - Math.abs(stepDelta));
+  ctx.fillRect(cx + 1, legTop - stepDelta, 5, 8 - Math.abs(stepDelta));
   ctx.fillStyle = '#0a0604';
   ctx.fillRect(cx - 6, legTop + 6 + stepDelta, 5, 2);
   ctx.fillRect(cx + 1, legTop + 6 - stepDelta, 5, 2);
+}
+
+// === Combat helpers =====================================================
+const norm = (s) => String(s ?? '').trim().toLowerCase();
+
+// Pull random questions from the active tome's quiz pool, excluding any
+// already-used questions in this run. Includes flashcards as fallback.
+function pickQuestions(courseSet, count, excludeIds = new Set()) {
+  const quizPool = (courseSet?.quiz || []).filter((q) =>
+    !excludeIds.has(q.id) && (q.type === 'multiplechoice' || q.type === 'truefalse'),
+  );
+  // Shuffle and take.
+  const arr = quizPool.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, count);
+}
+
+function checkAnswerCorrect(question, choice) {
+  if (!question) return false;
+  if (question.type === 'multiplechoice') {
+    return choice === question.correctIndex;
+  }
+  if (question.type === 'truefalse') {
+    if (typeof question.correctIndex === 'number') return choice === question.correctIndex;
+    if (typeof question.correctAnswer === 'string') {
+      return norm(question.correctAnswer) === norm(choice === 0 ? 'true' : 'false');
+    }
+  }
+  return false;
+}
+
+// === BattleModal ========================================================
+function BattleModal({ battle, biome, onAnswer }) {
+  if (!battle) return null;
+  const q = battle.questions[battle.questionIdx];
+  if (!q) return null;
+  const isBoss = battle.type === 'boss';
+  const total = battle.questions.length;
+  const stepNum = battle.questionIdx + 1;
+
+  const [revealResult, setRevealResult] = useState(null); // {correct, choice}
+
+  const handle = (choice) => {
+    if (revealResult) return;
+    const correct = checkAnswerCorrect(q, choice);
+    setRevealResult({ correct, choice });
+    setTimeout(() => {
+      setRevealResult(null);
+      onAnswer(correct, q);
+    }, 900);
+  };
+
+  // Reset reveal when question advances (new q in same battle).
+  useEffect(() => { setRevealResult(null); }, [battle.questionIdx, battle.type]);
+
+  const options = q.type === 'truefalse' ? ['True', 'False'] : (q.options || []);
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.78)' }}>
+      <div
+        className="rounded-lg p-5 max-w-xl w-[90%] shadow-2xl"
+        style={{
+          background: 'linear-gradient(180deg, rgba(31,17,8,0.97) 0%, rgba(20,10,4,0.97) 100%)',
+          border: `2px double ${biome.accentSolid}`,
+          boxShadow: `0 0 40px ${biome.accent}`,
+          fontFamily: '"Cinzel", Georgia, serif',
+        }}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-xs uppercase tracking-wider italic" style={{ color: biome.accentSolid }}>
+            {isBoss ? `⚔ Boss Trial · Question ${stepNum} of ${total}` : '⚔ Encounter'}
+          </div>
+        </div>
+        <div className="text-amber-100 italic mb-4 leading-relaxed">{q.question}</div>
+        <div className={`grid gap-2 ${q.type === 'truefalse' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {options.map((opt, i) => {
+            const isPickedWrong = revealResult && revealResult.choice === i && !revealResult.correct;
+            const isPickedRight = revealResult && revealResult.choice === i && revealResult.correct;
+            const isAnsRight = revealResult && i === q.correctIndex;
+            let bg = 'rgba(31,24,12,0.55)';
+            let border = 'rgba(120,53,15,0.5)';
+            let color = '#fde68a';
+            if (isPickedRight || (revealResult && isAnsRight)) {
+              bg = 'rgba(16,185,129,0.25)'; border = '#10b981'; color = '#a7f3d0';
+            } else if (isPickedWrong) {
+              bg = 'rgba(220,38,38,0.25)'; border = '#dc2626'; color = '#fecaca';
+            }
+            return (
+              <button
+                key={i}
+                onClick={() => handle(i)}
+                disabled={!!revealResult}
+                className="text-left px-3 py-2 rounded italic"
+                style={{ background: bg, border: `1px solid ${border}`, color, cursor: revealResult ? 'default' : 'pointer' }}
+              >
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+        {revealResult && (
+          <div className="mt-3 text-xs italic text-amber-300">
+            {revealResult.correct
+              ? '✦ Thy answer rings true.'
+              : '✦ Nay — but the trial does not pause.'}
+            {q.explanation && (
+              <div className="mt-1 text-amber-200/80">{q.explanation}</div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// === EndRunOverlay ======================================================
+function EndRunOverlay({ runState, biome, summary, onExit }) {
+  if (runState !== 'victory' && runState !== 'death') return null;
+  const won = runState === 'victory';
+  return (
+    <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.85)' }}>
+      <div
+        className="rounded-lg p-6 max-w-md w-[90%] text-center"
+        style={{
+          background: won
+            ? 'linear-gradient(180deg, rgba(20,40,28,0.97) 0%, rgba(8,20,14,0.97) 100%)'
+            : 'linear-gradient(180deg, rgba(40,12,12,0.97) 0%, rgba(20,4,4,0.97) 100%)',
+          border: `2px double ${won ? '#10b981' : '#dc2626'}`,
+          fontFamily: '"Cinzel", Georgia, serif',
+        }}
+      >
+        <div className="text-3xl mb-2">{won ? '👑' : '💀'}</div>
+        <div className="text-xl italic mb-1" style={{ color: won ? '#a7f3d0' : '#fecaca' }}>
+          {won ? 'Victory!' : 'Slain.'}
+        </div>
+        <div className="text-xs italic mb-4" style={{ color: biome.accentSolid }}>
+          {won
+            ? `Thou hast felled ${BOSS_DISPLAY[summary.bossId]?.name || 'the dungeon lord'}.`
+            : 'Thy quest ends here. Return when thou art ready.'}
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs italic mb-4">
+          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)' }}>
+            <div className="text-amber-700">Foes felled</div>
+            <div className="text-amber-200">{summary.score}</div>
+          </div>
+          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)' }}>
+            <div className="text-amber-700">HP remaining</div>
+            <div className="text-amber-200">{summary.hp} / {summary.maxHp}</div>
+          </div>
+          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)' }}>
+            <div className="text-amber-700">Mistakes</div>
+            <div className="text-amber-200">{summary.mistakes}</div>
+          </div>
+          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)' }}>
+            <div className="text-amber-700">Best streak</div>
+            <div className="text-amber-200">{summary.maxStreak}</div>
+          </div>
+        </div>
+        {won && (
+          <div className="text-xs italic text-amber-300 mb-4">
+            +{summary.xpAwarded} XP · +{summary.goldAwarded} gold
+          </div>
+        )}
+        <button
+          onClick={onExit}
+          className="px-4 py-2 rounded italic"
+          style={{
+            background: 'rgba(120,53,15,0.7)',
+            border: '1px solid rgba(245,158,11,0.8)',
+            color: '#fde047',
+          }}
+        >
+          Return to Hearth
+        </button>
+      </div>
+    </div>
+  );
 }
 
 const FACING_LABELS = { up: 'up', down: 'down', left: 'left', right: 'right' };
@@ -486,7 +956,22 @@ const DIFFICULTY_LABELS = {
 };
 
 // === Component ==========================================================
-export default function DungeonExplore({ onExit, playerState, subject }) {
+export default function DungeonExplore({
+  onExit,
+  playerState,
+  subject,
+  courseSet,
+  tomeProgress,
+  awardXP,
+  awardGold,
+  recordAnswer,
+  checkAchievement,
+  unlockSpecialTitle,
+  updateProgress,
+  updateTomeProgress,
+  trackDungeonAttempt,
+  onViewHistory,
+}) {
   const isUnlocked = (id) => {
     if (id === 'apprentice') return true;
     if (!playerState) return false;
@@ -504,6 +989,7 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [difficulty, setDifficulty] = useState(defaultDifficulty);
+  const diffConfig = DIFF_CONFIG[difficulty] || DIFF_CONFIG.apprentice;
 
   const biomeId = useMemo(() => pickBiomeForSubject(subject), [subject]);
   const biome = BIOMES[biomeId] || BIOMES.halls;
@@ -513,101 +999,62 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
     [difficulty, biomeId],
   );
 
+  // Run state
   const [pos, setPos] = useState(initial.spawn);
   const [facing, setFacing] = useState('down');
-  const initialRoomIdx = roomIndexAt(initial.rooms, initial.spawn.x, initial.spawn.y);
-  const [discoveredRooms, setDiscoveredRooms] = useState(() => new Set(initialRoomIdx === null ? [] : [initialRoomIdx]));
-  const [currentRoom, setCurrentRoom] = useState(initialRoomIdx);
-  const [roomFlashAt, setRoomFlashAt] = useState(0);
+  const [hp, setHp] = useState(diffConfig.hp);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [maxStreak, setMaxStreak] = useState(0);
+  const [mistakes, setMistakes] = useState(0);
+  const [runState, setRunState] = useState('alive'); // alive | victory | death
+  const [battle, setBattle] = useState(null);
+  // Reward summary populated on end-of-run for the overlay.
+  const [endSummary, setEndSummary] = useState(null);
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const mobsRef = useRef(initial.mobs.map((m) => ({ ...m })));
+  const usedQuestionIdsRef = useRef(new Set());
+  const runQuestionLogRef = useRef([]);
+  const runStartTimeRef = useRef(Date.now());
+  const trackedAttemptRef = useRef(false);
 
-  // Mutable state mirrored into a ref so the rAF loop always sees fresh
-  // values without re-creating the loop on every state change.
   const stateRef = useRef({});
   useLayoutEffect(() => {
-    stateRef.current = {
-      pos, facing, biome, initial, discoveredRooms, roomFlashAt,
-    };
+    stateRef.current = { pos, facing, biome, initial, hp, maxHp: diffConfig.hp, battle, runState, score };
   });
 
-  // Visible-tile memo (room bounding boxes + corridors w/ both endpoints
-  // discovered). Player aura adds extra tiles inside the rAF render loop.
-  const visibleTiles = useMemo(() => {
-    const set = new Set();
-    discoveredRooms.forEach((idx) => {
-      const r = initial.rooms[idx];
-      if (!r) return;
-      for (let y = r.y; y < r.y + r.h; y++) {
-        for (let x = r.x; x < r.x + r.w; x++) set.add(`${x},${y}`);
-      }
-    });
-    initial.corridors.forEach((c) => {
-      if (discoveredRooms.has(c.from) && discoveredRooms.has(c.to)) {
-        c.tiles.forEach(({ x, y }) => set.add(`${x},${y}`));
-      }
-    });
-    return set;
-  }, [discoveredRooms, initial.rooms, initial.corridors]);
-
-  // Reset on map regeneration.
+  // Reset on map regen / difficulty change. Reset HP, mobs, run state etc.
   useEffect(() => {
-    const idx = roomIndexAt(initial.rooms, initial.spawn.x, initial.spawn.y);
     setPos(initial.spawn);
     setFacing('down');
-    setDiscoveredRooms(new Set(idx === null ? [] : [idx]));
-    setCurrentRoom(idx);
-    setRoomFlashAt(performance.now());
-  }, [initial]);
+    setHp(diffConfig.hp);
+    setScore(0);
+    setStreak(0);
+    setMaxStreak(0);
+    setMistakes(0);
+    setRunState('alive');
+    setBattle(null);
+    setEndSummary(null);
+    mobsRef.current = initial.mobs.map((m) => ({ ...m }));
+    usedQuestionIdsRef.current = new Set();
+    runQuestionLogRef.current = [];
+    runStartTimeRef.current = Date.now();
+    trackedAttemptRef.current = false;
+  }, [initial, diffConfig.hp]);
 
-  // Detect room entry/exit on every position change.
+  // Tutorial: track that the player entered the dungeon.
   useEffect(() => {
-    const idx = roomIndexAt(initial.rooms, pos.x, pos.y);
-    if (idx !== currentRoom) {
-      setCurrentRoom(idx);
-      if (idx !== null) {
-        setDiscoveredRooms((prev) => {
-          if (prev.has(idx)) return prev;
-          const next = new Set(prev);
-          next.add(idx);
-          return next;
-        });
-        setRoomFlashAt(performance.now());
-      }
+    if (!trackedAttemptRef.current && trackDungeonAttempt) {
+      trackedAttemptRef.current = true;
+      try { trackDungeonAttempt(); } catch { /* tutorial bookkeeping is best-effort */ }
     }
-  }, [pos, currentRoom, initial.rooms]);
+  }, [trackDungeonAttempt]);
 
-  // Keyboard movement.
-  useEffect(() => {
-    const onKey = (e) => {
-      let dx = 0, dy = 0, dir = null;
-      switch (e.key) {
-        case 'ArrowUp': case 'w': case 'W':    dy = -1; dir = 'up';    break;
-        case 'ArrowDown': case 's': case 'S':  dy = 1;  dir = 'down';  break;
-        case 'ArrowLeft': case 'a': case 'A':  dx = -1; dir = 'left';  break;
-        case 'ArrowRight': case 'd': case 'D': dx = 1;  dir = 'right'; break;
-        case 'Escape': if (onExit) onExit(); return;
-        default: return;
-      }
-      e.preventDefault();
-      setFacing(dir);
-      setPos((p) => {
-        const nx = p.x + dx;
-        const ny = p.y + dy;
-        if (ny < 0 || ny >= initial.map.length) return p;
-        if (nx < 0 || nx >= initial.map[0].length) return p;
-        if (!isWalkable(initial.map[ny][nx])) return p;
-        return { x: nx, y: ny };
-      });
-    };
-    window.addEventListener('keydown', onKey);
-    if (containerRef.current) containerRef.current.focus();
-    return () => window.removeEventListener('keydown', onKey);
-  }, [initial.map, onExit]);
-
-  // Touch/mouse D-pad for mobile + click fallback.
-  const move = (dx, dy, dir) => {
+  // Movement.
+  const tryMove = (dx, dy, dir) => {
+    if (battle || runState !== 'alive') return;
     setFacing(dir);
     setPos((p) => {
       const nx = p.x + dx;
@@ -619,19 +1066,212 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
     });
   };
 
-  // Animation refs — interpolated draw-position and walk frame.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (battle) return; // swallow movement during battles
+      if (runState !== 'alive') {
+        if (e.key === 'Escape' && onExit) onExit();
+        return;
+      }
+      let dx = 0, dy = 0, dir = null;
+      switch (e.key) {
+        case 'ArrowUp': case 'w': case 'W':    dy = -1; dir = 'up';    break;
+        case 'ArrowDown': case 's': case 'S':  dy = 1;  dir = 'down';  break;
+        case 'ArrowLeft': case 'a': case 'A':  dx = -1; dir = 'left';  break;
+        case 'ArrowRight': case 'd': case 'D': dx = 1;  dir = 'right'; break;
+        case 'Escape': if (onExit) onExit(); return;
+        default: return;
+      }
+      e.preventDefault();
+      tryMove(dx, dy, dir);
+    };
+    window.addEventListener('keydown', onKey);
+    if (containerRef.current) containerRef.current.focus();
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [battle, runState, initial.map, onExit]);
+
+  // Mob / boss collision detection on every position change.
+  useEffect(() => {
+    if (battle || runState !== 'alive') return;
+    // Boss collision
+    if (initial.boss && pos.x === initial.boss.x && pos.y === initial.boss.y) {
+      const qs = pickQuestions(courseSet, 5, usedQuestionIdsRef.current);
+      if (qs.length === 0) {
+        // No quiz questions in tome — auto-victory rather than soft-locking.
+        finishRun(true, { earlyByEmptyTome: true });
+        return;
+      }
+      qs.forEach((q) => usedQuestionIdsRef.current.add(q.id));
+      setBattle({ type: 'boss', questions: qs, questionIdx: 0 });
+      return;
+    }
+    // Mob collision
+    const mobIdx = mobsRef.current.findIndex((m) => m.x === pos.x && m.y === pos.y);
+    if (mobIdx >= 0) {
+      const qs = pickQuestions(courseSet, 1, usedQuestionIdsRef.current);
+      if (qs.length === 0) {
+        // No questions — defeat mob automatically and award a tiny reward.
+        mobsRef.current.splice(mobIdx, 1);
+        if (awardXP) awardXP(5, 'Foe felled (silent)');
+        return;
+      }
+      qs.forEach((q) => usedQuestionIdsRef.current.add(q.id));
+      setBattle({ type: 'mob', mobIdx, questions: qs, questionIdx: 0 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pos]);
+
+  // Battle answer resolution.
+  const onBattleAnswer = (correct, q) => {
+    runQuestionLogRef.current.push({
+      id: q?.id || `q_${runQuestionLogRef.current.length}`,
+      prompt: q?.question || '(question unavailable)',
+      correct: !!correct,
+      timeSec: 0,
+      type: q?.type,
+    });
+    if (recordAnswer) {
+      try { recordAnswer({ id: q?.id, type: q?.type, correct: !!correct }); }
+      catch { /* journal write — best effort */ }
+    }
+    if (correct) {
+      setScore((s) => s + 1);
+      setStreak((s) => {
+        const next = s + 1;
+        setMaxStreak((m) => Math.max(m, next));
+        return next;
+      });
+      if (battle?.type === 'mob' && awardXP) awardXP(10, 'Foe felled');
+      if (battle?.type === 'mob' && awardGold) awardGold(5, 'Foe felled');
+    } else {
+      setMistakes((m) => m + 1);
+      setStreak(0);
+      setHp((h) => h - 1);
+    }
+
+    // Mob: always remove the mob whether right or wrong (no infinite-fight loop).
+    if (battle?.type === 'mob') {
+      mobsRef.current.splice(battle.mobIdx, 1);
+      setBattle(null);
+      // HP=0 check happens via the runState effect below.
+      return;
+    }
+
+    // Boss: advance through the gauntlet.
+    if (battle?.type === 'boss') {
+      const nextIdx = battle.questionIdx + 1;
+      if (nextIdx >= battle.questions.length) {
+        // Boss gauntlet complete — if HP > 0 (after this answer's effect) we win.
+        setBattle(null);
+        // HP-after-this-answer is current hp - (correct ? 0 : 1). We use a
+        // flushSync-like trick by deferring the win check to a useEffect on
+        // hp, but simpler: schedule a microtask that checks final hp via the
+        // ref'd state.
+        setTimeout(() => {
+          if (stateRef.current.hp > 0) finishRun(true, {});
+          // else death effect already triggered via hp<=0 watcher
+        }, 0);
+      } else {
+        setBattle({ ...battle, questionIdx: nextIdx });
+      }
+    }
+  };
+
+  // Watch HP — if it drops to 0 or below, end the run.
+  useEffect(() => {
+    if (runState === 'alive' && hp <= 0) {
+      setBattle(null);
+      finishRun(false, {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hp]);
+
+  const finishRun = (won, opts = {}) => {
+    if (runState !== 'alive') return;
+    const durationSec = (Date.now() - runStartTimeRef.current) / 1000;
+    const finalHp = Math.max(0, hp);
+
+    let xpAwarded = 0;
+    let goldAwarded = 0;
+    if (won) {
+      xpAwarded = Math.floor(100 * diffConfig.xpMul);
+      goldAwarded = Math.floor(100 * diffConfig.goldMul);
+      if (awardXP) awardXP(xpAwarded, `${diffConfig.label} Dungeon Cleared`);
+      if (awardGold) awardGold(goldAwarded, `${diffConfig.label} Dungeon Cleared`);
+      if (checkAchievement) {
+        checkAchievement('first_run');
+        checkAchievement('first_boss');
+        const bossId = initial.boss?.kind;
+        if (bossId) {
+          const bossAch = `first_${bossId}`;
+          checkAchievement(bossAch);
+        }
+        if (mistakes === 0) {
+          checkAchievement('flawless');
+          if (unlockSpecialTitle) unlockSpecialTitle('flawless');
+        }
+        if (diffConfig.completeAchievement) checkAchievement(diffConfig.completeAchievement);
+      }
+      if (diffConfig.rewardTitleId && unlockSpecialTitle) unlockSpecialTitle(diffConfig.rewardTitleId);
+      if (updateTomeProgress) {
+        const newRunCount = (tomeProgress?.runsCompleted || 0) + 1;
+        const newBossCount = (tomeProgress?.bossesDefeated || 0) + 1;
+        updateTomeProgress({ runsCompleted: newRunCount, bossesDefeated: newBossCount });
+      }
+      if (updateProgress && playerState) {
+        updateProgress({ longestStreak: Math.max(playerState.longestStreak || 0, maxStreak) });
+      }
+    }
+
+    // Run history entry — same shape as the legacy DungeonRun for Chronicle compatibility.
+    const entry = {
+      runId: `run_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      date: new Date().toISOString(),
+      difficulty,
+      bossId: initial.boss?.kind,
+      won: !!won,
+      score,
+      livesRemaining: finalHp,
+      maxLives: diffConfig.hp,
+      mistakes,
+      maxStreak,
+      durationSec,
+      modifiers: [],
+      totalQuestions: runQuestionLogRef.current.length,
+      questionLog: [...runQuestionLogRef.current],
+    };
+    if (updateTomeProgress) {
+      const existing = tomeProgress?.runHistory || [];
+      const trimmed = [...existing, entry].slice(-100);
+      updateTomeProgress({ runHistory: trimmed });
+    }
+
+    setEndSummary({
+      score,
+      hp: finalHp,
+      maxHp: diffConfig.hp,
+      mistakes,
+      maxStreak,
+      xpAwarded,
+      goldAwarded,
+      bossId: initial.boss?.kind,
+      earlyByEmptyTome: !!opts.earlyByEmptyTome,
+    });
+    setRunState(won ? 'victory' : 'death');
+  };
+
+  // Animation refs.
   const animPosRef = useRef({ x: initial.spawn.x, y: initial.spawn.y });
   const lastPosRef = useRef({ x: initial.spawn.x, y: initial.spawn.y });
   const moveStartRef = useRef(0);
 
-  // Reset anim refs on map regen.
   useEffect(() => {
     animPosRef.current = { x: initial.spawn.x, y: initial.spawn.y };
     lastPosRef.current = { x: initial.spawn.x, y: initial.spawn.y };
     moveStartRef.current = 0;
   }, [initial]);
 
-  // Trigger a new tween whenever pos changes.
   useEffect(() => {
     moveStartRef.current = performance.now();
     lastPosRef.current = { ...animPosRef.current };
@@ -659,7 +1299,31 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
       const moving = t < 1;
       const walkFrame = moving ? Math.floor(now / WALK_FRAME_MS) % 4 : 0;
 
-      // Camera centers on the animated player position.
+      // Mob wander — but pause while a battle is open or run is over.
+      if (!s.battle && s.runState === 'alive') {
+        mobsRef.current.forEach((m) => {
+          if (m.nextMoveAt === 0) {
+            m.nextMoveAt = now + MOB_MOVE_MIN_MS + Math.random() * (MOB_MOVE_MAX_MS - MOB_MOVE_MIN_MS);
+            return;
+          }
+          if (now < m.nextMoveAt) return;
+          const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+          const [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)];
+          const nx = m.x + dx;
+          const ny = m.y + dy;
+          const inBounds = nx >= m.bounds.x && nx < m.bounds.x + m.bounds.w &&
+                           ny >= m.bounds.y && ny < m.bounds.y + m.bounds.h;
+          if (inBounds && s.initial.map[ny]?.[nx] === TILE.FLOOR) {
+            // Avoid stepping onto the player.
+            if (!(nx === s.pos.x && ny === s.pos.y)) {
+              m.x = nx;
+              m.y = ny;
+            }
+          }
+          m.nextMoveAt = now + MOB_MOVE_MIN_MS + Math.random() * (MOB_MOVE_MAX_MS - MOB_MOVE_MIN_MS);
+        });
+      }
+
       const cameraX = ax * TILE_PX - CANVAS_W / 2 + TILE_PX / 2;
       const cameraY = ay * TILE_PX - CANVAS_H / 2 + TILE_PX / 2;
 
@@ -671,51 +1335,54 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
       const startRow = Math.max(0, Math.floor(cameraY / TILE_PX) - 1);
       const endRow   = Math.min(s.initial.height, startRow + VIEW_H + 3);
 
-      // Player aura — square distance for crisp edges.
-      const playerTileX = Math.round(ax);
-      const playerTileY = Math.round(ay);
-
       for (let y = startRow; y < endRow; y++) {
         for (let x = startCol; x < endCol; x++) {
-          const adx = Math.abs(x - playerTileX);
-          const ady = Math.abs(y - playerTileY);
-          const inAura = adx + ady <= PLAYER_AURA_RADIUS;
-          const visible = inAura || visibleTiles.has(`${x},${y}`);
           const px = x * TILE_PX - cameraX;
           const py = y * TILE_PX - cameraY;
-          if (!visible) {
-            drawHidden(ctx, px, py);
-          } else {
-            drawTile(ctx, s.biome, s.initial.map[y][x], px, py);
-          }
+          drawTile(ctx, s.biome, s.initial.map[y][x], px, py);
         }
       }
 
-      // Player at draw position.
+      s.initial.decorations.forEach((d) => {
+        if (d.x < startCol - 1 || d.x > endCol || d.y < startRow - 1 || d.y > endRow) return;
+        const px = d.x * TILE_PX - cameraX;
+        const py = d.y * TILE_PX - cameraY;
+        const drawer = DECO_DRAWERS[d.kind];
+        if (drawer) drawer(ctx, px, py);
+      });
+
+      if (s.initial.boss) {
+        const b = s.initial.boss;
+        if (b.x >= startCol - 1 && b.x <= endCol && b.y >= startRow - 1 && b.y <= endRow) {
+          const px = b.x * TILE_PX - cameraX;
+          const py = b.y * TILE_PX - cameraY;
+          const drawer = BOSS_DRAWERS[b.kind];
+          if (drawer) drawer(ctx, px, py, now);
+        }
+      }
+
+      mobsRef.current.forEach((m) => {
+        if (m.x < startCol - 1 || m.x > endCol || m.y < startRow - 1 || m.y > endRow) return;
+        const px = m.x * TILE_PX - cameraX;
+        const py = m.y * TILE_PX - cameraY;
+        const drawer = MOB_DRAWERS[m.kind];
+        if (drawer) drawer(ctx, px, py, now);
+      });
+
       const ppx = ax * TILE_PX - cameraX;
       const ppy = ay * TILE_PX - cameraY;
       drawPlayer(ctx, ppx, ppy, s.facing, walkFrame);
 
-      // Vignette
       const grad = ctx.createRadialGradient(
-        CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.3,
-        CANVAS_W / 2, CANVAS_H / 2, CANVAS_W * 0.65,
+        CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.4,
+        CANVAS_W / 2, CANVAS_H / 2, CANVAS_W * 0.7,
       );
       grad.addColorStop(0, 'rgba(0,0,0,0)');
-      grad.addColorStop(1, 'rgba(0,0,0,0.7)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.4)');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-      // Cross-room flash overlay (fades 360ms).
-      const flashAge = now - s.roomFlashAt;
-      if (s.roomFlashAt && flashAge < 360) {
-        ctx.fillStyle = s.biome.accent;
-        ctx.globalAlpha = 0.55 * (1 - flashAge / 360);
-        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-        ctx.globalAlpha = 1;
-      }
-
-      // HUD — biome name + chamber count, top-left
+      // HUD — biome name (top-left)
       ctx.font = "16px 'Cinzel', Georgia, serif";
       ctx.textBaseline = 'top';
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
@@ -723,17 +1390,42 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
       ctx.fillStyle = s.biome.accentSolid;
       ctx.fillText(`${s.biome.icon}  ${s.biome.name}`, 16, 14);
 
-      // Chamber counter, top-right
-      const found = s.discoveredRooms.size;
-      const total = s.initial.rooms.length;
-      const counterText = `${found} / ${total} chambers`;
+      // HP hearts (top-right). Maxes at 5 hearts; beyond that show "x N".
+      const hudHpW = Math.min(s.maxHp, 5) * 22 + 30;
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      ctx.fillRect(CANVAS_W - 200, 8, 184, 28);
-      ctx.fillStyle = '#fde047';
-      ctx.fillText(counterText, CANVAS_W - 188, 14);
+      ctx.fillRect(CANVAS_W - hudHpW - 8, 8, hudHpW, 28);
+      for (let i = 0; i < Math.min(s.maxHp, 5); i++) {
+        const hx = CANVAS_W - hudHpW + i * 22;
+        const hy = 14;
+        ctx.fillStyle = i < s.hp ? '#ef4444' : '#3a1414';
+        // Heart shape via two circles + triangle
+        ctx.beginPath();
+        ctx.arc(hx + 6,  hy + 6, 5, 0, Math.PI * 2);
+        ctx.arc(hx + 12, hy + 6, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(hx + 1, hy + 8);
+        ctx.lineTo(hx + 17, hy + 8);
+        ctx.lineTo(hx + 9, hy + 18);
+        ctx.closePath();
+        ctx.fill();
+      }
+      if (s.maxHp > 5) {
+        ctx.fillStyle = '#fde047';
+        ctx.font = "12px 'Cinzel', Georgia, serif";
+        ctx.fillText(`× ${s.hp}/${s.maxHp}`, CANVAS_W - 36, 14);
+        ctx.font = "16px 'Cinzel', Georgia, serif";
+      }
 
-      // Coordinates, bottom-left
+      // Score + difficulty (bottom-right)
       ctx.font = "12px 'Cinzel', Georgia, serif";
+      const scoreText = `Foes: ${s.score} · ${(DIFFICULTY_LABELS[difficulty]?.label || difficulty)}`;
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(CANVAS_W - 220, CANVAS_H - 28, 212, 22);
+      ctx.fillStyle = '#fde047';
+      ctx.fillText(scoreText, CANVAS_W - 212, CANVAS_H - 24);
+
+      // Coords (bottom-left)
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
       ctx.fillRect(8, CANVAS_H - 28, 180, 22);
       ctx.fillStyle = '#a8a29e';
@@ -743,7 +1435,7 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [visibleTiles]);
+  }, []);
 
   return (
     <div className="space-y-2">
@@ -769,7 +1461,7 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
                   opacity: unlocked ? 1 : 0.5,
                   cursor: unlocked ? 'pointer' : 'not-allowed',
                 }}
-                title={unlocked ? `${info.label} — ${ROOMS_BY_DIFFICULTY[id]} chambers` : 'Locked'}
+                title={unlocked ? `${info.label} — ${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP` : 'Locked'}
               >
                 {info.icon} {info.label}
               </button>
@@ -804,40 +1496,30 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
             imageRendering: 'pixelated',
           }}
         />
+        <BattleModal battle={battle} biome={biome} onAnswer={onBattleAnswer} />
+        <EndRunOverlay
+          runState={runState}
+          biome={biome}
+          summary={endSummary || { score, hp, maxHp: diffConfig.hp, mistakes, maxStreak, xpAwarded: 0, goldAwarded: 0, bossId: initial.boss?.kind }}
+          onExit={() => onExit && onExit()}
+        />
       </div>
 
-      {/* Mobile / touch D-pad. Hidden on wider screens via media query in
-          inline style? we can just let it render — buttons are unobtrusive. */}
       <div className="flex justify-center select-none">
         <div className="grid grid-cols-3 gap-1" style={{ width: 180 }}>
           <div />
-          <button
-            onClick={() => move(0, -1, 'up')}
-            className="rounded text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}
-          >▲</button>
+          <button onClick={() => tryMove(0, -1, 'up')} className="rounded text-amber-300"
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▲</button>
           <div />
-          <button
-            onClick={() => move(-1, 0, 'left')}
-            className="rounded text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}
-          >◀</button>
-          <button
-            onClick={() => onExit && onExit()}
-            className="rounded text-amber-700 text-xs italic"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}
-          >Esc</button>
-          <button
-            onClick={() => move(1, 0, 'right')}
-            className="rounded text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}
-          >▶</button>
+          <button onClick={() => tryMove(-1, 0, 'left')} className="rounded text-amber-300"
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>◀</button>
+          <button onClick={() => onExit && onExit()} className="rounded text-amber-700 text-xs italic"
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>Esc</button>
+          <button onClick={() => tryMove(1, 0, 'right')} className="rounded text-amber-300"
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▶</button>
           <div />
-          <button
-            onClick={() => move(0, 1, 'down')}
-            className="rounded text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}
-          >▼</button>
+          <button onClick={() => tryMove(0, 1, 'down')} className="rounded text-amber-300"
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▼</button>
           <div />
         </div>
       </div>
@@ -845,8 +1527,13 @@ export default function DungeonExplore({ onExit, playerState, subject }) {
       <div className="text-center text-xs italic max-w-xl mx-auto" style={{ color: '#92400e' }}>
         ⚜ {biome.flavor} ⚜
         <div className="text-[10px] text-amber-700/70 mt-1">
-          Arrow keys / WASD or the D-pad · Esc to leave
+          Walk into a foe to engage · Reach the dungeon lord to win the run · Esc to leave
         </div>
+        {onViewHistory && (
+          <button onClick={onViewHistory} className="mt-2 text-amber-600 hover:text-amber-400 italic underline text-[11px]">
+            ⚜ View Chronicle of Delves ⚜
+          </button>
+        )}
       </div>
     </div>
   );

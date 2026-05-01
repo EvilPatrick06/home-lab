@@ -2030,18 +2030,13 @@ export default function DungeonScholarApp() {
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
-        {screen === 'explore' && (
+        {screen === 'dungeon' && courseSet && (
           <DungeonExplore
             onExit={() => setScreen('home')}
             playerState={playerState}
             subject={courseSet?.metadata?.subject}
-          />
-        )}
-        {screen === 'dungeon' && courseSet && (
-          <DungeonRun
             courseSet={courseSet}
             tomeProgress={tomeProgress}
-            playerState={playerState}
             awardXP={awardXP}
             awardGold={awardGold}
             recordAnswer={recordAnswer}
@@ -2050,7 +2045,6 @@ export default function DungeonScholarApp() {
             updateProgress={updateProgress}
             updateTomeProgress={updateTomeProgress}
             trackDungeonAttempt={trackDungeonAttempt}
-            onExit={() => setScreen('home')}
             onViewHistory={() => setScreen('history')}
           />
         )}
@@ -2738,7 +2732,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
       <div className="grid md:grid-cols-2 gap-4">
         <ModeCard
           title="Dungeon Delve"
-          desc="The grand quest. Five chambers of escalating peril, drawn from all sources, culminating in a duel with the dungeon lord. Lives, power-ups, glory await."
+          desc="Walk a top-down realm of themed biomes (Crypt, Sewers, Tower, Halls, Wastes). Bump into foes to face their riddles, and reach the dungeon lord at the end to claim victory."
           icon={<Swords className="w-8 h-8" />}
           color="red"
           featured
@@ -2799,13 +2793,6 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           icon={<Scroll className="w-8 h-8" />}
           color="purple"
           onClick={() => setScreen('history')}
-        />
-        <ModeCard
-          title="Dungeon Explore"
-          desc="A new realm — wander themed biomes (Crypt, Sewers, Tower, Halls, Wastes), uncover chambers through the fog, and walk thy hooded scholar across an RPG world."
-          icon={<Castle className="w-8 h-8" />}
-          color="rose"
-          onClick={() => setScreen('explore')}
         />
       </div>
 

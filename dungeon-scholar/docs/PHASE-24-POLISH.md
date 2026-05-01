@@ -13,7 +13,8 @@ This file tracks polish/deferred work to address in Phase 24 (Polish, Balance & 
 
 ## Build / structure
 
-- **App.jsx is large.** Bundle warns at >500 KB after minification. Phase 24 should split out the major modes (DungeonRun, BossEncounter, FlashcardsMode, QuizMode, LabMode, ShopScreen, RunHistoryScreen) into `src/components/` files and load via dynamic `import()` to code-split the bundle.
+- **App.jsx is large.** Bundle warns at >500 KB after minification. Phase 24 should split out the major modes (FlashcardsMode, QuizMode, LabMode, ShopScreen, RunHistoryScreen) into `src/components/` files and load via dynamic `import()` to code-split the bundle.
+- **Delete the legacy `DungeonRun` and `BossEncounter` components in `src/App.jsx`.** Phase 12.x merged the wave-based delve into `DungeonExplore` and stopped routing `screen === 'dungeon'` to `DungeonRun`. The two functions (~1000 lines combined) plus their helpers (`RunQuestionReview`, `ModifierToggle`, `ChallengeRenderer`'s boss branches) are now dead code. Verify nothing else references them, then delete.
 
 ---
 
