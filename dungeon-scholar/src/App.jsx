@@ -483,6 +483,79 @@ const DIFFICULTIES = {
 
 const DIFFICULTY_ORDER = ['apprentice', 'adept', 'master', 'mythic'];
 
+// === Boss Variety (Phase 9) ===
+// One archetype is rolled at the start of each dungeon delve. Each carries its
+// own mechanic, narrative, and a first-defeat achievement. The BossEncounter
+// component renders the appropriate sub-flow on the final wave.
+const BOSS_TYPES = {
+  lich: {
+    id: 'lich',
+    name: 'The Lich',
+    icon: '💀',
+    color: 'purple',
+    flavor: 'A skeletal sorcerer wreathed in violet flame, tethered to centuries of forbidden lore.',
+    mechanic: 'Chain five correct answers in a row. Any wrong answer breaks the chain to zero — but thy lives endure.',
+    victoryText: 'The Lich crumbles to dust as thy knowledge unmakes its bindings.',
+    defeatText: 'Thy lives ran dry before the chain could close. The Lich cackles in the dark.',
+    achievement: 'first_lich',
+    chainTarget: 5,
+  },
+  hydra: {
+    id: 'hydra',
+    name: 'The Hydra',
+    icon: '🐉',
+    color: 'emerald',
+    flavor: 'Three serpentine heads writhe in unison, fangs bared, breathing ruin.',
+    mechanic: 'Three riddles posed at once. Answer all three correctly — any miss costs a life and reshapes the heads.',
+    victoryText: 'All three heads fall as one. The Hydra collapses with a final shriek.',
+    defeatText: 'Thy lives ran dry under the Hydra\'s unceasing gaze.',
+    achievement: 'first_hydra',
+    headCount: 3,
+  },
+  riddler: {
+    id: 'riddler',
+    name: 'The Riddler',
+    icon: '🃏',
+    color: 'amber',
+    flavor: 'A masked trickster who wagers the path on words alone.',
+    mechanic: 'Three fill-in-the-blank riddles. No aids of magic or sage permitted.',
+    victoryText: 'The Riddler bows to thy unaided wit and dissolves into mist.',
+    defeatText: 'The Riddler twirls his cane. "Better luck in the next life, scholar."',
+    achievement: 'first_riddler',
+    riddleCount: 3,
+  },
+  sphinx: {
+    id: 'sphinx',
+    name: 'The Sphinx',
+    icon: '🦁',
+    color: 'sapphire',
+    flavor: 'A regal beast whose patience is measured in falling sand.',
+    mechanic: 'Three riddles, fifteen heartbeats each. Hesitation is its own answer — and the wrong one.',
+    victoryText: 'The Sphinx rises and steps aside. The path is thine.',
+    defeatText: 'The hourglass emptied before thy answer formed. The Sphinx remains.',
+    achievement: 'first_sphinx',
+    riddleCount: 3,
+    secondsPerRiddle: 15,
+  },
+  behemoth: {
+    id: 'behemoth',
+    name: 'The Behemoth',
+    icon: '🪨',
+    color: 'rose',
+    flavor: 'A mountain of muscle and bone, scarred by ages of battle.',
+    mechanic: 'Seven blows to fell — but each missed strike costs TWO lives.',
+    victoryText: 'The Behemoth topples like a felled oak. The earth shakes with its passing.',
+    defeatText: 'The Behemoth\'s roar shakes the chamber. Thy strength is spent.',
+    achievement: 'first_behemoth',
+    hitsToFell: 7,
+    lifeCost: 2,
+  },
+};
+
+const BOSS_ORDER = ['lich', 'hydra', 'riddler', 'sphinx', 'behemoth'];
+
+const rollBoss = () => BOSS_ORDER[Math.floor(Math.random() * BOSS_ORDER.length)];
+
 // Returns true if the player meets the unlock requirement for a difficulty.
 // Apprentice is always unlocked. Higher tiers gate on level / runs / specific
 // achievements per the spec.
@@ -599,6 +672,12 @@ const ACHIEVEMENTS = [
   { id: 'adept_complete', name: 'Adept Confirmed', desc: 'Complete a dungeon delve on Adept difficulty', icon: '⚔️', category: 'difficulty' },
   { id: 'master_complete', name: 'Master of the Path', desc: 'Complete a dungeon delve on Master difficulty', icon: '👑', category: 'difficulty' },
   { id: 'mythic_complete', name: 'Mythic Conqueror', desc: 'Complete a dungeon delve on Mythic difficulty', icon: '🌟', category: 'difficulty' },
+
+  { id: 'first_lich',     name: 'Bane of the Lich',     desc: 'Defeat The Lich for the first time',     icon: '💀', category: 'boss' },
+  { id: 'first_hydra',    name: 'Hydra Slayer',         desc: 'Defeat The Hydra for the first time',    icon: '🐉', category: 'boss' },
+  { id: 'first_riddler',  name: 'Wits Unaided',         desc: 'Defeat The Riddler for the first time',  icon: '🃏', category: 'boss' },
+  { id: 'first_sphinx',   name: 'Swift of Mind',        desc: 'Defeat The Sphinx for the first time',   icon: '🦁', category: 'boss' },
+  { id: 'first_behemoth', name: 'Felled the Mountain',  desc: 'Defeat The Behemoth for the first time', icon: '🪨', category: 'boss' },
 ];
 
 const xpForLevel = (lvl) => Math.floor(100 * Math.pow(lvl, 1.5));
@@ -2756,6 +2835,10 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
   const [phase, setPhase] = useState('setup');
   const [modifiers, setModifiers] = useState([]);
   const [difficulty, setDifficulty] = useState('apprentice');
+  // Boss is rolled when the player lands on the setup screen and re-rolled on
+  // each new run, so the setup screen can display "You face: The X" before
+  // the player commits.
+  const [bossId, setBossId] = useState(() => rollBoss());
   const [lives, setLives] = useState(3);
   const [maxLives, setMaxLives] = useState(3);
   const [wave, setWave] = useState(1);
@@ -2783,6 +2866,8 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
   const goldMultiplier = diffConfig.goldMultiplier * (1 + (permUp.goldDropPct || 0) / 100);
 
   const startRun = () => {
+    // Re-roll the boss for each new run so retries face fresh archetypes.
+    setBossId(rollBoss());
     // Base lives from difficulty + Sanctum maxHp stacks. Hardcore forces 1.
     // Cleric blessing adds +1 (was previously a flat "begin with 4").
     let startLives = diffConfig.lives + (permUp.maxHp || 0);
@@ -2940,6 +3025,9 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
       checkAchievement('first_run');
       if (isBossWave || wave >= TOTAL_WAVES) {
         checkAchievement('first_boss');
+        // Phase 9: first-defeat achievement specific to the rolled boss type.
+        const bossDef = BOSS_TYPES[bossId];
+        if (bossDef?.achievement) checkAchievement(bossDef.achievement);
         const newRunCount = (tomeProgress?.runsCompleted || 0) + 1;
         const newBossCount = (tomeProgress?.bossesDefeated || 0) + 1;
         updateTomeProgress({ runsCompleted: newRunCount, bossesDefeated: newBossCount });
@@ -3076,6 +3164,40 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
               })}
             </div>
           </div>
+          {(() => {
+            const boss = BOSS_TYPES[bossId] || BOSS_TYPES.lich;
+            return (
+              <div className="mb-6 p-4 rounded relative" style={{
+                background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                border: '2px solid rgba(126, 34, 206, 0.55)',
+                boxShadow: '0 0 18px rgba(168, 85, 247, 0.25), inset 0 0 15px rgba(0,0,0,0.5)',
+              }}>
+                <div className="absolute top-1 left-1 text-purple-400/60 text-xs">⚜</div>
+                <div className="absolute top-1 right-1 text-purple-400/60 text-xs">⚜</div>
+                <div className="absolute bottom-1 left-1 text-purple-400/60 text-xs">⚜</div>
+                <div className="absolute bottom-1 right-1 text-purple-400/60 text-xs">⚜</div>
+                <div className="text-xs text-purple-400 tracking-[0.25em] italic mb-2">⚜ THOU SHALT FACE ⚜</div>
+                <div className="flex items-start gap-3">
+                  <div className="text-5xl flex-shrink-0">{boss.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.4)' }}>
+                      {boss.name}
+                    </h4>
+                    <p className="text-xs text-amber-100/75 italic mt-1 leading-relaxed">{boss.flavor}</p>
+                    <p className="text-xs text-purple-300 italic mt-2"><span className="text-amber-300 font-bold">⚔ Mechanic:</span> {boss.mechanic}</p>
+                  </div>
+                  <button
+                    onClick={() => setBossId(rollBoss())}
+                    className="self-start px-2.5 py-1.5 rounded text-xs italic border border-purple-500/60 text-purple-200 hover:bg-purple-900/30 flex items-center gap-1"
+                    style={{ background: 'rgba(31, 12, 41, 0.7)' }}
+                    title="Re-roll boss"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Re-roll
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
           <div className="mb-6">
             <h3 className="font-bold text-amber-300 mb-3 italic tracking-wider">⚜ ANCIENT CURSES ⚜</h3>
             <div className="grid md:grid-cols-2 gap-2">
@@ -3230,7 +3352,31 @@ function DungeonRun({ courseSet, tomeProgress, awardXP, awardGold, recordAnswer,
         </div>
       )}
 
-      {!showFeedback && (
+      {!showFeedback && isBossWave && BOSS_TYPES[bossId] && (
+        <BossEncounter
+          boss={BOSS_TYPES[bossId]}
+          courseSet={courseSet}
+          initialLives={lives}
+          recordAnswer={(correct, item) => recordAnswer(correct, { ...item, _type: 'quiz' })}
+          onWin={() => {
+            // Treat as if the player landed a final correct answer on the boss
+            // wave. handleAnswer will fire all the standard victory hooks
+            // (achievements, XP, gold, difficulty rewards) and then advance.
+            handleAnswer(true, { ...currentChallenge, _bossDefeated: bossId, _bossKind: bossId });
+          }}
+          onLose={() => {
+            // Force defeat phase. No skip-life cost — the boss already drained
+            // them. Use applyAnswerEffects with correct=false to record a final
+            // wrong, then move to defeat phase directly.
+            setShowFeedback({ correct: false, explanation: BOSS_TYPES[bossId].defeatText });
+            setTimeout(() => {
+              setShowFeedback(null);
+              setPhase('defeat');
+            }, 2000);
+          }}
+        />
+      )}
+      {!showFeedback && !isBossWave && (
         <>
           <ChallengeRenderer
             challenge={currentChallenge} onAnswer={handleAnswer} powerups={powerups} setPowerups={setPowerups}
@@ -3270,6 +3416,403 @@ function ModifierToggle({ active, onClick, title, desc, bonus, penalty }) {
     </button>
   );
 }
+
+// === BossEncounter (Phase 9) ===
+// Replaces ChallengeRenderer on the boss wave. Each boss archetype has its own
+// mechanic but they share a common shell: boss-themed header, status line
+// (chain/hits/timer/etc.), question/answer area, and per-attempt feedback.
+// Lives flow through here too — wrong answers deduct from `lives` per the
+// boss's lifeCost. When lives ≤ 0 the encounter calls onLose; when the win
+// condition is met, onWin.
+function BossEncounter({ boss, courseSet, initialLives, onWin, onLose, recordAnswer }) {
+  // Boss-only quiz pool. Flashcards (subjective) are excluded — bosses need
+  // objective right/wrong outcomes.
+  const allQuiz = useMemo(() => courseSet?.quiz || [], [courseSet]);
+  const fillblanks = useMemo(
+    () => allQuiz.filter(q => q.type === 'fillblank' || q.type === 'fill_in_blank'),
+    [allQuiz]
+  );
+  const initialQuestions = useMemo(() => {
+    if (boss.id === 'riddler') {
+      const need = boss.riddleCount;
+      // Prefer fillblanks; fall back to other quiz if fewer than needed.
+      const pool = fillblanks.length >= need
+        ? fillblanks
+        : [...fillblanks, ...allQuiz.filter(q => !fillblanks.includes(q))];
+      return shuffleArray(pool).slice(0, need);
+    }
+    if (boss.id === 'hydra') return shuffleArray(allQuiz).slice(0, boss.headCount);
+    if (boss.id === 'sphinx') return shuffleArray(allQuiz).slice(0, boss.riddleCount);
+    if (boss.id === 'behemoth') return shuffleArray(allQuiz).slice(0, boss.hitsToFell);
+    // Lich draws an oversized pool so chain resets can keep pulling fresh Qs.
+    return shuffleArray(allQuiz).slice(0, Math.max(15, boss.chainTarget * 3));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boss.id]);
+
+  const [lives, setLives] = useState(initialLives);
+  const [questions] = useState(initialQuestions);
+  const [qIdx, setQIdx] = useState(0);
+  const [textAnswer, setTextAnswer] = useState('');
+  const [feedback, setFeedback] = useState(null); // { correct, message }
+
+  // Boss-specific state
+  const [chain, setChain] = useState(0); // Lich
+  const [hits, setHits] = useState(0); // Behemoth
+  const [hydraAnswers, setHydraAnswers] = useState(['', '', '']); // Hydra
+  const [hydraResults, setHydraResults] = useState(null); // [{ correct }, ...]
+  const [secondsLeft, setSecondsLeft] = useState(boss.secondsPerRiddle || 0); // Sphinx
+  const timerRef = useRef(null);
+
+  const currentQ = questions[qIdx];
+
+  // Sphinx countdown — restart on each new question.
+  useEffect(() => {
+    if (boss.id !== 'sphinx' || feedback || !currentQ) return;
+    setSecondsLeft(boss.secondsPerRiddle);
+    timerRef.current = setInterval(() => {
+      setSecondsLeft(s => {
+        if (s <= 1) {
+          clearInterval(timerRef.current);
+          setTimeout(() => resolveSingleAnswer(false, true), 50); // ran out of time
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qIdx, feedback, boss.id]);
+
+  // Common: end the boss with win or lose, also recording the deciding question.
+  const finishWin = () => onWin();
+  const finishLose = () => onLose();
+
+  // Apply a life deduction. If lives drop to ≤0 → lose.
+  const takeDamage = (amount) => {
+    setLives(l => {
+      const nl = l - amount;
+      if (nl <= 0) {
+        setTimeout(() => finishLose(), 600);
+        return 0;
+      }
+      return nl;
+    });
+  };
+
+  // For non-Hydra bosses (one question at a time). `timedOut` = Sphinx ran out.
+  const resolveSingleAnswer = (correct, timedOut = false) => {
+    if (currentQ) recordAnswer(correct, { ...currentQ, _bossKind: boss.id });
+
+    if (boss.id === 'lich') {
+      if (correct) {
+        const next = chain + 1;
+        setChain(next);
+        setFeedback({ correct: true, message: `Chain ${next}/${boss.chainTarget} — keep it.` });
+        if (next >= boss.chainTarget) {
+          setTimeout(() => finishWin(), 1000);
+          return;
+        }
+      } else {
+        setChain(0);
+        setFeedback({ correct: false, message: 'The chain shatters — begin anew.' });
+      }
+    } else if (boss.id === 'riddler') {
+      if (correct) {
+        setFeedback({ correct: true, message: 'A clean answer.' });
+      } else {
+        setFeedback({ correct: false, message: 'Wrong — a life forfeit.' });
+        takeDamage(1);
+      }
+    } else if (boss.id === 'sphinx') {
+      if (correct) {
+        setFeedback({ correct: true, message: `Swift and true (${secondsLeft}s remained).` });
+      } else {
+        setFeedback({ correct: false, message: timedOut ? 'The hourglass emptied — a life lost.' : 'Wrong — a life lost.' });
+        takeDamage(1);
+      }
+    } else if (boss.id === 'behemoth') {
+      if (correct) {
+        const nh = hits + 1;
+        setHits(nh);
+        setFeedback({ correct: true, message: `Strike ${nh}/${boss.hitsToFell} lands true.` });
+        if (nh >= boss.hitsToFell) {
+          setTimeout(() => finishWin(), 1000);
+          return;
+        }
+      } else {
+        setFeedback({ correct: false, message: `The blow misses — ${boss.lifeCost} lives forfeit.` });
+        takeDamage(boss.lifeCost);
+      }
+    }
+
+    // Advance after a beat (unless we already triggered win/lose with longer delay)
+    setTimeout(() => {
+      setFeedback(null);
+      setTextAnswer('');
+      // For Lich, keep cycling through the pool (wrap with modulo so we don't
+      // run out). For others, advance linearly; if we run out without winning,
+      // treat as lose.
+      if (boss.id === 'lich') {
+        setQIdx(i => (i + 1) % questions.length);
+      } else {
+        const next = qIdx + 1;
+        if (next >= questions.length) {
+          // Used up all the questions — if win condition wasn't met by now, lose.
+          setTimeout(() => finishLose(), 200);
+          return;
+        }
+        setQIdx(next);
+      }
+    }, 1200);
+  };
+
+  // Hydra — submit all 3 at once.
+  const submitHydra = () => {
+    if (hydraResults || feedback) return;
+    const results = questions.slice(0, boss.headCount).map((q, i) => {
+      const isMC = q.options && Array.isArray(q.options);
+      const isTF = q.type === 'truefalse';
+      const ans = hydraAnswers[i];
+      let correct = false;
+      if (isMC) {
+        // For MC, the "answer" is the index stored as a string from the radio.
+        correct = parseInt(ans, 10) === q.correctIndex;
+      } else if (isTF) {
+        correct = (ans === 'true' && q.correctAnswer === true) || (ans === 'false' && q.correctAnswer === false);
+      } else {
+        // Fillblank: substring match against acceptedAnswers / correctAnswer.
+        const norm = (s) => String(s || '').trim().toLowerCase();
+        const u = norm(ans);
+        if (u) {
+          const candidates = [];
+          if (q.correctAnswer != null) candidates.push(String(q.correctAnswer));
+          if (Array.isArray(q.acceptedAnswers)) candidates.push(...q.acceptedAnswers);
+          correct = candidates.some(c => {
+            const n = norm(c);
+            return n && (n === u || u.includes(n) || n.includes(u));
+          });
+        }
+      }
+      recordAnswer(correct, { ...q, _bossKind: 'hydra' });
+      return { correct };
+    });
+    setHydraResults(results);
+    const allCorrect = results.every(r => r.correct);
+    if (allCorrect) {
+      setTimeout(() => finishWin(), 1500);
+    } else {
+      const wrongCount = results.filter(r => !r.correct).length;
+      setFeedback({ correct: false, message: `${wrongCount} head${wrongCount === 1 ? '' : 's'} unbowed — life lost. The Hydra reshapes itself.` });
+      takeDamage(1);
+      setTimeout(() => {
+        setHydraResults(null);
+        setHydraAnswers(['', '', '']);
+        setFeedback(null);
+        // Re-shuffle 3 fresh heads from the pool.
+        // Limit: if pool is smaller than 3, reuse.
+      }, 2000);
+    }
+  };
+
+  // === Renderers ===
+  const headerColors = { purple: '#a855f7', emerald: '#10b981', amber: '#fde047', sapphire: '#0ea5e9', rose: '#f43f5e' };
+  const accent = headerColors[boss.color] || '#a855f7';
+
+  if (!currentQ && boss.id !== 'hydra') {
+    return (
+      <div className="p-6 rounded text-center text-amber-700 italic" style={{ background: 'rgba(31, 12, 41, 0.7)', border: '1px solid rgba(126, 34, 206, 0.4)' }}>
+        This tome lacks enough riddles for {boss.name}. Studythen return.
+      </div>
+    );
+  }
+
+  const renderHeader = () => (
+    <div className="p-4 rounded relative mb-3" style={{
+      background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.95) 0%, rgba(10, 6, 4, 1) 100%)',
+      border: `2px solid ${accent}99`,
+      boxShadow: `0 0 25px ${accent}40, inset 0 0 15px rgba(0,0,0,0.6)`,
+    }}>
+      <div className="flex items-start gap-3">
+        <div className="text-4xl flex-shrink-0">{boss.icon}</div>
+        <div className="flex-1 min-w-0">
+          <div className="text-xs tracking-[0.2em] italic" style={{ color: accent }}>⚔ DUNGEON LORD ⚔</div>
+          <h3 className="text-lg font-bold text-amber-200 italic" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.4)' }}>{boss.name}</h3>
+          <p className="text-xs text-amber-100/70 italic mt-1">{boss.mechanic}</p>
+        </div>
+        <div className="flex flex-col items-end text-xs">
+          <span className="text-red-300 italic">❤ Lives: <span className="font-bold tabular-nums">{lives}</span></span>
+          {boss.id === 'lich' && <span className="text-purple-300 italic mt-1">⛓ Chain: <span className="font-bold tabular-nums">{chain}/{boss.chainTarget}</span></span>}
+          {boss.id === 'behemoth' && <span className="text-rose-300 italic mt-1">🪨 Hits: <span className="font-bold tabular-nums">{hits}/{boss.hitsToFell}</span></span>}
+          {boss.id === 'sphinx' && !feedback && <span className="text-sky-300 italic mt-1">⏳ <span className="font-bold tabular-nums">{secondsLeft}s</span></span>}
+          {(boss.id === 'riddler' || boss.id === 'hydra') && (
+            <span className="text-amber-300 italic mt-1">
+              {boss.id === 'hydra'
+                ? `🐉 Heads: ${boss.headCount}`
+                : `📜 Riddle ${qIdx + 1}/${questions.length}`}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFeedback = () => feedback && (
+    <div className="p-4 rounded border-2 mb-3" style={{
+      background: feedback.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
+      borderColor: feedback.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
+    }}>
+      <div className="font-bold flex items-center gap-2 italic">
+        {feedback.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
+        {feedback.message}
+      </div>
+    </div>
+  );
+
+  // Standard single-question UI for non-Hydra bosses.
+  const renderSingleQuestion = () => {
+    const q = currentQ;
+    const isMC = q.options && Array.isArray(q.options);
+    const isTF = q.type === 'truefalse';
+    const isFIB = q.type === 'fillblank' || q.type === 'fill_in_blank';
+    const disabled = !!feedback;
+    return (
+      <div className="p-5 rounded" style={{ background: 'rgba(31, 12, 41, 0.8)', border: '1px solid rgba(126, 34, 206, 0.5)' }}>
+        <div className="text-lg text-amber-50 italic mb-4">{q.question}</div>
+        {isMC && (
+          <div className="space-y-2">
+            {q.options.map((opt, i) => (
+              <button key={i} disabled={disabled} onClick={() => resolveSingleAnswer(i === q.correctIndex)}
+                className="w-full text-left p-3 rounded border-2 text-amber-50 disabled:opacity-50"
+                style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}>
+                <span className="text-purple-400 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
+              </button>
+            ))}
+          </div>
+        )}
+        {isTF && (
+          <div className="grid grid-cols-2 gap-3">
+            <button disabled={disabled} onClick={() => resolveSingleAnswer(q.correctAnswer === true)} className="p-4 rounded font-bold border-2 border-emerald-400 text-emerald-200 italic disabled:opacity-50" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>⚖ Verily True ⚖</button>
+            <button disabled={disabled} onClick={() => resolveSingleAnswer(q.correctAnswer === false)} className="p-4 rounded font-bold border-2 border-red-400 text-red-200 italic disabled:opacity-50" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>⚖ A Falsehood ⚖</button>
+          </div>
+        )}
+        {isFIB && (
+          <div className="space-y-2">
+            <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} disabled={disabled}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter' || !textAnswer.trim() || disabled) return;
+                const norm = (s) => String(s || '').trim().toLowerCase();
+                const u = norm(textAnswer);
+                const cands = [];
+                if (q.correctAnswer != null) cands.push(String(q.correctAnswer));
+                if (Array.isArray(q.acceptedAnswers)) cands.push(...q.acceptedAnswers);
+                const correct = cands.some(c => { const n = norm(c); return n && (n === u || u.includes(n) || n.includes(u)); });
+                resolveSingleAnswer(correct);
+              }}
+              placeholder="Inscribe thy answer..." autoFocus
+              className="w-full p-3 rounded border-2 italic text-amber-50"
+              style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }} />
+            <button disabled={disabled || !textAnswer.trim()} onClick={() => {
+              const norm = (s) => String(s || '').trim().toLowerCase();
+              const u = norm(textAnswer);
+              const cands = [];
+              if (q.correctAnswer != null) cands.push(String(q.correctAnswer));
+              if (Array.isArray(q.acceptedAnswers)) cands.push(...q.acceptedAnswers);
+              const correct = cands.some(c => { const n = norm(c); return n && (n === u || u.includes(n) || n.includes(u)); });
+              resolveSingleAnswer(correct);
+            }} className="w-full py-3 font-bold rounded text-amber-50 border-2 border-purple-400 italic disabled:opacity-50"
+              style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)' }}>Submit Thy Answer</button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Hydra UI — three heads, three answers, one Submit.
+  const renderHydra = () => {
+    const heads = questions.slice(0, boss.headCount);
+    if (heads.length < boss.headCount) {
+      return <div className="p-4 text-amber-700 italic text-center">Not enough riddles in this tome to face the Hydra.</div>;
+    }
+    const submitted = !!hydraResults;
+    return (
+      <div className="space-y-3">
+        {heads.map((q, i) => {
+          const isMC = q.options && Array.isArray(q.options);
+          const isTF = q.type === 'truefalse';
+          const result = hydraResults?.[i];
+          const headBorder = result
+            ? (result.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)')
+            : 'rgba(16, 185, 129, 0.5)';
+          return (
+            <div key={i} className="p-4 rounded" style={{
+              background: 'rgba(6, 30, 22, 0.85)',
+              border: `2px solid ${headBorder}`,
+              boxShadow: result ? `0 0 12px ${headBorder}` : 'none',
+            }}>
+              <div className="text-xs text-emerald-400 italic tracking-[0.2em] mb-1">🐉 HEAD {i + 1}</div>
+              <div className="text-amber-50 italic mb-2">{q.question}</div>
+              {isMC ? (
+                <div className="space-y-1.5">
+                  {q.options.map((opt, oi) => (
+                    <label key={oi} className={`flex items-center gap-2 p-2 rounded border ${submitted ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-emerald-900/30'}`}
+                      style={{ background: 'rgba(6, 30, 22, 0.6)', borderColor: hydraAnswers[i] === String(oi) ? 'rgba(16, 185, 129, 0.85)' : 'rgba(16, 185, 129, 0.3)' }}>
+                      <input type="radio" name={`hydra-${i}`} value={oi} checked={hydraAnswers[i] === String(oi)}
+                        disabled={submitted}
+                        onChange={() => setHydraAnswers(a => { const n = [...a]; n[i] = String(oi); return n; })} />
+                      <span className="text-emerald-300 font-bold">{String.fromCharCode(65 + oi)}.</span>
+                      <span className="text-amber-50 italic">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : isTF ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {['true', 'false'].map(v => (
+                    <button key={v} disabled={submitted}
+                      onClick={() => setHydraAnswers(a => { const n = [...a]; n[i] = v; return n; })}
+                      className="p-2 rounded font-bold border-2 italic disabled:opacity-50"
+                      style={{
+                        background: hydraAnswers[i] === v ? 'rgba(6, 78, 59, 0.7)' : 'rgba(6, 30, 22, 0.5)',
+                        borderColor: hydraAnswers[i] === v ? 'rgba(16, 185, 129, 0.85)' : 'rgba(16, 185, 129, 0.4)',
+                        color: '#a7f3d0',
+                      }}>
+                      {v === 'true' ? '⚖ Verily True ⚖' : '⚖ A Falsehood ⚖'}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <input type="text" value={hydraAnswers[i]} disabled={submitted}
+                  onChange={(e) => setHydraAnswers(a => { const n = [...a]; n[i] = e.target.value; return n; })}
+                  placeholder="Inscribe thy answer..."
+                  className="w-full p-2 rounded border-2 italic text-amber-50"
+                  style={{ background: 'rgba(6, 30, 22, 0.6)', borderColor: 'rgba(16, 185, 129, 0.4)' }} />
+              )}
+              {result && (
+                <div className={`text-xs italic mt-2 ${result.correct ? 'text-emerald-300' : 'text-red-300'}`}>
+                  {result.correct ? '✓ Severed' : '✗ Still snapping'}
+                </div>
+              )}
+            </div>
+          );
+        })}
+        <button onClick={submitHydra}
+          disabled={submitted || hydraAnswers.some(a => !a)}
+          className="w-full py-3 font-bold rounded text-amber-50 border-2 border-emerald-400 italic disabled:opacity-50"
+          style={{ background: 'linear-gradient(to bottom, #10b981 0%, #064e3b 100%)', boxShadow: '0 0 18px rgba(16, 185, 129, 0.4)' }}>
+          ⚔ Strike All Three ⚔
+        </button>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      {renderHeader()}
+      {renderFeedback()}
+      {boss.id === 'hydra' ? renderHydra() : renderSingleQuestion()}
+    </div>
+  );
+}
+
 
 function ChallengeRenderer({ challenge, onAnswer, powerups, setPowerups, usedFiftyFifty, setUsedFiftyFifty, usedHint, setUsedHint, isBoss }) {
   const [revealed, setRevealed] = useState(false);
