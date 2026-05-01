@@ -2031,7 +2031,11 @@ export default function DungeonScholarApp() {
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
         {screen === 'explore' && (
-          <DungeonExplore onExit={() => setScreen('home')} />
+          <DungeonExplore
+            onExit={() => setScreen('home')}
+            playerState={playerState}
+            subject={courseSet?.metadata?.subject}
+          />
         )}
         {screen === 'dungeon' && courseSet && (
           <DungeonRun
@@ -2798,7 +2802,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
         />
         <ModeCard
           title="Dungeon Explore"
-          desc="A new realm — walk a top-down dungeon by tile. Mobs, treasure, and combat shall arrive in time."
+          desc="A new realm — wander themed biomes (Crypt, Sewers, Tower, Halls, Wastes), uncover chambers through the fog, and walk thy hooded scholar across an RPG world."
           icon={<Castle className="w-8 h-8" />}
           color="rose"
           onClick={() => setScreen('explore')}
