@@ -1203,6 +1203,19 @@ export default function DungeonScholarApp() {
     });
   };
 
+  // Phase 15: add an item to inventory (chest/plant drops, future loot).
+  // Posts a notif so the player has a record outside the in-canvas float.
+  const giveItem = (itemId, count = 1) => {
+    const item = findItem(itemId);
+    if (!item) return;
+    setPlayerState(prev => {
+      const inv = { ...(prev.inventory || {}) };
+      inv[itemId] = (inv[itemId] || 0) + count;
+      return { ...prev, inventory: inv };
+    });
+    setTimeout(() => showNotif(`Acquired: ${item.name}${count > 1 ? ` ×${count}` : ''}`, 'success'), 50);
+  };
+
   // Consume one of an inventory item. Used by potion use in the dungeon
   // and by future apothecary effects. Auto-unequips potion slots that
   // referenced the now-zero item.
@@ -2143,6 +2156,7 @@ export default function DungeonScholarApp() {
             trackDungeonAttempt={trackDungeonAttempt}
             onViewHistory={() => setScreen('history')}
             consumeItem={consumeItem}
+            giveItem={giveItem}
           />
         )}
         {screen === 'flashcards' && courseSet && (

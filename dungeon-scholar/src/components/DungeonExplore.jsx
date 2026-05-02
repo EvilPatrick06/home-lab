@@ -266,6 +266,52 @@ const MOB_AGGRO_RANGE = 5;
 const ELITE_QUESTION_COUNT = 3;
 // Damage a wrong answer costs depending on what hit you back.
 const DMG_BY_TIER = { basic: 1, elite: 2, boss: 3 };
+
+// === Chest tiers (Phase 15) =============================================
+const CHEST_TIERS = {
+  wooden: {
+    label: 'Wooden Chest',
+    icon: '🪵',
+    goldRange: [10, 30],
+    itemChance: 0.45,
+    itemPool: ['minor_heal_tonic', 'foresight_scroll', 'tinkers_oil'],
+  },
+  silver: {
+    label: 'Silver Chest',
+    icon: '🪙',
+    goldRange: [40, 80],
+    itemChance: 0.75,
+    itemPool: ['greater_heal_tonic', 'shield_draught', 'scholars_brew', 'minor_heal_tonic'],
+  },
+  gold: {
+    label: 'Gold Chest',
+    icon: '👑',
+    goldRange: [100, 200],
+    itemChance: 1.0,
+    itemPool: ['phoenix_ember', 'iron_circlet', 'starbound_cloak', 'oaken_blade', 'gilded_sabre'],
+  },
+};
+// How many of each chest tier spawn per run, by difficulty.
+const CHEST_SPAWN = {
+  apprentice: { wooden: 3, silver: 1, gold: 0 },
+  adept:      { wooden: 4, silver: 2, gold: 0 },
+  master:     { wooden: 5, silver: 3, gold: 1 },
+  mythic:     { wooden: 6, silver: 4, gold: 2 },
+};
+
+// === Lootable plants ===================================================
+// Walking onto these decorations harvests them: they pay out a few gold
+// and have a small chance of dropping an apothecary item.
+const LOOTABLE_DECOS = {
+  mushroom:    { goldRange: [1, 5], itemChance: 0.10, itemPool: ['minor_heal_tonic'] },
+  wildflower:  { goldRange: [1, 3], itemChance: 0.04, itemPool: ['minor_heal_tonic'] },
+  moss_patch:  { goldRange: [1, 2], itemChance: 0.00, itemPool: [] },
+  fern:        { goldRange: [1, 4], itemChance: 0.06, itemPool: ['foresight_scroll'] },
+  cactus:      { goldRange: [1, 4], itemChance: 0.00, itemPool: [] },
+  nightshade:  { goldRange: [2, 5], itemChance: 0.08, itemPool: ['scholars_brew'] },
+  rot_flower:  { goldRange: [2, 4], itemChance: 0.05, itemPool: ['shield_draught'] },
+  algae:       { goldRange: [1, 3], itemChance: 0.04, itemPool: ['minor_heal_tonic'] },
+};
 const BOSS_BY_BIOME = {
   crypt:  'lich',
   sewers: 'hydra',
@@ -432,8 +478,31 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
     ? { kind: BOSS_BY_BIOME[biome] || BOSS_BY_BIOME.halls, x: bossPos.x, y: bossPos.y }
     : null;
 
+  // Chests — placed in non-spawn, non-boss rooms. Each tier rolls a count
+  // from CHEST_SPAWN[difficulty]; we shuffle eligible rooms for variety.
+  const chests = [];
+  const chestRolls = CHEST_SPAWN[difficulty] || CHEST_SPAWN.apprentice;
+  const eligibleChestRooms = rooms.length > 2 ? rooms.slice(1, -1) : [];
+  const placeChest = (tier) => {
+    if (eligibleChestRooms.length === 0) return;
+    const room = eligibleChestRooms[Math.floor(rng() * eligibleChestRooms.length)];
+    for (let attempt = 0; attempt < 25; attempt++) {
+      const tx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
+      const ty = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
+      if (map[ty]?.[tx] !== TILE.FLOOR) continue;
+      if (chests.some((c) => c.x === tx && c.y === ty)) continue;
+      if (mobs.some((m) => m.x === tx && m.y === ty)) continue;
+      if (decorations.some((d) => d.x === tx && d.y === ty)) continue;
+      chests.push({ tier, x: tx, y: ty, opened: false });
+      return;
+    }
+  };
+  for (const tier of ['wooden', 'silver', 'gold']) {
+    for (let i = 0; i < (chestRolls[tier] || 0); i++) placeChest(tier);
+  }
+
   const spawn = rooms.length > 0 ? rectCenter(rooms[0]) : { x: 1, y: 1 };
-  return { map, rooms, decorations, mobs, boss, spawn, width, height, biome };
+  return { map, rooms, decorations, mobs, boss, chests, spawn, width, height, biome };
 }
 
 export function generateStarterMap(opts = {}) {
@@ -1360,6 +1429,64 @@ const BOSS_DISPLAY = {
   riddler:  { name: 'The Riddler',  icon: '🃏' },
 };
 
+// === Chest sprites (Phase 15) ===========================================
+const CHEST_PALETTE = {
+  wooden: { body: '#7c2d12', top: '#92400e', band: '#451a03', lock: '#fbbf24', glint: '#fde68a' },
+  silver: { body: '#94a3b8', top: '#cbd5e1', band: '#475569', lock: '#fef3c7', glint: '#fef9c3' },
+  gold:   { body: '#a16207', top: '#fbbf24', band: '#7c2d12', lock: '#fef9c3', glint: '#ffffff' },
+};
+function drawChest(ctx, tier, px, py, opened, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const p = CHEST_PALETTE[tier] || CHEST_PALETTE.wooden;
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 8, 12, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // base body
+  ctx.fillStyle = p.body;
+  ctx.fillRect(cx - 10, cy - 4, 20, 11);
+  ctx.fillStyle = p.top;
+  ctx.fillRect(cx - 10, cy - 4, 20, 1);
+  ctx.fillStyle = p.band;
+  ctx.fillRect(cx - 10, cy + 1, 20, 1);
+  ctx.fillRect(cx - 10, cy + 6, 20, 1);
+  ctx.fillRect(cx - 10, cy - 4, 1, 11);
+  ctx.fillRect(cx + 9,  cy - 4, 1, 11);
+  if (opened) {
+    // lid lifted up + back
+    ctx.fillStyle = p.body;
+    ctx.fillRect(cx - 10, cy - 11, 20, 5);
+    ctx.fillStyle = p.top;
+    ctx.fillRect(cx - 10, cy - 11, 20, 1);
+    ctx.fillStyle = p.band;
+    ctx.fillRect(cx - 10, cy - 7, 20, 1);
+    // dark interior
+    ctx.fillStyle = '#1a0e08';
+    ctx.fillRect(cx - 8, cy - 4, 16, 4);
+    // a faint glow if the chest paid out
+    ctx.fillStyle = 'rgba(253, 230, 138, 0.4)';
+    ctx.fillRect(cx - 7, cy - 3, 14, 2);
+  } else {
+    // closed lid + lock
+    ctx.fillStyle = p.lock;
+    ctx.fillRect(cx - 1, cy + 2, 2, 3);
+    ctx.fillStyle = p.glint;
+    ctx.fillRect(cx, cy + 2, 1, 1);
+    // tier glints
+    if (tier !== 'wooden') {
+      const flash = Math.sin((t || 0) / 200) * 0.5 + 0.5;
+      ctx.fillStyle = `rgba(255, 255, 255, ${0.2 * flash})`;
+      ctx.fillRect(cx - 8, cy - 3, 4, 1);
+    }
+    if (tier === 'gold') {
+      ctx.fillStyle = '#fde047';
+      ctx.fillRect(cx + 5, cy - 3, 2, 1);
+      ctx.fillRect(cx - 7, cy + 4, 2, 1);
+    }
+  }
+}
+
 // === Equipped weapon overlay ===========================================
 // Drawn after the player so it sits on top. Hand position depends on facing.
 function drawWeapon(ctx, weaponId, cx, py, facing) {
@@ -1840,6 +1967,7 @@ export default function DungeonExplore({
   trackDungeonAttempt,
   onViewHistory,
   consumeItem,
+  giveItem,
 }) {
   const isUnlocked = (id) => {
     if (id === 'apprentice') return true;
@@ -1909,10 +2037,23 @@ export default function DungeonExplore({
   const [endSummary, setEndSummary] = useState(null);
   // Brief notification banner for potion/revive/buff feedback.
   const [notice, setNotice] = useState(null);
+  // Phase 15: floating "+gold" / "Acquired: X" labels — short-lived UI.
+  const [floatingPickups, setFloatingPickups] = useState([]);
+  const showPickup = (text, color = '#fde047') => {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    setFloatingPickups((prev) => [...prev, { id, text, color }]);
+    setTimeout(() => {
+      setFloatingPickups((prev) => prev.filter((p) => p.id !== id));
+    }, 1500);
+  };
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const mobsRef = useRef(initial.mobs.map((m) => ({ ...m })));
+  // Phase 15: mutable mirrors of decorations + chests so they can be
+  // harvested / opened mid-run without re-running map-gen.
+  const decorationsRef = useRef(initial.decorations.map((d) => ({ ...d })));
+  const chestsRef = useRef((initial.chests || []).map((c) => ({ ...c })));
   const usedQuestionIdsRef = useRef(new Set());
   const runQuestionLogRef = useRef([]);
   const runStartTimeRef = useRef(Date.now());
@@ -1949,6 +2090,8 @@ export default function DungeonExplore({
     setEndSummary(null);
     setPhase('setup');
     mobsRef.current = initial.mobs.map((m) => ({ ...m }));
+    decorationsRef.current = initial.decorations.map((d) => ({ ...d }));
+    chestsRef.current = (initial.chests || []).map((c) => ({ ...c }));
     usedQuestionIdsRef.current = new Set();
     runQuestionLogRef.current = [];
     runStartTimeRef.current = Date.now();
@@ -1975,6 +2118,8 @@ export default function DungeonExplore({
     setPos(initial.spawn);
     setFacing('down');
     mobsRef.current = initial.mobs.map((m) => ({ ...m }));
+    decorationsRef.current = initial.decorations.map((d) => ({ ...d }));
+    chestsRef.current = (initial.chests || []).map((c) => ({ ...c }));
     usedQuestionIdsRef.current = new Set();
     runQuestionLogRef.current = [];
     runStartTimeRef.current = Date.now();
@@ -2131,7 +2276,7 @@ export default function DungeonExplore({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, battle, runState, initial.map, onExit]);
 
-  // Mob / boss collision detection on every position change.
+  // Mob / boss / chest / plant collision detection on every position change.
   useEffect(() => {
     if (phase !== 'world' || battle || runState !== 'alive') return;
     // Boss collision
@@ -2159,6 +2304,44 @@ export default function DungeonExplore({
       }
       qs.forEach((q) => usedQuestionIdsRef.current.add(q.id));
       setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, questions: qs, questionIdx: 0, correctCount: 0 });
+      return;
+    }
+    // Chest collision — pay out gold + maybe an item, mark as opened.
+    const chestIdx = chestsRef.current.findIndex((c) => !c.opened && c.x === pos.x && c.y === pos.y);
+    if (chestIdx >= 0) {
+      const chest = chestsRef.current[chestIdx];
+      const cfg = CHEST_TIERS[chest.tier] || CHEST_TIERS.wooden;
+      const lo = cfg.goldRange[0];
+      const hi = cfg.goldRange[1];
+      const goldGain = lo + Math.floor(Math.random() * (hi - lo + 1));
+      if (awardGold) awardGold(goldGain, cfg.label);
+      showPickup(`+${goldGain} gold`, '#fde047');
+      if (Math.random() < cfg.itemChance && cfg.itemPool.length > 0 && giveItem) {
+        const itemId = cfg.itemPool[Math.floor(Math.random() * cfg.itemPool.length)];
+        giveItem(itemId, 1);
+        const info = POTION_INFO[itemId];
+        showPickup(`Acquired: ${info ? info.name : itemId}`, '#a7f3d0');
+      }
+      chest.opened = true;
+      return;
+    }
+    // Lootable plant — harvest on walk-over.
+    const decoIdx = decorationsRef.current.findIndex((d) => d.x === pos.x && d.y === pos.y && LOOTABLE_DECOS[d.kind]);
+    if (decoIdx >= 0) {
+      const deco = decorationsRef.current[decoIdx];
+      const cfg = LOOTABLE_DECOS[deco.kind];
+      const lo = cfg.goldRange[0];
+      const hi = cfg.goldRange[1];
+      const goldGain = lo + Math.floor(Math.random() * (hi - lo + 1));
+      if (goldGain > 0 && awardGold) awardGold(goldGain, `Harvested ${deco.kind.replace('_', ' ')}`);
+      if (goldGain > 0) showPickup(`+${goldGain}`, '#fde047');
+      if (Math.random() < (cfg.itemChance || 0) && cfg.itemPool.length > 0 && giveItem) {
+        const itemId = cfg.itemPool[Math.floor(Math.random() * cfg.itemPool.length)];
+        giveItem(itemId, 1);
+        const info = POTION_INFO[itemId];
+        showPickup(`Acquired: ${info ? info.name : itemId}`, '#a7f3d0');
+      }
+      decorationsRef.current.splice(decoIdx, 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos]);
@@ -2493,12 +2676,20 @@ export default function DungeonExplore({
         }
       }
 
-      s.initial.decorations.forEach((d) => {
+      decorationsRef.current.forEach((d) => {
         if (d.x < startCol - 1 || d.x > endCol || d.y < startRow - 1 || d.y > endRow) return;
         const px = d.x * TILE_PX - cameraX;
         const py = d.y * TILE_PX - cameraY;
         const drawer = DECO_DRAWERS[d.kind];
         if (drawer) drawer(ctx, px, py, now);
+      });
+
+      // Chests render under mobs/boss/player.
+      chestsRef.current.forEach((c) => {
+        if (c.x < startCol - 1 || c.x > endCol || c.y < startRow - 1 || c.y > endRow) return;
+        const px = c.x * TILE_PX - cameraX;
+        const py = c.y * TILE_PX - cameraY;
+        drawChest(ctx, c.tier, px, py, c.opened, now);
       });
 
       if (s.initial.boss) {
@@ -2925,6 +3116,39 @@ export default function DungeonExplore({
             {notice.text}
           </div>
         )}
+
+        {/* Floating loot pickup feedback — anchored at the player's screen
+            position (always centered since the camera follows). Each label
+            floats up + fades over 1.5s via a CSS keyframe animation. */}
+        <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
+          {floatingPickups.map((p, i) => (
+            <div
+              key={p.id}
+              className="absolute italic font-bold text-sm"
+              style={{
+                left: '50%',
+                top: '46%',
+                transform: 'translateX(-50%)',
+                color: p.color,
+                textShadow: '0 0 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.95)',
+                animation: `dsLootFloat 1.5s ease-out forwards`,
+                animationDelay: `${i * 80}ms`,
+                fontFamily: '"Cinzel", Georgia, serif',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {p.text}
+            </div>
+          ))}
+        </div>
+        <style>{`
+          @keyframes dsLootFloat {
+            0%   { opacity: 0;   transform: translate(-50%,   0); }
+            15%  { opacity: 1;   transform: translate(-50%,  -8px); }
+            85%  { opacity: 0.9; transform: translate(-50%, -36px); }
+            100% { opacity: 0;   transform: translate(-50%, -56px); }
+          }
+        `}</style>
       </div>
 
       <div className="flex justify-center select-none">
