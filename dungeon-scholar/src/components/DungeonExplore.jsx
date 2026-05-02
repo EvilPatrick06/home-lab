@@ -227,13 +227,43 @@ const DECO_BY_BIOME = {
   halls:  ['gear', 'capacitor', 'pipe_vine', 'rust_flower', 'steam_fern'],
   wastes: ['cactus', 'antenna', 'tumbleweed', 'wildflower', 'desert_brush'],
 };
-const MOB_BY_BIOME = {
-  crypt:  'wraith',
-  sewers: 'slime',
-  tower:  'sentry',
-  halls:  'spark',
-  wastes: 'scorpion',
+// Per-mob behavior. tier = basic|elite (elites trigger 3-question fights and
+// render with a glowing aura). ai = idle|patrol|aggressive.
+//   - idle: don't move
+//   - patrol: bounce horizontally within the room
+//   - aggressive: chase if the player is within MOB_AGGRO_RANGE Manhattan
+//     tiles and inside the room; otherwise wander
+const MOB_DEFS = {
+  // Crypt
+  wraith:    { biome: 'crypt',  tier: 'basic', ai: 'patrol' },
+  skeleton:  { biome: 'crypt',  tier: 'basic', ai: 'aggressive' },
+  shade:     { biome: 'crypt',  tier: 'elite', ai: 'patrol' },
+  // Sewers
+  slime:     { biome: 'sewers', tier: 'basic', ai: 'idle' },
+  rat:       { biome: 'sewers', tier: 'basic', ai: 'aggressive' },
+  ooze:      { biome: 'sewers', tier: 'elite', ai: 'patrol' },
+  // Tower
+  sentry:    { biome: 'tower',  tier: 'basic', ai: 'idle' },
+  drone:     { biome: 'tower',  tier: 'basic', ai: 'aggressive' },
+  firewall:  { biome: 'tower',  tier: 'elite', ai: 'patrol' },
+  // Halls
+  spark:     { biome: 'halls',  tier: 'basic', ai: 'patrol' },
+  imp:       { biome: 'halls',  tier: 'basic', ai: 'aggressive' },
+  sentinel:  { biome: 'halls',  tier: 'elite', ai: 'idle' },
+  // Wastes
+  scorpion:  { biome: 'wastes', tier: 'basic', ai: 'patrol' },
+  spider:    { biome: 'wastes', tier: 'basic', ai: 'aggressive' },
+  elemental: { biome: 'wastes', tier: 'elite', ai: 'patrol' },
 };
+
+const MOBS_BY_BIOME = Object.entries(MOB_DEFS).reduce((acc, [kind, def]) => {
+  acc[def.biome] = acc[def.biome] || { basic: [], elite: [] };
+  acc[def.biome][def.tier].push(kind);
+  return acc;
+}, {});
+
+const MOB_AGGRO_RANGE = 5;
+const ELITE_QUESTION_COUNT = 3;
 const BOSS_BY_BIOME = {
   crypt:  'lich',
   sewers: 'hydra',
@@ -338,7 +368,7 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
   const decorations = [];
   const mobs = [];
   const decoKinds = DECO_BY_BIOME[biome] || DECO_BY_BIOME.halls;
-  const mobKind = MOB_BY_BIOME[biome] || MOB_BY_BIOME.halls;
+  const mobPool = MOBS_BY_BIOME[biome] || MOBS_BY_BIOME.halls;
 
   // Pack rooms with decorations and mobs. Spawn room stays light so the
   // player isn't ambushed at start; boss room has a couple of decorations
@@ -362,19 +392,37 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
       decorations.push({ kind, x: tx, y: ty });
     }
 
-    for (let i = 0; i < mobCount; i++) {
+    // Place a mix of basic and elite mobs. Elite count is small (0-1 per
+    // mid room, 1-2 in larger rooms); basics fill out the rest.
+    const eliteCount = mobCount > 0
+      ? (mobCount >= 5 ? 1 + Math.floor(rng() * 2) : Math.floor(rng() * 2))
+      : 0;
+    const basicCount = Math.max(0, mobCount - eliteCount);
+    const placeMob = (kind) => {
       const tx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
       const ty = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
-      if (map[ty]?.[tx] !== TILE.FLOOR) continue;
-      // Don't stack mobs on the same tile or on a decoration.
-      if (mobs.some((m) => m.x === tx && m.y === ty)) continue;
-      if (decorations.some((d) => d.x === tx && d.y === ty)) continue;
+      if (map[ty]?.[tx] !== TILE.FLOOR) return;
+      if (mobs.some((m) => m.x === tx && m.y === ty)) return;
+      if (decorations.some((d) => d.x === tx && d.y === ty)) return;
+      const def = MOB_DEFS[kind] || { tier: 'basic', ai: 'idle' };
       mobs.push({
-        kind: mobKind,
+        kind,
+        tier: def.tier,
+        ai: def.ai,
         x: tx, y: ty,
         bounds: { x: room.x, y: room.y, w: room.w, h: room.h },
         nextMoveAt: 0,
+        // patrol direction (-1 / +1) for patrol AI
+        patrolDir: rng() < 0.5 ? -1 : 1,
       });
+    };
+    const basics = mobPool.basic || [];
+    const elites = mobPool.elite || [];
+    for (let i = 0; i < basicCount && basics.length > 0; i++) {
+      placeMob(basics[Math.floor(rng() * basics.length)]);
+    }
+    for (let i = 0; i < eliteCount && elites.length > 0; i++) {
+      placeMob(elites[Math.floor(rng() * elites.length)]);
     }
   });
 
@@ -921,8 +969,301 @@ function drawScorpion(ctx, px, py, t) {
   ctx.fillRect(cx - 9, cy + 2, 4, 2);
 }
 
+// === Additional mob sprites (Phase 13) ==================================
+function drawSkeleton(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(cx, py + TILE_PX - 5, 9, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // body
+  ctx.fillStyle = '#e7e5db';
+  ctx.fillRect(cx - 5, cy - 4, 10, 11);
+  // skull
+  ctx.fillRect(cx - 5, cy - 12, 10, 7);
+  // jaw shadow
+  ctx.fillStyle = '#9a9892';
+  ctx.fillRect(cx - 4, cy - 6, 8, 1);
+  // eye sockets
+  ctx.fillStyle = '#1a0e08';
+  ctx.fillRect(cx - 4, cy - 10, 3, 3);
+  ctx.fillRect(cx + 1, cy - 10, 3, 3);
+  // teeth
+  ctx.fillRect(cx - 3, cy - 6, 1, 1);
+  ctx.fillRect(cx - 1, cy - 6, 1, 1);
+  ctx.fillRect(cx + 1, cy - 6, 1, 1);
+  ctx.fillRect(cx + 3, cy - 6, 1, 1);
+  // ribs
+  ctx.fillStyle = '#9a9892';
+  ctx.fillRect(cx - 4, cy - 1, 8, 1);
+  ctx.fillRect(cx - 4, cy + 2, 8, 1);
+  // arm bones (sway)
+  const sway = Math.sin(t / 200) * 1;
+  ctx.fillStyle = '#e7e5db';
+  ctx.fillRect(cx - 7, cy - 3 + sway, 2, 7);
+  ctx.fillRect(cx + 5, cy - 3 - sway, 2, 7);
+}
+function drawShade(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 300) * 2;
+  // elite aura
+  ctx.fillStyle = 'rgba(168,85,247,0.4)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 19, 0, Math.PI * 2);
+  ctx.fill();
+  // body
+  ctx.fillStyle = '#2a1838';
+  ctx.fillRect(cx - 9, cy - 4, 18, 16);
+  // hood
+  ctx.fillStyle = '#1a1024';
+  ctx.fillRect(cx - 9, cy - 12, 18, 8);
+  ctx.fillRect(cx - 7, cy - 14, 14, 4);
+  // glowing eyes
+  ctx.fillStyle = '#a855f7';
+  ctx.fillRect(cx - 4, cy - 8, 2, 3);
+  ctx.fillRect(cx + 2, cy - 8, 2, 3);
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx - 4, cy - 7, 1, 1);
+  ctx.fillRect(cx + 2, cy - 7, 1, 1);
+  // tendrils
+  ctx.fillStyle = '#581c87';
+  ctx.fillRect(cx - 8, cy + 12, 2, 2);
+  ctx.fillRect(cx - 4, cy + 12, 2, 2);
+  ctx.fillRect(cx + 2, cy + 12, 2, 2);
+  ctx.fillRect(cx + 6, cy + 12, 2, 2);
+}
+function drawRat(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 5, 9, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // body
+  ctx.fillStyle = '#52525b';
+  ctx.fillRect(cx - 6, cy - 2, 12, 6);
+  ctx.fillStyle = '#71717a';
+  ctx.fillRect(cx - 6, cy - 2, 12, 1);
+  // head
+  ctx.fillStyle = '#3f3f46';
+  ctx.fillRect(cx - 9, cy - 1, 4, 4);
+  // ear
+  ctx.fillStyle = '#52525b';
+  ctx.fillRect(cx - 8, cy - 3, 2, 2);
+  // eye
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 8, cy, 1, 1);
+  // nose
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(cx - 9, cy + 1, 1, 1);
+  // tail
+  const tailWag = Math.sin(t / 150) * 2;
+  ctx.fillStyle = '#3f3f46';
+  ctx.fillRect(cx + 6, cy + tailWag, 6, 1);
+}
+function drawOoze(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  ctx.fillStyle = 'rgba(34,197,94,0.4)';
+  ctx.beginPath();
+  ctx.arc(cx, cy - 2, 21, 0, Math.PI * 2);
+  ctx.fill();
+  const wob = Math.sin(t / 200) * 2;
+  ctx.fillStyle = '#15803d';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 13 + wob, 10 - wob / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#86efac';
+  ctx.fillRect(cx - 8, cy - 5, 5, 1);
+  ctx.fillRect(cx - 9, cy - 3, 2, 2);
+  // 3 eyes
+  ctx.fillStyle = '#000';
+  ctx.fillRect(cx - 5, cy - 1, 2, 2);
+  ctx.fillRect(cx, cy - 2, 2, 2);
+  ctx.fillRect(cx + 4, cy - 1, 2, 2);
+  // drips
+  ctx.fillStyle = '#10b981';
+  ctx.fillRect(cx - 7, cy + 7, 1, 2);
+  ctx.fillRect(cx + 4, cy + 8, 1, 2);
+}
+function drawDrone(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 200) * 1;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(cx, py + TILE_PX - 4, 9, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(cx - 7, cy - 4, 14, 8);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 5, cy - 8, 10, 4);
+  const blink = (Math.floor(t / 100) % 8) === 0;
+  ctx.fillStyle = blink ? '#fde047' : '#3b82f6';
+  ctx.fillRect(cx - 1, cy - 6, 2, 2);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(cx - 9, cy - 3, 3, 1);
+  ctx.fillRect(cx + 6, cy - 3, 3, 1);
+  // bottom thruster glow
+  ctx.fillStyle = 'rgba(59,130,246,0.5)';
+  ctx.fillRect(cx - 3, cy + 4, 2, 2);
+  ctx.fillRect(cx + 1, cy + 4, 2, 2);
+}
+function drawFirewall(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = 'rgba(239,68,68,0.4)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 21, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(cx - 11, cy - 9, 22, 19);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 11, cy - 4, 22, 1);
+  ctx.fillRect(cx - 11, cy + 1, 22, 1);
+  ctx.fillRect(cx - 1, cy - 9, 1, 5);
+  ctx.fillRect(cx + 4, cy - 4, 1, 5);
+  ctx.fillRect(cx - 5, cy + 2, 1, 5);
+  // flames atop
+  const flame = Math.sin(t / 120) * 2;
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 9, cy - 13 + flame / 2, 3, 4);
+  ctx.fillRect(cx + 6, cy - 13 - flame / 2, 3, 4);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 8, cy - 12 + flame / 2, 1, 2);
+  ctx.fillRect(cx + 7, cy - 12 - flame / 2, 1, 2);
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(cx - 8, cy - 13 + flame / 2, 1, 1);
+}
+function drawImp(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(cx, py + TILE_PX - 4, 7, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#9a3412';
+  ctx.fillRect(cx - 5, cy - 4, 10, 10);
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx - 4, cy - 9, 8, 5);
+  // horns
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(cx - 4, cy - 11, 1, 2);
+  ctx.fillRect(cx + 3, cy - 11, 1, 2);
+  // eyes
+  const blink = (Math.floor(t / 200) % 5) === 0;
+  ctx.fillStyle = blink ? '#1a0e08' : '#fbbf24';
+  ctx.fillRect(cx - 3, cy - 7, 2, 2);
+  ctx.fillRect(cx + 1, cy - 7, 2, 2);
+  // wings
+  const flap = Math.sin(t / 200) * 2;
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 8, cy - 2 + flap, 3, 5);
+  ctx.fillRect(cx + 5, cy - 2 - flap, 3, 5);
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx - 8, cy - 1 + flap, 1, 3);
+  ctx.fillRect(cx + 7, cy - 1 - flap, 1, 3);
+}
+function drawSentinel(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = 'rgba(245,158,11,0.4)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 21, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(cx - 10, cy - 9, 20, 20);
+  // armor plates
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 10, cy - 9, 20, 2);
+  ctx.fillRect(cx - 10, cy - 3, 20, 1);
+  ctx.fillRect(cx - 10, cy + 4, 20, 1);
+  // pulse eye
+  const pulse = (Math.floor(t / 200) % 2) === 0;
+  ctx.fillStyle = pulse ? '#fde047' : '#dc2626';
+  ctx.fillRect(cx - 3, cy - 5, 6, 3);
+  // arms (square)
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(cx - 13, cy + 1, 3, 7);
+  ctx.fillRect(cx + 10, cy + 1, 3, 7);
+  // gauntlets
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 13, cy + 8, 3, 1);
+  ctx.fillRect(cx + 10, cy + 8, 3, 1);
+}
+function drawSpider(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(cx, py + TILE_PX - 6, 10, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // body
+  ctx.fillStyle = '#1c1917';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.fill();
+  // head
+  ctx.fillStyle = '#3f3f46';
+  ctx.beginPath();
+  ctx.arc(cx, cy - 5, 3, 0, Math.PI * 2);
+  ctx.fill();
+  // 6 eyes
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 2, cy - 6, 1, 1);
+  ctx.fillRect(cx, cy - 6, 1, 1);
+  ctx.fillRect(cx + 1, cy - 6, 1, 1);
+  ctx.fillRect(cx - 1, cy - 4, 1, 1);
+  ctx.fillRect(cx + 1, cy - 4, 1, 1);
+  // legs
+  const legWobble = Math.sin(t / 150) * 1;
+  ctx.strokeStyle = '#1c1917';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    const a = (i * Math.PI / 5) + Math.PI / 4;
+    const len = 8;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * len + legWobble, cy + Math.sin(a) * len);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx - Math.cos(a) * len - legWobble, cy + Math.sin(a) * len);
+    ctx.stroke();
+  }
+  // body highlight
+  ctx.fillStyle = '#3f3f46';
+  ctx.fillRect(cx - 3, cy - 1, 2, 1);
+}
+function drawElemental(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  ctx.fillStyle = 'rgba(217,119,6,0.4)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+  ctx.fill();
+  // swirling sand body
+  const swirl = (t / 100) % 8;
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(cx - 11, cy - 4 + Math.sin(swirl) * 1, 22, 9);
+  ctx.fillRect(cx - 9, cy - 9, 18, 5);
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(cx - 9, cy - 4, 5, 1);
+  ctx.fillRect(cx + 4, cy + 2, 5, 1);
+  // eyes
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx - 5, cy - 7, 2, 2);
+  ctx.fillRect(cx + 3, cy - 7, 2, 2);
+  // sand particles
+  for (let i = 0; i < 7; i++) {
+    const a = (i * Math.PI / 3.5) + (t / 250);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(cx + Math.cos(a) * 13, cy + Math.sin(a) * 13, 1, 1);
+  }
+  // mouth
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 2, cy + 1, 5, 1);
+}
+
 const MOB_DRAWERS = {
+  // existing
   wraith: drawWraith, slime: drawSlime, sentry: drawSentry, spark: drawSpark, scorpion: drawScorpion,
+  // new (Phase 13)
+  skeleton: drawSkeleton, shade: drawShade,
+  rat: drawRat, ooze: drawOoze,
+  drone: drawDrone, firewall: drawFirewall,
+  imp: drawImp, sentinel: drawSentinel,
+  spider: drawSpider, elemental: drawElemental,
 };
 
 // === Boss sprites =======================================================
@@ -1268,7 +1609,9 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
       >
         <div className="flex items-center justify-between mb-3">
           <div className="text-xs uppercase tracking-wider italic" style={{ color: biome.accentSolid }}>
-            {isBoss ? `⚔ Boss Trial · Question ${stepNum} of ${total}` : '⚔ Encounter'}
+            {isBoss
+              ? `⚔ Boss Trial · Question ${stepNum} of ${total}`
+              : (total > 1 ? `⚔ Elite Encounter · Question ${stepNum} of ${total}` : '⚔ Encounter')}
           </div>
         </div>
         <div className="text-amber-100 italic mb-4 leading-relaxed">{q.question}</div>
@@ -1744,18 +2087,19 @@ export default function DungeonExplore({
       setBattle({ type: 'boss', questions: qs, questionIdx: 0 });
       return;
     }
-    // Mob collision
+    // Mob collision — basic = 1 question, elite = 3 questions.
     const mobIdx = mobsRef.current.findIndex((m) => m.x === pos.x && m.y === pos.y);
     if (mobIdx >= 0) {
-      const qs = pickQuestions(courseSet, 1, usedQuestionIdsRef.current);
+      const mob = mobsRef.current[mobIdx];
+      const qCount = mob.tier === 'elite' ? ELITE_QUESTION_COUNT : 1;
+      const qs = pickQuestions(courseSet, qCount, usedQuestionIdsRef.current);
       if (qs.length === 0) {
-        // No questions — defeat mob automatically and award a tiny reward.
         mobsRef.current.splice(mobIdx, 1);
         if (awardXP) awardXP(5, 'Foe felled (silent)');
         return;
       }
       qs.forEach((q) => usedQuestionIdsRef.current.add(q.id));
-      setBattle({ type: 'mob', mobIdx, questions: qs, questionIdx: 0 });
+      setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, questions: qs, questionIdx: 0 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos]);
@@ -1798,10 +2142,16 @@ export default function DungeonExplore({
       }
     }
 
-    // Mob: always remove the mob whether right or wrong (no infinite-fight loop).
+    // Mob: cycle through the question gauntlet (1 for basic, 3 for elite),
+    // then remove the mob. Wrongs along the way already cost HP above.
     if (battle?.type === 'mob') {
-      mobsRef.current.splice(battle.mobIdx, 1);
-      setBattle(null);
+      const nextIdx = battle.questionIdx + 1;
+      if (nextIdx >= battle.questions.length) {
+        mobsRef.current.splice(battle.mobIdx, 1);
+        setBattle(null);
+      } else {
+        setBattle({ ...battle, questionIdx: nextIdx });
+      }
       return;
     }
 
@@ -1979,27 +2329,66 @@ export default function DungeonExplore({
       const moving = t < 1;
       const walkFrame = moving ? Math.floor(now / WALK_FRAME_MS) % 4 : 0;
 
-      // Mob wander — but pause while a battle is open or run is over.
+      // Mob AI — but pause while a battle is open or run is over. Each mob
+      // ticks at its own cadence based on `nextMoveAt`. Behavior depends on
+      // mob.ai: idle (no move), patrol (bounce one axis), aggressive (chase
+      // when player is close, otherwise wander).
       if (!s.battle && s.runState === 'alive') {
         mobsRef.current.forEach((m) => {
+          if (m.ai === 'idle') return;
           if (m.nextMoveAt === 0) {
             m.nextMoveAt = now + MOB_MOVE_MIN_MS + Math.random() * (MOB_MOVE_MAX_MS - MOB_MOVE_MIN_MS);
             return;
           }
           if (now < m.nextMoveAt) return;
-          const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
-          const [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)];
-          const nx = m.x + dx;
-          const ny = m.y + dy;
-          const inBounds = nx >= m.bounds.x && nx < m.bounds.x + m.bounds.w &&
-                           ny >= m.bounds.y && ny < m.bounds.y + m.bounds.h;
-          if (inBounds && s.initial.map[ny]?.[nx] === TILE.FLOOR) {
-            // Avoid stepping onto the player.
-            if (!(nx === s.pos.x && ny === s.pos.y)) {
-              m.x = nx;
-              m.y = ny;
+
+          const tryStep = (dx, dy) => {
+            const nx = m.x + dx;
+            const ny = m.y + dy;
+            const inBounds = nx >= m.bounds.x && nx < m.bounds.x + m.bounds.w &&
+                             ny >= m.bounds.y && ny < m.bounds.y + m.bounds.h;
+            if (!inBounds) return false;
+            if (s.initial.map[ny]?.[nx] !== TILE.FLOOR) return false;
+            if (nx === s.pos.x && ny === s.pos.y) return false;
+            // Avoid stepping onto another mob.
+            if (mobsRef.current.some((other) => other !== m && other.x === nx && other.y === ny)) return false;
+            m.x = nx;
+            m.y = ny;
+            return true;
+          };
+
+          if (m.ai === 'aggressive') {
+            const dist = Math.abs(s.pos.x - m.x) + Math.abs(s.pos.y - m.y);
+            if (dist > 0 && dist <= MOB_AGGRO_RANGE) {
+              const dx = Math.sign(s.pos.x - m.x);
+              const dy = Math.sign(s.pos.y - m.y);
+              // Try the longer axis first; fall back to the other.
+              const horizFirst = Math.abs(s.pos.x - m.x) >= Math.abs(s.pos.y - m.y);
+              if (horizFirst) {
+                if (!(dx !== 0 && tryStep(dx, 0))) tryStep(0, dy);
+              } else {
+                if (!(dy !== 0 && tryStep(0, dy))) tryStep(dx, 0);
+              }
+              // Aggressive mobs tick faster than regular wander.
+              m.nextMoveAt = now + 700 + Math.random() * 600;
+              return;
             }
           }
+
+          if (m.ai === 'patrol') {
+            // Bounce horizontally; flip direction on wall.
+            if (!tryStep(m.patrolDir || 1, 0)) {
+              m.patrolDir = -(m.patrolDir || 1);
+              tryStep(m.patrolDir, 0);
+            }
+            m.nextMoveAt = now + MOB_MOVE_MIN_MS + Math.random() * (MOB_MOVE_MAX_MS - MOB_MOVE_MIN_MS);
+            return;
+          }
+
+          // Default wander (basic non-patrol mobs without aggression nearby).
+          const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+          const [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)];
+          tryStep(dx, dy);
           m.nextMoveAt = now + MOB_MOVE_MIN_MS + Math.random() * (MOB_MOVE_MAX_MS - MOB_MOVE_MIN_MS);
         });
       }
