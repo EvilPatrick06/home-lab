@@ -264,6 +264,8 @@ const MOBS_BY_BIOME = Object.entries(MOB_DEFS).reduce((acc, [kind, def]) => {
 
 const MOB_AGGRO_RANGE = 5;
 const ELITE_QUESTION_COUNT = 3;
+// Damage a wrong answer costs depending on what hit you back.
+const DMG_BY_TIER = { basic: 1, elite: 2, boss: 3 };
 const BOSS_BY_BIOME = {
   crypt:  'lich',
   sewers: 'hydra',
@@ -1572,13 +1574,21 @@ function checkAnswerCorrect(question, choice) {
 }
 
 // === BattleModal ========================================================
-function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemaining }) {
+function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemaining, hp, maxHp, bossDisplay }) {
   if (!battle) return null;
   const q = battle.questions[battle.questionIdx];
   if (!q) return null;
   const isBoss = battle.type === 'boss';
   const total = battle.questions.length;
   const stepNum = battle.questionIdx + 1;
+  const correctCount = battle.correctCount || 0;
+  const mobMaxHp = total;
+  const mobHpRemaining = Math.max(0, mobMaxHp - correctCount);
+  const tier = isBoss ? 'boss' : (battle.mobTier || 'basic');
+  const tierLabel = isBoss ? 'Boss'
+                  : tier === 'elite' ? 'Elite'
+                  : 'Basic';
+  const tierDmg = isBoss ? 3 : tier === 'elite' ? 2 : 1;
 
   const [revealResult, setRevealResult] = useState(null);
 
@@ -1596,6 +1606,21 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
 
   const options = q.type === 'truefalse' ? ['True', 'False'] : (q.options || []);
 
+  // HP-bar block helpers — small color-blocked rectangles per HP point.
+  const renderHpRow = (current, max, color, dimColor) => (
+    <div className="flex gap-1">
+      {Array.from({ length: max }).map((_, i) => (
+        <div key={i} style={{
+          width: 10, height: 16,
+          background: i < current ? color : dimColor,
+          border: '1px solid rgba(0,0,0,0.55)',
+          borderRadius: 2,
+          boxShadow: i < current ? `inset 0 0 4px ${color}` : 'none',
+        }} />
+      ))}
+    </div>
+  );
+
   return (
     <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.78)' }}>
       <div
@@ -1612,6 +1637,27 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
             {isBoss
               ? `⚔ Boss Trial · Question ${stepNum} of ${total}`
               : (total > 1 ? `⚔ Elite Encounter · Question ${stepNum} of ${total}` : '⚔ Encounter')}
+          </div>
+          <div className="text-[10px] italic text-amber-700">
+            Wrong = -{tierDmg} HP
+          </div>
+        </div>
+
+        {/* HP bars — player vs mob/boss */}
+        <div className="flex items-center justify-between gap-3 mb-3 px-2 py-2 rounded"
+             style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(120,53,15,0.4)' }}>
+          <div>
+            <div className="text-[10px] italic text-amber-700">Thee · {hp}/{maxHp}</div>
+            {renderHpRow(hp, Math.max(maxHp, hp), '#dc2626', '#3a1414')}
+          </div>
+          <div className="text-amber-700 italic text-base">⚔</div>
+          <div className="text-right">
+            <div className="text-[10px] italic text-amber-700">
+              {tierLabel}{isBoss && bossDisplay ? ` · ${bossDisplay.name}` : ''} · {mobHpRemaining}/{mobMaxHp}
+            </div>
+            {renderHpRow(mobHpRemaining, mobMaxHp,
+              isBoss ? '#a855f7' : tier === 'elite' ? '#f97316' : '#dc2626',
+              '#1e293b')}
           </div>
         </div>
         <div className="text-amber-100 italic mb-4 leading-relaxed">{q.question}</div>
@@ -1727,6 +1773,14 @@ function EndRunOverlay({ runState, biome, summary, onExit, onNewDelve }) {
         {won && (
           <div className="text-xs italic text-amber-300 mb-4">
             +{summary.xpAwarded} XP · +{summary.goldAwarded} gold
+          </div>
+        )}
+        {!won && summary.deathPenaltyApplied && (
+          <div className="text-xs italic mb-4">
+            <div className="text-amber-300">+{summary.xpAwarded} XP awarded</div>
+            <div className="text-rose-300/80 text-[11px] mt-1">
+              ⚜ Death penalty: half thy in-run XP forfeit ({summary.xpEarnedInRun} → {summary.xpAwarded}) ⚜
+            </div>
           </div>
         )}
         <div className="flex gap-2 justify-center flex-wrap">
@@ -1863,6 +1917,9 @@ export default function DungeonExplore({
   const runQuestionLogRef = useRef([]);
   const runStartTimeRef = useRef(Date.now());
   const trackedAttemptRef = useRef(false);
+  // Phase 14: in-run XP accumulates here so death can halve it without
+  // retroactively pulling XP back from playerState.
+  const xpEarnedRef = useRef(0);
 
   const stateRef = useRef({});
   useLayoutEffect(() => {
@@ -1896,6 +1953,7 @@ export default function DungeonExplore({
     runQuestionLogRef.current = [];
     runStartTimeRef.current = Date.now();
     trackedAttemptRef.current = false;
+    xpEarnedRef.current = 0;
   }, [initial, effectiveMaxHp, effectiveMaxShield]);
 
   // Begin a delve from the setup screen — fires the tutorial counter and
@@ -1920,6 +1978,7 @@ export default function DungeonExplore({
     usedQuestionIdsRef.current = new Set();
     runQuestionLogRef.current = [];
     runStartTimeRef.current = Date.now();
+    xpEarnedRef.current = 0;
     if (!trackedAttemptRef.current && trackDungeonAttempt) {
       trackedAttemptRef.current = true;
       try { trackDungeonAttempt(); } catch { /* best-effort */ }
@@ -2084,7 +2143,7 @@ export default function DungeonExplore({
         return;
       }
       qs.forEach((q) => usedQuestionIdsRef.current.add(q.id));
-      setBattle({ type: 'boss', questions: qs, questionIdx: 0 });
+      setBattle({ type: 'boss', questions: qs, questionIdx: 0, correctCount: 0 });
       return;
     }
     // Mob collision — basic = 1 question, elite = 3 questions.
@@ -2099,7 +2158,7 @@ export default function DungeonExplore({
         return;
       }
       qs.forEach((q) => usedQuestionIdsRef.current.add(q.id));
-      setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, questions: qs, questionIdx: 0 });
+      setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, questions: qs, questionIdx: 0, correctCount: 0 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos]);
@@ -2129,8 +2188,14 @@ export default function DungeonExplore({
         return next;
       });
       const buffMul = xpBuffRemaining > 0 ? 1.25 : 1;
-      if (battle?.type === 'mob' && awardXP) awardXP(Math.floor(10 * equipBonuses.xpMul * buffMul), 'Foe felled');
-      if (battle?.type === 'mob' && awardGold) awardGold(Math.floor(5 * equipBonuses.goldMul), 'Foe felled');
+      if (battle?.type === 'mob') {
+        const tierMul = battle.mobTier === 'elite' ? 2 : 1;
+        // XP is deferred to end-of-run so death can halve it.
+        xpEarnedRef.current += Math.floor(10 * equipBonuses.xpMul * buffMul * tierMul);
+        if (awardGold) awardGold(Math.floor(5 * equipBonuses.goldMul * tierMul), 'Foe felled');
+      } else if (battle?.type === 'boss') {
+        xpEarnedRef.current += Math.floor(15 * equipBonuses.xpMul * buffMul);
+      }
     } else {
       setMistakes((m) => m + 1);
       setStreak(0);
@@ -2138,7 +2203,11 @@ export default function DungeonExplore({
       if (equipBonuses.firstWrongFree && !firstWrongUsed) {
         setFirstWrongUsed(true);
       } else {
-        setHp((h) => h - 1);
+        // Damage scales with whoever just hit you back.
+        const dmg = battle?.type === 'boss'
+          ? DMG_BY_TIER.boss
+          : (battle?.mobTier === 'elite' ? DMG_BY_TIER.elite : DMG_BY_TIER.basic);
+        setHp((h) => h - dmg);
       }
     }
 
@@ -2146,11 +2215,12 @@ export default function DungeonExplore({
     // then remove the mob. Wrongs along the way already cost HP above.
     if (battle?.type === 'mob') {
       const nextIdx = battle.questionIdx + 1;
+      const nextCorrect = (battle.correctCount || 0) + (correct ? 1 : 0);
       if (nextIdx >= battle.questions.length) {
         mobsRef.current.splice(battle.mobIdx, 1);
         setBattle(null);
       } else {
-        setBattle({ ...battle, questionIdx: nextIdx });
+        setBattle({ ...battle, questionIdx: nextIdx, correctCount: nextCorrect });
       }
       return;
     }
@@ -2158,13 +2228,14 @@ export default function DungeonExplore({
     // Boss: advance through the gauntlet.
     if (battle?.type === 'boss') {
       const nextIdx = battle.questionIdx + 1;
+      const nextCorrect = (battle.correctCount || 0) + (correct ? 1 : 0);
       if (nextIdx >= battle.questions.length) {
         setBattle(null);
         setTimeout(() => {
           if (stateRef.current.hp > 0) finishRun(true, {});
         }, 0);
       } else {
-        setBattle({ ...battle, questionIdx: nextIdx });
+        setBattle({ ...battle, questionIdx: nextIdx, correctCount: nextCorrect });
       }
     }
   };
@@ -2202,10 +2273,13 @@ export default function DungeonExplore({
 
     let xpAwarded = 0;
     let goldAwarded = 0;
+    const xpEarnedInRun = xpEarnedRef.current;
     if (won) {
-      xpAwarded = Math.floor(100 * diffConfig.xpMul * equipBonuses.xpMul);
-      goldAwarded = Math.floor(100 * diffConfig.goldMul * equipBonuses.goldMul);
-      if (awardXP) awardXP(xpAwarded, `${diffConfig.label} Dungeon Cleared`);
+      const completionXp = Math.floor(100 * diffConfig.xpMul * equipBonuses.xpMul);
+      const completionGold = Math.floor(100 * diffConfig.goldMul * equipBonuses.goldMul);
+      xpAwarded = xpEarnedInRun + completionXp;
+      goldAwarded = completionGold;
+      if (awardXP && xpAwarded > 0) awardXP(xpAwarded, `${diffConfig.label} Dungeon Cleared`);
       if (awardGold) awardGold(goldAwarded, `${diffConfig.label} Dungeon Cleared`);
       if (checkAchievement) {
         checkAchievement('first_run');
@@ -2230,6 +2304,11 @@ export default function DungeonExplore({
       if (updateProgress && playerState) {
         updateProgress({ longestStreak: Math.max(playerState.longestStreak || 0, maxStreak) });
       }
+    } else {
+      // Death penalty: half the XP earned in the run, no completion bonus.
+      // Gold accumulated mid-run was already paid out per kill so it stays.
+      xpAwarded = Math.floor(xpEarnedInRun * 0.5);
+      if (xpAwarded > 0 && awardXP) awardXP(xpAwarded, 'Half XP — death penalty');
     }
 
     // Run history entry — same shape as the legacy DungeonRun for Chronicle compatibility.
@@ -2265,6 +2344,8 @@ export default function DungeonExplore({
       goldAwarded,
       bossId: initial.boss?.kind,
       earlyByEmptyTome: !!opts.earlyByEmptyTome,
+      xpEarnedInRun,
+      deathPenaltyApplied: !won && xpEarnedInRun > 0,
     });
     setRunState(won ? 'victory' : 'death');
   };
@@ -2762,6 +2843,9 @@ export default function DungeonExplore({
           onFlee={onBattleFlee}
           canFlee={shields > 0}
           shieldsRemaining={shields}
+          hp={hp}
+          maxHp={effectiveMaxHp}
+          bossDisplay={initial.boss?.kind ? BOSS_DISPLAY[initial.boss.kind] : null}
         />
         <EndRunOverlay
           runState={runState}
