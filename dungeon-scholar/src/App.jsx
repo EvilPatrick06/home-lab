@@ -426,6 +426,140 @@ const ITEMS = [
   { id: 'cactus_pulp',   name: 'Cactus Pulp',   description: 'Wet fibre wrenched from a sun-bleached cactus.',                          icon: '🌵', category: 'ingredient', price: 0 },
 ];
 
+// === Bestiary (Phase 17) ================================================
+// Lore + drop hints for every dungeon dweller. Boss entries carry tiered
+// lore: base on first defeat, expanded after 5, and a secret line after
+// 10. All entries are unlocked on first kill and counted in
+// playerState.bestiary[kind] = { defeats: N, firstDefeatedAt: iso }.
+const BESTIARY_ENTRIES = {
+  // === Crypt mobs ===
+  wraith: {
+    name: 'Wraith', icon: '👻', biome: 'crypt', tier: 'basic',
+    lore: 'A spectral cryptanalyst who never finished her thesis on RC4. She drifts the catacombs murmuring the keystream that broke her.',
+    drops: 'Glow Root · faint glimmers of gold',
+  },
+  skeleton: {
+    name: 'Skeleton', icon: '💀', biome: 'crypt', tier: 'basic',
+    lore: 'A sentry who fell guarding a server rack centuries past. Its bones still rattle the heartbeat of an obsolete IDS signature.',
+    drops: 'Ember Ash · gold',
+  },
+  shade: {
+    name: 'Shade', icon: '🟣', biome: 'crypt', tier: 'elite',
+    lore: "A lich's apprentice — half-bound to the algorithms his master cracked. To fight him is to argue with a fragment of broken proof.",
+    drops: 'Sigil Dust · Scholar\'s Brew (rare)',
+  },
+  // === Sewers mobs ===
+  slime: {
+    name: 'Slime', icon: '🟢', biome: 'sewers', tier: 'basic',
+    lore: 'Born from the slow drip of an unsanitized parameter, it wears every payload it has ever swallowed.',
+    drops: 'Glow Root · gold',
+  },
+  rat: {
+    name: 'Sewer Rat', icon: '🐀', biome: 'sewers', tier: 'basic',
+    lore: 'It has chewed through a hundred TLS handshakes to nest in this sewer. It knows where every stale session token sleeps.',
+    drops: 'Moonleaf · gold',
+  },
+  ooze: {
+    name: 'Ooze', icon: '🦠', biome: 'sewers', tier: 'elite',
+    lore: 'A weaponised SQL injection given form. Three eyes, three statements, three ways to ruin thy day.',
+    drops: 'Iron Filings · Shield Draught (rare)',
+  },
+  // === Tower mobs ===
+  sentry: {
+    name: 'Sentry', icon: '🛡️', biome: 'tower', tier: 'basic',
+    lore: 'A defunct intrusion detector still running on stubborn firmware. It cannot be reasoned with, only outwitted.',
+    drops: 'Iron Filings · gold',
+  },
+  drone: {
+    name: 'Drone', icon: '🛸', biome: 'tower', tier: 'basic',
+    lore: 'A reconnaissance scout from a long-decommissioned monitoring system. Its rotors hum with ancient packet captures.',
+    drops: 'Crystal Shard · gold',
+  },
+  firewall: {
+    name: 'Firewall', icon: '🔥', biome: 'tower', tier: 'elite',
+    lore: 'A misconfigured perimeter given will. It blocks even truth, if the truth lacks the right ACL.',
+    drops: 'Crystal Shard · Tinker\'s Oil (rare)',
+  },
+  // === Halls mobs ===
+  spark: {
+    name: 'Spark', icon: '⚡', biome: 'halls', tier: 'basic',
+    lore: 'A wisp of static charge from a broken capacitor — drawn to anyone bearing fresh memory.',
+    drops: 'Ember Ash · gold',
+  },
+  imp: {
+    name: 'Imp', icon: '😈', biome: 'halls', tier: 'basic',
+    lore: 'Mischievous BIOS-level malware fashioned into a winged shape.',
+    drops: 'Cactus Pulp · Foresight Scroll (rare)',
+  },
+  sentinel: {
+    name: 'Sentinel', icon: '🤖', biome: 'halls', tier: 'elite',
+    lore: 'A hardened security appliance, animated by years of accumulated audit logs.',
+    drops: 'Iron Filings · Phoenix Ember (very rare)',
+  },
+  // === Wastes mobs ===
+  scorpion: {
+    name: 'Scorpion', icon: '🦂', biome: 'wastes', tier: 'basic',
+    lore: 'It dwells beneath the antennae, stinging signals with electromagnetic venom.',
+    drops: 'Cactus Pulp · gold',
+  },
+  spider: {
+    name: 'Spider', icon: '🕷️', biome: 'wastes', tier: 'basic',
+    lore: 'It spins webs of social-engineered links between unwary travelers.',
+    drops: 'Sigil Dust · gold',
+  },
+  elemental: {
+    name: 'Sand Elemental', icon: '🌪️', biome: 'wastes', tier: 'elite',
+    lore: 'A dust devil shaped by the broadcast prayers of forgotten radios.',
+    drops: 'Crystal Shard · Phoenix Ember (rare)',
+  },
+  // === Bosses (tiered lore) ===
+  lich: {
+    name: 'The Lich', icon: '💀', biome: 'crypt', tier: 'boss',
+    lore: {
+      base: 'A skeletal sorcerer wreathed in violet flame, tethered to centuries of forbidden lore.',
+      expanded: 'Once a brilliant cryptographer, he memorised every private key the world has ever forged. Each correct answer chips at the seal that binds him here.',
+      secret: 'His true name is bound in his last unpublished paper, lost in the catacombs. Find that scroll and his binding breaks before the gauntlet ends.',
+    },
+    drops: 'Massive XP + gold on victory · titles · rare gear from boss-room Gold chests',
+  },
+  hydra: {
+    name: 'The Hydra', icon: '🐉', biome: 'sewers', tier: 'boss',
+    lore: {
+      base: 'Three serpentine heads writhe in unison, fangs bared, breathing ruin.',
+      expanded: 'It was born from a fork bomb that escaped a CTF lab. Each head is one of the spawned children, refusing to die.',
+      secret: 'Cut off the parent process and the heads collapse — but no one alive remembers the PID.',
+    },
+    drops: 'Massive XP + gold on victory · Adept-tier titles · Silver/Gold chest pools',
+  },
+  sphinx: {
+    name: 'The Sphinx', icon: '🦁', biome: 'tower', tier: 'boss',
+    lore: {
+      base: 'A regal beast whose patience is measured in falling sand.',
+      expanded: 'It guards the route to a cache that holds the last legitimate session of every fallen scholar.',
+      secret: 'Its riddle is itself — answer it not, and it answers thee. Speak the question aloud to undo the binding.',
+    },
+    drops: 'Massive XP + gold · Master-tier titles · Gold-chest gear seeds',
+  },
+  behemoth: {
+    name: 'The Behemoth', icon: '🪨', biome: 'halls', tier: 'boss',
+    lore: {
+      base: 'A mountain of muscle and bone, scarred by ages of battle.',
+      expanded: 'Bare-metal made flesh — the union of every server that refused to upgrade. It hits twice as hard but the punches are deterministic.',
+      secret: 'Patch its kernel and it falls. The patch lives in a forgotten changelog, hidden behind seven Adept clears.',
+    },
+    drops: 'Massive XP + gold · Master-tier titles · Mythic seed chests',
+  },
+  riddler: {
+    name: 'The Riddler', icon: '🃏', biome: 'wastes', tier: 'boss',
+    lore: {
+      base: 'A masked trickster who wagers the path on words alone.',
+      expanded: 'He was a senior tester who solved every CTF before grading. None of his colleagues could prove a winner; none could prove a loser either.',
+      secret: 'His mask is the flag — read it backwards. The reversal is engraved on the inside of the mask he never removes.',
+    },
+    drops: 'Massive XP + gold · Mythic-tier titles · Gold chest exclusives',
+  },
+};
+
 // === Recipes (Phase 16) =================================================
 // Crafting at The Bench: spend ingredients, gain a potion. Run-specific
 // effects already live on the apothecary items themselves.
@@ -862,6 +996,8 @@ const DEFAULT_STATE = {
   weeklyQuests: null,          // { weekStart, quests: [{ id, baseline, claimed }] }
   // Story Quest Chains — keyed by chain id
   storyProgress: {},           // { [chainId]: { stepIndex, baseline, completed, claimedSteps: [] } }
+  // Phase 17: Bestiary defeat tracker. { [kind]: { defeats, firstDefeatedAt } }
+  bestiary: {},
   // Currency & Inventory
   gold: 0,
   inventory: {},               // { [itemId]: count } — consumables and cosmetics
@@ -1223,6 +1359,21 @@ export default function DungeonScholarApp() {
       const potions = [...(prev.equipped?.potions || [null, null, null])];
       potions[slotIdx] = null;
       return { ...prev, equipped: { ...(prev.equipped || {}), potions } };
+    });
+  };
+
+  // Phase 17: increment a Bestiary entry on first/each defeat. Records
+  // the first-defeated date so future analytics can show progression.
+  const recordBestiary = (kind) => {
+    if (!kind) return;
+    setPlayerState(prev => {
+      const b = { ...(prev.bestiary || {}) };
+      const cur = b[kind] || { defeats: 0, firstDefeatedAt: null };
+      b[kind] = {
+        defeats: (cur.defeats || 0) + 1,
+        firstDefeatedAt: cur.firstDefeatedAt || new Date().toISOString(),
+      };
+      return { ...prev, bestiary: b };
     });
   };
 
@@ -2188,6 +2339,9 @@ export default function DungeonScholarApp() {
         {screen === 'crafting' && (
           <CraftingScreen playerState={playerState} setScreen={setScreen} onCraft={craftRecipe} />
         )}
+        {screen === 'bestiary' && (
+          <BestiaryScreen playerState={playerState} setScreen={setScreen} />
+        )}
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
@@ -2209,6 +2363,7 @@ export default function DungeonScholarApp() {
             onViewHistory={() => setScreen('history')}
             consumeItem={consumeItem}
             giveItem={giveItem}
+            recordBestiary={recordBestiary}
           />
         )}
         {screen === 'flashcards' && courseSet && (
@@ -2956,6 +3111,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           icon={<Scroll className="w-8 h-8" />}
           color="purple"
           onClick={() => setScreen('history')}
+        />
+        <ModeCard
+          title="Bestiary"
+          desc={`Lore on every foe felled in the dungeon. ${Object.keys(playerState?.bestiary || {}).length}/${20} entries unlocked.`}
+          icon={<Skull className="w-8 h-8" />}
+          color="purple"
+          onClick={() => setScreen('bestiary')}
         />
       </div>
 
@@ -6042,6 +6204,153 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
           🌿 The Brewing Bench
         </button>
       </div>
+    </div>
+  );
+}
+
+// Phase 17 — Bestiary. Lore + drop hints + defeat counters for every
+// dungeon dweller, grouped by biome. Bosses unlock tiered lore with
+// repeated defeats (5 = expanded, 10 = secret).
+function BestiaryScreen({ playerState, setScreen }) {
+  const tracked = playerState.bestiary || {};
+  const grouped = Object.entries(BESTIARY_ENTRIES).reduce((acc, [kind, entry]) => {
+    const biome = entry.biome || 'misc';
+    if (!acc[biome]) acc[biome] = [];
+    acc[biome].push({ kind, ...entry });
+    return acc;
+  }, {});
+  // Stable order for biomes — matches the explore selector layout.
+  const BIOME_ORDER = ['crypt', 'sewers', 'tower', 'halls', 'wastes'];
+  const BIOME_LABELS = {
+    crypt: { name: 'Crypt of Cryptography', icon: '🗝️', accent: '#a855f7' },
+    sewers: { name: 'Sewers of OWASP', icon: '🕸️', accent: '#10b981' },
+    tower: { name: 'Tower of Network Defense', icon: '🗼', accent: '#3b82f6' },
+    halls: { name: 'Halls of the Hardware', icon: '⚙️', accent: '#f59e0b' },
+    wastes: { name: 'Wastes of WiFi', icon: '📡', accent: '#d97706' },
+  };
+
+  const totalSeen = Object.keys(tracked).length;
+  const totalKnown = Object.keys(BESTIARY_ENTRIES).length;
+
+  const entryLore = (entry, defeats) => {
+    if (typeof entry.lore === 'string') return entry.lore;
+    // Boss tiered lore.
+    let text = entry.lore.base;
+    if (defeats >= 5 && entry.lore.expanded) {
+      text += `\n\n✦ ${entry.lore.expanded}`;
+    }
+    if (defeats >= 10 && entry.lore.secret) {
+      text += `\n\n✦✦ ${entry.lore.secret}`;
+    }
+    return text;
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(168, 85, 247, 0.6)',
+        boxShadow: '0 0 30px rgba(168, 85, 247, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-purple-300 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-purple-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-purple-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-purple-300 text-sm">⚜</div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-4xl">📖</div>
+            <div>
+              <h2 className="text-2xl font-bold text-purple-200 italic" style={{ textShadow: '0 0 12px rgba(168, 85, 247, 0.4)' }}>
+                Bestiary
+              </h2>
+              <div className="text-xs text-purple-400 tracking-[0.2em] italic">⚜ THE FOES THAT BLED ⚜</div>
+              <div className="text-xs text-amber-100/70 italic mt-1">
+                {totalSeen} / {totalKnown} entries unlocked.
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setScreen('home')}
+            className="px-3 py-2 rounded text-xs italic border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
+            style={{ background: 'rgba(31, 12, 41, 0.45)' }}>
+            ← Return to the Hearth
+          </button>
+        </div>
+      </div>
+
+      {BIOME_ORDER.map((biomeId) => {
+        const entries = grouped[biomeId] || [];
+        if (entries.length === 0) return null;
+        const meta = BIOME_LABELS[biomeId] || { name: biomeId, icon: '⚜', accent: '#fbbf24' };
+        return (
+          <div key={biomeId} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">{meta.icon}</span>
+              <h3 className="text-lg font-bold italic tracking-wider" style={{ color: meta.accent, textShadow: `0 0 8px ${meta.accent}66` }}>
+                {meta.name}
+              </h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+              <span className="text-xs text-amber-700 italic">
+                {entries.filter(e => tracked[e.kind]).length}/{entries.length} found
+              </span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              {entries.map((entry) => {
+                const status = tracked[entry.kind];
+                const seen = !!status;
+                const defeats = status?.defeats || 0;
+                const isBoss = entry.tier === 'boss';
+                return (
+                  <div key={entry.kind} className="p-4 rounded relative" style={{
+                    background: seen
+                      ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)'
+                      : 'linear-gradient(135deg, rgba(15, 12, 18, 0.85) 0%, rgba(6, 4, 8, 0.95) 100%)',
+                    border: `2px ${isBoss ? 'double' : 'solid'} ${
+                      seen
+                        ? (isBoss ? meta.accent : 'rgba(245, 158, 11, 0.5)')
+                        : 'rgba(120, 53, 15, 0.3)'
+                    }`,
+                    boxShadow: seen && isBoss ? `0 0 14px ${meta.accent}33` : 'none',
+                    opacity: seen ? 1 : 0.65,
+                  }}>
+                    <div className="flex items-start gap-3 mb-2">
+                      <div className="text-3xl">{seen ? entry.icon : '❓'}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <h4 className={`font-bold italic text-sm ${seen ? 'text-amber-200' : 'text-amber-700/80'}`}>
+                            {seen ? entry.name : '???'}
+                            {isBoss && seen && <span className="ml-2 text-[10px] text-purple-300 italic">(Boss)</span>}
+                            {entry.tier === 'elite' && seen && <span className="ml-2 text-[10px] text-orange-300 italic">(Elite)</span>}
+                          </h4>
+                          {seen && (
+                            <span className="text-xs text-amber-300 font-bold italic tabular-nums">
+                              ×{defeats}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] italic text-amber-100/70 mt-1 whitespace-pre-line">
+                          {seen ? entryLore(entry, defeats) : 'Defeat one in the dungeon to unlock this entry.'}
+                        </p>
+                        {seen && entry.drops && (
+                          <div className="text-[10px] italic text-emerald-300/80 mt-2">
+                            <span className="text-amber-700 not-italic">Drops:</span> {entry.drops}
+                          </div>
+                        )}
+                        {isBoss && seen && (
+                          <div className="text-[10px] italic mt-2" style={{ color: meta.accent }}>
+                            ✦ Lore tiers: {defeats >= 1 ? 'base' : '—'}
+                            {' · '}{defeats >= 5 ? 'expanded' : `expanded @ 5 (${defeats}/5)`}
+                            {' · '}{defeats >= 10 ? 'secret' : `secret @ 10 (${defeats}/10)`}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

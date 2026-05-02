@@ -1969,6 +1969,7 @@ export default function DungeonExplore({
   onViewHistory,
   consumeItem,
   giveItem,
+  recordBestiary,
 }) {
   const isUnlocked = (id) => {
     if (id === 'apprentice') return true;
@@ -2401,7 +2402,9 @@ export default function DungeonExplore({
       const nextIdx = battle.questionIdx + 1;
       const nextCorrect = (battle.correctCount || 0) + (correct ? 1 : 0);
       if (nextIdx >= battle.questions.length) {
+        const slain = mobsRef.current[battle.mobIdx];
         mobsRef.current.splice(battle.mobIdx, 1);
+        if (slain && recordBestiary) recordBestiary(slain.kind);
         setBattle(null);
       } else {
         setBattle({ ...battle, questionIdx: nextIdx, correctCount: nextCorrect });
@@ -2472,6 +2475,7 @@ export default function DungeonExplore({
         if (bossId) {
           const bossAch = `first_${bossId}`;
           checkAchievement(bossAch);
+          if (recordBestiary) recordBestiary(bossId);
         }
         if (mistakes === 0) {
           checkAchievement('flawless');
