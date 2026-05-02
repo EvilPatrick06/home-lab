@@ -844,11 +844,14 @@ const DEFAULT_STATE = {
   inventory: {},               // { [itemId]: count } — consumables and cosmetics
   // Currently-equipped item ids per slot. Equipment grants in-dungeon
   // bonuses (HP, shields, XP/gold mults) and renders on the player sprite.
+  // potions is a 3-element array — quick-use slots usable from hotkeys 1/2/3
+  // inside the dungeon.
   equipped: {
     weapon: null,
     head: null,
     cloak: null,
     pet: null,
+    potions: [null, null, null],
   },
   permUpgrades: {              // Sanctum stacks; raw counts (multiply by step for actual percent)
     maxHp: 0,
@@ -1162,6 +1165,63 @@ export default function DungeonScholarApp() {
       ...prev,
       equipped: { ...(prev.equipped || {}), [slot]: null },
     }));
+  };
+
+  // Equip an apothecary item into a specific potion slot (0/1/2). If
+  // slotIdx is omitted, fills the first empty slot.
+  const equipPotion = (itemId, slotIdx) => {
+    const item = findItem(itemId);
+    if (!item || item.category !== 'apothecary') {
+      return { ok: false, reason: 'Only potions and elixirs can be quick-slotted.' };
+    }
+    if (!((playerState.inventory || {})[itemId] || 0)) {
+      return { ok: false, reason: 'Thou dost not own this.' };
+    }
+    let placed = false;
+    setPlayerState(prev => {
+      const potions = [...(prev.equipped?.potions || [null, null, null])];
+      if (typeof slotIdx === 'number') {
+        potions[slotIdx] = itemId;
+        placed = true;
+      } else {
+        const empty = potions.findIndex(p => !p);
+        if (empty < 0) return prev;
+        potions[empty] = itemId;
+        placed = true;
+      }
+      return { ...prev, equipped: { ...(prev.equipped || {}), potions } };
+    });
+    if (placed) setTimeout(() => showNotif(`Quick-slotted: ${item.name}`, 'success'), 50);
+    return placed ? { ok: true } : { ok: false, reason: 'No empty quick-slot.' };
+  };
+
+  const unequipPotion = (slotIdx) => {
+    setPlayerState(prev => {
+      const potions = [...(prev.equipped?.potions || [null, null, null])];
+      potions[slotIdx] = null;
+      return { ...prev, equipped: { ...(prev.equipped || {}), potions } };
+    });
+  };
+
+  // Consume one of an inventory item. Used by potion use in the dungeon
+  // and by future apothecary effects. Auto-unequips potion slots that
+  // referenced the now-zero item.
+  const consumeItem = (itemId) => {
+    setPlayerState(prev => {
+      const inv = { ...(prev.inventory || {}) };
+      const cur = inv[itemId] || 0;
+      if (cur <= 0) return prev;
+      const next = { ...prev };
+      if (cur <= 1) {
+        delete inv[itemId];
+        const potions = (prev.equipped?.potions || [null, null, null]).map(p => p === itemId ? null : p);
+        next.equipped = { ...(prev.equipped || {}), potions };
+      } else {
+        inv[itemId] = cur - 1;
+      }
+      next.inventory = inv;
+      return next;
+    });
   };
 
   const ACHIEVEMENT_GOLD = 50;
@@ -2056,6 +2116,8 @@ export default function DungeonScholarApp() {
             setScreen={setScreen}
             onEquip={equipItem}
             onUnequip={unequipSlot}
+            onEquipPotion={equipPotion}
+            onUnequipPotion={unequipPotion}
           />
         )}
         {screen === 'shop' && (
@@ -2080,6 +2142,7 @@ export default function DungeonScholarApp() {
             updateTomeProgress={updateTomeProgress}
             trackDungeonAttempt={trackDungeonAttempt}
             onViewHistory={() => setScreen('history')}
+            consumeItem={consumeItem}
           />
         )}
         {screen === 'flashcards' && courseSet && (
@@ -5629,9 +5692,10 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
   );
 }
 
-function InventoryScreen({ playerState, setScreen, onEquip, onUnequip }) {
+function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPotion, onUnequipPotion }) {
   const inv = playerState.inventory || {};
   const equipped = playerState.equipped || {};
+  const equippedPotions = equipped.potions || [null, null, null];
   const totalItems = Object.values(inv).reduce((s, n) => s + (n || 0), 0);
 
   const itemsByCategory = Object.keys(ITEM_CATEGORIES).reduce((acc, cat) => {
@@ -5730,6 +5794,49 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip }) {
             );
           })}
         </div>
+
+        {/* Potion quick-slots — usable from hotkeys 1/2/3 inside the dungeon. */}
+        <div className="mt-3 flex items-center gap-2 mb-2">
+          <span className="text-base">🧪</span>
+          <h4 className="text-xs font-bold text-amber-200 italic tracking-wider">Potion Quick-Slots</h4>
+          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+          <span className="text-[10px] text-amber-700 italic">Hotkeys 1 · 2 · 3</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[0, 1, 2].map((i) => {
+            const id = equippedPotions[i];
+            const item = id ? findItem(id) : null;
+            const count = item ? (inv[item.id] || 0) : 0;
+            return (
+              <div key={i} className="p-2 rounded flex items-center gap-2" style={{
+                background: 'rgba(31,17,8,0.6)',
+                border: `1px solid ${item ? 'rgba(34,197,94,0.6)' : 'rgba(120,53,15,0.4)'}`,
+              }}>
+                <div className="w-8 h-8 flex items-center justify-center rounded text-xl" style={{
+                  background: 'rgba(0,0,0,0.4)',
+                  border: '1px solid rgba(120,53,15,0.4)',
+                }}>
+                  {item ? item.icon : <span className="text-amber-700/40 text-xs italic">{i + 1}</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] text-amber-700 italic uppercase tracking-wider">Slot {i + 1}</div>
+                  <div className="text-xs text-amber-200 italic truncate">
+                    {item ? `${item.name} ×${count}` : <span className="text-amber-700/60">— Empty —</span>}
+                  </div>
+                </div>
+                {item && onUnequipPotion && (
+                  <button
+                    onClick={() => onUnequipPotion(i)}
+                    className="text-[10px] text-amber-600 hover:text-amber-300 italic underline"
+                    title="Clear quick-slot"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {totalItems === 0 ? (
@@ -5817,6 +5924,34 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip }) {
                                   Equip ({it.slot})
                                 </button>
                               )}
+                            </div>
+                          )}
+                          {it.category === 'apothecary' && !it.locked && onEquipPotion && (
+                            <div className="mt-2 flex items-center gap-1">
+                              <span className="text-[10px] text-amber-700 italic mr-1">Quick-slot:</span>
+                              {[0, 1, 2].map((i) => {
+                                const filledId = equippedPotions[i];
+                                const isThis = filledId === it.id;
+                                const isOther = filledId && filledId !== it.id;
+                                return (
+                                  <button
+                                    key={i}
+                                    onClick={() => {
+                                      if (isThis) onUnequipPotion(i);
+                                      else onEquipPotion(it.id, i);
+                                    }}
+                                    className="px-2 py-0.5 rounded text-[10px] italic"
+                                    style={{
+                                      background: isThis ? 'rgba(120,53,15,0.7)' : 'rgba(31,17,8,0.6)',
+                                      border: `1px solid ${isThis ? 'rgba(245,158,11,0.8)' : 'rgba(120,53,15,0.4)'}`,
+                                      color: isThis ? '#fde047' : '#a8a29e',
+                                    }}
+                                    title={isOther ? `Replace ${findItem(filledId)?.name || 'current'} in slot ${i + 1}` : `Slot ${i + 1}`}
+                                  >
+                                    {i + 1}{isThis ? '★' : isOther ? '↺' : ''}
+                                  </button>
+                                );
+                              })}
                             </div>
                           )}
                         </div>

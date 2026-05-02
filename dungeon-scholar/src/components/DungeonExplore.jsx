@@ -17,6 +17,28 @@ const EQUIP_EFFECTS = {
   arcane_grimoire: { xpMul: 1.25 },
 };
 
+// === Potion effects =====================================================
+// Quick-slotted potion behaviors when used inside the dungeon.
+const POTION_EFFECTS = {
+  minor_heal_tonic:   { kind: 'heal',    amount: 1, label: 'Healing Tonic' },
+  greater_heal_tonic: { kind: 'heal',    amount: 2, label: 'Greater Draught' },
+  shield_draught:     { kind: 'shield',  amount: 1, label: 'Shield Draught' },
+  phoenix_ember:      { kind: 'revive',             label: 'Phoenix Ember' },
+  scholars_brew:      { kind: 'xp_buff', questions: 3, label: "Scholar's Brew" },
+  foresight_scroll:   { kind: 'noop',               label: 'Foresight Scroll' },
+  tinkers_oil:        { kind: 'noop',               label: "Tinker's Oil" },
+};
+// Display info for the in-dungeon potion HUD (icons mirror App.jsx ITEMS).
+const POTION_INFO = {
+  minor_heal_tonic:   { icon: '🧪', name: 'Healing Tonic' },
+  greater_heal_tonic: { icon: '⚗️', name: 'Greater Draught' },
+  shield_draught:     { icon: '🛡️', name: 'Shield Draught' },
+  phoenix_ember:      { icon: '🔥', name: 'Phoenix Ember' },
+  scholars_brew:      { icon: '☕', name: "Scholar's Brew" },
+  foresight_scroll:   { icon: '📜', name: 'Foresight Scroll' },
+  tinkers_oil:        { icon: '🪔', name: "Tinker's Oil" },
+};
+
 export const TILE = {
   WALL: 0,
   FLOOR: 1,
@@ -199,11 +221,11 @@ export const DIFF_CONFIG = {
 
 // Biome → boss kind. IDs match BOSS_TYPES in App.jsx for run-history display.
 const DECO_BY_BIOME = {
-  crypt:  ['bones', 'candle'],
-  sewers: ['mushroom', 'puddle'],
-  tower:  ['terminal', 'cable'],
-  halls:  ['gear', 'capacitor'],
-  wastes: ['cactus', 'antenna'],
+  crypt:  ['bones', 'candle', 'dead_branch', 'moss_patch', 'nightshade'],
+  sewers: ['mushroom', 'puddle', 'algae', 'fern', 'rot_flower'],
+  tower:  ['terminal', 'cable', 'bonsai', 'ivy', 'crystal'],
+  halls:  ['gear', 'capacitor', 'pipe_vine', 'rust_flower', 'steam_fern'],
+  wastes: ['cactus', 'antenna', 'tumbleweed', 'wildflower', 'desert_brush'],
 };
 const MOB_BY_BIOME = {
   crypt:  'wraith',
@@ -440,7 +462,260 @@ function drawTile(ctx, biome, type, px, py) {
   else drawWall(ctx, p, px, py);
 }
 
-// === Decoration sprites =================================================
+// === Plant + decoration sprites =========================================
+function drawDeadBranch(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#1c1614';
+  ctx.fillRect(cx - 1, cy - 14, 2, 14);
+  ctx.fillRect(cx - 5, cy - 11, 5, 1);
+  ctx.fillRect(cx - 6, cy - 12, 1, 2);
+  ctx.fillRect(cx + 1, cy - 8, 5, 1);
+  ctx.fillRect(cx + 6, cy - 9, 1, 2);
+  ctx.fillRect(cx - 4, cy - 5, 4, 1);
+  ctx.fillStyle = '#3a2a20';
+  ctx.fillRect(cx, cy - 14, 1, 14);
+  // small dead leaves
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 6, cy - 10, 1, 1);
+  ctx.fillRect(cx + 6, cy - 7, 1, 1);
+}
+function drawMossPatch(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 8;
+  ctx.fillStyle = '#2a2a30';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 13, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#15803d';
+  for (let i = 0; i < 6; i++) {
+    ctx.beginPath();
+    ctx.arc(cx - 8 + i * 3, cy - 1 + (i % 2 ? 1 : -1), 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(cx - 6, cy - 3, 1, 1);
+  ctx.fillRect(cx + 2, cy - 3, 1, 1);
+  ctx.fillRect(cx + 5, cy - 1, 1, 1);
+}
+function drawNightshade(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#1c1614';
+  ctx.fillRect(cx, cy - 12, 1, 12);
+  ctx.fillStyle = '#1f2937';
+  ctx.fillRect(cx - 3, cy - 8, 3, 2);
+  ctx.fillRect(cx + 1, cy - 5, 3, 2);
+  // flower
+  ctx.fillStyle = '#7c3aed';
+  ctx.fillRect(cx - 3, cy - 14, 7, 2);
+  ctx.fillRect(cx - 2, cy - 16, 5, 2);
+  ctx.fillStyle = '#a78bfa';
+  ctx.fillRect(cx - 1, cy - 15, 1, 1);
+  ctx.fillStyle = '#581c87';
+  ctx.fillRect(cx - 1, cy - 10, 2, 2);
+}
+function drawAlgae(ctx, px, py) {
+  const cx = px + TILE_PX / 2;
+  ctx.fillStyle = '#065f46';
+  ctx.fillRect(cx - 1, py + 2, 2, 32);
+  ctx.fillStyle = '#10b981';
+  for (let i = 0; i < 7; i++) {
+    const ly = py + 6 + i * 4;
+    const side = i % 2 === 0 ? -1 : 1;
+    ctx.fillRect(cx + (side > 0 ? 1 : -3), ly, 3, 2);
+  }
+  ctx.fillStyle = '#34d399';
+  ctx.fillRect(cx, py + 4, 1, 2);
+  // drip
+  ctx.fillStyle = '#0ea5e9';
+  ctx.fillRect(cx + 4, py + 28, 1, 3);
+}
+function drawFern(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 10;
+  ctx.fillStyle = '#065f46';
+  ctx.fillRect(cx, cy - 14, 1, 14);
+  ctx.fillStyle = '#10b981';
+  for (let i = 0; i < 6; i++) {
+    const ly = cy - 13 + i * 3;
+    ctx.fillRect(cx - 6, ly, 6, 1);
+    ctx.fillRect(cx + 1, ly + 1, 6, 1);
+  }
+  ctx.fillStyle = '#34d399';
+  ctx.fillRect(cx - 2, cy - 14, 1, 1);
+  ctx.fillRect(cx + 1, cy - 13, 1, 1);
+}
+function drawRotFlower(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#3f1414';
+  ctx.fillRect(cx, cy - 14, 1, 14);
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(cx - 4, cy - 16, 9, 2);
+  ctx.fillRect(cx - 3, cy - 18, 7, 2);
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 1, cy - 17, 2, 2);
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(cx - 2, cy - 12, 1, 2);
+  ctx.fillRect(cx + 2, cy - 10, 1, 2);
+  ctx.fillRect(cx - 4, cy - 13, 1, 2);
+}
+function drawBonsai(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 10;
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx - 5, cy - 2, 10, 4);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(cx - 5, cy - 2, 10, 1);
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 5, cy + 1, 10, 1);
+  ctx.fillStyle = '#1c1614';
+  ctx.fillRect(cx, cy - 8, 1, 6);
+  ctx.fillRect(cx - 2, cy - 10, 4, 2);
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(cx - 5, cy - 14, 11, 4);
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(cx - 4, cy - 13, 9, 1);
+  ctx.fillStyle = '#86efac';
+  ctx.fillRect(cx, cy - 14, 1, 1);
+  ctx.fillRect(cx + 3, cy - 12, 1, 1);
+}
+function drawIvy(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#065f46';
+  ctx.fillRect(cx, cy - 16, 1, 16);
+  ctx.fillStyle = '#10b981';
+  for (let i = 0; i < 4; i++) {
+    const ly = cy - 15 + i * 4;
+    const side = i % 2 === 0 ? -1 : 1;
+    ctx.fillRect(cx + side * 2, ly, 1, 2);
+    ctx.fillRect(cx + side * 3, ly - 1, 1, 4);
+    ctx.fillRect(cx + side * 4, ly, 1, 2);
+  }
+  ctx.fillStyle = '#34d399';
+  ctx.fillRect(cx - 3, cy - 14, 1, 1);
+  ctx.fillRect(cx + 3, cy - 10, 1, 1);
+}
+function drawCrystal(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  ctx.fillStyle = 'rgba(59,130,246,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 6, 9, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#3b82f6';
+  ctx.fillRect(cx - 3, cy - 8, 6, 14);
+  ctx.fillStyle = '#60a5fa';
+  ctx.fillRect(cx - 2, cy - 10, 4, 2);
+  ctx.fillStyle = '#93c5fd';
+  ctx.fillRect(cx - 1, cy - 11, 2, 1);
+  ctx.fillStyle = '#dbeafe';
+  ctx.fillRect(cx - 2, cy - 6, 1, 9);
+  // tiny side crystal
+  ctx.fillStyle = '#3b82f6';
+  ctx.fillRect(cx + 4, cy - 2, 2, 6);
+  ctx.fillStyle = '#93c5fd';
+  ctx.fillRect(cx + 4, cy - 4, 2, 1);
+}
+function drawPipeVine(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#525252';
+  ctx.fillRect(cx - 9, cy, 18, 5);
+  ctx.fillStyle = '#737373';
+  ctx.fillRect(cx - 9, cy, 18, 1);
+  ctx.fillStyle = '#262626';
+  ctx.fillRect(cx - 9, cy + 4, 18, 1);
+  // rust spots
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx - 6, cy + 2, 1, 1);
+  ctx.fillRect(cx + 4, cy + 1, 2, 1);
+  // vine
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(cx, cy - 10, 1, 10);
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(cx - 3, cy - 6, 3, 1);
+  ctx.fillRect(cx + 1, cy - 4, 3, 1);
+  ctx.fillRect(cx - 2, cy - 9, 2, 1);
+}
+function drawRustFlower(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#3a2418';
+  ctx.fillRect(cx, cy - 12, 1, 12);
+  ctx.fillStyle = '#9a3412';
+  ctx.fillRect(cx - 4, cy - 14, 9, 2);
+  ctx.fillRect(cx - 3, cy - 16, 7, 2);
+  ctx.fillStyle = '#fb923c';
+  ctx.fillRect(cx - 1, cy - 15, 3, 1);
+  ctx.fillStyle = '#fdba74';
+  ctx.fillRect(cx, cy - 16, 1, 1);
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(cx - 2, cy - 8, 2, 1);
+}
+function drawSteamFern(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 10;
+  ctx.fillStyle = '#3a2418';
+  ctx.fillRect(cx, cy - 10, 1, 10);
+  ctx.fillStyle = '#15803d';
+  for (let i = 0; i < 5; i++) {
+    const ly = cy - 9 + i * 2;
+    ctx.fillRect(cx - 5, ly, 5, 1);
+    ctx.fillRect(cx + 1, ly + 1, 5, 1);
+  }
+  // animated steam puffs
+  const tt = (t || 0);
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  const off = (tt / 60) % 12;
+  ctx.fillRect(cx - 2, cy - 14 - off, 1, 2);
+  ctx.fillRect(cx + 1, cy - 16 - ((off + 4) % 12), 1, 2);
+  ctx.fillRect(cx, cy - 18 - ((off + 8) % 12), 1, 2);
+}
+function drawTumbleweed(ctx, px, py, t) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const sway = Math.sin((t || 0) / 600) * 1;
+  ctx.fillStyle = '#92400e';
+  ctx.beginPath();
+  ctx.arc(cx + sway, cy, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#7c2d12';
+  for (let i = 0; i < 10; i++) {
+    const a = (i * Math.PI * 2) / 10;
+    ctx.fillRect(cx + sway + Math.cos(a) * 6, cy + Math.sin(a) * 6, 1, 1);
+  }
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx + sway - 2, cy - 1, 1, 2);
+  ctx.fillRect(cx + sway + 2, cy + 1, 1, 1);
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(cx + sway, cy - 2, 1, 1);
+}
+function drawWildflower(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(cx, cy - 10, 1, 10);
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(cx - 2, cy - 6, 2, 1);
+  ctx.fillRect(cx + 1, cy - 4, 2, 1);
+  // petals (alternate two flowers)
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 2, cy - 14, 5, 2);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx, cy - 13, 1, 1);
+  // smaller flower
+  ctx.fillStyle = '#3b82f6';
+  ctx.fillRect(cx + 4, cy - 11, 3, 1);
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(cx + 5, cy - 11, 1, 1);
+}
+function drawDesertBrush(ctx, px, py) {
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 8;
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx - 7, cy - 2, 14, 2);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(cx - 5, cy - 4, 3, 2);
+  ctx.fillRect(cx + 1, cy - 5, 3, 3);
+  ctx.fillRect(cx - 1, cy - 6, 2, 4);
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(cx - 5, cy - 5, 1, 1);
+  ctx.fillRect(cx + 3, cy - 6, 1, 1);
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 5, cy - 1, 1, 1);
+  ctx.fillRect(cx + 4, cy - 2, 1, 1);
+}
+
+// === Existing decoration sprites ========================================
 function drawBones(ctx, px, py) {
   const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
   ctx.fillStyle = '#e7e5db';
@@ -563,9 +838,16 @@ function drawAntenna(ctx, px, py) {
 }
 
 const DECO_DRAWERS = {
+  // existing
   bones: drawBones, candle: drawCandle, mushroom: drawMushroom, puddle: drawPuddle,
   terminal: drawTerminal, cable: drawCable, gear: drawGear, capacitor: drawCapacitor,
   cactus: drawCactus, antenna: drawAntenna,
+  // plants & extras
+  dead_branch: drawDeadBranch, moss_patch: drawMossPatch, nightshade: drawNightshade,
+  algae: drawAlgae, fern: drawFern, rot_flower: drawRotFlower,
+  bonsai: drawBonsai, ivy: drawIvy, crystal: drawCrystal,
+  pipe_vine: drawPipeVine, rust_flower: drawRustFlower, steam_fern: drawSteamFern,
+  tumbleweed: drawTumbleweed, wildflower: drawWildflower, desert_brush: drawDesertBrush,
 };
 
 // === Mob sprites ========================================================
@@ -1057,7 +1339,7 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
 }
 
 // === EndRunOverlay ======================================================
-function EndRunOverlay({ runState, biome, summary, onExit }) {
+function EndRunOverlay({ runState, biome, summary, onExit, onNewDelve }) {
   if (runState !== 'victory' && runState !== 'death') return null;
   const won = runState === 'victory';
   return (
@@ -1104,17 +1386,32 @@ function EndRunOverlay({ runState, biome, summary, onExit }) {
             +{summary.xpAwarded} XP · +{summary.goldAwarded} gold
           </div>
         )}
-        <button
-          onClick={onExit}
-          className="px-4 py-2 rounded italic"
-          style={{
-            background: 'rgba(120,53,15,0.7)',
-            border: '1px solid rgba(245,158,11,0.8)',
-            color: '#fde047',
-          }}
-        >
-          Return to Hearth
-        </button>
+        <div className="flex gap-2 justify-center flex-wrap">
+          {onNewDelve && (
+            <button
+              onClick={onNewDelve}
+              className="px-4 py-2 rounded italic font-bold"
+              style={{
+                background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
+                color: '#451a03',
+                border: '2px solid #fbbf24',
+              }}
+            >
+              ⚔ New Delve
+            </button>
+          )}
+          <button
+            onClick={onExit}
+            className="px-4 py-2 rounded italic"
+            style={{
+              background: 'rgba(120,53,15,0.7)',
+              border: '1px solid rgba(245,158,11,0.8)',
+              color: '#fde047',
+            }}
+          >
+            Return to Hearth
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1145,6 +1442,7 @@ export default function DungeonExplore({
   updateTomeProgress,
   trackDungeonAttempt,
   onViewHistory,
+  consumeItem,
 }) {
   const isUnlocked = (id) => {
     if (id === 'apprentice') return true;
@@ -1197,19 +1495,23 @@ export default function DungeonExplore({
   );
 
   // Run state
+  const [phase, setPhase] = useState('setup'); // setup | world
   const [pos, setPos] = useState(initial.spawn);
   const [facing, setFacing] = useState('down');
   const [hp, setHp] = useState(effectiveMaxHp);
   const [shields, setShields] = useState(effectiveMaxShield);
   const [firstWrongUsed, setFirstWrongUsed] = useState(false);
+  const [reviveAvailable, setReviveAvailable] = useState(false);
+  const [xpBuffRemaining, setXpBuffRemaining] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [mistakes, setMistakes] = useState(0);
   const [runState, setRunState] = useState('alive'); // alive | victory | death
   const [battle, setBattle] = useState(null);
-  // Reward summary populated on end-of-run for the overlay.
   const [endSummary, setEndSummary] = useState(null);
+  // Brief notification banner for potion/revive/buff feedback.
+  const [notice, setNotice] = useState(null);
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -1222,19 +1524,22 @@ export default function DungeonExplore({
   const stateRef = useRef({});
   useLayoutEffect(() => {
     stateRef.current = {
-      pos, facing, biome, initial, hp, maxHp: effectiveMaxHp,
+      phase, pos, facing, biome, initial, hp, maxHp: effectiveMaxHp,
       shields, maxShields: effectiveMaxShield, battle, runState, score, equipped,
+      reviveAvailable, xpBuffRemaining,
     };
   });
 
-  // Reset on map regen / difficulty change / loadout change. Reset HP,
-  // shields, mobs, run state etc.
+  // Reset on map regen / difficulty change / loadout change. Always returns
+  // the player to the setup screen so the new run gets confirmed there.
   useEffect(() => {
     setPos(initial.spawn);
     setFacing('down');
     setHp(effectiveMaxHp);
     setShields(effectiveMaxShield);
     setFirstWrongUsed(false);
+    setReviveAvailable(false);
+    setXpBuffRemaining(0);
     setScore(0);
     setStreak(0);
     setMaxStreak(0);
@@ -1242,6 +1547,7 @@ export default function DungeonExplore({
     setRunState('alive');
     setBattle(null);
     setEndSummary(null);
+    setPhase('setup');
     mobsRef.current = initial.mobs.map((m) => ({ ...m }));
     usedQuestionIdsRef.current = new Set();
     runQuestionLogRef.current = [];
@@ -1249,17 +1555,108 @@ export default function DungeonExplore({
     trackedAttemptRef.current = false;
   }, [initial, effectiveMaxHp, effectiveMaxShield]);
 
-  // Tutorial: track that the player entered the dungeon.
-  useEffect(() => {
+  // Begin a delve from the setup screen — fires the tutorial counter and
+  // flips into the world phase.
+  const beginRun = () => {
+    setHp(effectiveMaxHp);
+    setShields(effectiveMaxShield);
+    setFirstWrongUsed(false);
+    setReviveAvailable(false);
+    setXpBuffRemaining(0);
+    setScore(0);
+    setStreak(0);
+    setMaxStreak(0);
+    setMistakes(0);
+    setRunState('alive');
+    setBattle(null);
+    setEndSummary(null);
+    setNotice(null);
+    setPos(initial.spawn);
+    setFacing('down');
+    mobsRef.current = initial.mobs.map((m) => ({ ...m }));
+    usedQuestionIdsRef.current = new Set();
+    runQuestionLogRef.current = [];
+    runStartTimeRef.current = Date.now();
     if (!trackedAttemptRef.current && trackDungeonAttempt) {
       trackedAttemptRef.current = true;
-      try { trackDungeonAttempt(); } catch { /* tutorial bookkeeping is best-effort */ }
+      try { trackDungeonAttempt(); } catch { /* best-effort */ }
     }
-  }, [trackDungeonAttempt]);
+    setPhase('world');
+  };
+
+  // After a victory or defeat, return to the setup screen for another delve.
+  const newDelve = () => setPhase('setup');
+
+  // === Potion use =======================================================
+  // Triggered by hotkeys 1/2/3 or the on-screen quick-slot buttons. Only
+  // active during the world phase while alive and not in a battle.
+  const usePotion = (slotIdx) => {
+    if (phase !== 'world' || runState !== 'alive' || battle) return;
+    const itemId = ((playerState?.equipped?.potions) || [null, null, null])[slotIdx];
+    if (!itemId) return;
+    const count = (playerState?.inventory || {})[itemId] || 0;
+    if (count <= 0) return;
+    const eff = POTION_EFFECTS[itemId];
+    if (!eff) return;
+    let usedLabel = POTION_INFO[itemId]?.name || 'Potion';
+    let acted = false;
+    switch (eff.kind) {
+      case 'heal': {
+        if (hp >= effectiveMaxHp) {
+          setNotice({ tone: 'info', text: `${usedLabel}: thy lives are already full.` });
+          return;
+        }
+        setHp((h) => Math.min(effectiveMaxHp, h + (eff.amount || 1)));
+        acted = true;
+        break;
+      }
+      case 'shield': {
+        if (effectiveMaxShield === 0) {
+          setNotice({ tone: 'info', text: `No shield bond is permitted on this difficulty.` });
+          return;
+        }
+        if (shields >= effectiveMaxShield) {
+          setNotice({ tone: 'info', text: `${usedLabel}: thy shields are already full.` });
+          return;
+        }
+        setShields((s) => Math.min(effectiveMaxShield, s + (eff.amount || 1)));
+        acted = true;
+        break;
+      }
+      case 'revive': {
+        if (reviveAvailable) {
+          setNotice({ tone: 'info', text: 'Phoenix Ember already burns within thee.' });
+          return;
+        }
+        setReviveAvailable(true);
+        acted = true;
+        break;
+      }
+      case 'xp_buff': {
+        setXpBuffRemaining((n) => Math.max(n, eff.questions || 3));
+        acted = true;
+        break;
+      }
+      case 'noop':
+      default: {
+        acted = true;
+        break;
+      }
+    }
+    if (acted && consumeItem) consumeItem(itemId);
+    if (acted) setNotice({ tone: 'good', text: `Drained: ${usedLabel}` });
+  };
+
+  // Auto-clear the notice banner after a short delay.
+  useEffect(() => {
+    if (!notice) return undefined;
+    const t = setTimeout(() => setNotice(null), 2200);
+    return () => clearTimeout(t);
+  }, [notice]);
 
   // Movement.
   const tryMove = (dx, dy, dir) => {
-    if (battle || runState !== 'alive') return;
+    if (phase !== 'world' || battle || runState !== 'alive') return;
     setFacing(dir);
     setPos((p) => {
       const nx = p.x + dx;
@@ -1287,7 +1684,13 @@ export default function DungeonExplore({
     }
   };
 
+  // Latest usePotion / tryMove via refs so the keydown handler can reach
+  // them without restarting on every render.
+  const usePotionRef = useRef(usePotion);
+  useLayoutEffect(() => { usePotionRef.current = usePotion; });
+
   useEffect(() => {
+    if (phase !== 'world') return undefined;
     const onKeyDown = (e) => {
       if (battle) return;
       if (runState !== 'alive') {
@@ -1295,6 +1698,12 @@ export default function DungeonExplore({
         return;
       }
       if (e.key === 'Escape') { if (onExit) onExit(); return; }
+      // Potion hotkeys 1/2/3.
+      if (e.key === '1' || e.key === '2' || e.key === '3') {
+        usePotionRef.current && usePotionRef.current(parseInt(e.key, 10) - 1);
+        e.preventDefault();
+        return;
+      }
       const dir = dirOfKey(e.key);
       if (!dir) return;
       e.preventDefault();
@@ -1318,11 +1727,11 @@ export default function DungeonExplore({
       heldKeysRef.current.clear();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [battle, runState, initial.map, onExit]);
+  }, [phase, battle, runState, initial.map, onExit]);
 
   // Mob / boss collision detection on every position change.
   useEffect(() => {
-    if (battle || runState !== 'alive') return;
+    if (phase !== 'world' || battle || runState !== 'alive') return;
     // Boss collision
     if (initial.boss && pos.x === initial.boss.x && pos.y === initial.boss.y) {
       const qs = pickQuestions(courseSet, 5, usedQuestionIdsRef.current);
@@ -1364,6 +1773,9 @@ export default function DungeonExplore({
       try { recordAnswer({ id: q?.id, type: q?.type, correct: !!correct }); }
       catch { /* journal write — best effort */ }
     }
+    // Decrement xp buff after every question (correct or wrong) so it ticks
+    // down naturally over the next 3 trials.
+    if (xpBuffRemaining > 0) setXpBuffRemaining((n) => Math.max(0, n - 1));
     if (correct) {
       const scoreGain = 1 + (battle?.type === 'mob' ? equipBonuses.mobScoreBonus : 0);
       setScore((s) => s + scoreGain);
@@ -1372,7 +1784,8 @@ export default function DungeonExplore({
         setMaxStreak((m) => Math.max(m, next));
         return next;
       });
-      if (battle?.type === 'mob' && awardXP) awardXP(Math.floor(10 * equipBonuses.xpMul), 'Foe felled');
+      const buffMul = xpBuffRemaining > 0 ? 1.25 : 1;
+      if (battle?.type === 'mob' && awardXP) awardXP(Math.floor(10 * equipBonuses.xpMul * buffMul), 'Foe felled');
       if (battle?.type === 'mob' && awardGold) awardGold(Math.floor(5 * equipBonuses.goldMul), 'Foe felled');
     } else {
       setMistakes((m) => m + 1);
@@ -1417,14 +1830,20 @@ export default function DungeonExplore({
     setBattle(null);
   };
 
-  // Watch HP — if it drops to 0 or below, end the run.
+  // Watch HP — if it drops to 0 or below, end the run (or revive once if the
+  // Phoenix Ember has been quaffed).
   useEffect(() => {
-    if (runState === 'alive' && hp <= 0) {
-      setBattle(null);
-      finishRun(false, {});
+    if (phase !== 'world' || runState !== 'alive' || hp > 0) return;
+    if (reviveAvailable) {
+      setReviveAvailable(false);
+      setHp(1);
+      setNotice({ tone: 'good', text: '🔥 The Phoenix Ember bursts forth — thou art saved.' });
+      return;
     }
+    setBattle(null);
+    finishRun(false, {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hp]);
+  }, [hp, phase]);
 
   const finishRun = (won, opts = {}) => {
     if (runState !== 'alive') return;
@@ -1518,8 +1937,9 @@ export default function DungeonExplore({
 
   // === rAF render loop ===================================================
   useEffect(() => {
+    if (phase !== 'world') return undefined;
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return undefined;
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     let raf;
@@ -1608,7 +2028,7 @@ export default function DungeonExplore({
         const px = d.x * TILE_PX - cameraX;
         const py = d.y * TILE_PX - cameraY;
         const drawer = DECO_DRAWERS[d.kind];
-        if (drawer) drawer(ctx, px, py);
+        if (drawer) drawer(ctx, px, py, now);
       });
 
       if (s.initial.boss) {
@@ -1728,38 +2148,195 @@ export default function DungeonExplore({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [phase]);
 
+  // ============== Setup screen ==========================================
+  if (phase === 'setup') {
+    const bossKind = initial.boss?.kind;
+    const bossDisp = bossKind ? BOSS_DISPLAY[bossKind] : null;
+    const equippedPotions = equipped.potions || [null, null, null];
+    return (
+      <div className="space-y-4 max-w-3xl mx-auto">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <button onClick={onExit} className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic">
+            <ArrowLeft className="w-4 h-4" /> Return to Hearth
+          </button>
+          <div className="text-xs italic" style={{ color: biome.accentSolid }}>
+            ⚜ Prepare thy delve ⚜
+          </div>
+        </div>
+
+        <div className="rounded p-5 relative" style={{
+          background: `linear-gradient(135deg, rgba(20,10,4,0.9) 0%, rgba(10,6,4,0.97) 100%)`,
+          border: `3px double ${biome.accent}`,
+          boxShadow: `0 0 30px ${biome.accent}, inset 0 0 30px rgba(0,0,0,0.6)`,
+          fontFamily: '"Cinzel", Georgia, serif',
+        }}>
+          <div className="text-center mb-4">
+            <div className="text-3xl mb-1">{biome.icon}</div>
+            <h2 className="text-2xl font-bold italic" style={{ color: biome.accentSolid, textShadow: `0 0 12px ${biome.accent}` }}>
+              {biome.name}
+            </h2>
+            <div className="text-xs italic text-amber-700/80 mt-1 max-w-md mx-auto">{biome.flavor}</div>
+          </div>
+
+          {/* Difficulty selector */}
+          <div className="flex flex-wrap items-center gap-2 justify-center mb-4">
+            <span className="text-xs text-amber-700 italic">Trial:</span>
+            {Object.entries(DIFFICULTY_LABELS).map(([id, info]) => {
+              const unlocked = isUnlocked(id);
+              const selected = difficulty === id;
+              return (
+                <button
+                  key={id}
+                  disabled={!unlocked}
+                  onClick={() => setDifficulty(id)}
+                  className="px-3 py-1.5 rounded text-xs italic"
+                  style={{
+                    background: selected ? 'rgba(120,53,15,0.7)' : 'rgba(31,24,12,0.5)',
+                    border: `1px solid ${selected ? 'rgba(245,158,11,0.8)' : 'rgba(120,53,15,0.4)'}`,
+                    color: selected ? '#fde047' : (unlocked ? '#a8a29e' : '#52443a'),
+                    opacity: unlocked ? 1 : 0.5,
+                    cursor: unlocked ? 'pointer' : 'not-allowed',
+                  }}
+                  title={unlocked ? `${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP · ${DIFF_CONFIG[id].shields} 🛡️` : 'Locked'}
+                >
+                  {info.icon} {info.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center mb-4">
+            <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(239,68,68,0.4)' }}>
+              <div className="text-[10px] uppercase italic text-amber-700">Lives</div>
+              <div className="text-xl text-red-400 italic">❤ {effectiveMaxHp}</div>
+            </div>
+            <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.4)' }}>
+              <div className="text-[10px] uppercase italic text-amber-700">Shields</div>
+              <div className="text-xl text-blue-400 italic">🛡 {effectiveMaxShield}</div>
+            </div>
+            <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}>
+              <div className="text-[10px] uppercase italic text-amber-700">XP Mul</div>
+              <div className="text-xl text-amber-300 italic">×{(diffConfig.xpMul * equipBonuses.xpMul).toFixed(2)}</div>
+            </div>
+            <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}>
+              <div className="text-[10px] uppercase italic text-amber-700">Gold Mul</div>
+              <div className="text-xl text-yellow-300 italic">×{(diffConfig.goldMul * equipBonuses.goldMul).toFixed(2)}</div>
+            </div>
+          </div>
+
+          {/* Boss preview */}
+          {bossDisp && (
+            <div className="p-3 rounded mb-4 flex items-center gap-3" style={{
+              background: 'rgba(0,0,0,0.4)',
+              border: `1px solid ${biome.accent}`,
+            }}>
+              <div className="text-4xl">{bossDisp.icon}</div>
+              <div className="flex-1">
+                <div className="text-[10px] uppercase italic text-amber-700">Final foe</div>
+                <div className="text-lg italic" style={{ color: biome.accentSolid }}>{bossDisp.name}</div>
+                <div className="text-[11px] italic text-amber-100/70">5-question gauntlet · no flight from a dungeon lord</div>
+              </div>
+            </div>
+          )}
+
+          {/* Loadout summary */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-base">⚔</span>
+              <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Equipped</h4>
+              <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+              <span className="text-[10px] italic text-amber-700">Manage in The Hoard</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs italic">
+              {[
+                { id: 'weapon', label: 'Weapon', emptyIcon: '⚔️' },
+                { id: 'head',   label: 'Head',   emptyIcon: '👑' },
+                { id: 'cloak',  label: 'Cloak',  emptyIcon: '🌌' },
+                { id: 'pet',    label: 'Pet',    emptyIcon: '🐾' },
+              ].map(({ id, label, emptyIcon }) => {
+                const eq = equipped[id];
+                const info = eq ? POTION_INFO[eq] : null; // potions excluded; gear icons embedded below
+                // For weapon/head/cloak/pet we don't have a local lookup of name/icon.
+                // Display the slot with a generic icon and "(Equipped)" text.
+                return (
+                  <div key={id} className="p-2 rounded" style={{
+                    background: 'rgba(0,0,0,0.35)',
+                    border: `1px solid ${eq ? 'rgba(245,158,11,0.55)' : 'rgba(120,53,15,0.3)'}`,
+                  }}>
+                    <div className="text-[10px] uppercase italic text-amber-700">{label}</div>
+                    <div className={eq ? 'text-amber-200' : 'text-amber-700/60'}>
+                      {eq ? `${emptyIcon} Equipped` : '— Empty —'}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Potion quick-slots */}
+            <div className="mt-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-base">🧪</span>
+                <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Potion Quick-Slots</h4>
+                <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+                <span className="text-[10px] italic text-amber-700">Hotkeys 1 · 2 · 3</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs italic">
+                {[0, 1, 2].map((i) => {
+                  const pid = equippedPotions[i];
+                  const info = pid ? POTION_INFO[pid] : null;
+                  const count = pid ? ((playerState?.inventory || {})[pid] || 0) : 0;
+                  return (
+                    <div key={i} className="p-2 rounded flex items-center gap-2" style={{
+                      background: 'rgba(0,0,0,0.35)',
+                      border: `1px solid ${info ? 'rgba(34,197,94,0.55)' : 'rgba(120,53,15,0.3)'}`,
+                    }}>
+                      <div className="text-xl w-6 text-center">{info ? info.icon : (i + 1)}</div>
+                      <div className="flex-1 min-w-0 truncate">
+                        {info ? `${info.name} ×${count}` : <span className="text-amber-700/60">— Empty —</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Begin button */}
+          <div className="text-center">
+            <button
+              onClick={beginRun}
+              className="px-6 py-3 rounded font-bold italic text-lg"
+              style={{
+                background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
+                color: '#451a03',
+                border: '2px solid #fbbf24',
+                boxShadow: '0 0 24px rgba(245,158,11,0.5)',
+                fontFamily: '"Cinzel", Georgia, serif',
+              }}
+            >
+              ⚔ Begin the Delve ⚔
+            </button>
+            <div className="mt-2 text-[10px] italic text-amber-700">
+              {ROOMS_BY_DIFFICULTY[difficulty]} chambers await · Use 1/2/3 to drink potions in-dungeon
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ============== World view ============================================
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <button onClick={onExit} className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic">
-          <ArrowLeft className="w-4 h-4" /> Return to Hearth
+        <button onClick={() => setPhase('setup')} className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic">
+          <ArrowLeft className="w-4 h-4" /> Abandon (back to setup)
         </button>
-        <div className="flex flex-wrap items-center gap-2 justify-end">
-          <span className="text-xs text-amber-700 italic">Trial:</span>
-          {Object.entries(DIFFICULTY_LABELS).map(([id, info]) => {
-            const unlocked = isUnlocked(id);
-            const selected = difficulty === id;
-            return (
-              <button
-                key={id}
-                disabled={!unlocked}
-                onClick={() => setDifficulty(id)}
-                className="px-2 py-1 rounded text-xs italic"
-                style={{
-                  background: selected ? 'rgba(120, 53, 15, 0.7)' : 'rgba(31, 24, 12, 0.5)',
-                  border: `1px solid ${selected ? 'rgba(245, 158, 11, 0.8)' : 'rgba(120, 53, 15, 0.4)'}`,
-                  color: selected ? '#fde047' : (unlocked ? '#a8a29e' : '#52443a'),
-                  opacity: unlocked ? 1 : 0.5,
-                  cursor: unlocked ? 'pointer' : 'not-allowed',
-                }}
-                title={unlocked ? `${info.label} — ${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP · ${DIFF_CONFIG[id].shields} 🛡️` : 'Locked'}
-              >
-                {info.icon} {info.label}
-              </button>
-            );
-          })}
+        <div className="text-xs italic" style={{ color: biome.accentSolid }}>
+          {biome.icon} {biome.name} · {DIFFICULTY_LABELS[difficulty]?.label}
         </div>
       </div>
 
@@ -1800,9 +2377,81 @@ export default function DungeonExplore({
         <EndRunOverlay
           runState={runState}
           biome={biome}
-          summary={endSummary || { score, hp, maxHp: diffConfig.hp, mistakes, maxStreak, xpAwarded: 0, goldAwarded: 0, bossId: initial.boss?.kind }}
+          summary={endSummary || { score, hp, maxHp: effectiveMaxHp, mistakes, maxStreak, xpAwarded: 0, goldAwarded: 0, bossId: initial.boss?.kind }}
           onExit={() => onExit && onExit()}
+          onNewDelve={newDelve}
         />
+
+        {/* Potion HUD — three quick-slot buttons centered at the bottom of the
+            canvas. Hotkeys 1/2/3 also fire these. Hidden during battle. */}
+        {!battle && runState === 'alive' && (
+          <div className="absolute left-1/2 -translate-x-1/2 flex gap-2"
+               style={{ bottom: 8, pointerEvents: 'auto' }}>
+            {[0, 1, 2].map((i) => {
+              const pid = (equipped.potions || [null, null, null])[i];
+              const info = pid ? POTION_INFO[pid] : null;
+              const count = pid ? ((playerState?.inventory || {})[pid] || 0) : 0;
+              const usable = !!info && count > 0;
+              return (
+                <button
+                  key={i}
+                  onClick={() => usePotion(i)}
+                  disabled={!usable}
+                  className="rounded text-center"
+                  style={{
+                    width: 60, height: 44,
+                    background: usable ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.4)',
+                    border: `1px solid ${usable ? '#10b981' : 'rgba(120,53,15,0.4)'}`,
+                    color: usable ? '#fde047' : '#52443a',
+                    cursor: usable ? 'pointer' : 'not-allowed',
+                    fontFamily: '"Cinzel", Georgia, serif',
+                  }}
+                  title={info ? `[${i + 1}] ${info.name} (×${count})` : `Empty quick-slot ${i + 1}`}
+                >
+                  <div className="text-[10px] italic">[{i + 1}]</div>
+                  <div className="text-base leading-none">
+                    {info ? `${info.icon}${count > 0 ? `×${count}` : ''}` : '—'}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Buff indicators top-center */}
+        {(reviveAvailable || xpBuffRemaining > 0) && (
+          <div className="absolute left-1/2 -translate-x-1/2 flex gap-2"
+               style={{ top: 42, pointerEvents: 'none' }}>
+            {reviveAvailable && (
+              <div className="px-2 py-1 rounded text-[11px] italic"
+                   style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid #f97316', color: '#fdba74' }}>
+                🔥 Phoenix Ember active
+              </div>
+            )}
+            {xpBuffRemaining > 0 && (
+              <div className="px-2 py-1 rounded text-[11px] italic"
+                   style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid #fbbf24', color: '#fde047' }}>
+                ☕ +25% XP · {xpBuffRemaining} left
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Transient notice banner */}
+        {notice && (
+          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded text-xs italic"
+               style={{
+                 top: 80,
+                 background: 'rgba(0,0,0,0.78)',
+                 border: `1px solid ${notice.tone === 'good' ? '#10b981' : '#a8a29e'}`,
+                 color: notice.tone === 'good' ? '#a7f3d0' : '#fde68a',
+                 pointerEvents: 'none',
+                 maxWidth: '80%',
+               }}
+          >
+            {notice.text}
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center select-none">
