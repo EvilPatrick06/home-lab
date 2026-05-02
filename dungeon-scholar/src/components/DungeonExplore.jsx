@@ -273,22 +273,22 @@ const CHEST_TIERS = {
     label: 'Wooden Chest',
     icon: '🪵',
     goldRange: [10, 30],
-    itemChance: 0.45,
-    itemPool: ['minor_heal_tonic', 'foresight_scroll', 'tinkers_oil'],
+    itemChance: 0.65,
+    itemPool: ['minor_heal_tonic', 'foresight_scroll', 'tinkers_oil', 'glow_root', 'ember_ash', 'moonleaf'],
   },
   silver: {
     label: 'Silver Chest',
     icon: '🪙',
     goldRange: [40, 80],
-    itemChance: 0.75,
-    itemPool: ['greater_heal_tonic', 'shield_draught', 'scholars_brew', 'minor_heal_tonic'],
+    itemChance: 0.85,
+    itemPool: ['greater_heal_tonic', 'shield_draught', 'scholars_brew', 'minor_heal_tonic', 'sigil_dust', 'iron_filings', 'crystal_shard'],
   },
   gold: {
     label: 'Gold Chest',
     icon: '👑',
     goldRange: [100, 200],
     itemChance: 1.0,
-    itemPool: ['phoenix_ember', 'iron_circlet', 'starbound_cloak', 'oaken_blade', 'gilded_sabre'],
+    itemPool: ['phoenix_ember', 'iron_circlet', 'starbound_cloak', 'oaken_blade', 'gilded_sabre', 'crystal_shard', 'sigil_dust'],
   },
 };
 // How many of each chest tier spawn per run, by difficulty.
@@ -301,16 +301,17 @@ const CHEST_SPAWN = {
 
 // === Lootable plants ===================================================
 // Walking onto these decorations harvests them: they pay out a few gold
-// and have a small chance of dropping an apothecary item.
+// and have a high chance of dropping a crafting reagent (Phase 16) or a
+// finished apothecary item (rare).
 const LOOTABLE_DECOS = {
-  mushroom:    { goldRange: [1, 5], itemChance: 0.10, itemPool: ['minor_heal_tonic'] },
-  wildflower:  { goldRange: [1, 3], itemChance: 0.04, itemPool: ['minor_heal_tonic'] },
-  moss_patch:  { goldRange: [1, 2], itemChance: 0.00, itemPool: [] },
-  fern:        { goldRange: [1, 4], itemChance: 0.06, itemPool: ['foresight_scroll'] },
-  cactus:      { goldRange: [1, 4], itemChance: 0.00, itemPool: [] },
-  nightshade:  { goldRange: [2, 5], itemChance: 0.08, itemPool: ['scholars_brew'] },
-  rot_flower:  { goldRange: [2, 4], itemChance: 0.05, itemPool: ['shield_draught'] },
-  algae:       { goldRange: [1, 3], itemChance: 0.04, itemPool: ['minor_heal_tonic'] },
+  mushroom:    { goldRange: [1, 5], itemChance: 0.55, itemPool: ['glow_root', 'glow_root', 'moonleaf', 'minor_heal_tonic'] },
+  wildflower:  { goldRange: [1, 3], itemChance: 0.55, itemPool: ['ember_ash', 'moonleaf', 'sigil_dust'] },
+  moss_patch:  { goldRange: [1, 2], itemChance: 0.65, itemPool: ['moonleaf', 'moonleaf', 'glow_root'] },
+  fern:        { goldRange: [1, 4], itemChance: 0.55, itemPool: ['glow_root', 'glow_root', 'foresight_scroll'] },
+  cactus:      { goldRange: [1, 4], itemChance: 0.55, itemPool: ['cactus_pulp', 'cactus_pulp', 'ember_ash'] },
+  nightshade:  { goldRange: [2, 5], itemChance: 0.55, itemPool: ['sigil_dust', 'sigil_dust', 'scholars_brew'] },
+  rot_flower:  { goldRange: [2, 4], itemChance: 0.55, itemPool: ['iron_filings', 'iron_filings', 'shield_draught'] },
+  algae:       { goldRange: [1, 3], itemChance: 0.55, itemPool: ['glow_root', 'crystal_shard', 'minor_heal_tonic'] },
 };
 const BOSS_BY_BIOME = {
   crypt:  'lich',

@@ -378,6 +378,7 @@ const ITEM_CATEGORIES = {
   stable:     { label: 'Stable',     icon: '🐾', color: 'emerald', blurb: 'Familiars to walk the dungeon at thy side. (Awaiting Phase 18.)' },
   armory:     { label: 'Armory',     icon: '⚔️', color: 'sapphire', blurb: 'Cosmetic blades and shields for the discerning scholar.' },
   sanctum:    { label: 'Sanctum',    icon: '🏛️', color: 'amber',   blurb: 'Permanent boons — purchased once, carried forever.' },
+  ingredient: { label: 'Ingredients', icon: '🌿', color: 'emerald', blurb: 'Reagents harvested from the dungeon — bring them to the bench to brew.' },
 };
 
 const ITEMS = [
@@ -414,6 +415,28 @@ const ITEMS = [
   { id: 'apprentice_pouch',  name: "Apprentice's Pouch",      description: '+1 starting potion in every delve. Stacks up to 3 times.',              icon: '🎒', category: 'sanctum',    effect: 'perm_start_pot',  price: 450, permKey: 'startingPotions',cap: 3 },
   { id: 'sage_focus',        name: 'Sage Focus',              description: '+5% XP from runs. Stacks up to 4 times (max +20%).',                    icon: '✨', category: 'sanctum',    effect: 'perm_xp_pct',     price: 700, permKey: 'xpBonusPct',     cap: 4, step: 5 },
   { id: 'fortune_charm',     name: 'Fortune Charm',           description: '+1% rare drop chance from chests. Stacks up to 5 times.',               icon: '🔮', category: 'sanctum',    effect: 'perm_rare_pct',   price: 800, permKey: 'rareDropPct',    cap: 5, step: 1 },
+
+  // === Ingredients (Phase 16 — gathered from dungeon plants and chests) ===
+  { id: 'ember_ash',     name: 'Ember Ash',     description: 'Soot scraped from a still-warm forge. Used in fire-touched brews.',      icon: '🔥', category: 'ingredient', price: 0 },
+  { id: 'glow_root',     name: 'Glow Root',     description: 'A bioluminescent tuber that pulses faintly in the dark.',                 icon: '🌱', category: 'ingredient', price: 0 },
+  { id: 'sigil_dust',    name: 'Sigil Dust',    description: 'Powdered runes left behind by faded inscriptions.',                       icon: '✨', category: 'ingredient', price: 0 },
+  { id: 'iron_filings',  name: 'Iron Filings',  description: 'Curls of dark metal — the bones of shielding draughts.',                  icon: '⚙️', category: 'ingredient', price: 0 },
+  { id: 'crystal_shard', name: 'Crystal Shard', description: 'A sliver of focused arcane glass.',                                       icon: '💎', category: 'ingredient', price: 0 },
+  { id: 'moonleaf',      name: 'Moonleaf',      description: 'A pale leaf that holds the dew of a forgotten night.',                    icon: '🍃', category: 'ingredient', price: 0 },
+  { id: 'cactus_pulp',   name: 'Cactus Pulp',   description: 'Wet fibre wrenched from a sun-bleached cactus.',                          icon: '🌵', category: 'ingredient', price: 0 },
+];
+
+// === Recipes (Phase 16) =================================================
+// Crafting at The Bench: spend ingredients, gain a potion. Run-specific
+// effects already live on the apothecary items themselves.
+const RECIPES = [
+  { id: 'craft_minor_heal',   name: 'Minor Healing Tonic',   icon: '🧪', resultId: 'minor_heal_tonic',   ingredients: { glow_root: 1, ember_ash: 1 } },
+  { id: 'craft_greater_heal', name: 'Greater Healing Draught', icon: '⚗️', resultId: 'greater_heal_tonic', ingredients: { glow_root: 2, moonleaf: 1, ember_ash: 1 } },
+  { id: 'craft_shield',       name: 'Shield Draught',        icon: '🛡️', resultId: 'shield_draught',     ingredients: { iron_filings: 1, crystal_shard: 1, sigil_dust: 1 } },
+  { id: 'craft_brew',         name: "Scholar's Brew",        icon: '☕', resultId: 'scholars_brew',      ingredients: { moonleaf: 1, glow_root: 1, cactus_pulp: 1 } },
+  { id: 'craft_phoenix',      name: 'Phoenix Ember',         icon: '🔥', resultId: 'phoenix_ember',      ingredients: { ember_ash: 3, sigil_dust: 1, crystal_shard: 1 } },
+  { id: 'craft_foresight',    name: 'Foresight Scroll',      icon: '📜', resultId: 'foresight_scroll',   ingredients: { sigil_dust: 1, moonleaf: 1 } },
+  { id: 'craft_tinkers',      name: "Tinker's Oil",          icon: '🪔', resultId: 'tinkers_oil',        ingredients: { iron_filings: 2, cactus_pulp: 1 } },
 ];
 
 const findItem = (id) => ITEMS.find(it => it.id === id);
@@ -1201,6 +1224,32 @@ export default function DungeonScholarApp() {
       potions[slotIdx] = null;
       return { ...prev, equipped: { ...(prev.equipped || {}), potions } };
     });
+  };
+
+  // Phase 16: spend ingredients to brew a potion. Returns { ok, reason }.
+  const craftRecipe = (recipeId) => {
+    const recipe = RECIPES.find(r => r.id === recipeId);
+    if (!recipe) return { ok: false, reason: 'Unknown recipe.' };
+    const inv = playerState.inventory || {};
+    const missing = Object.entries(recipe.ingredients).filter(([id, n]) => (inv[id] || 0) < n);
+    if (missing.length > 0) {
+      const first = findItem(missing[0][0]);
+      return { ok: false, reason: `Need more ${first?.name || missing[0][0]}.` };
+    }
+    setPlayerState(prev => {
+      const next = { ...prev, inventory: { ...(prev.inventory || {}) } };
+      Object.entries(recipe.ingredients).forEach(([id, n]) => {
+        const cur = next.inventory[id] || 0;
+        const after = cur - n;
+        if (after <= 0) delete next.inventory[id];
+        else next.inventory[id] = after;
+      });
+      next.inventory[recipe.resultId] = (next.inventory[recipe.resultId] || 0) + 1;
+      return next;
+    });
+    const result = findItem(recipe.resultId);
+    setTimeout(() => showNotif(`Brewed: ${result?.name || recipe.name}`, 'success'), 50);
+    return { ok: true };
   };
 
   // Phase 15: add an item to inventory (chest/plant drops, future loot).
@@ -2135,6 +2184,9 @@ export default function DungeonScholarApp() {
         )}
         {screen === 'shop' && (
           <ShopScreen playerState={playerState} setScreen={setScreen} onPurchase={purchaseItem} />
+        )}
+        {screen === 'crafting' && (
+          <CraftingScreen playerState={playerState} setScreen={setScreen} onCraft={craftRecipe} />
         )}
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
@@ -5980,11 +6032,181 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
         </div>
       )}
 
-      <div className="text-center pt-2">
+      <div className="text-center pt-2 flex flex-wrap justify-center gap-2">
         <button onClick={() => setScreen('shop')} className="px-4 py-2 rounded text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30 inline-flex items-center gap-2"
           style={{ background: 'rgba(41, 24, 12, 0.5)' }}>
           <ShoppingBag className="w-3.5 h-3.5" /> Browse the Marketplace
         </button>
+        <button onClick={() => setScreen('crafting')} className="px-4 py-2 rounded text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30 inline-flex items-center gap-2"
+          style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+          🌿 The Brewing Bench
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Phase 16 — Crafting bench. Spend gathered ingredients to brew run-grade
+// potions without the Marketplace's gold cost.
+function CraftingScreen({ playerState, setScreen, onCraft }) {
+  const inv = playerState.inventory || {};
+  const ingredients = ITEMS.filter(it => it.category === 'ingredient');
+  const ownedIngredients = ingredients
+    .map(it => ({ ...it, count: inv[it.id] || 0 }))
+    .filter(it => it.count > 0);
+  const ingredientHave = (id) => inv[id] || 0;
+  const [feedback, setFeedback] = useState(null);
+
+  const tryCraft = (recipe) => {
+    if (!onCraft) return;
+    const res = onCraft(recipe.id);
+    if (!res?.ok) {
+      setFeedback({ recipeId: recipe.id, text: res?.reason || 'Could not brew.', tone: 'bad' });
+      setTimeout(() => setFeedback(null), 1800);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(16, 185, 129, 0.6)',
+        boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-emerald-400 text-sm">⚜</div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-4xl">🌿</div>
+            <div>
+              <h2 className="text-2xl font-bold text-emerald-200 italic" style={{ textShadow: '0 0 12px rgba(16, 185, 129, 0.4)' }}>
+                The Brewing Bench
+              </h2>
+              <div className="text-xs text-emerald-400 tracking-[0.2em] italic">
+                ⚜ COMBINE REAGENTS · BREW POTIONS ⚜
+              </div>
+              <div className="text-xs text-amber-100/70 italic mt-1">
+                Reagents are harvested from plants and chests in the dungeon.
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setScreen('inventory')} className="px-3 py-2 rounded text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
+            style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
+            ← Back to The Hoard
+          </button>
+        </div>
+      </div>
+
+      {/* Ingredient inventory ribbon */}
+      <div className="p-4 rounded" style={{
+        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '2px solid rgba(126, 34, 206, 0.4)',
+      }}>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-base">🧺</span>
+          <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Reagents on hand</h4>
+          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+          <span className="text-[10px] italic text-amber-700">{ownedIngredients.length}/{ingredients.length} kinds</span>
+        </div>
+        {ownedIngredients.length === 0 ? (
+          <p className="text-xs italic text-amber-700/80">
+            Thy basket lies empty. Walk over plants in the dungeon to gather what thou needest.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {ownedIngredients.map(it => (
+              <div key={it.id} className="px-2 py-1 rounded flex items-center gap-1 text-xs italic"
+                   style={{
+                     background: 'rgba(0,0,0,0.4)',
+                     border: '1px solid rgba(120,53,15,0.4)',
+                     color: '#fde68a',
+                   }}>
+                <span>{it.icon}</span>
+                <span>{it.name}</span>
+                <span className="text-amber-300 font-bold">×{it.count}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Recipe cards */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">📜</span>
+          <h3 className="text-lg font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}>
+            Known Recipes
+          </h3>
+          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+          <span className="text-xs text-amber-700 italic">{RECIPES.length} brews</span>
+        </div>
+        <div className="grid md:grid-cols-2 gap-3">
+          {RECIPES.map(recipe => {
+            const result = findItem(recipe.resultId);
+            const canCraft = Object.entries(recipe.ingredients).every(([id, n]) => ingredientHave(id) >= n);
+            const ownedResult = inv[recipe.resultId] || 0;
+            const isFlash = feedback && feedback.recipeId === recipe.id;
+            return (
+              <div key={recipe.id} className="p-4 rounded relative" style={{
+                background: 'linear-gradient(135deg, rgba(20, 30, 24, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                border: `2px solid ${canCraft ? 'rgba(34, 197, 94, 0.55)' : 'rgba(120, 53, 15, 0.4)'}`,
+                boxShadow: canCraft ? '0 0 14px rgba(34, 197, 94, 0.18)' : 'inset 0 0 12px rgba(0,0,0,0.4)',
+              }}>
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="text-3xl">{result?.icon || recipe.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h4 className="font-bold text-amber-200 italic text-sm">{recipe.name}</h4>
+                      <span className="text-[10px] italic text-amber-700">Owned ×{ownedResult}</span>
+                    </div>
+                    <p className="text-[11px] italic text-amber-100/70 mt-0.5">{result?.description}</p>
+                  </div>
+                </div>
+                <div className="space-y-1 mb-3">
+                  {Object.entries(recipe.ingredients).map(([id, n]) => {
+                    const ing = findItem(id);
+                    const have = ingredientHave(id);
+                    const enough = have >= n;
+                    return (
+                      <div key={id} className="flex items-center justify-between text-xs italic">
+                        <div className="flex items-center gap-1">
+                          <span>{ing?.icon || '🌿'}</span>
+                          <span className={enough ? 'text-amber-200' : 'text-rose-300/80'}>
+                            {ing?.name || id}
+                          </span>
+                        </div>
+                        <span className={`tabular-nums font-bold ${enough ? 'text-emerald-300' : 'text-rose-300'}`}>
+                          {have}/{n}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={() => tryCraft(recipe)}
+                  disabled={!canCraft}
+                  className="w-full px-3 py-2 rounded text-xs italic font-bold"
+                  style={{
+                    background: canCraft
+                      ? 'linear-gradient(to bottom, #34d399 0%, #059669 100%)'
+                      : 'rgba(31,17,8,0.5)',
+                    border: canCraft ? '2px solid #6ee7b7' : '1px solid rgba(120,53,15,0.4)',
+                    color: canCraft ? '#022c22' : '#52443a',
+                    cursor: canCraft ? 'pointer' : 'not-allowed',
+                    boxShadow: canCraft ? '0 0 10px rgba(16,185,129,0.4)' : 'none',
+                  }}
+                >
+                  {canCraft ? 'Brew' : 'Missing reagents'}
+                </button>
+                {isFlash && (
+                  <div className="text-[10px] italic mt-1 text-rose-300">{feedback.text}</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
