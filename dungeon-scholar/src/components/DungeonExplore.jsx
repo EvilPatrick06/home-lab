@@ -5,6 +5,19 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
+// === Pet level math (Phase 18) =========================================
+// Mirrors PET_LEVEL_XP in App.jsx. Kept duplicated to avoid a circular
+// import; if either array changes, update both. Pet definitions are passed
+// in via the petCatalog prop so the dungeon doesn't need to know names.
+const PET_LEVEL_XP_LOCAL = [0, 100, 300, 700, 1500];
+const petLevelFromXp = (xp) => {
+  let lvl = 1;
+  for (let i = 0; i < PET_LEVEL_XP_LOCAL.length; i++) {
+    if ((xp || 0) >= PET_LEVEL_XP_LOCAL[i]) lvl = i + 1;
+  }
+  return Math.min(lvl, PET_LEVEL_XP_LOCAL.length);
+};
+
 // === Equipment effects ==================================================
 // In-dungeon stat bonuses for equipped items. Items live in App.jsx ITEMS;
 // these effects apply only inside the delve.
@@ -1669,6 +1682,166 @@ function drawPlayer(ctx, px, py, facing, walkFrame, equipped = {}) {
   drawWeapon(ctx, equipped.weapon, cx, py, facing);
 }
 
+// === Pet sprites (Phase 18) =============================================
+// All pet drawers share the same anchor: bottom-center of the tile, with a
+// small bob driven by `now` so the pet feels alive. The float offset adds
+// a side-by-side hover so the pet sits beside the trail position.
+function drawPetShadow(ctx, cx, baseY) {
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(cx, baseY - 3, 9, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPetOwl(ctx, px, py, now) {
+  const cx = px + TILE_PX / 2;
+  const baseY = py + TILE_PX - 4;
+  const bob = Math.sin(now / 280) * 1.5;
+  drawPetShadow(ctx, cx, baseY);
+  // Body
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(cx - 7, baseY - 16 + bob, 14, 14);
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(cx - 7, baseY - 16 + bob, 14, 3);
+  // Belly
+  ctx.fillStyle = '#fde68a';
+  ctx.fillRect(cx - 4, baseY - 11 + bob, 8, 7);
+  // Eyes
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(cx - 5, baseY - 14 + bob, 4, 4);
+  ctx.fillRect(cx + 1, baseY - 14 + bob, 4, 4);
+  ctx.fillStyle = '#0a0604';
+  ctx.fillRect(cx - 4, baseY - 13 + bob, 2, 2);
+  ctx.fillRect(cx + 2, baseY - 13 + bob, 2, 2);
+  // Beak
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(cx - 1, baseY - 10 + bob, 2, 2);
+  // Tufts
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 7, baseY - 17 + bob, 2, 2);
+  ctx.fillRect(cx + 5, baseY - 17 + bob, 2, 2);
+}
+
+function drawPetDragon(ctx, px, py, now) {
+  const cx = px + TILE_PX / 2;
+  const baseY = py + TILE_PX - 4;
+  const bob = Math.sin(now / 220) * 2;
+  drawPetShadow(ctx, cx, baseY);
+  // Body — sinuous
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(cx - 8, baseY - 12 + bob, 14, 9);
+  ctx.fillStyle = '#b91c1c';
+  ctx.fillRect(cx - 8, baseY - 12 + bob, 14, 2);
+  // Spine spikes
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 5, baseY - 14 + bob, 1, 2);
+  ctx.fillRect(cx - 1, baseY - 15 + bob, 1, 3);
+  ctx.fillRect(cx + 3, baseY - 14 + bob, 1, 2);
+  // Head
+  ctx.fillStyle = '#991b1b';
+  ctx.fillRect(cx + 4, baseY - 14 + bob, 6, 6);
+  // Eye
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx + 7, baseY - 12 + bob, 1, 1);
+  // Tail
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(cx - 10, baseY - 9 + bob, 2, 3);
+  // Wing tip flicker
+  ctx.fillStyle = 'rgba(255, 200, 60, 0.55)';
+  ctx.fillRect(cx - 3, baseY - 10 + bob, 4, 2);
+}
+
+function drawPetMimic(ctx, px, py, now) {
+  const cx = px + TILE_PX / 2;
+  const baseY = py + TILE_PX - 4;
+  const bob = Math.sin(now / 240) * 1.5;
+  drawPetShadow(ctx, cx, baseY);
+  // Coin body
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(cx - 7, baseY - 13 + bob, 14, 11);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(cx - 7, baseY - 13 + bob, 14, 3);
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(cx - 6, baseY - 12 + bob, 12, 1);
+  // Mimic mouth — teeth
+  ctx.fillStyle = '#fef9c3';
+  ctx.fillRect(cx - 5, baseY - 7 + bob, 2, 2);
+  ctx.fillRect(cx - 1, baseY - 7 + bob, 2, 2);
+  ctx.fillRect(cx + 3, baseY - 7 + bob, 2, 2);
+  // Eyes
+  ctx.fillStyle = '#0a0604';
+  ctx.fillRect(cx - 4, baseY - 11 + bob, 2, 2);
+  ctx.fillRect(cx + 2, baseY - 11 + bob, 2, 2);
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(cx - 3, baseY - 11 + bob, 1, 1);
+  ctx.fillRect(cx + 3, baseY - 11 + bob, 1, 1);
+}
+
+function drawPetFox(ctx, px, py, now) {
+  const cx = px + TILE_PX / 2;
+  const baseY = py + TILE_PX - 4;
+  const bob = Math.sin(now / 260) * 1.5;
+  drawPetShadow(ctx, cx, baseY);
+  // Body
+  ctx.fillStyle = '#c2410c';
+  ctx.fillRect(cx - 7, baseY - 11 + bob, 14, 8);
+  // Belly
+  ctx.fillStyle = '#fff7ed';
+  ctx.fillRect(cx - 5, baseY - 6 + bob, 10, 3);
+  // Head
+  ctx.fillStyle = '#9a3412';
+  ctx.fillRect(cx + 3, baseY - 14 + bob, 7, 7);
+  // Ears
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx + 3, baseY - 16 + bob, 2, 3);
+  ctx.fillRect(cx + 8, baseY - 16 + bob, 2, 3);
+  // Snout + eye
+  ctx.fillStyle = '#fff7ed';
+  ctx.fillRect(cx + 8, baseY - 9 + bob, 2, 2);
+  ctx.fillStyle = '#0a0604';
+  ctx.fillRect(cx + 6, baseY - 12 + bob, 1, 1);
+  // Tail
+  ctx.fillStyle = '#c2410c';
+  ctx.fillRect(cx - 10, baseY - 11 + bob, 3, 5);
+  ctx.fillStyle = '#fff7ed';
+  ctx.fillRect(cx - 10, baseY - 8 + bob, 3, 2);
+}
+
+function drawPetImp(ctx, px, py, now) {
+  const cx = px + TILE_PX / 2;
+  const baseY = py + TILE_PX - 4;
+  const bob = Math.sin(now / 200) * 1.5;
+  drawPetShadow(ctx, cx, baseY);
+  // Body
+  ctx.fillStyle = '#581c87';
+  ctx.fillRect(cx - 6, baseY - 12 + bob, 12, 10);
+  ctx.fillStyle = '#7e22ce';
+  ctx.fillRect(cx - 6, baseY - 12 + bob, 12, 2);
+  // Horns
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx - 5, baseY - 15 + bob, 2, 3);
+  ctx.fillRect(cx + 3, baseY - 15 + bob, 2, 3);
+  // Eyes — glowing
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx - 4, baseY - 10 + bob, 2, 2);
+  ctx.fillRect(cx + 2, baseY - 10 + bob, 2, 2);
+  // Grin
+  ctx.fillStyle = '#fef9c3';
+  ctx.fillRect(cx - 3, baseY - 6 + bob, 6, 1);
+  // Tail flicker
+  ctx.fillStyle = '#7e22ce';
+  ctx.fillRect(cx + 6, baseY - 6 + bob, 2, 2);
+  ctx.fillRect(cx + 8, baseY - 8 + bob, 2, 2);
+}
+
+const PET_DRAWERS = {
+  owl:    drawPetOwl,
+  dragon: drawPetDragon,
+  mimic:  drawPetMimic,
+  fox:    drawPetFox,
+  imp:    drawPetImp,
+};
+
 // === Combat helpers =====================================================
 const norm = (s) => String(s ?? '').trim().toLowerCase();
 
@@ -1970,6 +2143,8 @@ export default function DungeonExplore({
   consumeItem,
   giveItem,
   recordBestiary,
+  awardPetXp,
+  petCatalog,
 }) {
   const isUnlocked = (id) => {
     if (id === 'apprentice') return true;
@@ -1991,11 +2166,22 @@ export default function DungeonExplore({
   const diffConfig = DIFF_CONFIG[difficulty] || DIFF_CONFIG.apprentice;
 
   // Equipment — read from playerState. Compute combined dungeon bonuses
-  // once per loadout change and apply at run start.
+  // once per loadout change and apply at run start. Phase 18 also folds
+  // the equipped pet's level-scaled passive into the same accumulator.
   const equipped = playerState?.equipped || {};
+  const ownedPets = playerState?.pets || {};
+  const activePet = useMemo(() => {
+    const id = equipped.pet;
+    if (!id) return null;
+    const def = petCatalog?.find?.(p => p.id === id) || null;
+    if (!def) return null;
+    const xp = (ownedPets[id]?.xp) || 0;
+    const level = petLevelFromXp(xp);
+    return { def, level, xp };
+  }, [equipped.pet, ownedPets, petCatalog]);
   const equipBonuses = useMemo(() => {
     const slots = [equipped.weapon, equipped.head, equipped.cloak].filter(Boolean);
-    const acc = { maxHpBonus: 0, shieldBonus: 0, xpMul: 1, goldMul: 1, mobScoreBonus: 0, firstWrongFree: false };
+    const acc = { maxHpBonus: 0, shieldBonus: 0, xpMul: 1, goldMul: 1, mobScoreBonus: 0, firstWrongFree: false, plantDoublePct: 0 };
     slots.forEach((id) => {
       const eff = EQUIP_EFFECTS[id];
       if (!eff) return;
@@ -2006,8 +2192,23 @@ export default function DungeonExplore({
       if (eff.mobScoreBonus) acc.mobScoreBonus += eff.mobScoreBonus;
       if (eff.firstWrongFree) acc.firstWrongFree = true;
     });
+    if (activePet) {
+      const { def, level } = activePet;
+      const value = (def.base || 0) + (def.perLevel || 0) * (level - 1);
+      switch (def.passive) {
+        case 'xp_pct':            acc.xpMul *= 1 + value / 100; break;
+        case 'gold_pct':          acc.goldMul *= 1 + value / 100; break;
+        case 'shield_bonus':      acc.shieldBonus += value; break;
+        case 'first_wrong_free':  acc.firstWrongFree = true; break;
+        case 'plant_double_pct':  acc.plantDoublePct += value; break;
+        default: break;
+      }
+      if (def.secondary === 'mob_score') {
+        acc.mobScoreBonus += (def.secondaryBase || 0) + (def.secondaryPerLevel || 0) * (level - 1);
+      }
+    }
     return acc;
-  }, [equipped.weapon, equipped.head, equipped.cloak]);
+  }, [equipped.weapon, equipped.head, equipped.cloak, activePet]);
 
   const permUp = playerState?.permUpgrades || {};
   const effectiveMaxHp     = diffConfig.hp + equipBonuses.maxHpBonus + (permUp.maxHp || 0);
@@ -2069,7 +2270,7 @@ export default function DungeonExplore({
     stateRef.current = {
       phase, pos, facing, biome, initial, hp, maxHp: effectiveMaxHp,
       shields, maxShields: effectiveMaxShield, battle, runState, score, equipped,
-      reviveAvailable, xpBuffRemaining,
+      reviveAvailable, xpBuffRemaining, activePet,
     };
   });
 
@@ -2339,9 +2540,14 @@ export default function DungeonExplore({
       if (goldGain > 0) showPickup(`+${goldGain}`, '#fde047');
       if (Math.random() < (cfg.itemChance || 0) && cfg.itemPool.length > 0 && giveItem) {
         const itemId = cfg.itemPool[Math.floor(Math.random() * cfg.itemPool.length)];
-        giveItem(itemId, 1);
+        // Phase 18: Glade Fox can double the harvest.
+        const doubled = (equipBonuses.plantDoublePct || 0) > 0
+          && Math.random() * 100 < equipBonuses.plantDoublePct;
+        const count = doubled ? 2 : 1;
+        giveItem(itemId, count);
         const info = POTION_INFO[itemId];
-        showPickup(`Acquired: ${info ? info.name : itemId}`, '#a7f3d0');
+        const label = info ? info.name : itemId;
+        showPickup(doubled ? `Acquired: ${label} ×2` : `Acquired: ${label}`, '#a7f3d0');
       }
       decorationsRef.current.splice(decoIdx, 1);
     }
@@ -2497,6 +2703,15 @@ export default function DungeonExplore({
       // Gold accumulated mid-run was already paid out per kill so it stays.
       xpAwarded = Math.floor(xpEarnedInRun * 0.5);
       if (xpAwarded > 0 && awardXP) awardXP(xpAwarded, 'Half XP — death penalty');
+    }
+
+    // Phase 18: pet XP — equipped pet earns XP scaled by score and victory.
+    // Even on death the pet learns from the trial (half-rate). Cap at the
+    // current pet max so each delve is meaningful but pets aren't insta-maxed.
+    if (awardPetXp && equipped.pet) {
+      const base = score * 8 + (won ? 60 : 0);
+      const petXp = won ? base : Math.floor(base * 0.5);
+      if (petXp > 0) awardPetXp(equipped.pet, petXp);
     }
 
     // Run history entry — same shape as the legacy DungeonRun for Chronicle compatibility.
@@ -2717,6 +2932,33 @@ export default function DungeonExplore({
 
       const ppx = ax * TILE_PX - cameraX;
       const ppy = ay * TILE_PX - cameraY;
+
+      // Phase 18: render the equipped pet trailing the player. The pet sits
+      // one tile behind based on facing, with a small forward shimmy so it
+      // visually catches up rather than feeling teleported.
+      if (s.activePet) {
+        const drawer = PET_DRAWERS[s.activePet.def.spriteKey];
+        if (drawer) {
+          let petTileDx = 0, petTileDy = 0;
+          if (s.facing === 'up')    petTileDy = 1;
+          if (s.facing === 'down')  petTileDy = -1;
+          if (s.facing === 'left')  petTileDx = 1;
+          if (s.facing === 'right') petTileDx = -1;
+          // If trailing tile is a wall, drift sideways instead so the pet
+          // never sits inside scenery.
+          const trailX = ax + petTileDx;
+          const trailY = ay + petTileDy;
+          const tileAt = s.initial.map[Math.round(trailY)]?.[Math.round(trailX)];
+          if (tileAt === TILE.WALL) {
+            petTileDx = petTileDx === 0 ? 1 : 0;
+            petTileDy = petTileDy === 0 ? 1 : 0;
+          }
+          const petPx = (ax + petTileDx) * TILE_PX - cameraX;
+          const petPy = (ay + petTileDy) * TILE_PX - cameraY;
+          drawer(ctx, petPx, petPy, now);
+        }
+      }
+
       drawPlayer(ctx, ppx, ppy, s.facing, walkFrame, s.equipped);
 
       const grad = ctx.createRadialGradient(
@@ -2924,9 +3166,10 @@ export default function DungeonExplore({
                 { id: 'pet',    label: 'Pet',    emptyIcon: '🐾' },
               ].map(({ id, label, emptyIcon }) => {
                 const eq = equipped[id];
-                const info = eq ? POTION_INFO[eq] : null; // potions excluded; gear icons embedded below
-                // For weapon/head/cloak/pet we don't have a local lookup of name/icon.
-                // Display the slot with a generic icon and "(Equipped)" text.
+                const isPet = id === 'pet';
+                const petLabel = isPet && activePet
+                  ? `${activePet.def.icon} ${activePet.def.name} · L${activePet.level}`
+                  : null;
                 return (
                   <div key={id} className="p-2 rounded" style={{
                     background: 'rgba(0,0,0,0.35)',
@@ -2934,7 +3177,7 @@ export default function DungeonExplore({
                   }}>
                     <div className="text-[10px] uppercase italic text-amber-700">{label}</div>
                     <div className={eq ? 'text-amber-200' : 'text-amber-700/60'}>
-                      {eq ? `${emptyIcon} Equipped` : '— Empty —'}
+                      {petLabel || (eq ? `${emptyIcon} Equipped` : '— Empty —')}
                     </div>
                   </div>
                 );

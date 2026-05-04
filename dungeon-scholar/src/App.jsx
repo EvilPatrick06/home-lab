@@ -398,10 +398,12 @@ const ITEMS = [
   { id: 'starbound_cloak',   name: 'Cloak of the Starbound',  description: 'A velvet cloak studded with constellations. Equip to ignore thy first wrong answer each delve.', icon: '🌌', category: 'wardrobe',   effect: 'bg_starbound',   price: 350, oneTime: true, slot: 'cloak' },
   { id: 'tome_emblem',       name: 'Tome Emblem',             description: 'A small heraldic crest of an open tome, displayed beside thy title.',   icon: '📔', category: 'wardrobe',   effect: 'emblem_tome',    price: 120, oneTime: true },
 
-  // === Stable (pets — placeholder until Phase 18 wires the mechanics) ===
-  { id: 'wise_owl_egg',      name: 'Wise Owl Egg',            description: 'Awaits hatching when the Stable opens (Phase 18).',                    icon: '🥚', category: 'stable',     effect: 'pet_owl',        price: 300, oneTime: true, locked: true },
-  { id: 'dragon_hatchling',  name: 'Dragon Hatchling',        description: 'A tiny ember of a beast — slumbering until the Stable awakens.',       icon: '🐉', category: 'stable',     effect: 'pet_dragon',     price: 600, oneTime: true, locked: true },
-  { id: 'mimic_pup',         name: 'Mimic Pup',               description: 'A mischievous treasure-hunter, awaiting its master in the Stable.',    icon: '🪙', category: 'stable',     effect: 'pet_mimic',      price: 400, oneTime: true, locked: true },
+  // === Stable (pet eggs — purchase to add to thy Stable, hatched as familiars) ===
+  { id: 'wise_owl_egg',      name: 'Wise Owl Egg',            description: 'Hatches into a Wise Owl. Equip in the Stable for +5% delve XP, scaling with its level.', icon: '🥚', category: 'stable',     effect: 'pet_owl',        price: 300, oneTime: true, petId: 'wise_owl' },
+  { id: 'dragon_hatchling',  name: 'Dragon Hatchling',        description: 'Hatches into an Ember Dragon. Equip for +1 starting shield in the dungeon.',           icon: '🐉', category: 'stable',     effect: 'pet_dragon',     price: 600, oneTime: true, petId: 'ember_dragon' },
+  { id: 'mimic_pup',         name: 'Mimic Pup',               description: 'A mischievous treasure-hunter. Equip for +10% gold drop, scaling with its level.',     icon: '🪙', category: 'stable',     effect: 'pet_mimic',      price: 400, oneTime: true, petId: 'mimic_pup' },
+  { id: 'fox_kit',           name: 'Glade Fox Kit',           description: 'A nimble forager. Equip for a chance at double plant drops in the dungeon.',           icon: '🦊', category: 'stable',     effect: 'pet_fox',        price: 350, oneTime: true, petId: 'glade_fox' },
+  { id: 'sewer_imp_egg',     name: 'Sewer Imp Egg',           description: "Hatches into a Sewer Imp. Equip to ignore thy first wrong answer (stacks with cloak).",icon: '👹', category: 'stable',     effect: 'pet_imp',        price: 500, oneTime: true, petId: 'sewer_imp' },
 
   // === Armory (equippable weapons) ===
   { id: 'oaken_blade',       name: 'Oaken Practice Blade',    description: 'A simple training blade. Equip for +1 score per foe felled.',           icon: '🗡️', category: 'armory',     effect: 'weapon_oaken',   price: 100, oneTime: true, slot: 'weapon' },
@@ -559,6 +561,69 @@ const BESTIARY_ENTRIES = {
     drops: 'Massive XP + gold · Mythic-tier titles · Gold chest exclusives',
   },
 };
+
+// === Pets (Phase 18) ====================================================
+// Familiars hatched from Stable eggs. Each pet grants a passive that scales
+// with its level. Pets gain XP from delves while equipped; thresholds bump
+// the level which strengthens the passive. The dungeon renders a sprite
+// trailing the player using `spriteKey`.
+//
+// Passives are read by DungeonExplore via a small effect lookup keyed on
+// pet.passive — see PET_PASSIVE_EFFECTS in DungeonExplore.jsx for the
+// per-stat math.
+const PETS = {
+  wise_owl: {
+    id: 'wise_owl', name: 'Wise Owl', icon: '🦉', spriteKey: 'owl',
+    biome: 'tower', fromEgg: 'wise_owl_egg',
+    lore: 'Hatched from an egg sealed in the highest archive. It hoots in cipher.',
+    passive: 'xp_pct',         // +X% XP from this delve
+    base: 5, perLevel: 2,      // L1 +5%, +2%/lvl  -> L5 = +13%
+  },
+  ember_dragon: {
+    id: 'ember_dragon', name: 'Ember Dragon', icon: '🐉', spriteKey: 'dragon',
+    biome: 'halls', fromEgg: 'dragon_hatchling',
+    lore: 'A hatchling of forge-flame. Its scales grow brighter with every felled foe.',
+    passive: 'shield_bonus',   // +N starting shields
+    base: 1, perLevel: 0,      // flat +1 shield (level scales mob_score instead)
+    secondary: 'mob_score', secondaryBase: 0, secondaryPerLevel: 1,
+  },
+  mimic_pup: {
+    id: 'mimic_pup', name: 'Mimic Pup', icon: '🪙', spriteKey: 'mimic',
+    biome: 'crypt', fromEgg: 'mimic_pup',
+    lore: 'A treasure-hoarder in pup form. It sniffs out coin even buried in ciphertext.',
+    passive: 'gold_pct',
+    base: 10, perLevel: 3,     // L1 +10%, L5 +22%
+  },
+  glade_fox: {
+    id: 'glade_fox', name: 'Glade Fox', icon: '🦊', spriteKey: 'fox',
+    biome: 'wastes', fromEgg: 'fox_kit',
+    lore: 'A nimble forager from the wastes. Doubles plant harvests on a whim.',
+    passive: 'plant_double_pct',
+    base: 15, perLevel: 5,     // L1 15% chance, L5 35%
+  },
+  sewer_imp: {
+    id: 'sewer_imp', name: 'Sewer Imp', icon: '👹', spriteKey: 'imp',
+    biome: 'sewers', fromEgg: 'sewer_imp_egg',
+    lore: 'A pact-bound trickster. It eats the first wrong answer — once per delve.',
+    passive: 'first_wrong_free',
+    base: 1, perLevel: 0,
+  },
+};
+
+// XP thresholds per pet level. Index = level reached when total XP >= entry.
+// L1 starts at 0 (a freshly hatched pet is L1).
+const PET_LEVEL_XP = [0, 100, 300, 700, 1500];
+const PET_MAX_LEVEL = PET_LEVEL_XP.length;
+
+const petLevelFromXp = (xp) => {
+  let lvl = 1;
+  for (let i = 0; i < PET_LEVEL_XP.length; i++) {
+    if (xp >= PET_LEVEL_XP[i]) lvl = i + 1;
+  }
+  return Math.min(lvl, PET_MAX_LEVEL);
+};
+
+const findPet = (id) => PETS[id] || null;
 
 // === Recipes (Phase 16) =================================================
 // Crafting at The Bench: spend ingredients, gain a potion. Run-specific
@@ -998,6 +1063,10 @@ const DEFAULT_STATE = {
   storyProgress: {},           // { [chainId]: { stepIndex, baseline, completed, claimedSteps: [] } }
   // Phase 17: Bestiary defeat tracker. { [kind]: { defeats, firstDefeatedAt } }
   bestiary: {},
+  // Phase 18: Stable. Pets hatched from purchased eggs. The pet currently
+  // walking with the scholar lives in equipped.pet (the petId string).
+  // { [petId]: { hatchedAt, xp } } — level is derived from xp via PET_LEVEL_XP.
+  pets: {},
   // Currency & Inventory
   gold: 0,
   inventory: {},               // { [itemId]: count } — consumables and cosmetics
@@ -1299,6 +1368,16 @@ export default function DungeonScholarApp() {
           [item.permKey]: ((prev.permUpgrades || {})[item.permKey] || 0) + step,
         };
       }
+      // Phase 18: stable eggs auto-hatch into a pet entry on purchase.
+      if (item.category === 'stable' && item.petId) {
+        next.pets = {
+          ...(prev.pets || {}),
+          [item.petId]: (prev.pets || {})[item.petId] || {
+            hatchedAt: new Date().toISOString(),
+            xp: 0,
+          },
+        };
+      }
       return next;
     });
     setTimeout(() => showNotif(`Acquired: ${item.name} (-${item.price} gold)`, 'success'), 50);
@@ -1324,6 +1403,53 @@ export default function DungeonScholarApp() {
       ...prev,
       equipped: { ...(prev.equipped || {}), [slot]: null },
     }));
+  };
+
+  // Phase 18: equip a hatched pet by id (must already exist in pets dict).
+  const equipPet = (petId) => {
+    const pet = findPet(petId);
+    if (!pet) return { ok: false, reason: 'Unknown familiar.' };
+    if (!((playerState.pets || {})[petId])) {
+      return { ok: false, reason: 'Thou hast not hatched this familiar yet.' };
+    }
+    setPlayerState(prev => ({
+      ...prev,
+      equipped: { ...(prev.equipped || {}), pet: petId },
+    }));
+    setTimeout(() => showNotif(`${pet.name} walks at thy side.`, 'success'), 50);
+    return { ok: true };
+  };
+
+  // Phase 18: dismiss the active pet without forgetting it.
+  const unequipPet = () => {
+    setPlayerState(prev => ({
+      ...prev,
+      equipped: { ...(prev.equipped || {}), pet: null },
+    }));
+  };
+
+  // Phase 18: award XP to a specific pet. Called by DungeonExplore at the
+  // end of a delve for whichever pet was equipped at run-start.
+  const awardPetXp = (petId, amount) => {
+    if (!petId || !amount || amount <= 0) return;
+    const pet = findPet(petId);
+    if (!pet) return;
+    setPlayerState(prev => {
+      const cur = (prev.pets || {})[petId] || { hatchedAt: new Date().toISOString(), xp: 0 };
+      const beforeLvl = petLevelFromXp(cur.xp || 0);
+      const nextXp = (cur.xp || 0) + amount;
+      const afterLvl = petLevelFromXp(nextXp);
+      if (afterLvl > beforeLvl) {
+        setTimeout(() => showNotif(`${pet.name} reached level ${afterLvl}!`, 'success'), 50);
+      }
+      return {
+        ...prev,
+        pets: {
+          ...(prev.pets || {}),
+          [petId]: { ...cur, xp: nextXp },
+        },
+      };
+    });
   };
 
   // Equip an apothecary item into a specific potion slot (0/1/2). If
@@ -2342,6 +2468,14 @@ export default function DungeonScholarApp() {
         {screen === 'bestiary' && (
           <BestiaryScreen playerState={playerState} setScreen={setScreen} />
         )}
+        {screen === 'stable' && (
+          <StableScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onEquipPet={equipPet}
+            onUnequipPet={unequipPet}
+          />
+        )}
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
@@ -2364,6 +2498,8 @@ export default function DungeonScholarApp() {
             consumeItem={consumeItem}
             giveItem={giveItem}
             recordBestiary={recordBestiary}
+            awardPetXp={awardPetXp}
+            petCatalog={Object.values(PETS)}
           />
         )}
         {screen === 'flashcards' && courseSet && (
@@ -3118,6 +3254,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           icon={<Skull className="w-8 h-8" />}
           color="purple"
           onClick={() => setScreen('bestiary')}
+        />
+        <ModeCard
+          title="The Stable"
+          desc={`Hatched familiars walk at thy side. ${Object.keys(playerState?.pets || {}).length}/${5} pets in thy stable.`}
+          icon={<Heart className="w-8 h-8" />}
+          color="emerald"
+          onClick={() => setScreen('stable')}
         />
       </div>
 
@@ -6351,6 +6494,166 @@ function BestiaryScreen({ playerState, setScreen }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// Phase 18 — Stable. Hatched familiars with level/XP bars, equip toggle,
+// and lore. Pets gain XP from delves while equipped (see DungeonExplore
+// finishRun → awardPetXp). Each pet's passive scales with its level.
+function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
+  const owned = playerState.pets || {};
+  const equippedPet = playerState.equipped?.pet || null;
+  const allPets = Object.values(PETS);
+  const ownedPets = allPets.filter(p => owned[p.id]);
+  const lockedPets = allPets.filter(p => !owned[p.id]);
+
+  const passiveLabel = (def, level) => {
+    const value = (def.base || 0) + (def.perLevel || 0) * (level - 1);
+    switch (def.passive) {
+      case 'xp_pct':           return `+${value}% XP from delves`;
+      case 'gold_pct':         return `+${value}% gold drop`;
+      case 'shield_bonus':     return `+${value} starting shield${value === 1 ? '' : 's'}`;
+      case 'first_wrong_free': return 'First wrong answer absorbed';
+      case 'plant_double_pct': return `${value}% chance to double plant drops`;
+      default:                 return '—';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(16, 185, 129, 0.6)',
+        boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-emerald-400 text-sm">⚜</div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-4xl">🐾</div>
+            <div>
+              <h2 className="text-2xl font-bold text-emerald-200 italic" style={{ textShadow: '0 0 12px rgba(16, 185, 129, 0.4)' }}>
+                The Stable
+              </h2>
+              <div className="text-xs text-emerald-400 tracking-[0.2em] italic">⚜ FAMILIARS AT THY SIDE ⚜</div>
+              <div className="text-xs text-amber-100/70 italic mt-1">
+                {ownedPets.length}/{allPets.length} hatched. Pets gain XP from each delve while equipped.
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setScreen('home')}
+            className="px-3 py-2 rounded text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
+            style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
+            ← Return to the Hearth
+          </button>
+        </div>
+      </div>
+
+      {ownedPets.length === 0 && (
+        <div className="p-6 rounded text-center text-sm italic text-amber-700"
+          style={{ background: 'rgba(0,0,0,0.5)', border: '2px dashed rgba(120,53,15,0.4)' }}>
+          Thou hast no familiars yet. Visit the Marketplace and purchase a Stable egg to hatch one.
+        </div>
+      )}
+
+      {ownedPets.length > 0 && (
+        <div className="grid md:grid-cols-2 gap-3">
+          {ownedPets.map((def) => {
+            const status = owned[def.id];
+            const xp = status?.xp || 0;
+            const level = petLevelFromXp(xp);
+            const isMax = level >= PET_MAX_LEVEL;
+            const nextThreshold = isMax ? PET_LEVEL_XP[PET_MAX_LEVEL - 1] : PET_LEVEL_XP[level];
+            const prevThreshold = PET_LEVEL_XP[level - 1] || 0;
+            const pctToNext = isMax ? 100
+              : Math.min(100, Math.floor(((xp - prevThreshold) / (nextThreshold - prevThreshold)) * 100));
+            const isEquipped = equippedPet === def.id;
+            return (
+              <div key={def.id} className="p-4 rounded" style={{
+                background: 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)',
+                border: `2px solid ${isEquipped ? 'rgba(16, 185, 129, 0.7)' : 'rgba(245, 158, 11, 0.4)'}`,
+                boxShadow: isEquipped ? '0 0 14px rgba(16, 185, 129, 0.3)' : 'none',
+              }}>
+                <div className="flex items-start gap-3 mb-2">
+                  <div className="text-4xl">{def.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                      <h4 className="font-bold italic text-base text-amber-200">{def.name}</h4>
+                      <span className="text-xs italic text-emerald-300 font-bold tabular-nums">
+                        Level {level}{isMax && ' · MAX'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] italic text-amber-100/70 mt-1">{def.lore}</p>
+                  </div>
+                </div>
+                <div className="text-[11px] italic text-emerald-200 mb-2">
+                  ✦ {passiveLabel(def, level)}
+                </div>
+                {/* XP bar */}
+                <div className="mb-3">
+                  <div className="flex items-baseline justify-between text-[10px] italic text-amber-700 mb-1">
+                    <span>{isMax ? 'Maxed' : `XP ${xp - prevThreshold}/${nextThreshold - prevThreshold}`}</span>
+                    <span className="tabular-nums">Total: {xp}</span>
+                  </div>
+                  <div className="h-2 rounded overflow-hidden" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="h-full" style={{
+                      width: `${pctToNext}%`,
+                      background: isMax
+                        ? 'linear-gradient(90deg, #fbbf24, #f59e0b)'
+                        : 'linear-gradient(90deg, #10b981, #34d399)',
+                    }} />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  {isEquipped ? (
+                    <button onClick={() => onUnequipPet?.()}
+                      className="px-3 py-1.5 rounded text-xs italic border-2 border-emerald-700 text-emerald-200 hover:bg-emerald-900/30"
+                      style={{ background: 'rgba(6, 78, 59, 0.5)' }}>
+                      Dismiss
+                    </button>
+                  ) : (
+                    <button onClick={() => onEquipPet?.(def.id)}
+                      className="px-3 py-1.5 rounded text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
+                      style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
+                      Equip
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {lockedPets.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🥚</span>
+            <h3 className="text-sm font-bold italic text-amber-300 tracking-wider">Awaiting Hatch</h3>
+            <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+          </div>
+          <div className="grid md:grid-cols-3 gap-2">
+            {lockedPets.map((def) => (
+              <div key={def.id} className="p-3 rounded text-xs italic" style={{
+                background: 'rgba(15, 12, 18, 0.85)',
+                border: '2px dashed rgba(120, 53, 15, 0.4)',
+                opacity: 0.7,
+              }}>
+                <div className="flex items-center gap-2">
+                  <div className="text-2xl">🥚</div>
+                  <div>
+                    <div className="text-amber-700">??? ({def.biome})</div>
+                    <div className="text-[10px] text-amber-700/70">Purchase the egg in the Marketplace.</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
