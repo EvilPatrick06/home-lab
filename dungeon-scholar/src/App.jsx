@@ -380,6 +380,7 @@ const ITEM_CATEGORIES = {
   sanctum:    { label: 'Sanctum',    icon: '🏛️', color: 'amber',   blurb: 'Permanent boons — purchased once, carried forever.' },
   ingredient: { label: 'Ingredients', icon: '🌿', color: 'emerald', blurb: 'Reagents harvested from the dungeon — bring them to the bench to brew.' },
   arcanum:    { label: 'Arcanum',     icon: '📜', color: 'sapphire', blurb: 'Scrolls of active magic. Purchase a scroll once to learn the spell forever.' },
+  devotion:   { label: 'Reliquary',   icon: '🕯️', color: 'purple',   blurb: 'Relics bought with devotion — gathered through daily offerings on the calendar.' },
 };
 
 const ITEMS = [
@@ -435,6 +436,12 @@ const ITEMS = [
   { id: 'scroll_bolt_of_truth',    name: 'Scroll of Truth',    description: 'Learn Bolt of Truth — a 3-mana spell that auto-resolves the current battle question.',icon: '📖', category: 'arcanum', price: 450, oneTime: true, spellId: 'bolt_of_truth' },
   { id: 'scroll_riftstep',         name: 'Scroll of Riftstep', description: 'Learn Riftstep — a 2-mana escape spell that returns thee to the spawn chamber.',      icon: '🌀', category: 'arcanum', price: 350, oneTime: true, spellId: 'riftstep' },
   { id: 'scroll_sigil_of_clarity', name: 'Scroll of Clarity',  description: 'Learn Sigil of Clarity — a 1-mana spell that reveals the answer to a battle question.',icon: '👁️', category: 'arcanum', price: 200, oneTime: true, spellId: 'sigil_of_clarity' },
+
+  // === Reliquary (Phase 20 — purchased with devotion, not gold) ===
+  { id: 'relic_mana_pearl',   name: 'Pearl of Mana',          description: '+1 maximum mana per delve. Stacks up to 3 times.',                     icon: '💎', category: 'devotion', effect: 'perm_max_mana',  devotionPrice: 8, permKey: 'maxManaBonus', cap: 3 },
+  { id: 'relic_pet_compass',  name: "Familiar's Compass",     description: '+25% pet XP from every delve. Stacks once.',                           icon: '🧭', category: 'devotion', effect: 'perm_pet_xp',    devotionPrice: 6, permKey: 'petXpBonus',    cap: 1 },
+  { id: 'relic_devout_purse', name: 'Devout Purse',           description: '+10% gold from daily offerings. Stacks up to 2 times.',                icon: '💰', category: 'devotion', effect: 'perm_devo_gold', devotionPrice: 10, permKey: 'devoGoldPct',  cap: 2, step: 10 },
+  { id: 'relic_bestiary_eye', name: 'Eye of the Bestiary',    description: 'Unveil all bestiary entries from a single defeat. One-time.',          icon: '📖', category: 'devotion', effect: 'perm_full_lore', devotionPrice: 12, permKey: 'fullLoreOnFirst', cap: 1 },
 ];
 
 // === Bestiary (Phase 17) ================================================
@@ -683,6 +690,34 @@ const SPELLS = {
 };
 
 const findSpell = (id) => SPELLS[id] || null;
+
+// === Daily Devotion (Phase 20) ==========================================
+// 7-day reward cycle. The scholar's loginStreak determines the cycleDay
+// (1-7); each day yields a fixed reward and a small devotion bonus that
+// scales with the day. Day 7 is a major reward; the cycle then loops.
+const DAILY_REWARDS = [
+  // Day 1
+  { day: 1, gold: 30,  xp: 10,  devotion: 1, items: [],                              label: 'A Modest Tribute' },
+  // Day 2
+  { day: 2, gold: 50,  xp: 20,  devotion: 1, items: [{ id: 'minor_heal_tonic', n: 1 }], label: 'A Healer\'s Gift' },
+  // Day 3
+  { day: 3, gold: 70,  xp: 30,  devotion: 2, items: [{ id: 'shield_draught', n: 1 }],   label: 'A Warden\'s Bond' },
+  // Day 4
+  { day: 4, gold: 100, xp: 50,  devotion: 2, items: [{ id: 'scholars_brew', n: 1 }],    label: 'The Scholar\'s Cup' },
+  // Day 5
+  { day: 5, gold: 150, xp: 75,  devotion: 3, items: [{ id: 'foresight_scroll', n: 1 }], label: 'Eyes Beyond' },
+  // Day 6
+  { day: 6, gold: 200, xp: 100, devotion: 3, items: [{ id: 'greater_heal_tonic', n: 1 }], label: 'The Greater Draught' },
+  // Day 7 — capstone
+  { day: 7, gold: 350, xp: 200, devotion: 5, items: [{ id: 'phoenix_ember', n: 1 }],   label: 'The Phoenix Day', capstone: true },
+];
+
+const dayDiff = (a, b) => {
+  if (!a || !b) return Infinity;
+  const da = new Date(`${a}T00:00:00`);
+  const db = new Date(`${b}T00:00:00`);
+  return Math.round((db - da) / (1000 * 60 * 60 * 24));
+};
 
 // === Recipes (Phase 16) =================================================
 // Crafting at The Bench: spend ingredients, gain a potion. Run-specific
@@ -1134,6 +1169,17 @@ const DEFAULT_STATE = {
   spellbook: {},                 // { [spellId]: { learnedAt } }
   equippedSpells: [null, null, null],
   maxMana: 3,
+  // Phase 20: Daily Devotion calendar. The scholar earns devotion by
+  // logging in each day. lastClaimedDate is YYYY-MM-DD; loginStreak
+  // increments by 1 if the previous claim was yesterday, resets to 1
+  // on a gap. cycleDay is 1..7 — index into DAILY_REWARDS cycle.
+  // Devotion is a soft currency for the Devotion section of the shop.
+  devotion: 0,
+  lastClaimedDate: null,
+  loginStreak: 0,
+  longestLoginStreak: 0,
+  totalLogins: 0,
+  cycleDay: 0,
   // Currency & Inventory
   gold: 0,
   inventory: {},               // { [itemId]: count } — consumables and cosmetics
@@ -1412,23 +1458,31 @@ export default function DungeonScholarApp() {
 
     const owned = (playerState.inventory || {})[itemId] || 0;
     if (item.oneTime && owned > 0) return { ok: false, reason: 'Thou already ownest this.' };
-    if (item.category === 'sanctum' && sanctumAtCap(playerState, item)) {
+    if ((item.category === 'sanctum' || item.category === 'devotion') && sanctumAtCap(playerState, item)) {
       return { ok: false, reason: 'Thou hast reached the cap of this boon.' };
     }
-    if ((playerState.gold || 0) < item.price) {
+    // Phase 20: devotion-priced items spend playerState.devotion instead of gold.
+    const usesDevotion = item.category === 'devotion' && typeof item.devotionPrice === 'number';
+    if (usesDevotion) {
+      if ((playerState.devotion || 0) < item.devotionPrice) {
+        return { ok: false, reason: 'Insufficient devotion to claim this relic.' };
+      }
+    } else if ((playerState.gold || 0) < item.price) {
       return { ok: false, reason: 'Insufficient gold to claim this ware.' };
     }
 
     setPlayerState(prev => {
       const next = {
         ...prev,
-        gold: (prev.gold || 0) - item.price,
+        gold: usesDevotion ? (prev.gold || 0) : ((prev.gold || 0) - item.price),
+        devotion: usesDevotion ? ((prev.devotion || 0) - item.devotionPrice) : (prev.devotion || 0),
         inventory: {
           ...(prev.inventory || {}),
           [item.id]: ((prev.inventory || {})[item.id] || 0) + 1,
         },
       };
-      if (item.category === 'sanctum' && item.permKey) {
+      // Sanctum + devotion both stack into permUpgrades counters.
+      if ((item.category === 'sanctum' || item.category === 'devotion') && item.permKey) {
         const step = item.step || 1;
         next.permUpgrades = {
           ...(prev.permUpgrades || {}),
@@ -1456,7 +1510,8 @@ export default function DungeonScholarApp() {
       }
       return next;
     });
-    setTimeout(() => showNotif(`Acquired: ${item.name} (-${item.price} gold)`, 'success'), 50);
+    const costStr = usesDevotion ? `${item.devotionPrice} devotion` : `${item.price} gold`;
+    setTimeout(() => showNotif(`Acquired: ${item.name} (-${costStr})`, 'success'), 50);
     return { ok: true };
   };
 
@@ -1526,6 +1581,43 @@ export default function DungeonScholarApp() {
         },
       };
     });
+  };
+
+  // Phase 20: claim today's daily devotion reward. Returns { ok, reason,
+  // reward } so the caller can render the result. Cycles through 7 days,
+  // resets the streak if more than one day was missed.
+  const claimDailyReward = () => {
+    const today = todayDateStr();
+    if (playerState.lastClaimedDate === today) {
+      return { ok: false, reason: 'Thou hast already claimed today\'s devotion.' };
+    }
+    const gap = playerState.lastClaimedDate ? dayDiff(playerState.lastClaimedDate, today) : null;
+    // gap === 1 → continue streak; gap > 1 or null → reset to 1
+    const newStreak = gap === 1 ? (playerState.loginStreak || 0) + 1 : 1;
+    const cycleDay = ((newStreak - 1) % 7) + 1;
+    const reward = DAILY_REWARDS[cycleDay - 1];
+    if (!reward) return { ok: false, reason: 'Reward table missing.' };
+    setPlayerState(prev => {
+      const inv = { ...(prev.inventory || {}) };
+      (reward.items || []).forEach(({ id, n }) => {
+        inv[id] = (inv[id] || 0) + n;
+      });
+      return {
+        ...prev,
+        gold: (prev.gold || 0) + (reward.gold || 0),
+        xp: (prev.xp || 0) + (reward.xp || 0),
+        totalXp: (prev.totalXp || 0) + (reward.xp || 0),
+        devotion: (prev.devotion || 0) + (reward.devotion || 0),
+        inventory: inv,
+        lastClaimedDate: today,
+        loginStreak: newStreak,
+        longestLoginStreak: Math.max(prev.longestLoginStreak || 0, newStreak),
+        totalLogins: (prev.totalLogins || 0) + 1,
+        cycleDay,
+      };
+    });
+    setTimeout(() => showNotif(`Day ${cycleDay} claimed: +${reward.gold} gold, +${reward.xp} XP, +${reward.devotion} devotion`, 'success'), 50);
+    return { ok: true, reward };
   };
 
   // Phase 19: equip a known spell to one of three quick-slots. If slotIdx
@@ -2594,6 +2686,13 @@ export default function DungeonScholarApp() {
             onUnequipSpell={unequipSpell}
           />
         )}
+        {screen === 'calendar' && (
+          <CalendarScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onClaim={claimDailyReward}
+          />
+        )}
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
@@ -3387,6 +3486,17 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           icon={<Wand2 className="w-8 h-8" />}
           color="sapphire"
           onClick={() => setScreen('spellbook')}
+        />
+        <ModeCard
+          title={playerState?.lastClaimedDate === todayDateStr() ? 'Devotion Calendar' : '✦ Devotion Awaits ✦'}
+          desc={
+            playerState?.lastClaimedDate === todayDateStr()
+              ? `Today's flame is lit. Streak: ${playerState?.loginStreak || 0} day${(playerState?.loginStreak || 0) === 1 ? '' : 's'}. Devotion: ${playerState?.devotion || 0}.`
+              : `A daily offering awaits thee. Current streak: ${playerState?.loginStreak || 0}. Claim today's reward.`
+          }
+          icon={<Calendar className="w-8 h-8" />}
+          color="amber"
+          onClick={() => setScreen('calendar')}
         />
       </div>
 
@@ -6063,14 +6173,17 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
         <div className="grid md:grid-cols-2 gap-4">
           {currentStock.map((item) => {
             const owned = isOwned(item);
-            const atCap = item.category === 'sanctum' && sanctumAtCap(playerState, item);
-            const canAfford = (playerState.gold || 0) >= item.price;
+            const usesDevotion = item.category === 'devotion' && typeof item.devotionPrice === 'number';
+            const atCap = (item.category === 'sanctum' || item.category === 'devotion') && sanctumAtCap(playerState, item);
+            const canAfford = usesDevotion
+              ? (playerState.devotion || 0) >= item.devotionPrice
+              : (playerState.gold || 0) >= item.price;
             const locked = item.locked;
             const disabled = owned || atCap || locked || !canAfford;
             const buttonLabel = locked ? 'Sealed'
               : owned ? 'Owned'
               : atCap ? `Maxed (${sanctumLevel(item)}/${sanctumCap(item)})`
-              : !canAfford ? 'Insufficient gold'
+              : !canAfford ? (usesDevotion ? 'Insufficient devotion' : 'Insufficient gold')
               : 'Purchase';
             return (
               <div key={item.id} className="p-5 rounded relative" style={{
@@ -6099,7 +6212,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                           style={!locked ? { textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' } : undefined}>
                         {item.name}
                       </h3>
-                      {item.category === 'sanctum' && (
+                      {(item.category === 'sanctum' || item.category === 'devotion') && item.permKey && (
                         <span className="text-xs text-emerald-300 italic">
                           {sanctumLevel(item)}/{sanctumCap(item)}
                         </span>
@@ -6113,9 +6226,19 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
 
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-xs italic flex items-center gap-1">
-                    <Coins className="w-4 h-4 text-amber-300" />
-                    <span className={`font-bold tabular-nums ${canAfford ? 'text-amber-300' : 'text-red-300'}`}>{item.price}</span>
-                    <span className="text-amber-700">gold</span>
+                    {usesDevotion ? (
+                      <>
+                        <span className="text-purple-300">✦</span>
+                        <span className={`font-bold tabular-nums ${canAfford ? 'text-purple-200' : 'text-red-300'}`}>{item.devotionPrice}</span>
+                        <span className="text-purple-400">devotion</span>
+                      </>
+                    ) : (
+                      <>
+                        <Coins className="w-4 h-4 text-amber-300" />
+                        <span className={`font-bold tabular-nums ${canAfford ? 'text-amber-300' : 'text-red-300'}`}>{item.price}</span>
+                        <span className="text-amber-700">gold</span>
+                      </>
+                    )}
                   </div>
                   <button
                     onClick={() => { if (!disabled) { setPendingPurchase(item); setPurchaseError(null); } }}
@@ -6930,6 +7053,172 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+// Phase 20 — Daily Devotion calendar. The scholar earns daily rewards on
+// a 7-day cycle; missing a day resets the streak. Day 7 is the capstone
+// reward (Phoenix Ember + heavy gold/XP).
+function CalendarScreen({ playerState, setScreen, onClaim }) {
+  const today = todayDateStr();
+  const claimedToday = playerState.lastClaimedDate === today;
+  const streak = playerState.loginStreak || 0;
+  const longest = playerState.longestLoginStreak || 0;
+  const totalLogins = playerState.totalLogins || 0;
+  const devotion = playerState.devotion || 0;
+  // The day that *would* be claimed if the player presses claim now.
+  const gap = playerState.lastClaimedDate ? dayDiff(playerState.lastClaimedDate, today) : null;
+  const willStreak = gap === 1 ? streak + 1 : 1;
+  const previewDay = claimedToday ? streak : willStreak;
+  const cycleDayIdx = ((previewDay - 1) % 7) + 1;
+
+  const [feedback, setFeedback] = useState(null);
+  const tryClaim = () => {
+    const res = onClaim?.();
+    if (res && !res.ok) {
+      setFeedback({ tone: 'bad', text: res.reason || 'Cannot claim.' });
+      setTimeout(() => setFeedback(null), 1800);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(245, 158, 11, 0.6)',
+        boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-amber-300 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-amber-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-amber-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-amber-300 text-sm">⚜</div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-4xl">🕯️</div>
+            <div>
+              <h2 className="text-2xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}>
+                The Devotion Calendar
+              </h2>
+              <div className="text-xs text-amber-400 tracking-[0.2em] italic">⚜ DAILY OFFERINGS · CYCLE OF SEVEN ⚜</div>
+              <div className="text-xs text-amber-100/70 italic mt-1">
+                Each dawn, kindle a flame for thy devotion. Miss a day and the streak resets.
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setScreen('home')}
+            className="px-3 py-2 rounded text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
+            style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
+            ← Return to the Hearth
+          </button>
+        </div>
+      </div>
+
+      {/* Stats ribbon */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+          <div className="text-[10px] uppercase italic text-amber-700">Current Streak</div>
+          <div className="text-lg font-bold italic text-amber-200">🔥 {streak}</div>
+        </div>
+        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+          <div className="text-[10px] uppercase italic text-amber-700">Longest</div>
+          <div className="text-lg font-bold italic text-amber-200">{longest}</div>
+        </div>
+        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+          <div className="text-[10px] uppercase italic text-amber-700">Total Logins</div>
+          <div className="text-lg font-bold italic text-amber-200">{totalLogins}</div>
+        </div>
+        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(168, 85, 247, 0.5)' }}>
+          <div className="text-[10px] uppercase italic text-purple-300">Devotion</div>
+          <div className="text-lg font-bold italic text-purple-200">✦ {devotion}</div>
+        </div>
+      </div>
+
+      {/* Claim button */}
+      <div className="p-4 rounded text-center" style={{
+        background: claimedToday
+          ? 'linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: `2px solid ${claimedToday ? 'rgba(120, 53, 15, 0.4)' : '#fbbf24'}`,
+      }}>
+        {claimedToday ? (
+          <div>
+            <div className="text-amber-200 italic mb-1">Today's flame is already lit.</div>
+            <div className="text-xs italic text-amber-700">Return tomorrow to continue the cycle.</div>
+          </div>
+        ) : (
+          <div>
+            <div className="text-amber-200 italic mb-2">
+              {gap === 1 ? `Continue thy streak — Day ${cycleDayIdx} of the cycle awaits.` :
+               streak === 0 ? 'Begin thy first devotion.' :
+               `Streak broken — start anew at Day ${cycleDayIdx}.`}
+            </div>
+            <button onClick={tryClaim}
+              className="px-6 py-3 rounded text-base italic border-2 font-bold"
+              style={{
+                background: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
+                border: '2px solid #fbbf24',
+                color: '#1a0e08',
+                cursor: 'pointer',
+                fontFamily: '"Cinzel", Georgia, serif',
+              }}>
+              🕯️ Claim Today's Devotion
+            </button>
+            {feedback && (
+              <div className="mt-2 text-xs italic text-red-300">{feedback.text}</div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 7-day cycle grid */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="text-base">📅</span>
+          <h3 className="text-sm font-bold italic text-amber-300 tracking-wider">The Seven-Day Cycle</h3>
+          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
+          {DAILY_REWARDS.map((reward) => {
+            const isToday = reward.day === cycleDayIdx && !claimedToday;
+            const isClaimedToday = reward.day === cycleDayIdx && claimedToday;
+            const isPast = streak > 0 && reward.day < cycleDayIdx;
+            return (
+              <div key={reward.day} className="p-3 rounded text-center" style={{
+                background: isToday
+                  ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)'
+                  : isClaimedToday
+                  ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)'
+                  : 'rgba(0, 0, 0, 0.55)',
+                border: `2px ${reward.capstone ? 'double' : 'solid'} ${
+                  isToday ? '#fbbf24'
+                  : isClaimedToday ? '#10b981'
+                  : reward.capstone ? 'rgba(168, 85, 247, 0.5)'
+                  : 'rgba(120, 53, 15, 0.4)'
+                }`,
+                boxShadow: isToday ? '0 0 14px rgba(245, 158, 11, 0.4)' : 'none',
+                opacity: isPast && !isClaimedToday ? 0.55 : 1,
+              }}>
+                <div className="text-[10px] uppercase italic text-amber-700">Day {reward.day}</div>
+                <div className={`text-xs italic font-bold ${reward.capstone ? 'text-purple-200' : 'text-amber-200'}`}>
+                  {reward.label}
+                </div>
+                <div className="text-[10px] italic text-amber-300 mt-1 space-y-0.5">
+                  <div>+{reward.gold} 🪙</div>
+                  <div>+{reward.xp} XP</div>
+                  <div className="text-purple-300">+{reward.devotion} ✦</div>
+                  {reward.items.length > 0 && (
+                    <div className="text-emerald-300">+ {reward.items.map(it => findItem(it.id)?.icon || '?').join(' ')}</div>
+                  )}
+                </div>
+                {isClaimedToday && (
+                  <div className="text-[9px] italic text-emerald-400 mt-1">✓ Claimed</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
