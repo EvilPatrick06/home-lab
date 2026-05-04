@@ -13,8 +13,8 @@ This file tracks polish/deferred work to address in Phase 24 (Polish, Balance & 
 
 ## Build / structure
 
-- **App.jsx is large.** Bundle warns at >500 KB after minification. Phase 24 should split out the major modes (FlashcardsMode, QuizMode, LabMode, ShopScreen, RunHistoryScreen) into `src/components/` files and load via dynamic `import()` to code-split the bundle.
-- **Delete the legacy `DungeonRun` and `BossEncounter` components in `src/App.jsx`.** Phase 12.x merged the wave-based delve into `DungeonExplore` and stopped routing `screen === 'dungeon'` to `DungeonRun`. The two functions (~1000 lines combined) plus their helpers (`RunQuestionReview`, `ModifierToggle`, `ChallengeRenderer`'s boss branches) are now dead code. Verify nothing else references them, then delete.
+- **App.jsx is large.** Bundle still warns at >500 KB after minification (~619 KB). Phase 24 should split out the major modes (FlashcardsMode, QuizMode, LabMode, ShopScreen, RunHistoryScreen) into `src/components/` files and load via dynamic `import()` to code-split the bundle. (Tree-shaking already handled unreferenced top-level fns — bundle size held constant after deleting `DungeonRun`. The size pressure is in live mode components.)
+- ~~**Delete the legacy `DungeonRun` and `BossEncounter` components in `src/App.jsx`.**~~ — Done in Phase 24. Removed `DungeonRun`, `BossEncounter`, `RunQuestionReview`, `ModifierToggle`, and `ChallengeRenderer` (~1290 lines). `BOSS_TYPES` and `DIFFICULTIES` were kept because `RunHistoryScreen` still consumes them.
 
 ---
 
