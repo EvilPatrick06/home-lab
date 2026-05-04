@@ -4,6 +4,7 @@
 // Reach the boss room and survive its 5-question gauntlet to win the run.
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { startBgm, stopBgm, playSfx } from '../audio/sound.js';
 
 // === Pet level math (Phase 18) =========================================
 // Mirrors PET_LEVEL_XP in App.jsx. Kept duplicated to avoid a circular
@@ -2362,6 +2363,15 @@ export default function DungeonExplore({
 
   // After a victory or defeat, return to the setup screen for another delve.
   const newDelve = () => setPhase('setup');
+
+  // Phase 21: biome BGM. Start when entering the world phase, stop on unmount
+  // or when returning to setup. The audio module is muted by default so this
+  // is silent until the player toggles audio on in settings.
+  useEffect(() => {
+    if (phase !== 'world') return undefined;
+    startBgm(biomeId);
+    return () => { stopBgm(); };
+  }, [phase, biomeId]);
 
   // === Spell casting (Phase 19) ========================================
   // Triggered by hotkeys Q/W/E or on-screen spell buttons. Some spells
