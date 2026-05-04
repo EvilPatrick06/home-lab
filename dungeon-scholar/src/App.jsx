@@ -382,6 +382,7 @@ const ITEM_CATEGORIES = {
   ingredient: { label: 'Ingredients', icon: '🌿', color: 'emerald', blurb: 'Reagents harvested from the dungeon — bring them to the bench to brew.' },
   arcanum:    { label: 'Arcanum',     icon: '📜', color: 'sapphire', blurb: 'Scrolls of active magic. Purchase a scroll once to learn the spell forever.' },
   devotion:   { label: 'Reliquary',   icon: '🕯️', color: 'purple',   blurb: 'Relics bought with devotion — gathered through daily offerings on the calendar.' },
+  celestial:  { label: 'Celestial',   icon: '🌟', color: 'amber',    blurb: 'Eternal boons paid for with Ascension Tokens — earned by transcending the cycle.' },
 };
 
 const ITEMS = [
@@ -443,6 +444,14 @@ const ITEMS = [
   { id: 'relic_pet_compass',  name: "Familiar's Compass",     description: '+25% pet XP from every delve. Stacks once.',                           icon: '🧭', category: 'devotion', effect: 'perm_pet_xp',    devotionPrice: 6, permKey: 'petXpBonus',    cap: 1 },
   { id: 'relic_devout_purse', name: 'Devout Purse',           description: '+10% gold from daily offerings. Stacks up to 2 times.',                icon: '💰', category: 'devotion', effect: 'perm_devo_gold', devotionPrice: 10, permKey: 'devoGoldPct',  cap: 2, step: 10 },
   { id: 'relic_bestiary_eye', name: 'Eye of the Bestiary',    description: 'Unveil all bestiary entries from a single defeat. One-time.',          icon: '📖', category: 'devotion', effect: 'perm_full_lore', devotionPrice: 12, permKey: 'fullLoreOnFirst', cap: 1 },
+
+  // === Celestial (Phase 23 — purchased with ascension tokens) ===
+  { id: 'celestial_xp_font',     name: 'Font of Eternal XP',     description: '+25% XP from every source. Stacks up to 4 times.',                   icon: '⭐', category: 'celestial', effect: 'asc_xp',     ascensionPrice: 1, permKey: 'ascXpPct',     cap: 4, step: 25 },
+  { id: 'celestial_gold_font',   name: 'Font of Eternal Gold',   description: '+25% gold from every source. Stacks up to 4 times.',                 icon: '💫', category: 'celestial', effect: 'asc_gold',   ascensionPrice: 1, permKey: 'ascGoldPct',   cap: 4, step: 25 },
+  { id: 'celestial_max_hp',      name: 'Heart of the Celestials',description: '+1 maximum HP in every delve. Stacks up to 3 times.',                 icon: '🌠', category: 'celestial', effect: 'asc_hp',     ascensionPrice: 2, permKey: 'ascMaxHp',     cap: 3 },
+  { id: 'celestial_max_mana',    name: 'Star of Boundless Mana', description: '+1 maximum mana per delve. Stacks up to 3 times.',                   icon: '✨', category: 'celestial', effect: 'asc_mana',   ascensionPrice: 2, permKey: 'ascMaxMana',   cap: 3 },
+  { id: 'celestial_starting_pot',name: 'Astral Apothecary',      description: '+1 starting potion in every delve. Stacks up to 2 times.',           icon: '🌌', category: 'celestial', effect: 'asc_pot',    ascensionPrice: 3, permKey: 'ascStartPot',  cap: 2 },
+  { id: 'celestial_revive',      name: 'Phoenix of the Spheres', description: 'Begin every delve with a Phoenix Ember already burning.',            icon: '🔥', category: 'celestial', effect: 'asc_revive', ascensionPrice: 4, permKey: 'ascAutoRevive',cap: 1 },
 ];
 
 // === Bestiary (Phase 17) ================================================
@@ -1181,6 +1190,13 @@ const DEFAULT_STATE = {
   longestLoginStreak: 0,
   totalLogins: 0,
   cycleDay: 0,
+  // Phase 23: Prestige & Ascension. Ascending resets level/xp/gold/items
+  // but preserves titles, achievements, bestiary, pets, and spellbook.
+  // Each ascension grants +1 token; tokens are spent on the Celestial
+  // section of the shop. Players can ascend once they reach level 50.
+  ascensions: 0,
+  ascensionTokens: 0,
+  lastAscendedAt: null,
   // Currency & Inventory
   gold: 0,
   inventory: {},               // { [itemId]: count } — consumables and cosmetics
@@ -1463,14 +1479,20 @@ export default function DungeonScholarApp() {
 
     const owned = (playerState.inventory || {})[itemId] || 0;
     if (item.oneTime && owned > 0) return { ok: false, reason: 'Thou already ownest this.' };
-    if ((item.category === 'sanctum' || item.category === 'devotion') && sanctumAtCap(playerState, item)) {
+    if ((item.category === 'sanctum' || item.category === 'devotion' || item.category === 'celestial') && sanctumAtCap(playerState, item)) {
       return { ok: false, reason: 'Thou hast reached the cap of this boon.' };
     }
     // Phase 20: devotion-priced items spend playerState.devotion instead of gold.
+    // Phase 23: celestial items spend ascension tokens.
     const usesDevotion = item.category === 'devotion' && typeof item.devotionPrice === 'number';
+    const usesTokens = item.category === 'celestial' && typeof item.ascensionPrice === 'number';
     if (usesDevotion) {
       if ((playerState.devotion || 0) < item.devotionPrice) {
         return { ok: false, reason: 'Insufficient devotion to claim this relic.' };
+      }
+    } else if (usesTokens) {
+      if ((playerState.ascensionTokens || 0) < item.ascensionPrice) {
+        return { ok: false, reason: 'Insufficient ascension tokens.' };
       }
     } else if ((playerState.gold || 0) < item.price) {
       return { ok: false, reason: 'Insufficient gold to claim this ware.' };
@@ -1479,15 +1501,16 @@ export default function DungeonScholarApp() {
     setPlayerState(prev => {
       const next = {
         ...prev,
-        gold: usesDevotion ? (prev.gold || 0) : ((prev.gold || 0) - item.price),
+        gold: (usesDevotion || usesTokens) ? (prev.gold || 0) : ((prev.gold || 0) - item.price),
         devotion: usesDevotion ? ((prev.devotion || 0) - item.devotionPrice) : (prev.devotion || 0),
+        ascensionTokens: usesTokens ? ((prev.ascensionTokens || 0) - item.ascensionPrice) : (prev.ascensionTokens || 0),
         inventory: {
           ...(prev.inventory || {}),
           [item.id]: ((prev.inventory || {})[item.id] || 0) + 1,
         },
       };
-      // Sanctum + devotion both stack into permUpgrades counters.
-      if ((item.category === 'sanctum' || item.category === 'devotion') && item.permKey) {
+      // Sanctum + devotion + celestial all stack into permUpgrades counters.
+      if ((item.category === 'sanctum' || item.category === 'devotion' || item.category === 'celestial') && item.permKey) {
         const step = item.step || 1;
         next.permUpgrades = {
           ...(prev.permUpgrades || {}),
@@ -1515,7 +1538,11 @@ export default function DungeonScholarApp() {
       }
       return next;
     });
-    const costStr = usesDevotion ? `${item.devotionPrice} devotion` : `${item.price} gold`;
+    const costStr = usesDevotion
+      ? `${item.devotionPrice} devotion`
+      : usesTokens
+      ? `${item.ascensionPrice} ascension token${item.ascensionPrice === 1 ? '' : 's'}`
+      : `${item.price} gold`;
     setTimeout(() => showNotif(`Acquired: ${item.name} (-${costStr})`, 'success'), 50);
     return { ok: true };
   };
@@ -1623,6 +1650,48 @@ export default function DungeonScholarApp() {
     });
     setTimeout(() => showNotif(`Day ${cycleDay} claimed: +${reward.gold} gold, +${reward.xp} XP, +${reward.devotion} devotion`, 'success'), 50);
     return { ok: true, reward };
+  };
+
+  // Phase 23: ascend the scholar. Resets level/XP/gold/inventory and
+  // un-equips current loadout, but preserves identity (achievements,
+  // titles, bestiary, pets, spellbook, calendar progress, ascension
+  // history). Awards +1 ascension token. Threshold = level 50.
+  const ASCENSION_LEVEL_REQ = 50;
+  const canAscend = (playerState.level || 1) >= ASCENSION_LEVEL_REQ;
+  const ascend = () => {
+    if (!canAscend) {
+      return { ok: false, reason: `Reach level ${ASCENSION_LEVEL_REQ} to transcend the cycle.` };
+    }
+    setPlayerState(prev => {
+      // Inventory: keep ingredient stacks (they're hard to regrind) but
+      // wipe consumable potions and one-time gear acquired this cycle.
+      const newInv = {};
+      Object.entries(prev.inventory || {}).forEach(([id, n]) => {
+        const item = findItem(id);
+        if (item && item.category === 'ingredient') newInv[id] = n;
+      });
+      return {
+        ...prev,
+        level: 1,
+        xp: 0,
+        // totalXp keeps so the meta-progression bar reflects all-time effort.
+        gold: 0,
+        inventory: newInv,
+        equipped: { weapon: null, head: null, cloak: null, pet: null, potions: [null, null, null] },
+        equippedSpells: [null, null, null],
+        // permUpgrades wipe the gold/cycle ones; celestial fonts persist
+        // because their permKeys start with "asc". Same for devotion.
+        permUpgrades: Object.fromEntries(
+          Object.entries(prev.permUpgrades || {}).filter(([k]) =>
+            k.startsWith('asc') || ['petXpBonus', 'devoGoldPct', 'fullLoreOnFirst'].includes(k))
+        ),
+        ascensions: (prev.ascensions || 0) + 1,
+        ascensionTokens: (prev.ascensionTokens || 0) + 1,
+        lastAscendedAt: new Date().toISOString(),
+      };
+    });
+    setTimeout(() => showNotif('Thou hast ascended! +1 Ascension Token granted.', 'success'), 50);
+    return { ok: true };
   };
 
   // Phase 19: equip a known spell to one of three quick-slots. If slotIdx
@@ -2698,6 +2767,13 @@ export default function DungeonScholarApp() {
             onClaim={claimDailyReward}
           />
         )}
+        {screen === 'ascension' && (
+          <AscensionScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onAscend={ascend}
+          />
+        )}
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
@@ -3504,6 +3580,17 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           icon={<Calendar className="w-8 h-8" />}
           color="amber"
           onClick={() => setScreen('calendar')}
+        />
+        <ModeCard
+          title={(playerState?.ascensions || 0) > 0 ? `Ascension ×${playerState.ascensions}` : 'Path of Ascension'}
+          desc={
+            (playerState?.level || 1) >= 50
+              ? `The cycle stands ready to renew. Tokens: ${playerState?.ascensionTokens || 0}.`
+              : `Reach level 50 to transcend (current: ${playerState?.level || 1}). Tokens earned: ${playerState?.ascensionTokens || 0}.`
+          }
+          icon={<Star className="w-8 h-8" />}
+          color="amber"
+          onClick={() => setScreen('ascension')}
         />
       </div>
 
@@ -6237,16 +6324,19 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
           {currentStock.map((item) => {
             const owned = isOwned(item);
             const usesDevotion = item.category === 'devotion' && typeof item.devotionPrice === 'number';
-            const atCap = (item.category === 'sanctum' || item.category === 'devotion') && sanctumAtCap(playerState, item);
+            const usesTokens = item.category === 'celestial' && typeof item.ascensionPrice === 'number';
+            const atCap = (item.category === 'sanctum' || item.category === 'devotion' || item.category === 'celestial') && sanctumAtCap(playerState, item);
             const canAfford = usesDevotion
               ? (playerState.devotion || 0) >= item.devotionPrice
+              : usesTokens
+              ? (playerState.ascensionTokens || 0) >= item.ascensionPrice
               : (playerState.gold || 0) >= item.price;
             const locked = item.locked;
             const disabled = owned || atCap || locked || !canAfford;
             const buttonLabel = locked ? 'Sealed'
               : owned ? 'Owned'
               : atCap ? `Maxed (${sanctumLevel(item)}/${sanctumCap(item)})`
-              : !canAfford ? (usesDevotion ? 'Insufficient devotion' : 'Insufficient gold')
+              : !canAfford ? (usesDevotion ? 'Insufficient devotion' : usesTokens ? 'Insufficient tokens' : 'Insufficient gold')
               : 'Purchase';
             return (
               <div key={item.id} className="p-5 rounded relative" style={{
@@ -6294,6 +6384,12 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                         <span className="text-purple-300">✦</span>
                         <span className={`font-bold tabular-nums ${canAfford ? 'text-purple-200' : 'text-red-300'}`}>{item.devotionPrice}</span>
                         <span className="text-purple-400">devotion</span>
+                      </>
+                    ) : usesTokens ? (
+                      <>
+                        <span className="text-amber-300">🌟</span>
+                        <span className={`font-bold tabular-nums ${canAfford ? 'text-amber-200' : 'text-red-300'}`}>{item.ascensionPrice}</span>
+                        <span className="text-amber-400">{item.ascensionPrice === 1 ? 'token' : 'tokens'}</span>
                       </>
                     ) : (
                       <>
@@ -7282,6 +7378,173 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
             );
           })}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Phase 23 — Ascension. The cycle resets; identity persists. Confirms
+// before destruction so the player can't ascend by accident.
+function AscensionScreen({ playerState, setScreen, onAscend }) {
+  const lvl = playerState.level || 1;
+  const REQ = 50;
+  const ready = lvl >= REQ;
+  const ascensions = playerState.ascensions || 0;
+  const tokens = playerState.ascensionTokens || 0;
+  const lastAscended = playerState.lastAscendedAt
+    ? new Date(playerState.lastAscendedAt).toLocaleDateString()
+    : null;
+  const [confirming, setConfirming] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const tryAscend = () => {
+    const res = onAscend?.();
+    if (res?.ok) {
+      setConfirming(false);
+      setScreen('home');
+    } else {
+      setFeedback({ tone: 'bad', text: res?.reason || 'Cannot ascend.' });
+      setTimeout(() => setFeedback(null), 2000);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(245, 158, 11, 0.7)',
+        boxShadow: '0 0 30px rgba(245, 158, 11, 0.3), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-amber-300 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-amber-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-amber-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-amber-300 text-sm">⚜</div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-4xl">🌟</div>
+            <div>
+              <h2 className="text-2xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}>
+                The Path of Ascension
+              </h2>
+              <div className="text-xs text-amber-400 tracking-[0.2em] italic">⚜ TRANSCEND THE CYCLE ⚜</div>
+              <div className="text-xs text-amber-100/70 italic mt-1">
+                Reset thy level, gold, and gear — keep thy identity, lore, and stable. Earn an Ascension Token.
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setScreen('home')}
+            className="px-3 py-2 rounded text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
+            style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
+            ← Return to the Hearth
+          </button>
+        </div>
+      </div>
+
+      {/* Stats ribbon */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+          <div className="text-[10px] uppercase italic text-amber-700">Current Level</div>
+          <div className="text-lg font-bold italic text-amber-200">{lvl} / {REQ}</div>
+        </div>
+        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+          <div className="text-[10px] uppercase italic text-amber-700">Ascensions</div>
+          <div className="text-lg font-bold italic text-amber-200">🌟 {ascensions}</div>
+        </div>
+        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+          <div className="text-[10px] uppercase italic text-amber-700">Tokens</div>
+          <div className="text-lg font-bold italic text-amber-200">🪙 {tokens}</div>
+        </div>
+        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+          <div className="text-[10px] uppercase italic text-amber-700">Last Ascension</div>
+          <div className="text-sm font-bold italic text-amber-200">{lastAscended || '—'}</div>
+        </div>
+      </div>
+
+      {/* What is preserved / lost */}
+      <div className="grid md:grid-cols-2 gap-3">
+        <div className="p-4 rounded" style={{
+          background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          border: '2px solid rgba(16, 185, 129, 0.5)',
+        }}>
+          <h4 className="font-bold italic text-emerald-200 text-sm mb-2">✦ Preserved</h4>
+          <ul className="text-xs italic text-emerald-100/80 space-y-1 list-disc list-inside">
+            <li>Achievements & special titles</li>
+            <li>Bestiary entries (defeats persist)</li>
+            <li>Stable familiars & their levels</li>
+            <li>Spellbook (learned spells)</li>
+            <li>Devotion calendar streak & total devotion</li>
+            <li>Ingredients in thy basket</li>
+            <li>Reliquary + Celestial permanent boons</li>
+            <li>Total lifetime XP recorded in tomes</li>
+          </ul>
+        </div>
+        <div className="p-4 rounded" style={{
+          background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          border: '2px solid rgba(245, 158, 11, 0.5)',
+        }}>
+          <h4 className="font-bold italic text-amber-200 text-sm mb-2">✦ Reset</h4>
+          <ul className="text-xs italic text-amber-100/80 space-y-1 list-disc list-inside">
+            <li>Level → 1 (XP within current level resets)</li>
+            <li>Gold → 0</li>
+            <li>Equipped weapons, head, cloak, pet, spell slots</li>
+            <li>One-time gear & potions in thy hoard</li>
+            <li>Sanctum permanent stacks (gold-bought ones)</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Ascend action */}
+      <div className="p-6 rounded text-center" style={{
+        background: ready
+          ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(31, 41, 55, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: `3px ${ready ? 'double' : 'solid'} ${ready ? '#fbbf24' : 'rgba(120, 53, 15, 0.4)'}`,
+      }}>
+        {!ready ? (
+          <div>
+            <div className="text-amber-700 italic mb-2">The path opens at level {REQ}.</div>
+            <div className="text-xs italic text-amber-700/70">{REQ - lvl} levels remain before thou mayest ascend.</div>
+          </div>
+        ) : !confirming ? (
+          <div>
+            <div className="text-amber-200 italic mb-3 text-base">The cycle awaits thy renewal.</div>
+            <button onClick={() => setConfirming(true)}
+              className="px-6 py-3 rounded text-base italic font-bold border-2"
+              style={{
+                background: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
+                borderColor: '#fbbf24',
+                color: '#1a0e08',
+                fontFamily: '"Cinzel", Georgia, serif',
+              }}>
+              🌟 Begin Ascension
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div className="text-amber-200 italic mb-3 text-base font-bold">
+              Art thou certain? Thy gold and gear shall be undone.
+            </div>
+            <div className="flex gap-3 justify-center">
+              <button onClick={tryAscend}
+                className="px-5 py-2.5 rounded text-sm italic font-bold border-2"
+                style={{
+                  background: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
+                  borderColor: '#fbbf24',
+                  color: '#1a0e08',
+                }}>
+                ✓ Yes — Ascend
+              </button>
+              <button onClick={() => setConfirming(false)}
+                className="px-5 py-2.5 rounded text-sm italic border-2 border-stone-600 text-stone-300 hover:bg-stone-800/30"
+                style={{ background: 'rgba(31, 24, 12, 0.7)' }}>
+                ✕ Hold the Course
+              </button>
+            </div>
+            {feedback && (
+              <div className="mt-2 text-xs italic text-red-300">{feedback.text}</div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
