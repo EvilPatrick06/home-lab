@@ -2391,7 +2391,10 @@ export default function DungeonExplore({
       return;
     }
     const refund = () => { /* no mana spent */ };
-    const pay = () => setMana((m) => Math.max(0, m - (def.cost || 0)));
+    const pay = () => {
+      setMana((m) => Math.max(0, m - (def.cost || 0)));
+      playSfx('cast');
+    };
 
     switch (def.effect) {
       case 'heal': {
@@ -2543,7 +2546,10 @@ export default function DungeonExplore({
       }
     }
     if (acted && consumeItem) consumeItem(itemId);
-    if (acted) setNotice({ tone: 'good', text: `Drained: ${usedLabel}` });
+    if (acted) {
+      playSfx('pickup');
+      setNotice({ tone: 'good', text: `Drained: ${usedLabel}` });
+    }
   };
 
   // Auto-clear the notice banner after a short delay.
@@ -2563,6 +2569,8 @@ export default function DungeonExplore({
       if (ny < 0 || ny >= initial.map.length) return p;
       if (nx < 0 || nx >= initial.map[0].length) return p;
       if (!isWalkable(initial.map[ny][nx])) return p;
+      // Phase 22: footstep tap. Light + short so a held key still sounds OK.
+      playSfx('step');
       return { x: nx, y: ny };
     });
   };
@@ -2686,6 +2694,7 @@ export default function DungeonExplore({
         showPickup(`Acquired: ${info ? info.name : itemId}`, '#a7f3d0');
       }
       chest.opened = true;
+      playSfx('chest');
       return;
     }
     // Lootable plant — harvest on walk-over.
@@ -2710,6 +2719,7 @@ export default function DungeonExplore({
         showPickup(doubled ? `Acquired: ${label} ×2` : `Acquired: ${label}`, '#a7f3d0');
       }
       decorationsRef.current.splice(decoIdx, 1);
+      playSfx('pickup');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos]);
@@ -2731,6 +2741,8 @@ export default function DungeonExplore({
     // down naturally over the next 3 trials.
     if (xpBuffRemaining > 0) setXpBuffRemaining((n) => Math.max(0, n - 1));
     if (correct) {
+      // Phase 22: a thwack lands on the foe.
+      playSfx('hit');
       // Phase 19: regen +1 mana per correct answer, capped at maxMana.
       setMana((m) => Math.min(maxMana, m + 1));
       // Clear any reveal hint once the question resolves.
@@ -2763,6 +2775,7 @@ export default function DungeonExplore({
           ? DMG_BY_TIER.boss
           : (battle?.mobTier === 'elite' ? DMG_BY_TIER.elite : DMG_BY_TIER.basic);
         setHp((h) => h - dmg);
+        playSfx('hurt');
       }
     }
 
@@ -2832,6 +2845,7 @@ export default function DungeonExplore({
     let goldAwarded = 0;
     const xpEarnedInRun = xpEarnedRef.current;
     if (won) {
+      playSfx('victory');
       const completionXp = Math.floor(100 * diffConfig.xpMul * equipBonuses.xpMul);
       const completionGold = Math.floor(100 * diffConfig.goldMul * equipBonuses.goldMul);
       xpAwarded = xpEarnedInRun + completionXp;
@@ -2863,6 +2877,7 @@ export default function DungeonExplore({
         updateProgress({ longestStreak: Math.max(playerState.longestStreak || 0, maxStreak) });
       }
     } else {
+      playSfx('defeat');
       // Death penalty: half the XP earned in the run, no completion bonus.
       // Gold accumulated mid-run was already paid out per kill so it stays.
       xpAwarded = Math.floor(xpEarnedInRun * 0.5);
