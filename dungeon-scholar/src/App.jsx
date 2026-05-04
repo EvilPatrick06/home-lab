@@ -379,6 +379,7 @@ const ITEM_CATEGORIES = {
   armory:     { label: 'Armory',     icon: '⚔️', color: 'sapphire', blurb: 'Cosmetic blades and shields for the discerning scholar.' },
   sanctum:    { label: 'Sanctum',    icon: '🏛️', color: 'amber',   blurb: 'Permanent boons — purchased once, carried forever.' },
   ingredient: { label: 'Ingredients', icon: '🌿', color: 'emerald', blurb: 'Reagents harvested from the dungeon — bring them to the bench to brew.' },
+  arcanum:    { label: 'Arcanum',     icon: '📜', color: 'sapphire', blurb: 'Scrolls of active magic. Purchase a scroll once to learn the spell forever.' },
 };
 
 const ITEMS = [
@@ -426,6 +427,14 @@ const ITEMS = [
   { id: 'crystal_shard', name: 'Crystal Shard', description: 'A sliver of focused arcane glass.',                                       icon: '💎', category: 'ingredient', price: 0 },
   { id: 'moonleaf',      name: 'Moonleaf',      description: 'A pale leaf that holds the dew of a forgotten night.',                    icon: '🍃', category: 'ingredient', price: 0 },
   { id: 'cactus_pulp',   name: 'Cactus Pulp',   description: 'Wet fibre wrenched from a sun-bleached cactus.',                          icon: '🌵', category: 'ingredient', price: 0 },
+
+  // === Arcanum (Phase 19 — spell scrolls; one-time, learn on purchase) ===
+  { id: 'scroll_glyph_of_mending', name: 'Scroll of Mending',  description: 'Learn Glyph of Mending — a 2-mana spell that restores 1 HP in the dungeon.',         icon: '✨', category: 'arcanum', price: 250, oneTime: true, spellId: 'glyph_of_mending' },
+  { id: 'scroll_lance_of_lumens',  name: 'Scroll of Lumens',   description: 'Learn Lance of Lumens — a 3-mana spell that smites the nearest mob (bosses immune).', icon: '⚡', category: 'arcanum', price: 400, oneTime: true, spellId: 'lance_of_lumens' },
+  { id: 'scroll_ward_of_aegis',    name: 'Scroll of Aegis',    description: 'Learn Ward of Aegis — a 2-mana spell granting a single shield bond.',                 icon: '🛡️', category: 'arcanum', price: 300, oneTime: true, spellId: 'ward_of_aegis' },
+  { id: 'scroll_bolt_of_truth',    name: 'Scroll of Truth',    description: 'Learn Bolt of Truth — a 3-mana spell that auto-resolves the current battle question.',icon: '📖', category: 'arcanum', price: 450, oneTime: true, spellId: 'bolt_of_truth' },
+  { id: 'scroll_riftstep',         name: 'Scroll of Riftstep', description: 'Learn Riftstep — a 2-mana escape spell that returns thee to the spawn chamber.',      icon: '🌀', category: 'arcanum', price: 350, oneTime: true, spellId: 'riftstep' },
+  { id: 'scroll_sigil_of_clarity', name: 'Scroll of Clarity',  description: 'Learn Sigil of Clarity — a 1-mana spell that reveals the answer to a battle question.',icon: '👁️', category: 'arcanum', price: 200, oneTime: true, spellId: 'sigil_of_clarity' },
 ];
 
 // === Bestiary (Phase 17) ================================================
@@ -624,6 +633,56 @@ const petLevelFromXp = (xp) => {
 };
 
 const findPet = (id) => PETS[id] || null;
+
+// === Spells (Phase 19) ==================================================
+// Active spells castable in the dungeon. Each has a mana cost and an
+// effect kind that DungeonExplore consumes via SPELL_EFFECTS.
+//
+// Players learn spells by purchasing one-time scrolls in the Arcanum
+// (a new shop category) — purchasing flips a flag in playerState.spellbook.
+// Up to 3 known spells can be quick-slotted (hotkeys Q/W/E) for casting
+// inside a delve. Mana starts at 3 each delve and regenerates +1 per
+// correct answer (capped by maxMana).
+const SPELLS = {
+  glyph_of_mending: {
+    id: 'glyph_of_mending', name: 'Glyph of Mending', icon: '✨',
+    cost: 2, biome: 'crypt', accent: '#34d399',
+    desc: 'Restore 1 HP. Cannot exceed thy maximum.',
+    effect: 'heal', amount: 1,
+  },
+  lance_of_lumens: {
+    id: 'lance_of_lumens', name: 'Lance of Lumens', icon: '⚡',
+    cost: 3, biome: 'tower', accent: '#60a5fa',
+    desc: 'Smite the nearest mob outright — but bosses laugh at thy lance.',
+    effect: 'smite_nearest_mob',
+  },
+  ward_of_aegis: {
+    id: 'ward_of_aegis', name: 'Ward of Aegis', icon: '🛡️',
+    cost: 2, biome: 'halls', accent: '#fbbf24',
+    desc: 'Conjure a single shield bond. Useless if thou art already at max.',
+    effect: 'shield', amount: 1,
+  },
+  bolt_of_truth: {
+    id: 'bolt_of_truth', name: 'Bolt of Truth', icon: '📖',
+    cost: 3, biome: 'sewers', accent: '#10b981',
+    desc: 'In a battle, auto-resolve the current question correctly. Once per cast.',
+    effect: 'auto_correct',
+  },
+  riftstep: {
+    id: 'riftstep', name: 'Riftstep', icon: '🌀',
+    cost: 2, biome: 'wastes', accent: '#a78bfa',
+    desc: 'Slip back to the spawn chamber. Useful when surrounded by foes.',
+    effect: 'teleport_spawn',
+  },
+  sigil_of_clarity: {
+    id: 'sigil_of_clarity', name: 'Sigil of Clarity', icon: '👁️',
+    cost: 1, biome: 'crypt', accent: '#f472b6',
+    desc: 'Reveal the answer to the current battle question for one heartbeat.',
+    effect: 'reveal_answer',
+  },
+};
+
+const findSpell = (id) => SPELLS[id] || null;
 
 // === Recipes (Phase 16) =================================================
 // Crafting at The Bench: spend ingredients, gain a potion. Run-specific
@@ -1067,6 +1126,14 @@ const DEFAULT_STATE = {
   // walking with the scholar lives in equipped.pet (the petId string).
   // { [petId]: { hatchedAt, xp } } — level is derived from xp via PET_LEVEL_XP.
   pets: {},
+  // Phase 19: Spellbook + casting setup. spellbook stores known spells
+  // (one-time learn from arcanum scrolls). equippedSpells holds three
+  // quick-slot spell ids (hotkeys Q/W/E inside the dungeon). maxMana is
+  // the per-delve mana pool (mana itself is not persisted — it resets
+  // each delve in DungeonExplore).
+  spellbook: {},                 // { [spellId]: { learnedAt } }
+  equippedSpells: [null, null, null],
+  maxMana: 3,
   // Currency & Inventory
   gold: 0,
   inventory: {},               // { [itemId]: count } — consumables and cosmetics
@@ -1378,6 +1445,15 @@ export default function DungeonScholarApp() {
           },
         };
       }
+      // Phase 19: arcanum scrolls add the spell to the spellbook on purchase.
+      if (item.category === 'arcanum' && item.spellId) {
+        next.spellbook = {
+          ...(prev.spellbook || {}),
+          [item.spellId]: (prev.spellbook || {})[item.spellId] || {
+            learnedAt: new Date().toISOString(),
+          },
+        };
+      }
       return next;
     });
     setTimeout(() => showNotif(`Acquired: ${item.name} (-${item.price} gold)`, 'success'), 50);
@@ -1449,6 +1525,40 @@ export default function DungeonScholarApp() {
           [petId]: { ...cur, xp: nextXp },
         },
       };
+    });
+  };
+
+  // Phase 19: equip a known spell to one of three quick-slots. If slotIdx
+  // is omitted, fills the first empty slot. Same shape as equipPotion.
+  const equipSpell = (spellId, slotIdx) => {
+    const spell = findSpell(spellId);
+    if (!spell) return { ok: false, reason: 'Unknown incantation.' };
+    if (!((playerState.spellbook || {})[spellId])) {
+      return { ok: false, reason: 'Thou hast not learned this spell.' };
+    }
+    let placed = false;
+    setPlayerState(prev => {
+      const slots = [...(prev.equippedSpells || [null, null, null])];
+      if (typeof slotIdx === 'number') {
+        slots[slotIdx] = spellId;
+        placed = true;
+      } else {
+        const empty = slots.findIndex(s => !s);
+        if (empty < 0) return prev;
+        slots[empty] = spellId;
+        placed = true;
+      }
+      return { ...prev, equippedSpells: slots };
+    });
+    if (placed) setTimeout(() => showNotif(`Quick-slotted: ${spell.name}`, 'success'), 50);
+    return placed ? { ok: true } : { ok: false, reason: 'No empty spell-slot.' };
+  };
+
+  const unequipSpell = (slotIdx) => {
+    setPlayerState(prev => {
+      const slots = [...(prev.equippedSpells || [null, null, null])];
+      slots[slotIdx] = null;
+      return { ...prev, equippedSpells: slots };
     });
   };
 
@@ -2476,6 +2586,14 @@ export default function DungeonScholarApp() {
             onUnequipPet={unequipPet}
           />
         )}
+        {screen === 'spellbook' && (
+          <SpellbookScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onEquipSpell={equipSpell}
+            onUnequipSpell={unequipSpell}
+          />
+        )}
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
@@ -2500,6 +2618,7 @@ export default function DungeonScholarApp() {
             recordBestiary={recordBestiary}
             awardPetXp={awardPetXp}
             petCatalog={Object.values(PETS)}
+            spellCatalog={Object.values(SPELLS)}
           />
         )}
         {screen === 'flashcards' && courseSet && (
@@ -3261,6 +3380,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           icon={<Heart className="w-8 h-8" />}
           color="emerald"
           onClick={() => setScreen('stable')}
+        />
+        <ModeCard
+          title="The Spellbook"
+          desc={`Active incantations cast in the dungeon (Q · W · E). ${Object.keys(playerState?.spellbook || {}).length}/${6} spells learned.`}
+          icon={<Wand2 className="w-8 h-8" />}
+          color="sapphire"
+          onClick={() => setScreen('spellbook')}
         />
       </div>
 
@@ -6654,6 +6780,157 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Phase 19 — Spellbook. Lists all spells; known ones can be quick-slotted
+// into 3 cast slots usable in the dungeon (Q/W/E hotkeys). Unknown spells
+// show locked entries pointing to the Arcanum scroll that learns them.
+function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell }) {
+  const known = playerState.spellbook || {};
+  const equipped = playerState.equippedSpells || [null, null, null];
+  const allSpells = Object.values(SPELLS);
+  const knownCount = allSpells.filter(s => known[s.id]).length;
+  const [pendingSlot, setPendingSlot] = useState(null);
+
+  const handleSlotClick = (i) => {
+    if (equipped[i]) onUnequipSpell?.(i);
+    else setPendingSlot(i);
+  };
+
+  const handleAssign = (spellId) => {
+    if (pendingSlot === null) {
+      onEquipSpell?.(spellId);
+    } else {
+      onEquipSpell?.(spellId, pendingSlot);
+      setPendingSlot(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(59, 130, 246, 0.6)',
+        boxShadow: '0 0 30px rgba(59, 130, 246, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-sky-300 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-sky-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-sky-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-sky-300 text-sm">⚜</div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-4xl">📜</div>
+            <div>
+              <h2 className="text-2xl font-bold text-sky-200 italic" style={{ textShadow: '0 0 12px rgba(59, 130, 246, 0.4)' }}>
+                The Spellbook
+              </h2>
+              <div className="text-xs text-sky-400 tracking-[0.2em] italic">⚜ ACTIVE INCANTATIONS ⚜</div>
+              <div className="text-xs text-amber-100/70 italic mt-1">
+                {knownCount}/{allSpells.length} learned. Slot up to 3 to cast in the dungeon (Q · W · E).
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setScreen('home')}
+            className="px-3 py-2 rounded text-xs italic border-2 border-sky-700 text-sky-300 hover:bg-sky-900/30"
+            style={{ background: 'rgba(12, 24, 41, 0.45)' }}>
+            ← Return to the Hearth
+          </button>
+        </div>
+      </div>
+
+      {/* Quick-slot row */}
+      <div className="p-4 rounded" style={{
+        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '2px solid rgba(126, 34, 206, 0.4)',
+      }}>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-base">✦</span>
+          <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Cast Slots</h4>
+          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+          <span className="text-[10px] italic text-amber-700">
+            {pendingSlot !== null ? `Choose a spell for slot ${'QWE'[pendingSlot]}…` : 'Click empty slot then a spell · click filled slot to clear'}
+          </span>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-xs italic">
+          {[0, 1, 2].map((i) => {
+            const sid = equipped[i];
+            const def = sid ? SPELLS[sid] : null;
+            const isPending = pendingSlot === i;
+            return (
+              <button key={i} onClick={() => handleSlotClick(i)}
+                className="p-2 rounded flex items-center gap-2 text-left"
+                style={{
+                  background: isPending ? 'rgba(59, 130, 246, 0.3)' : 'rgba(0,0,0,0.35)',
+                  border: `1px solid ${def ? 'rgba(96, 165, 250, 0.6)' : isPending ? '#60a5fa' : 'rgba(120, 53, 15, 0.3)'}`,
+                  cursor: 'pointer',
+                }}>
+                <div className="text-xl w-6 text-center">{def ? def.icon : 'QWE'[i]}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] uppercase tracking-wider text-sky-300">[{'QWE'[i]}] · Slot {i + 1}</div>
+                  <div className={def ? 'text-amber-200 truncate' : 'text-amber-700/60 truncate'}>
+                    {def ? `${def.name} · ${def.cost} mana` : (isPending ? 'Pick a spell below…' : '— Empty —')}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Known + locked spells grid */}
+      <div className="grid md:grid-cols-2 gap-3">
+        {allSpells.map((def) => {
+          const isKnown = !!known[def.id];
+          const slotIdx = equipped.indexOf(def.id);
+          const isEquipped = slotIdx >= 0;
+          return (
+            <div key={def.id} className="p-4 rounded" style={{
+              background: isKnown
+                ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)'
+                : 'linear-gradient(135deg, rgba(15, 12, 18, 0.85) 0%, rgba(6, 4, 8, 0.95) 100%)',
+              border: `2px solid ${isEquipped ? '#60a5fa' : isKnown ? 'rgba(245, 158, 11, 0.5)' : 'rgba(120, 53, 15, 0.3)'}`,
+              opacity: isKnown ? 1 : 0.65,
+              boxShadow: isEquipped ? `0 0 14px ${def.accent}33` : 'none',
+            }}>
+              <div className="flex items-start gap-3 mb-2">
+                <div className="text-3xl">{isKnown ? def.icon : '❓'}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                    <h4 className="font-bold italic text-sm text-amber-200">
+                      {isKnown ? def.name : '???'}
+                    </h4>
+                    <span className="text-xs italic font-bold tabular-nums" style={{ color: def.accent }}>
+                      {def.cost} mana
+                    </span>
+                  </div>
+                  <p className="text-[11px] italic text-amber-100/70 mt-1">
+                    {isKnown ? def.desc : 'Purchase the corresponding scroll in the Marketplace to learn this spell.'}
+                  </p>
+                </div>
+              </div>
+              {isKnown && (
+                <div className="flex justify-end">
+                  {isEquipped ? (
+                    <button onClick={() => onUnequipSpell?.(slotIdx)}
+                      className="px-3 py-1.5 rounded text-xs italic border-2 border-sky-700 text-sky-200 hover:bg-sky-900/30"
+                      style={{ background: 'rgba(12, 24, 41, 0.5)' }}>
+                      Unslot ({'QWE'[slotIdx]})
+                    </button>
+                  ) : (
+                    <button onClick={() => handleAssign(def.id)}
+                      className="px-3 py-1.5 rounded text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
+                      style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
+                      {pendingSlot !== null ? `Assign to ${'QWE'[pendingSlot]}` : 'Slot'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

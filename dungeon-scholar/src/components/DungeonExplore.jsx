@@ -41,6 +41,20 @@ const POTION_EFFECTS = {
   foresight_scroll:   { kind: 'noop',               label: 'Foresight Scroll' },
   tinkers_oil:        { kind: 'noop',               label: "Tinker's Oil" },
 };
+// === Spell info (Phase 19) ==============================================
+// In-dungeon mirror of the SPELLS catalog in App.jsx — kept here so the
+// dungeon doesn't need to import App. The full spell metadata is passed
+// in via the spellCatalog prop; this is just the icon/name fallback used
+// for the HUD when looking up an equipped spell quickly.
+const SPELL_INFO = {
+  glyph_of_mending: { icon: '✨', name: 'Glyph of Mending', cost: 2 },
+  lance_of_lumens:  { icon: '⚡', name: 'Lance of Lumens',  cost: 3 },
+  ward_of_aegis:    { icon: '🛡️', name: 'Ward of Aegis',    cost: 2 },
+  bolt_of_truth:    { icon: '📖', name: 'Bolt of Truth',    cost: 3 },
+  riftstep:         { icon: '🌀', name: 'Riftstep',         cost: 2 },
+  sigil_of_clarity: { icon: '👁️', name: 'Sigil of Clarity', cost: 1 },
+};
+
 // Display info for the in-dungeon potion HUD (icons mirror App.jsx ITEMS).
 const POTION_INFO = {
   minor_heal_tonic:   { icon: '🧪', name: 'Healing Tonic' },
@@ -2145,6 +2159,7 @@ export default function DungeonExplore({
   recordBestiary,
   awardPetXp,
   petCatalog,
+  spellCatalog,
 }) {
   const isUnlocked = (id) => {
     if (id === 'apprentice') return true;
@@ -2229,6 +2244,13 @@ export default function DungeonExplore({
   const [hp, setHp] = useState(effectiveMaxHp);
   const [shields, setShields] = useState(effectiveMaxShield);
   const [firstWrongUsed, setFirstWrongUsed] = useState(false);
+  // Phase 19: mana for active spells. Resets each delve to maxMana, refills
+  // +1 per correct answer. Cap = playerState.maxMana.
+  const maxMana = playerState?.maxMana ?? 3;
+  const [mana, setMana] = useState(maxMana);
+  // Brief hint shown above the battle question when a Sigil of Clarity is
+  // cast — clears on the next question cycle.
+  const [revealedAnswer, setRevealedAnswer] = useState(null);
   const [reviveAvailable, setReviveAvailable] = useState(false);
   const [xpBuffRemaining, setXpBuffRemaining] = useState(0);
   const [score, setScore] = useState(0);
@@ -2281,6 +2303,8 @@ export default function DungeonExplore({
     setFacing('down');
     setHp(effectiveMaxHp);
     setShields(effectiveMaxShield);
+    setMana(maxMana);
+    setRevealedAnswer(null);
     setFirstWrongUsed(false);
     setReviveAvailable(false);
     setXpBuffRemaining(0);
@@ -2307,6 +2331,8 @@ export default function DungeonExplore({
   const beginRun = () => {
     setHp(effectiveMaxHp);
     setShields(effectiveMaxShield);
+    setMana(maxMana);
+    setRevealedAnswer(null);
     setFirstWrongUsed(false);
     setReviveAvailable(false);
     setXpBuffRemaining(0);
@@ -2336,6 +2362,119 @@ export default function DungeonExplore({
 
   // After a victory or defeat, return to the setup screen for another delve.
   const newDelve = () => setPhase('setup');
+
+  // === Spell casting (Phase 19) ========================================
+  // Triggered by hotkeys Q/W/E or on-screen spell buttons. Some spells
+  // are world-only (heal, shield, smite, riftstep) while others need a
+  // battle in progress (auto_correct, reveal_answer). Mana cost is paid
+  // up front; if the spell can't act (e.g. healing at full HP) the spell
+  // refunds its cost.
+  const castSpell = (slotIdx) => {
+    if (phase !== 'world' || runState !== 'alive') return;
+    const spellId = ((playerState?.equippedSpells) || [null, null, null])[slotIdx];
+    if (!spellId) return;
+    const def = spellCatalog?.find?.(s => s.id === spellId)
+      || (SPELL_INFO[spellId] ? { id: spellId, ...SPELL_INFO[spellId] } : null);
+    if (!def) return;
+    if (mana < (def.cost || 0)) {
+      setNotice({ tone: 'info', text: `${def.name}: not enough mana.` });
+      return;
+    }
+    const refund = () => { /* no mana spent */ };
+    const pay = () => setMana((m) => Math.max(0, m - (def.cost || 0)));
+
+    switch (def.effect) {
+      case 'heal': {
+        if (battle) { setNotice({ tone: 'info', text: 'Cannot mend mid-trial.' }); return; }
+        if (hp >= effectiveMaxHp) {
+          setNotice({ tone: 'info', text: `${def.name}: already at full lives.` });
+          return refund();
+        }
+        setHp((h) => Math.min(effectiveMaxHp, h + (def.amount || 1)));
+        pay();
+        setNotice({ tone: 'good', text: `${def.name}: lives restored.` });
+        return;
+      }
+      case 'shield': {
+        if (battle) { setNotice({ tone: 'info', text: 'Cannot ward mid-trial.' }); return; }
+        if (effectiveMaxShield === 0) {
+          setNotice({ tone: 'info', text: 'No shield bond is permitted on this difficulty.' });
+          return refund();
+        }
+        if (shields >= effectiveMaxShield) {
+          setNotice({ tone: 'info', text: `${def.name}: shields already full.` });
+          return refund();
+        }
+        setShields((s) => Math.min(effectiveMaxShield, s + (def.amount || 1)));
+        pay();
+        setNotice({ tone: 'good', text: `${def.name}: a ward kindles.` });
+        return;
+      }
+      case 'smite_nearest_mob': {
+        if (battle) { setNotice({ tone: 'info', text: 'Cannot smite — already in trial.' }); return; }
+        const mobs = mobsRef.current;
+        if (mobs.length === 0) {
+          setNotice({ tone: 'info', text: 'No foe walks within reach.' });
+          return refund();
+        }
+        let bestIdx = -1, bestDist = Infinity;
+        for (let i = 0; i < mobs.length; i++) {
+          const d = Math.abs(mobs[i].x - pos.x) + Math.abs(mobs[i].y - pos.y);
+          if (d < bestDist) { bestDist = d; bestIdx = i; }
+        }
+        if (bestIdx < 0) return refund();
+        const slain = mobs[bestIdx];
+        mobs.splice(bestIdx, 1);
+        if (slain && recordBestiary) recordBestiary(slain.kind);
+        if (awardXP) awardXP(5, 'Smited by lance');
+        pay();
+        setNotice({ tone: 'good', text: `${def.name} struck down a foe!` });
+        return;
+      }
+      case 'teleport_spawn': {
+        if (battle) { setNotice({ tone: 'info', text: 'Cannot riftstep mid-trial.' }); return; }
+        setPos({ ...initial.spawn });
+        pay();
+        setNotice({ tone: 'good', text: `${def.name}: thou art back at the threshold.` });
+        return;
+      }
+      case 'auto_correct': {
+        if (!battle) { setNotice({ tone: 'info', text: `${def.name} requires a foe to face.` }); return; }
+        const q = battle.questions[battle.questionIdx];
+        if (!q) return refund();
+        pay();
+        setNotice({ tone: 'good', text: `${def.name}: truth lances the question.` });
+        // Defer to next tick so the notice paints before the answer fires.
+        setTimeout(() => onBattleAnswer(true, q), 60);
+        return;
+      }
+      case 'reveal_answer': {
+        if (!battle) { setNotice({ tone: 'info', text: `${def.name} requires a foe to face.` }); return; }
+        const q = battle.questions[battle.questionIdx];
+        if (!q) return refund();
+        let answerLabel = '';
+        if (q.type === 'multiplechoice' && typeof q.correctIndex === 'number') {
+          answerLabel = `Option ${q.correctIndex + 1}: ${q.options?.[q.correctIndex] || ''}`.slice(0, 80);
+        } else if (q.type === 'truefalse') {
+          if (typeof q.correctIndex === 'number') answerLabel = q.correctIndex === 0 ? 'True' : 'False';
+          else if (q.correctAnswer) answerLabel = String(q.correctAnswer);
+        }
+        if (!answerLabel) {
+          setNotice({ tone: 'info', text: `${def.name}: the truth resists thee.` });
+          return refund();
+        }
+        pay();
+        setRevealedAnswer(answerLabel);
+        setNotice({ tone: 'good', text: `${def.name}: ${answerLabel}` });
+        setTimeout(() => setRevealedAnswer(null), 4500);
+        return;
+      }
+      default: {
+        setNotice({ tone: 'info', text: `${def.name}: nothing happens.` });
+        return;
+      }
+    }
+  };
 
   // === Potion use =======================================================
   // Triggered by hotkeys 1/2/3 or the on-screen quick-slot buttons. Only
@@ -2438,10 +2577,21 @@ export default function DungeonExplore({
   // them without restarting on every render.
   const usePotionRef = useRef(usePotion);
   useLayoutEffect(() => { usePotionRef.current = usePotion; });
+  const castSpellRef = useRef(castSpell);
+  useLayoutEffect(() => { castSpellRef.current = castSpell; });
 
   useEffect(() => {
     if (phase !== 'world') return undefined;
     const onKeyDown = (e) => {
+      // Phase 19: Spell hotkeys Q/W/E work even during a battle (auto_correct,
+      // reveal_answer); other spells refuse mid-trial via castSpell's checks.
+      const sk = e.key.toLowerCase();
+      if (sk === 'q' || sk === 'w' || sk === 'e') {
+        const idx = sk === 'q' ? 0 : sk === 'w' ? 1 : 2;
+        castSpellRef.current && castSpellRef.current(idx);
+        e.preventDefault();
+        return;
+      }
       if (battle) return;
       if (runState !== 'alive') {
         if (e.key === 'Escape' && onExit) onExit();
@@ -2571,6 +2721,10 @@ export default function DungeonExplore({
     // down naturally over the next 3 trials.
     if (xpBuffRemaining > 0) setXpBuffRemaining((n) => Math.max(0, n - 1));
     if (correct) {
+      // Phase 19: regen +1 mana per correct answer, capped at maxMana.
+      setMana((m) => Math.min(maxMana, m + 1));
+      // Clear any reveal hint once the question resolves.
+      setRevealedAnswer(null);
       const scoreGain = 1 + (battle?.type === 'mob' ? equipBonuses.mobScoreBonus : 0);
       setScore((s) => s + scoreGain);
       setStreak((s) => {
@@ -3327,6 +3481,73 @@ export default function DungeonExplore({
                 </button>
               );
             })}
+          </div>
+        )}
+
+        {/* Spell HUD (Phase 19) — three slots above the potion bar with mana
+            orbs to the left. Hotkeys Q/W/E. Visible during battle too so
+            auto_correct / reveal_answer can be cast at the question. */}
+        {runState === 'alive' && (playerState?.equippedSpells || []).some(Boolean) && (
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
+               style={{ bottom: 60, pointerEvents: 'auto' }}>
+            <div className="flex items-center gap-1 px-2 py-1 rounded"
+                 style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(96, 165, 250, 0.45)' }}
+                 title={`Mana: ${mana}/${maxMana}`}>
+              {Array.from({ length: maxMana }).map((_, i) => (
+                <div key={i} style={{
+                  width: 10, height: 10, borderRadius: '50%',
+                  background: i < mana
+                    ? 'radial-gradient(circle at 30% 30%, #93c5fd, #3b82f6 70%)'
+                    : 'rgba(30, 41, 59, 0.7)',
+                  boxShadow: i < mana ? '0 0 4px rgba(96, 165, 250, 0.7)' : 'none',
+                  border: '1px solid rgba(96, 165, 250, 0.3)',
+                }} />
+              ))}
+            </div>
+            <div className="flex gap-2">
+              {[0, 1, 2].map((i) => {
+                const sid = (playerState?.equippedSpells || [null, null, null])[i];
+                const info = sid ? (spellCatalog?.find?.(s => s.id === sid) || SPELL_INFO[sid]) : null;
+                const cost = info?.cost || 0;
+                const canCast = !!info && mana >= cost;
+                const hk = ['Q', 'W', 'E'][i];
+                return (
+                  <button
+                    key={i}
+                    onClick={() => castSpell(i)}
+                    disabled={!info}
+                    className="rounded text-center"
+                    style={{
+                      width: 60, height: 44,
+                      background: info && canCast ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.4)',
+                      border: `1px solid ${info && canCast ? '#60a5fa' : 'rgba(96, 165, 250, 0.25)'}`,
+                      color: info ? (canCast ? '#bae6fd' : '#64748b') : '#52443a',
+                      cursor: info ? (canCast ? 'pointer' : 'not-allowed') : 'not-allowed',
+                      fontFamily: '"Cinzel", Georgia, serif',
+                    }}
+                    title={info ? `[${hk}] ${info.name} · ${cost} mana` : `Empty spell-slot ${hk}`}
+                  >
+                    <div className="text-[10px] italic">[{hk}] {info ? `${cost}m` : ''}</div>
+                    <div className="text-base leading-none">{info ? info.icon : '—'}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Reveal hint — shown briefly above the battle modal after Sigil of Clarity. */}
+        {revealedAnswer && battle && (
+          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded text-xs italic"
+               style={{
+                 top: 110,
+                 background: 'rgba(0,0,0,0.85)',
+                 border: '1px solid #f472b6',
+                 color: '#fbcfe8',
+                 pointerEvents: 'none',
+                 maxWidth: '80%',
+               }}>
+            👁️ The truth: {revealedAnswer}
           </div>
         )}
 
