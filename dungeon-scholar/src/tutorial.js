@@ -131,7 +131,11 @@ export const TUTORIAL_STEPS = [
 // values from journals exported before the overhaul. The new TUTORIAL_STEPS
 // reorders + inserts steps; we look up the old step's id at the saved
 // position and find its new index.
-const OLD_TUTORIAL_ORDER = [
+//
+// Exported so tutorial.test.js can drive parametric tests off this same
+// array — keeping a single source of truth means renaming a legacy id
+// won't silently desync production code from its test.
+export const OLD_TUTORIAL_ORDER = [
   'welcome',
   'forge_tome',
   'inscribe_tome',

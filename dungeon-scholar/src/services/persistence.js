@@ -1,3 +1,5 @@
+import { migrateTutorialIndex } from '../tutorial.js';
+
 export const STORAGE_KEY = 'dungeon-scholar:save:v1';
 export const SYNC_META_KEY = 'dungeon-scholar:sync:v1';
 export const CURRENT_SCHEMA_VER = 1;
@@ -29,8 +31,19 @@ export function hasMeaningfulData(state) {
 }
 
 export function migrateIfNeeded(state, schemaVer) {
-  // v1 is current. No migrations defined yet. Future versions add cases here.
-  return state;
+  if (!state) return state;
+  let next = state;
+  // schemaVer < 1 → tutorial overhaul: pre-overhaul saves used a different
+  // 8-step ordering. Remap the savedIndex to the current TUTORIAL_STEPS
+  // layout so the resumed tutorial picks up at the right step.
+  // localStorage saves predate persisted schemaVer (loadFromLocalStorage
+  // doesn't store one), so the call site passes CURRENT_SCHEMA_VER and
+  // this case is a no-op there. Cloud syncs that carry their own
+  // schema_ver < 1 will hit this on restore.
+  if (schemaVer < 1 && typeof next.tutorialStepIndex === 'number') {
+    next = { ...next, tutorialStepIndex: migrateTutorialIndex(next.tutorialStepIndex) };
+  }
+  return next;
 }
 
 // Sync metadata (separate from playerState — these are about the device's

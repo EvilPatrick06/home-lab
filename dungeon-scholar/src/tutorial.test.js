@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
+import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex, OLD_TUTORIAL_ORDER } from './tutorial';
 
 describe('tutorial module sanity', () => {
   it('arithmetic still works', () => {
@@ -62,15 +62,11 @@ describe('TUTORIAL_STEPS (14-step shape)', () => {
 });
 
 describe('migrateTutorialIndex', () => {
-  // Old 8-step order — captured here as the source of truth for the migration.
-  const OLD_ORDER = [
-    'welcome', 'forge_tome', 'inscribe_tome', 'study_scroll',
-    'solve_riddle', 'face_trial', 'consult_oracle', 'enter_dungeon',
-  ];
-
   it('maps each old index to the new index of the same step id', () => {
-    for (let oldIdx = 0; oldIdx < OLD_ORDER.length; oldIdx++) {
-      const id = OLD_ORDER[oldIdx];
+    // Drive the parametric assertion off the exported source of truth so a
+    // future rename of a legacy id can't silently desync test from prod.
+    for (let oldIdx = 0; oldIdx < OLD_TUTORIAL_ORDER.length; oldIdx++) {
+      const id = OLD_TUTORIAL_ORDER[oldIdx];
       const newIdx = TUTORIAL_STEPS.findIndex(s => s.id === id);
       expect(migrateTutorialIndex(oldIdx)).toBe(newIdx);
     }

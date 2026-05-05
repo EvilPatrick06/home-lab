@@ -20,24 +20,12 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
-### [2026-04-30] Plug `migrateTutorialIndex` into the localStorage hydrate path
+### ~~[2026-04-30] Plug `migrateTutorialIndex` into the localStorage hydrate path~~ — Resolved 2026-05-05
 
 - **Category:** future-idea
 - **Severity:** low
 - **Domain:** dungeon-scholar
-- **Discovered by:** Claude Code
-- **During:** Tutorial overhaul — Task 7 deferred-item logging
-
-**Description:** `migrateTutorialIndex` (in `dungeon-scholar/src/tutorial.js`) currently fires only on the file-import path (`importProgress` in `App.jsx`). The localStorage hydrate path goes through `migrateIfNeeded` in `dungeon-scholar/src/services/persistence.js`, which is currently a no-op stub. When a future schema version bump lands, the persistence track should plug `migrateTutorialIndex` into `migrateIfNeeded`'s relevant case so users restoring a saved-locally pre-overhaul state get the correct step index.
-
-Estimated fix: two-line addition. Pre-overhaul state is unlikely to exist in many users' localStorage (the persistence layer was wired in around the same time as this overhaul) but the gap is worth closing for completeness.
-
-**Proposed fix:**
-- [ ] In `migrateIfNeeded`, handle the tutorial-step-index migration case by calling `migrateTutorialIndex` when schema version < overhaul cutoff
-
-**Related files:** `dungeon-scholar/src/tutorial.js`, `dungeon-scholar/src/services/persistence.js`, `dungeon-scholar/src/App.jsx`
-
-**Related entries:** `[2026-04-30] Vault deduplication inconsistency between per-stage and per-lab IDs`
+- **Status:** Done. `services/persistence.js` now imports `migrateTutorialIndex` and the `migrateIfNeeded` case `schemaVer < 1` runs it on the saved `tutorialStepIndex`. localStorage call site still passes `CURRENT_SCHEMA_VER` (no persisted version on disk), so this is a no-op there until a future bump. Cloud restores that carry `schema_ver < 1` will be migrated on hydrate.
 
 ---
 
@@ -81,25 +69,12 @@ Estimated fix: two-line addition. Pre-overhaul state is unlikely to exist in man
 
 ---
 
-### [2026-04-30] `OLD_TUTORIAL_ORDER` is duplicated in `tutorial.js` and the test file
+### ~~[2026-04-30] `OLD_TUTORIAL_ORDER` is duplicated in `tutorial.js` and the test file~~ — Resolved 2026-05-05
 
 - **Category:** design-gotcha, debt
 - **Severity:** low
 - **Domain:** dungeon-scholar
-- **Discovered by:** Claude Code
-- **During:** Tutorial overhaul — Task 7 deferred-item logging
-
-**Context:** The 8-item legacy ID array is defined as `OLD_TUTORIAL_ORDER` (module-private) in `dungeon-scholar/src/tutorial.js` and is duplicated as `OLD_ORDER` inside the `migrateTutorialIndex` describe block in the test file.
-
-**Why it matters:** If a future commit renames or removes one of the legacy IDs (e.g., rebrands `enter_dungeon`), both copies need updating. The test would still catch divergence — production returns 0 via the `>= 0 ? newIdx : 0` fallback while the test expects -1 — but the maintenance cost is real.
-
-**Why it's acceptable for now:** The migration helper is expected to be deleted in ~12 months once pre-overhaul saves age out. At this scale it's not worth the export churn.
-
-**What to do if the helper outlives its expected lifetime:**
-- [ ] Export `OLD_TUTORIAL_ORDER` from `tutorial.js`
-- [ ] Import it in the test file instead of maintaining a parallel copy
-
-**Related files:** `dungeon-scholar/src/tutorial.js` (line ~134), `dungeon-scholar/src/tutorial.test.js`
+- **Status:** Done. `OLD_TUTORIAL_ORDER` is now exported from `src/tutorial.js`; the test imports it instead of maintaining a parallel `OLD_ORDER` copy. Renaming a legacy id can no longer silently desync test from prod.
 
 ---
 
