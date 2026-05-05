@@ -21,6 +21,7 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 | [`SECURITY-LOG.md`](./SECURITY-LOG.md) | **gitignored** | **Security concerns, hardening backlog, incident notes — any domain (global).** Sensitive — kept local. Never put raw secret values here. |
 | [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) | git | Archive of completed BMO entries (issues + suggestions). |
 | [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) | git | Archive of completed dnd-app entries (issues + suggestions). |
+| [`RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./RESOLVED-ISSUES-DUNGEON-SCHOLAR.md) | git | Archive of completed dungeon-scholar entries (issues + suggestions). |
 | [`RESOLVED-SECURITY-ISSUES.md`](./RESOLVED-SECURITY-ISSUES.md) | **gitignored** | Archive of completed entries moved out of `SECURITY-LOG.md`. |
 
 **Triage rule:**
@@ -220,6 +221,7 @@ Multiple categories allowed: `Category: bug, security` is fine.
 2. **Paste** it at the TOP of the matching resolved file (newest first):
    - From `BMO-ISSUES-LOG.md` / `BMO-SUGGESTIONS-LOG.md` → [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) *(tracked)*
    - From `ISSUES-LOG-DNDAPP.md` / `SUGGESTIONS-LOG-DNDAPP.md` → [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) *(tracked)*
+   - From `ISSUES-LOG-DUNGEON-SCHOLAR.md` / `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` → [`RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./RESOLVED-ISSUES-DUNGEON-SCHOLAR.md) *(tracked)*
    - For `Domain: both` entries, file under the domain whose codebase the fix actually touched (and reference the sibling resolved log in the entry).
    - From `SECURITY-LOG.md` → [`RESOLVED-SECURITY-ISSUES.md`](./RESOLVED-SECURITY-ISSUES.md) *(gitignored — same privacy reason as the active security log)*
 3. Append fix details to the entry:
@@ -334,6 +336,7 @@ Keeping instructions here (stable, low-churn) and the logs separate (frequently-
 **After fix:** move entry → matching resolved log:
 - BMO entries (issues + suggestions) → `BMO-RESOLVED-ISSUES.md`
 - dnd-app entries (issues + suggestions) → `RESOLVED-ISSUES-DNDAPP.md`
+- dungeon-scholar entries (issues + suggestions) → `RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`
 - security entries → `RESOLVED-SECURITY-ISSUES.md` (gitignored)
 - Always add commit SHA + resolution.
 

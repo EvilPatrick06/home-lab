@@ -8,6 +8,7 @@
 > - dungeon-scholar active bugs / debt → [`ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md)
 > - dnd-app active bugs / debt → [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md)
 > - BMO active bugs / debt → [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md)
+> - Resolved dungeon-scholar entries → [`RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./RESOLVED-ISSUES-DUNGEON-SCHOLAR.md)
 > - Security concerns (global, any domain) → [`SECURITY-LOG.md`](./SECURITY-LOG.md) *(gitignored)*
 >
 > Logging templates + triage rules: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md).
@@ -19,15 +20,6 @@ New entries go at the TOP of their section (newest first).
 ---
 
 # Future ideas
-
-### ~~[2026-04-30] Plug `migrateTutorialIndex` into the localStorage hydrate path~~ — Resolved 2026-05-05
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Status:** Done. `services/persistence.js` now imports `migrateTutorialIndex` and the `migrateIfNeeded` case `schemaVer < 1` runs it on the saved `tutorialStepIndex`. localStorage call site still passes `CURRENT_SCHEMA_VER` (no persisted version on disk), so this is a no-op there until a future bump. Cloud restores that carry `schema_ver < 1` will be migrated on hydrate.
-
----
 
 ### [2026-04-30] Vault deduplication inconsistency between per-stage and per-lab IDs
 
@@ -69,13 +61,4 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
-### ~~[2026-04-30] `OLD_TUTORIAL_ORDER` is duplicated in `tutorial.js` and the test file~~ — Resolved 2026-05-05
-
-- **Category:** design-gotcha, debt
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Status:** Done. `OLD_TUTORIAL_ORDER` is now exported from `src/tutorial.js`; the test imports it instead of maintaining a parallel `OLD_ORDER` copy. Renaming a legacy id can no longer silently desync test from prod.
-
----
-
-> dungeon-scholar active bugs / debt: [`ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md). Security (any domain): [`SECURITY-LOG.md`](./SECURITY-LOG.md) (gitignored). dnd-app suggestions: [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md). BMO suggestions: [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md).
+> dungeon-scholar active bugs / debt: [`ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md). Resolved dungeon-scholar entries: [`RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./RESOLVED-ISSUES-DUNGEON-SCHOLAR.md). Security (any domain): [`SECURITY-LOG.md`](./SECURITY-LOG.md) (gitignored). dnd-app suggestions: [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md). BMO suggestions: [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md).
