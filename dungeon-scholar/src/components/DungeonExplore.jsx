@@ -2739,7 +2739,11 @@ export default function DungeonExplore({
       tags: Array.isArray(q?.tags) ? q.tags.slice(0, 5) : undefined,
     });
     if (recordAnswer) {
-      try { recordAnswer({ id: q?.id, type: q?.type, correct: !!correct }); }
+      // recordAnswer signature is (correct, item). Pass the full question
+      // so the parent's mistakeVault dedup keys off q.id (matching Quiz/Lab
+      // mode behavior); the prior single-arg call silently inflated
+      // totalCorrect (object always truthy) and skipped vault dedup.
+      try { recordAnswer(!!correct, q); }
       catch { /* journal write — best effort */ }
     }
     // Decrement xp buff after every question (correct or wrong) so it ticks

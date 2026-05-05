@@ -1159,6 +1159,17 @@ const DEFAULT_STATE = {
   tutorialStarted: false,
   tutorialPanelCollapsed: false,
   tutorialBaselines: null,
+  // Per-surface visit flags for tutorial action-button steps. The five
+  // action-button steps (library_tour, vault_intro, quest_board,
+  // view_achievements, view_titles_levels) advance only after the player
+  // navigates back / closes the modal — credit on engagement, not on click.
+  tutorialVisits: {
+    library: false,
+    vault: false,
+    quests: false,
+    achievements: false,
+    titles: false,
+  },
   // Dungeon attempt counter (any started run, including defeats)
   dungeonAttempts: 0,
   // Daily Quests
@@ -1232,6 +1243,10 @@ export default function DungeonScholarApp() {
   const [showPromptModal, setShowPromptModal] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showTitles, setShowTitles] = useState(false);
+  // When the tutorial action-button opens a surface, remember which one so
+  // we can flip the matching tutorialVisits flag once the player navigates
+  // back / closes the modal. null when no tutorial-driven surface is open.
+  const [tutorialOpenedSurface, setTutorialOpenedSurface] = useState(null);
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [shareTomeId, setShareTomeId] = useState(null);
@@ -1353,6 +1368,21 @@ export default function DungeonScholarApp() {
       case 'dungeon_completed':
         met = (playerState.dungeonAttempts || 0) > 0;
         break;
+      case 'library_visited':
+        met = !!(playerState.tutorialVisits || {}).library;
+        break;
+      case 'vault_visited':
+        met = !!(playerState.tutorialVisits || {}).vault;
+        break;
+      case 'quests_visited':
+        met = !!(playerState.tutorialVisits || {}).quests;
+        break;
+      case 'achievements_viewed':
+        met = !!(playerState.tutorialVisits || {}).achievements;
+        break;
+      case 'titles_viewed':
+        met = !!(playerState.tutorialVisits || {}).titles;
+        break;
     }
     if (met) advanceTutorial(step.id);
   }, [
@@ -1361,12 +1391,36 @@ export default function DungeonScholarApp() {
     playerState.tutorialStepIndex,
     playerState.library.length,
     playerState.dungeonAttempts,
+    playerState.tutorialVisits,
     totalCardsAcrossLib,
     totalQuizAnsweredAcrossLib,
     totalLabsAttemptedAcrossLib,
     totalOracleAcrossLib,
     totalRunsAcrossLib,
   ]);
+
+  // Tutorial action-button dismissal tracking. When the player closes the
+  // surface they opened from a tutorial action button, flip the matching
+  // tutorialVisits flag — credit on engagement, not on click. The
+  // autoCondition useEffect above watches tutorialVisits and advances.
+  useEffect(() => {
+    if (!tutorialOpenedSurface) return undefined;
+    const stillOpen = (
+      (tutorialOpenedSurface === 'library' && screen === 'library') ||
+      (tutorialOpenedSurface === 'vault' && screen === 'vault') ||
+      (tutorialOpenedSurface === 'quests' && screen === 'quests') ||
+      (tutorialOpenedSurface === 'achievements' && showAchievements) ||
+      (tutorialOpenedSurface === 'titles' && showTitles)
+    );
+    if (!stillOpen) {
+      const key = tutorialOpenedSurface;
+      setPlayerState(prev => ({
+        ...prev,
+        tutorialVisits: { ...(prev.tutorialVisits || {}), [key]: true },
+      }));
+      setTutorialOpenedSurface(null);
+    }
+  }, [screen, showAchievements, showTitles, tutorialOpenedSurface]);
 
   // Active tome convenience accessor
   const activeTome = useMemo(() => {
@@ -1866,6 +1920,17 @@ export default function DungeonScholarApp() {
     });
   };
 
+  // Records one answered question across all modes (Quiz, Lab, Dungeon).
+  //
+  // Signature: (correct: boolean, item: { id, _type?, ...})
+  //
+  // - `correct` is a literal boolean — call sites must coerce. Passing an
+  //   object here makes it truthy and silently inflates totalCorrect.
+  // - `item` carries the dedup key (`id`) used by mistakeVault. Quiz mode
+  //   passes the full quiz item (`q`). Lab mode passes a synthesized
+  //   step item with id `${labId}_step_${idx}` so per-stage failures
+  //   accumulate distinct vault entries. Dungeon mode passes the full
+  //   quiz item — same shape as Quiz.
   const recordAnswer = (correct, item) => {
     setPlayerState(prev => {
       const newAnswered = prev.totalAnswered + 1;
@@ -2885,16 +2950,16 @@ export default function DungeonScholarApp() {
             onSkip={skipTutorial}
             onAction={(stepId) => {
               if (stepId === 'forge_tome') setShowPromptModal(true);
-              else if (stepId === 'library_tour') setScreen('library');
+              else if (stepId === 'library_tour') { setTutorialOpenedSurface('library'); setScreen('library'); }
               else if (stepId === 'study_scroll') { trackModeUse('flashcards'); setScreen('flashcards'); }
               else if (stepId === 'solve_riddle') { trackModeUse('quiz'); setScreen('quiz'); }
               else if (stepId === 'face_trial') { trackModeUse('lab'); setScreen('lab'); }
-              else if (stepId === 'vault_intro') setScreen('vault');
+              else if (stepId === 'vault_intro') { setTutorialOpenedSurface('vault'); setScreen('vault'); }
               else if (stepId === 'consult_oracle') { trackModeUse('chat'); setScreen('chat'); }
-              else if (stepId === 'quest_board') setScreen('quests');
+              else if (stepId === 'quest_board') { setTutorialOpenedSurface('quests'); setScreen('quests'); }
               else if (stepId === 'enter_dungeon') { trackModeUse('dungeon'); setScreen('dungeon'); }
-              else if (stepId === 'view_achievements') setShowAchievements(true);
-              else if (stepId === 'view_titles_levels') setShowTitles(true);
+              else if (stepId === 'view_achievements') { setTutorialOpenedSurface('achievements'); setShowAchievements(true); }
+              else if (stepId === 'view_titles_levels') { setTutorialOpenedSurface('titles'); setShowTitles(true); }
             }}
           /> )}
         {showTitles && (
