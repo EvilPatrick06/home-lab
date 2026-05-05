@@ -5,12 +5,13 @@
 
 ## Repo at a Glance
 
-Monorepo on a Raspberry Pi 5. Two domains in one git repo:
+Monorepo on a Raspberry Pi 5. Three domains in one git repo:
 
 - **`dnd-app/`** — Electron VTT (TypeScript + React + Vite). Runs on player/DM laptops.
 - **`bmo/`** — Pi voice assistant + Discord bots + D&D DM engine (Python Flask). Runs 24/7 on the Pi.
+- **`dungeon-scholar/`** — Web study app (Vite + React + Vitest). Cybersecurity / IT / CS exam prep with a D&D-themed dungeon delve loop. Deployed to GitHub Pages.
 
-They communicate via HTTP: VTT → BMO on port 5000, BMO callbacks → VTT on port 5001.
+`dnd-app` and `bmo` communicate via HTTP: VTT → BMO on port 5000, BMO callbacks → VTT on port 5001. `dungeon-scholar` is independent.
 
 Full protocol: `docs/ARCHITECTURE.md`
 
@@ -24,10 +25,12 @@ Read in order:
 3. Active logs (preexisting items so you don't "re-discover" them):
    - `docs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
    - `docs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
+   - `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain bugs + debt
    - `docs/BMO-SUGGESTIONS-LOG.md` — BMO-domain ideas + design gotchas + info
    - `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas + design gotchas + info
+   - `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain ideas + design gotchas + info
    - `docs/SECURITY-LOG.md` — security (global, gitignored)
-4. Domain doc: `dnd-app/README.md` or `bmo/README.md`
+4. Domain doc: `dnd-app/README.md`, `bmo/README.md`, or `dungeon-scholar/README.md`
 
 ### Tool preferences (Claude Code)
 
@@ -94,10 +97,12 @@ Then:
 2. Append to the right log (full domain-split):
    - bug / debt / config / perf, **Domain: bmo** → `BMO-ISSUES-LOG.md`
    - bug / debt / config / perf, **Domain: dnd-app** → `ISSUES-LOG-DNDAPP.md`
-   - bug / debt / config / perf, **Domain: both** → mirror in BOTH issue logs
+   - bug / debt / config / perf, **Domain: dungeon-scholar** → `ISSUES-LOG-DUNGEON-SCHOLAR.md`
+   - bug / debt / config / perf, **Domain: both** (or three-way) → mirror in each relevant issue log
    - future-idea / design-gotcha / info, **Domain: bmo** → `BMO-SUGGESTIONS-LOG.md`
    - future-idea / design-gotcha / info, **Domain: dnd-app** → `SUGGESTIONS-LOG-DNDAPP.md`
-   - future-idea / design-gotcha / info, **Domain: both** → mirror in BOTH suggestions logs
+   - future-idea / design-gotcha / info, **Domain: dungeon-scholar** → `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`
+   - future-idea / design-gotcha / info, **Domain: both** (or three-way) → mirror in each relevant suggestions log
    - security (any domain) → `SECURITY-LOG.md` (gitignored, global)
 
 **Log even minor/optional out-of-scope items.** Patterns across "small" entries often reveal larger problems. Future Claude sessions grep the log for context; don't rely on commit messages alone. But minor items you're fixing right now don't belong in the log — just fix them.

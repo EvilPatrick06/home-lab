@@ -18,19 +18,21 @@ Both live in the same git repo because they're tightly coupled: BMO narrates D&D
 # 1. Always orient yourself first
 cat .cursorrules                              # structure map
 cat docs/ARCHITECTURE.md                      # cross-domain protocol
-# preexisting bugs (grep both domain logs so you don't re-discover):
-cat docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md
+# preexisting bugs (grep all domain logs so you don't re-discover):
+cat docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md docs/ISSUES-LOG-DUNGEON-SCHOLAR.md
 # preexisting future-ideas / design-gotchas (active logs) + canonical constraints:
-cat docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md
+cat docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md
 cat bmo/docs/DESIGN-CONSTRAINTS.md
 
 # 2. Work in the right directory
-cd dnd-app   # for VTT work
-cd bmo/pi    # for BMO work
+cd dnd-app           # for VTT work
+cd bmo/pi            # for BMO work
+cd dungeon-scholar   # for the study app
 
 # 3. Test your changes before declaring done
 cd dnd-app && npm test && npm run lint && npx tsc --noEmit
 cd bmo/pi && ./venv/bin/python -m pytest
+cd dungeon-scholar && npm test && npm run build
 ```
 
 ## Structure Rules (enforce on every change)
@@ -105,10 +107,12 @@ The logs are for work that **crosses session boundaries**:
 
 - `docs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
 - `docs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
+- `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain bugs + debt
 - `docs/BMO-SUGGESTIONS-LOG.md` — BMO-domain ideas / design gotchas / info
 - `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas / design gotchas / info
+- `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain ideas / design gotchas / info
 - `docs/SECURITY-LOG.md` — security (gitignored, any domain)
-- `Domain: both` entries → mirrored in BOTH issue logs (or BOTH suggestion logs). Triage table: `docs/LOG-INSTRUCTIONS.md`
+- `Domain: both` (or three-way) entries → mirrored in each relevant log. Triage table: `docs/LOG-INSTRUCTIONS.md`
 
 Before appending, decide:
 

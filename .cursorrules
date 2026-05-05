@@ -63,8 +63,13 @@
 │   ├── docs/                         BMO-specific docs (ARCHITECTURE, NETWORK_ACCESS, CLOUDFLARE_TUNNEL_SETUP)
 │   └── {setup-bmo.sh, finalize-ssd.sh, .env.template}
 │
+├── dungeon-scholar/                  Web study app (Vite + React + Vitest) — D&D-themed cybersec/IT/CS exam prep
+│   ├── src/                          App.jsx + components/, hooks/, services/, prompts/, audio/, tutorial.js
+│   ├── docs/                         dungeon-scholar-specific docs (PHASE-24-POLISH.md, supabase-setup.md)
+│   └── {package.json, vite.config.js, README.md}
+│
 ├── docs/                             monorepo-wide docs
-│   ├── ARCHITECTURE.md               how dnd-app + bmo communicate
+│   ├── ARCHITECTURE.md               how dnd-app + bmo communicate (dungeon-scholar is independent)
 │   ├── DATA-FLOW.md                  data location/flow
 │   ├── SETUP.md                      clone + first-run
 │   ├── COMMANDS.md                   command cheat sheet
@@ -74,14 +79,16 @@
 │   ├── CONTRIBUTING.md               branch/commit conventions
 │   ├── CHANGELOG.md                  version history
 │   ├── LOG-INSTRUCTIONS.md           which-log-where + entry templates
-│   ├── BMO-ISSUES-LOG.md             active bugs / debt — bmo domain
-│   ├── ISSUES-LOG-DNDAPP.md          active bugs / debt — dnd-app domain
-│   ├── BMO-SUGGESTIONS-LOG.md        future ideas + design gotchas + info — bmo domain
-│   ├── SUGGESTIONS-LOG-DNDAPP.md     future ideas + design gotchas + info — dnd-app domain
-│   ├── SECURITY-LOG.md               GITIGNORED — security concerns/incidents (global, any domain)
-│   ├── BMO-RESOLVED-ISSUES.md        archive of fixed bmo entries (issues + suggestions)
-│   ├── RESOLVED-ISSUES-DNDAPP.md     archive of fixed dnd-app entries (issues + suggestions)
-│   └── RESOLVED-SECURITY-ISSUES.md   GITIGNORED — archive of fixed SECURITY-LOG entries
+│   ├── BMO-ISSUES-LOG.md                  active bugs / debt — bmo domain
+│   ├── ISSUES-LOG-DNDAPP.md               active bugs / debt — dnd-app domain
+│   ├── ISSUES-LOG-DUNGEON-SCHOLAR.md      active bugs / debt — dungeon-scholar domain
+│   ├── BMO-SUGGESTIONS-LOG.md             future ideas + design gotchas + info — bmo domain
+│   ├── SUGGESTIONS-LOG-DNDAPP.md          future ideas + design gotchas + info — dnd-app domain
+│   ├── SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md future ideas + design gotchas + info — dungeon-scholar domain
+│   ├── SECURITY-LOG.md                    GITIGNORED — security concerns/incidents (global, any domain)
+│   ├── BMO-RESOLVED-ISSUES.md             archive of fixed bmo entries (issues + suggestions)
+│   ├── RESOLVED-ISSUES-DNDAPP.md          archive of fixed dnd-app entries (issues + suggestions)
+│   └── RESOLVED-SECURITY-ISSUES.md        GITIGNORED — archive of fixed SECURITY-LOG entries
 │
 ├── _archive/                         tracked code quarantine (audit trail)
 ├── .github/                          workflows + issue templates + copilot-instructions.md
@@ -132,8 +139,10 @@
 The active logs are fully split by domain (security is the only global log):
 - `docs/BMO-ISSUES-LOG.md` — bmo bugs / debt / config / perf
 - `docs/ISSUES-LOG-DNDAPP.md` — dnd-app bugs / debt / config / perf
+- `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar bugs / debt / config / perf
 - `docs/BMO-SUGGESTIONS-LOG.md` — bmo ideas / gotchas / info
 - `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app ideas / gotchas / info
+- `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar ideas / gotchas / info
 - `docs/SECURITY-LOG.md` — security (gitignored, global, any domain)
 - `Domain: both` entries → mirror in BOTH issue logs (or BOTH suggestion logs); fix once, remove from both copies.
 
@@ -160,7 +169,7 @@ All are for **unfixed or deferred** work that crosses session boundaries.
 ## For AI Sessions
 
 - Start by reading this file + AGENTS.md (or your tool-specific file)
-- Check the relevant active logs before starting new work — `docs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs), `docs/BMO-SUGGESTIONS-LOG.md` + `docs/SUGGESTIONS-LOG-DNDAPP.md` (gotchas/ideas)
+- Check the relevant active logs before starting new work — `docs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs), `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` (dungeon-scholar bugs), `docs/BMO-SUGGESTIONS-LOG.md` + `docs/SUGGESTIONS-LOG-DNDAPP.md` + `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` (gotchas/ideas)
 - When in doubt about structure, check this file first
 - When in doubt about protocol, check `docs/ARCHITECTURE.md`
 - When debugging, check `bmo/docs/TROUBLESHOOTING.md` + the active issue logs (above)

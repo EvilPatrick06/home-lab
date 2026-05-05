@@ -14,8 +14,10 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 |---|---|---|
 | [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) | git | **BMO-domain bugs, debt, broken config, perf, test failures.** Pi voice assistant + Discord bots + DM engine (Python/Flask/agents/services/wake/MCP). Also Pi-side infra/tooling that BMO depends on. |
 | [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) | git | **dnd-app-domain bugs, debt, broken config, perf, test failures.** Electron VTT (TS/React/Electron/Vite/biome/vitest/Pixi/peerjs/the 5e JSON content set). |
+| [`ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md) | git | **dungeon-scholar-domain bugs, debt, broken config, perf, test failures.** Vite/React D&D-themed study app, the per-tome run/quiz/lab content set, the Supabase auth wiring. |
 | [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) | git | **BMO-domain future ideas, design gotchas (`DO NOT X`), info observations.** |
 | [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) | git | **dnd-app-domain future ideas, design gotchas, info observations.** |
+| [`SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md) | git | **dungeon-scholar-domain future ideas, design gotchas, info observations.** |
 | [`SECURITY-LOG.md`](./SECURITY-LOG.md) | **gitignored** | **Security concerns, hardening backlog, incident notes — any domain (global).** Sensitive — kept local. Never put raw secret values here. |
 | [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) | git | Archive of completed BMO entries (issues + suggestions). |
 | [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) | git | Archive of completed dnd-app entries (issues + suggestions). |
@@ -25,13 +27,13 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 1. `security` (even if also `future-idea`) → `SECURITY-LOG.md` (any domain).
 2. By **Category** + **Domain**:
 
-   |  | Domain `bmo` | Domain `dnd-app` | Domain `both` |
-   |---|---|---|---|
-   | `bug` / `debt` / `config` / `perf` / `test` | `BMO-ISSUES-LOG.md` | `ISSUES-LOG-DNDAPP.md` | **mirror in BOTH** |
-   | `future-idea` / `design-gotcha` / `info` | `BMO-SUGGESTIONS-LOG.md` | `SUGGESTIONS-LOG-DNDAPP.md` | **mirror in BOTH** |
+   |  | Domain `bmo` | Domain `dnd-app` | Domain `dungeon-scholar` | Domain `both` (or three-way) |
+   |---|---|---|---|---|
+   | `bug` / `debt` / `config` / `perf` / `test` | `BMO-ISSUES-LOG.md` | `ISSUES-LOG-DNDAPP.md` | `ISSUES-LOG-DUNGEON-SCHOLAR.md` | **mirror in each relevant log** |
+   | `future-idea` / `design-gotcha` / `info` | `BMO-SUGGESTIONS-LOG.md` | `SUGGESTIONS-LOG-DNDAPP.md` | `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` | **mirror in each relevant log** |
 
 3. Edge-cases:
-   - `Domain: tooling` → file under whichever domain it most affects (most commit hooks / CI / lint configs touch one domain primarily). If genuinely both, mirror.
+   - `Domain: tooling` → file under whichever domain it most affects (most commit hooks / CI / lint configs touch one domain primarily). If genuinely multi-domain, mirror.
    - `Domain: infra` → BMO log (the Pi is BMO's host; pip/npm caches, systemd, host packages, etc.).
    - `Domain: docs` for repo-root docs (`README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, etc.) → BMO log by default; if it's domain-specific docs, file under that domain.
    - **`Domain: both` deliberately duplicates** — small cost, big benefit (single grep finds it from either side; one fix removes both copies).
@@ -123,7 +125,7 @@ Copy this into the right log per the triage rule above (issues + suggestions are
 
 - **Category:** bug | debt | config | security | performance | portability | UX | future-idea | design-gotcha | docs
 - **Severity:** critical | high | medium | low | info
-- **Domain:** dnd-app | bmo | both | tooling | docs | infra
+- **Domain:** dnd-app | bmo | dungeon-scholar | both | tooling | docs | infra
 - **Discovered by:** <name or "Claude Code" / "Cursor" / "Gemini" / "Copilot">
 - **During:** <brief context of task that surfaced this>
 
@@ -176,7 +178,7 @@ Be honest — over-rating severity devalues the scale.
 | `security` | Anything affecting confidentiality, integrity, availability. Also: defense-in-depth ideas. |
 | `performance` | Slow. Inefficient. Resource-hungry. |
 | `portability` | Runs on X but not Y. Platform-specific assumption. |
-| `UX` | User interface or interaction flow issues (dnd-app UI, BMO voice UX, CLI messages). |
+| `UX` | User interface or interaction flow issues (dnd-app UI, BMO voice UX, dungeon-scholar UI, CLI messages). |
 | `future-idea` | A feature / capability not yet built. |
 | `design-gotcha` | Warning for future contributors. "Don't do X because Y." |
 | `docs` | Documentation missing, wrong, or confusing. |
@@ -189,17 +191,19 @@ Multiple categories allowed: `Category: bug, security` is fine.
 
 1. **Grep first** — is this already logged in any of the active logs?
    ```bash
-   grep -i "<keyword>" docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md docs/SECURITY-LOG.md
+   grep -i "<keyword>" docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md docs/ISSUES-LOG-DUNGEON-SCHOLAR.md docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md docs/SECURITY-LOG.md
    ```
    If found, don't duplicate. Add a dated comment under the existing entry OR just read and move on.
 
 2. **Pick the right log** per the triage rule above:
    - Bug / debt / broken config / perf, **Domain: bmo** → `BMO-ISSUES-LOG.md`
    - Bug / debt / broken config / perf, **Domain: dnd-app** → `ISSUES-LOG-DNDAPP.md`
-   - Bug / debt / broken config / perf, **Domain: both** → mirror in BOTH issue logs
+   - Bug / debt / broken config / perf, **Domain: dungeon-scholar** → `ISSUES-LOG-DUNGEON-SCHOLAR.md`
+   - Bug / debt / broken config / perf, **Domain: both** (or three-way) → mirror in each relevant issue log
    - Future-idea / design-gotcha / info, **Domain: bmo** → `BMO-SUGGESTIONS-LOG.md`
    - Future-idea / design-gotcha / info, **Domain: dnd-app** → `SUGGESTIONS-LOG-DNDAPP.md`
-   - Future-idea / design-gotcha / info, **Domain: both** → mirror in BOTH suggestions logs
+   - Future-idea / design-gotcha / info, **Domain: dungeon-scholar** → `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`
+   - Future-idea / design-gotcha / info, **Domain: both** (or three-way) → mirror in each relevant suggestions log
    - Security (any flavor, any domain) → `SECURITY-LOG.md` (gitignored)
 
 3. **Pick severity + section** within that log (issues are grouped by severity; suggestions are grouped by category — Future ideas / Design gotchas / Info).
