@@ -23,6 +23,14 @@ describe('shared prompt sections', () => {
     expect(SHARED_SCHEMA).toMatch(/=== Domain/);
   });
 
+  it('SHARED_SCHEMA requires per-question domain tagging for the heatmap', () => {
+    // Polish: per-question domain field on quiz/lab items.
+    expect(SHARED_SCHEMA).toMatch(/domain/i);
+    expect(SHARED_SCHEMA).toMatch(/tags/i);
+    expect(SHARED_SCHEMA).toMatch(/DOMAIN TAGGING/i);
+    expect(SHARED_SCHEMA).toMatch(/heatmap/i);
+  });
+
   it('SHARED_STYLE_RULES forbids fantasy in technical fields and permits it in explanation/hint', () => {
     expect(SHARED_STYLE_RULES).toMatch(/explanation/);
     expect(SHARED_STYLE_RULES).toMatch(/hint/);

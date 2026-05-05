@@ -33,7 +33,9 @@ export const SHARED_SCHEMA = `=== JSON SCHEMA ===
       "correctIndex": 0,
       "explanation": "Why correct + why distractors are wrong (mild fantasy flavor permitted)",
       "hint": "Optional — mild fantasy flavor permitted",
-      "objective": "Optional blueprint reference"
+      "objective": "Optional blueprint reference",
+      "domain": "Required — high-level domain from the exam blueprint (e.g. 'Network Security', 'IAM', 'Risk Management')",
+      "tags": ["Optional sub-topic tags for finer-grained heatmap analytics"]
     },
     {
       "id": "q2",
@@ -42,7 +44,9 @@ export const SHARED_SCHEMA = `=== JSON SCHEMA ===
       "correctAnswer": true,
       "explanation": "Why",
       "hint": "Optional",
-      "objective": "Optional"
+      "objective": "Optional",
+      "domain": "Required — see q1 above",
+      "tags": ["Optional"]
     },
     {
       "id": "q3",
@@ -51,7 +55,9 @@ export const SHARED_SCHEMA = `=== JSON SCHEMA ===
       "acceptedAnswers": ["HTTPS", "https", "TLS"],
       "explanation": "Why",
       "hint": "Optional",
-      "objective": "Optional"
+      "objective": "Optional",
+      "domain": "Required — see q1 above",
+      "tags": ["Optional"]
     }
   ],
   "labs": [
@@ -60,17 +66,23 @@ export const SHARED_SCHEMA = `=== JSON SCHEMA ===
       "title": "Realistic scenario title (technical)",
       "scenario": "≥3 sentences setting up an incident, audit, deployment, or alert (technical)",
       "objective": "Optional blueprint reference",
+      "domain": "Required — same domain taxonomy as quiz items",
+      "tags": ["Optional"],
       "steps": [
         {
           "prompt": "Step instruction or analysis question (technical)",
           "options": ["A", "B", "C"],
           "correctIndex": 1,
-          "explanation": "Why (mild fantasy flavor permitted)"
+          "explanation": "Why (mild fantasy flavor permitted)",
+          "domain": "Optional — defaults to the lab-level domain if absent",
+          "tags": ["Optional"]
         },
         {
           "prompt": "Free-response step asking for a specific command, value, or short text answer",
           "acceptedAnswers": ["answer1", "answer 1"],
-          "explanation": "Why"
+          "explanation": "Why",
+          "domain": "Optional",
+          "tags": ["Optional"]
         }
       ]
     }
@@ -104,7 +116,15 @@ Requirements:
 
 - Every flashcard, quiz item, and lab must have a unique \`id\` (e.g. \`fc1\`, \`fc2\`, \`q1\`, \`q2\`, \`lab1\`)
 - IDs must be stable strings (no spaces, no special characters)
-- The optional \`objective\` field on each item should reference your blueprint (e.g. CompTIA "1.4", CISSP "Domain 3", AWS "IAM", CMMC "AC.L2-3.1.1")`;
+- The optional \`objective\` field on each item should reference your blueprint (e.g. CompTIA "1.4", CISSP "Domain 3", AWS "IAM", CMMC "AC.L2-3.1.1")
+
+=== DOMAIN TAGGING (REQUIRED for analytics) ===
+
+- Every quiz item and every lab MUST carry a top-level \`domain\` string drawn from the exam's blueprint domains (the same names you used in \`=== Domain N: <Name> ===\` knowledge base headers)
+- Lab \`steps[]\` may carry their own \`domain\` field; if absent, the parent lab's domain applies
+- Use a STABLE, REUSABLE domain string per topic ('Network Security', not 'Network Security Concepts and Tools') — this powers an in-app accuracy heatmap that groups questions across delves
+- Optional \`tags\` array: 1-3 sub-topic tags (e.g. ["TLS", "PKI"]) for finer-grained breakdowns. Keep tags short and reusable across items
+- Without \`domain\`, the heatmap will bucket items as 'Uncategorized' — please fill it in`;
 
 export const SHARED_STYLE_RULES = `=== STYLE RULES (CRITICAL) ===
 

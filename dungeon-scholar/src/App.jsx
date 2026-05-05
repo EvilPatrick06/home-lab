@@ -7,7 +7,10 @@ import { MergeChooser } from './components/MergeChooser.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
 import PromptModal from './components/PromptModal.jsx';
-import DungeonExplore from './components/DungeonExplore.jsx';
+// Polish: lazy-load DungeonExplore. It's the heaviest single component
+// (sprite drawers, generateMap, biome maps) and is only used when the
+// player enters a delve, so deferring its load shrinks the initial bundle.
+const DungeonExplore = React.lazy(() => import('./components/DungeonExplore.jsx'));
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
 import { gradeAnswer } from './services/oracleGrader.js';
@@ -2778,28 +2781,34 @@ export default function DungeonScholarApp() {
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
         {screen === 'dungeon' && courseSet && (
-          <DungeonExplore
-            onExit={() => setScreen('home')}
-            playerState={playerState}
-            subject={courseSet?.metadata?.subject}
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            awardXP={awardXP}
-            awardGold={awardGold}
-            recordAnswer={recordAnswer}
-            checkAchievement={checkAchievement}
-            unlockSpecialTitle={unlockSpecialTitle}
-            updateProgress={updateProgress}
-            updateTomeProgress={updateTomeProgress}
-            trackDungeonAttempt={trackDungeonAttempt}
-            onViewHistory={() => setScreen('history')}
-            consumeItem={consumeItem}
-            giveItem={giveItem}
-            recordBestiary={recordBestiary}
-            awardPetXp={awardPetXp}
-            petCatalog={Object.values(PETS)}
-            spellCatalog={Object.values(SPELLS)}
-          />
+          <React.Suspense fallback={
+            <div className="flex items-center justify-center py-24 text-amber-300 italic">
+              <Loader2 className="w-6 h-6 animate-spin mr-3" /> Summoning the dungeon...
+            </div>
+          }>
+            <DungeonExplore
+              onExit={() => setScreen('home')}
+              playerState={playerState}
+              subject={courseSet?.metadata?.subject}
+              courseSet={courseSet}
+              tomeProgress={tomeProgress}
+              awardXP={awardXP}
+              awardGold={awardGold}
+              recordAnswer={recordAnswer}
+              checkAchievement={checkAchievement}
+              unlockSpecialTitle={unlockSpecialTitle}
+              updateProgress={updateProgress}
+              updateTomeProgress={updateTomeProgress}
+              trackDungeonAttempt={trackDungeonAttempt}
+              onViewHistory={() => setScreen('history')}
+              consumeItem={consumeItem}
+              giveItem={giveItem}
+              recordBestiary={recordBestiary}
+              awardPetXp={awardPetXp}
+              petCatalog={Object.values(PETS)}
+              spellCatalog={Object.values(SPELLS)}
+            />
+          </React.Suspense>
         )}
         {screen === 'flashcards' && courseSet && (
           <FlashcardsMode
@@ -4763,10 +4772,64 @@ function RunHistoryScreen({ playerState, setScreen }) {
   const summary = useMemo(() => summarizeRunHistory(tomeProgress.runHistory), [tomeProgress.runHistory]);
   const [expanded, setExpanded] = useState(null); // runId
 
-  const sorted = useMemo(
-    () => [...summary.runs].sort((a, b) => new Date(b.date) - new Date(a.date)),
-    [summary.runs]
-  );
+  // Polish: domain accuracy heatmap. Aggregate every questionLog entry from
+  // every recorded run, bucket by domain (or 'Uncategorized' for legacy
+  // tomes without per-question domain tags). Sorted by sample size desc so
+  // the most-tested domains lead.
+  const domainStats = useMemo(() => {
+    const buckets = {};
+    (tomeProgress.runHistory || []).forEach(run => {
+      (run.questionLog || []).forEach(q => {
+        const key = q.domain || 'Uncategorized';
+        const entry = buckets[key] || { domain: key, total: 0, correct: 0 };
+        entry.total += 1;
+        if (q.correct) entry.correct += 1;
+        buckets[key] = entry;
+      });
+    });
+    return Object.values(buckets)
+      .map(b => ({ ...b, accuracy: b.total > 0 ? b.correct / b.total : 0 }))
+      .sort((a, b) => b.total - a.total);
+  }, [tomeProgress.runHistory]);
+  const totalAnswered = domainStats.reduce((s, b) => s + b.total, 0);
+  // Polish: per-column sort. sortKey ∈ {date, difficulty, boss, score, streak, duration};
+  // sortDir ∈ {asc, desc}. Clicking the same key toggles direction; switching
+  // keys defaults to desc (date-desc remains the initial state).
+  const [sortKey, setSortKey] = useState('date');
+  const [sortDir, setSortDir] = useState('desc');
+
+  const DIFF_ORDER = { apprentice: 0, adept: 1, master: 2, mythic: 3 };
+  const sorted = useMemo(() => {
+    const list = [...summary.runs];
+    const keyFn = (r) => {
+      switch (sortKey) {
+        case 'date':       return new Date(r.date).getTime();
+        case 'difficulty': return DIFF_ORDER[r.difficulty] ?? -1;
+        case 'boss':       return r.bossId || '';
+        case 'score':      return r.score || 0;
+        case 'streak':     return r.maxStreak || 0;
+        case 'duration':   return r.durationSec || 0;
+        default:           return 0;
+      }
+    };
+    list.sort((a, b) => {
+      const av = keyFn(a), bv = keyFn(b);
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return list;
+  }, [summary.runs, sortKey, sortDir]);
+
+  const toggleSort = (key) => {
+    if (key === sortKey) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir('desc');
+    }
+  };
+  const sortIcon = (key) => key !== sortKey ? '·' : sortDir === 'asc' ? '↑' : '↓';
 
   return (
     <div className="space-y-6">
@@ -4833,7 +4896,90 @@ function RunHistoryScreen({ playerState, setScreen }) {
           </button>
         </div>
       ) : (
+      <>
+        {/* Polish: domain accuracy heatmap. Empty until tomes generated with
+            per-question domain tags actually run; older runs fall under
+            "Uncategorized". Always shows so the player can see when a new
+            tome's analytics start landing. */}
+        {totalAnswered > 0 && (
+          <div className="p-4 rounded" style={{
+            background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+            border: '2px solid rgba(126, 34, 206, 0.45)',
+          }}>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-base">🎯</span>
+              <h3 className="text-sm font-bold italic text-purple-200 tracking-wider">Accuracy by Domain</h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-purple-700/40 to-transparent" />
+              <span className="text-[10px] italic text-amber-700">{totalAnswered} answered · {domainStats.length} domain{domainStats.length === 1 ? '' : 's'}</span>
+            </div>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {domainStats.map(b => {
+                const pct = Math.round(b.accuracy * 100);
+                // Color ramp: red <50, amber 50-74, emerald 75-89, gold 90+
+                const ramp = pct >= 90 ? { bg: 'rgba(245, 158, 11, 0.35)', border: '#fbbf24', text: '#fde047' }
+                            : pct >= 75 ? { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0' }
+                            : pct >= 50 ? { bg: 'rgba(245, 158, 11, 0.22)', border: 'rgba(245, 158, 11, 0.6)', text: '#fde68a' }
+                            :             { bg: 'rgba(239, 68, 68, 0.25)',  border: '#ef4444', text: '#fecaca' };
+                return (
+                  <div key={b.domain} className="p-3 rounded" style={{
+                    background: ramp.bg,
+                    border: `1.5px solid ${ramp.border}`,
+                  }}>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <div className="text-xs italic font-bold truncate" style={{ color: ramp.text }}>
+                        {b.domain}
+                      </div>
+                      <div className="text-sm font-bold tabular-nums italic" style={{ color: ramp.text }}>{pct}%</div>
+                    </div>
+                    <div className="text-[10px] italic text-amber-100/70 mt-1">
+                      {b.correct}/{b.total} correct
+                    </div>
+                    <div className="h-1.5 rounded mt-2 overflow-hidden" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                      <div className="h-full" style={{
+                        width: `${pct}%`,
+                        background: ramp.border,
+                      }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {domainStats.some(b => b.domain === 'Uncategorized') && (
+              <div className="text-[10px] italic text-amber-700/80 mt-3">
+                ✦ "Uncategorized" entries come from older tomes that lack per-question domain tags. New tomes will populate the heatmap automatically.
+              </div>
+            )}
+          </div>
+        )}
         <div className="space-y-2">
+          {/* Polish: sortable column header bar. Each header is a button that
+              toggles sort direction (or switches sortKey on a different
+              column). Sort indicator is appended to the label. */}
+          <div className="flex flex-wrap gap-2 items-center px-3 py-2 rounded text-[11px] italic"
+               style={{ background: 'rgba(10, 6, 4, 0.45)', border: '1px solid rgba(120, 53, 15, 0.3)' }}>
+            <span className="text-amber-700 mr-1">Sort by:</span>
+            {[
+              { k: 'date',       label: 'Date' },
+              { k: 'difficulty', label: 'Difficulty' },
+              { k: 'boss',       label: 'Boss' },
+              { k: 'score',      label: 'Score' },
+              { k: 'streak',     label: 'Streak' },
+              { k: 'duration',   label: 'Duration' },
+            ].map(({ k, label }) => {
+              const active = sortKey === k;
+              return (
+                <button key={k} onClick={() => toggleSort(k)}
+                  className="px-2 py-1 rounded transition"
+                  style={{
+                    background: active ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
+                    border: `1px solid ${active ? 'rgba(245, 158, 11, 0.6)' : 'rgba(120, 53, 15, 0.3)'}`,
+                    color: active ? '#fde047' : '#a8a29e',
+                  }}>
+                  {label} {sortIcon(k)}
+                </button>
+              );
+            })}
+          </div>
           {sorted.map(run => {
             const diff = DIFFICULTIES[run.difficulty] || DIFFICULTIES.apprentice;
             const boss = BOSS_TYPES[run.bossId];
@@ -4904,6 +5050,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
             );
           })}
         </div>
+      </>
       )}
     </div>
   );

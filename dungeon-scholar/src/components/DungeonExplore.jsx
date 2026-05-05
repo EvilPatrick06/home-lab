@@ -2732,6 +2732,11 @@ export default function DungeonExplore({
       correct: !!correct,
       timeSec: 0,
       type: q?.type,
+      // Polish: persist domain/tags so the Chronicle can build an accuracy
+      // heatmap. Older tomes generated before this prompt change won't have
+      // these fields — the heatmap groups them as "Uncategorized".
+      domain: q?.domain,
+      tags: Array.isArray(q?.tags) ? q.tags.slice(0, 5) : undefined,
     });
     if (recordAnswer) {
       try { recordAnswer({ id: q?.id, type: q?.type, correct: !!correct }); }
