@@ -3453,16 +3453,20 @@ export default function DungeonExplore({
         ctx.font = "16px 'Cinzel', Georgia, serif";
       }
 
-      // Shields, immediately left of HP.
+      // Shields, immediately left of HP. Each shield is rendered in an
+      // 18px slot; the shape itself is 12px wide × 14px tall. We center
+      // it both horizontally (slot offset = 3) and vertically (sy = 15
+      // so the shield's center y matches the heart's center y of 22).
+      let leftEdgeOfHud = CANVAS_W - hudHpW - 8;
       if (s.maxShields > 0) {
         const shieldCount = Math.min(s.maxShields, 4);
         const hudShW = shieldCount * 18 + 12;
-        const shX = CANVAS_W - hudHpW - 8 - hudShW - 6;
+        const shX = leftEdgeOfHud - hudShW - 6;
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.fillRect(shX, 8, hudShW, 28);
         for (let i = 0; i < shieldCount; i++) {
-          const sx = shX + 6 + i * 18;
-          const sy = 12;
+          const sx = shX + 9 + i * 18; // was shX + 6 → now centered (9 = 6 box pad + 3 slot pad)
+          const sy = 15;               // was 12 → centers vertically against the 28-tall box
           ctx.fillStyle = i < s.shields ? '#3b82f6' : '#1e3a5f';
           ctx.beginPath();
           ctx.moveTo(sx,      sy);
@@ -3477,17 +3481,43 @@ export default function DungeonExplore({
             ctx.fillRect(sx + 5, sy + 3, 2, 4);
           }
         }
+        leftEdgeOfHud = shX;
       }
 
-      // Score + difficulty (bottom-right). 25a-5: prepend a key glyph
-      // when the player holds the boss key so they can see it at a glance.
+      // 25a-6c: Boss Key indicator in the top-right HUD, left of shields
+      // (or HP if no shields). Same 28-tall box, single slot wide. Was a
+      // prefix on the bottom-right score readout — moved here so all
+      // status icons live together.
+      if (s.bossKeyFound) {
+        const keyW = 28;
+        const keyX = leftEdgeOfHud - keyW - 6;
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(keyX, 8, keyW, 28);
+        const cx = keyX + keyW / 2;
+        const cy = 22;
+        // Bow (round head) — gold ring with a black hole in the center.
+        ctx.fillStyle = '#fde047';
+        ctx.beginPath();
+        ctx.arc(cx - 4, cy, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#0a0604';
+        ctx.beginPath();
+        ctx.arc(cx - 4, cy, 2, 0, Math.PI * 2);
+        ctx.fill();
+        // Shaft + tooth
+        ctx.fillStyle = '#fde047';
+        ctx.fillRect(cx, cy - 1, 8, 3);
+        ctx.fillRect(cx + 5, cy + 2, 2, 3);
+      }
+
+      // Score + difficulty (bottom-right). 25a-6c: removed the boss-key
+      // prefix here — the key now has its own slot in the top-right HUD.
       ctx.font = "12px 'Cinzel', Georgia, serif";
-      const keyPrefix = s.bossKeyFound ? '⚷ ' : '';
-      const scoreText = `${keyPrefix}Foes: ${s.score} · ${(DIFFICULTY_LABELS[difficulty]?.label || difficulty)}`;
+      const scoreText = `Foes: ${s.score} · ${(DIFFICULTY_LABELS[difficulty]?.label || difficulty)}`;
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      ctx.fillRect(CANVAS_W - 230, CANVAS_H - 28, 222, 22);
-      ctx.fillStyle = s.bossKeyFound ? '#facc15' : '#fde047';
-      ctx.fillText(scoreText, CANVAS_W - 222, CANVAS_H - 24);
+      ctx.fillRect(CANVAS_W - 220, CANVAS_H - 28, 212, 22);
+      ctx.fillStyle = '#fde047';
+      ctx.fillText(scoreText, CANVAS_W - 212, CANVAS_H - 24);
 
       // Coords (bottom-left)
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
