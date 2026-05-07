@@ -67,12 +67,34 @@ const ensureContext = () => {
   return ctx;
 };
 
+// Async variant — resolves once the context is actually running. Use this
+// from any audio path that schedules nodes (BGM, SFX) so we don't queue
+// oscillators into a still-suspended context (browsers swallow them).
+const ensureContextRunning = async () => {
+  const c = ensureContext();
+  if (!c) return null;
+  if (c.state !== 'running') {
+    try { await c.resume(); } catch { /* user-gesture race; best-effort */ }
+  }
+  return c;
+};
+
 export const getAudioSettings = () => ({ ...settings });
 
 export const setMuted = (muted) => {
   settings.muted = !!muted;
   saveSettings();
-  if (masterGain) masterGain.gain.value = settings.muted ? 0 : 1;
+  // Toggling unmute is itself a user gesture, so this is the right moment
+  // to spin up + resume the AudioContext if it doesn't exist yet. Without
+  // this, BGM started later would queue oscillators into a suspended ctx
+  // and the player would hear nothing despite settings.muted being false.
+  if (!settings.muted) {
+    ensureContextRunning().then(() => {
+      if (masterGain) masterGain.gain.value = 1;
+    });
+  } else if (masterGain) {
+    masterGain.gain.value = 0;
+  }
 };
 
 export const setBgmVolume = (v) => {
@@ -167,9 +189,15 @@ const cleanupBgmNodes = () => {
   bgmNodes = [];
 };
 
-export const startBgm = (biomeId) => {
-  ensureContext();
-  if (!ctx) return;
+export const startBgm = async (biomeId) => {
+  // Wait for the context to actually be running before scheduling the
+  // first phrase. Without this, the synchronous playPhrase call queued
+  // oscillators into a suspended ctx and the player would not hear the
+  // first ~8-13s of any biome (until the second phrase loop tick lands
+  // after resume completed). Browsers silently drop notes scheduled on
+  // a suspended context.
+  const c = await ensureContextRunning();
+  if (!c) return;
   if (currentBgmId === biomeId) return;
   stopBgm();
   const phrase = BGM_PHRASES[biomeId] || BGM_PHRASES.hearth;
@@ -243,14 +271,17 @@ const SFX_PRESETS = {
 };
 
 export const playSfx = (name) => {
-  ensureContext();
-  if (!ctx) return;
   const preset = SFX_PRESETS[name];
   if (!preset) return;
-  let delay = 0;
-  preset.forEach((tone) => {
-    setTimeout(() => sfxPlayTone(tone), delay);
-    delay += Math.max(40, (tone.durMs || 0) * 0.7);
+  // Resume the context first if needed; only schedule tones once running
+  // so suspended-ctx queuing can't silently swallow short SFX bursts.
+  ensureContextRunning().then((c) => {
+    if (!c) return;
+    let delay = 0;
+    preset.forEach((tone) => {
+      setTimeout(() => sfxPlayTone(tone), delay);
+      delay += Math.max(40, (tone.durMs || 0) * 0.7);
+    });
   });
 };
 

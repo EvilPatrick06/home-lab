@@ -2362,7 +2362,7 @@ export default function DungeonExplore({
   }, [phase, biomeId]);
 
   // === Spell casting (Phase 19) ========================================
-  // Triggered by hotkeys Q/W/E or on-screen spell buttons. Some spells
+  // Triggered by hotkeys Z/X/C or on-screen spell buttons. Some spells
   // are world-only (heal, shield, smite, riftstep) while others need a
   // battle in progress (auto_correct, reveal_answer). Mana cost is paid
   // up front; if the spell can't act (e.g. healing at full HP) the spell
@@ -2589,11 +2589,13 @@ export default function DungeonExplore({
   useEffect(() => {
     if (phase !== 'world') return undefined;
     const onKeyDown = (e) => {
-      // Phase 19: Spell hotkeys Q/W/E work even during a battle (auto_correct,
-      // reveal_answer); other spells refuse mid-trial via castSpell's checks.
+      // Phase 19: Spell hotkeys Z/X/C (rebound from Q/W/E in 25a so W
+      // doesn't collide with WASD movement). Spells work even during a
+      // battle (auto_correct, reveal_answer); other spells refuse
+      // mid-trial via castSpell's checks.
       const sk = e.key.toLowerCase();
-      if (sk === 'q' || sk === 'w' || sk === 'e') {
-        const idx = sk === 'q' ? 0 : sk === 'w' ? 1 : 2;
+      if (sk === 'z' || sk === 'x' || sk === 'c') {
+        const idx = sk === 'z' ? 0 : sk === 'x' ? 1 : 2;
         castSpellRef.current && castSpellRef.current(idx);
         e.preventDefault();
         return;
@@ -3264,12 +3266,19 @@ export default function DungeonExplore({
             <div className="text-xs italic text-amber-700/80 mt-1 max-w-md mx-auto">{biome.flavor}</div>
           </div>
 
-          {/* Difficulty selector */}
+          {/* Difficulty selector. Locked tiers show their unlock requirement
+              on hover instead of the generic "Locked" tooltip. */}
           <div className="flex flex-wrap items-center gap-2 justify-center mb-4">
             <span className="text-xs text-amber-700 italic">Trial:</span>
             {Object.entries(DIFFICULTY_LABELS).map(([id, info]) => {
               const unlocked = isUnlocked(id);
               const selected = difficulty === id;
+              const unlockHint = (() => {
+                if (id === 'adept')  return 'Unlock at level 10 — or complete 5 dungeon delves.';
+                if (id === 'master') return "Unlock at level 25 — or earn 'Flawless' + 'First Boss' achievements.";
+                if (id === 'mythic') return "Unlock at level 50 — or complete the Master tier.";
+                return 'Locked';
+              })();
               return (
                 <button
                   key={id}
@@ -3283,7 +3292,7 @@ export default function DungeonExplore({
                     opacity: unlocked ? 1 : 0.5,
                     cursor: unlocked ? 'pointer' : 'not-allowed',
                   }}
-                  title={unlocked ? `${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP · ${DIFF_CONFIG[id].shields} 🛡️` : 'Locked'}
+                  title={unlocked ? `${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP · ${DIFF_CONFIG[id].shields} 🛡️` : unlockHint}
                 >
                   {info.icon} {info.label}
                 </button>
@@ -3507,7 +3516,7 @@ export default function DungeonExplore({
         )}
 
         {/* Spell HUD (Phase 19) — three slots above the potion bar with mana
-            orbs to the left. Hotkeys Q/W/E. Visible during battle too so
+            orbs to the left. Hotkeys Z/X/C. Visible during battle too so
             auto_correct / reveal_answer can be cast at the question. */}
         {runState === 'alive' && (playerState?.equippedSpells || []).some(Boolean) && (
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
@@ -3532,7 +3541,7 @@ export default function DungeonExplore({
                 const info = sid ? (spellCatalog?.find?.(s => s.id === sid) || SPELL_INFO[sid]) : null;
                 const cost = info?.cost || 0;
                 const canCast = !!info && mana >= cost;
-                const hk = ['Q', 'W', 'E'][i];
+                const hk = ['Z', 'X', 'C'][i];
                 return (
                   <button
                     key={i}

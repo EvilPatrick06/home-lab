@@ -424,13 +424,13 @@ const ITEMS = [
   { id: 'fortune_charm',     name: 'Fortune Charm',           description: '+1% rare drop chance from chests. Stacks up to 5 times.',               icon: '🔮', category: 'sanctum',    effect: 'perm_rare_pct',   price: 800, permKey: 'rareDropPct',    cap: 5, step: 1 },
 
   // === Ingredients (Phase 16 — gathered from dungeon plants and chests) ===
-  { id: 'ember_ash',     name: 'Ember Ash',     description: 'Soot scraped from a still-warm forge. Used in fire-touched brews.',      icon: '🔥', category: 'ingredient', price: 0 },
-  { id: 'glow_root',     name: 'Glow Root',     description: 'A bioluminescent tuber that pulses faintly in the dark.',                 icon: '🌱', category: 'ingredient', price: 0 },
-  { id: 'sigil_dust',    name: 'Sigil Dust',    description: 'Powdered runes left behind by faded inscriptions.',                       icon: '✨', category: 'ingredient', price: 0 },
-  { id: 'iron_filings',  name: 'Iron Filings',  description: 'Curls of dark metal — the bones of shielding draughts.',                  icon: '⚙️', category: 'ingredient', price: 0 },
-  { id: 'crystal_shard', name: 'Crystal Shard', description: 'A sliver of focused arcane glass.',                                       icon: '💎', category: 'ingredient', price: 0 },
-  { id: 'moonleaf',      name: 'Moonleaf',      description: 'A pale leaf that holds the dew of a forgotten night.',                    icon: '🍃', category: 'ingredient', price: 0 },
-  { id: 'cactus_pulp',   name: 'Cactus Pulp',   description: 'Wet fibre wrenched from a sun-bleached cactus.',                          icon: '🌵', category: 'ingredient', price: 0 },
+  { id: 'ember_ash',     name: 'Ember Ash',     description: 'Soot scraped from a still-warm forge. Used in fire-touched brews.',      icon: '🔥', category: 'ingredient', price: 25 },
+  { id: 'glow_root',     name: 'Glow Root',     description: 'A bioluminescent tuber that pulses faintly in the dark.',                 icon: '🌱', category: 'ingredient', price: 30 },
+  { id: 'sigil_dust',    name: 'Sigil Dust',    description: 'Powdered runes left behind by faded inscriptions.',                       icon: '✨', category: 'ingredient', price: 35 },
+  { id: 'iron_filings',  name: 'Iron Filings',  description: 'Curls of dark metal — the bones of shielding draughts.',                  icon: '⚙️', category: 'ingredient', price: 30 },
+  { id: 'crystal_shard', name: 'Crystal Shard', description: 'A sliver of focused arcane glass.',                                       icon: '💎', category: 'ingredient', price: 40 },
+  { id: 'moonleaf',      name: 'Moonleaf',      description: 'A pale leaf that holds the dew of a forgotten night.',                    icon: '🍃', category: 'ingredient', price: 35 },
+  { id: 'cactus_pulp',   name: 'Cactus Pulp',   description: 'Wet fibre wrenched from a sun-bleached cactus.',                          icon: '🌵', category: 'ingredient', price: 40 },
 
   // === Arcanum (Phase 19 — spell scrolls; one-time, learn on purchase) ===
   { id: 'scroll_glyph_of_mending', name: 'Scroll of Mending',  description: 'Learn Glyph of Mending — a 2-mana spell that restores 1 HP in the dungeon.',         icon: '✨', category: 'arcanum', price: 250, oneTime: true, spellId: 'glyph_of_mending' },
@@ -1044,7 +1044,7 @@ const DEFAULT_STATE = {
   pets: {},
   // Phase 19: Spellbook + casting setup. spellbook stores known spells
   // (one-time learn from arcanum scrolls). equippedSpells holds three
-  // quick-slot spell ids (hotkeys Q/W/E inside the dungeon). maxMana is
+  // quick-slot spell ids (hotkeys Z/X/C inside the dungeon). maxMana is
   // the per-delve mana pool (mana itself is not persisted — it resets
   // each delve in DungeonExplore).
   spellbook: {},                 // { [spellId]: { learnedAt } }
@@ -3496,7 +3496,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
         />
         <ModeCard
           title="The Spellbook"
-          desc={`Active incantations cast in the dungeon (Q · W · E). ${Object.keys(playerState?.spellbook || {}).length}/${6} spells learned.`}
+          desc={`Active incantations cast in the dungeon (Z · X · C). ${Object.keys(playerState?.spellbook || {}).length}/${6} spells learned.`}
           icon={<Wand2 className="w-8 h-8" />}
           color="sapphire"
           onClick={() => setScreen('spellbook')}
@@ -5844,7 +5844,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
 }
 
 // Phase 19 — Spellbook. Lists all spells; known ones can be quick-slotted
-// into 3 cast slots usable in the dungeon (Q/W/E hotkeys). Unknown spells
+// into 3 cast slots usable in the dungeon (Z/X/C hotkeys). Unknown spells
 // show locked entries pointing to the Arcanum scroll that learns them.
 function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell }) {
   const known = playerState.spellbook || {};
@@ -5887,7 +5887,7 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
               </h2>
               <div className="text-xs text-sky-400 tracking-[0.2em] italic">⚜ ACTIVE INCANTATIONS ⚜</div>
               <div className="text-xs text-amber-100/70 italic mt-1">
-                {knownCount}/{allSpells.length} learned. Slot up to 3 to cast in the dungeon (Q · W · E).
+                {knownCount}/{allSpells.length} learned. Slot up to 3 to cast in the dungeon (Z · X · C).
               </div>
             </div>
           </div>
@@ -5909,7 +5909,7 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
           <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Cast Slots</h4>
           <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
           <span className="text-[10px] italic text-amber-700">
-            {pendingSlot !== null ? `Choose a spell for slot ${'QWE'[pendingSlot]}…` : 'Click empty slot then a spell · click filled slot to clear'}
+            {pendingSlot !== null ? `Choose a spell for slot ${'ZXC'[pendingSlot]}…` : 'Click empty slot then a spell · click filled slot to clear'}
           </span>
         </div>
         <div className="grid grid-cols-3 gap-2 text-xs italic">
@@ -5925,9 +5925,9 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
                   border: `1px solid ${def ? 'rgba(96, 165, 250, 0.6)' : isPending ? '#60a5fa' : 'rgba(120, 53, 15, 0.3)'}`,
                   cursor: 'pointer',
                 }}>
-                <div className="text-xl w-6 text-center">{def ? def.icon : 'QWE'[i]}</div>
+                <div className="text-xl w-6 text-center">{def ? def.icon : 'ZXC'[i]}</div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[10px] uppercase tracking-wider text-sky-300">[{'QWE'[i]}] · Slot {i + 1}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-sky-300">[{'ZXC'[i]}] · Slot {i + 1}</div>
                   <div className={def ? 'text-amber-200 truncate' : 'text-amber-700/60 truncate'}>
                     {def ? `${def.name} · ${def.cost} mana` : (isPending ? 'Pick a spell below…' : '— Empty —')}
                   </div>
@@ -5975,13 +5975,13 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
                     <button onClick={() => onUnequipSpell?.(slotIdx)}
                       className="px-3 py-1.5 rounded text-xs italic border-2 border-sky-700 text-sky-200 hover:bg-sky-900/30"
                       style={{ background: 'rgba(12, 24, 41, 0.5)' }}>
-                      Unslot ({'QWE'[slotIdx]})
+                      Unslot ({'ZXC'[slotIdx]})
                     </button>
                   ) : (
                     <button onClick={() => handleAssign(def.id)}
                       className="px-3 py-1.5 rounded text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
                       style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
-                      {pendingSlot !== null ? `Assign to ${'QWE'[pendingSlot]}` : 'Slot'}
+                      {pendingSlot !== null ? `Assign to ${'ZXC'[pendingSlot]}` : 'Slot'}
                     </button>
                   )}
                 </div>
