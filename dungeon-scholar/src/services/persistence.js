@@ -4,11 +4,22 @@ export const STORAGE_KEY = 'dungeon-scholar:save:v1';
 export const SYNC_META_KEY = 'dungeon-scholar:sync:v1';
 export const CURRENT_SCHEMA_VER = 1;
 
+// Saves embed `__schemaVer` so a future load can run the right migrations.
+// Pre-existing saves on disk that lack the marker are treated as schemaVer 0
+// — see `loadFromLocalStorage` and `migrateIfNeeded`.
+
 export function loadFromLocalStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    // Pull the schema marker out of the payload so the rest of the app
+    // never sees it. Default to 0 so legacy saves trigger the v0→v1
+    // tutorial-index migration (otherwise it's a silent no-op).
+    const schemaVer = typeof parsed.__schemaVer === 'number' ? parsed.__schemaVer : 0;
+    const { __schemaVer, ...state } = parsed; // eslint-disable-line no-unused-vars
+    return { state, schemaVer };
   } catch {
     return null;
   }
@@ -16,7 +27,8 @@ export function loadFromLocalStorage() {
 
 export function saveToLocalStorage(state) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const payload = { ...(state || {}), __schemaVer: CURRENT_SCHEMA_VER };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {
     // Quota exceeded or unavailable — silent. Cloud / Export still work.
   }
@@ -36,10 +48,11 @@ export function migrateIfNeeded(state, schemaVer) {
   // schemaVer < 1 → tutorial overhaul: pre-overhaul saves used a different
   // 8-step ordering. Remap the savedIndex to the current TUTORIAL_STEPS
   // layout so the resumed tutorial picks up at the right step.
-  // localStorage saves predate persisted schemaVer (loadFromLocalStorage
-  // doesn't store one), so the call site passes CURRENT_SCHEMA_VER and
-  // this case is a no-op there. Cloud syncs that carry their own
-  // schema_ver < 1 will hit this on restore.
+  //
+  // localStorage saves now carry __schemaVer in the payload (since
+  // commit "persist schemaVer in localStorage"). Saves written before
+  // that fix are treated as schemaVer 0 by loadFromLocalStorage, so
+  // they hit this case once on next load.
   if (schemaVer < 1 && typeof next.tutorialStepIndex === 'number') {
     next = { ...next, tutorialStepIndex: migrateTutorialIndex(next.tutorialStepIndex) };
   }

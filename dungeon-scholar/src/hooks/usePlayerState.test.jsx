@@ -33,7 +33,9 @@ describe('usePlayerState — local-only behavior', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
 
     const { result } = renderHook(() => usePlayerState(DEFAULT));
-    expect(result.current[0]).toEqual(stored);
+    // applyBackfills tags hydrated state with the current backfillVer so the
+    // backfill check doesn't repeat next load. Other fields preserved.
+    expect(result.current[0]).toEqual({ ...stored, backfillVer: 1 });
   });
 
   it('falls back to default when localStorage is empty', () => {
@@ -57,8 +59,9 @@ describe('usePlayerState — local-only behavior', () => {
       vi.advanceTimersByTime(600);
     });
 
-    // After the window, the latest state is written.
-    expect(loadFromLocalStorage()).toEqual({ level: 4, totalXp: 30, library: [] });
+    // After the window, the latest state is written. loadFromLocalStorage
+    // returns { state, schemaVer } — assert against state, ignore version.
+    expect(loadFromLocalStorage()?.state).toEqual({ level: 4, totalXp: 30, library: [] });
   });
 
   it('flushes a pending write on beforeunload', () => {
@@ -73,7 +76,7 @@ describe('usePlayerState — local-only behavior', () => {
       window.dispatchEvent(new Event('beforeunload'));
     });
 
-    expect(loadFromLocalStorage()).toEqual({ level: 9, totalXp: 99, library: [] });
+    expect(loadFromLocalStorage()?.state).toEqual({ level: 9, totalXp: 99, library: [] });
   });
 });
 

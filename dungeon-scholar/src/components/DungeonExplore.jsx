@@ -5,19 +5,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { startBgm, stopBgm, playSfx } from '../audio/sound.js';
-
-// === Pet level math (Phase 18) =========================================
-// Mirrors PET_LEVEL_XP in App.jsx. Kept duplicated to avoid a circular
-// import; if either array changes, update both. Pet definitions are passed
-// in via the petCatalog prop so the dungeon doesn't need to know names.
-const PET_LEVEL_XP_LOCAL = [0, 100, 300, 700, 1500];
-const petLevelFromXp = (xp) => {
-  let lvl = 1;
-  for (let i = 0; i < PET_LEVEL_XP_LOCAL.length; i++) {
-    if ((xp || 0) >= PET_LEVEL_XP_LOCAL[i]) lvl = i + 1;
-  }
-  return Math.min(lvl, PET_LEVEL_XP_LOCAL.length);
-};
+import { petLevelFromXp } from '../services/pets.js';
 
 // === Equipment effects ==================================================
 // In-dungeon stat bonuses for equipped items. Items live in App.jsx ITEMS;

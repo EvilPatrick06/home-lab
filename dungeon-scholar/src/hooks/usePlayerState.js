@@ -10,6 +10,7 @@ import {
   clearSyncMeta,
 } from '../services/persistence.js';
 import { pullSave, pushSave, upsertProfile, subscribeSaves } from '../services/cloudSync.js';
+import { applyBackfills } from '../services/backfill.js';
 
 const LOCAL_DEBOUNCE_MS = 500;
 const CLOUD_DEBOUNCE_MS = 500;
@@ -43,7 +44,13 @@ const BROADCAST_CHANNEL = 'dungeon-scholar:state';
 export function usePlayerState(defaultState, user = null) {
   const [state, setStateInternal] = useState(() => {
     const stored = loadFromLocalStorage();
-    return stored ? migrateIfNeeded(stored, CURRENT_SCHEMA_VER) : defaultState;
+    if (!stored) return defaultState;
+    // loadFromLocalStorage returns { state, schemaVer } — pass the actual
+    // stored version through so v0 saves get the v0→v1 tutorial migration.
+    // applyBackfills then reconciles state mutated by historical bugs
+    // (idempotent — gated on state.backfillVer).
+    const migrated = migrateIfNeeded(stored.state, stored.schemaVer);
+    return applyBackfills(migrated);
   });
 
   const [mergeRequired, setMergeRequired] = useState(false);
@@ -252,7 +259,7 @@ export function usePlayerState(defaultState, user = null) {
         const cloud = await pullSave(user.id);
         if (!active) return;
 
-        const cloudData = cloud ? migrateIfNeeded(cloud.data, cloud.schemaVer) : null;
+        const cloudData = cloud ? applyBackfills(migrateIfNeeded(cloud.data, cloud.schemaVer)) : null;
         const local = latestRef.current;
         const cloudHasData = cloudData && hasMeaningfulData(cloudData);
         const localHasData = hasMeaningfulData(local);
@@ -329,7 +336,7 @@ export function usePlayerState(defaultState, user = null) {
           return;
         }
       } catch { /* fall through and apply */ }
-      const cloudData = migrateIfNeeded(cloud.data, cloud.schemaVer);
+      const cloudData = applyBackfills(migrateIfNeeded(cloud.data, cloud.schemaVer));
       applyRemoteState(cloudData, cloud.updatedAt);
     });
     return unsub;

@@ -15,6 +15,9 @@ import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trop
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
 import { gradeAnswer } from './services/oracleGrader.js';
 import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, playSfx } from './audio/sound.js';
+import { PETS, PET_LEVEL_XP, PET_MAX_LEVEL, petLevelFromXp, findPet } from './services/pets.js';
+import { SPELLS, findSpell } from './services/spells.js';
+import { DAILY_REWARDS, todayDateStr, dayDiff } from './services/devotion.js';
 
 const TITLES = [
   { min: 1, max: 4, name: 'Apprentice' },
@@ -188,11 +191,6 @@ const pickDailyQuests = (dateStr, n = 3) => {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr.slice(0, n);
-};
-
-const todayDateStr = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
 // === Weekly Quest Pool ===
@@ -589,147 +587,6 @@ const BESTIARY_ENTRIES = {
     },
     drops: 'Massive XP + gold · Mythic-tier titles · Gold chest exclusives',
   },
-};
-
-// === Pets (Phase 18) ====================================================
-// Familiars hatched from Stable eggs. Each pet grants a passive that scales
-// with its level. Pets gain XP from delves while equipped; thresholds bump
-// the level which strengthens the passive. The dungeon renders a sprite
-// trailing the player using `spriteKey`.
-//
-// Passives are read by DungeonExplore via a small effect lookup keyed on
-// pet.passive — see PET_PASSIVE_EFFECTS in DungeonExplore.jsx for the
-// per-stat math.
-const PETS = {
-  wise_owl: {
-    id: 'wise_owl', name: 'Wise Owl', icon: '🦉', spriteKey: 'owl',
-    biome: 'tower', fromEgg: 'wise_owl_egg',
-    lore: 'Hatched from an egg sealed in the highest archive. It hoots in cipher.',
-    passive: 'xp_pct',         // +X% XP from this delve
-    base: 5, perLevel: 2,      // L1 +5%, +2%/lvl  -> L5 = +13%
-  },
-  ember_dragon: {
-    id: 'ember_dragon', name: 'Ember Dragon', icon: '🐉', spriteKey: 'dragon',
-    biome: 'halls', fromEgg: 'dragon_hatchling',
-    lore: 'A hatchling of forge-flame. Its scales grow brighter with every felled foe.',
-    passive: 'shield_bonus',   // +N starting shields
-    base: 1, perLevel: 0,      // flat +1 shield (level scales mob_score instead)
-    secondary: 'mob_score', secondaryBase: 0, secondaryPerLevel: 1,
-  },
-  mimic_pup: {
-    id: 'mimic_pup', name: 'Mimic Pup', icon: '🪙', spriteKey: 'mimic',
-    biome: 'crypt', fromEgg: 'mimic_pup',
-    lore: 'A treasure-hoarder in pup form. It sniffs out coin even buried in ciphertext.',
-    passive: 'gold_pct',
-    base: 10, perLevel: 3,     // L1 +10%, L5 +22%
-  },
-  glade_fox: {
-    id: 'glade_fox', name: 'Glade Fox', icon: '🦊', spriteKey: 'fox',
-    biome: 'wastes', fromEgg: 'fox_kit',
-    lore: 'A nimble forager from the wastes. Doubles plant harvests on a whim.',
-    passive: 'plant_double_pct',
-    base: 15, perLevel: 5,     // L1 15% chance, L5 35%
-  },
-  sewer_imp: {
-    id: 'sewer_imp', name: 'Sewer Imp', icon: '👹', spriteKey: 'imp',
-    biome: 'sewers', fromEgg: 'sewer_imp_egg',
-    lore: 'A pact-bound trickster. It eats the first wrong answer — once per delve.',
-    passive: 'first_wrong_free',
-    base: 1, perLevel: 0,
-  },
-};
-
-// XP thresholds per pet level. Index = level reached when total XP >= entry.
-// L1 starts at 0 (a freshly hatched pet is L1).
-const PET_LEVEL_XP = [0, 100, 300, 700, 1500];
-const PET_MAX_LEVEL = PET_LEVEL_XP.length;
-
-const petLevelFromXp = (xp) => {
-  let lvl = 1;
-  for (let i = 0; i < PET_LEVEL_XP.length; i++) {
-    if (xp >= PET_LEVEL_XP[i]) lvl = i + 1;
-  }
-  return Math.min(lvl, PET_MAX_LEVEL);
-};
-
-const findPet = (id) => PETS[id] || null;
-
-// === Spells (Phase 19) ==================================================
-// Active spells castable in the dungeon. Each has a mana cost and an
-// effect kind that DungeonExplore consumes via SPELL_EFFECTS.
-//
-// Players learn spells by purchasing one-time scrolls in the Arcanum
-// (a new shop category) — purchasing flips a flag in playerState.spellbook.
-// Up to 3 known spells can be quick-slotted (hotkeys Q/W/E) for casting
-// inside a delve. Mana starts at 3 each delve and regenerates +1 per
-// correct answer (capped by maxMana).
-const SPELLS = {
-  glyph_of_mending: {
-    id: 'glyph_of_mending', name: 'Glyph of Mending', icon: '✨',
-    cost: 2, biome: 'crypt', accent: '#34d399',
-    desc: 'Restore 1 HP. Cannot exceed thy maximum.',
-    effect: 'heal', amount: 1,
-  },
-  lance_of_lumens: {
-    id: 'lance_of_lumens', name: 'Lance of Lumens', icon: '⚡',
-    cost: 3, biome: 'tower', accent: '#60a5fa',
-    desc: 'Smite the nearest mob outright — but bosses laugh at thy lance.',
-    effect: 'smite_nearest_mob',
-  },
-  ward_of_aegis: {
-    id: 'ward_of_aegis', name: 'Ward of Aegis', icon: '🛡️',
-    cost: 2, biome: 'halls', accent: '#fbbf24',
-    desc: 'Conjure a single shield bond. Useless if thou art already at max.',
-    effect: 'shield', amount: 1,
-  },
-  bolt_of_truth: {
-    id: 'bolt_of_truth', name: 'Bolt of Truth', icon: '📖',
-    cost: 3, biome: 'sewers', accent: '#10b981',
-    desc: 'In a battle, auto-resolve the current question correctly. Once per cast.',
-    effect: 'auto_correct',
-  },
-  riftstep: {
-    id: 'riftstep', name: 'Riftstep', icon: '🌀',
-    cost: 2, biome: 'wastes', accent: '#a78bfa',
-    desc: 'Slip back to the spawn chamber. Useful when surrounded by foes.',
-    effect: 'teleport_spawn',
-  },
-  sigil_of_clarity: {
-    id: 'sigil_of_clarity', name: 'Sigil of Clarity', icon: '👁️',
-    cost: 1, biome: 'crypt', accent: '#f472b6',
-    desc: 'Reveal the answer to the current battle question for one heartbeat.',
-    effect: 'reveal_answer',
-  },
-};
-
-const findSpell = (id) => SPELLS[id] || null;
-
-// === Daily Devotion (Phase 20) ==========================================
-// 7-day reward cycle. The scholar's loginStreak determines the cycleDay
-// (1-7); each day yields a fixed reward and a small devotion bonus that
-// scales with the day. Day 7 is a major reward; the cycle then loops.
-const DAILY_REWARDS = [
-  // Day 1
-  { day: 1, gold: 30,  xp: 10,  devotion: 1, items: [],                              label: 'A Modest Tribute' },
-  // Day 2
-  { day: 2, gold: 50,  xp: 20,  devotion: 1, items: [{ id: 'minor_heal_tonic', n: 1 }], label: 'A Healer\'s Gift' },
-  // Day 3
-  { day: 3, gold: 70,  xp: 30,  devotion: 2, items: [{ id: 'shield_draught', n: 1 }],   label: 'A Warden\'s Bond' },
-  // Day 4
-  { day: 4, gold: 100, xp: 50,  devotion: 2, items: [{ id: 'scholars_brew', n: 1 }],    label: 'The Scholar\'s Cup' },
-  // Day 5
-  { day: 5, gold: 150, xp: 75,  devotion: 3, items: [{ id: 'foresight_scroll', n: 1 }], label: 'Eyes Beyond' },
-  // Day 6
-  { day: 6, gold: 200, xp: 100, devotion: 3, items: [{ id: 'greater_heal_tonic', n: 1 }], label: 'The Greater Draught' },
-  // Day 7 — capstone
-  { day: 7, gold: 350, xp: 200, devotion: 5, items: [{ id: 'phoenix_ember', n: 1 }],   label: 'The Phoenix Day', capstone: true },
-];
-
-const dayDiff = (a, b) => {
-  if (!a || !b) return Infinity;
-  const da = new Date(`${a}T00:00:00`);
-  const db = new Date(`${b}T00:00:00`);
-  return Math.round((db - da) / (1000 * 60 * 60 * 24));
 };
 
 // === Recipes (Phase 16) =================================================

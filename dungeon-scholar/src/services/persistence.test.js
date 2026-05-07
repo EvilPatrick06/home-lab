@@ -20,7 +20,30 @@ describe('persistence', () => {
   it('round-trips a state object', () => {
     const state = { level: 5, totalXp: 200, library: [{ id: 'a' }] };
     saveToLocalStorage(state);
-    expect(loadFromLocalStorage()).toEqual(state);
+    expect(loadFromLocalStorage()).toEqual({ state, schemaVer: CURRENT_SCHEMA_VER });
+  });
+
+  it('saveToLocalStorage embeds __schemaVer in the on-disk payload', () => {
+    saveToLocalStorage({ level: 2, library: [] });
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    expect(raw.__schemaVer).toBe(CURRENT_SCHEMA_VER);
+    expect(raw.level).toBe(2);
+  });
+
+  it('loadFromLocalStorage strips __schemaVer from the returned state', () => {
+    saveToLocalStorage({ level: 7, totalXp: 50 });
+    const loaded = loadFromLocalStorage();
+    expect(loaded.state).not.toHaveProperty('__schemaVer');
+    expect(loaded.state).toEqual({ level: 7, totalXp: 50 });
+  });
+
+  it('loadFromLocalStorage treats legacy saves (no __schemaVer) as schemaVer 0', () => {
+    // Simulate a save written before the schemaVer fix landed.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ level: 3, totalXp: 80 }));
+    expect(loadFromLocalStorage()).toEqual({
+      state: { level: 3, totalXp: 80 },
+      schemaVer: 0,
+    });
   });
 
   it('returns null on corrupt JSON', () => {
@@ -54,5 +77,23 @@ describe('persistence', () => {
   it('migrateIfNeeded returns the state unchanged for unknown future versions (forward-compat)', () => {
     const state = { level: 3, library: [] };
     expect(migrateIfNeeded(state, CURRENT_SCHEMA_VER + 1)).toBe(state);
+  });
+
+  it('migrateIfNeeded with schemaVer 0 remaps tutorialStepIndex via migrateTutorialIndex', () => {
+    // savedIndex 7 in the old 8-step order = 'enter_dungeon', which lives
+    // at a different position in the post-overhaul TUTORIAL_STEPS layout.
+    const state = { tutorialStepIndex: 7, level: 1 };
+    const migrated = migrateIfNeeded(state, 0);
+    expect(typeof migrated.tutorialStepIndex).toBe('number');
+    // Concrete check: it must NOT still be 7 (the old position) — that
+    // would mean the migration didn't run.
+    expect(migrated.tutorialStepIndex).not.toBe(7);
+    // Other fields preserved.
+    expect(migrated.level).toBe(1);
+  });
+
+  it('migrateIfNeeded with schemaVer 0 leaves state alone when tutorialStepIndex is missing', () => {
+    const state = { level: 5 };
+    expect(migrateIfNeeded(state, 0)).toEqual({ level: 5 });
   });
 });
