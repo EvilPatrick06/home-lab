@@ -219,12 +219,14 @@ const ROOM_TEMPLATES = [
   ]},
 ];
 
-export const ROOMS_BY_DIFFICULTY = { apprentice: 8, adept: 12, master: 18, mythic: 24 };
+// Bumped 25a-4: maps were felt cramped, especially on master/mythic.
+// Was 8/12/18/24 rooms across 80x55 → 160x110.
+export const ROOMS_BY_DIFFICULTY = { apprentice: 12, adept: 18, master: 26, mythic: 36 };
 export const SIZE_BY_DIFFICULTY = {
-  apprentice: { w: 80,  h: 55 },
-  adept:      { w: 100, h: 70 },
-  master:     { w: 130, h: 90 },
-  mythic:     { w: 160, h: 110 },
+  apprentice: { w: 110, h: 75  },
+  adept:      { w: 140, h: 95  },
+  master:     { w: 180, h: 125 },
+  mythic:     { w: 220, h: 150 },
 };
 
 // HP, shields, XP/gold multipliers per difficulty.
@@ -425,24 +427,40 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
     }
   }
 
+  // 25a-4: pick the boss room as the one FARTHEST (Manhattan) from spawn.
+  // Was rooms[rooms.length-1], which depended on placement order — boss
+  // could spawn close to the player on certain seeds.
   let bossPos = null;
+  let bossRoomIdx = -1;
   if (rooms.length > 1) {
-    const last = rectCenter(rooms[rooms.length - 1]);
-    map[last.y][last.x] = TILE.STAIRS_DOWN;
-    bossPos = { x: last.x, y: Math.max(rooms[rooms.length - 1].y + 1, last.y - 1) };
+    const spawnCenter = rectCenter(rooms[0]);
+    let maxDist = -1;
+    for (let i = 1; i < rooms.length; i++) {
+      const c = rectCenter(rooms[i]);
+      const d = Math.abs(c.x - spawnCenter.x) + Math.abs(c.y - spawnCenter.y);
+      if (d > maxDist) { maxDist = d; bossRoomIdx = i; }
+    }
+    const bossRoom = rooms[bossRoomIdx];
+    const center = rectCenter(bossRoom);
+    map[center.y][center.x] = TILE.STAIRS_DOWN;
+    bossPos = { x: center.x, y: Math.max(bossRoom.y + 1, center.y - 1) };
   }
 
   const decorations = [];
   const mobs = [];
   const decoKinds = DECO_BY_BIOME[biome] || DECO_BY_BIOME.halls;
   const mobPool = MOBS_BY_BIOME[biome] || MOBS_BY_BIOME.halls;
+  // 25a-4: keep decorations / chests / plants from clumping into lines or
+  // adjacent blobs by enforcing a Chebyshev minimum spacing.
+  const tooClose = (list, x, y, minDist) =>
+    list.some((p) => Math.max(Math.abs(p.x - x), Math.abs(p.y - y)) < minDist);
 
   // Pack rooms with decorations and mobs. Spawn room stays light so the
   // player isn't ambushed at start; boss room has a couple of decorations
   // (no mobs) flanking the lord.
   rooms.forEach((room, idx) => {
     const isSpawn = idx === 0;
-    const isBoss = idx === rooms.length - 1 && rooms.length > 1;
+    const isBoss = idx === bossRoomIdx;
     const roomArea = room.w * room.h;
     // Density: ~1 deco per 8 tiles, capped, plus a small base.
     const decoBase = isSpawn ? 1 : isBoss ? 2 : 4;
@@ -453,16 +471,19 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
       const tx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
       const ty = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
       if (map[ty]?.[tx] !== TILE.FLOOR) continue;
-      // Avoid stacking on top of existing decorations.
-      if (decorations.some((d) => d.x === tx && d.y === ty)) continue;
+      // Avoid stacking on top of existing decorations AND keep at least
+      // a one-tile gap so they don't clump into rows. Chebyshev >= 2 means
+      // no decoration sits in any of the 8 surrounding tiles of another.
+      if (tooClose(decorations, tx, ty, 2)) continue;
       const kind = decoKinds[Math.floor(rng() * decoKinds.length)];
       decorations.push({ kind, x: tx, y: ty });
     }
 
-    // Place a mix of basic and elite mobs. Elite count is small (0-1 per
-    // mid room, 1-2 in larger rooms); basics fill out the rest.
+    // Place a mix of basic and elite mobs. 25a-4 bumped elite presence
+    // — was 0-1 mid rooms / 1-2 in big ones, now ~half the mob count
+    // is elite minimum 1 in any populated room. Basics fill out the rest.
     const eliteCount = mobCount > 0
-      ? (mobCount >= 5 ? 1 + Math.floor(rng() * 2) : Math.floor(rng() * 2))
+      ? Math.max(1, Math.floor(mobCount / 2) + (rng() < 0.4 ? 1 : 0))
       : 0;
     const basicCount = Math.max(0, mobCount - eliteCount);
     const placeMob = (kind) => {
@@ -509,9 +530,12 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
       const tx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
       const ty = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
       if (map[ty]?.[tx] !== TILE.FLOOR) continue;
-      if (chests.some((c) => c.x === tx && c.y === ty)) continue;
+      // Chebyshev spacing: no chest within 2 tiles of another chest, and
+      // no chest adjacent to a decoration / mob (keeps loot pickups
+      // visually distinct from decor and breaks up clumps).
+      if (tooClose(chests, tx, ty, 3)) continue;
+      if (tooClose(decorations, tx, ty, 2)) continue;
       if (mobs.some((m) => m.x === tx && m.y === ty)) continue;
-      if (decorations.some((d) => d.x === tx && d.y === ty)) continue;
       chests.push({ tier, x: tx, y: ty, opened: false });
       return;
     }

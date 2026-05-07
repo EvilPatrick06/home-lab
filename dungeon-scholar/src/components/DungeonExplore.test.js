@@ -75,13 +75,25 @@ describe('generateMap', () => {
     expect([TILE.FLOOR, TILE.STAIRS_DOWN, TILE.STAIRS_UP, TILE.DOOR]).toContain(t);
   });
 
-  it('places stairs in the last room', () => {
+  it('places stairs in the farthest room from spawn (Manhattan)', () => {
+    // 25a-4: boss room is now the room with max Manhattan distance from
+    // the spawn room center, not rooms[rooms.length - 1].
     const out = generateMap({ difficulty: 'apprentice', rng: seedRng(7) });
     if (out.rooms.length < 2) return; // tiny map edge case
+    const cx = (r) => r.x + Math.floor(r.w / 2);
+    const cy = (r) => r.y + Math.floor(r.h / 2);
+    const spawn = out.rooms[0];
+    const sx = cx(spawn), sy = cy(spawn);
+    let farIdx = 1, maxDist = -1;
+    for (let i = 1; i < out.rooms.length; i++) {
+      const r = out.rooms[i];
+      const d = Math.abs(cx(r) - sx) + Math.abs(cy(r) - sy);
+      if (d > maxDist) { maxDist = d; farIdx = i; }
+    }
+    const far = out.rooms[farIdx];
     let foundStairs = false;
-    const last = out.rooms[out.rooms.length - 1];
-    for (let y = last.y; y < last.y + last.h && !foundStairs; y++) {
-      for (let x = last.x; x < last.x + last.w; x++) {
+    for (let y = far.y; y < far.y + far.h && !foundStairs; y++) {
+      for (let x = far.x; x < far.x + far.w; x++) {
         if (out.map[y][x] === TILE.STAIRS_DOWN) { foundStairs = true; break; }
       }
     }
