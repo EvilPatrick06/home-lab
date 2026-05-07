@@ -1865,6 +1865,17 @@ function pickQuestions(courseSet, count, excludeIds = new Set()) {
   return arr.slice(0, count);
 }
 
+// Pick a single question, preferring un-used ones but falling back to the
+// full pool if the run has burned through every question. Used by the
+// open-ended gauntlet — each wrong answer pulls a fresh prompt instead
+// of advancing toward a fixed end-of-trial.
+function pickOneQuestion(courseSet, excludeIds = new Set()) {
+  const filtered = pickQuestions(courseSet, 1, excludeIds);
+  if (filtered.length > 0) return filtered[0];
+  const anyOf = pickQuestions(courseSet, 1, new Set());
+  return anyOf[0] || null;
+}
+
 function checkAnswerCorrect(question, choice) {
   if (!question) return false;
   if (question.type === 'multiplechoice') {
@@ -1882,13 +1893,11 @@ function checkAnswerCorrect(question, choice) {
 // === BattleModal ========================================================
 function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemaining, hp, maxHp, bossDisplay }) {
   if (!battle) return null;
-  const q = battle.questions[battle.questionIdx];
+  const q = battle.currentQuestion;
   if (!q) return null;
   const isBoss = battle.type === 'boss';
-  const total = battle.questions.length;
-  const stepNum = battle.questionIdx + 1;
   const correctCount = battle.correctCount || 0;
-  const mobMaxHp = total;
+  const mobMaxHp = battle.maxHp || 1;
   const mobHpRemaining = Math.max(0, mobMaxHp - correctCount);
   const tier = isBoss ? 'boss' : (battle.mobTier || 'basic');
   const tierLabel = isBoss ? 'Boss'
@@ -1908,7 +1917,9 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
     }, 900);
   };
 
-  useEffect(() => { setRevealResult(null); }, [battle.questionIdx, battle.type]);
+  // Reset reveal animation when the question or battle changes (q.id is the
+  // signal — a wrong answer now swaps in a fresh question, no fixed idx).
+  useEffect(() => { setRevealResult(null); }, [q?.id, battle.type]);
 
   const options = q.type === 'truefalse' ? ['True', 'False'] : (q.options || []);
 
@@ -1941,8 +1952,8 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
         <div className="flex items-center justify-between mb-3">
           <div className="text-xs uppercase tracking-wider italic" style={{ color: biome.accentSolid }}>
             {isBoss
-              ? `⚔ Boss Trial · Question ${stepNum} of ${total}`
-              : (total > 1 ? `⚔ Elite Encounter · Question ${stepNum} of ${total}` : '⚔ Encounter')}
+              ? '⚔ Boss Trial'
+              : (mobMaxHp > 1 ? '⚔ Elite Encounter' : '⚔ Encounter')}
           </div>
           <div className="text-[10px] italic text-amber-700">
             Wrong = -{tierDmg} HP
@@ -2015,12 +2026,12 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
               cursor: revealResult ? 'default' : 'pointer',
             }}
           >
-            🛡️ Flee — costs 1 shield ({shieldsRemaining} remaining)
+            🛡️ Flee — costs {tier === 'elite' ? '2 shields' : '1 shield'} ({shieldsRemaining} remaining)
           </button>
         )}
         {!isBoss && !canFlee && (
           <div className="mt-3 text-xs italic text-amber-700/80 text-center">
-            ⚜ No shields remain to flee with. ⚜
+            ⚜ {tier === 'elite' ? 'Need 2 shields to flee an elite.' : 'No shields remain to flee with.'} ⚜
           </div>
         )}
         {isBoss && (
@@ -2659,31 +2670,33 @@ export default function DungeonExplore({
   // Mob / boss / chest / plant collision detection on every position change.
   useEffect(() => {
     if (phase !== 'world' || battle || runState !== 'alive') return;
-    // Boss collision
+    // Boss collision. Boss has 5 HP — needs 5 correct answers. Each
+    // wrong answer pulls a new question instead of advancing toward
+    // the end of a fixed gauntlet.
     if (initial.boss && pos.x === initial.boss.x && pos.y === initial.boss.y) {
-      const qs = pickQuestions(courseSet, 5, usedQuestionIdsRef.current);
-      if (qs.length === 0) {
+      const first = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
+      if (!first) {
         // No quiz questions in tome — auto-victory rather than soft-locking.
         finishRun(true, { earlyByEmptyTome: true });
         return;
       }
-      qs.forEach((q) => usedQuestionIdsRef.current.add(q.id));
-      setBattle({ type: 'boss', questions: qs, questionIdx: 0, correctCount: 0 });
+      usedQuestionIdsRef.current.add(first.id);
+      setBattle({ type: 'boss', currentQuestion: first, correctCount: 0, maxHp: 5 });
       return;
     }
-    // Mob collision — basic = 1 question, elite = 3 questions.
+    // Mob collision — basic = 1 HP (one correct = dead), elite = 3 HP.
     const mobIdx = mobsRef.current.findIndex((m) => m.x === pos.x && m.y === pos.y);
     if (mobIdx >= 0) {
       const mob = mobsRef.current[mobIdx];
-      const qCount = mob.tier === 'elite' ? ELITE_QUESTION_COUNT : 1;
-      const qs = pickQuestions(courseSet, qCount, usedQuestionIdsRef.current);
-      if (qs.length === 0) {
+      const mobHp = mob.tier === 'elite' ? ELITE_QUESTION_COUNT : 1;
+      const first = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
+      if (!first) {
         mobsRef.current.splice(mobIdx, 1);
         if (awardXP) awardXP(5, 'Foe felled (silent)');
         return;
       }
-      qs.forEach((q) => usedQuestionIdsRef.current.add(q.id));
-      setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, questions: qs, questionIdx: 0, correctCount: 0 });
+      usedQuestionIdsRef.current.add(first.id);
+      setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, currentQuestion: first, correctCount: 0, maxHp: mobHp });
       return;
     }
     // Chest collision — pay out gold + maybe an item, mark as opened.
@@ -2801,49 +2814,53 @@ export default function DungeonExplore({
       }
     }
 
-    // Mob: cycle through the question gauntlet (1 for basic, 3 for elite),
-    // then remove the mob. Wrongs along the way already cost HP above.
+    // Open-ended HP-based gauntlet (25a-3): the foe only dies when
+    // `correctCount` reaches its `maxHp`. Wrong answers cost player HP
+    // (handled above) but do NOT advance the kill count — the player just
+    // gets a fresh question and tries again.
+    const nextCorrect = (battle.correctCount || 0) + (correct ? 1 : 0);
+    const slain = nextCorrect >= (battle.maxHp || 1);
+
     if (battle?.type === 'mob') {
-      const nextIdx = battle.questionIdx + 1;
-      const nextCorrect = (battle.correctCount || 0) + (correct ? 1 : 0);
-      if (nextIdx >= battle.questions.length) {
-        const slain = mobsRef.current[battle.mobIdx];
+      if (slain) {
+        const mob = mobsRef.current[battle.mobIdx];
         mobsRef.current.splice(battle.mobIdx, 1);
-        if (slain && recordBestiary) recordBestiary(slain.kind);
+        if (mob && recordBestiary) recordBestiary(mob.kind);
         setBattle(null);
-      } else {
-        setBattle({ ...battle, questionIdx: nextIdx, correctCount: nextCorrect });
+        return;
       }
+      // Foe still standing — pull a fresh question and continue.
+      const next = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
+      if (next) usedQuestionIdsRef.current.add(next.id);
+      setBattle({ ...battle, currentQuestion: next || battle.currentQuestion, correctCount: nextCorrect });
       return;
     }
 
-    // Boss: advance through the gauntlet.
     if (battle?.type === 'boss') {
-      const nextIdx = battle.questionIdx + 1;
-      const nextCorrect = (battle.correctCount || 0) + (correct ? 1 : 0);
-      if (nextIdx >= battle.questions.length) {
+      if (slain) {
         setBattle(null);
         setTimeout(() => {
           if (stateRef.current.hp > 0) finishRun(true, {});
         }, 0);
-      } else {
-        setBattle({ ...battle, questionIdx: nextIdx, correctCount: nextCorrect });
+        return;
       }
+      const next = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
+      if (next) usedQuestionIdsRef.current.add(next.id);
+      setBattle({ ...battle, currentQuestion: next || battle.currentQuestion, correctCount: nextCorrect });
     }
   };
 
-  // Flee a non-boss battle. Costs 1 shield, removes the mob, closes modal.
+  // Flee a non-boss battle. Costs 1 shield for basic mobs, 2 shields for
+  // elites. Removes the mob and closes the modal.
   const onBattleFlee = () => {
     if (!battle || battle.type !== 'mob') return;
-    if (shields <= 0) return;
-    setShields((s) => s - 1);
+    const cost = battle.mobTier === 'elite' ? 2 : 1;
+    if (shields < cost) return;
+    setShields((s) => s - cost);
     if (typeof battle.mobIdx === 'number') {
       mobsRef.current.splice(battle.mobIdx, 1);
     }
     setBattle(null);
-    // Audible confirmation that the flee triggered (shield consumed,
-    // foe banished). Was silent before.
-    playSfx('cast');
   };
 
   // Watch HP — if it drops to 0 or below, end the run (or revive once if the
@@ -3491,7 +3508,7 @@ export default function DungeonExplore({
           biome={biome}
           onAnswer={onBattleAnswer}
           onFlee={onBattleFlee}
-          canFlee={shields > 0}
+          canFlee={shields >= (battle?.mobTier === 'elite' ? 2 : 1)}
           shieldsRemaining={shields}
           hp={hp}
           maxHp={effectiveMaxHp}
