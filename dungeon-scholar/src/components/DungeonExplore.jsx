@@ -61,6 +61,10 @@ export const TILE = {
   DOOR: 2,
   STAIRS_UP: 3,
   STAIRS_DOWN: 4,
+  // 25a-6: locked door blocking the boss room entrance. NOT walkable
+  // until the player presents the boss key — first contact unlocks
+  // (consumes the key) and converts every BOSS_DOOR tile to FLOOR.
+  BOSS_DOOR: 5,
 };
 
 const TILE_PX = 48;
@@ -444,6 +448,24 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
     const center = rectCenter(bossRoom);
     map[center.y][center.x] = TILE.STAIRS_DOWN;
     bossPos = { x: center.x, y: Math.max(bossRoom.y + 1, center.y - 1) };
+
+    // 25a-6: place a BOSS_DOOR on every floor tile that sits OUTSIDE the
+    // boss room but adjacent to one of its inside floor tiles — i.e. the
+    // corridor's last step into the chamber. Multiple corridors may
+    // connect to the boss room; every entry gets a locked door. First
+    // unlock (key use) converts ALL boss doors to FLOOR.
+    const inBoss = (x, y) => x >= bossRoom.x && x < bossRoom.x + bossRoom.w
+                          && y >= bossRoom.y && y < bossRoom.y + bossRoom.h;
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        if (map[y][x] !== TILE.FLOOR) continue;
+        if (inBoss(x, y)) continue;
+        const neighbors = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
+        if (neighbors.some(([nx, ny]) => inBoss(nx, ny) && map[ny]?.[nx] === TILE.FLOOR)) {
+          map[y][x] = TILE.BOSS_DOOR;
+        }
+      }
+    }
   }
 
   const decorations = [];
@@ -640,6 +662,36 @@ function drawDoor(ctx, p, px, py) {
   ctx.fillRect(px + 22, py + 24, 4, 4);
 }
 
+// 25a-6: locked boss door — heavy iron with a gold rim and a keyhole.
+// Visually distinct from the normal DOOR tile so the player knows what
+// stands between them and the boss chamber.
+function drawBossDoor(ctx, p, px, py) {
+  // Wall-toned backdrop so it reads as part of the boss room boundary.
+  ctx.fillStyle = p.wallShade;
+  ctx.fillRect(px, py, TILE_PX, TILE_PX);
+  // Iron door body
+  ctx.fillStyle = '#3a2418';
+  ctx.fillRect(px + 6, py + 4, TILE_PX - 12, TILE_PX - 8);
+  ctx.fillStyle = '#5a3818';
+  ctx.fillRect(px + 8, py + 6, TILE_PX - 16, TILE_PX - 12);
+  // Gold rim + studs
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(px + 6, py + 4, TILE_PX - 12, 2);
+  ctx.fillRect(px + 6, py + TILE_PX - 6, TILE_PX - 12, 2);
+  ctx.fillRect(px + 6, py + 4, 2, TILE_PX - 8);
+  ctx.fillRect(px + TILE_PX - 8, py + 4, 2, TILE_PX - 8);
+  // Stud nails
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(px + 10, py + 8, 2, 2);
+  ctx.fillRect(px + TILE_PX - 12, py + 8, 2, 2);
+  ctx.fillRect(px + 10, py + TILE_PX - 10, 2, 2);
+  ctx.fillRect(px + TILE_PX - 12, py + TILE_PX - 10, 2, 2);
+  // Keyhole
+  ctx.fillStyle = '#0a0604';
+  ctx.fillRect(px + TILE_PX / 2 - 1, py + TILE_PX / 2 - 4, 2, 8);
+  ctx.fillRect(px + TILE_PX / 2 - 3, py + TILE_PX / 2 - 4, 6, 3);
+}
+
 function drawTile(ctx, biome, type, px, py) {
   const p = biome.palette;
   const seed = tileSeed(Math.floor(px / TILE_PX), Math.floor(py / TILE_PX));
@@ -647,6 +699,7 @@ function drawTile(ctx, biome, type, px, py) {
   else if (type === TILE.FLOOR) drawFloor(ctx, p, px, py, biome.decoChance, seed);
   else if (type === TILE.STAIRS_DOWN || type === TILE.STAIRS_UP) drawStairs(ctx, p, px, py);
   else if (type === TILE.DOOR) drawDoor(ctx, p, px, py);
+  else if (type === TILE.BOSS_DOOR) drawBossDoor(ctx, p, px, py);
   else drawWall(ctx, p, px, py);
 }
 
@@ -1961,10 +2014,23 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
     if (revealResult) return;
     const correct = checkAnswerCorrect(q, choice);
     setRevealResult({ correct, choice });
-    setTimeout(() => {
-      setRevealResult(null);
-      onAnswer(correct, q);
-    }, 900);
+    if (correct) {
+      // Right answers still auto-advance after a short reveal flash —
+      // no need to dwell, the player's already on the right track.
+      setTimeout(() => {
+        setRevealResult(null);
+        onAnswer(true, q);
+      }, 900);
+    }
+    // Wrong answers: hold the modal open so the player can read the
+    // explanation. Advancing happens via the "Next Question" button
+    // below (added in the JSX). 25a-6.
+  };
+
+  const advanceAfterWrong = () => {
+    if (!revealResult || revealResult.correct) return;
+    setRevealResult(null);
+    onAnswer(false, q);
   };
 
   // Reset reveal animation when the question or battle changes (q.id is the
@@ -2058,11 +2124,27 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
           <div className="mt-3 text-xs italic text-amber-300">
             {revealResult.correct
               ? '✦ Thy answer rings true.'
-              : '✦ Nay — but the trial does not pause.'}
+              : '✦ Nay — read the lore, then press onward.'}
             {q.explanation && (
               <div className="mt-1 text-amber-200/80">{q.explanation}</div>
             )}
           </div>
+        )}
+        {/* 25a-6: on wrong answers, the modal pauses on reveal so the
+            player can read the explanation. They advance manually. */}
+        {revealResult && !revealResult.correct && (
+          <button
+            onClick={advanceAfterWrong}
+            className="mt-3 px-3 py-2 rounded italic w-full text-sm font-bold"
+            style={{
+              background: 'linear-gradient(to bottom, #b45309 0%, #78350f 100%)',
+              border: '2px solid #fbbf24',
+              color: '#fde68a',
+              cursor: 'pointer',
+            }}
+          >
+            Next Question →
+          </button>
         )}
         {!isBoss && canFlee && (
           <button
@@ -2638,6 +2720,29 @@ export default function DungeonExplore({
   const tryMove = (dx, dy, dir) => {
     if (phase !== 'world' || battle || runState !== 'alive') return;
     setFacing(dir);
+
+    // 25a-6: pre-check the destination tile for BOSS_DOOR. With the key,
+    // unlock all boss doors (mutate initial.map → FLOOR) and consume
+    // the key. Without the key, abort the move with a notice. Falls
+    // through to the regular setPos updater for normal tiles.
+    const nx0 = pos.x + dx, ny0 = pos.y + dy;
+    if (ny0 >= 0 && ny0 < initial.map.length && nx0 >= 0 && nx0 < initial.map[0].length) {
+      if (initial.map[ny0][nx0] === TILE.BOSS_DOOR) {
+        if (!bossKeyFound) {
+          setNotice({ tone: 'info', text: '⚷ The Boss Door is sealed. Find the key.' });
+          return;
+        }
+        for (let y = 0; y < initial.map.length; y++) {
+          for (let x = 0; x < initial.map[0].length; x++) {
+            if (initial.map[y][x] === TILE.BOSS_DOOR) initial.map[y][x] = TILE.FLOOR;
+          }
+        }
+        setBossKeyFound(false);
+        playSfx('chest');
+        setNotice({ tone: 'good', text: '⚷ The lock yields. The chamber opens.' });
+      }
+    }
+
     setPos((p) => {
       const nx = p.x + dx;
       const ny = p.y + dy;
@@ -2731,13 +2836,10 @@ export default function DungeonExplore({
     // wrong answer pulls a new question instead of advancing toward
     // the end of a fixed gauntlet.
     if (initial.boss && pos.x === initial.boss.x && pos.y === initial.boss.y) {
-      // 25a-5: gate the boss fight behind the boss key. Without it the
-      // player gets a notice and the trial does NOT start. The boss
-      // remains on the tile so the player can return after looting.
-      if (!bossKeyFound) {
-        setNotice({ tone: 'info', text: '⚷ The chamber is sealed. Find the Boss Key — try chests or felled foes.' });
-        return;
-      }
+      // 25a-6: the boss-tile collision is now reached only AFTER the
+      // player walks through the unlocked Boss Door (which consumes
+      // the key). The 25a-5 in-place gate is no longer needed since
+      // the door blocks entry to the chamber entirely.
       const first = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
       if (!first) {
         // No quiz questions in tome — auto-victory rather than soft-locking.
