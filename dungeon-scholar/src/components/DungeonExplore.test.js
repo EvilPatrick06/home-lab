@@ -4,9 +4,11 @@ import {
   generateStarterMap,
   pickBiomeForSubject,
   BIOMES,
+  BIOME_BOSS_POOL,
   TILE,
   ROOMS_BY_DIFFICULTY,
   SIZE_BY_DIFFICULTY,
+  makeSeededRng,
 } from './DungeonExplore.jsx';
 
 // Seedable RNG so map-gen assertions are deterministic per test.
@@ -133,6 +135,44 @@ describe('generateStarterMap', () => {
     const out = generateStarterMap({ rng: seedRng(1) });
     expect(out.width).toBe(SIZE_BY_DIFFICULTY.apprentice.w);
     expect(out.height).toBe(SIZE_BY_DIFFICULTY.apprentice.h);
+  });
+});
+
+describe('BIOME_BOSS_POOL (25b — random boss per delve)', () => {
+  it('every biome has at least 2 candidate bosses', () => {
+    Object.entries(BIOME_BOSS_POOL).forEach(([biome, pool]) => {
+      expect(pool.length).toBeGreaterThanOrEqual(2);
+      // No duplicates within a biome's pool.
+      expect(new Set(pool).size).toBe(pool.length);
+      // Sanity: biome key is one we expect a tone for.
+      expect(BIOMES[biome]).toBeTruthy();
+    });
+  });
+
+  it('every boss appears in at least 2 biome pools', () => {
+    const counts = {};
+    Object.values(BIOME_BOSS_POOL).forEach((pool) => {
+      pool.forEach((boss) => { counts[boss] = (counts[boss] || 0) + 1; });
+    });
+    Object.entries(counts).forEach(([boss, n]) => {
+      expect(n, `${boss} should appear in >=2 biome pools`).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it('different delve seeds rotate boss kinds for the same biome', () => {
+    // Sample a wide range of seeds. We expect the rolled kinds to span
+    // the full pool — if not, the rng plumbing is broken.
+    const biome = 'crypt';
+    const expected = new Set(BIOME_BOSS_POOL[biome]);
+    const seen = new Set();
+    for (let seed = 1; seed <= 40; seed++) {
+      const out = generateMap({ difficulty: 'adept', biome, rng: makeSeededRng(seed) });
+      if (out.boss) seen.add(out.boss.kind);
+    }
+    // Every entry in the pool should turn up in 40 rolls; fuzz tolerated
+    // is "subset of pool, but not just one kind".
+    seen.forEach((kind) => expect(expected.has(kind)).toBe(true));
+    expect(seen.size).toBeGreaterThanOrEqual(2);
   });
 });
 

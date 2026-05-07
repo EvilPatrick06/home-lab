@@ -337,12 +337,20 @@ const LOOTABLE_DECOS = {
   rot_flower:  { goldRange: [2, 4], itemChance: 0.55, itemPool: ['iron_filings', 'iron_filings', 'shield_draught'] },
   algae:       { goldRange: [1, 3], itemChance: 0.55, itemPool: ['glow_root', 'crystal_shard', 'minor_heal_tonic'] },
 };
-const BOSS_BY_BIOME = {
-  crypt:  'lich',
-  sewers: 'hydra',
-  tower:  'sphinx',
-  halls:  'behemoth',
-  wastes: 'riddler',
+// 25b: each biome rolls a boss from a small pool per delve so the same
+// difficulty/biome combo doesn't always pit you against the same trial.
+// Every boss appears in ≥2 pools so its sprite stays familiar across
+// the game.
+export const BIOME_BOSS_POOL = {
+  crypt:  ['lich',     'riddler',  'behemoth'],
+  sewers: ['hydra',    'behemoth', 'riddler'],
+  tower:  ['sphinx',   'lich',     'riddler'],
+  halls:  ['behemoth', 'sphinx',   'lich'],
+  wastes: ['riddler',  'sphinx',   'hydra'],
+};
+const pickBossForBiome = (biome, rng) => {
+  const pool = BIOME_BOSS_POOL[biome] || BIOME_BOSS_POOL.halls;
+  return pool[Math.floor(rng() * pool.length)];
 };
 
 const templateRect = (template, x, y) => ({
@@ -368,6 +376,18 @@ const shuffle = (arr, rng) => {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+};
+
+// 25b: linear-congruential PRNG so delveSeed → fresh deterministic map.
+// Mixed via Knuth multiplier so adjacent seeds (1, 2, 3…) diverge fast
+// instead of producing near-identical layouts.
+export const makeSeededRng = (seed) => {
+  let s = ((seed >>> 0) * 2654435761) >>> 0;
+  if (s === 0) s = 1;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 0xffffffff;
+  };
 };
 
 export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = Math.random } = {}) {
@@ -554,7 +574,7 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
   }
 
   const boss = bossPos
-    ? { kind: BOSS_BY_BIOME[biome] || BOSS_BY_BIOME.halls, x: bossPos.x, y: bossPos.y }
+    ? { kind: pickBossForBiome(biome, rng), x: bossPos.x, y: bossPos.y }
     : null;
 
   // Chests — placed in non-spawn, non-boss rooms. Each tier rolls a count
@@ -2366,9 +2386,16 @@ export default function DungeonExplore({
   const biomeId = useMemo(() => pickBiomeForSubject(subject), [subject]);
   const biome = BIOMES[biomeId] || BIOMES.halls;
 
+  // 25b: per-delve seed bumped by beginRun so two consecutive delves at
+  // the same difficulty/biome regenerate the map (and re-roll the boss).
+  // Initialized to a random uint32 so the first delve of a session isn't
+  // deterministic across reloads.
+  const [delveSeed, setDelveSeed] = useState(() => Math.floor(Math.random() * 0xffffffff));
+  const pendingStartRef = useRef(false);
+
   const initial = useMemo(
-    () => generateMap({ difficulty, biome: biomeId }),
-    [difficulty, biomeId],
+    () => generateMap({ difficulty, biome: biomeId, rng: makeSeededRng(delveSeed) }),
+    [difficulty, biomeId, delveSeed],
   );
 
   // Run state
@@ -2435,8 +2462,10 @@ export default function DungeonExplore({
     };
   });
 
-  // Reset on map regen / difficulty change / loadout change. Always returns
-  // the player to the setup screen so the new run gets confirmed there.
+  // Reset on map regen / difficulty change / loadout change. Drops back to
+  // setup unless beginRun set pendingStartRef — then the same regen also
+  // launches the world phase, which is how delveSeed bumps spawn a fresh
+  // map per Begin Delve.
   useEffect(() => {
     setPos(initial.spawn);
     setFacing('down');
@@ -2455,50 +2484,34 @@ export default function DungeonExplore({
     setRunState('alive');
     setBattle(null);
     setEndSummary(null);
-    setPhase('setup');
     mobsRef.current = initial.mobs.map((m) => ({ ...m }));
     decorationsRef.current = initial.decorations.map((d) => ({ ...d }));
     chestsRef.current = (initial.chests || []).map((c) => ({ ...c }));
     usedQuestionIdsRef.current = new Set();
     runQuestionLogRef.current = [];
     runStartTimeRef.current = Date.now();
-    trackedAttemptRef.current = false;
     xpEarnedRef.current = 0;
+    if (pendingStartRef.current) {
+      pendingStartRef.current = false;
+      setNotice(null);
+      if (!trackedAttemptRef.current && trackDungeonAttempt) {
+        trackedAttemptRef.current = true;
+        try { trackDungeonAttempt(); } catch { /* best-effort */ }
+      }
+      setPhase('world');
+    } else {
+      trackedAttemptRef.current = false;
+      setPhase('setup');
+    }
   }, [initial, effectiveMaxHp, effectiveMaxShield]);
 
-  // Begin a delve from the setup screen — fires the tutorial counter and
-  // flips into the world phase.
+  // Begin a delve from the setup screen. Bumps delveSeed → useMemo
+  // regenerates `initial` → the reset useEffect above runs, sees the
+  // pending flag, and flips to world. All the per-run resets live in
+  // that effect to keep beginRun a single intent ("start a fresh run").
   const beginRun = () => {
-    setHp(effectiveMaxHp);
-    setShields(effectiveMaxShield);
-    setMana(maxMana);
-    setRevealedAnswer(null);
-    setFirstWrongUsed(false);
-    setBossKeyFound(false);
-    setReviveAvailable(false);
-    setXpBuffRemaining(0);
-    setScore(0);
-    setStreak(0);
-    setMaxStreak(0);
-    setMistakes(0);
-    setRunState('alive');
-    setBattle(null);
-    setEndSummary(null);
-    setNotice(null);
-    setPos(initial.spawn);
-    setFacing('down');
-    mobsRef.current = initial.mobs.map((m) => ({ ...m }));
-    decorationsRef.current = initial.decorations.map((d) => ({ ...d }));
-    chestsRef.current = (initial.chests || []).map((c) => ({ ...c }));
-    usedQuestionIdsRef.current = new Set();
-    runQuestionLogRef.current = [];
-    runStartTimeRef.current = Date.now();
-    xpEarnedRef.current = 0;
-    if (!trackedAttemptRef.current && trackDungeonAttempt) {
-      trackedAttemptRef.current = true;
-      try { trackDungeonAttempt(); } catch { /* best-effort */ }
-    }
-    setPhase('world');
+    pendingStartRef.current = true;
+    setDelveSeed((s) => (s + 1) >>> 0);
   };
 
   // After a victory or defeat, return to the setup screen for another delve.
@@ -2798,14 +2811,62 @@ export default function DungeonExplore({
     }
   };
 
-  // Latest usePotion / tryMove via refs so the keydown handler can reach
-  // them without restarting on every render.
+  // 25b: harvest action — picks the plant the player is currently standing
+  // on. Moved out of tryMove so harvest is an explicit interact, not a
+  // pickup-by-walk-over.
+  const isOnHarvestablePlant = () =>
+    decorationsRef.current.some((d) => d.x === pos.x && d.y === pos.y && LOOTABLE_DECOS[d.kind]);
+  const harvestHere = () => {
+    if (phase !== 'world' || battle || runState !== 'alive') return;
+    const decoIdx = decorationsRef.current.findIndex(
+      (d) => d.x === pos.x && d.y === pos.y && LOOTABLE_DECOS[d.kind],
+    );
+    if (decoIdx < 0) return;
+    const deco = decorationsRef.current[decoIdx];
+    const cfg = LOOTABLE_DECOS[deco.kind];
+    const lo = cfg.goldRange[0];
+    const hi = cfg.goldRange[1];
+    const goldGain = lo + Math.floor(Math.random() * (hi - lo + 1));
+    if (goldGain > 0 && awardGold) awardGold(goldGain, `Harvested ${deco.kind.replace('_', ' ')}`);
+    if (goldGain > 0) showPickup(`+${goldGain}`, '#fde047');
+    if (Math.random() < (cfg.itemChance || 0) && cfg.itemPool.length > 0 && giveItem) {
+      const itemId = cfg.itemPool[Math.floor(Math.random() * cfg.itemPool.length)];
+      // Phase 18: Glade Fox can double the harvest.
+      const doubled = (equipBonuses.plantDoublePct || 0) > 0
+        && Math.random() * 100 < equipBonuses.plantDoublePct;
+      const count = doubled ? 2 : 1;
+      giveItem(itemId, count);
+      const info = POTION_INFO[itemId];
+      const label = info ? info.name : itemId;
+      showPickup(doubled ? `Acquired: ${label} ×2` : `Acquired: ${label}`, '#a7f3d0');
+    }
+    decorationsRef.current.splice(decoIdx, 1);
+    playSfx('pickup');
+  };
+
+  // 25b: single E-key dispatch. Door takes priority since the player
+  // can't be standing on a plant tile and adjacent to a door at once,
+  // but defensive ordering keeps the "no nag" contract — pressing E
+  // with nothing interactable nearby is a silent no-op.
+  const interactWithWorld = () => {
+    if (phase !== 'world' || battle || runState !== 'alive') return;
+    if (isBossDoorAdjacent()) {
+      unlockBossDoorHere();
+      return;
+    }
+    if (isOnHarvestablePlant()) {
+      harvestHere();
+    }
+  };
+
+  // Latest usePotion / tryMove / interact via refs so the keydown handler
+  // can reach them without restarting on every render.
   const usePotionRef = useRef(usePotion);
   useLayoutEffect(() => { usePotionRef.current = usePotion; });
   const castSpellRef = useRef(castSpell);
   useLayoutEffect(() => { castSpellRef.current = castSpell; });
-  const unlockBossDoorRef = useRef(unlockBossDoorHere);
-  useLayoutEffect(() => { unlockBossDoorRef.current = unlockBossDoorHere; });
+  const interactRef = useRef(interactWithWorld);
+  useLayoutEffect(() => { interactRef.current = interactWithWorld; });
 
   useEffect(() => {
     if (phase !== 'world') return undefined;
@@ -2827,10 +2888,11 @@ export default function DungeonExplore({
         return;
       }
       if (e.key === 'Escape') { if (onExit) onExit(); return; }
-      // 25a-6b: E interacts with the world. Currently only the Boss
-      // Door reads it; future plant-harvest gating will share this key.
+      // 25b: E interacts with the world — unlocks the Boss Door when
+      // adjacent (with key in hand) or harvests a plant when standing
+      // on a lootable tile. Silent no-op otherwise.
       if (sk === 'e') {
-        unlockBossDoorRef.current && unlockBossDoorRef.current();
+        interactRef.current && interactRef.current();
         e.preventDefault();
         return;
       }
@@ -2929,30 +2991,10 @@ export default function DungeonExplore({
       playSfx('chest');
       return;
     }
-    // Lootable plant — harvest on walk-over.
-    const decoIdx = decorationsRef.current.findIndex((d) => d.x === pos.x && d.y === pos.y && LOOTABLE_DECOS[d.kind]);
-    if (decoIdx >= 0) {
-      const deco = decorationsRef.current[decoIdx];
-      const cfg = LOOTABLE_DECOS[deco.kind];
-      const lo = cfg.goldRange[0];
-      const hi = cfg.goldRange[1];
-      const goldGain = lo + Math.floor(Math.random() * (hi - lo + 1));
-      if (goldGain > 0 && awardGold) awardGold(goldGain, `Harvested ${deco.kind.replace('_', ' ')}`);
-      if (goldGain > 0) showPickup(`+${goldGain}`, '#fde047');
-      if (Math.random() < (cfg.itemChance || 0) && cfg.itemPool.length > 0 && giveItem) {
-        const itemId = cfg.itemPool[Math.floor(Math.random() * cfg.itemPool.length)];
-        // Phase 18: Glade Fox can double the harvest.
-        const doubled = (equipBonuses.plantDoublePct || 0) > 0
-          && Math.random() * 100 < equipBonuses.plantDoublePct;
-        const count = doubled ? 2 : 1;
-        giveItem(itemId, count);
-        const info = POTION_INFO[itemId];
-        const label = info ? info.name : itemId;
-        showPickup(doubled ? `Acquired: ${label} ×2` : `Acquired: ${label}`, '#a7f3d0');
-      }
-      decorationsRef.current.splice(decoIdx, 1);
-      playSfx('pickup');
-    }
+    // 25b: plants no longer auto-harvest on walk-over. Standing on a
+    // lootable plant tile shows a "Press E" prompt; the harvest payout
+    // moved to harvestHere() below, dispatched by the world-interact
+    // keybinding.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos]);
 
@@ -3341,6 +3383,19 @@ export default function DungeonExplore({
         if (d.x < startCol - 1 || d.x > endCol || d.y < startRow - 1 || d.y > endRow) return;
         const px = d.x * TILE_PX - cameraX;
         const py = d.y * TILE_PX - cameraY;
+        // 25b: lootable plants pulse a soft mint halo to telegraph
+        // they're harvestable. Drawn under the sprite so the plant
+        // detail still reads cleanly.
+        if (LOOTABLE_DECOS[d.kind]) {
+          const pulse = 0.18 + 0.16 * Math.sin(now / 320);
+          ctx.save();
+          ctx.globalAlpha = pulse;
+          ctx.fillStyle = '#a7f3d0';
+          ctx.beginPath();
+          ctx.arc(px + TILE_PX / 2, py + TILE_PX / 2, TILE_PX * 0.55, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
         const drawer = DECO_DRAWERS[d.kind];
         if (drawer) drawer(ctx, px, py, now);
       });
@@ -3874,6 +3929,24 @@ export default function DungeonExplore({
                  maxWidth: '80%',
                }}>
             👁️ The truth: {revealedAnswer}
+          </div>
+        )}
+
+        {/* 25b: harvest prompt. Renders only when standing on a lootable
+            plant with no door taking priority. Pure indicator — the
+            actual harvest fires through interactWithWorld(). */}
+        {!battle && runState === 'alive' && phase === 'world'
+          && !isBossDoorAdjacent() && isOnHarvestablePlant() && (
+          <div className="absolute left-1/2 -translate-x-1/2"
+               style={{ bottom: 110, pointerEvents: 'none' }}>
+            <div className="px-3 py-2 rounded text-xs italic"
+                 style={{
+                   background: 'rgba(0,0,0,0.7)',
+                   border: '1px solid rgba(34, 197, 94, 0.6)',
+                   color: '#a7f3d0',
+                 }}>
+              🌿 Press E to harvest
+            </div>
           </div>
         )}
 
