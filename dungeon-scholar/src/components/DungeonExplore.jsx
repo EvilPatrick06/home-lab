@@ -2370,7 +2370,13 @@ export default function DungeonExplore({
   const castSpell = (slotIdx) => {
     if (phase !== 'world' || runState !== 'alive') return;
     const spellId = ((playerState?.equippedSpells) || [null, null, null])[slotIdx];
-    if (!spellId) return;
+    const hk = ['Z', 'X', 'C'][slotIdx] || '?';
+    // Visible feedback when the player presses a hotkey for an empty
+    // slot. Without this the keypress was silent and felt broken.
+    if (!spellId) {
+      setNotice({ tone: 'info', text: `Spell slot ${hk} is empty. Slot one in the Spellbook.` });
+      return;
+    }
     const def = spellCatalog?.find?.(s => s.id === spellId)
       || (SPELL_INFO[spellId] ? { id: spellId, ...SPELL_INFO[spellId] } : null);
     if (!def) return;
@@ -2483,9 +2489,20 @@ export default function DungeonExplore({
   const usePotion = (slotIdx) => {
     if (phase !== 'world' || runState !== 'alive' || battle) return;
     const itemId = ((playerState?.equipped?.potions) || [null, null, null])[slotIdx];
-    if (!itemId) return;
+    const hk = String(slotIdx + 1);
+    // Visible feedback when the player presses a hotkey for an empty
+    // slot or a potion that's been used up. Without this the keypress
+    // was silent and felt broken.
+    if (!itemId) {
+      setNotice({ tone: 'info', text: `Potion slot ${hk} is empty. Slot one in The Hoard.` });
+      return;
+    }
     const count = (playerState?.inventory || {})[itemId] || 0;
-    if (count <= 0) return;
+    if (count <= 0) {
+      const usedLabel = POTION_INFO[itemId]?.name || 'this potion';
+      setNotice({ tone: 'info', text: `Slot ${hk}: thou hast no ${usedLabel} left.` });
+      return;
+    }
     const eff = POTION_EFFECTS[itemId];
     if (!eff) return;
     let usedLabel = POTION_INFO[itemId]?.name || 'Potion';

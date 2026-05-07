@@ -244,8 +244,14 @@ const sfxPlayTone = ({ freq, freqEnd, durMs, type = 'sine', gainPeak = 0.3 }) =>
 const SFX_PRESETS = {
   click:        [{ freq: 660, freqEnd: 880, durMs: 70,  type: 'square',   gainPeak: 0.25 }],
   step:         [{ freq: 220, freqEnd: 180, durMs: 60,  type: 'sine',     gainPeak: 0.1  }],
-  hit:          [{ freq: 320, freqEnd: 90,  durMs: 180, type: 'sawtooth', gainPeak: 0.35 }],
-  hurt:         [{ freq: 480, freqEnd: 110, durMs: 240, type: 'square',   gainPeak: 0.32 }],
+  // hit = sword slash on a correct answer. Bright, airy, fast — a "shink"
+  // followed by a crisp tick. Distinct from hurt (low thud).
+  hit:          [
+    { freq: 1400, freqEnd: 500, durMs: 90,  type: 'triangle', gainPeak: 0.30 },
+    { freq: 1900, freqEnd: 700, durMs: 60,  type: 'sawtooth', gainPeak: 0.18 },
+  ],
+  // hurt = player took damage. Heavy, dull, low — a thud, no high frequencies.
+  hurt:         [{ freq: 220, freqEnd: 80,  durMs: 260, type: 'square',   gainPeak: 0.34 }],
   victory:      [
     { freq: 523, freqEnd: 659, durMs: 180, type: 'triangle', gainPeak: 0.32 },
     { freq: 784, freqEnd: 988, durMs: 220, type: 'triangle', gainPeak: 0.32 },
