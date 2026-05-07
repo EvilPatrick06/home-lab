@@ -514,6 +514,23 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
     }
   });
 
+  // 25a-4b: sprinkle decorations along hallways too — corridor floor tiles
+  // (those NOT inside any room rect) get a low-density decoration pass.
+  // Corridors are 1-tile wide, so the Chebyshev-2 spacing rule keeps them
+  // walkable while still adding visual interest.
+  const isInsideAnyRoom = (x, y) =>
+    rooms.some((r) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h);
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      if (map[y][x] !== TILE.FLOOR) continue;
+      if (isInsideAnyRoom(x, y)) continue;
+      if (rng() > 0.08) continue; // ~8% chance per corridor tile
+      if (tooClose(decorations, x, y, 2)) continue;
+      const kind = decoKinds[Math.floor(rng() * decoKinds.length)];
+      decorations.push({ kind, x, y });
+    }
+  }
+
   const boss = bossPos
     ? { kind: BOSS_BY_BIOME[biome] || BOSS_BY_BIOME.halls, x: bossPos.x, y: bossPos.y }
     : null;
