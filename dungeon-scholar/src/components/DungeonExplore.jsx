@@ -2721,25 +2721,20 @@ export default function DungeonExplore({
     if (phase !== 'world' || battle || runState !== 'alive') return;
     setFacing(dir);
 
-    // 25a-6: pre-check the destination tile for BOSS_DOOR. With the key,
-    // unlock all boss doors (mutate initial.map → FLOOR) and consume
-    // the key. Without the key, abort the move with a notice. Falls
-    // through to the regular setPos updater for normal tiles.
+    // 25a-6b: Boss Door no longer auto-unlocks on walk-into. Walking into
+    // a sealed door just blocks the move with a contextual notice; the
+    // player must press the Interact key (E) or click the on-screen
+    // unlock button when adjacent. See unlockBossDoorHere() below.
     const nx0 = pos.x + dx, ny0 = pos.y + dy;
     if (ny0 >= 0 && ny0 < initial.map.length && nx0 >= 0 && nx0 < initial.map[0].length) {
       if (initial.map[ny0][nx0] === TILE.BOSS_DOOR) {
-        if (!bossKeyFound) {
-          setNotice({ tone: 'info', text: '⚷ The Boss Door is sealed. Find the key.' });
-          return;
-        }
-        for (let y = 0; y < initial.map.length; y++) {
-          for (let x = 0; x < initial.map[0].length; x++) {
-            if (initial.map[y][x] === TILE.BOSS_DOOR) initial.map[y][x] = TILE.FLOOR;
-          }
-        }
-        setBossKeyFound(false);
-        playSfx('chest');
-        setNotice({ tone: 'good', text: '⚷ The lock yields. The chamber opens.' });
+        setNotice({
+          tone: 'info',
+          text: bossKeyFound
+            ? '⚷ Press E (or tap Unlock) to use the Boss Key on this door.'
+            : '⚷ The Boss Door is sealed. Find a Boss Key.',
+        });
+        return;
       }
     }
 
@@ -2753,6 +2748,38 @@ export default function DungeonExplore({
       playSfx('step');
       return { x: nx, y: ny };
     });
+  };
+
+  // 25a-6b: explicit unlock action. Fires when the player is adjacent
+  // (4-cardinal) to any BOSS_DOOR tile. Without the key it just nags;
+  // with it, convert every BOSS_DOOR in the dungeon to FLOOR and
+  // consume the key. Bound to the E key + an on-screen button.
+  const isBossDoorAdjacent = () => {
+    const map = initial.map;
+    for (const [dx2, dy2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = pos.x + dx2, ny = pos.y + dy2;
+      if (map[ny]?.[nx] === TILE.BOSS_DOOR) return true;
+    }
+    return false;
+  };
+  const unlockBossDoorHere = () => {
+    if (phase !== 'world' || battle || runState !== 'alive') return;
+    if (!isBossDoorAdjacent()) {
+      setNotice({ tone: 'info', text: 'No Boss Door within reach.' });
+      return;
+    }
+    if (!bossKeyFound) {
+      setNotice({ tone: 'info', text: '⚷ Thou hast no Boss Key. Loot a chest or fell a foe.' });
+      return;
+    }
+    for (let y = 0; y < initial.map.length; y++) {
+      for (let x = 0; x < initial.map[0].length; x++) {
+        if (initial.map[y][x] === TILE.BOSS_DOOR) initial.map[y][x] = TILE.FLOOR;
+      }
+    }
+    setBossKeyFound(false);
+    playSfx('chest');
+    setNotice({ tone: 'good', text: '⚷ The lock yields. The chamber opens.' });
   };
 
   // === Held-key movement ================================================
@@ -2777,6 +2804,8 @@ export default function DungeonExplore({
   useLayoutEffect(() => { usePotionRef.current = usePotion; });
   const castSpellRef = useRef(castSpell);
   useLayoutEffect(() => { castSpellRef.current = castSpell; });
+  const unlockBossDoorRef = useRef(unlockBossDoorHere);
+  useLayoutEffect(() => { unlockBossDoorRef.current = unlockBossDoorHere; });
 
   useEffect(() => {
     if (phase !== 'world') return undefined;
@@ -2798,6 +2827,13 @@ export default function DungeonExplore({
         return;
       }
       if (e.key === 'Escape') { if (onExit) onExit(); return; }
+      // 25a-6b: E interacts with the world. Currently only the Boss
+      // Door reads it; future plant-harvest gating will share this key.
+      if (sk === 'e') {
+        unlockBossDoorRef.current && unlockBossDoorRef.current();
+        e.preventDefault();
+        return;
+      }
       // Potion hotkeys 1/2/3.
       if (e.key === '1' || e.key === '2' || e.key === '3') {
         usePotionRef.current && usePotionRef.current(parseInt(e.key, 10) - 1);
@@ -3808,6 +3844,39 @@ export default function DungeonExplore({
                  maxWidth: '80%',
                }}>
             👁️ The truth: {revealedAnswer}
+          </div>
+        )}
+
+        {/* 25a-6b: Boss-door interaction prompt. Renders just above the
+            potion bar whenever the player stands next to a sealed door.
+            With the key, shows a clickable Unlock button (E hotkey).
+            Without, shows the locked-state hint. */}
+        {!battle && runState === 'alive' && phase === 'world' && isBossDoorAdjacent() && (
+          <div className="absolute left-1/2 -translate-x-1/2"
+               style={{ bottom: 110, pointerEvents: 'auto' }}>
+            {bossKeyFound ? (
+              <button onClick={unlockBossDoorHere}
+                className="px-4 py-2 rounded text-sm italic font-bold"
+                style={{
+                  background: 'linear-gradient(to bottom, #fde047 0%, #b45309 100%)',
+                  border: '2px solid #fde047',
+                  color: '#1a0e08',
+                  boxShadow: '0 0 12px rgba(245, 158, 11, 0.55)',
+                  cursor: 'pointer',
+                }}>
+                ⚷ [E] Unlock Chamber
+              </button>
+            ) : (
+              <div className="px-3 py-2 rounded text-xs italic"
+                   style={{
+                     background: 'rgba(0,0,0,0.7)',
+                     border: '1px solid rgba(120, 53, 15, 0.6)',
+                     color: '#a8a29e',
+                     pointerEvents: 'none',
+                   }}>
+                🔒 Locked. Find a Boss Key.
+              </div>
+            )}
           </div>
         )}
 
