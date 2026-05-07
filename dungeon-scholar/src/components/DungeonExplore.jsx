@@ -561,6 +561,15 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
     for (let i = 0; i < (chestRolls[tier] || 0); i++) placeChest(tier);
   }
 
+  // 25a-5: tag exactly one random chest with the boss key. The key is the
+  // primary path to the boss room — mob drops are a backup. If no chests
+  // exist (apprentice/adept have small counts but always >=4), the key
+  // can only come from mob kills.
+  if (chests.length > 0) {
+    const keyIdx = Math.floor(rng() * chests.length);
+    chests[keyIdx].hasKey = true;
+  }
+
   const spawn = rooms.length > 0 ? rectCenter(rooms[0]) : { x: 1, y: 1 };
   return { map, rooms, decorations, mobs, boss, chests, spawn, width, height, biome };
 }
@@ -2287,6 +2296,11 @@ export default function DungeonExplore({
   const [hp, setHp] = useState(effectiveMaxHp);
   const [shields, setShields] = useState(effectiveMaxShield);
   const [firstWrongUsed, setFirstWrongUsed] = useState(false);
+  // 25a-5: boss room is locked at delve start. The key is hidden in one
+  // random chest in the dungeon (tagged hasKey at map-gen) OR can drop
+  // from a felled mob (5% basic, 25% elite). Once held, the boss
+  // collision starts the trial; without it the player gets a notice.
+  const [bossKeyFound, setBossKeyFound] = useState(false);
   // Phase 19: mana for active spells. Resets each delve to maxMana, refills
   // +1 per correct answer. Cap = playerState.maxMana.
   const maxMana = playerState?.maxMana ?? 3;
@@ -2335,7 +2349,7 @@ export default function DungeonExplore({
     stateRef.current = {
       phase, pos, facing, biome, initial, hp, maxHp: effectiveMaxHp,
       shields, maxShields: effectiveMaxShield, battle, runState, score, equipped,
-      reviveAvailable, xpBuffRemaining, activePet,
+      reviveAvailable, xpBuffRemaining, activePet, bossKeyFound,
     };
   });
 
@@ -2349,6 +2363,7 @@ export default function DungeonExplore({
     setMana(maxMana);
     setRevealedAnswer(null);
     setFirstWrongUsed(false);
+    setBossKeyFound(false);
     setReviveAvailable(false);
     setXpBuffRemaining(0);
     setScore(0);
@@ -2377,6 +2392,7 @@ export default function DungeonExplore({
     setMana(maxMana);
     setRevealedAnswer(null);
     setFirstWrongUsed(false);
+    setBossKeyFound(false);
     setReviveAvailable(false);
     setXpBuffRemaining(0);
     setScore(0);
@@ -2715,6 +2731,13 @@ export default function DungeonExplore({
     // wrong answer pulls a new question instead of advancing toward
     // the end of a fixed gauntlet.
     if (initial.boss && pos.x === initial.boss.x && pos.y === initial.boss.y) {
+      // 25a-5: gate the boss fight behind the boss key. Without it the
+      // player gets a notice and the trial does NOT start. The boss
+      // remains on the tile so the player can return after looting.
+      if (!bossKeyFound) {
+        setNotice({ tone: 'info', text: '⚷ The chamber is sealed. Find the Boss Key — try chests or felled foes.' });
+        return;
+      }
       const first = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
       if (!first) {
         // No quiz questions in tome — auto-victory rather than soft-locking.
@@ -2755,6 +2778,14 @@ export default function DungeonExplore({
         giveItem(itemId, 1);
         const info = POTION_INFO[itemId];
         showPickup(`Acquired: ${info ? info.name : itemId}`, '#a7f3d0');
+      }
+      // 25a-5: the boss key chest grants the key on first open. If the
+      // player already has the key (mob drop), the chest still opens
+      // for its gold/item but doesn't double-grant.
+      if (chest.hasKey && !bossKeyFound) {
+        setBossKeyFound(true);
+        showPickup('⚷ Boss Key', '#fde047');
+        setNotice({ tone: 'good', text: '⚷ Acquired: Boss Key. The chamber awaits.' });
       }
       chest.opened = true;
       playSfx('chest');
@@ -2867,6 +2898,16 @@ export default function DungeonExplore({
         const mob = mobsRef.current[battle.mobIdx];
         mobsRef.current.splice(battle.mobIdx, 1);
         if (mob && recordBestiary) recordBestiary(mob.kind);
+        // 25a-5: roll for boss key drop on the kill. 5% basic, 25%
+        // elite. Only fires if we don't already have the key.
+        if (!bossKeyFound && mob) {
+          const dropPct = mob.tier === 'elite' ? 0.25 : 0.05;
+          if (Math.random() < dropPct) {
+            setBossKeyFound(true);
+            showPickup('⚷ Boss Key', '#fde047');
+            setNotice({ tone: 'good', text: '⚷ Acquired: Boss Key. The chamber awaits.' });
+          }
+        }
         setBattle(null);
         return;
       }
@@ -3300,13 +3341,15 @@ export default function DungeonExplore({
         }
       }
 
-      // Score + difficulty (bottom-right)
+      // Score + difficulty (bottom-right). 25a-5: prepend a key glyph
+      // when the player holds the boss key so they can see it at a glance.
       ctx.font = "12px 'Cinzel', Georgia, serif";
-      const scoreText = `Foes: ${s.score} · ${(DIFFICULTY_LABELS[difficulty]?.label || difficulty)}`;
+      const keyPrefix = s.bossKeyFound ? '⚷ ' : '';
+      const scoreText = `${keyPrefix}Foes: ${s.score} · ${(DIFFICULTY_LABELS[difficulty]?.label || difficulty)}`;
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      ctx.fillRect(CANVAS_W - 220, CANVAS_H - 28, 212, 22);
-      ctx.fillStyle = '#fde047';
-      ctx.fillText(scoreText, CANVAS_W - 212, CANVAS_H - 24);
+      ctx.fillRect(CANVAS_W - 230, CANVAS_H - 28, 222, 22);
+      ctx.fillStyle = s.bossKeyFound ? '#facc15' : '#fde047';
+      ctx.fillText(scoreText, CANVAS_W - 222, CANVAS_H - 24);
 
       // Coords (bottom-left)
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
