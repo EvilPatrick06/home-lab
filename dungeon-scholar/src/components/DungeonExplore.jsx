@@ -228,9 +228,11 @@ export const SIZE_BY_DIFFICULTY = {
 };
 
 // HP, shields, XP/gold multipliers per difficulty.
+// HP/shield curve tuned 25a-2: was 5/4/2/1 hp + 2/2/1/0 shields,
+// now 4/3/2/1 hp + 3/2/1/0 shields per playtest feedback.
 export const DIFF_CONFIG = {
-  apprentice: { hp: 5, shields: 2, xpMul: 1,   goldMul: 1,    label: 'Apprentice', completeAchievement: null,             rewardTitleId: null },
-  adept:      { hp: 4, shields: 2, xpMul: 1.5, goldMul: 1.25, label: 'Adept',      completeAchievement: 'adept_complete',  rewardTitleId: 'adeptVeteran' },
+  apprentice: { hp: 4, shields: 3, xpMul: 1,   goldMul: 1,    label: 'Apprentice', completeAchievement: null,             rewardTitleId: null },
+  adept:      { hp: 3, shields: 2, xpMul: 1.5, goldMul: 1.25, label: 'Adept',      completeAchievement: 'adept_complete',  rewardTitleId: 'adeptVeteran' },
   master:     { hp: 2, shields: 1, xpMul: 2,   goldMul: 1.5,  label: 'Master',     completeAchievement: 'master_complete', rewardTitleId: 'masterSlayer' },
   mythic:     { hp: 1, shields: 0, xpMul: 3,   goldMul: 2,    label: 'Mythic',     completeAchievement: 'mythic_complete', rewardTitleId: 'mythicSage' },
 };
@@ -288,21 +290,21 @@ const CHEST_TIERS = {
   wooden: {
     label: 'Wooden Chest',
     icon: '🪵',
-    goldRange: [10, 30],
+    goldRange: [1, 5], // was [10, 30] then [4, 14] — tuned down per playtest, wooden chests felt too generous
     itemChance: 0.65,
     itemPool: ['minor_heal_tonic', 'foresight_scroll', 'tinkers_oil', 'glow_root', 'ember_ash', 'moonleaf'],
   },
   silver: {
     label: 'Silver Chest',
     icon: '🪙',
-    goldRange: [40, 80],
+    goldRange: [10, 25], // tightened to keep the curve smooth after wooden cut
     itemChance: 0.85,
     itemPool: ['greater_heal_tonic', 'shield_draught', 'scholars_brew', 'minor_heal_tonic', 'sigil_dust', 'iron_filings', 'crystal_shard'],
   },
   gold: {
     label: 'Gold Chest',
     icon: '👑',
-    goldRange: [100, 200],
+    goldRange: [50, 100], // tightened proportionally
     itemChance: 1.0,
     itemPool: ['phoenix_ember', 'iron_circlet', 'starbound_cloak', 'oaken_blade', 'gilded_sabre', 'crystal_shard', 'sigil_dust'],
   },
@@ -2785,6 +2787,10 @@ export default function DungeonExplore({
       // Cloak of the Starbound: first wrong answer of the run does no damage.
       if (equipBonuses.firstWrongFree && !firstWrongUsed) {
         setFirstWrongUsed(true);
+        // Audible confirmation that the cloak/imp absorbed the wrong —
+        // without this the wrong-answer played silently which read as
+        // "the game didn't register my answer."
+        playSfx('cast');
       } else {
         // Damage scales with whoever just hit you back.
         const dmg = battle?.type === 'boss'
@@ -2835,6 +2841,9 @@ export default function DungeonExplore({
       mobsRef.current.splice(battle.mobIdx, 1);
     }
     setBattle(null);
+    // Audible confirmation that the flee triggered (shield consumed,
+    // foe banished). Was silent before.
+    playSfx('cast');
   };
 
   // Watch HP — if it drops to 0 or below, end the run (or revive once if the
