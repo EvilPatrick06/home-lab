@@ -2089,7 +2089,18 @@ function checkAnswerCorrect(question, choice) {
 }
 
 // === BattleModal ========================================================
-function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemaining, hp, maxHp, bossDisplay }) {
+function BattleModal({
+  battle,
+  biome,
+  onAnswer,
+  onFlee,
+  canFlee,
+  shieldsRemaining,
+  hp,
+  maxHp,
+  bossDisplay,
+  firstWrongFreeAvailable,
+}) {
   if (!battle) return null;
   const q = battle.currentQuestion;
   if (!q) return null;
@@ -2102,6 +2113,10 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
                   : tier === 'elite' ? 'Elite'
                   : 'Basic';
   const tierDmg = isBoss ? 3 : tier === 'elite' ? 2 : 1;
+  // 25d: damage actually applied on the next wrong answer. Cloak / pet
+  // absorbs the first wrong of the run, so the modal should preview 0
+  // damage instead of tierDmg until the prop says otherwise.
+  const dmgIfWrong = firstWrongFreeAvailable ? 0 : tierDmg;
 
   const [revealResult, setRevealResult] = useState(null);
 
@@ -2149,6 +2164,21 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
     </div>
   );
 
+  // 25d: predict bar state for the duration of the reveal flash so the
+  // HP bars visibly tick the moment the player picks an option, not when
+  // they finally click Next Question. Without this preview, a wrong
+  // answer reads as "no damage" until the explanation is dismissed —
+  // the bug the user reported as "HP stays full while damage accrues
+  // in background." Right-answer mob/boss bars get the same treatment
+  // since the parent doesn't commit `correctCount` until the 900 ms
+  // reveal timer fires.
+  const displayHp = (revealResult && !revealResult.correct)
+    ? Math.max(0, hp - dmgIfWrong)
+    : hp;
+  const displayMobHp = (revealResult && revealResult.correct)
+    ? Math.max(0, mobHpRemaining - 1)
+    : mobHpRemaining;
+
   return (
     <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.78)' }}>
       <div
@@ -2167,23 +2197,27 @@ function BattleModal({ battle, biome, onAnswer, onFlee, canFlee, shieldsRemainin
               : (mobMaxHp > 1 ? '⚔ Elite Encounter' : '⚔ Encounter')}
           </div>
           <div className="text-[10px] italic text-amber-700">
-            Wrong = -{tierDmg} HP
+            Wrong = -{dmgIfWrong} HP
+            {firstWrongFreeAvailable && <span className="text-emerald-400/80"> (cloak ready)</span>}
           </div>
         </div>
 
-        {/* HP bars — player vs mob/boss */}
+        {/* HP bars — player vs mob/boss. Both reflect the predicted
+            post-answer state during the reveal flash; once the parent
+            commits the real change, displayHp/displayMobHp coalesce
+            with the prop values seamlessly. */}
         <div className="flex items-center justify-between gap-3 mb-3 px-2 py-2 rounded"
              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(120,53,15,0.4)' }}>
           <div>
-            <div className="text-[10px] italic text-amber-700">Thee · {hp}/{maxHp}</div>
-            {renderHpRow(hp, Math.max(maxHp, hp), '#dc2626', '#3a1414')}
+            <div className="text-[10px] italic text-amber-700">Thee · {displayHp}/{maxHp}</div>
+            {renderHpRow(displayHp, Math.max(maxHp, hp), '#dc2626', '#3a1414')}
           </div>
           <div className="text-amber-700 italic text-base">⚔</div>
           <div className="text-right">
             <div className="text-[10px] italic text-amber-700">
-              {tierLabel}{isBoss && bossDisplay ? ` · ${bossDisplay.name}` : ''} · {mobHpRemaining}/{mobMaxHp}
+              {tierLabel}{isBoss && bossDisplay ? ` · ${bossDisplay.name}` : ''} · {displayMobHp}/{mobMaxHp}
             </div>
-            {renderHpRow(mobHpRemaining, mobMaxHp,
+            {renderHpRow(displayMobHp, mobMaxHp,
               isBoss ? '#a855f7' : tier === 'elite' ? '#f97316' : '#dc2626',
               '#1e293b')}
           </div>
@@ -3989,6 +4023,10 @@ export default function DungeonExplore({
           hp={hp}
           maxHp={effectiveMaxHp}
           bossDisplay={initial.boss?.kind ? BOSS_DISPLAY[initial.boss.kind] : null}
+          // 25d: lets the modal preview "0 dmg" instead of tierDmg when
+          // the cloak/imp is about to absorb the next wrong, so the HP
+          // bar doesn't fake a drop only to bounce back on commit.
+          firstWrongFreeAvailable={equipBonuses.firstWrongFree && !firstWrongUsed}
         />
         <EndRunOverlay
           runState={runState}
