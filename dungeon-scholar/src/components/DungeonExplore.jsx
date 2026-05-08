@@ -44,6 +44,81 @@ const SPELL_INFO = {
   sigil_of_clarity: { icon: '👁️', name: 'Sigil of Clarity', cost: 1 },
 };
 
+// 25c: stat-summary helper for the setup-screen Loadout dropdowns. Pulls
+// the active EQUIP_EFFECTS row and renders it as a one-line tag string
+// like "+1 HP · +1 shield". Returns the item's description as a fallback
+// when the item has no measurable effect (cosmetic / lore-only).
+const EQUIP_STAT_LABEL = {
+  maxHpBonus:     (n) => `+${n} HP`,
+  shieldBonus:    (n) => `+${n} shield`,
+  xpMul:          (m) => m > 1 ? `+${Math.round((m - 1) * 100)}% XP` : '',
+  goldMul:        (m) => m > 1 ? `+${Math.round((m - 1) * 100)}% gold` : '',
+  mobScoreBonus:  (n) => `+${n} score per foe`,
+  firstWrongFree: (b) => b ? 'absorbs first wrong' : '',
+};
+const summarizeEquipItem = (itemId) => {
+  const eff = EQUIP_EFFECTS[itemId];
+  if (!eff) return '';
+  return Object.entries(eff)
+    .map(([k, v]) => (EQUIP_STAT_LABEL[k] ? EQUIP_STAT_LABEL[k](v) : ''))
+    .filter(Boolean)
+    .join(' · ');
+};
+const summarizePetPassive = (def, level) => {
+  if (!def) return '';
+  const value = (def.base || 0) + (def.perLevel || 0) * (level - 1);
+  switch (def.passive) {
+    case 'xp_pct':           return `+${value}% XP`;
+    case 'gold_pct':          return `+${value}% gold`;
+    case 'shield_bonus':      return `+${value} shield`;
+    case 'plant_double_pct':  return `${value}% plant double`;
+    case 'first_wrong_free':  return 'absorbs first wrong';
+    case 'mob_score':         return `+${value} score per foe`;
+    default:                  return '';
+  }
+};
+
+// 25c: shared dropdown card for the setup-screen Loadout panel. Used for
+// gear slots, the pet slot, potion slots, and spell slots — all share
+// the same visual card (label + icon, native <select>, optional summary
+// line below). Disabled mode keeps the card visible for pure-display
+// callers without a write path.
+function LoadoutSelect({ label, icon, currentId, items, onChange, emptyLabel, summary, disabled }) {
+  const has = !!currentId;
+  return (
+    <div className="p-2 rounded" style={{
+      background: 'rgba(0,0,0,0.35)',
+      border: `1px solid ${has ? 'rgba(245,158,11,0.55)' : 'rgba(120,53,15,0.3)'}`,
+    }}>
+      <div className="text-[10px] uppercase italic text-amber-700 flex items-center gap-1">
+        <span>{icon}</span><span>{label}</span>
+      </div>
+      <select
+        value={currentId || ''}
+        disabled={!!disabled}
+        onChange={(e) => onChange && onChange(e.target.value || null)}
+        className="w-full mt-1 px-2 py-1 rounded text-xs italic focus:outline-none"
+        style={{
+          background: 'rgba(20,12,4,0.85)',
+          color: has ? '#fde68a' : '#a8a29e',
+          border: '1px solid rgba(120,53,15,0.5)',
+          cursor: disabled ? 'not-allowed' : 'pointer',
+        }}
+      >
+        <option value="">{emptyLabel}</option>
+        {items.map((it) => (
+          <option key={it.id} value={it.id}>
+            {it.icon ? `${it.icon} ` : ''}{it.label}
+          </option>
+        ))}
+      </select>
+      {summary && (
+        <div className="text-[10px] italic text-amber-100/70 mt-1 truncate">{summary}</div>
+      )}
+    </div>
+  );
+}
+
 // Display info for the in-dungeon potion HUD (icons mirror App.jsx ITEMS).
 const POTION_INFO = {
   minor_heal_tonic:   { icon: '🧪', name: 'Healing Tonic' },
@@ -2314,6 +2389,18 @@ export default function DungeonExplore({
   awardPetXp,
   petCatalog,
   spellCatalog,
+  // 25c: optional equip plumbing for the setup-screen dropdowns. The
+  // panel falls back to a read-only summary if any of these are absent
+  // so DungeonExplore stays callable from older harnesses / tests.
+  itemCatalog,
+  equipItem,
+  unequipSlot,
+  equipPet,
+  unequipPet,
+  equipPotion,
+  unequipPotion,
+  equipSpell,
+  unequipSpell,
 }) {
   const isUnlocked = (id) => {
     if (id === 'apprentice') return true;
@@ -3591,6 +3678,20 @@ export default function DungeonExplore({
     const bossKind = initial.boss?.kind;
     const bossDisp = bossKind ? BOSS_DISPLAY[bossKind] : null;
     const equippedPotions = equipped.potions || [null, null, null];
+    const equippedSpells = playerState?.equippedSpells || [null, null, null];
+    const inventory = playerState?.inventory || {};
+    const itemsList = itemCatalog || [];
+    const ownedInSlot = (slotId) =>
+      itemsList.filter((it) => it.slot === slotId && (inventory[it.id] || 0) > 0);
+    const ownedApothecary =
+      itemsList.filter((it) => it.category === 'apothecary' && (inventory[it.id] || 0) > 0);
+    const hatchedPets = Object.keys(playerState?.pets || {})
+      .map((id) => (petCatalog || []).find((p) => p.id === id))
+      .filter(Boolean);
+    const knownSpells = Object.keys(playerState?.spellbook || {})
+      .map((id) => (spellCatalog || []).find((sp) => sp.id === id))
+      .filter(Boolean);
+    const canEdit = !!(equipItem && unequipSlot);
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
         <div className="flex items-center justify-between flex-wrap gap-2">
@@ -3685,38 +3786,62 @@ export default function DungeonExplore({
             </div>
           )}
 
-          {/* Loadout summary */}
+          {/* 25c: Loadout — interactive dropdowns. Each select wires into
+              the equip/unequip helpers (App.jsx); selections survive Begin
+              Delve because playerState is owned at the App level. Falls
+              back to the previous read-only summary when the equip props
+              aren't passed (test harness, embedded preview). */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-base">⚔</span>
-              <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Equipped</h4>
+              <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Loadout</h4>
               <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
-              <span className="text-[10px] italic text-amber-700">Manage in The Hoard</span>
+              <span className="text-[10px] italic text-amber-700">
+                {canEdit ? 'Swap before delve' : 'Manage in The Hoard'}
+              </span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs italic">
               {[
-                { id: 'weapon', label: 'Weapon', emptyIcon: '⚔️' },
-                { id: 'head',   label: 'Head',   emptyIcon: '👑' },
-                { id: 'cloak',  label: 'Cloak',  emptyIcon: '🌌' },
-                { id: 'pet',    label: 'Pet',    emptyIcon: '🐾' },
-              ].map(({ id, label, emptyIcon }) => {
-                const eq = equipped[id];
-                const isPet = id === 'pet';
-                const petLabel = isPet && activePet
-                  ? `${activePet.def.icon} ${activePet.def.name} · L${activePet.level}`
-                  : null;
+                { slotId: 'weapon', label: 'Weapon', icon: '⚔️' },
+                { slotId: 'head',   label: 'Head',   icon: '👑' },
+                { slotId: 'cloak',  label: 'Cloak',  icon: '🌌' },
+              ].map(({ slotId, label, icon }) => {
+                const owned = ownedInSlot(slotId);
+                const cur = equipped[slotId] || null;
+                const curItem = cur ? itemsList.find((it) => it.id === cur) : null;
+                const summary = curItem ? summarizeEquipItem(curItem.id) || curItem.description : '';
                 return (
-                  <div key={id} className="p-2 rounded" style={{
-                    background: 'rgba(0,0,0,0.35)',
-                    border: `1px solid ${eq ? 'rgba(245,158,11,0.55)' : 'rgba(120,53,15,0.3)'}`,
-                  }}>
-                    <div className="text-[10px] uppercase italic text-amber-700">{label}</div>
-                    <div className={eq ? 'text-amber-200' : 'text-amber-700/60'}>
-                      {petLabel || (eq ? `${emptyIcon} Equipped` : '— Empty —')}
-                    </div>
-                  </div>
+                  <LoadoutSelect
+                    key={slotId}
+                    label={label}
+                    icon={icon}
+                    currentId={cur}
+                    items={owned.map((it) => ({ id: it.id, label: it.name, icon: it.icon }))}
+                    emptyLabel="— Unequip —"
+                    summary={summary}
+                    disabled={!canEdit}
+                    onChange={(v) => {
+                      if (!canEdit) return;
+                      if (!v) unequipSlot(slotId);
+                      else equipItem(v);
+                    }}
+                  />
                 );
               })}
+              <LoadoutSelect
+                label="Pet"
+                icon="🐾"
+                currentId={equipped.pet || null}
+                items={hatchedPets.map((p) => ({ id: p.id, label: p.name, icon: p.icon }))}
+                emptyLabel="— Dismiss —"
+                summary={activePet ? `L${activePet.level} · ${summarizePetPassive(activePet.def, activePet.level)}` : ''}
+                disabled={!equipPet || !unequipPet}
+                onChange={(v) => {
+                  if (!equipPet || !unequipPet) return;
+                  if (!v) unequipPet();
+                  else equipPet(v);
+                }}
+              />
             </div>
 
             {/* Potion quick-slots */}
@@ -3731,17 +3856,61 @@ export default function DungeonExplore({
                 {[0, 1, 2].map((i) => {
                   const pid = equippedPotions[i];
                   const info = pid ? POTION_INFO[pid] : null;
-                  const count = pid ? ((playerState?.inventory || {})[pid] || 0) : 0;
+                  const count = pid ? (inventory[pid] || 0) : 0;
                   return (
-                    <div key={i} className="p-2 rounded flex items-center gap-2" style={{
-                      background: 'rgba(0,0,0,0.35)',
-                      border: `1px solid ${info ? 'rgba(34,197,94,0.55)' : 'rgba(120,53,15,0.3)'}`,
-                    }}>
-                      <div className="text-xl w-6 text-center">{info ? info.icon : (i + 1)}</div>
-                      <div className="flex-1 min-w-0 truncate">
-                        {info ? `${info.name} ×${count}` : <span className="text-amber-700/60">— Empty —</span>}
-                      </div>
-                    </div>
+                    <LoadoutSelect
+                      key={`pot${i}`}
+                      label={`Slot ${i + 1}`}
+                      icon="🧪"
+                      currentId={pid || null}
+                      items={ownedApothecary.map((it) => ({
+                        id: it.id,
+                        label: `${it.name} ×${inventory[it.id] || 0}`,
+                        icon: it.icon,
+                      }))}
+                      emptyLabel="— Empty —"
+                      summary={info ? `${info.icon} ×${count}` : ''}
+                      disabled={!equipPotion || !unequipPotion}
+                      onChange={(v) => {
+                        if (!equipPotion || !unequipPotion) return;
+                        if (!v) unequipPotion(i);
+                        else equipPotion(v, i);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 25c: Spell quick-slots — same shape as potions but lifted
+                from playerState.spellbook + equippedSpells. */}
+            <div className="mt-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-base">✨</span>
+                <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Spell Quick-Slots</h4>
+                <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+                <span className="text-[10px] italic text-amber-700">Hotkeys Z · X · C</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs italic">
+                {[0, 1, 2].map((i) => {
+                  const sid = equippedSpells[i];
+                  const cur = sid ? (spellCatalog || []).find((sp) => sp.id === sid) : null;
+                  return (
+                    <LoadoutSelect
+                      key={`sp${i}`}
+                      label={`Slot ${i + 1}`}
+                      icon="✨"
+                      currentId={sid || null}
+                      items={knownSpells.map((sp) => ({ id: sp.id, label: sp.name, icon: sp.icon }))}
+                      emptyLabel="— Empty —"
+                      summary={cur ? `${cur.cost} mana` : ''}
+                      disabled={!equipSpell || !unequipSpell}
+                      onChange={(v) => {
+                        if (!equipSpell || !unequipSpell) return;
+                        if (!v) unequipSpell(i);
+                        else equipSpell(v, i);
+                      }}
+                    />
                   );
                 })}
               </div>

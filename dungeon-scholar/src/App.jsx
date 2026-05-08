@@ -2729,6 +2729,15 @@ export default function DungeonScholarApp() {
               awardPetXp={awardPetXp}
               petCatalog={Object.values(PETS)}
               spellCatalog={Object.values(SPELLS)}
+              itemCatalog={ITEMS}
+              equipItem={equipItem}
+              unequipSlot={unequipSlot}
+              equipPet={equipPet}
+              unequipPet={unequipPet}
+              equipPotion={equipPotion}
+              unequipPotion={unequipPotion}
+              equipSpell={equipSpell}
+              unequipSpell={unequipSpell}
             />
           </React.Suspense>
         )}
