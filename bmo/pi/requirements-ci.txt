@@ -4,9 +4,6 @@
 #
 #    pip-compile --extra-index-url=https://download.pytorch.org/whl/cpu --output-file=requirements-ci.txt requirements-ci.in
 #
---extra-index-url https://www.piwheels.org/simple
---extra-index-url https://download.pytorch.org/whl/cpu
-
 aiofiles==25.1.0
     # via androidtvremote2
 aiohappyeyeballs==2.6.1
@@ -66,6 +63,12 @@ cryptography==47.0.0
     #   androidtvremote2
     #   google-auth
     #   pyjwt
+cuda-bindings==13.2.0
+    # via torch
+cuda-pathfinder==1.5.4
+    # via cuda-bindings
+cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2
+    # via torch
 decorator==5.2.1
     # via librosa
 deprecated==1.3.1
@@ -85,7 +88,7 @@ flask-limiter==4.1.1
     # via -r requirements-ci.in
 flask-socketio==5.6.1
     # via -r requirements-ci.in
-flatbuffers==20181003210633
+flatbuffers==25.12.19
     # via onnxruntime
 frozenlist==1.8.0
     # via
@@ -202,6 +205,45 @@ numpy==2.4.4
     #   soundfile
     #   soxr
     #   tflite-runtime
+nvidia-cublas==13.1.0.3
+    # via
+    #   cuda-toolkit
+    #   nvidia-cudnn-cu13
+    #   nvidia-cusolver
+nvidia-cuda-cupti==13.0.85
+    # via cuda-toolkit
+nvidia-cuda-nvrtc==13.0.88
+    # via cuda-toolkit
+nvidia-cuda-runtime==13.0.96
+    # via cuda-toolkit
+nvidia-cudnn-cu13==9.19.0.56
+    # via torch
+nvidia-cufft==12.0.0.61
+    # via cuda-toolkit
+nvidia-cufile==1.15.1.6
+    # via cuda-toolkit
+nvidia-curand==10.4.0.35
+    # via cuda-toolkit
+nvidia-cusolver==12.0.4.66
+    # via cuda-toolkit
+nvidia-cusparse==12.6.3.3
+    # via
+    #   cuda-toolkit
+    #   nvidia-cusolver
+nvidia-cusparselt-cu13==0.8.0
+    # via torch
+nvidia-nccl-cu13==2.28.9
+    # via torch
+nvidia-nvjitlink==13.0.88
+    # via
+    #   cuda-toolkit
+    #   nvidia-cufft
+    #   nvidia-cusolver
+    #   nvidia-cusparse
+nvidia-nvshmem-cu13==3.4.5
+    # via torch
+nvidia-nvtx==13.0.85
+    # via cuda-toolkit
 oauthlib==3.3.1
     # via requests-oauthlib
 ollama==0.6.1
@@ -279,7 +321,7 @@ python-dotenv==1.2.2
     #   pydantic-settings
 python-engineio==4.13.1
     # via python-socketio
-python-multipart==0.0.26
+python-multipart==0.0.27
     # via mcp
 python-socketio==5.16.1
     # via flask-socketio
@@ -343,10 +385,12 @@ tflite-runtime==2.14.0
     # via openwakeword
 threadpoolctl==3.6.0
     # via scikit-learn
-torch==2.11.0+cpu
+torch==2.11.0
     # via resemblyzer
 tqdm==4.67.3
     # via openwakeword
+triton==3.6.0
+    # via torch
 typing==3.7.4.3
     # via resemblyzer
 typing-extensions==4.15.0
