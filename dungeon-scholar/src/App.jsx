@@ -1016,19 +1016,24 @@ const DEFAULT_STATE = {
   tutorialStarted: false,
   tutorialPanelCollapsed: false,
   tutorialBaselines: null,
-  // Per-surface visit flags for tutorial action-button steps. The five
-  // action-button steps (library_tour, vault_intro, quest_board,
-  // view_achievements, view_titles_levels) advance only after the player
-  // navigates back / closes the modal — credit on engagement, not on click.
+  // Per-surface visit flags for tutorial action-button steps. Each of the
+  // action-button steps advances only after the player navigates back /
+  // closes the modal — credit on engagement, not on click.
   tutorialVisits: {
     library: false,
     vault: false,
     quests: false,
     achievements: false,
     titles: false,
-    // 25e2: tracks first visit to the Domain Study screen. The future
-    // domain_intro tutorial step (25g) will autoComplete on this flag.
+    // 25e2: tracks first visit to the Domain Study screen.
     domain_study_visited: false,
+    // 25g: post-Phase-16 features.
+    bestiary: false,
+    stable: false,
+    spellbook: false,
+    calendar: false,
+    crafting: false,
+    ascension: false,
   },
   // Dungeon attempt counter (any started run, including defeats)
   dungeonAttempts: 0,
@@ -1256,6 +1261,27 @@ export default function DungeonScholarApp() {
       case 'titles_viewed':
         met = !!(playerState.tutorialVisits || {}).titles;
         break;
+      case 'bestiary_visited':
+        met = !!(playerState.tutorialVisits || {}).bestiary;
+        break;
+      case 'stable_visited':
+        met = !!(playerState.tutorialVisits || {}).stable;
+        break;
+      case 'spellbook_visited':
+        met = !!(playerState.tutorialVisits || {}).spellbook;
+        break;
+      case 'calendar_visited':
+        met = !!(playerState.tutorialVisits || {}).calendar;
+        break;
+      case 'crafting_visited':
+        met = !!(playerState.tutorialVisits || {}).crafting;
+        break;
+      case 'domain_study_visited':
+        met = !!(playerState.tutorialVisits || {}).domain_study_visited;
+        break;
+      case 'ascension_screen_visited':
+        met = !!(playerState.tutorialVisits || {}).ascension;
+        break;
     }
     if (met) advanceTutorial(step.id);
   }, [
@@ -1283,7 +1309,13 @@ export default function DungeonScholarApp() {
       (tutorialOpenedSurface === 'vault' && screen === 'vault') ||
       (tutorialOpenedSurface === 'quests' && screen === 'quests') ||
       (tutorialOpenedSurface === 'achievements' && showAchievements) ||
-      (tutorialOpenedSurface === 'titles' && showTitles)
+      (tutorialOpenedSurface === 'titles' && showTitles) ||
+      (tutorialOpenedSurface === 'bestiary' && screen === 'bestiary') ||
+      (tutorialOpenedSurface === 'stable' && screen === 'stable') ||
+      (tutorialOpenedSurface === 'spellbook' && screen === 'spellbook') ||
+      (tutorialOpenedSurface === 'calendar' && screen === 'calendar') ||
+      (tutorialOpenedSurface === 'crafting' && screen === 'crafting') ||
+      (tutorialOpenedSurface === 'ascension' && screen === 'ascension')
     );
     if (!stillOpen) {
       const key = tutorialOpenedSurface;
@@ -2864,6 +2896,13 @@ export default function DungeonScholarApp() {
               else if (stepId === 'enter_dungeon') { trackModeUse('dungeon'); setScreen('dungeon'); }
               else if (stepId === 'view_achievements') { setTutorialOpenedSurface('achievements'); setShowAchievements(true); }
               else if (stepId === 'view_titles_levels') { setTutorialOpenedSurface('titles'); setShowTitles(true); }
+              else if (stepId === 'bestiary_intro') { setTutorialOpenedSurface('bestiary'); setScreen('bestiary'); }
+              else if (stepId === 'stable_intro') { setTutorialOpenedSurface('stable'); setScreen('stable'); }
+              else if (stepId === 'spellbook_intro') { setTutorialOpenedSurface('spellbook'); setScreen('spellbook'); }
+              else if (stepId === 'calendar_intro') { setTutorialOpenedSurface('calendar'); setScreen('calendar'); }
+              else if (stepId === 'crafting_intro') { setTutorialOpenedSurface('crafting'); setScreen('crafting'); }
+              else if (stepId === 'domain_intro') { setScreen('domainStudy'); }
+              else if (stepId === 'ascension_intro') { setTutorialOpenedSurface('ascension'); setScreen('ascension'); }
             }}
           /> )}
         {showTitles && (

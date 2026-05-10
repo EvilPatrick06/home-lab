@@ -7,9 +7,9 @@ describe('tutorial module sanity', () => {
   });
 });
 
-describe('TUTORIAL_STEPS (14-step shape)', () => {
-  it('has 14 steps in the new order', () => {
-    expect(TUTORIAL_STEPS).toHaveLength(14);
+describe('TUTORIAL_STEPS (21-step shape)', () => {
+  it('has 21 steps in the new order', () => {
+    expect(TUTORIAL_STEPS).toHaveLength(21);
     expect(TUTORIAL_STEPS.map(s => s.id)).toEqual([
       'welcome',
       'forge_tome',
@@ -24,13 +24,20 @@ describe('TUTORIAL_STEPS (14-step shape)', () => {
       'enter_dungeon',
       'view_achievements',
       'view_titles_levels',
+      'bestiary_intro',
+      'stable_intro',
+      'spellbook_intro',
+      'calendar_intro',
+      'crafting_intro',
+      'domain_intro',
+      'ascension_intro',
       'manage_saga',
     ]);
   });
 
-  it('total XP across all steps is 425', () => {
+  it('total XP across all steps is 610', () => {
     const total = TUTORIAL_STEPS.reduce((s, step) => s + (step.xp || 0), 0);
-    expect(total).toBe(425);
+    expect(total).toBe(610);
   });
 
   it('every step with autoComplete:true has an autoCondition', () => {
@@ -52,6 +59,13 @@ describe('TUTORIAL_STEPS (14-step shape)', () => {
       'quest_board',
       'view_achievements',
       'view_titles_levels',
+      'bestiary_intro',
+      'stable_intro',
+      'spellbook_intro',
+      'calendar_intro',
+      'crafting_intro',
+      'domain_intro',
+      'ascension_intro',
     ]);
     for (const step of TUTORIAL_STEPS) {
       if (step.actionLabel) {
@@ -85,7 +99,8 @@ describe('migrateTutorialIndex', () => {
     // Returning the same index means it stays put. Valid range is [0, TUTORIAL_STEPS.length - 1].
     expect(migrateTutorialIndex(8)).toBe(8);   // first index beyond old range
     expect(migrateTutorialIndex(10)).toBe(10); // mid-range
-    expect(migrateTutorialIndex(13)).toBe(13); // last valid index
+    expect(migrateTutorialIndex(13)).toBe(13); // bestiary_intro (post-25g)
+    expect(migrateTutorialIndex(20)).toBe(20); // last valid index (manage_saga)
   });
 });
 
