@@ -9,6 +9,7 @@ import {
   ROOMS_BY_DIFFICULTY,
   SIZE_BY_DIFFICULTY,
   makeSeededRng,
+  buildQuestionLogEntry,
 } from './DungeonExplore.jsx';
 
 // Seedable RNG so map-gen assertions are deterministic per test.
@@ -173,6 +174,66 @@ describe('BIOME_BOSS_POOL (25b — random boss per delve)', () => {
     // is "subset of pool, but not just one kind".
     seen.forEach((kind) => expect(expected.has(kind)).toBe(true));
     expect(seen.size).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('buildQuestionLogEntry (25e — Chronicle source badges)', () => {
+  const q = {
+    id: 'q-42',
+    question: 'What is XSS?',
+    type: 'multiplechoice',
+    domain: 'Web Security',
+    tags: ['owasp', 'web', 'xss'],
+  };
+
+  it('tags a basic mob answer with source="mob" and mobTier="basic"', () => {
+    const battle = { type: 'mob', mobTier: 'basic' };
+    const entry = buildQuestionLogEntry(q, true, battle, 'lich');
+    expect(entry.source).toBe('mob');
+    expect(entry.mobTier).toBe('basic');
+    expect(entry.bossKind).toBeUndefined();
+    expect(entry.correct).toBe(true);
+    expect(entry.prompt).toBe('What is XSS?');
+    expect(entry.id).toBe('q-42');
+    expect(entry.domain).toBe('Web Security');
+  });
+
+  it('tags an elite mob answer with mobTier="elite"', () => {
+    const battle = { type: 'mob', mobTier: 'elite' };
+    const entry = buildQuestionLogEntry(q, false, battle, null);
+    expect(entry.source).toBe('mob');
+    expect(entry.mobTier).toBe('elite');
+    expect(entry.bossKind).toBeUndefined();
+    expect(entry.correct).toBe(false);
+  });
+
+  it('tags a boss answer with source="boss" and the bossKind', () => {
+    const battle = { type: 'boss' };
+    const entry = buildQuestionLogEntry(q, true, battle, 'sphinx');
+    expect(entry.source).toBe('boss');
+    expect(entry.bossKind).toBe('sphinx');
+    expect(entry.mobTier).toBeUndefined();
+  });
+
+  it('falls back gracefully when battle is null (auto_correct edge cases)', () => {
+    const entry = buildQuestionLogEntry(q, true, null, null);
+    expect(entry.source).toBeUndefined();
+    expect(entry.bossKind).toBeUndefined();
+    expect(entry.mobTier).toBeUndefined();
+    expect(entry.correct).toBe(true);
+  });
+
+  it('synthesizes an id when the question lacks one', () => {
+    const entry = buildQuestionLogEntry({ question: 'orphan' }, true, { type: 'mob' }, null, 7);
+    expect(entry.id).toBe('q_7');
+    expect(entry.prompt).toBe('orphan');
+  });
+
+  it('preserves domain + first 5 tags', () => {
+    const longTags = { ...q, tags: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] };
+    const entry = buildQuestionLogEntry(longTags, true, { type: 'mob', mobTier: 'basic' }, null);
+    expect(entry.tags).toEqual(['a', 'b', 'c', 'd', 'e']);
+    expect(entry.domain).toBe('Web Security');
   });
 });
 

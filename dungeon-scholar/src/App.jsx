@@ -4956,25 +4956,53 @@ function RunHistoryScreen({ playerState, setScreen }) {
                     </div>
                     {(run.questionLog || []).length === 0 ? (
                       <div className="text-xs text-amber-700 italic">No per-question log was captured for this delve.</div>
-                    ) : (
-                      <div className="space-y-1">
-                        {run.questionLog.map((q, i) => (
-                          <div key={i} className="flex items-start gap-2 text-xs italic" style={{ background: 'rgba(10, 6, 4, 0.5)', padding: '6px 8px', borderRadius: '4px' }}>
-                            {q.correct
-                              ? <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                              : <X className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />}
-                            <div className="flex-1 min-w-0">
-                              <div className="text-amber-100/80 truncate">{q.prompt}</div>
-                              <div className="text-amber-700">
-                                {q.type ? <span>type: {q.type}</span> : null}
-                                {q.bossKind ? <span> · {BOSS_TYPES[q.bossKind]?.name || q.bossKind}</span> : null}
-                                {q.timeSec ? <span> · {q.timeSec}s</span> : null}
-                              </div>
+                    ) : (() => {
+                      // 25e: source-aware badges so mob vs boss questions are
+                      // visually distinct in the chronicle. Older entries
+                      // (pre-25e) lack `source` and render without a badge.
+                      const log = run.questionLog;
+                      const mobCount = log.filter((q) => q.source === 'mob').length;
+                      const bossCount = log.filter((q) => q.source === 'boss').length;
+                      const renderBadge = (q) => {
+                        if (q.source === 'boss') {
+                          const name = BOSS_TYPES[q.bossKind]?.name || q.bossKind || 'Boss';
+                          return <span className="text-amber-300">👑 {name}</span>;
+                        }
+                        if (q.source === 'mob') {
+                          if (q.mobTier === 'elite') return <span className="text-purple-300">⚔ Elite</span>;
+                          return <span className="text-slate-300">🗡 Foe</span>;
+                        }
+                        return null;
+                      };
+                      return (
+                        <>
+                          {(mobCount > 0 || bossCount > 0) && (
+                            <div className="text-[10px] uppercase tracking-wider text-amber-700 italic">
+                              {mobCount > 0 ? <span>🗡 {mobCount} foe{mobCount === 1 ? '' : 's'}</span> : null}
+                              {mobCount > 0 && bossCount > 0 ? <span> · </span> : null}
+                              {bossCount > 0 ? <span>👑 {bossCount} boss</span> : null}
                             </div>
+                          )}
+                          <div className="space-y-1">
+                            {log.map((q, i) => (
+                              <div key={i} className="flex items-start gap-2 text-xs italic" style={{ background: 'rgba(10, 6, 4, 0.5)', padding: '6px 8px', borderRadius: '4px' }}>
+                                {q.correct
+                                  ? <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                                  : <X className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />}
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-amber-100/80 truncate">{q.prompt}</div>
+                                  <div className="text-amber-700 flex flex-wrap gap-x-1.5 items-center">
+                                    {renderBadge(q)}
+                                    {q.type ? <span>· type: {q.type}</span> : null}
+                                    {q.timeSec ? <span>· {q.timeSec}s</span> : null}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

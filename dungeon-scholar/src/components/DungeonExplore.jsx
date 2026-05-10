@@ -2074,6 +2074,31 @@ function pickOneQuestion(courseSet, excludeIds = new Set()) {
   return anyOf[0] || null;
 }
 
+// 25e: build a single per-question entry for the run's questionLog.
+// Pure, exported for unit tests. Captures the source (`mob` / `boss`),
+// `mobTier` for mobs, and `bossKind` for bosses so the Chronicle can
+// distinguish where each answer came from. Earlier saves omitted these
+// fields, so the chronicle was rendering every entry as identical
+// (mob entries were present but visually indistinguishable from boss
+// entries → the user perceived them as missing).
+export function buildQuestionLogEntry(q, correct, battle, bossKind, fallbackIdx = 0) {
+  const source = battle?.type;
+  const isMob = source === 'mob';
+  const isBoss = source === 'boss';
+  return {
+    id: q?.id || `q_${fallbackIdx}`,
+    prompt: q?.question || '(question unavailable)',
+    correct: !!correct,
+    timeSec: 0,
+    type: q?.type,
+    domain: q?.domain,
+    tags: Array.isArray(q?.tags) ? q.tags.slice(0, 5) : undefined,
+    source,
+    mobTier: isMob ? battle?.mobTier : undefined,
+    bossKind: isBoss ? bossKind : undefined,
+  };
+}
+
 function checkAnswerCorrect(question, choice) {
   if (!question) return false;
   if (question.type === 'multiplechoice') {
@@ -3121,18 +3146,12 @@ export default function DungeonExplore({
 
   // Battle answer resolution.
   const onBattleAnswer = (correct, q) => {
-    runQuestionLogRef.current.push({
-      id: q?.id || `q_${runQuestionLogRef.current.length}`,
-      prompt: q?.question || '(question unavailable)',
-      correct: !!correct,
-      timeSec: 0,
-      type: q?.type,
-      // Polish: persist domain/tags so the Chronicle can build an accuracy
-      // heatmap. Older tomes generated before this prompt change won't have
-      // these fields — the heatmap groups them as "Uncategorized".
-      domain: q?.domain,
-      tags: Array.isArray(q?.tags) ? q.tags.slice(0, 5) : undefined,
-    });
+    // 25e: source-tagged push so the Chronicle can render distinct
+    // mob-vs-boss badges. Older entries (pre-25e) omit `source` and
+    // gracefully render without a badge — see RunHistoryScreen.
+    runQuestionLogRef.current.push(
+      buildQuestionLogEntry(q, correct, battle, initial.boss?.kind, runQuestionLogRef.current.length)
+    );
     if (recordAnswer) {
       // recordAnswer signature is (correct, item). Pass the full question
       // so the parent's mistakeVault dedup keys off q.id (matching Quiz/Lab
