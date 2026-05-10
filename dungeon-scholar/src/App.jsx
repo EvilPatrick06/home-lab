@@ -149,6 +149,34 @@ const DAILY_QUEST_POOL = [
     xp: 150,
     counter: 'cardsReviewed',
   },
+  // 25j: post-Phase-16 daily variants — devotion, pet, spellcast.
+  {
+    id: 'claim_devotion',
+    title: 'Kindle the Daily Flame',
+    description: 'Claim today\'s devotion offering',
+    icon: '🕯️',
+    target: 1,
+    xp: 50,
+    counter: 'totalLogins',
+  },
+  {
+    id: 'level_familiar',
+    title: 'Train a Familiar',
+    description: 'Level up any familiar',
+    icon: '🐾',
+    target: 1,
+    xp: 80,
+    counter: 'petLevelsTotal',
+  },
+  {
+    id: 'cast_spell',
+    title: 'Loose an Incantation',
+    description: 'Cast a spell within the dungeon',
+    icon: '✨',
+    target: 1,
+    xp: 60,
+    counter: 'spellsCast',
+  },
 ];
 
 // Get the counter value from current player state for a given counter id.
@@ -176,6 +204,30 @@ const getCounterValue = (state, counterId) => {
       return state.longestStreak || 0;
     case 'modesUsedToday':
       return (state.modesUsedToday || []).length;
+    // 25j: post-Phase-16 counters powering the refreshed quest pool. All
+    // are monotonically non-decreasing (cumulative) except equippedSpells
+    // count and biomeBossesDefeated, which are 'absolute' on the quest
+    // template so the diff-against-baseline math is bypassed.
+    case 'totalLogins':
+      return state.totalLogins || 0;
+    case 'ascensions':
+      return state.ascensions || 0;
+    case 'petLevelsTotal':
+      return Object.values(state.pets || {}).reduce((s, p) => s + petLevelFromXp(p?.xp || 0), 0);
+    case 'spellsCast':
+      return state.spellsCast || 0;
+    case 'plantsHarvested':
+      return state.plantsHarvested || 0;
+    case 'equippedSpellsCount':
+      return (state.equippedSpells || []).filter(Boolean).length;
+    case 'biomeBossesDefeated': {
+      const biomes = new Set();
+      Object.entries(state.bestiary || {}).forEach(([kind]) => {
+        const entry = BESTIARY_ENTRIES[kind];
+        if (entry && entry.tier === 'boss') biomes.add(entry.biome);
+      });
+      return biomes.size;
+    }
     default:
       return 0;
   }
@@ -248,6 +300,48 @@ const WEEKLY_QUEST_POOL = [
     target: 20,
     xp: 600,
     counter: 'currentStreak',
+  },
+  // 25j: post-Phase-16 weekly variants — ascension, spell slots, harvest,
+  // biome bosses. The two `absolute` quests check the current value
+  // directly rather than the diff-from-baseline, so already-prepared
+  // players (e.g. spell slots already full) can claim immediately.
+  {
+    id: 'weekly_ascend',
+    title: 'Renew the Cycle',
+    description: 'Ascend once this week',
+    icon: '🌟',
+    target: 1,
+    xp: 800,
+    counter: 'ascensions',
+  },
+  {
+    id: 'weekly_spell_slots',
+    title: 'Arsenal of the Arcane',
+    description: 'Equip {target} spells in thy cast slots',
+    icon: '✦',
+    target: 3,
+    xp: 400,
+    counter: 'equippedSpellsCount',
+    absolute: true,
+  },
+  {
+    id: 'weekly_harvest',
+    title: 'The Herbalist\'s Sweep',
+    description: 'Harvest {target} plants in the dungeon',
+    icon: '🌿',
+    target: 10,
+    xp: 400,
+    counter: 'plantsHarvested',
+  },
+  {
+    id: 'weekly_biome_bosses',
+    title: 'Walker of Every Hall',
+    description: 'Defeat the lord of all {target} biomes',
+    icon: '🏰',
+    target: 5,
+    xp: 1200,
+    counter: 'biomeBossesDefeated',
+    absolute: true,
   },
 ];
 
@@ -1076,6 +1170,12 @@ const DEFAULT_STATE = {
   ascensions: 0,
   ascensionTokens: 0,
   lastAscendedAt: null,
+  // 25j: cumulative counters powering the post-Phase-16 quest variants.
+  // spellsCast bumps in DungeonExplore's pay() on every successful cast;
+  // plantsHarvested bumps in harvestHere whenever a lootable deco yields
+  // (the gold-only no-item path still counts as a harvest action).
+  spellsCast: 0,
+  plantsHarvested: 0,
   // Currency & Inventory
   gold: 0,
   inventory: {},               // { [itemId]: count } — consumables and cosmetics
@@ -1741,6 +1841,15 @@ export default function DungeonScholarApp() {
     });
   };
 
+  // 25j: bumped from DungeonExplore each time a spell-cast pay() succeeds
+  // or harvestHere fires. Drives the post-Phase-16 daily/weekly quests.
+  const recordSpellCast = () => {
+    setPlayerState(prev => ({ ...prev, spellsCast: (prev.spellsCast || 0) + 1 }));
+  };
+  const recordHarvest = () => {
+    setPlayerState(prev => ({ ...prev, plantsHarvested: (prev.plantsHarvested || 0) + 1 }));
+  };
+
   // Phase 16: spend ingredients to brew a potion. Returns { ok, reason }.
   const craftRecipe = (recipeId) => {
     const recipe = RECIPES.find(r => r.id === recipeId);
@@ -1976,19 +2085,23 @@ export default function DungeonScholarApp() {
       const template = DAILY_QUEST_POOL.find(t => t.id === q.id);
       if (!template) return null;
       const current = getCounterValue(playerState, template.counter);
-      const progress = Math.max(0, current - q.baseline);
-      const complete = progress >= template.target;
+      // 25j: absolute-mode quests (e.g. "have N spells equipped right
+      // now") check current against target directly; the usual diff
+      // mechanism is for cumulative counters where you only want to
+      // count NEW activity since the quest was issued.
+      const rawProgress = template.absolute ? current : Math.max(0, current - q.baseline);
+      const complete = rawProgress >= template.target;
       return {
         ...template,
         baseline: q.baseline,
-        progress: Math.min(progress, template.target),
+        progress: Math.min(rawProgress, template.target),
         target: template.target,
         complete,
         claimed: q.claimed,
         claimable: complete && !q.claimed,
       };
     }).filter(Boolean);
-  }, [playerState.dailyQuests, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.modesUsedToday]);
+  }, [playerState.dailyQuests, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.modesUsedToday, playerState.totalLogins, playerState.pets, playerState.spellsCast, playerState.plantsHarvested, playerState.equippedSpells, playerState.bestiary, playerState.ascensions]);
 
   const claimQuest = (questId) => {
     setPlayerState(prev => {
@@ -1998,7 +2111,7 @@ export default function DungeonScholarApp() {
       const template = DAILY_QUEST_POOL.find(t => t.id === questId);
       if (!template) return prev;
       const current = getCounterValue(prev, template.counter);
-      const progress = current - quest.baseline;
+      const progress = template.absolute ? current : current - quest.baseline;
       if (progress < template.target) return prev;
       const xp = template.xp;
       const gold = Math.max(1, Math.floor(xp * 0.1));
@@ -2050,19 +2163,19 @@ export default function DungeonScholarApp() {
       const template = WEEKLY_QUEST_POOL.find(t => t.id === q.id);
       if (!template) return null;
       const current = getCounterValue(playerState, template.counter);
-      const progress = Math.max(0, current - q.baseline);
-      const complete = progress >= template.target;
+      const rawProgress = template.absolute ? current : Math.max(0, current - q.baseline);
+      const complete = rawProgress >= template.target;
       return {
         ...template,
         baseline: q.baseline,
-        progress: Math.min(progress, template.target),
+        progress: Math.min(rawProgress, template.target),
         target: template.target,
         complete,
         claimed: q.claimed,
         claimable: complete && !q.claimed,
       };
     }).filter(Boolean);
-  }, [playerState.weeklyQuests, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished]);
+  }, [playerState.weeklyQuests, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.totalLogins, playerState.pets, playerState.spellsCast, playerState.plantsHarvested, playerState.equippedSpells, playerState.bestiary, playerState.ascensions]);
 
   const claimWeeklyQuest = (questId) => {
     setPlayerState(prev => {
@@ -2072,7 +2185,8 @@ export default function DungeonScholarApp() {
       const template = WEEKLY_QUEST_POOL.find(t => t.id === questId);
       if (!template) return prev;
       const current = getCounterValue(prev, template.counter);
-      if (current - quest.baseline < template.target) return prev;
+      const progress = template.absolute ? current : current - quest.baseline;
+      if (progress < template.target) return prev;
       const xp = template.xp;
       const gold = Math.max(1, Math.floor(xp * 0.1));
       setTimeout(() => showNotif(`+${xp} XP, +${gold} gold — ${template.title}`, 'xp'), 50);
@@ -2795,6 +2909,8 @@ export default function DungeonScholarApp() {
               consumeItem={consumeItem}
               giveItem={giveItem}
               recordBestiary={recordBestiary}
+              recordSpellCast={recordSpellCast}
+              recordHarvest={recordHarvest}
               awardPetXp={awardPetXp}
               petCatalog={Object.values(PETS)}
               spellCatalog={Object.values(SPELLS)}

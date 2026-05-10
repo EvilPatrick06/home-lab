@@ -2603,6 +2603,12 @@ export default function DungeonExplore({
   consumeItem,
   giveItem,
   recordBestiary,
+  // 25j: optional quest-counter bumpers — recordSpellCast fires inside
+  // pay() on every successful cast; recordHarvest fires inside
+  // harvestHere whenever a lootable deco yields. Optional so older
+  // harnesses/tests can mount DungeonExplore without them.
+  recordSpellCast,
+  recordHarvest,
   awardPetXp,
   petCatalog,
   spellCatalog,
@@ -2857,6 +2863,7 @@ export default function DungeonExplore({
     const pay = () => {
       setMana((m) => Math.max(0, m - (def.cost || 0)));
       playSfx('cast');
+      if (recordSpellCast) recordSpellCast();
     };
 
     switch (def.effect) {
@@ -3148,6 +3155,7 @@ export default function DungeonExplore({
       showPickup(doubled ? `Acquired: ${label} ×2` : `Acquired: ${label}`, '#a7f3d0');
     }
     decorationsRef.current.splice(decoIdx, 1);
+    if (recordHarvest) recordHarvest();
     playSfx('pickup');
   };
 
