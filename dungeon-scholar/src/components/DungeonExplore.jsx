@@ -874,8 +874,11 @@ function drawTile(ctx, biome, type, px, py, x, y, map) {
 }
 
 // === Plant + decoration sprites =========================================
-function drawDeadBranch(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+function drawDeadBranch(ctx, px, py, t) {
+  // 25i-4: shared plant-sway pattern — small horizontal sin offset keyed
+  // off the world px so neighboring plants are naturally out of phase.
+  const sway = Math.sin((t || 0) / 700 + px * 0.013) * 0.8;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#1c1614';
   ctx.fillRect(cx - 1, cy - 14, 2, 14);
   ctx.fillRect(cx - 5, cy - 11, 5, 1);
@@ -907,8 +910,9 @@ function drawMossPatch(ctx, px, py) {
   ctx.fillRect(cx + 2, cy - 3, 1, 1);
   ctx.fillRect(cx + 5, cy - 1, 1, 1);
 }
-function drawNightshade(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+function drawNightshade(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 580 + px * 0.013) * 0.8;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#1c1614';
   ctx.fillRect(cx, cy - 12, 1, 12);
   ctx.fillStyle = '#1f2937';
@@ -939,8 +943,9 @@ function drawAlgae(ctx, px, py) {
   ctx.fillStyle = '#0ea5e9';
   ctx.fillRect(cx + 4, py + 28, 1, 3);
 }
-function drawFern(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 10;
+function drawFern(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 600 + px * 0.013) * 1.0;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 10;
   ctx.fillStyle = '#065f46';
   ctx.fillRect(cx, cy - 14, 1, 14);
   ctx.fillStyle = '#10b981';
@@ -953,8 +958,9 @@ function drawFern(ctx, px, py) {
   ctx.fillRect(cx - 2, cy - 14, 1, 1);
   ctx.fillRect(cx + 1, cy - 13, 1, 1);
 }
-function drawRotFlower(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+function drawRotFlower(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 540 + px * 0.013) * 0.8;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#3f1414';
   ctx.fillRect(cx, cy - 14, 1, 14);
   ctx.fillStyle = '#7f1d1d';
@@ -967,8 +973,9 @@ function drawRotFlower(ctx, px, py) {
   ctx.fillRect(cx + 2, cy - 10, 1, 2);
   ctx.fillRect(cx - 4, cy - 13, 1, 2);
 }
-function drawBonsai(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 10;
+function drawBonsai(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 750 + px * 0.013) * 0.7;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 10;
   ctx.fillStyle = '#7c2d12';
   ctx.fillRect(cx - 5, cy - 2, 10, 4);
   ctx.fillStyle = '#92400e';
@@ -986,8 +993,9 @@ function drawBonsai(ctx, px, py) {
   ctx.fillRect(cx, cy - 14, 1, 1);
   ctx.fillRect(cx + 3, cy - 12, 1, 1);
 }
-function drawIvy(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+function drawIvy(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 640 + px * 0.013) * 0.9;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#065f46';
   ctx.fillRect(cx, cy - 16, 1, 16);
   ctx.fillStyle = '#10b981';
@@ -1022,8 +1030,9 @@ function drawCrystal(ctx, px, py) {
   ctx.fillStyle = '#93c5fd';
   ctx.fillRect(cx + 4, cy - 4, 2, 1);
 }
-function drawPipeVine(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+function drawPipeVine(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 660 + px * 0.013) * 0.6;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#525252';
   ctx.fillRect(cx - 9, cy, 18, 5);
   ctx.fillStyle = '#737373';
@@ -1042,8 +1051,9 @@ function drawPipeVine(ctx, px, py) {
   ctx.fillRect(cx + 1, cy - 4, 3, 1);
   ctx.fillRect(cx - 2, cy - 9, 2, 1);
 }
-function drawRustFlower(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+function drawRustFlower(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 560 + px * 0.013) * 0.8;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#3a2418';
   ctx.fillRect(cx, cy - 12, 1, 12);
   ctx.fillStyle = '#9a3412';
@@ -1092,8 +1102,9 @@ function drawTumbleweed(ctx, px, py, t) {
   ctx.fillStyle = '#a16207';
   ctx.fillRect(cx + sway, cy - 2, 1, 1);
 }
-function drawWildflower(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+function drawWildflower(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 520 + px * 0.013) * 0.8;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#15803d';
   ctx.fillRect(cx, cy - 10, 1, 10);
   ctx.fillStyle = '#22c55e';
@@ -1110,8 +1121,9 @@ function drawWildflower(ctx, px, py) {
   ctx.fillStyle = '#a16207';
   ctx.fillRect(cx + 5, cy - 11, 1, 1);
 }
-function drawDesertBrush(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 8;
+function drawDesertBrush(ctx, px, py, t) {
+  const sway = Math.sin((t || 0) / 680 + px * 0.013) * 0.7;
+  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 8;
   ctx.fillStyle = '#7c2d12';
   ctx.fillRect(cx - 7, cy - 2, 14, 2);
   ctx.fillStyle = '#92400e';
@@ -1801,15 +1813,26 @@ function drawChest(ctx, tier, px, py, opened, t) {
     ctx.fillRect(cx - 1, cy + 2, 2, 3);
     ctx.fillStyle = p.glint;
     ctx.fillRect(cx, cy + 2, 1, 1);
-    // tier glints
-    if (tier !== 'wooden') {
-      const flash = Math.sin((t || 0) / 200) * 0.5 + 0.5;
-      ctx.fillStyle = `rgba(255, 255, 255, ${0.2 * flash})`;
+    // 25i-4: tier glints — silver chests get a cool cyan sparkle, gold
+    // chests get a warm yellow sparkle plus twinkling corner pips on a
+    // staggered cadence so the chest catches the eye from across a room.
+    if (tier === 'silver') {
+      const flash = Math.sin((t || 0) / 220) * 0.5 + 0.5;
+      ctx.fillStyle = `rgba(165, 243, 252, ${0.45 * flash})`;
       ctx.fillRect(cx - 8, cy - 3, 4, 1);
-    }
-    if (tier === 'gold') {
-      ctx.fillStyle = '#fde047';
+      const twinkle = Math.sin((t || 0) / 260 + 1.3) * 0.5 + 0.5;
+      ctx.fillStyle = `rgba(186, 230, 253, ${0.6 * twinkle})`;
+      ctx.fillRect(cx + 5, cy - 3, 1, 1);
+      ctx.fillRect(cx - 8, cy + 4, 1, 1);
+    } else if (tier === 'gold') {
+      const flash = Math.sin((t || 0) / 180) * 0.5 + 0.5;
+      ctx.fillStyle = `rgba(254, 240, 138, ${0.6 * flash})`;
+      ctx.fillRect(cx - 8, cy - 3, 4, 1);
+      const twinkleA = Math.sin((t || 0) / 200 + 1.3) * 0.5 + 0.5;
+      const twinkleB = Math.sin((t || 0) / 240) * 0.5 + 0.5;
+      ctx.fillStyle = `rgba(253, 224, 71, ${0.75 * twinkleA})`;
       ctx.fillRect(cx + 5, cy - 3, 2, 1);
+      ctx.fillStyle = `rgba(253, 230, 138, ${0.75 * twinkleB})`;
       ctx.fillRect(cx - 7, cy + 4, 2, 1);
     }
   }
