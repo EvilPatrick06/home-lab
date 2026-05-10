@@ -1817,12 +1817,26 @@ function drawChest(ctx, tier, px, py, opened, t) {
 
 // === Equipped weapon overlay ===========================================
 // Drawn after the player so it sits on top. Hand position depends on facing.
-function drawWeapon(ctx, weaponId, cx, py, facing) {
+function drawWeapon(ctx, weaponId, cx, py, facing, swingT = 0) {
   if (!weaponId) return;
   const handX = facing === 'left' ? cx - 12
               : facing === 'right' ? cx + 10
               : cx + 9; // up/down — show on the right side
   const handY = py + 24;
+
+  // 25i-3: swing arc — wrap the weapon drawing in a rotation pivoting on
+  // the hand. Peaks at mid-window (sin(swingT*PI)) so the weapon "winds
+  // up" then settles back. Direction matches facing; left flips sign so
+  // the blade arcs forward rather than backward.
+  const swingArc = swingT > 0 ? Math.sin(swingT * Math.PI) : 0;
+  if (swingArc > 0) {
+    const dir = facing === 'left' ? -1 : 1;
+    const angle = dir * swingArc * (Math.PI / 3);
+    ctx.save();
+    ctx.translate(handX, handY);
+    ctx.rotate(angle);
+    ctx.translate(-handX, -handY);
+  }
 
   if (weaponId === 'oaken_blade') {
     ctx.fillStyle = '#8b4513';
@@ -1858,10 +1872,12 @@ function drawWeapon(ctx, weaponId, cx, py, facing) {
     ctx.fillStyle = '#fde047';
     ctx.fillRect(handX - 1, handY - 14, 1, 1);
   }
+
+  if (swingArc > 0) ctx.restore();
 }
 
 // === Player sprite (more detailed; equipment-aware) =====================
-function drawPlayer(ctx, px, py, facing, walkFrame, equipped = {}) {
+function drawPlayer(ctx, px, py, facing, walkFrame, equipped = {}, swingT = 0) {
   const cx = px + TILE_PX / 2;
 
   // Soft shadow under the player
@@ -1933,10 +1949,18 @@ function drawPlayer(ctx, px, py, facing, walkFrame, equipped = {}) {
     if (facing === 'down') {
       ctx.fillRect(cx - 4, headTop + 8, 2, 2);
       ctx.fillRect(cx + 2, headTop + 8, 2, 2);
-      // Mouth (only with circlet — visible face)
       if (showCirclet) {
+        // Mouth (only with circlet — visible face)
         ctx.fillStyle = '#451a03';
         ctx.fillRect(cx - 2, headTop + 11, 4, 1);
+      } else {
+        // 25i-3: soft hood shadow band under the brim so the lower
+        // face reads as "in shadow" rather than flat-dark like the
+        // rest of the head interior.
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(cx - 6, headTop + 10, 12, 3);
+        ctx.globalAlpha = 1;
       }
     } else if (facing === 'right') {
       ctx.fillRect(cx + 1, headTop + 8, 2, 2);
@@ -1993,7 +2017,7 @@ function drawPlayer(ctx, px, py, facing, walkFrame, equipped = {}) {
   ctx.fillRect(cx + 1, legTop + legHeight - 4 - stepDelta, 6, 1);
 
   // === Equipped weapon (top layer) ===
-  drawWeapon(ctx, equipped.weapon, cx, py, facing);
+  drawWeapon(ctx, equipped.weapon, cx, py, facing, swingT);
 }
 
 // === Pet sprites (Phase 18) =============================================
@@ -3058,6 +3082,9 @@ export default function DungeonExplore({
   // HOLD_REPEAT_MS cadence; the initial press fires immediately.
   const heldKeysRef = useRef(new Set());
   const lastMoveAtRef = useRef(0);
+  // 25i-3: timestamp of the most recent bump-into-mob/boss. drawPlayer
+  // reads this to draw a 200ms weapon swing arc on collision.
+  const bumpAtRef = useRef(0);
   const dirOfKey = (key) => {
     switch (key) {
       case 'ArrowUp': case 'w': case 'W':    return 'up';
@@ -3202,6 +3229,7 @@ export default function DungeonExplore({
         return;
       }
       usedQuestionIdsRef.current.add(first.id);
+      bumpAtRef.current = performance.now();
       setBattle({ type: 'boss', currentQuestion: first, correctCount: 0, maxHp: 5 });
       return;
     }
@@ -3217,6 +3245,7 @@ export default function DungeonExplore({
         return;
       }
       usedQuestionIdsRef.current.add(first.id);
+      bumpAtRef.current = performance.now();
       setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, currentQuestion: first, correctCount: 0, maxHp: mobHp });
       return;
     }
@@ -3706,7 +3735,10 @@ export default function DungeonExplore({
         }
       }
 
-      drawPlayer(ctx, ppx, ppy, s.facing, walkFrame, s.equipped);
+      // 25i-3: swingT decays 1 → 0 over the 200ms after a mob/boss bump,
+      // letting drawWeapon paint a half-sine arc on top of the player.
+      const swingT = Math.max(0, 1 - (now - bumpAtRef.current) / 200);
+      drawPlayer(ctx, ppx, ppy, s.facing, walkFrame, s.equipped, swingT);
 
       const grad = ctx.createRadialGradient(
         CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.4,
