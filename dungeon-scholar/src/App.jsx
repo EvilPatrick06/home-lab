@@ -2654,6 +2654,7 @@ export default function DungeonScholarApp() {
             signedIn={!!user}
             onResetProgress={resetProgress}
             onOpenLibrary={() => setScreen('library')}
+            onShowAchievements={() => setShowAchievements(true)}
             onRestartTutorial={() => {
               setPlayerState(prev => ({
                 ...prev,
@@ -2706,6 +2707,8 @@ export default function DungeonScholarApp() {
             onUnequip={unequipSlot}
             onEquipPotion={equipPotion}
             onUnequipPotion={unequipPotion}
+            onEquipSpell={equipSpell}
+            onUnequipSpell={unequipSpell}
           />
         )}
         {screen === 'shop' && (
@@ -3292,7 +3295,42 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
   );
 }
 
-function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onResetProgress, onOpenLibrary, onRestartTutorial }) {
+// 25h: collapsible section wrapper used by the reorganized Home screen.
+// Default-open so first-time users see everything; the player's choices are
+// session-scoped (no persistence) — the home grid is short enough that this
+// keeps the implementation small while letting players collapse what they
+// don't need today.
+function CollapsibleGroup({ title, icon, color = 'amber', defaultOpen = true, children }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const palette = {
+    red:      { border: 'rgba(185, 28, 28, 0.55)',  text: '#fca5a5', glow: 'rgba(239, 68, 68, 0.18)' },
+    sapphire: { border: 'rgba(29, 78, 216, 0.55)',  text: '#93c5fd', glow: 'rgba(59, 130, 246, 0.18)' },
+    amber:    { border: 'rgba(180, 83, 9, 0.55)',   text: '#fcd34d', glow: 'rgba(245, 158, 11, 0.18)' },
+    purple:   { border: 'rgba(126, 34, 206, 0.55)', text: '#d8b4fe', glow: 'rgba(168, 85, 247, 0.18)' },
+  }[color] || { border: 'rgba(180, 83, 9, 0.55)', text: '#fcd34d', glow: 'rgba(245, 158, 11, 0.18)' };
+  return (
+    <div className="rounded relative" style={{
+      background: 'linear-gradient(135deg, rgba(20, 12, 6, 0.55) 0%, rgba(10, 6, 4, 0.92) 100%)',
+      border: `2px solid ${palette.border}`,
+      boxShadow: `0 0 20px ${palette.glow}, inset 0 0 18px rgba(0,0,0,0.5)`,
+    }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-3 px-4 py-3 italic tracking-wider text-left"
+        style={{ color: palette.text, textShadow: `0 0 10px ${palette.glow}` }}
+      >
+        <span className="text-lg w-4 inline-block text-center">{open ? '▾' : '▸'}</span>
+        <span className="text-base font-bold">
+          {icon ? <span className="mr-1">{icon}</span> : null}{title}
+        </span>
+        <span className="flex-1 h-px ml-2" style={{ background: `linear-gradient(to right, ${palette.border}, transparent)` }} />
+      </button>
+      {open && <div className="px-4 pb-4 space-y-4">{children}</div>}
+    </div>
+  );
+}
+
+function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onResetProgress, onOpenLibrary, onRestartTutorial, onShowAchievements }) {
   if (!courseSet) {
     return (
       <div className="space-y-6">
@@ -3405,7 +3443,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
 
         <OrnatePanel color="amber">
           <h3 className="text-lg font-bold mb-3 text-amber-300 flex items-center gap-2 italic">
-            <Settings className="w-5 h-5" /> ⚔ Manage Your Saga ⚔
+            <Settings className="w-5 h-5" /> ⚔ Sage Management ⚔
           </h3>
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
@@ -3501,149 +3539,175 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <ModeCard
-          title="Dungeon Delve"
-          desc="Walk a top-down realm of themed biomes (Crypt, Sewers, Tower, Halls, Wastes). Bump into foes to face their riddles, and reach the dungeon lord at the end to claim victory."
-          icon={<Swords className="w-8 h-8" />}
-          color="red"
-          featured
-          onClick={() => { trackModeUse('dungeon'); setScreen('dungeon'); }}
-        />
-        <ModeCard
-          title="Scrolls of Knowledge"
-          desc="Study sacred scrolls at your own pace. Rate your mastery to focus on what eludes you."
-          icon={<Scroll className="w-8 h-8" />}
-          color="sapphire"
-          onClick={() => { trackModeUse('flashcards'); setScreen('flashcards'); }}
-        />
-        <ModeCard
-          title="Riddles of the Sphinx"
-          desc="Test your wisdom against ancient riddles. Multiple paths, true judgment, and arcane fill-ins."
-          icon={<Target className="w-8 h-8" />}
-          color="purple"
-          onClick={() => { trackModeUse('quiz'); setScreen('quiz'); }}
-        />
-        <ModeCard
-          title="Domain Codex"
-          desc="Survey thy mastery across every domain of the cert blueprint. Study weak veins via Riddles or Scrolls — focus on what slips thee."
-          icon={<BookOpen className="w-8 h-8" />}
-          color="emerald"
-          onClick={() => setScreen('domainStudy')}
-        />
-        <ModeCard
-          title="Trials of Skill"
-          desc="Face hands-on trials at your own pace. Step-by-step quests with validation by the ancients."
-          icon={<FlaskConical className="w-8 h-8" />}
-          color="rose"
-          onClick={() => { trackModeUse('lab'); setScreen('lab'); }}
-        />
-        <ModeCard
-          title="The Oracle"
-          desc="Commune with the AI Oracle. Seek explanations, request riddles, and uncover deeper mysteries of this tome."
-          icon={<Wand2 className="w-8 h-8" />}
-          color="amber"
-          onClick={() => { trackModeUse('chat'); setScreen('chat'); }}
-        />
-        <ModeCard
-          title="Tome of Failures"
-          desc={`Confront the questions that have bested you. ${(tomeProgress?.mistakeVault || []).length} foe${(tomeProgress?.mistakeVault || []).length === 1 ? '' : 's'} await redemption.`}
-          icon={<Skull className="w-8 h-8" />}
-          color="emerald"
-          onClick={() => setScreen('vault')}
-        />
-        <ModeCard
-          title="Quest Board"
-          desc="Daily quests await thy completion. New challenges arise each dawn — claim experience as thy reward."
-          icon={<ScrollText className="w-8 h-8" />}
-          color="purple"
-          onClick={() => setScreen('quests')}
-        />
-        <ModeCard
-          title="The Marketplace"
-          desc="Spend thy hard-won gold on potions, cosmetics, and permanent boons. Wares rotate at each dawn."
-          icon={<ShoppingBag className="w-8 h-8" />}
-          color="amber"
-          onClick={() => setScreen('shop')}
-        />
-        <ModeCard
-          title="Chronicle of Delves"
-          desc={`Review past dungeon runs, personal records, and per-question reviews. ${(tomeProgress?.runHistory || []).length} delve${(tomeProgress?.runHistory || []).length === 1 ? '' : 's'} chronicled.`}
-          icon={<Scroll className="w-8 h-8" />}
-          color="purple"
-          onClick={() => setScreen('history')}
-        />
-        <ModeCard
-          title="Bestiary"
-          desc={`Lore on every foe felled in the dungeon. ${Object.keys(playerState?.bestiary || {}).length}/${20} entries unlocked.`}
-          icon={<Skull className="w-8 h-8" />}
-          color="purple"
-          onClick={() => setScreen('bestiary')}
-        />
-        <ModeCard
-          title="The Stable"
-          desc={`Hatched familiars walk at thy side. ${Object.keys(playerState?.pets || {}).length}/${5} pets in thy stable.`}
-          icon={<Heart className="w-8 h-8" />}
-          color="emerald"
-          onClick={() => setScreen('stable')}
-        />
-        <ModeCard
-          title="The Spellbook"
-          desc={`Active incantations cast in the dungeon (Z · X · C). ${Object.keys(playerState?.spellbook || {}).length}/${6} spells learned.`}
-          icon={<Wand2 className="w-8 h-8" />}
-          color="sapphire"
-          onClick={() => setScreen('spellbook')}
-        />
-        <ModeCard
-          title={playerState?.lastClaimedDate === todayDateStr() ? 'Devotion Calendar' : '✦ Devotion Awaits ✦'}
-          desc={
-            playerState?.lastClaimedDate === todayDateStr()
-              ? `Today's flame is lit. Streak: ${playerState?.loginStreak || 0} day${(playerState?.loginStreak || 0) === 1 ? '' : 's'}. Devotion: ${playerState?.devotion || 0}.`
-              : `A daily offering awaits thee. Current streak: ${playerState?.loginStreak || 0}. Claim today's reward.`
-          }
-          icon={<Calendar className="w-8 h-8" />}
-          color="amber"
-          onClick={() => setScreen('calendar')}
-        />
-        <ModeCard
-          title={(playerState?.ascensions || 0) > 0 ? `Ascension ×${playerState.ascensions}` : 'Path of Ascension'}
-          desc={
-            (playerState?.level || 1) >= 50
-              ? `The cycle stands ready to renew. Tokens: ${playerState?.ascensionTokens || 0}.`
-              : `Reach level 50 to transcend (current: ${playerState?.level || 1}). Tokens earned: ${playerState?.ascensionTokens || 0}.`
-          }
-          icon={<Star className="w-8 h-8" />}
-          color="amber"
-          onClick={() => setScreen('ascension')}
-        />
-      </div>
-
-      <OrnatePanel color="amber">
-        <h3 className="text-lg font-bold mb-3 text-amber-300 flex items-center gap-2 italic">
-          <Settings className="w-5 h-5" /> ⚔ Manage Your Saga ⚔
-        </h3>
-        <div className="flex flex-wrap gap-3">
-          {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
-            <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-              style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
-              <Compass className="w-4 h-4" /> Begin Tutorial
-            </button>
-          )}
-          {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
-            <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-              style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
-              <Compass className="w-4 h-4" /> Replay Tutorial
-            </button>
-          )}
-          {!signedIn && <SignInButton />}
-          <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
-            style={{ background: 'rgba(41, 12, 12, 0.7)' }}>
-            <RotateCcw className="w-4 h-4" /> Begin Anew
-          </button>
+      {/* 25h: home reorg — 4 collapsible groups (Study / Utility / Daily
+          Rewards / Account). Spellbook moved into Inventory's Spells tab. */}
+      <CollapsibleGroup title="Study" icon="📜" color="red">
+        <div className="grid md:grid-cols-2 gap-4">
+          <ModeCard
+            title="Dungeon Delve"
+            desc="Walk a top-down realm of themed biomes (Crypt, Sewers, Tower, Halls, Wastes). Bump into foes to face their riddles, and reach the dungeon lord at the end to claim victory."
+            icon={<Swords className="w-8 h-8" />}
+            color="red"
+            featured
+            onClick={() => { trackModeUse('dungeon'); setScreen('dungeon'); }}
+          />
+          <ModeCard
+            title="Scrolls of Knowledge"
+            desc="Study sacred scrolls at your own pace. Rate your mastery to focus on what eludes you."
+            icon={<Scroll className="w-8 h-8" />}
+            color="sapphire"
+            onClick={() => { trackModeUse('flashcards'); setScreen('flashcards'); }}
+          />
+          <ModeCard
+            title="Riddles of the Sphinx"
+            desc="Test your wisdom against ancient riddles. Multiple paths, true judgment, and arcane fill-ins."
+            icon={<Target className="w-8 h-8" />}
+            color="purple"
+            onClick={() => { trackModeUse('quiz'); setScreen('quiz'); }}
+          />
+          <ModeCard
+            title="Trials of Skill"
+            desc="Face hands-on trials at your own pace. Step-by-step quests with validation by the ancients."
+            icon={<FlaskConical className="w-8 h-8" />}
+            color="rose"
+            onClick={() => { trackModeUse('lab'); setScreen('lab'); }}
+          />
+          <ModeCard
+            title="The Oracle"
+            desc="Commune with the AI Oracle. Seek explanations, request riddles, and uncover deeper mysteries of this tome."
+            icon={<Wand2 className="w-8 h-8" />}
+            color="amber"
+            onClick={() => { trackModeUse('chat'); setScreen('chat'); }}
+          />
+          <ModeCard
+            title="Domain Codex"
+            desc="Survey thy mastery across every domain of the cert blueprint. Study weak veins via Riddles or Scrolls — focus on what slips thee."
+            icon={<BookOpen className="w-8 h-8" />}
+            color="emerald"
+            onClick={() => setScreen('domainStudy')}
+          />
         </div>
-      </OrnatePanel>
+      </CollapsibleGroup>
 
-      <AudioPanel />
+      <CollapsibleGroup title="Utility" icon="⚒️" color="sapphire">
+        <div className="grid md:grid-cols-2 gap-4">
+          <ModeCard
+            title="Inventory"
+            desc={`Thy hoard of gear, potions, and spells. ${Object.values(playerState?.inventory || {}).reduce((s, n) => s + (n || 0), 0)} item${Object.values(playerState?.inventory || {}).reduce((s, n) => s + (n || 0), 0) === 1 ? '' : 's'} stowed.`}
+            icon={<Package className="w-8 h-8" />}
+            color="emerald"
+            onClick={() => setScreen('inventory')}
+          />
+          <ModeCard
+            title="The Stable"
+            desc={`Hatched familiars walk at thy side. ${Object.keys(playerState?.pets || {}).length}/${5} pets in thy stable.`}
+            icon={<Heart className="w-8 h-8" />}
+            color="emerald"
+            onClick={() => setScreen('stable')}
+          />
+          <ModeCard
+            title="The Marketplace"
+            desc="Spend thy hard-won gold on potions, cosmetics, and permanent boons. Wares rotate at each dawn."
+            icon={<ShoppingBag className="w-8 h-8" />}
+            color="amber"
+            onClick={() => setScreen('shop')}
+          />
+          <ModeCard
+            title="Quest Board"
+            desc="Daily quests await thy completion. New challenges arise each dawn — claim experience as thy reward."
+            icon={<ScrollText className="w-8 h-8" />}
+            color="purple"
+            onClick={() => setScreen('quests')}
+          />
+        </div>
+      </CollapsibleGroup>
+
+      <CollapsibleGroup title="Daily Rewards" icon="🕯️" color="amber">
+        <div className="grid md:grid-cols-2 gap-4">
+          <ModeCard
+            title={playerState?.lastClaimedDate === todayDateStr() ? 'Devotion Calendar' : '✦ Devotion Awaits ✦'}
+            desc={
+              playerState?.lastClaimedDate === todayDateStr()
+                ? `Today's flame is lit. Streak: ${playerState?.loginStreak || 0} day${(playerState?.loginStreak || 0) === 1 ? '' : 's'}. Devotion: ${playerState?.devotion || 0}.`
+                : `A daily offering awaits thee. Current streak: ${playerState?.loginStreak || 0}. Claim today's reward.`
+            }
+            icon={<Calendar className="w-8 h-8" />}
+            color="amber"
+            onClick={() => setScreen('calendar')}
+          />
+          <ModeCard
+            title={(playerState?.ascensions || 0) > 0 ? `Ascension ×${playerState.ascensions}` : 'Path of Ascension'}
+            desc={
+              (playerState?.level || 1) >= 50
+                ? `The cycle stands ready to renew. Tokens: ${playerState?.ascensionTokens || 0}.`
+                : `Reach level 50 to transcend (current: ${playerState?.level || 1}). Tokens earned: ${playerState?.ascensionTokens || 0}.`
+            }
+            icon={<Star className="w-8 h-8" />}
+            color="amber"
+            onClick={() => setScreen('ascension')}
+          />
+        </div>
+      </CollapsibleGroup>
+
+      <CollapsibleGroup title="Account" icon="📚" color="purple">
+        <div className="grid md:grid-cols-2 gap-4">
+          <ModeCard
+            title="Hall of Glory"
+            desc={`Achievements earned through valor. ${(playerState?.achievements || []).length}/${ACHIEVEMENTS.length} unlocked.`}
+            icon={<Trophy className="w-8 h-8" />}
+            color="amber"
+            onClick={() => onShowAchievements && onShowAchievements()}
+          />
+          <ModeCard
+            title="Tome of Failures"
+            desc={`Confront the questions that have bested you. ${(tomeProgress?.mistakeVault || []).length} foe${(tomeProgress?.mistakeVault || []).length === 1 ? '' : 's'} await redemption.`}
+            icon={<Skull className="w-8 h-8" />}
+            color="emerald"
+            onClick={() => setScreen('vault')}
+          />
+          <ModeCard
+            title="Chronicle of Delves"
+            desc={`Review past dungeon runs, personal records, and per-question reviews. ${(tomeProgress?.runHistory || []).length} delve${(tomeProgress?.runHistory || []).length === 1 ? '' : 's'} chronicled.`}
+            icon={<Scroll className="w-8 h-8" />}
+            color="purple"
+            onClick={() => setScreen('history')}
+          />
+          <ModeCard
+            title="Bestiary"
+            desc={`Lore on every foe felled in the dungeon. ${Object.keys(playerState?.bestiary || {}).length}/${20} entries unlocked.`}
+            icon={<Skull className="w-8 h-8" />}
+            color="purple"
+            onClick={() => setScreen('bestiary')}
+          />
+        </div>
+
+        <OrnatePanel color="amber">
+          <h3 className="text-lg font-bold mb-3 text-amber-300 flex items-center gap-2 italic">
+            <Settings className="w-5 h-5" /> ⚔ Sage Management ⚔
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
+              <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+                style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+                <Compass className="w-4 h-4" /> Begin Tutorial
+              </button>
+            )}
+            {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
+              <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+                style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+                <Compass className="w-4 h-4" /> Replay Tutorial
+              </button>
+            )}
+            {!signedIn && <SignInButton />}
+            <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
+              style={{ background: 'rgba(41, 12, 12, 0.7)' }}>
+              <RotateCcw className="w-4 h-4" /> Begin Anew
+            </button>
+          </div>
+        </OrnatePanel>
+
+        <AudioPanel />
+      </CollapsibleGroup>
     </div>
   );
 }
@@ -5651,11 +5715,20 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
   );
 }
 
-function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPotion, onUnequipPotion }) {
+function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPotion, onUnequipPotion, onEquipSpell, onUnequipSpell }) {
   const inv = playerState.inventory || {};
   const equipped = playerState.equipped || {};
   const equippedPotions = equipped.potions || [null, null, null];
   const totalItems = Object.values(inv).reduce((s, n) => s + (n || 0), 0);
+  // 25h: split inventory into three tabs so gear, potions, and spells each
+  // surface their loadout panel up top with only the relevant item list below.
+  const [tab, setTab] = useState('gear');
+
+  const TAB_CATEGORIES = {
+    gear:    ['wardrobe', 'armory', 'stable', 'sanctum', 'devotion', 'celestial'],
+    potions: ['apothecary', 'ingredient'],
+    spells:  ['arcanum'],
+  };
 
   const itemsByCategory = Object.keys(ITEM_CATEGORIES).reduce((acc, cat) => {
     acc[cat] = ITEMS
@@ -5669,6 +5742,128 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
     { id: 'head',   label: 'Head',   icon: '👑' },
     { id: 'cloak',  label: 'Cloak',  icon: '🌌' },
     { id: 'pet',    label: 'Pet',    icon: '🐾' },
+  ];
+
+  const tabCategories = TAB_CATEGORIES[tab] || [];
+  const tabItemCount = tabCategories.reduce((s, c) => s + (itemsByCategory[c]?.length || 0), 0);
+
+  const renderCategoryList = (categories) => (
+    <div className="space-y-6">
+      {categories.map((catId) => {
+        const cat = ITEM_CATEGORIES[catId];
+        const items = itemsByCategory[catId];
+        if (!cat || !items || items.length === 0) return null;
+        return (
+          <div key={catId} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">{cat.icon}</span>
+              <h3 className="text-lg font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}>
+                {cat.label}
+              </h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+              <span className="text-xs text-amber-700 italic">
+                {items.length} kind{items.length === 1 ? '' : 's'}
+              </span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              {items.map((it) => {
+                const isEquipped = it.slot && equipped[it.slot] === it.id;
+                return (
+                <div key={it.id} className="p-4 rounded relative" style={{
+                  background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.65) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                  border: `2px solid ${isEquipped ? 'rgba(245, 158, 11, 0.7)' : 'rgba(126, 34, 206, 0.45)'}`,
+                  boxShadow: isEquipped
+                    ? '0 0 14px rgba(245, 158, 11, 0.3), inset 0 0 15px rgba(0,0,0,0.5)'
+                    : '0 0 12px rgba(168, 85, 247, 0.12), inset 0 0 15px rgba(0,0,0,0.5)',
+                }}>
+                  <div className="absolute top-1 left-1 text-amber-700/60 text-xs">⚜</div>
+                  <div className="absolute top-1 right-1 text-amber-700/60 text-xs">⚜</div>
+                  <div className="absolute bottom-1 left-1 text-amber-700/60 text-xs">⚜</div>
+                  <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
+                  <div className="flex items-start gap-3">
+                    <div className="text-3xl flex-shrink-0">{it.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <h4 className="font-bold text-amber-200 italic text-sm" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' }}>
+                          {it.name}
+                          {isEquipped && <span className="ml-2 text-[10px] text-amber-400 italic">(Equipped)</span>}
+                        </h4>
+                        <span className="text-xs text-amber-300 font-bold italic tabular-nums">×{it.count}</span>
+                      </div>
+                      <p className="text-xs text-amber-100/70 italic mt-1">{it.description}</p>
+                      {it.slot && !it.locked && (
+                        <div className="mt-2 flex items-center gap-2">
+                          {isEquipped ? (
+                            <button
+                              onClick={() => onUnequip && onUnequip(it.slot)}
+                              className="px-2 py-1 rounded text-[11px] italic"
+                              style={{
+                                background: 'rgba(31,17,8,0.7)',
+                                border: '1px solid rgba(245,158,11,0.6)',
+                                color: '#fbbf24',
+                              }}
+                            >
+                              Unequip
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => onEquip && onEquip(it.id)}
+                              className="px-2 py-1 rounded text-[11px] italic"
+                              style={{
+                                background: 'rgba(120,53,15,0.55)',
+                                border: '1px solid rgba(245,158,11,0.6)',
+                                color: '#fde047',
+                              }}
+                            >
+                              Equip ({it.slot})
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      {it.category === 'apothecary' && !it.locked && onEquipPotion && (
+                        <div className="mt-2 flex items-center gap-1">
+                          <span className="text-[10px] text-amber-700 italic mr-1">Quick-slot:</span>
+                          {[0, 1, 2].map((i) => {
+                            const filledId = equippedPotions[i];
+                            const isThis = filledId === it.id;
+                            const isOther = filledId && filledId !== it.id;
+                            return (
+                              <button
+                                key={i}
+                                onClick={() => {
+                                  if (isThis) onUnequipPotion(i);
+                                  else onEquipPotion(it.id, i);
+                                }}
+                                className="px-2 py-0.5 rounded text-[10px] italic"
+                                style={{
+                                  background: isThis ? 'rgba(120,53,15,0.7)' : 'rgba(31,17,8,0.6)',
+                                  border: `1px solid ${isThis ? 'rgba(245,158,11,0.8)' : 'rgba(120,53,15,0.4)'}`,
+                                  color: isThis ? '#fde047' : '#a8a29e',
+                                }}
+                                title={isOther ? `Replace ${findItem(filledId)?.name || 'current'} in slot ${i + 1}` : `Slot ${i + 1}`}
+                              >
+                                {i + 1}{isThis ? '★' : isOther ? '↺' : ''}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const TABS = [
+    { id: 'gear',    label: 'Gear',    icon: '⚔️', accent: 'rgba(245, 158, 11, 0.6)', text: '#fde047' },
+    { id: 'potions', label: 'Potions', icon: '🧪', accent: 'rgba(34, 197, 94, 0.6)',  text: '#86efac' },
+    { id: 'spells',  label: 'Spells',  icon: '✦',  accent: 'rgba(96, 165, 250, 0.6)', text: '#93c5fd' },
   ];
 
   return (
@@ -5709,220 +5904,169 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
         </div>
       </div>
 
-      {/* Loadout — current equipment per slot. Always shown, even with no
-          inventory, so the player has a clear hint that gear exists. */}
-      <div className="rounded p-4 relative" style={{
-        background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(10, 6, 4, 0.92) 100%)',
-        border: '2px solid rgba(245, 158, 11, 0.45)',
-        boxShadow: '0 0 12px rgba(245, 158, 11, 0.15), inset 0 0 12px rgba(0,0,0,0.5)',
-      }}>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-xl">⚔</span>
-          <h3 className="text-base font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245,158,11,0.3)' }}>
-            Loadout
-          </h3>
-          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
-          <span className="text-[10px] text-amber-700 italic">Equipped gear is active inside the dungeon.</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {SLOTS.map((s) => {
-            const equippedId = equipped[s.id];
-            const item = equippedId ? findItem(equippedId) : null;
-            return (
-              <div key={s.id} className="p-3 rounded flex items-center gap-2" style={{
-                background: 'rgba(31,17,8,0.6)',
-                border: `1px solid ${item ? 'rgba(245,158,11,0.6)' : 'rgba(120,53,15,0.4)'}`,
-              }}>
-                <div className="text-2xl">{item ? item.icon : s.icon}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[10px] text-amber-700 italic uppercase tracking-wider">{s.label}</div>
-                  <div className="text-xs text-amber-200 italic truncate">
-                    {item ? item.name : <span className="text-amber-700/60">— Empty —</span>}
-                  </div>
-                </div>
-                {item && onUnequip && (
-                  <button
-                    onClick={() => onUnequip(s.id)}
-                    className="text-[10px] text-amber-600 hover:text-amber-300 italic underline"
-                    title="Unequip"
-                  >
-                    Doff
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Potion quick-slots — usable from hotkeys 1/2/3 inside the dungeon. */}
-        <div className="mt-3 flex items-center gap-2 mb-2">
-          <span className="text-base">🧪</span>
-          <h4 className="text-xs font-bold text-amber-200 italic tracking-wider">Potion Quick-Slots</h4>
-          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
-          <span className="text-[10px] text-amber-700 italic">Hotkeys 1 · 2 · 3</span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          {[0, 1, 2].map((i) => {
-            const id = equippedPotions[i];
-            const item = id ? findItem(id) : null;
-            const count = item ? (inv[item.id] || 0) : 0;
-            return (
-              <div key={i} className="p-2 rounded flex items-center gap-2" style={{
-                background: 'rgba(31,17,8,0.6)',
-                border: `1px solid ${item ? 'rgba(34,197,94,0.6)' : 'rgba(120,53,15,0.4)'}`,
-              }}>
-                <div className="w-8 h-8 flex items-center justify-center rounded text-xl" style={{
-                  background: 'rgba(0,0,0,0.4)',
-                  border: '1px solid rgba(120,53,15,0.4)',
-                }}>
-                  {item ? item.icon : <span className="text-amber-700/40 text-xs italic">{i + 1}</span>}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[10px] text-amber-700 italic uppercase tracking-wider">Slot {i + 1}</div>
-                  <div className="text-xs text-amber-200 italic truncate">
-                    {item ? `${item.name} ×${count}` : <span className="text-amber-700/60">— Empty —</span>}
-                  </div>
-                </div>
-                {item && onUnequipPotion && (
-                  <button
-                    onClick={() => onUnequipPotion(i)}
-                    className="text-[10px] text-amber-600 hover:text-amber-300 italic underline"
-                    title="Clear quick-slot"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
+      {/* Tab row */}
+      <div className="grid grid-cols-3 gap-2">
+        {TABS.map((t) => {
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className="px-3 py-2 rounded text-sm italic font-bold tracking-wide"
+              style={{
+                background: active ? 'rgba(41, 24, 12, 0.85)' : 'rgba(20, 12, 6, 0.5)',
+                border: `2px solid ${active ? t.accent : 'rgba(120, 53, 15, 0.3)'}`,
+                color: active ? t.text : '#a8a29e',
+                boxShadow: active ? `0 0 12px ${t.accent}` : 'none',
+              }}
+            >
+              <span className="mr-1">{t.icon}</span>{t.label}
+            </button>
+          );
+        })}
       </div>
 
-      {totalItems === 0 ? (
-        <div className="text-center py-16 px-6 rounded relative" style={{
-          background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)',
-          border: '2px dashed rgba(126, 34, 206, 0.4)',
-        }}>
-          <Package className="w-16 h-16 mx-auto text-purple-300/50 mb-4" />
-          <p className="text-amber-100/70 italic mb-2">Thy hoard lies empty, scholar.</p>
-          <p className="text-xs text-amber-700 italic max-w-md mx-auto">
-            Earn gold by answering riddles, conquering dungeons, and claiming quests — then visit the Marketplace to purchase potions, finery, and permanent boons.
-          </p>
-          <button onClick={() => setScreen('shop')} className="mt-4 px-4 py-2 rounded text-sm font-bold italic border-2 border-amber-300 text-amber-950 inline-flex items-center gap-2"
-            style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}>
-            <ShoppingBag className="w-4 h-4" /> Visit the Marketplace
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {Object.entries(ITEM_CATEGORIES).map(([catId, cat]) => {
-            const items = itemsByCategory[catId];
-            if (!items || items.length === 0) return null;
-            return (
-              <div key={catId} className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{cat.icon}</span>
-                  <h3 className="text-lg font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}>
-                    {cat.label}
-                  </h3>
-                  <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
-                  <span className="text-xs text-amber-700 italic">
-                    {items.length} kind{items.length === 1 ? '' : 's'}
-                  </span>
-                </div>
-                <div className="grid md:grid-cols-2 gap-3">
-                  {items.map(it => {
-                    const isEquipped = it.slot && equipped[it.slot] === it.id;
-                    return (
-                    <div key={it.id} className="p-4 rounded relative" style={{
-                      background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.65) 0%, rgba(10, 6, 4, 0.95) 100%)',
-                      border: `2px solid ${isEquipped ? 'rgba(245, 158, 11, 0.7)' : 'rgba(126, 34, 206, 0.45)'}`,
-                      boxShadow: isEquipped
-                        ? '0 0 14px rgba(245, 158, 11, 0.3), inset 0 0 15px rgba(0,0,0,0.5)'
-                        : '0 0 12px rgba(168, 85, 247, 0.12), inset 0 0 15px rgba(0,0,0,0.5)',
-                    }}>
-                      <div className="absolute top-1 left-1 text-amber-700/60 text-xs">⚜</div>
-                      <div className="absolute top-1 right-1 text-amber-700/60 text-xs">⚜</div>
-                      <div className="absolute bottom-1 left-1 text-amber-700/60 text-xs">⚜</div>
-                      <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
-                      <div className="flex items-start gap-3">
-                        <div className="text-3xl flex-shrink-0">{it.icon}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-baseline justify-between gap-2">
-                            <h4 className="font-bold text-amber-200 italic text-sm" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' }}>
-                              {it.name}
-                              {isEquipped && <span className="ml-2 text-[10px] text-amber-400 italic">(Equipped)</span>}
-                            </h4>
-                            <span className="text-xs text-amber-300 font-bold italic tabular-nums">×{it.count}</span>
-                          </div>
-                          <p className="text-xs text-amber-100/70 italic mt-1">{it.description}</p>
-                          {it.slot && !it.locked && (
-                            <div className="mt-2 flex items-center gap-2">
-                              {isEquipped ? (
-                                <button
-                                  onClick={() => onUnequip && onUnequip(it.slot)}
-                                  className="px-2 py-1 rounded text-[11px] italic"
-                                  style={{
-                                    background: 'rgba(31,17,8,0.7)',
-                                    border: '1px solid rgba(245,158,11,0.6)',
-                                    color: '#fbbf24',
-                                  }}
-                                >
-                                  Unequip
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => onEquip && onEquip(it.id)}
-                                  className="px-2 py-1 rounded text-[11px] italic"
-                                  style={{
-                                    background: 'rgba(120,53,15,0.55)',
-                                    border: '1px solid rgba(245,158,11,0.6)',
-                                    color: '#fde047',
-                                  }}
-                                >
-                                  Equip ({it.slot})
-                                </button>
-                              )}
-                            </div>
-                          )}
-                          {it.category === 'apothecary' && !it.locked && onEquipPotion && (
-                            <div className="mt-2 flex items-center gap-1">
-                              <span className="text-[10px] text-amber-700 italic mr-1">Quick-slot:</span>
-                              {[0, 1, 2].map((i) => {
-                                const filledId = equippedPotions[i];
-                                const isThis = filledId === it.id;
-                                const isOther = filledId && filledId !== it.id;
-                                return (
-                                  <button
-                                    key={i}
-                                    onClick={() => {
-                                      if (isThis) onUnequipPotion(i);
-                                      else onEquipPotion(it.id, i);
-                                    }}
-                                    className="px-2 py-0.5 rounded text-[10px] italic"
-                                    style={{
-                                      background: isThis ? 'rgba(120,53,15,0.7)' : 'rgba(31,17,8,0.6)',
-                                      border: `1px solid ${isThis ? 'rgba(245,158,11,0.8)' : 'rgba(120,53,15,0.4)'}`,
-                                      color: isThis ? '#fde047' : '#a8a29e',
-                                    }}
-                                    title={isOther ? `Replace ${findItem(filledId)?.name || 'current'} in slot ${i + 1}` : `Slot ${i + 1}`}
-                                  >
-                                    {i + 1}{isThis ? '★' : isOther ? '↺' : ''}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
+      {tab === 'gear' && (
+        <>
+          <div className="rounded p-4 relative" style={{
+            background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(10, 6, 4, 0.92) 100%)',
+            border: '2px solid rgba(245, 158, 11, 0.45)',
+            boxShadow: '0 0 12px rgba(245, 158, 11, 0.15), inset 0 0 12px rgba(0,0,0,0.5)',
+          }}>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">⚔</span>
+              <h3 className="text-base font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245,158,11,0.3)' }}>
+                Loadout
+              </h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+              <span className="text-[10px] text-amber-700 italic">Equipped gear is active inside the dungeon.</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {SLOTS.map((s) => {
+                const equippedId = equipped[s.id];
+                const item = equippedId ? findItem(equippedId) : null;
+                return (
+                  <div key={s.id} className="p-3 rounded flex items-center gap-2" style={{
+                    background: 'rgba(31,17,8,0.6)',
+                    border: `1px solid ${item ? 'rgba(245,158,11,0.6)' : 'rgba(120,53,15,0.4)'}`,
+                  }}>
+                    <div className="text-2xl">{item ? item.icon : s.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] text-amber-700 italic uppercase tracking-wider">{s.label}</div>
+                      <div className="text-xs text-amber-200 italic truncate">
+                        {item ? item.name : <span className="text-amber-700/60">— Empty —</span>}
                       </div>
                     </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                    {item && onUnequip && (
+                      <button
+                        onClick={() => onUnequip(s.id)}
+                        className="text-[10px] text-amber-600 hover:text-amber-300 italic underline"
+                        title="Unequip"
+                      >
+                        Doff
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {tabItemCount === 0 ? (
+            <div className="text-center py-12 px-6 rounded relative" style={{
+              background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)',
+              border: '2px dashed rgba(126, 34, 206, 0.4)',
+            }}>
+              <Package className="w-12 h-12 mx-auto text-purple-300/50 mb-3" />
+              <p className="text-amber-100/70 italic mb-1">No gear stowed.</p>
+              <p className="text-xs text-amber-700 italic max-w-md mx-auto">
+                Purchase wardrobe, armory, sanctum, or celestial wares at the Marketplace.
+              </p>
+            </div>
+          ) : (
+            renderCategoryList(TAB_CATEGORIES.gear)
+          )}
+        </>
+      )}
+
+      {tab === 'potions' && (
+        <>
+          <div className="rounded p-4 relative" style={{
+            background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(10, 6, 4, 0.92) 100%)',
+            border: '2px solid rgba(34, 197, 94, 0.45)',
+            boxShadow: '0 0 12px rgba(34, 197, 94, 0.15), inset 0 0 12px rgba(0,0,0,0.5)',
+          }}>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-base">🧪</span>
+              <h3 className="text-base font-bold text-emerald-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(34,197,94,0.3)' }}>
+                Potion Quick-Slots
+              </h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-emerald-700/50 to-transparent" />
+              <span className="text-[10px] text-amber-700 italic">Hotkeys 1 · 2 · 3</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[0, 1, 2].map((i) => {
+                const id = equippedPotions[i];
+                const item = id ? findItem(id) : null;
+                const count = item ? (inv[item.id] || 0) : 0;
+                return (
+                  <div key={i} className="p-2 rounded flex items-center gap-2" style={{
+                    background: 'rgba(31,17,8,0.6)',
+                    border: `1px solid ${item ? 'rgba(34,197,94,0.6)' : 'rgba(120,53,15,0.4)'}`,
+                  }}>
+                    <div className="w-8 h-8 flex items-center justify-center rounded text-xl" style={{
+                      background: 'rgba(0,0,0,0.4)',
+                      border: '1px solid rgba(120,53,15,0.4)',
+                    }}>
+                      {item ? item.icon : <span className="text-amber-700/40 text-xs italic">{i + 1}</span>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] text-amber-700 italic uppercase tracking-wider">Slot {i + 1}</div>
+                      <div className="text-xs text-amber-200 italic truncate">
+                        {item ? `${item.name} ×${count}` : <span className="text-amber-700/60">— Empty —</span>}
+                      </div>
+                    </div>
+                    {item && onUnequipPotion && (
+                      <button
+                        onClick={() => onUnequipPotion(i)}
+                        className="text-[10px] text-amber-600 hover:text-amber-300 italic underline"
+                        title="Clear quick-slot"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {tabItemCount === 0 ? (
+            <div className="text-center py-12 px-6 rounded relative" style={{
+              background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(10, 6, 4, 0.9) 100%)',
+              border: '2px dashed rgba(34, 197, 94, 0.4)',
+            }}>
+              <span className="text-3xl">🧪</span>
+              <p className="text-amber-100/70 italic mb-1 mt-2">No potions or ingredients stowed.</p>
+              <p className="text-xs text-amber-700 italic max-w-md mx-auto">
+                Buy tonics at the Marketplace or harvest reagents in the dungeon, then brew at the bench.
+              </p>
+            </div>
+          ) : (
+            renderCategoryList(TAB_CATEGORIES.potions)
+          )}
+        </>
+      )}
+
+      {tab === 'spells' && (
+        <>
+          <SpellbookContent
+            playerState={playerState}
+            onEquipSpell={onEquipSpell}
+            onUnequipSpell={onUnequipSpell}
+          />
+          {tabItemCount > 0 && renderCategoryList(TAB_CATEGORIES.spells)}
+        </>
       )}
 
       <div className="text-center pt-2 flex flex-wrap justify-center gap-2">
@@ -6249,11 +6393,13 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
 // Phase 19 — Spellbook. Lists all spells; known ones can be quick-slotted
 // into 3 cast slots usable in the dungeon (Z/X/C hotkeys). Unknown spells
 // show locked entries pointing to the Arcanum scroll that learns them.
-function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell }) {
+// 25h: extracted from SpellbookScreen so the Inventory screen's Spells tab
+// can reuse the same cast-slot + spell-grid UI without duplication. The
+// standalone SpellbookScreen route wraps this with its header + return button.
+function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) {
   const known = playerState.spellbook || {};
   const equipped = playerState.equippedSpells || [null, null, null];
   const allSpells = Object.values(SPELLS);
-  const knownCount = allSpells.filter(s => known[s.id]).length;
   const [pendingSlot, setPendingSlot] = useState(null);
 
   const handleSlotClick = (i) => {
@@ -6271,37 +6417,7 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
   };
 
   return (
-    <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
-        background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
-        border: '3px double rgba(59, 130, 246, 0.6)',
-        boxShadow: '0 0 30px rgba(59, 130, 246, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
-      }}>
-        <div className="absolute top-2 left-2 text-sky-300 text-sm">⚜</div>
-        <div className="absolute top-2 right-2 text-sky-300 text-sm">⚜</div>
-        <div className="absolute bottom-2 left-2 text-sky-300 text-sm">⚜</div>
-        <div className="absolute bottom-2 right-2 text-sky-300 text-sm">⚜</div>
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <div className="text-4xl">📜</div>
-            <div>
-              <h2 className="text-2xl font-bold text-sky-200 italic" style={{ textShadow: '0 0 12px rgba(59, 130, 246, 0.4)' }}>
-                The Spellbook
-              </h2>
-              <div className="text-xs text-sky-400 tracking-[0.2em] italic">⚜ ACTIVE INCANTATIONS ⚜</div>
-              <div className="text-xs text-amber-100/70 italic mt-1">
-                {knownCount}/{allSpells.length} learned. Slot up to 3 to cast in the dungeon (Z · X · C).
-              </div>
-            </div>
-          </div>
-          <button onClick={() => setScreen('home')}
-            className="px-3 py-2 rounded text-xs italic border-2 border-sky-700 text-sky-300 hover:bg-sky-900/30"
-            style={{ background: 'rgba(12, 24, 41, 0.45)' }}>
-            ← Return to the Hearth
-          </button>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Quick-slot row */}
       <div className="p-4 rounded" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
@@ -6393,6 +6509,52 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell }) {
+  const known = playerState.spellbook || {};
+  const allSpells = Object.values(SPELLS);
+  const knownCount = allSpells.filter(s => known[s.id]).length;
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(59, 130, 246, 0.6)',
+        boxShadow: '0 0 30px rgba(59, 130, 246, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-sky-300 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-sky-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-sky-300 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-sky-300 text-sm">⚜</div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-4xl">📜</div>
+            <div>
+              <h2 className="text-2xl font-bold text-sky-200 italic" style={{ textShadow: '0 0 12px rgba(59, 130, 246, 0.4)' }}>
+                The Spellbook
+              </h2>
+              <div className="text-xs text-sky-400 tracking-[0.2em] italic">⚜ ACTIVE INCANTATIONS ⚜</div>
+              <div className="text-xs text-amber-100/70 italic mt-1">
+                {knownCount}/{allSpells.length} learned. Slot up to 3 to cast in the dungeon (Z · X · C).
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setScreen('home')}
+            className="px-3 py-2 rounded text-xs italic border-2 border-sky-700 text-sky-300 hover:bg-sky-900/30"
+            style={{ background: 'rgba(12, 24, 41, 0.45)' }}>
+            ← Return to the Hearth
+          </button>
+        </div>
+      </div>
+
+      <SpellbookContent
+        playerState={playerState}
+        onEquipSpell={onEquipSpell}
+        onUnequipSpell={onUnequipSpell}
+      />
     </div>
   );
 }
