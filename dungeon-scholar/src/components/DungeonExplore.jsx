@@ -1286,7 +1286,7 @@ function drawSlime(ctx, px, py, t) {
   ctx.fillRect(cx + 1, cy - 1, 2, 2);
 }
 function drawSentry(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 400) * 0.6;
   ctx.fillStyle = '#1e3a8a';
   ctx.fillRect(cx - 7, cy - 4, 14, 12);
   ctx.fillStyle = '#1e293b';
@@ -1319,7 +1319,7 @@ function drawSpark(ctx, px, py, t) {
   }
 }
 function drawScorpion(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2 + Math.sin(t / 220) * 0.8;
   const wig = Math.sin(t / 200) * 1.5;
   ctx.fillStyle = '#92400e';
   ctx.fillRect(cx - 6, cy - 2, 12, 6);
@@ -1334,7 +1334,7 @@ function drawScorpion(ctx, px, py, t) {
 
 // === Additional mob sprites (Phase 13) ==================================
 function drawSkeleton(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 420) * 0.8;
   ctx.fillStyle = 'rgba(0,0,0,0.35)';
   ctx.beginPath();
   ctx.ellipse(cx, py + TILE_PX - 5, 9, 3, 0, 0, Math.PI * 2);
@@ -1395,7 +1395,7 @@ function drawShade(ctx, px, py, t) {
   ctx.fillRect(cx + 6, cy + 12, 2, 2);
 }
 function drawRat(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4 + Math.sin(t / 200) * 0.8;
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
   ctx.ellipse(cx, cy + 5, 9, 2, 0, 0, Math.PI * 2);
@@ -1423,7 +1423,7 @@ function drawRat(ctx, px, py, t) {
   ctx.fillRect(cx + 6, cy + tailWag, 6, 1);
 }
 function drawOoze(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4 + Math.sin(t / 380) * 1.0;
   ctx.fillStyle = 'rgba(34,197,94,0.4)';
   ctx.beginPath();
   ctx.arc(cx, cy - 2, 21, 0, Math.PI * 2);
@@ -1468,7 +1468,7 @@ function drawDrone(ctx, px, py, t) {
   ctx.fillRect(cx + 1, cy + 4, 2, 2);
 }
 function drawFirewall(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 500) * 0.4;
   ctx.fillStyle = 'rgba(239,68,68,0.4)';
   ctx.beginPath();
   ctx.arc(cx, cy, 21, 0, Math.PI * 2);
@@ -1493,7 +1493,7 @@ function drawFirewall(ctx, px, py, t) {
   ctx.fillRect(cx - 8, cy - 13 + flame / 2, 1, 1);
 }
 function drawImp(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2 + Math.sin(t / 200) * 1.2;
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
   ctx.ellipse(cx, py + TILE_PX - 4, 7, 2, 0, 0, Math.PI * 2);
@@ -1521,7 +1521,7 @@ function drawImp(ctx, px, py, t) {
   ctx.fillRect(cx + 7, cy - 1 - flap, 1, 3);
 }
 function drawSentinel(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 450) * 0.5;
   ctx.fillStyle = 'rgba(245,158,11,0.4)';
   ctx.beginPath();
   ctx.arc(cx, cy, 21, 0, Math.PI * 2);
@@ -1547,7 +1547,7 @@ function drawSentinel(ctx, px, py, t) {
   ctx.fillRect(cx + 10, cy + 8, 3, 1);
 }
 function drawSpider(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2 + Math.sin(t / 240) * 0.8;
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
   ctx.ellipse(cx, py + TILE_PX - 6, 10, 2, 0, 0, Math.PI * 2);
@@ -1590,7 +1590,7 @@ function drawSpider(ctx, px, py, t) {
   ctx.fillRect(cx - 3, cy - 1, 2, 1);
 }
 function drawElemental(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 300) * 1.0;
   ctx.fillStyle = 'rgba(217,119,6,0.4)';
   ctx.beginPath();
   ctx.arc(cx, cy, 22, 0, Math.PI * 2);
@@ -1631,14 +1631,26 @@ const MOB_DRAWERS = {
 
 // === Boss sprites =======================================================
 function drawLich(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 - 4;
+  // 25i-2: idle bob + a 270ms attack-tell pulse every 1.8s, shared
+  // cadence with the other bosses so the player learns the "menace"
+  // tempo regardless of which boss they're facing.
+  const bob = Math.sin(t / 350) * 1.5;
+  const tellPhase = (t % 1800) / 1800;
+  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 - 4 + bob;
   ctx.fillStyle = 'rgba(168,85,247,0.4)';
   ctx.fillRect(cx - 16, cy + 8, 32, 16);
   ctx.fillStyle = '#a855f7';
   ctx.fillRect(cx - 12, cy - 10, 24, 24);
   ctx.fillStyle = '#1a0e2a';
   ctx.fillRect(cx - 8, cy - 6, 16, 12);
-  ctx.fillStyle = '#fde047';
+  if (tell > 0) {
+    ctx.globalAlpha = 0.35 * tell;
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(cx - 9, cy - 5, 18, 9);
+    ctx.globalAlpha = 1;
+  }
+  ctx.fillStyle = tell > 0.5 ? '#fef9c3' : '#fde047';
   ctx.fillRect(cx - 5, cy - 2, 3, 3);
   ctx.fillRect(cx + 2, cy - 2, 3, 3);
   ctx.fillStyle = '#facc15';
@@ -1650,61 +1662,85 @@ function drawLich(ctx, px, py, t) {
   ctx.fillRect(cx + 12, cy - 12, sw, 2);
 }
 function drawHydra(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 8;
+  // 25i-2: body bob + middle head lunges forward on the attack-tell pulse.
+  const bob = Math.sin(t / 400) * 1.2;
+  const tellPhase = (t % 1800) / 1800;
+  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 8 + bob;
   ctx.fillStyle = '#065f46';
   ctx.fillRect(cx - 14, cy - 4, 28, 12);
   for (let i = 0; i < 3; i++) {
     const off = (i - 1) * 8;
     const sway = Math.sin(t / 300 + i) * 3;
+    const lunge = (i === 1) ? tell * 4 : 0;
     ctx.fillStyle = '#10b981';
-    ctx.fillRect(cx - 3 + off + sway, cy - 18, 6, 14);
+    ctx.fillRect(cx - 3 + off + sway, cy - 18 + lunge, 6, 14);
     ctx.fillStyle = '#065f46';
-    ctx.fillRect(cx - 4 + off + sway, cy - 22, 8, 6);
-    ctx.fillStyle = '#fde047';
-    ctx.fillRect(cx - 2 + off + sway, cy - 20, 1, 1);
-    ctx.fillRect(cx + 1 + off + sway, cy - 20, 1, 1);
+    ctx.fillRect(cx - 4 + off + sway, cy - 22 + lunge, 8, 6);
+    ctx.fillStyle = tell > 0.5 && i === 1 ? '#fef9c3' : '#fde047';
+    ctx.fillRect(cx - 2 + off + sway, cy - 20 + lunge, 1, 1);
+    ctx.fillRect(cx + 1 + off + sway, cy - 20 + lunge, 1, 1);
   }
 }
 function drawSphinx(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  // 25i-2: bob + eye saturates toward a redder halo during the tell pulse.
+  const bob = Math.sin(t / 420) * 1.2;
+  const tellPhase = (t % 1800) / 1800;
+  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + bob;
   ctx.fillStyle = '#1e3a8a';
   ctx.fillRect(cx - 12, cy - 14, 24, 28);
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(cx - 12, cy + 10, 24, 6);
   ctx.fillStyle = '#3b82f6';
   ctx.fillRect(cx - 10, cy - 12, 20, 8);
+  if (tell > 0) {
+    ctx.globalAlpha = 0.4 * tell;
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(cx - 4, cy - 11, 8, 7);
+    ctx.globalAlpha = 1;
+  }
   const blink = (Math.floor(t / 150) % 4) === 0;
-  ctx.fillStyle = blink ? '#fef9c3' : '#ef4444';
+  ctx.fillStyle = blink ? '#fef9c3' : (tell > 0.5 ? '#fca5a5' : '#ef4444');
   ctx.fillRect(cx - 2, cy - 9, 4, 3);
   ctx.fillStyle = '#60a5fa';
   ctx.fillRect(cx - 11, cy - 4, 22, 2);
 }
 function drawBehemoth(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  // 25i-2: bob + body "clench" widens slightly during the tell pulse.
+  const bob = Math.sin(t / 500) * 1.0;
+  const tellPhase = (t % 1800) / 1800;
+  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
+  const widen = tell * 2;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + bob;
   ctx.fillStyle = '#92400e';
-  ctx.fillRect(cx - 14, cy - 12, 28, 26);
+  ctx.fillRect(cx - 14 - widen, cy - 12, 28 + widen * 2, 26);
   ctx.fillStyle = '#fbbf24';
-  ctx.fillRect(cx - 12, cy - 10, 24, 4);
+  ctx.fillRect(cx - 12 - widen, cy - 10, 24 + widen * 2, 4);
   ctx.fillStyle = '#451a03';
   ctx.fillRect(cx - 6, cy - 5, 4, 4);
   ctx.fillRect(cx + 2, cy - 5, 4, 4);
-  ctx.fillStyle = '#fb923c';
+  ctx.fillStyle = tell > 0.5 ? '#fde047' : '#fb923c';
   const glow = (Math.floor(t / 200) % 2) === 0 ? 1 : 0;
-  if (glow) ctx.fillRect(cx - 5, cy - 4, 2, 2);
+  if (glow || tell > 0.3) ctx.fillRect(cx - 5, cy - 4, 2, 2);
   ctx.fillStyle = '#1c1917';
   ctx.fillRect(cx - 8, cy + 4, 16, 4);
 }
 function drawRiddler(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
-  const flap = Math.sin(t / 250) * 4;
+  // 25i-2: bob + cards flap wider and eyes glow red during the tell pulse.
+  const bob = Math.sin(t / 350) * 1.2;
+  const tellPhase = (t % 1800) / 1800;
+  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
+  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + bob;
+  const flap = Math.sin(t / 250) * (4 + tell * 4);
   ctx.fillStyle = '#a16207';
   ctx.fillRect(cx - 14 - flap, cy - 4, 12, 6);
   ctx.fillRect(cx + 2 + flap, cy - 4, 12, 6);
   ctx.fillStyle = '#7c2d12';
   ctx.fillRect(cx - 8, cy - 10, 16, 18);
-  ctx.fillStyle = '#fbbf24';
+  ctx.fillStyle = tell > 0.5 ? '#fef9c3' : '#fbbf24';
   ctx.fillRect(cx - 1, cy - 4, 2, 2);
-  ctx.fillStyle = '#000';
+  ctx.fillStyle = tell > 0.5 ? '#dc2626' : '#000';
   ctx.fillRect(cx - 4, cy - 7, 2, 2);
   ctx.fillRect(cx + 2, cy - 7, 2, 2);
 }
