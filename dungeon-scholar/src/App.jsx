@@ -1058,6 +1058,15 @@ const blankTomeProgress = () => ({
   mistakeVault: [],
   chatHistory: [],
   runHistory: [],            // Phase 10: per-tome list of completed/failed dungeon runs
+  // Phase 26a: confidence calibration. Each bucket counts answer events
+  // where the user rated their confidence + whether the answer was correct.
+  // Used by the Domain Study screen's Calibration section to surface
+  // overconfidence / underconfidence patterns.
+  confidenceStats: {
+    low:  { total: 0, correct: 0 },
+    med:  { total: 0, correct: 0 },
+    high: { total: 0, correct: 0 },
+  },
 });
 
 // === Run History (Phase 10) ===
@@ -1945,13 +1954,48 @@ export default function DungeonScholarApp() {
   //   step item with id `${labId}_step_${idx}` so per-stage failures
   //   accumulate distinct vault entries. Dungeon mode passes the full
   //   quiz item — same shape as Quiz.
-  const recordAnswer = (correct, item) => {
+  const recordAnswer = (correct, item, extra = {}) => {
     setPlayerState(prev => {
       const newAnswered = prev.totalAnswered + 1;
       const newCorrect = prev.totalCorrect + (correct ? 1 : 0);
       // +1 gold per correct answer (Phase 6). Silent — no per-answer notif.
       const newGold = (prev.gold || 0) + (correct ? 1 : 0);
       let next = { ...prev, totalAnswered: newAnswered, totalCorrect: newCorrect, gold: newGold };
+
+      // 26a: confidence calibration. When the caller passes a confidence
+      // bucket ('low'/'med'/'high'), bump the matching tile on the active
+      // tome's confidenceStats. Defensive: legacy callers that don't pass
+      // extra still work; unknown buckets are ignored.
+      const confidenceBucket = extra && typeof extra.confidence === 'string'
+        ? extra.confidence.toLowerCase()
+        : null;
+      if (confidenceBucket && ['low', 'med', 'high'].includes(confidenceBucket) && prev.activeTomeId) {
+        next = {
+          ...next,
+          library: next.library.map(t => {
+            if (t.id !== prev.activeTomeId) return t;
+            const base = t.progress?.confidenceStats || {
+              low:  { total: 0, correct: 0 },
+              med:  { total: 0, correct: 0 },
+              high: { total: 0, correct: 0 },
+            };
+            const tile = base[confidenceBucket] || { total: 0, correct: 0 };
+            return {
+              ...t,
+              progress: {
+                ...t.progress,
+                confidenceStats: {
+                  ...base,
+                  [confidenceBucket]: {
+                    total: tile.total + 1,
+                    correct: tile.correct + (correct ? 1 : 0),
+                  },
+                },
+              },
+            };
+          }),
+        };
+      }
 
       // Bump labsAttempted on every lab answer (success or failure) for tutorial detection.
       if (item && item._type === 'lab' && prev.activeTomeId) {
@@ -4072,6 +4116,11 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
   const [grading, setGrading] = useState(false);
+  // 26a: confidence calibration. User rates 'low' / 'med' / 'high' before
+  // they see the answer choices; the rating is passed through to
+  // recordAnswer so the per-tome confidenceStats can track calibration.
+  // Reset to null on every next() so the picker re-appears.
+  const [confidence, setConfidence] = useState(null);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
   const baseDeck = (questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || []);
@@ -4083,8 +4132,8 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
   const q = questions[index];
 
   const handleAnswer = (correct, extra = {}) => {
-    setAnswered({ correct, ...extra });
-    recordAnswer(correct, q);
+    setAnswered({ correct, confidence, ...extra });
+    recordAnswer(correct, q, { confidence });
     const newQuizCount = (tomeProgress?.quizAnswered || 0) + 1;
     updateTomeProgress({ quizAnswered: newQuizCount });
     const totalQuizAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.quizAnswered || 0), 0) + 1;
@@ -4142,13 +4191,20 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
 
   const handleSkip = () => {
     setAnswered({ correct: false, skipped: true });
+    // Skip is "I don't know" — record without a confidence bucket so it
+    // doesn't muddy the calibration analysis.
     recordAnswer(false, q);
     const newQuizCount = (tomeProgress?.quizAnswered || 0) + 1;
     updateTomeProgress({ quizAnswered: newQuizCount });
     setStreak(0);
   };
 
-  const next = () => { setAnswered(null); setTextAnswer(''); setIndex((index + 1) % questions.length); };
+  const next = () => {
+    setAnswered(null);
+    setTextAnswer('');
+    setConfidence(null);
+    setIndex((index + 1) % questions.length);
+  };
   if (!q) return (
     <div className="space-y-4 max-w-3xl mx-auto">
       {domainFilter && (
@@ -4184,7 +4240,49 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
         border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
         <div className="text-lg text-amber-50 mb-6 italic">{q.question}</div>
-        {!answered && isMC && (
+        {/* 26a: confidence calibration. Gate the answer choices behind a
+            confidence rating so we can compare "how sure I was" vs "did I
+            get it right". The rating locks once picked and is shown as a
+            badge above the choices. Skipping the riddle bypasses this
+            (no rating recorded — skip is "I don't know" and shouldn't
+            muddy calibration math). */}
+        {!answered && !confidence && (
+          <div className="space-y-3">
+            <div className="text-xs text-amber-100/70 italic mb-2 text-center">
+              Before answering, how sure art thou?
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button onClick={() => setConfidence('low')}
+                className="p-3 rounded font-bold border-2 border-zinc-400 text-zinc-200 italic"
+                style={{ background: 'rgba(63, 63, 70, 0.45)' }}>
+                ✦ Uncertain
+              </button>
+              <button onClick={() => setConfidence('med')}
+                className="p-3 rounded font-bold border-2 border-amber-400 text-amber-200 italic"
+                style={{ background: 'rgba(120, 53, 15, 0.45)' }}>
+                ✦ Likely
+              </button>
+              <button onClick={() => setConfidence('high')}
+                className="p-3 rounded font-bold border-2 border-emerald-400 text-emerald-200 italic"
+                style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
+                ✦ Confident
+              </button>
+            </div>
+          </div>
+        )}
+        {!answered && confidence && (
+          <div className="mb-3 flex items-center gap-2 text-[11px] italic">
+            <span className="text-amber-700">Thy confidence:</span>
+            <span className="px-2 py-0.5 rounded border italic font-bold" style={
+              confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(6, 78, 59, 0.35)' }
+              : confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(120, 53, 15, 0.35)' }
+              :                        { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
+            }>
+              {confidence === 'high' ? 'Confident' : confidence === 'med' ? 'Likely' : 'Uncertain'}
+            </span>
+          </div>
+        )}
+        {!answered && confidence && isMC && (
           <div className="space-y-2">
             {q.options.map((opt, i) => (
               <button key={i} onClick={() => handleAnswer(i === q.correctIndex)} className="w-full text-left p-3 rounded border-2 transition text-amber-50"
@@ -4194,13 +4292,13 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
             ))}
           </div>
         )}
-        {!answered && isTF && (
+        {!answered && confidence && isTF && (
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => handleAnswer(q.correctAnswer === true)} className="p-4 rounded font-bold border-2 border-emerald-400 text-emerald-200 italic" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>⚖ Verily True ⚖</button>
             <button onClick={() => handleAnswer(q.correctAnswer === false)} className="p-4 rounded font-bold border-2 border-red-400 text-red-200 italic" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>⚖ A Falsehood ⚖</button>
           </div>
         )}
-        {!answered && isFIB && (
+        {!answered && confidence && isFIB && (
           <div className="space-y-3">
             <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitFillBlankWithOracle(); }}
@@ -4236,6 +4334,30 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
                     Tome match (Oracle silent)
                   </span>
                 )}
+                {answered.confidence && (() => {
+                  // 26a: show the calibration result inline — whether the
+                  // confidence rating matched the outcome. Surfaces over-
+                  // and under-confidence in real time.
+                  const calibrationOk = (answered.confidence === 'high' && answered.correct)
+                    || (answered.confidence === 'low' && !answered.correct);
+                  const mismatch = (answered.confidence === 'high' && !answered.correct)
+                    || (answered.confidence === 'low' && answered.correct);
+                  const label = answered.confidence === 'high' ? 'Confident' : answered.confidence === 'med' ? 'Likely' : 'Uncertain';
+                  const tag = mismatch
+                    ? (answered.confidence === 'high' ? '· overconfident' : '· underconfident')
+                    : calibrationOk
+                      ? '· calibrated'
+                      : '';
+                  return (
+                    <span className="text-xs px-2 py-0.5 rounded border italic flex items-center gap-1" style={
+                      answered.confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(6, 78, 59, 0.35)' }
+                      : answered.confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(120, 53, 15, 0.35)' }
+                      :                                  { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
+                    }>
+                      ✦ {label} {tag}
+                    </span>
+                  );
+                })()}
               </div>
               {answered.oracleFeedback && (
                 <p className="text-sm text-amber-100/90 italic leading-relaxed">{answered.oracleFeedback}</p>
@@ -5503,6 +5625,30 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
   const totals = stats.reduce((a, s) => ({ correct: a.correct + s.correct, total: a.total + s.total }), { correct: 0, total: 0 });
   const overallPct = totals.total ? Math.round((totals.correct / totals.total) * 100) : 0;
 
+  // 26a: aggregated confidence calibration across the selected scope.
+  // For each bucket (low/med/high), sum total + correct across the
+  // tomes in scope, then compute accuracy. Used by the Calibration
+  // section to surface over/underconfidence patterns.
+  const calibration = useMemo(() => {
+    const tomes = isCombined ? library : (selectedTome ? [selectedTome] : []);
+    const sum = {
+      low:  { total: 0, correct: 0 },
+      med:  { total: 0, correct: 0 },
+      high: { total: 0, correct: 0 },
+    };
+    tomes.forEach(t => {
+      const cs = t.progress?.confidenceStats;
+      if (!cs) return;
+      ['low', 'med', 'high'].forEach(k => {
+        const tile = cs[k] || { total: 0, correct: 0 };
+        sum[k].total += tile.total || 0;
+        sum[k].correct += tile.correct || 0;
+      });
+    });
+    return sum;
+  }, [isCombined, library, selectedTome]);
+  const calibrationTotal = calibration.low.total + calibration.med.total + calibration.high.total;
+
   const rampForPct = (pct) => (
     pct >= 90 ? { bg: 'rgba(245, 158, 11, 0.35)', border: '#fbbf24', text: '#fde047', fill: 'linear-gradient(to right, #f59e0b, #fde047)' } :
     pct >= 75 ? { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0', fill: 'linear-gradient(to right, #10b981, #34d399)' } :
@@ -5647,6 +5793,81 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               );
             })}
           </div>
+
+          {/* 26a: Calibration tiles — only render once the player has
+              rated at least one riddle's confidence in Quiz mode. Each
+              tile shows accuracy for one bucket and a verdict comparing
+              expectation vs reality (ideal: high → 90%+, med → ~70%,
+              low → ~40-50%). */}
+          {calibrationTotal > 0 && (
+            <div className="p-4 rounded" style={{
+              background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+              border: '2px solid rgba(16, 185, 129, 0.45)',
+            }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-base">⚖</span>
+                <h3 className="text-sm font-bold italic text-emerald-200 tracking-wider">Confidence Calibration</h3>
+                <div className="flex-1 h-px bg-gradient-to-r from-emerald-700/40 to-transparent" />
+                <span className="text-[10px] italic text-amber-700">{calibrationTotal} rated</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                {[
+                  { key: 'low',  label: 'Uncertain', ideal: 50, palette: { bg: 'rgba(63, 63, 70, 0.45)',  border: '#a1a1aa', text: '#e4e4e7' } },
+                  { key: 'med',  label: 'Likely',    ideal: 70, palette: { bg: 'rgba(120, 53, 15, 0.45)', border: '#fbbf24', text: '#fde68a' } },
+                  { key: 'high', label: 'Confident', ideal: 90, palette: { bg: 'rgba(6, 78, 59, 0.45)',   border: '#10b981', text: '#a7f3d0' } },
+                ].map(({ key, label, ideal, palette }) => {
+                  const tile = calibration[key];
+                  const total = tile.total;
+                  const correct = tile.correct;
+                  const pct = total > 0 ? Math.round((correct / total) * 100) : null;
+                  // Verdict: where does observed accuracy sit vs the ideal for this bucket?
+                  let verdict = null;
+                  if (pct !== null && total >= 5) {
+                    const diff = pct - ideal;
+                    if (key === 'high' && diff < -15) verdict = 'overconfident';
+                    else if (key === 'high' && diff >= -5) verdict = 'calibrated';
+                    else if (key === 'low' && diff > 15) verdict = 'underconfident';
+                    else if (key === 'low' && diff <= 5) verdict = 'calibrated';
+                    else if (key === 'med' && Math.abs(diff) <= 12) verdict = 'calibrated';
+                    else if (key === 'med' && diff < -12) verdict = 'overconfident';
+                    else if (key === 'med' && diff > 12) verdict = 'underconfident';
+                  }
+                  return (
+                    <div key={key} className="p-2.5 rounded" style={{
+                      background: palette.bg,
+                      border: `1.5px solid ${palette.border}`,
+                    }}>
+                      <div className="text-[10px] uppercase tracking-wider italic font-bold mb-1" style={{ color: palette.text }}>
+                        ✦ {label}
+                      </div>
+                      <div className="text-lg font-bold tabular-nums italic" style={{ color: palette.text }}>
+                        {pct === null ? '—' : `${pct}%`}
+                      </div>
+                      <div className="text-[10px] italic" style={{ color: palette.text }}>
+                        {correct}/{total} correct
+                      </div>
+                      {verdict && (
+                        <div className="text-[10px] italic mt-1.5 px-1.5 py-0.5 rounded text-center font-bold" style={{
+                          background: verdict === 'calibrated' ? 'rgba(16, 185, 129, 0.35)'
+                            : verdict === 'overconfident' ? 'rgba(239, 68, 68, 0.35)'
+                            : 'rgba(245, 158, 11, 0.35)',
+                          color: verdict === 'calibrated' ? '#a7f3d0'
+                            : verdict === 'overconfident' ? '#fecaca'
+                            : '#fde68a',
+                          border: `1px solid ${verdict === 'calibrated' ? '#10b981' : verdict === 'overconfident' ? '#ef4444' : '#fbbf24'}`,
+                        }}>
+                          {verdict}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="text-[10px] italic text-emerald-700">
+                ✦ Ideal: Uncertain ≈ 50%, Likely ≈ 70%, Confident ≈ 90%. Verdicts appear after 5+ ratings per bucket.
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
