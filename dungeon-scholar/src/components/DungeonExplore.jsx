@@ -2251,6 +2251,8 @@ export function buildQuestionLogEntry(q, correct, battle, bossKind, fallbackIdx 
     type: q?.type,
     domain: q?.domain,
     tags: Array.isArray(q?.tags) ? q.tags.slice(0, 5) : undefined,
+    difficulty: typeof q?.difficulty === 'number' ? q.difficulty : undefined,
+    bloomLevel: typeof q?.bloomLevel === 'string' ? q.bloomLevel : undefined,
     source,
     mobTier: isMob ? battle?.mobTier : undefined,
     bossKind: isBoss ? bossKind : undefined,

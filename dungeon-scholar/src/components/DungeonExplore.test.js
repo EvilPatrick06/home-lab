@@ -235,6 +235,34 @@ describe('buildQuestionLogEntry (25e — Chronicle source badges)', () => {
     expect(entry.tags).toEqual(['a', 'b', 'c', 'd', 'e']);
     expect(entry.domain).toBe('Web Security');
   });
+
+  it('propagates difficulty (1-5) and bloomLevel into the entry (prompt overhaul P3)', () => {
+    // After the prompt-overhaul (P1+P2) tomes carry per-item difficulty +
+    // bloomLevel. The questionLog entry must carry them forward so the
+    // Chronicle can compute average difficulty + Bloom's-mix per run.
+    const enriched = { ...q, difficulty: 4, bloomLevel: 'analyze' };
+    const entry = buildQuestionLogEntry(enriched, true, { type: 'mob', mobTier: 'basic' }, null);
+    expect(entry.difficulty).toBe(4);
+    expect(entry.bloomLevel).toBe('analyze');
+  });
+
+  it('omits difficulty + bloomLevel when the question lacks them (legacy tomes)', () => {
+    // Legacy tomes generated before the prompt overhaul don't carry these
+    // fields. The entry should leave them undefined, not coerce to 0 / "".
+    const entry = buildQuestionLogEntry(q, true, { type: 'mob', mobTier: 'basic' }, null);
+    expect(entry.difficulty).toBeUndefined();
+    expect(entry.bloomLevel).toBeUndefined();
+  });
+
+  it('rejects non-numeric difficulty and non-string bloomLevel', () => {
+    // Defensive against malformed tomes (AI may output "3" as string or
+    // an object as bloomLevel). Reject silently rather than crash the
+    // Chronicle aggregation.
+    const malformed = { ...q, difficulty: '3', bloomLevel: { tier: 'apply' } };
+    const entry = buildQuestionLogEntry(malformed, true, { type: 'mob' }, null);
+    expect(entry.difficulty).toBeUndefined();
+    expect(entry.bloomLevel).toBeUndefined();
+  });
 });
 
 describe('BIOMES', () => {

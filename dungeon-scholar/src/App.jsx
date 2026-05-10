@@ -3885,6 +3885,38 @@ function AudioPanel() {
 // 25e2: Banner shown at the top of QuizMode/FlashcardsMode when those modes
 // were launched from the Domain Codex with a single-domain filter. Keeps
 // the player oriented and offers a one-click return to Domain Study.
+const BLOOM_PALETTE = {
+  remember:   { bg: 'rgba(82, 82, 91, 0.35)',   border: '#a1a1aa', text: '#e4e4e7' },
+  understand: { bg: 'rgba(29, 78, 216, 0.32)',  border: '#60a5fa', text: '#dbeafe' },
+  apply:      { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0' },
+  analyze:    { bg: 'rgba(245, 158, 11, 0.32)', border: '#fbbf24', text: '#fde68a' },
+  evaluate:   { bg: 'rgba(244, 63, 94, 0.32)',  border: '#fb7185', text: '#fecdd3' },
+  create:     { bg: 'rgba(168, 85, 247, 0.32)', border: '#c084fc', text: '#e9d5ff' },
+};
+
+function DifficultyStars({ value }) {
+  if (typeof value !== 'number' || value < 1) return null;
+  const v = Math.min(5, Math.max(1, Math.round(value)));
+  return (
+    <span className="text-xs italic tabular-nums" title={`Difficulty ${v}/5`}>
+      <span style={{ color: '#fbbf24' }}>{'▰'.repeat(v)}</span>
+      <span style={{ color: 'rgba(120, 53, 15, 0.7)' }}>{'▱'.repeat(5 - v)}</span>
+    </span>
+  );
+}
+
+function BloomBadge({ level }) {
+  if (!level || typeof level !== 'string') return null;
+  const palette = BLOOM_PALETTE[level.toLowerCase()] || BLOOM_PALETTE.remember;
+  return (
+    <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded font-bold"
+      style={{ background: palette.bg, border: `1px solid ${palette.border}`, color: palette.text }}
+      title={`Bloom's level: ${level}`}>
+      {level}
+    </span>
+  );
+}
+
 function FilteredModeBanner({ domainFilter, onExitFilter, accent = 'emerald' }) {
   const palette = accent === 'purple'
     ? { bg: 'rgba(126, 34, 206, 0.32)', border: '#a855f7', text: '#ede9fe' }
@@ -3999,8 +4031,12 @@ function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, up
       {domainFilter && (
         <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
       )}
-      <div className="flex justify-between items-center text-sm text-amber-600 italic">
-        <span>📜 Scroll {index + 1} of {cards.length}</span>
+      <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
+        <span className="flex items-center gap-2 flex-wrap">
+          📜 Scroll {index + 1} of {cards.length}
+          {typeof card.difficulty === 'number' && <DifficultyStars value={card.difficulty} />}
+          {card.bloomLevel && <BloomBadge level={card.bloomLevel} />}
+        </span>
         <span>Studied this session: {reviewed}</span>
       </div>
       <div onClick={() => setFlipped(!flipped)} className="rounded p-8 min-h-[300px] flex items-center justify-center cursor-pointer transition relative" style={{
@@ -4135,8 +4171,12 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
       {domainFilter && (
         <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />
       )}
-      <div className="flex justify-between items-center text-sm text-amber-600 italic">
-        <span>🔮 Riddle {index + 1} of {questions.length}</span>
+      <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
+        <span className="flex items-center gap-2 flex-wrap">
+          🔮 Riddle {index + 1} of {questions.length}
+          {typeof q.difficulty === 'number' && <DifficultyStars value={q.difficulty} />}
+          {q.bloomLevel && <BloomBadge level={q.bloomLevel} />}
+        </span>
         <span className="flex items-center gap-1"><Flame className="w-4 h-4 text-orange-400" /> Streak: {streak}</span>
       </div>
       <div className="rounded p-6 relative" style={{
@@ -4257,7 +4297,10 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
             background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
             border: '2px solid rgba(190, 24, 93, 0.5)', boxShadow: '0 0 15px rgba(244, 63, 94, 0.15)',
           }}>
-            <div className="font-bold text-rose-300 text-lg italic">{lab.title}</div>
+            <div className="font-bold text-rose-300 text-lg italic flex items-center justify-between gap-2 flex-wrap">
+              <span>{lab.title}</span>
+              {typeof lab.difficulty === 'number' && <DifficultyStars value={lab.difficulty} />}
+            </div>
             {lab.scenario && <div className="text-sm text-amber-100/70 mt-1 italic">{lab.scenario}</div>}
             <div className="text-xs text-amber-700 mt-2 italic">⚔ {(lab.steps || lab.stages)?.length || 0} stages ⚔</div>
           </button>
@@ -4377,9 +4420,16 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
         background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
         border: '3px double rgba(190, 24, 93, 0.6)', boxShadow: '0 0 25px rgba(244, 63, 94, 0.2)',
       }}>
-        <h3 className="text-xl font-bold text-rose-300 mb-2 italic">{selectedLab.title}</h3>
+        <div className="flex items-start justify-between gap-2 mb-2 flex-wrap">
+          <h3 className="text-xl font-bold text-rose-300 italic">{selectedLab.title}</h3>
+          {typeof selectedLab.difficulty === 'number' && <DifficultyStars value={selectedLab.difficulty} />}
+        </div>
         {selectedLab.scenario && <p className="text-sm text-amber-100/70 mb-4 italic">{selectedLab.scenario}</p>}
-        <div className="text-xs text-amber-700 mb-3 italic">⚔ Stage {step + 1} of {steps.length} ⚔</div>
+        <div className="text-xs text-amber-700 mb-3 italic flex items-center gap-2 flex-wrap">
+          <span>⚔ Stage {step + 1} of {steps.length} ⚔</span>
+          {currentStep && typeof currentStep.difficulty === 'number' && <DifficultyStars value={currentStep.difficulty} />}
+          {currentStep && currentStep.bloomLevel && <BloomBadge level={currentStep.bloomLevel} />}
+        </div>
         {currentStep && !feedback && (
           <div className="space-y-3">
             <div className="p-4 rounded text-amber-50 italic" style={{ background: 'rgba(41, 12, 27, 0.7)', border: '1px solid rgba(190, 24, 93, 0.4)' }}>
@@ -5284,6 +5334,44 @@ function RunHistoryScreen({ playerState, setScreen }) {
                     <div className="text-xs text-purple-300 italic">
                       Mistakes this run: <span className="text-amber-200 font-bold">{run.mistakes}</span> · Total questions: <span className="text-amber-200 font-bold">{run.totalQuestions}</span>
                     </div>
+                    {(() => {
+                      // Aggregate Bloom's-level distribution + average difficulty across
+                      // this run's questionLog. Rendered only when at least one entry
+                      // carries the new fields (post-prompt-overhaul tomes); legacy
+                      // runs simply skip this row.
+                      const log = run.questionLog || [];
+                      const bloomCounts = {};
+                      let diffSum = 0, diffN = 0;
+                      log.forEach((q) => {
+                        if (q.bloomLevel) bloomCounts[q.bloomLevel] = (bloomCounts[q.bloomLevel] || 0) + 1;
+                        if (typeof q.difficulty === 'number') { diffSum += q.difficulty; diffN += 1; }
+                      });
+                      const avgDiff = diffN > 0 ? diffSum / diffN : null;
+                      const bloomEntries = Object.entries(bloomCounts).sort((a, b) => b[1] - a[1]);
+                      if (avgDiff === null && bloomEntries.length === 0) return null;
+                      return (
+                        <div className="text-[11px] italic flex items-center gap-3 flex-wrap">
+                          {avgDiff !== null && (
+                            <span className="flex items-center gap-1.5">
+                              <span className="text-amber-700">Avg difficulty:</span>
+                              <DifficultyStars value={avgDiff} />
+                              <span className="text-amber-200 tabular-nums">({avgDiff.toFixed(1)})</span>
+                            </span>
+                          )}
+                          {bloomEntries.length > 0 && (
+                            <span className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-amber-700">Bloom's mix:</span>
+                              {bloomEntries.map(([level, count]) => (
+                                <span key={level} className="flex items-center gap-1">
+                                  <BloomBadge level={level} />
+                                  <span className="text-amber-200">×{count}</span>
+                                </span>
+                              ))}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                     {(run.questionLog || []).length === 0 ? (
                       <div className="text-xs text-amber-700 italic">No per-question log was captured for this delve.</div>
                     ) : (() => {
@@ -5321,9 +5409,13 @@ function RunHistoryScreen({ playerState, setScreen }) {
                                   : <X className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />}
                                 <div className="flex-1 min-w-0">
                                   <div className="text-amber-100/80 truncate">{q.prompt}</div>
-                                  <div className="text-amber-700 flex flex-wrap gap-x-1.5 items-center">
+                                  <div className="text-amber-700 flex flex-wrap gap-x-1.5 gap-y-1 items-center">
                                     {renderBadge(q)}
                                     {q.type ? <span>· type: {q.type}</span> : null}
+                                    {typeof q.difficulty === 'number' ? (
+                                      <span className="flex items-center gap-1">· <DifficultyStars value={q.difficulty} /></span>
+                                    ) : null}
+                                    {q.bloomLevel ? <BloomBadge level={q.bloomLevel} /> : null}
                                     {q.timeSec ? <span>· {q.timeSec}s</span> : null}
                                   </div>
                                 </div>
