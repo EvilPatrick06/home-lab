@@ -43,6 +43,8 @@ CCNA 200-301 has 6 domains: Network Fundamentals, Network Access, IP Connectivit
 
 Use \`=== Domain N: <Name> ===\` headers in the knowledge base. Tag each item's \`objective\` field with the domain or sub-objective.
 
+Populate \`metadata.domainWeights\` with the Cisco blueprint percentages for the EXAM TARGET (e.g. CCNA 200-301: Network Fundamentals 20%, Network Access 20%, IP Connectivity 25%, IP Services 10%, Security Fundamentals 15%, Automation/Programmability 10%). Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

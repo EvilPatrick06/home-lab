@@ -43,6 +43,8 @@ CEH v13 has 20 modules organized roughly along the kill chain: Introduction, Foo
 
 Use \`=== Domain N: <Phase or Module> ===\` headers. Tag each item's \`objective\` with the module number or kill-chain phase.
 
+Populate \`metadata.domainWeights\` with EC-Council's published blueprint percentages where available (CEH publishes a per-phase breakdown). If the EXAM TARGET doesn't publish weights, distribute by module count and note the assumption in \`metadata.description\`. Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards (one per major tool + one per ATT&CK technique)

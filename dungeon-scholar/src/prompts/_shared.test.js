@@ -31,6 +31,18 @@ describe('shared prompt sections', () => {
     expect(SHARED_SCHEMA).toMatch(/heatmap/i);
   });
 
+  it('SHARED_SCHEMA documents metadata.domainWeights for exam-blueprint percentages (25e2)', () => {
+    // 25e2: Domain Study screen needs exam-weight percentages alongside the
+    // existing per-question domain field. domainWeights lives on metadata
+    // and mirrors the published cert blueprint.
+    expect(SHARED_SCHEMA).toMatch(/domainWeights/);
+    // Schema must spell out that values are percentages summing to ~100.
+    expect(SHARED_SCHEMA).toMatch(/percent|%/i);
+    // Schema must call out that domainWeights keys must match per-question
+    // domain strings — otherwise the Domain Study screen can't join them.
+    expect(SHARED_SCHEMA).toMatch(/match.+domain|same.+domain/i);
+  });
+
   it('SHARED_STYLE_RULES forbids fantasy in technical fields and permits it in explanation/hint', () => {
     expect(SHARED_STYLE_RULES).toMatch(/explanation/);
     expect(SHARED_STYLE_RULES).toMatch(/hint/);

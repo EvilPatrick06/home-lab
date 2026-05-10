@@ -36,6 +36,8 @@ CISSP CBK has 8 domains: 1. Security and Risk Management, 2. Asset Security, 3. 
 
 Use \`=== Domain N: <Name> ===\` headers. Tag each item's \`objective\` with the domain number/name.
 
+Populate \`metadata.domainWeights\` with the (ISC)² blueprint percentages for the EXAM TARGET (e.g. CISSP CBK: Security and Risk Management 16%, Asset Security 10%, Architecture/Engineering 13%, Comm/Network 13%, IAM 13%, Assessment/Testing 12%, Operations 13%, Software Development 10%). Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

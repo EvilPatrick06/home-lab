@@ -41,6 +41,8 @@ CMMC organizes practices into 14 domains drawn from NIST 800-171: Access Control
 
 Use \`=== Domain N: <Two-letter code> — <Name> ===\` headers in the knowledge base. Tag each item's \`objective\` with the practice ID.
 
+Populate \`metadata.domainWeights\` with the per-domain practice-count proportions (CMMC does not publish exam blueprint percentages, so distribute weight by practice-count share — e.g. AC has the most Level-2 practices, so it carries the largest weight). Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥60 flashcards (one per practice for Level 1; one per practice family for Level 2)

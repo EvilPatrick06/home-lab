@@ -44,6 +44,8 @@ If the EXAM TARGET implies a recognized blueprint, use it. Otherwise, derive a b
 
 Use \`=== Domain N: <Name> ===\` headers in the knowledge base. Tag each item's \`objective\` with your inferred domain name or number.
 
+Populate \`metadata.domainWeights\` with published cert blueprint percentages when available, or with even distribution across inferred domains when not (and note the assumption in \`metadata.description\`). Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

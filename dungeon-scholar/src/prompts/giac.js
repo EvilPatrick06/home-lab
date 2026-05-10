@@ -53,6 +53,8 @@ GIAC blueprints are SANS-course-aligned. GCIH covers: Incident Handling Process,
 
 Use \`=== Domain N: <Phase or SANS course module> ===\` headers. Tag each item's \`objective\` with the blueprint section.
 
+Populate \`metadata.domainWeights\` with the SANS-published blueprint percentages for the EXAM TARGET. If the SANS course doesn't publish per-objective weights, distribute by objective-count share and note the assumption in \`metadata.description\`. Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

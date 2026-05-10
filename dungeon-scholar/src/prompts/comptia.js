@@ -45,6 +45,8 @@ CompTIA exams use 5 numbered domains (Security+: 1. General Security Concepts; 2
 
 Use \`=== Domain N: <Name> ===\` headers in the knowledge base. Tag each item's \`objective\` field with the sub-objective number (e.g. \`"1.4"\`).
 
+Populate \`metadata.domainWeights\` with the published CompTIA blueprint percentages for the EXAM TARGET (e.g. Security+ SY0-701: General Security Concepts 12%, Threats/Vulnerabilities/Mitigations 22%, Architecture 18%, Operations 28%, Program Management 20%). Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

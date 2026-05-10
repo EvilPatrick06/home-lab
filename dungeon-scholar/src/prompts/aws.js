@@ -47,6 +47,8 @@ AWS exams group objectives by service category or task domain. Security Specialt
 
 Use \`=== Domain N: <Name> ===\` headers in the knowledge base. Tag each item's \`objective\` field with the domain name or service area (e.g. \`"IAM"\`, \`"Domain 4 — Identity and Access Management"\`, \`"Data Protection — KMS"\`).
 
+Populate \`metadata.domainWeights\` with the AWS exam guide percentages for the EXAM TARGET (e.g. SAA-C03: Design Secure Architectures 30%, Resilient 26%, High-Performing 24%, Cost-Optimized 20%). Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

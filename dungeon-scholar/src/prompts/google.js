@@ -42,6 +42,8 @@ Professional Cloud Security Engineer covers 6 domains: Configuring Access, Confi
 
 Use \`=== Domain N: <Name> ===\` headers. Tag each item's \`objective\` with the domain or service area.
 
+Populate \`metadata.domainWeights\` with the Google Cloud exam guide percentages for the EXAM TARGET. Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

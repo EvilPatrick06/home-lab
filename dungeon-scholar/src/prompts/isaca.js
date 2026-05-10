@@ -35,6 +35,8 @@ CISA has 5 domains: Information System Auditing Process, Governance and Manageme
 
 Use \`=== Domain N: <Name> ===\` headers. Tag each item's \`objective\` with the domain name.
 
+Populate \`metadata.domainWeights\` with the ISACA blueprint percentages for the EXAM TARGET (e.g. CISA: Auditing 21%, Governance/Management 17%, Acquisition/Development 12%, Operations/Resilience 23%, Protection of Information Assets 27%). Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

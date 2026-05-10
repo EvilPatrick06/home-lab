@@ -1026,6 +1026,9 @@ const DEFAULT_STATE = {
     quests: false,
     achievements: false,
     titles: false,
+    // 25e2: tracks first visit to the Domain Study screen. The future
+    // domain_intro tutorial step (25g) will autoComplete on this flag.
+    domain_study_visited: false,
   },
   // Dungeon attempt counter (any started run, including defeats)
   dungeonAttempts: 0,
@@ -1111,6 +1114,10 @@ export default function DungeonScholarApp() {
   const [showImportCodeModal, setShowImportCodeModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showAccountPanel, setShowAccountPanel] = useState(false);
+  // 25e2: Domain Study screen launches Quiz/Flashcards filtered by a single
+  // domain string. Cleared whenever the player navigates somewhere other than
+  // 'quiz' / 'flashcards' so it doesn't carry over into a fresh, unfiltered run.
+  const [domainFilter, setDomainFilter] = useState(null);
   const fileInputRef = useRef(null);
 
   // Consume OAuth ?code=... on mount (returns false if no callback in URL).
@@ -1123,6 +1130,15 @@ export default function DungeonScholarApp() {
   // Phase 21: prime the audio context on first user gesture so BGM/SFX
   // don't fail silently due to browser auto-play policies.
   useEffect(() => { armOnFirstGesture(); }, []);
+
+  // 25e2: Clear the Domain Study filter whenever the player navigates away
+  // from Quiz/Flashcards. The filter is a per-launch decision, not sticky
+  // state — re-entering Quiz from Home should give an unfiltered deck.
+  useEffect(() => {
+    if (screen !== 'quiz' && screen !== 'flashcards') {
+      setDomainFilter(null);
+    }
+  }, [screen]);
 
   // Show welcome modal on first launch (when tutorial hasn't been started yet)
   useEffect(() => {
@@ -2702,6 +2718,24 @@ export default function DungeonScholarApp() {
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
+        {screen === 'domainStudy' && (
+          <DomainStudyScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onMarkVisited={() => {
+              setPlayerState(prev => {
+                const visits = prev.tutorialVisits || {};
+                if (visits.domain_study_visited) return prev;
+                return { ...prev, tutorialVisits: { ...visits, domain_study_visited: true } };
+              });
+            }}
+            onStudyDomain={(mode, domainName) => {
+              setDomainFilter(domainName);
+              if (mode === 'quiz') { trackModeUse('quiz'); setScreen('quiz'); }
+              else if (mode === 'flashcards') { trackModeUse('flashcards'); setScreen('flashcards'); }
+            }}
+          />
+        )}
         {screen === 'dungeon' && courseSet && (
           <React.Suspense fallback={
             <div className="flex items-center justify-center py-24 text-amber-300 italic">
@@ -2750,6 +2784,8 @@ export default function DungeonScholarApp() {
             awardXP={awardXP}
             updateTomeProgress={updateTomeProgress}
             checkAchievement={checkAchievement}
+            domainFilter={domainFilter}
+            onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
           />
         )}
         {screen === 'quiz' && courseSet && (
@@ -2762,6 +2798,8 @@ export default function DungeonScholarApp() {
             recordAnswer={recordAnswer}
             checkAchievement={checkAchievement}
             updateTomeProgress={updateTomeProgress}
+            domainFilter={domainFilter}
+            onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
           />
         )}
         {screen === 'lab' && courseSet && (
@@ -3448,6 +3486,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           onClick={() => { trackModeUse('quiz'); setScreen('quiz'); }}
         />
         <ModeCard
+          title="Domain Codex"
+          desc="Survey thy mastery across every domain of the cert blueprint. Study weak veins via Riddles or Scrolls — focus on what slips thee."
+          icon={<BookOpen className="w-8 h-8" />}
+          color="emerald"
+          onClick={() => setScreen('domainStudy')}
+        />
+        <ModeCard
           title="Trials of Skill"
           desc="Face hands-on trials at your own pace. Step-by-step quests with validation by the ancients."
           icon={<FlaskConical className="w-8 h-8" />}
@@ -3618,6 +3663,32 @@ function AudioPanel() {
   );
 }
 
+// 25e2: Banner shown at the top of QuizMode/FlashcardsMode when those modes
+// were launched from the Domain Codex with a single-domain filter. Keeps
+// the player oriented and offers a one-click return to Domain Study.
+function FilteredModeBanner({ domainFilter, onExitFilter, accent = 'emerald' }) {
+  const palette = accent === 'purple'
+    ? { bg: 'rgba(126, 34, 206, 0.32)', border: '#a855f7', text: '#ede9fe' }
+    : accent === 'sapphire'
+      ? { bg: 'rgba(29, 78, 216, 0.32)', border: '#60a5fa', text: '#dbeafe' }
+      : { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0' };
+  return (
+    <div className="flex items-center justify-between gap-3 p-2.5 rounded text-xs italic"
+      style={{ background: palette.bg, border: `1.5px solid ${palette.border}`, color: palette.text }}>
+      <span className="flex items-center gap-2">
+        <BookOpen className="w-4 h-4" />
+        Studying: <span className="font-bold">{domainFilter}</span>
+      </span>
+      {onExitFilter && (
+        <button onClick={onExitFilter} className="px-2.5 py-1 rounded text-[11px] italic font-bold hover:bg-black/30 transition"
+          style={{ background: 'rgba(0,0,0,0.35)', border: `1px solid ${palette.border}` }}>
+          ← Back to Codex
+        </button>
+      )}
+    </div>
+  );
+}
+
 function ModeCard({ title, desc, icon, color, onClick, featured }) {
   const colorMap = {
     amber: { grad: 'from-amber-500 to-yellow-700', border: 'rgba(180, 83, 9, 0.6)', glow: 'rgba(245, 158, 11, 0.3)', text: 'text-amber-200' },
@@ -3663,13 +3734,20 @@ function ModeCard({ title, desc, icon, color, onClick, featured }) {
   );
 }
 
-function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement }) {
+function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement, domainFilter, onExitFilter }) {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw flashcards if a parent hasn't provided one.
-  const cards = (cardsProp && cardsProp.length) ? cardsProp : (courseSet.flashcards || []);
+  const baseDeck = (cardsProp && cardsProp.length) ? cardsProp : (courseSet.flashcards || []);
+  // 25e2: Domain Study can launch this mode with a single-domain filter.
+  // The filter applies on top of the App-level shuffle; if no card carries
+  // a matching domain, the deck is empty and we surface a back-button.
+  const cards = useMemo(() => {
+    if (!domainFilter) return baseDeck;
+    return baseDeck.filter((c) => c && c.domain === domainFilter);
+  }, [baseDeck, domainFilter]);
   const card = cards[index];
 
   const rate = (rating) => {
@@ -3684,10 +3762,24 @@ function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, up
     setIndex((index + 1) % cards.length);
   };
 
-  if (!card) return <div className="text-center py-12 text-amber-600 italic">No scrolls in this tome.</div>;
+  if (!card) return (
+    <div className="space-y-4 max-w-2xl mx-auto">
+      {domainFilter && (
+        <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
+      )}
+      <div className="text-center py-12 text-amber-600 italic">
+        {domainFilter
+          ? `No scrolls tagged "${domainFilter}" in this tome. Regenerate the tome with the updated prompt to populate flashcard domains.`
+          : 'No scrolls in this tome.'}
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto">
+      {domainFilter && (
+        <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
+      )}
       <div className="flex justify-between items-center text-sm text-amber-600 italic">
         <span>📜 Scroll {index + 1} of {cards.length}</span>
         <span>Studied this session: {reviewed}</span>
@@ -3719,7 +3811,7 @@ function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, up
   );
 }
 
-function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress }) {
+function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter }) {
   const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
@@ -3727,7 +3819,12 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
   const [grading, setGrading] = useState(false);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
-  const questions = (questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || []);
+  const baseDeck = (questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || []);
+  // 25e2: Domain Study can launch this mode with a single-domain filter.
+  const questions = useMemo(() => {
+    if (!domainFilter) return baseDeck;
+    return baseDeck.filter((q) => q && q.domain === domainFilter);
+  }, [baseDeck, domainFilter]);
   const q = questions[index];
 
   const handleAnswer = (correct, extra = {}) => {
@@ -3797,7 +3894,18 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
   };
 
   const next = () => { setAnswered(null); setTextAnswer(''); setIndex((index + 1) % questions.length); };
-  if (!q) return <div className="text-center py-12 text-amber-600 italic">No riddles in this tome.</div>;
+  if (!q) return (
+    <div className="space-y-4 max-w-3xl mx-auto">
+      {domainFilter && (
+        <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />
+      )}
+      <div className="text-center py-12 text-amber-600 italic">
+        {domainFilter
+          ? `No riddles tagged "${domainFilter}" in this tome.`
+          : 'No riddles in this tome.'}
+      </div>
+    </div>
+  );
 
   const isMC = q.options && Array.isArray(q.options);
   const isTF = q.type === 'truefalse';
@@ -3805,6 +3913,9 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
+      {domainFilter && (
+        <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />
+      )}
       <div className="flex justify-between items-center text-sm text-amber-600 italic">
         <span>🔮 Riddle {index + 1} of {questions.length}</span>
         <span className="flex items-center gap-1"><Flame className="w-4 h-4 text-orange-400" /> Streak: {streak}</span>
@@ -5010,6 +5121,222 @@ function RunHistoryScreen({ playerState, setScreen }) {
           })}
         </div>
       </>
+      )}
+    </div>
+  );
+}
+
+// 25e2: Domain Study screen — cross-cutting per-domain progress bars and
+// "Study via Riddles / Scrolls" launchers that filter Quiz/Flashcards by a
+// single domain. Aggregates `runHistory[].questionLog[]` either across all
+// tomes (Combined) or for a single tome. Exam-weight tags only render in
+// single-tome view when `tome.data.metadata.domainWeights` exists; in
+// Combined view (or on legacy tomes), the weight tag is hidden.
+function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomain }) {
+  const library = playerState.library || [];
+  const activeId = playerState.activeTomeId;
+  const [selectedTomeId, setSelectedTomeId] = useState(() => activeId || 'combined');
+
+  // Credit a tutorial visit on first mount (the 25g `domain_intro` step
+  // autoComplete-condition reads `tutorialVisits.domain_study_visited`).
+  useEffect(() => { onMarkVisited?.(); }, []);
+
+  const isCombined = selectedTomeId === 'combined';
+  const selectedTome = isCombined ? null : library.find(t => t.id === selectedTomeId);
+  const weights = (!isCombined && selectedTome?.data?.metadata?.domainWeights) || null;
+
+  const stats = useMemo(() => {
+    const buckets = {};
+    const tomes = isCombined ? library : (selectedTome ? [selectedTome] : []);
+    tomes.forEach(t => {
+      ((t.progress?.runHistory) || []).forEach(run => {
+        (run.questionLog || []).forEach(q => {
+          const key = q.domain || 'Uncategorized';
+          if (!buckets[key]) buckets[key] = { domain: key, total: 0, correct: 0 };
+          buckets[key].total += 1;
+          if (q.correct) buckets[key].correct += 1;
+        });
+      });
+    });
+    return Object.values(buckets).map(b => ({ ...b, accuracy: b.total ? b.correct / b.total : 0 }));
+  }, [isCombined, library, selectedTome]);
+
+  const sortedStats = useMemo(() => {
+    const arr = [...stats];
+    arr.sort((a, b) => {
+      if (weights) {
+        const aw = Number(weights[a.domain] || 0);
+        const bw = Number(weights[b.domain] || 0);
+        if (aw !== bw) return bw - aw;
+      }
+      return b.total - a.total;
+    });
+    return arr;
+  }, [stats, weights]);
+
+  // For the Study via buttons: gate visibility on whether the tome being
+  // displayed actually has matching items. In Combined view, fall back to
+  // the active tome (the player will Quiz/Flashcards against active anyway).
+  const studyTome = selectedTome || library.find(t => t.id === activeId) || null;
+  const quizDomainSet = useMemo(() => {
+    const set = new Set();
+    (studyTome?.data?.quiz || []).forEach(q => { if (q.domain) set.add(q.domain); });
+    return set;
+  }, [studyTome]);
+  const flashcardDomainSet = useMemo(() => {
+    const set = new Set();
+    (studyTome?.data?.flashcards || []).forEach(f => { if (f.domain) set.add(f.domain); });
+    return set;
+  }, [studyTome]);
+
+  const totals = stats.reduce((a, s) => ({ correct: a.correct + s.correct, total: a.total + s.total }), { correct: 0, total: 0 });
+  const overallPct = totals.total ? Math.round((totals.correct / totals.total) * 100) : 0;
+
+  const rampForPct = (pct) => (
+    pct >= 90 ? { bg: 'rgba(245, 158, 11, 0.35)', border: '#fbbf24', text: '#fde047', fill: 'linear-gradient(to right, #f59e0b, #fde047)' } :
+    pct >= 75 ? { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0', fill: 'linear-gradient(to right, #10b981, #34d399)' } :
+    pct >= 50 ? { bg: 'rgba(245, 158, 11, 0.22)', border: 'rgba(245, 158, 11, 0.6)', text: '#fde68a', fill: 'linear-gradient(to right, #f59e0b, #fbbf24)' } :
+                { bg: 'rgba(239, 68, 68, 0.25)', border: '#ef4444', text: '#fecaca', fill: 'linear-gradient(to right, #dc2626, #ef4444)' }
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        border: '3px double rgba(16, 185, 129, 0.6)',
+        boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+      }}>
+        <div className="absolute top-2 left-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute top-2 right-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute bottom-2 left-2 text-emerald-400 text-sm">⚜</div>
+        <div className="absolute bottom-2 right-2 text-emerald-400 text-sm">⚜</div>
+
+        <div className="flex items-center gap-3 mb-3">
+          <BookOpen className="w-10 h-10 text-emerald-300" style={{ filter: 'drop-shadow(0 0 10px rgba(16, 185, 129, 0.6))' }} />
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-emerald-200 italic" style={{ textShadow: '0 0 12px rgba(16, 185, 129, 0.4)' }}>
+              The Domain Codex
+            </h2>
+            <div className="text-xs text-emerald-400 tracking-[0.2em] italic">
+              ⚜ Mastery by domain ⚜
+            </div>
+          </div>
+          <button onClick={() => setScreen('home')} className="px-3 py-2 rounded text-sm border-2 border-amber-700 text-amber-200 italic hover:bg-amber-900/30"
+            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+            <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
+          </button>
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-xs text-emerald-400 italic uppercase tracking-wider mb-1">Tome</label>
+          <select
+            value={selectedTomeId}
+            onChange={(e) => setSelectedTomeId(e.target.value)}
+            className="w-full p-2 rounded text-amber-50 italic border-2 border-emerald-700"
+            style={{ background: 'rgba(6, 78, 59, 0.5)' }}
+          >
+            <option value="combined">Combined (all tomes)</option>
+            {library.map(t => (
+              <option key={t.id} value={t.id}>
+                {t.data?.metadata?.title || 'Untitled tome'}
+              </option>
+            ))}
+          </select>
+          {isCombined && (
+            <div className="text-[10px] italic text-emerald-700 mt-1">
+              Aggregating across {library.length} tome{library.length === 1 ? '' : 's'}. Exam-weight percentages hidden — different blueprints can't be combined fairly.
+            </div>
+          )}
+          {!isCombined && !weights && (
+            <div className="text-[10px] italic text-emerald-700 mt-1">
+              This tome has no <code>metadata.domainWeights</code> — the "% of exam" tag is hidden. Regenerate with the updated prompt to populate it.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {totals.total === 0 ? (
+        <div className="text-center py-12 rounded" style={{ background: 'rgba(10, 6, 4, 0.6)', border: '2px dashed rgba(16, 185, 129, 0.4)' }}>
+          <div className="text-emerald-300 italic text-lg mb-2">No domain data yet.</div>
+          <div className="text-emerald-700 italic text-sm mb-4">Brave the dungeon — every riddle answered tags its domain for this codex.</div>
+          <button onClick={() => setScreen('dungeon')} className="px-5 py-3 rounded font-bold italic border-2 border-red-400 text-amber-50 inline-flex items-center gap-2"
+            style={{ background: 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)', boxShadow: '0 0 18px rgba(220, 38, 38, 0.4)' }}>
+            <Swords className="w-4 h-4" /> Begin a Delve
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Overall progress bar */}
+          <div className="p-4 rounded" style={{
+            background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+            border: '2px solid rgba(16, 185, 129, 0.45)',
+          }}>
+            <div className="flex items-baseline justify-between mb-2">
+              <h3 className="text-sm font-bold italic text-emerald-200 tracking-wider">Overall Mastery</h3>
+              <div className="text-sm font-bold tabular-nums italic text-emerald-200">
+                {totals.correct}/{totals.total} · {overallPct}%
+              </div>
+            </div>
+            <div className="h-3 rounded overflow-hidden" style={{ background: 'rgba(0,0,0,0.45)' }}>
+              <div className="h-full transition-all" style={{ width: `${overallPct}%`, background: rampForPct(overallPct).fill }} />
+            </div>
+          </div>
+
+          {/* Per-domain rows */}
+          <div className="space-y-2">
+            {sortedStats.map(s => {
+              const pct = Math.round(s.accuracy * 100);
+              const ramp = rampForPct(pct);
+              const weight = weights ? Number(weights[s.domain] || 0) : 0;
+              const showWeight = !!weights && weight > 0;
+              const hasQuiz = quizDomainSet.has(s.domain);
+              const hasFlashcards = flashcardDomainSet.has(s.domain);
+              return (
+                <div key={s.domain} className="p-3 rounded" style={{ background: ramp.bg, border: `1.5px solid ${ramp.border}` }}>
+                  <div className="flex items-baseline justify-between gap-2 mb-2">
+                    <div className="flex items-baseline gap-2 flex-wrap min-w-0">
+                      <div className="text-sm italic font-bold truncate" style={{ color: ramp.text }}>{s.domain}</div>
+                      {showWeight && (
+                        <span className="text-[10px] italic tracking-wider px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,0,0,0.4)', color: ramp.text, border: `1px solid ${ramp.border}` }}>
+                          {weight}% of exam
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm font-bold tabular-nums italic shrink-0" style={{ color: ramp.text }}>
+                      {s.correct}/{s.total} · {pct}%
+                    </div>
+                  </div>
+                  <div className="h-2 rounded overflow-hidden mb-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                    <div className="h-full transition-all" style={{ width: `${pct}%`, background: ramp.fill }} />
+                  </div>
+                  {(hasQuiz || hasFlashcards) && (
+                    <div className="flex flex-wrap gap-2">
+                      {hasQuiz && (
+                        <button onClick={() => onStudyDomain('quiz', s.domain)}
+                          className="px-3 py-1.5 rounded text-xs font-bold border-2 border-purple-400 text-purple-100 italic"
+                          style={{ background: 'rgba(126, 34, 206, 0.45)' }}>
+                          <Target className="w-3 h-3 inline mr-1" /> Study via Riddles
+                        </button>
+                      )}
+                      {hasFlashcards && (
+                        <button onClick={() => onStudyDomain('flashcards', s.domain)}
+                          className="px-3 py-1.5 rounded text-xs font-bold border-2 border-sky-400 text-sky-100 italic"
+                          style={{ background: 'rgba(29, 78, 216, 0.45)' }}>
+                          <Scroll className="w-3 h-3 inline mr-1" /> Study via Scrolls
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {!hasQuiz && !hasFlashcards && s.domain !== 'Uncategorized' && (
+                    <div className="text-[10px] italic text-amber-700">
+                      No riddles or scrolls in {studyTome ? 'this tome' : 'the active tome'} carry this domain tag — only past delve riddles count toward the bar above.
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

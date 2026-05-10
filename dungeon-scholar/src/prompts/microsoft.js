@@ -37,6 +37,8 @@ Each role-based exam has its own blueprint. SC-200 has 4 domains: Mitigate threa
 
 Use \`=== Domain N: <Name> ===\` headers. Tag each item's \`objective\` with the domain or product area.
 
+Populate \`metadata.domainWeights\` with the Microsoft Learn skills-measured percentages for the EXAM TARGET (every Microsoft role-based exam publishes per-skill weights). Domain names MUST exactly match the per-question \`domain\` strings.
+
 === VOLUME + COVERAGE REQUIREMENTS ===
 
 - ≥80 flashcards

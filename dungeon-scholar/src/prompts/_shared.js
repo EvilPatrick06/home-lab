@@ -12,7 +12,14 @@ export const SHARED_SCHEMA = `=== JSON SCHEMA ===
     "author": "Optional source author or course creator",
     "difficulty": 3,
     "tags": ["cert-prep", "<exam-code>", "<topic-tags>"],
-    "version": "1.0"
+    "version": "1.0",
+    "domainWeights": {
+      "<Domain Name 1>": 15,
+      "<Domain Name 2>": 25,
+      "<Domain Name 3>": 30,
+      "<Domain Name 4>": 20,
+      "<Domain Name 5>": 10
+    }
   },
   "knowledgeBase": "Structured reference text — see KB FORMAT below",
   "flashcards": [
@@ -21,7 +28,9 @@ export const SHARED_SCHEMA = `=== JSON SCHEMA ===
       "front": "Term, concept, or question (technical, no fantasy)",
       "back": "Definition or answer (technical, no fantasy)",
       "hint": "Optional — mild fantasy flavor permitted",
-      "objective": "Optional blueprint reference, e.g. '1.4' or 'Domain 3'"
+      "objective": "Optional blueprint reference, e.g. '1.4' or 'Domain 3'",
+      "domain": "Recommended — same domain taxonomy as quiz items (powers the Domain Study screen's Study via Scrolls filter)",
+      "tags": ["Optional sub-topic tags"]
     }
   ],
   "quiz": [
@@ -121,10 +130,22 @@ Requirements:
 === DOMAIN TAGGING (REQUIRED for analytics) ===
 
 - Every quiz item and every lab MUST carry a top-level \`domain\` string drawn from the exam's blueprint domains (the same names you used in \`=== Domain N: <Name> ===\` knowledge base headers)
+- Every flashcard SHOULD carry the same \`domain\` string — it's recommended, not required (legacy tomes without flashcard domains still work, but the Domain Study screen's "Study via Scrolls" button only finds tagged cards)
 - Lab \`steps[]\` may carry their own \`domain\` field; if absent, the parent lab's domain applies
 - Use a STABLE, REUSABLE domain string per topic ('Network Security', not 'Network Security Concepts and Tools') — this powers an in-app accuracy heatmap that groups questions across delves
 - Optional \`tags\` array: 1-3 sub-topic tags (e.g. ["TLS", "PKI"]) for finer-grained breakdowns. Keep tags short and reusable across items
-- Without \`domain\`, the heatmap will bucket items as 'Uncategorized' — please fill it in`;
+- Without \`domain\`, the heatmap will bucket items as 'Uncategorized' — please fill it in
+
+=== DOMAIN WEIGHTS (exam-blueprint percentages) ===
+
+\`metadata.domainWeights\` is an object mapping each domain name to its percentage of the **real cert exam** as published in the official blueprint. The Domain Study screen surfaces these so the player can prioritize study by exam impact.
+
+- Each value is a number 0-100 representing the domain's share of the exam (e.g. CompTIA Security+ SY0-701: General Security Concepts = 12%, Threats/Vulnerabilities/Mitigations = 22%, Architecture = 18%, Operations = 28%, Program Management = 20%)
+- Values should sum to ~100 (98-102 is fine — published blueprints occasionally round)
+- Domain names MUST match the per-question \`domain\` strings exactly — same casing, same wording. Otherwise the Domain Study screen cannot join the rows
+- Use the SAME domain names as your \`=== Domain N: <Name> ===\` knowledge base headers
+- If the cert exam doesn't publish a per-domain weight (rare for major certs), distribute evenly across listed domains and note the assumption in \`metadata.description\`
+- Skipping \`domainWeights\` is permitted only when no published blueprint exists; the Domain Study screen still works without it (it just hides the "% of exam" tag)`;
 
 export const SHARED_STYLE_RULES = `=== STYLE RULES (CRITICAL) ===
 
