@@ -702,7 +702,7 @@ const tileSeed = (x, y) => {
 };
 
 // === Tile drawing =======================================================
-function drawWall(ctx, p, px, py) {
+function drawWall(ctx, p, px, py, seed) {
   ctx.fillStyle = p.wallBase;
   ctx.fillRect(px, py, TILE_PX, TILE_PX);
   ctx.fillStyle = p.wallTop;
@@ -714,9 +714,47 @@ function drawWall(ctx, p, px, py) {
   ctx.fillRect(px + 24, py + 4,  1, 12);
   ctx.fillRect(px + 12, py + 17, 1, 15);
   ctx.fillRect(px + 24, py + 33, 1, 9);
+  // 25i-1: per-tile variation keyed off the wall's seed so re-renders are
+  // stable. Six discrete buckets — cracks, scuffs, brick seams, accent
+  // sigils, fleck clusters, moss bands — pull the wall away from the
+  // single-pattern look the earlier drawer had.
+  if (seed === undefined) return;
+  if (seed < 0.18) {
+    ctx.fillStyle = p.wallShade;
+    const cx = 14 + Math.floor(seed * 90);
+    ctx.fillRect(px + cx, py + 6, 1, TILE_PX - 14);
+  } else if (seed < 0.36) {
+    ctx.fillStyle = p.wallShade;
+    const cx = 10 + Math.floor((seed - 0.18) * 90);
+    ctx.fillRect(px + cx,     py + 22, 1, 1);
+    ctx.fillRect(px + cx + 1, py + 23, 1, 1);
+    ctx.fillRect(px + cx + 2, py + 24, 1, 1);
+  } else if (seed < 0.5) {
+    ctx.fillStyle = p.wallShade;
+    ctx.fillRect(px + 4, py + 24, TILE_PX - 8, 1);
+  } else if (seed < 0.66) {
+    ctx.fillStyle = p.wallDetail;
+    ctx.globalAlpha = 0.45;
+    const ox = 14 + Math.floor((seed - 0.5) * 90);
+    const oy = 22 + Math.floor((seed - 0.5) * 50);
+    ctx.fillRect(px + ox, py + oy, 2, 2);
+    ctx.globalAlpha = 1;
+  } else if (seed < 0.82) {
+    ctx.fillStyle = p.wallTop;
+    const ox = 16 + Math.floor((seed - 0.66) * 80);
+    const oy = 26 + Math.floor((seed - 0.66) * 40);
+    ctx.fillRect(px + ox,     py + oy,     1, 1);
+    ctx.fillRect(px + ox + 3, py + oy + 1, 1, 1);
+    ctx.fillRect(px + ox + 1, py + oy + 4, 1, 1);
+  } else {
+    ctx.fillStyle = p.wallShade;
+    ctx.globalAlpha = 0.55;
+    ctx.fillRect(px + 2, py + TILE_PX - 12, TILE_PX - 4, 2);
+    ctx.globalAlpha = 1;
+  }
 }
 
-function drawFloor(ctx, p, px, py, decoChance, seed) {
+function drawFloor(ctx, p, px, py, decoChance, seed, neighbors) {
   ctx.fillStyle = p.floorBase;
   ctx.fillRect(px, py, TILE_PX, TILE_PX);
   ctx.fillStyle = p.floorAlt;
@@ -733,6 +771,29 @@ function drawFloor(ctx, p, px, py, decoChance, seed) {
     const ox = 12 + Math.floor((seed * 700) % 22);
     const oy = 12 + Math.floor((seed * 1300) % 22);
     ctx.fillRect(px + ox, py + oy, 2, 2);
+  } else if (seed > 0.42 && seed < 0.5) {
+    // 25i-1: third variation tier — a faint floor crack to break up the
+    // grid pattern between deco-tile bursts.
+    ctx.fillStyle = p.floorDetail;
+    const len = 10 + Math.floor((seed - 0.42) * 220);
+    ctx.fillRect(px + 12, py + 26, len, 1);
+  } else if (seed > 0.62 && seed < 0.7) {
+    // Tiny twin specks — darker pair to suggest grit.
+    ctx.fillStyle = p.floorDetail;
+    ctx.fillRect(px + 30, py + 18, 1, 1);
+    ctx.fillRect(px + 33, py + 22, 1, 1);
+  }
+  // 25i-1: room-edge gradient — soft shadow band on every floor side that
+  // touches a wall, so rooms feel inset rather than abrupt. Low alpha
+  // keeps it subtle against the floorBase.
+  if (neighbors) {
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = p.wallShade;
+    if (neighbors.n === TILE.WALL) ctx.fillRect(px,                py,                TILE_PX, 3);
+    if (neighbors.s === TILE.WALL) ctx.fillRect(px,                py + TILE_PX - 3,  TILE_PX, 3);
+    if (neighbors.w === TILE.WALL) ctx.fillRect(px,                py,                3,       TILE_PX);
+    if (neighbors.e === TILE.WALL) ctx.fillRect(px + TILE_PX - 3,  py,                3,       TILE_PX);
+    ctx.globalAlpha = 1;
   }
 }
 
@@ -787,15 +848,29 @@ function drawBossDoor(ctx, p, px, py) {
   ctx.fillRect(px + TILE_PX / 2 - 3, py + TILE_PX / 2 - 4, 6, 3);
 }
 
-function drawTile(ctx, biome, type, px, py) {
+// 25i-1: tile coords (x, y) and the map are now passed explicitly so the
+// per-tile seed is stable across camera-scroll frames (the old version
+// derived tile coords from pixel coords, which silently shifted the seed
+// — and therefore the per-tile decorations — as the camera moved off the
+// tile grid). The map enables neighbor-aware effects like the room-edge
+// gradient on floor tiles.
+function drawTile(ctx, biome, type, px, py, x, y, map) {
   const p = biome.palette;
-  const seed = tileSeed(Math.floor(px / TILE_PX), Math.floor(py / TILE_PX));
-  if (type === TILE.WALL) drawWall(ctx, p, px, py);
-  else if (type === TILE.FLOOR) drawFloor(ctx, p, px, py, biome.decoChance, seed);
+  const seed = tileSeed(x, y);
+  if (type === TILE.WALL) drawWall(ctx, p, px, py, seed);
+  else if (type === TILE.FLOOR) {
+    const neighbors = map ? {
+      n: map[y - 1]?.[x] ?? TILE.WALL,
+      s: map[y + 1]?.[x] ?? TILE.WALL,
+      e: map[y]?.[x + 1] ?? TILE.WALL,
+      w: map[y]?.[x - 1] ?? TILE.WALL,
+    } : null;
+    drawFloor(ctx, p, px, py, biome.decoChance, seed, neighbors);
+  }
   else if (type === TILE.STAIRS_DOWN || type === TILE.STAIRS_UP) drawStairs(ctx, p, px, py);
   else if (type === TILE.DOOR) drawDoor(ctx, p, px, py);
   else if (type === TILE.BOSS_DOOR) drawBossDoor(ctx, p, px, py);
-  else drawWall(ctx, p, px, py);
+  else drawWall(ctx, p, px, py, seed);
 }
 
 // === Plant + decoration sprites =========================================
@@ -3515,7 +3590,7 @@ export default function DungeonExplore({
         for (let x = startCol; x < endCol; x++) {
           const px = x * TILE_PX - cameraX;
           const py = y * TILE_PX - cameraY;
-          drawTile(ctx, s.biome, s.initial.map[y][x], px, py);
+          drawTile(ctx, s.biome, s.initial.map[y][x], px, py, x, y, s.initial.map);
         }
       }
 
