@@ -19,6 +19,7 @@ import { PETS, PET_LEVEL_XP, PET_MAX_LEVEL, petLevelFromXp, findPet } from './se
 import { SPELLS, findSpell } from './services/spells.js';
 import { DAILY_REWARDS, todayDateStr, dayDiff } from './services/devotion.js';
 import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHOLD } from './services/weakDomain.js';
+import { computeExamPace } from './services/examPace.js';
 
 const TITLES = [
   { min: 1, max: 4, name: 'Apprentice' },
@@ -1068,6 +1069,10 @@ const blankTomeProgress = () => ({
     med:  { total: 0, correct: 0 },
     high: { total: 0, correct: 0 },
   },
+  // Phase 26c: optional YYYY-MM-DD exam date. When set, the Domain Codex
+  // computes a daily-target pace so the player knows how many riddles a
+  // day to attempt before the exam arrives.
+  examDate: null,
 });
 
 // === Run History (Phase 10) ===
@@ -1527,6 +1532,22 @@ export default function DungeonScholarApp() {
         ),
       };
     });
+  };
+
+  // 26c: set the exam date on any tome (not just the active one) so the
+  // Domain Codex can pace study against an arbitrary tome the player is
+  // analyzing. Pass null/'' to clear.
+  const setTomeExamDate = (tomeId, dateString) => {
+    if (!tomeId) return;
+    const normalized = (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) ? dateString : null;
+    setPlayerState(prev => ({
+      ...prev,
+      library: (prev.library || []).map(t =>
+        t.id === tomeId
+          ? { ...t, progress: { ...(t.progress || {}), examDate: normalized } }
+          : t
+      ),
+    }));
   };
 
   const awardXP = (amount, reason) => {
@@ -2916,6 +2937,7 @@ export default function DungeonScholarApp() {
           <DomainStudyScreen
             playerState={playerState}
             setScreen={setScreen}
+            onSetExamDate={setTomeExamDate}
             onMarkVisited={() => {
               setPlayerState(prev => {
                 const visits = prev.tutorialVisits || {};
@@ -5566,7 +5588,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
 // tomes (Combined) or for a single tome. Exam-weight tags only render in
 // single-tome view when `tome.data.metadata.domainWeights` exists; in
 // Combined view (or on legacy tomes), the weight tag is hidden.
-function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomain }) {
+function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomain, onSetExamDate }) {
   const library = playerState.library || [];
   const activeId = playerState.activeTomeId;
   const [selectedTomeId, setSelectedTomeId] = useState(() => activeId || 'combined');
@@ -5666,6 +5688,18 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
     [stats, studyCandidateSet, weights],
   );
 
+  // 26c: exam pace. Read examDate off the selected tome's progress and
+  // total quiz items off its data. Recompute daily once per day (today
+  // captured at render time is fine — the user reopening this screen on
+  // a new calendar day naturally triggers a re-render).
+  const examDate = selectedTome?.progress?.examDate || null;
+  const quizCount = (selectedTome?.data?.quiz || []).length;
+  const examPace = useMemo(
+    () => (!isCombined && examDate) ? computeExamPace(examDate, quizCount) : null,
+    [isCombined, examDate, quizCount],
+  );
+  const todayIso = todayDateStr();
+
   const rampForPct = (pct) => (
     pct >= 90 ? { bg: 'rgba(245, 158, 11, 0.35)', border: '#fbbf24', text: '#fde047', fill: 'linear-gradient(to right, #f59e0b, #fde047)' } :
     pct >= 75 ? { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0', fill: 'linear-gradient(to right, #10b981, #34d399)' } :
@@ -5728,6 +5762,84 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           )}
         </div>
       </div>
+
+      {/* 26c: Exam Pace card. Single-tome only — Combined view aggregates
+          tomes with different exam dates so a unified pace can't be
+          computed honestly. Shows the picker either way (set/clear is
+          always available) and the daily-target stats once a date is set. */}
+      {!isCombined && selectedTome && onSetExamDate && (
+        <div className="p-4 rounded" style={{
+          background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          border: '2px solid rgba(245, 158, 11, 0.5)',
+          boxShadow: '0 0 18px rgba(245, 158, 11, 0.15), inset 0 0 16px rgba(0,0,0,0.4)',
+        }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Calendar className="w-5 h-5 text-amber-300" style={{ filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))' }} />
+            <h3 className="text-sm font-bold italic text-amber-200 tracking-wider">Exam Pace</h3>
+            <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+            {examDate && (
+              <button onClick={() => onSetExamDate(selectedTomeId, null)}
+                className="text-[10px] italic px-2 py-0.5 rounded border border-amber-700 text-amber-300 hover:bg-amber-900/40">
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-3 mb-3">
+            <label className="text-xs italic text-amber-300 tracking-wider">Exam Date</label>
+            <input
+              type="date"
+              value={examDate || ''}
+              min={todayIso}
+              onChange={(e) => onSetExamDate(selectedTomeId, e.target.value || null)}
+              className="px-2 py-1 rounded text-amber-50 italic border-2 border-amber-700"
+              style={{ background: 'rgba(41, 24, 12, 0.6)', colorScheme: 'dark' }}
+            />
+          </div>
+          {!examPace && (
+            <div className="text-[11px] italic text-amber-700">
+              ✦ Set thy exam date to receive a recommended riddles-per-day target.
+            </div>
+          )}
+          {examPace && examPace.status === 'past' && (
+            <div className="text-sm italic text-amber-200">
+              <span className="font-bold text-red-300">Exam was {Math.abs(examPace.daysRemaining)} day{Math.abs(examPace.daysRemaining) === 1 ? '' : 's'} ago.</span> Clear or reset the date to plan thy next campaign.
+            </div>
+          )}
+          {examPace && examPace.status === 'today' && (
+            <div>
+              <div className="text-base font-bold italic text-amber-100 mb-1" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.4)' }}>
+                ⚔ Exam day — sharpen thy mind.
+              </div>
+              <div className="text-xs italic text-amber-200">
+                {examPace.total} riddle{examPace.total === 1 ? '' : 's'} in this tome. Final review.
+              </div>
+            </div>
+          )}
+          {examPace && examPace.status === 'upcoming' && (
+            <div className="grid grid-cols-3 gap-2">
+              <div className="p-2 rounded text-center" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                <div className="text-[10px] uppercase tracking-wider italic font-bold text-amber-700">Days Remaining</div>
+                <div className="text-xl font-bold tabular-nums italic text-amber-200">{examPace.daysRemaining}</div>
+              </div>
+              <div className="p-2 rounded text-center" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                <div className="text-[10px] uppercase tracking-wider italic font-bold text-amber-700">Quiz Items</div>
+                <div className="text-xl font-bold tabular-nums italic text-amber-200">{examPace.total}</div>
+              </div>
+              <div className="p-2 rounded text-center" style={{ background: 'rgba(120, 53, 15, 0.5)', border: '1.5px solid rgba(251, 191, 36, 0.7)', boxShadow: 'inset 0 0 8px rgba(245, 158, 11, 0.15)' }}>
+                <div className="text-[10px] uppercase tracking-wider italic font-bold text-amber-300">Daily Target</div>
+                <div className="text-xl font-bold tabular-nums italic text-amber-100" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.5)' }}>
+                  {examPace.dailyTarget}/day
+                </div>
+              </div>
+            </div>
+          )}
+          {examPace && examPace.status === 'upcoming' && examPace.total === 0 && (
+            <div className="text-[10px] italic text-amber-700 mt-2">
+              ✦ No riddles in this tome yet — daily target will fill in once the deck has content.
+            </div>
+          )}
+        </div>
+      )}
 
       {totals.total === 0 ? (
         <div className="text-center py-12 rounded" style={{ background: 'rgba(10, 6, 4, 0.6)', border: '2px dashed rgba(16, 185, 129, 0.4)' }}>
