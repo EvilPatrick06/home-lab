@@ -18,6 +18,7 @@ import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGestu
 import { PETS, PET_LEVEL_XP, PET_MAX_LEVEL, petLevelFromXp, findPet } from './services/pets.js';
 import { SPELLS, findSpell } from './services/spells.js';
 import { DAILY_REWARDS, todayDateStr, dayDiff } from './services/devotion.js';
+import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHOLD } from './services/weakDomain.js';
 
 const TITLES = [
   { min: 1, max: 4, name: 'Apprentice' },
@@ -5649,6 +5650,22 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
   }, [isCombined, library, selectedTome]);
   const calibrationTotal = calibration.low.total + calibration.med.total + calibration.high.total;
 
+  // 26b: weak-domain auto-targeting. Pick the single domain that most
+  // warrants attention so the player has a prominent one-click shortcut.
+  // The union of quiz + flashcard domain sets is the candidate filter —
+  // a domain with no matching study items in the active tome can't be
+  // practiced from this screen, so don't surface it.
+  const studyCandidateSet = useMemo(() => {
+    const set = new Set();
+    quizDomainSet.forEach(d => set.add(d));
+    flashcardDomainSet.forEach(d => set.add(d));
+    return set;
+  }, [quizDomainSet, flashcardDomainSet]);
+  const weakestDomain = useMemo(
+    () => pickWeakestDomain(stats, studyCandidateSet, weights),
+    [stats, studyCandidateSet, weights],
+  );
+
   const rampForPct = (pct) => (
     pct >= 90 ? { bg: 'rgba(245, 158, 11, 0.35)', border: '#fbbf24', text: '#fde047', fill: 'linear-gradient(to right, #f59e0b, #fde047)' } :
     pct >= 75 ? { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0', fill: 'linear-gradient(to right, #10b981, #34d399)' } :
@@ -5738,6 +5755,53 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               <div className="h-full transition-all" style={{ width: `${overallPct}%`, background: rampForPct(overallPct).fill }} />
             </div>
           </div>
+
+          {/* 26b: Weakest-domain auto-targeting CTA. Only renders when
+              one domain qualifies (≥5 attempts, <75% accuracy, has
+              matching items in the studied tome). Tie-breaks favor
+              higher exam weight, then larger sample size. */}
+          {weakestDomain && (
+            <div className="p-4 rounded" style={{
+              background: 'linear-gradient(135deg, rgba(127, 29, 29, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
+              border: '2px solid rgba(239, 68, 68, 0.6)',
+              boxShadow: '0 0 18px rgba(239, 68, 68, 0.18), inset 0 0 16px rgba(0,0,0,0.4)',
+            }}>
+              <div className="flex items-center gap-2 mb-2">
+                <Flame className="w-5 h-5 text-red-300" style={{ filter: 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.6))' }} />
+                <h3 className="text-sm font-bold italic text-red-200 tracking-wider">Weakest Domain</h3>
+                <div className="flex-1 h-px bg-gradient-to-r from-red-700/50 to-transparent" />
+                <span className="text-[10px] italic text-amber-700 tracking-wider">auto-targeted</span>
+              </div>
+              <div className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+                <div className="text-base italic font-bold text-amber-100" style={{ textShadow: '0 0 6px rgba(239, 68, 68, 0.3)' }}>
+                  {weakestDomain.domain}
+                </div>
+                <div className="text-sm font-bold tabular-nums italic text-red-200">
+                  {weakestDomain.correct}/{weakestDomain.total} · {Math.round(weakestDomain.accuracy * 100)}%
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {quizDomainSet.has(weakestDomain.domain) && (
+                  <button onClick={() => onStudyDomain('quiz', weakestDomain.domain)}
+                    className="px-3 py-2 rounded text-sm font-bold border-2 border-purple-400 text-purple-100 italic hover:bg-purple-900/40"
+                    style={{ background: 'rgba(126, 34, 206, 0.5)' }}>
+                    <Target className="w-4 h-4 inline mr-1" /> Practice via Riddles
+                  </button>
+                )}
+                {flashcardDomainSet.has(weakestDomain.domain) && (
+                  <button onClick={() => onStudyDomain('flashcards', weakestDomain.domain)}
+                    className="px-3 py-2 rounded text-sm font-bold border-2 border-sky-400 text-sky-100 italic hover:bg-sky-900/40"
+                    style={{ background: 'rgba(29, 78, 216, 0.5)' }}>
+                    <Scroll className="w-4 h-4 inline mr-1" /> Practice via Scrolls
+                  </button>
+                )}
+              </div>
+              <div className="text-[10px] italic text-amber-700 mt-2">
+                ✦ Picked from domains with ≥{WEAK_DOMAIN_MIN_SAMPLE} attempts and accuracy below {Math.round(WEAK_DOMAIN_ACCURACY_THRESHOLD * 100)}%
+                {weights ? ', ties broken by exam weight then sample size' : ', ties broken by sample size'}.
+              </div>
+            </div>
+          )}
 
           {/* Per-domain rows */}
           <div className="space-y-2">
