@@ -37,6 +37,18 @@ CEH and CND lean on knowing what command/flag produces what observable output (e
 - CCISO (CISO-track — governance, finance, vendor)
 - CTIA (threat intelligence analyst), ECSA, CSCU
 
+=== PER-EXAM STYLE NOTES ===
+
+Adjust the lens to match the EXAM TARGET:
+
+- **CEH v13** — offensive lens. 20 modules along the kill chain (Reconnaissance → Scanning → Enumeration → Vulnerability Analysis → System Hacking → Malware/Sniffing/SE/DoS → Session Hijacking → Evading Defenses → Web/Wireless/Mobile/IoT/Cloud → Cryptography). Items frame the candidate as the attacker. Distractors swap tools across kill-chain phases (Nmap during exfiltration, theHarvester during exploitation).
+- **CHFI v11** — forensic investigator lens. Items reference disk imaging (dd, FTK Imager), chain of custody, file-system artifacts (NTFS $MFT, $LogFile, Volume Shadow Copy), Windows registry hives, email forensics, anti-forensics detection. Heavy on legal procedure.
+- **CND** — defender lens. Items reverse CEH thinking: given an attack pattern, design the detection / hardening / response. Heavy on SIEM design, logging, network segmentation, defense-in-depth.
+- **CCISO** — CISO governance/finance/vendor. Items reference budget, governance committees, vendor risk, regulatory frameworks. Less hands-on than CEH/CHFI.
+- **CTIA** — threat intelligence analyst. Items cover the intel lifecycle (planning → collection → processing → analysis → dissemination → feedback), TTPs/IOCs/observables, structured analytic techniques (ACH, Diamond Model, F3EAD), threat actor profiling.
+
+If EXAM TARGET is blank, default to CEH v13 style.
+
 === BLUEPRINT STRUCTURE ===
 
 CEH v13 has 20 modules organized roughly along the kill chain: Introduction, Footprinting/Recon, Network Scanning, Enumeration, Vulnerability Analysis, System Hacking, Malware, Sniffing, Social Engineering, DoS, Session Hijacking, Evading IDS/Firewalls/Honeypots, Hacking Web Servers, Hacking Web Applications, SQL Injection, Hacking Wireless, Hacking Mobile, IoT/OT Hacking, Cloud Computing, Cryptography. Group these into the kill-chain phases or ATT&CK tactics for the knowledge base.
@@ -47,10 +59,12 @@ Populate \`metadata.domainWeights\` with EC-Council's published blueprint percen
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards (one per major tool + one per ATT&CK technique)
-- ≥80 quiz questions
-- ≥10 labs (tool-driven offensive scenarios)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per module/phase
+- ≥120 flashcards (one per major tool + one per ATT&CK technique)
+- ≥125 quiz questions (CEH v13 real exam is 125 items in 4 hours)
+- ≥12 labs (tool-driven offensive scenarios)
+- EC-Council mix: ~70-80% multiplechoice, ~5-10% truefalse, ~10-15% fillblank for tool flags / command syntax / ATT&CK technique IDs
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per module/phase
+- Proportional coverage: CEH publishes per-phase weights — match them (±5%); System Hacking + Vulnerability Analysis are typically largest sections
 
 === STYLE GUIDANCE ===
 
@@ -81,7 +95,10 @@ Lab/PBQ artifacts to embed:
   "front": "nmap -sS vs -sT vs -sU vs -sA — when to use each scan type",
   "back": "-sS (SYN/half-open): default for privileged users, fast, stealthy — does not complete the 3-way handshake. -sT (TCP connect): used when not running as root, completes full handshake (more visible). -sU (UDP scan): probes UDP ports; slow because UDP is connectionless. -sA (ACK scan): does NOT determine open/closed; differentiates filtered vs unfiltered ports — useful for firewall rule mapping.",
   "hint": "Stealth, completeness, protocol, and firewall reconnaissance — pick the scan that matches the goal.",
-  "objective": "Module 3 — Scanning"
+  "objective": "Module 3 — Scanning",
+  "domain": "Scanning",
+  "difficulty": 2,
+  "bloomLevel": "understand"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -97,7 +114,11 @@ Lab/PBQ artifacts to embed:
     "responder -I eth0"
   ],
   "correctIndex": 1,
-  "explanation": "Kerberoasting requests TGS tickets for accounts with SPNs and cracks them offline. GetUserSPNs.py (or PowerView's Get-DomainUser -SPN) extracts the tickets; hashcat -m 13100 is the matching mode for Kerberos 5 TGS-REP RC4. Nmap's krb5-enum-users enumerates accounts but does not pull crackable tickets. Mimikatz dumps cached creds (different attack). Responder is for LLMNR/NBT-NS poisoning."
+  "explanation": "Option B (GetUserSPNs.py + hashcat -m 13100) is correct because Kerberoasting requests TGS tickets for accounts with SPNs and cracks them offline — GetUserSPNs.py (or PowerView's Get-DomainUser -SPN) extracts the tickets and hashcat mode 13100 matches Kerberos 5 TGS-REP encrypted with RC4. Option A (nmap krb5-enum-users) enumerates accounts that exist but does not request crackable tickets — wrong tool stage. Option C (Mimikatz sekurlsa::logonpasswords) dumps cached creds from LSASS, which is a different attack (T1003.001 LSASS Memory) that requires privileged local access. Option D (responder) is for LLMNR/NBT-NS poisoning to capture NetNTLMv2 hashes from broadcast traffic — wrong attack family entirely. Right phase, right goal, right tool chain.",
+  "hint": "Two of these are tools but don't pull TGS tickets; one is the wrong attack family entirely.",
+  "domain": "System Hacking",
+  "difficulty": 4,
+  "bloomLevel": "apply"
 }
 
 ❌ BAD multiple-choice quiz:
@@ -119,6 +140,8 @@ Why this is bad: pure trivia, no scenario, no methodology. CEH does not write it
   "title": "Pentest engagement: from external recon to internal foothold",
   "scenario": "You have signed a Rules of Engagement document for a black-box external pentest of acmecorp.com. The ROE permits all recon, scanning, and exploitation against acmecorp.com and its public IP range 203.0.113.0/24, but prohibits DoS and social engineering. You have 5 days. Below is the initial scope email and an excerpt from your reconnaissance output.",
   "objective": "Module 2-5 — Footprinting through Vulnerability Analysis",
+  "domain": "Reconnaissance",
+  "difficulty": 3,
   "steps": [
     {
       "prompt": "Which recon tool is BEST for passive enumeration of acmecorp.com email addresses and subdomains BEFORE you touch the target's infrastructure?",

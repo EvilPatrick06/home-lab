@@ -39,6 +39,18 @@ Performance-Based Questions (PBQs) simulate hands-on tasks: drag-drop firewall r
 - A+ Core 1/2 220-1101/220-1102 (hardware + software + security basics)
 - Linux+ XK0-005, Server+ SK0-005, Cloud+ CV0-004
 
+=== PER-EXAM STYLE NOTES ===
+
+Adjust the question voice and artifact mix to match the EXAM TARGET:
+
+- **Security+ SY0-701** — generalist SOC/admin lens. Scenarios cover threats, identity, architecture, ops, GRC. PBQs are typically: drag-drop firewall rule order, alert triage on a Sysmon snippet, identify-the-attack-from-a-log, label a network diagram. Stems are short-to-medium; favor MC mix with PBQ-style labs.
+- **CySA+ CS0-003** — SOC analyst lens. Heavy on log/packet/SIEM analysis, CVSS scoring math, malware behavior patterns, threat-hunting hypotheses. Almost every quiz item should reference an artifact (Sysmon event, alert text, IOC snippet, EDR finding). Labs should walk an analyst through triage → analysis → containment.
+- **Pentest+ PT0-003** — engagement-flow lens. Items walk Scoping → Recon → Vulnerability Analysis → Exploitation → Post-Ex → Reporting. Distractors test "right tool, wrong phase". Labs simulate engagements with ROE documents, tool output, and post-exploit pivoting decisions.
+- **Network+ N10-009** — troubleshooting + protocol lens. Items often present a topology + symptom + show output, ask to identify the layer/protocol/configuration fault. Distractors are layer-confusion (ARP vs ICMP vs DNS) and off-by-one config values. Labs are flow-of-troubleshooting.
+- **A+ 220-1101/1102** — broader (hw/sw/sec). Items reference end-user-support situations (printer, BSOD, malware-remediation, mobile device). Less depth per topic than Sec+.
+
+If EXAM TARGET is blank or unrecognized, default to Security+ SY0-701 style.
+
 === BLUEPRINT STRUCTURE ===
 
 CompTIA exams use 5 numbered domains (Security+: 1. General Security Concepts; 2. Threats, Vulnerabilities, and Mitigations; 3. Security Architecture; 4. Security Operations; 5. Security Program Management and Oversight). Each domain has sub-objectives (1.1, 1.2, 1.3, ...). Reference the relevant blueprint for the EXAM TARGET above; if blank, default to Security+ SY0-701's 5-domain structure.
@@ -49,10 +61,11 @@ Populate \`metadata.domainWeights\` with the published CompTIA blueprint percent
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards
-- ≥80 quiz questions (mix multiplechoice / truefalse / fillblank — at least 60% multiplechoice)
-- ≥10 labs (PBQ-style, ≥4 stages each)
-- Per-blueprint-objective minimums: ≥5 flashcards, ≥5 quiz items, ≥1 lab per sub-objective
+- ≥120 flashcards
+- ≥120 quiz questions (mix multiplechoice / truefalse / fillblank — 65-75% multiplechoice, 10-15% truefalse, 10-15% fillblank)
+- ≥12 labs (PBQ-style, ≥4 stages each)
+- Per-blueprint-objective minimums: ≥3 flashcards, ≥3 quiz items, ≥1 lab per sub-objective
+- Proportional coverage: items per domain match the CompTIA blueprint percentages (±5%); a 28%-weight Operations domain gets ~34 of 120 quiz items, not 5
 - If material is large, scale up proportionally — never below the minimums
 
 === STYLE GUIDANCE ===
@@ -83,7 +96,10 @@ Lab/PBQ artifacts to embed:
   "front": "Principle of least privilege",
   "back": "A user, process, or system is granted only the access rights and permissions required to perform its specific function — nothing more. Reduces blast radius if credentials are compromised. In practice: separate admin/standard accounts, time-bounded role elevation (JIT), per-resource IAM scoping.",
   "hint": "Think about what happens when a single account is breached — how do you limit the damage?",
-  "objective": "1.2"
+  "objective": "1.2",
+  "domain": "Security Architecture",
+  "difficulty": 2,
+  "bloomLevel": "understand"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -99,9 +115,12 @@ Lab/PBQ artifacts to embed:
     "Add the dynamic-DNS domain to the URL filtering deny list"
   ],
   "correctIndex": 1,
-  "explanation": "The pattern (regular beacons, randomized subdomains, dynamic-DNS) strongly suggests command-and-control beaconing from malware. Containment by isolating the host comes BEFORE eradication or perimeter blocking — blocking the IP alone would not stop the malware from rotating to a new C2, and asking the user wastes time. Brave analyst, contain first, investigate second.",
-  "hint": "Recall the incident-response order: prepare, identify, contain, eradicate, recover, lessons learned.",
-  "objective": "4.8"
+  "explanation": "Option B (isolate the workstation) is correct because the IR order is prepare → identify → contain → eradicate → recover, and the regular-interval-randomized-subdomain-dynamic-DNS pattern is classic C2 beaconing — contain before forensics. Option A (block the IP) is helpful but does not stop the malware from rotating to a new C2 endpoint once it loses the current one. Option C (ask the user) wastes time and tips off any attacker monitoring the inbox or endpoint telemetry. Option D (URL-filter the dynamic-DNS provider) is a sound longer-term hardening but does not interrupt the active session. Brave analyst, contain first, investigate second.",
+  "hint": "Notice the stem says FIRST — what does the IR framework do first after identification?",
+  "objective": "4.8",
+  "domain": "Security Operations",
+  "difficulty": 3,
+  "bloomLevel": "apply"
 }
 
 ❌ BAD multiple-choice quiz — DO NOT GENERATE LIKE THIS:
@@ -123,6 +142,8 @@ Why this is bad: pure recall (no scenario), no qualifier word, distractors are o
   "title": "Triage a phishing alert and recommend mitigations",
   "scenario": "Your SIEM raised a high-priority alert: 47 employees received an email from \\"it-support@compamy.com\\" (note the misspelling) with the subject \\"Mandatory password reset — 24 hours\\" and a link to https://compamy-portal.azurewebsites.net/login. Three users have already clicked the link in the last 8 minutes. The on-call analyst hands you the headers, attachment list, and SIEM dashboard.",
   "objective": "2.4",
+  "domain": "Threats, Vulnerabilities, and Mitigations",
+  "difficulty": 3,
   "steps": [
     {
       "prompt": "Inspect the email envelope. The Return-Path is \\"<bounce@maildelivery-svc.com>\\", the From header is \\"IT Support <it-support@compamy.com>\\", and SPF=fail, DKIM=none, DMARC=fail. Which finding is the STRONGEST single indicator that this is a spoofed phishing message?",

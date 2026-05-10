@@ -48,10 +48,12 @@ Populate \`metadata.domainWeights\` with published cert blueprint percentages wh
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards
-- ≥80 quiz questions
-- ≥8 labs (default to PBQ-style with realistic artifacts; for governance-flavored exams use multi-stage vignettes)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per inferred domain
+- ≥120 flashcards
+- ≥120 quiz questions
+- ≥12 labs (default to PBQ-style with realistic artifacts; for governance-flavored exams use multi-stage vignettes)
+- Default quiz mix: 65-75% multiplechoice, 10-15% truefalse, 10-15% fillblank — override based on inferred org style (e.g. (ISC)² has no fillblank; Cisco is fillblank-heavy)
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per inferred domain
+- Proportional coverage: items per inferred domain match the published cert weights (±5%) when blueprint is known; even-distribute otherwise
 - Scale up proportionally if material exceeds standard scope
 
 === STYLE GUIDANCE ===
@@ -72,11 +74,15 @@ The same exemplars from CompTIA apply by default. If you infer a different style
   "question": "<Scenario stem ≥2 sentences setting an actor (analyst/admin/auditor/architect/engineer/user) in a real situation>. Which option BEST/MOST/FIRST achieves the goal?",
   "options": ["<Plausible distractor>", "<Correct answer>", "<Plausible distractor>", "<Plausible distractor>"],
   "correctIndex": 1,
-  "explanation": "Why correct + why each distractor is wrong (mild fantasy flavor permitted).",
-  "objective": "<inferred domain reference>"
+  "explanation": "Option B (the correct answer) is correct because <reason tied to the scenario>. Option A is wrong because <specific reason addressing that distractor>. Option C is wrong because <specific reason>. Option D is wrong because <specific reason>. <Optional mild fantasy flavor: 'Brave scholar, ...'>",
+  "hint": "<one structured pattern: elimination / key-word / common-trap / reverse-lookup>",
+  "objective": "<inferred domain reference>",
+  "domain": "<inferred domain — same string as KB header>",
+  "difficulty": 3,
+  "bloomLevel": "apply"
 }
 
-❌ NEVER: pure recall, fantasy framing in technical fields, throwaway distractors.
+❌ NEVER: pure recall, fantasy framing in technical fields, throwaway distractors, missing difficulty/bloomLevel fields, one-sentence explanations that don't address each distractor.
 
 ${SHARED_SCHEMA}
 

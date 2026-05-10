@@ -36,6 +36,18 @@ Distractors are typically other GCP services that almost fit, IAM role/scope con
 - Professional Cloud Network Engineer (VPC, hybrid connectivity, Cloud NAT)
 - Workspace Administrator / Developer
 
+=== PER-EXAM STYLE NOTES ===
+
+Adjust the question voice to match the EXAM TARGET:
+
+- **Professional Cloud Security Engineer (PCSE)** — deep IAM (predefined vs custom roles, conditions, service-account impersonation chains), VPC Service Controls perimeter design, Cloud KMS key management, BeyondCorp/IAP zero-trust, Security Command Center findings, Organization Policies, Cloud Asset Inventory. Items present a regulated-workload scenario and ask for the BEST GCP control combination.
+- **Professional Cloud Architect (PCA)** — broad design across compute (GCE/GKE/Cloud Run/App Engine/Cloud Functions), storage (Cloud Storage classes, Filestore, persistent disks), data (BigQuery/Spanner/Cloud SQL/Bigtable), and networking. Items balance cost / scale / availability / operational overhead.
+- **Cloud Digital Leader** — foundational, business-context lens. Items frame business problems and ask for the BEST GCP product family. No deep configuration questions.
+- **Professional Cloud Network Engineer (PCNE)** — networking depth. VPC peering vs Shared VPC, Cloud NAT vs Cloud Router, Interconnect (Dedicated vs Partner), Cloud DNS, Cloud Load Balancing (global vs regional, external vs internal, HTTP(S) vs TCP vs network).
+- **Workspace Administrator / Developer** — Google Workspace admin console, OUs, Vault retention, Drive sharing controls, Gmail routing rules.
+
+If EXAM TARGET is blank, default to PCSE style.
+
 === BLUEPRINT STRUCTURE ===
 
 Professional Cloud Security Engineer covers 6 domains: Configuring Access, Configuring Network Security, Ensuring Data Protection, Managing Operations, Ensuring Compliance, Configuring Secure Use of GCP Services. Use these or the EXAM TARGET's actual domains as KB headers.
@@ -46,10 +58,11 @@ Populate \`metadata.domainWeights\` with the Google Cloud exam guide percentages
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards
-- ≥80 quiz questions
-- ≥8 labs (GCP service-config decisions)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per domain
+- ≥120 flashcards
+- ≥120 quiz questions (Google mix: ~80-90% multiplechoice, ~5-10% truefalse, ~5-10% fillblank for gcloud commands / IAM role names / org policy constraint IDs)
+- ≥12 labs (GCP service-config decisions; embed gcloud CLI commands and IAM policy JSON inline)
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per domain
+- Proportional coverage: items per domain match the GCP exam guide percentages (±5%)
 
 === STYLE GUIDANCE ===
 
@@ -80,7 +93,10 @@ Lab/PBQ artifacts to embed:
   "front": "VPC Service Controls vs VPC firewall rules — what does each protect against?",
   "back": "VPC firewall rules: control L3/L4 traffic between VMs, networks, and IP ranges within a VPC. Stop network-layer attacks (e.g. unauthorized RDP access). VPC Service Controls (VPC SC): control access to Google managed APIs (Cloud Storage, BigQuery, KMS, etc.) from inside vs outside a defined service perimeter — even when a caller has valid IAM credentials. Stop credential-theft data exfiltration to external GCP projects. Use both: firewall rules for VM-layer, VPC SC for API-layer.",
   "hint": "L3/L4 vs Google API access — different layers, different threats.",
-  "objective": "Domain 2 — Network Security"
+  "objective": "Domain 2 — Network Security",
+  "domain": "Configuring Network Security",
+  "difficulty": 2,
+  "bloomLevel": "understand"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -96,7 +112,11 @@ Lab/PBQ artifacts to embed:
     "Org Policy constraints/iam.disableServiceAccountCreation"
   ],
   "correctIndex": 2,
-  "explanation": "VPC Service Controls perimeters block API access to listed Google services from outside the perimeter, defeating IAM-credential-based exfiltration to a personal project. IAM role downgrade does not stop a privileged user. Firewall rules don't apply to Google API access (which is over Google's network). Org Policy on service accounts is a different control entirely."
+  "explanation": "Option C (VPC Service Controls perimeter with bigquery.googleapis.com restricted) is correct because VPC SC is the only GCP control that blocks API egress to non-perimeter projects regardless of IAM — even a privileged user calling 'bq query --destination_table=other-project:dataset.table' is blocked because the destination is outside the perimeter. Option A (IAM dataViewer instead of dataEditor) reduces write access but does not stop a user from running BigQuery EXPORT or COPY to a personal project they own. Option B (firewall rule on port 443) doesn't apply: traffic to Google APIs travels over Google's private network, not customer VPC firewalls. Option D (disableServiceAccountCreation) addresses a different risk (rogue SAs); it doesn't stop a human user exfiltrating with valid creds.",
+  "hint": "Three of these don't apply to the egress path the question describes — find the one that operates on the Google API surface.",
+  "domain": "Configuring Network Security",
+  "difficulty": 4,
+  "bloomLevel": "analyze"
 }
 
 ❌ BAD multiple-choice quiz:
@@ -118,6 +138,8 @@ Why this is bad: trivia, no scenario.
   "title": "Lock down a regulated BigQuery analytics environment",
   "scenario": "A healthcare analytics team runs queries on de-identified PHI in a BigQuery dataset within project healthcare-analytics-prod. Compliance requires: (a) only specified analyst service accounts may query the dataset, (b) data may not leave the project boundary even via export, (c) all KMS decrypt operations must be auditable, (d) keys must use customer-managed material with 90-day rotation.",
   "objective": "Domain 3 — Data Protection",
+  "domain": "Ensuring Data Protection",
+  "difficulty": 4,
   "steps": [
     {
       "prompt": "To meet requirement (b) — preventing data export to other GCP projects even with valid IAM — which control do you configure?",

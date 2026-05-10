@@ -35,6 +35,18 @@ Distractors lean on adjacent practices in the same family (AC.L2-3.1.1 vs AC.L2-
 - CCP — Certified CMMC Professional (knowledge of model + assessment process)
 - CCA — Certified CMMC Assessor (Level 2 assessment authority)
 
+=== PER-EXAM STYLE NOTES ===
+
+Adjust the lens to match the EXAM TARGET:
+
+- **CMMC Level 1** — 17 practices for FCI protection (Federal Contract Information). Self-attestation. Items focus on the foundational practices: AC.L1-3.1.1, AC.L1-3.1.2, AC.L1-3.1.20, AC.L1-3.1.22, IA.L1-3.5.1, IA.L1-3.5.2, MP.L1-3.8.3, PE.L1-3.10.1-5, SC.L1-3.13.1, SC.L1-3.13.5, SI.L1-3.14.1-2 + 3.14.4-5. Distractors confuse Level 1 vs Level 2 practices.
+- **CMMC Level 2** — 110 practices from NIST 800-171 r2. Third-party C3PAO assessment. Items reference assessment objectives (each practice has 1-4 objectives in NIST SP 800-171A), assessor methods (examine / interview / test), evidence types, and scoring (Met / Not Met / Not Applicable). Distractors confuse adjacent practices in the same family (3.1.1 vs 3.1.2 vs 3.1.20).
+- **CMMC Level 3** — Level 2 + ~24 enhanced practices from NIST 800-172. Government assessment by DCMA DIBCAC. Items emphasize advanced persistent threat (APT) defense: threat hunting, organic CTI, dual authorization for critical actions.
+- **CCP — Certified CMMC Professional** — knowledge-only credential. Items cover the CMMC ecosystem (CyberAB, accreditation, assessor roles, scoping CUI environments), the assessment process, NIST 800-171/172 mapping, and OSC responsibilities. Less about specific practices, more about the framework.
+- **CCA — Certified CMMC Assessor** — Level 2 assessment authority. Items emphasize assessor methods (the FIPS 200 + SP 800-53A model adapted for CMMC), evidence-gathering, finding-classification, scoring rules, POA&M handling, conditional certifications.
+
+If EXAM TARGET is blank, default to CMMC Level 2 / CCA style (most asked-about).
+
 === BLUEPRINT STRUCTURE ===
 
 CMMC organizes practices into 14 domains drawn from NIST 800-171: Access Control (AC), Awareness and Training (AT), Audit and Accountability (AU), Configuration Management (CM), Identification and Authentication (IA), Incident Response (IR), Maintenance (MA), Media Protection (MP), Personnel Security (PS), Physical Protection (PE), Risk Assessment (RA), Security Assessment (CA), System and Communications Protection (SC), System and Information Integrity (SI). Practice IDs follow \`<DOMAIN>.L<LEVEL>-<NIST>\` format (e.g. \`AC.L2-3.1.1\`, \`SI.L2-3.14.6\`).
@@ -45,10 +57,12 @@ Populate \`metadata.domainWeights\` with the per-domain practice-count proportio
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥60 flashcards (one per practice for Level 1; one per practice family for Level 2)
-- ≥80 quiz questions
-- ≥8 labs (control-assessment scenarios)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per domain (14 domains)
+- ≥120 flashcards (one per practice for Level 1; one per practice family for Level 2)
+- ≥120 quiz questions
+- ≥12 labs (control-assessment scenarios)
+- CMMC mix: ~80-90% multiplechoice, ~5-10% truefalse, ~5-10% fillblank for practice IDs / assessor method names
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per domain (14 domains)
+- Proportional coverage: domains with more practices carry proportionally more items (AC has the most Level-2 practices, so AC gets the largest share)
 - Cover the assessment objectives the EXAM TARGET specifies
 
 === STYLE GUIDANCE ===
@@ -80,7 +94,10 @@ Lab/PBQ artifacts to embed:
   "front": "AC.L2-3.1.1 — Limit system access to authorized users, processes, and devices",
   "back": "Practice: limit system access to authorized users, processes acting on behalf of authorized users, and devices (including other systems). Objectives: identify authorized users, identify authorized processes, identify authorized devices, limit access. Evidence: account inventory, IAM/AD listings, NAC config, joining/onboarding procedure. Common gap: shared service accounts with no owner attribution.",
   "hint": "Three things must be authorized: users, processes, devices. The 'limit' verb is the heart of the practice.",
-  "objective": "AC.L2-3.1.1"
+  "objective": "AC.L2-3.1.1",
+  "domain": "AC — Access Control",
+  "difficulty": 2,
+  "bloomLevel": "remember"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -96,7 +113,11 @@ Lab/PBQ artifacts to embed:
     "AU.L2-3.3.1 (Create and retain system audit logs and records)"
   ],
   "correctIndex": 1,
-  "explanation": "Shared admin credentials defeat individual user identification — IA.L2-3.5.1 requires identifying users, not just authenticating an account. AC.L2-3.1.1 is also weakened, but IA.L2-3.5.1 is the MOST direct failure: you literally cannot tell which engineer made which change. Audit logs (AU.L2-3.3.1) are downstream-affected but the upstream cause is the shared identity. Brave assessor, identification precedes accountability."
+  "explanation": "Option B (IA.L2-3.5.1 Identify users) is the MOST direct failure because the practice's plain language requires identifying users — and a shared password means you literally cannot tell which engineer made which change. Option A (AC.L2-3.1.1 Limit access) is weakened too — access is broader than three engineers know about — but the upstream identification problem is the root cause. Option C (IA.L2-3.5.2 Authenticate identities) is partially impaired but the system DOES authenticate; what fails is binding the authentication to an individual identity. Option D (AU.L2-3.3.1 Create audit logs) is downstream: logs may exist but cannot attribute actions to individuals because of the shared credential. Brave assessor, identification precedes accountability.",
+  "hint": "Trace the failure to its upstream cause: which practice is broken first?",
+  "domain": "IA — Identification and Authentication",
+  "difficulty": 4,
+  "bloomLevel": "analyze"
 }
 
 ❌ BAD multiple-choice quiz:
@@ -119,6 +140,8 @@ Why this is bad: trivia, no scenario, no qualifier. CMMC exams test application 
   "title": "Score an OSC's Access Control evidence package",
   "scenario": "You are a CCA conducting a Level 2 assessment for a small defense subcontractor. They submit the following evidence for the AC family: (a) a written 'Account Management Policy' last updated 3 years ago; (b) an Active Directory export showing 47 user accounts including 12 marked 'service' with no owner field; (c) interview notes from the IT lead stating 'we disable accounts when HR tells us'; (d) no documented procedure for periodic account review.",
   "objective": "AC.L2",
+  "domain": "AC — Access Control",
+  "difficulty": 4,
   "steps": [
     {
       "prompt": "Which AC practice is MOST clearly NOT MET by the submitted evidence?",

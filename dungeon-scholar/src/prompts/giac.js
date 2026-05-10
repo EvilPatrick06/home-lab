@@ -47,6 +47,20 @@ Distractors lean on close-but-wrong tool output interpretation, off-by-one packe
 - GCIA (intrusion analyst — SEC503)
 - GMOB, GCED, GICSP (industrial control systems), GCCC
 
+=== PER-EXAM STYLE NOTES ===
+
+Every GIAC exam is open-book — the candidate carries indexed notes. Tailor items so a well-organized index produces a fast lookup; the lookup itself should still require applied reasoning (the exam is not "find this fact in your book").
+
+- **GSEC** — broad foundational. Items cover crypto basics, networking, Windows/Linux security, IR overview, GRC fundamentals. Lighter tool depth than other GIACs.
+- **GCIH (SEC504 — Hacker Tools, Techniques, and Incident Handling)** — Kill Chain + ATT&CK mapping. Items present an artifact (Sysmon event, PowerShell transcript, Wireshark capture) and ask which attacker stage / technique / IOC fits. Heavy on the SIX-step PICERL IR process (Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned).
+- **GPEN (SEC560 — Network Penetration Testing)** — engagement flow, tool depth. Items cover Nmap NSE scripts, Metasploit, PowerShell offensive tooling, Kerberoasting, lateral movement, BloodHound output reading.
+- **GCFA (FOR508)** — host forensics + memory analysis + timeline analysis. Items present Volatility plugin output, MFT timestamps, $LogFile records, Windows artifacts (Prefetch, Shimcache, AmCache, RecentDocs). Heavy on artifact timestamp interpretation.
+- **GREM (FOR610)** — malware reverse engineering. Items present IDA Pro / Ghidra disassembly snippets, x86 assembly patterns, debugger breakpoints, packer signatures. Code analysis depth.
+- **GCIA (SEC503 — Network Monitoring and Threat Detection)** — packet-level depth. Wireshark display filters, BPF syntax, Snort/Suricata signature design, TCP/IP header field analysis.
+- **GMON (SEC511)** — defensive monitoring architecture. Continuous monitoring, SOC tooling, log enrichment.
+
+If EXAM TARGET is blank, default to GCIH style (most popular).
+
 === BLUEPRINT STRUCTURE ===
 
 GIAC blueprints are SANS-course-aligned. GCIH covers: Incident Handling Process, Reconnaissance, Scanning, Exploitation, Lateral Movement, Persistence, Covering Tracks, Cryptanalysis, ATT&CK Mapping. GCIA covers: Packet Analysis, Wireshark, Snort, Network Forensics, IDS Tuning, Anomaly Detection. Use the EXAM TARGET's actual blueprint sections for domain headers.
@@ -57,10 +71,12 @@ Populate \`metadata.domainWeights\` with the SANS-published blueprint percentage
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards
-- ≥120 quiz questions (GIAC's open-book format pushes deep coverage; more items = better index practice)
-- ≥10 labs (tool-output interpretation scenarios)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per blueprint section
+- ≥120 flashcards (one per major tool + one per ATT&CK technique)
+- ≥150 quiz questions (GIAC's open-book format pushes deep coverage; more items = better index practice)
+- ≥12 labs (tool-output interpretation scenarios)
+- GIAC mix: ~70-80% multiplechoice (often with artifact stems), ~5-10% truefalse, ~10-20% fillblank for command flags / hex values / tool plugin names
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per blueprint section
+- Proportional coverage: items per blueprint section match SANS-published weights (±5%) when available
 - Embed real tool output prominently — GIAC notes are organized around tool outputs
 
 === STYLE GUIDANCE ===
@@ -92,7 +108,10 @@ Lab/PBQ artifacts to embed:
   "front": "Volatility plugin: pslist vs psscan vs pstree — when does each find a process?",
   "back": "pslist: walks the doubly-linked _EPROCESS list (PsActiveProcessHead). Misses processes hidden by direct kernel object manipulation (DKOM unlinking). psscan: scans physical memory for _EPROCESS pool tags — catches DKOM-unlinked and recently-terminated processes. pstree: shows the parent-child tree from pslist data — useful for spotting suspicious parent-child relationships (e.g. winword.exe spawning powershell.exe). Run all three; compare output to find rootkit-hidden processes.",
   "hint": "List walk vs pool scan vs hierarchy — three different views of the process landscape.",
-  "objective": "Memory Forensics"
+  "objective": "Memory Forensics",
+  "domain": "Memory Forensics",
+  "difficulty": 3,
+  "bloomLevel": "understand"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -108,7 +127,11 @@ Lab/PBQ artifacts to embed:
     "T1003.001 — LSASS Memory dumping"
   ],
   "correctIndex": 1,
-  "explanation": "Office (WINWORD) spawning PowerShell with -NoP -W Hidden -Enc is a textbook macro-delivered execution (T1566.001 → T1059.001). The encoded command (-Enc) and hidden window (-W Hidden) signal evasion intent. T1190 is initial access via web-app exploit (different vector); T1078 is credential abuse without an exec event; T1003.001 would show lsass.exe in the parent or target image, not WINWORD."
+  "explanation": "Option B (T1059.001 + T1566.001 phishing macro) is correct because WINWORD spawning PowerShell with -NoP -W Hidden -Enc is a textbook macro-delivered execution pattern — the parent-child relationship plus the encoded-command + hidden-window flags signal evasion intent characteristic of phishing payloads. Option A (T1190 Exploit Public-Facing App) is wrong because that technique covers attacker-initiated exploitation of an internet-facing server, not user-opened Office documents. Option C (T1078 Valid Accounts) describes credential abuse without an execution event; the question shows an exec event but no auth event. Option D (T1003.001 LSASS Memory) would show lsass.exe in either the parent or target image — WINWORD as parent rules it out. Brave hunter, parent-child relationships are the strongest signal here.",
+  "hint": "Two of these techniques require specific process names (lsass / public-facing app); the parent-child here points elsewhere.",
+  "domain": "Incident Handling Process",
+  "difficulty": 4,
+  "bloomLevel": "analyze"
 }
 
 ❌ BAD multiple-choice quiz:
@@ -130,6 +153,8 @@ Why this is bad: trivia, no scenario, no tool output. GIAC tests applied analysi
   "title": "Triage suspicious memory artifacts from a possibly-compromised endpoint",
   "scenario": "An EDR alert flagged a finance-department workstation. You captured a memory image with WinPmem and are running Volatility 3 against it. Initial output: vol -f mem.raw windows.pslist shows winword.exe (PID 4532) → powershell.exe (PID 5104) → conhost.exe (PID 5120). Network connections: vol windows.netscan shows powershell.exe with established TCP connection to 185.220.101.42:443.",
   "objective": "Memory Forensics + ATT&CK Mapping",
+  "domain": "Memory Forensics",
+  "difficulty": 4,
   "steps": [
     {
       "prompt": "Which Volatility 3 plugin would BEST extract the full PowerShell command line that was executed?",

@@ -29,6 +29,18 @@ Distractors are usually right-action-wrong-time (technical remediation when the 
 - CGEIT — Governance of Enterprise IT
 - CDPSE — Data Privacy Solutions Engineer
 
+=== PER-EXAM STYLE NOTES ===
+
+Adjust the candidate's role and answer pattern to match the EXAM TARGET:
+
+- **CISA** — IS auditor lens. Candidate is the auditor performing fieldwork, reviewing evidence, reporting findings, following up on remediations. Correct answers emphasize audit-process discipline: discuss with auditee → document → classify → report → follow up. Distractors put the auditor in implementer or remediator role (wrong — that's IT's job). Heavy on COBIT, audit working papers, sampling, evidence types (examine/inquire/observe/reperform).
+- **CISM** — security manager lens. Candidate is the CISO or security program manager. Correct answers emphasize risk-based decision-making, program governance, ROI of controls, business alignment. Distractors push purely technical or purely compliance-driven answers.
+- **CRISC** — risk practitioner lens. Items walk the risk lifecycle: identification → assessment → response → monitoring. Heavy on risk-register entries, KRIs, risk-appetite vs risk-tolerance, residual vs inherent vs control risk.
+- **CGEIT** — governance lens. Items reference board-level IT governance, value delivery, resource optimization. Less hands-on than CISA/CISM/CRISC.
+- **CDPSE** — privacy engineering lens. Items reference privacy-by-design, data-subject rights, breach notification, DPIA, regulator engagement.
+
+If EXAM TARGET is blank, default to CISA style.
+
 === BLUEPRINT STRUCTURE ===
 
 CISA has 5 domains: Information System Auditing Process, Governance and Management of IT, Information Systems Acquisition/Development/Implementation, IS Operations and Business Resilience, Protection of Information Assets. CISM has 4 domains: Information Security Governance, Information Security Risk Management, Information Security Program, Incident Management. CRISC has 4 domains: Governance, IT Risk Assessment, Risk Response and Reporting, Information Technology and Security.
@@ -39,10 +51,12 @@ Populate \`metadata.domainWeights\` with the ISACA blueprint percentages for the
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards
-- ≥100 quiz questions (ISACA exams are heavily MC-driven)
-- ≥6 labs (governance/audit vignettes — multi-stage with reporting/escalation steps)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per domain
+- ≥120 flashcards
+- ≥150 quiz questions (ISACA exams are heavily MC-driven; CISA real exam is 150 questions)
+- ≥12 labs (governance/audit vignettes — multi-stage with reporting/escalation steps)
+- ISACA mix: ~95% multiplechoice, ~5% truefalse; ISACA does NOT use fillblank — keep fillblank items to 0%
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per domain
+- Proportional coverage: items per domain match the published ISACA blueprint (±5%); CISA Protection 27% → ~40 of 150 quiz items, Operations 23% → ~35, Auditing 21% → ~32
 
 === STYLE GUIDANCE ===
 
@@ -73,7 +87,10 @@ Lab/PBQ artifacts to embed:
   "front": "Inherent risk vs residual risk vs control risk — definitions and order",
   "back": "Inherent risk: risk before any controls — the natural exposure of the activity. Control risk: the risk that controls fail to detect/prevent the threat. Residual risk: risk remaining after controls operate as designed (residual = inherent reduced by control effectiveness). Risk-response decisions (accept/mitigate/transfer/avoid) are made against residual risk, not inherent. Audit opinions reflect control risk.",
   "hint": "Three risks form a chain: nature of activity → control failure → what's left.",
-  "objective": "CISA Domain 5 / CRISC Domain 2"
+  "objective": "CISA Domain 5 / CRISC Domain 2",
+  "domain": "Protection of Information Assets",
+  "difficulty": 2,
+  "bloomLevel": "understand"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -89,7 +106,11 @@ Lab/PBQ artifacts to embed:
     "Add the finding to the next external auditor's information request"
   ],
   "correctIndex": 2,
-  "explanation": "ISACA exam logic: the auditor's FIRST step on a missed commitment is to discuss with management — establish facts and understand cause before escalating. Direct technical remediation (option 1) is not the auditor's role. Audit-committee escalation (option 2) follows discussion if management cannot provide an acceptable revised timeline. Brave auditor, ask before you escalate."
+  "explanation": "Option C (discuss with management first) is correct because ISACA's audit-process discipline requires the auditor to establish facts and understand the cause of a missed commitment before escalating — the missed date might reflect a legitimate revised plan that simply wasn't communicated. Option A (recommend immediate enforcement) is wrong because direct technical remediation is not the auditor's role; auditors recommend and verify, they do not implement. Option B (audit-committee escalation now) skips the discussion step that ISACA requires; escalation follows discussion if management cannot provide an acceptable revised timeline. Option D (add to next external auditor's request) is passive deferral — three weeks past a critical-finding date is not 'wait for the external auditor' territory. Brave auditor, ask before you escalate.",
+  "hint": "On ISACA exams, the auditor's FIRST step is almost never 'implement' or 'escalate' — what comes before either?",
+  "domain": "Information System Auditing Process",
+  "difficulty": 3,
+  "bloomLevel": "apply"
 }
 
 ❌ BAD multiple-choice quiz:
@@ -111,6 +132,8 @@ Why this is bad: trivia, no scenario, no governance reasoning.
   "title": "Respond to a misconfigured backup finding during a financial-system audit",
   "scenario": "You are the lead IS auditor on a financial-reporting application audit. During fieldwork your tester discovers that nightly database backups have been failing silently for 11 weeks — the backup agent is logging errors that no one monitors. The most recent successful backup is 78 days old. The application supports SOX-relevant general ledger transactions. Management has not been informed of the issue.",
   "objective": "CISA Domain 4 / CISM Domain 4",
+  "domain": "IS Operations and Business Resilience",
+  "difficulty": 4,
   "steps": [
     {
       "prompt": "What is your FIRST action upon discovering the failed backups?",

@@ -31,6 +31,19 @@ Distractors lean on adjacent Microsoft services (Defender for Endpoint vs Defend
 - MS-102 — Microsoft 365 Administrator, MD-102 — Endpoint Administrator
 - AZ-104, AZ-305, AZ-700 — Azure admin/architect/network roles
 
+=== PER-EXAM STYLE NOTES ===
+
+Adjust the artifact mix to match the EXAM TARGET — Microsoft role-based exams test product-specific surfaces tightly:
+
+- **SC-100 (Cybersecurity Architect Expert)** — multi-product, architect-level. Items frame the candidate as a CISO/architect designing zero-trust, hybrid, multi-cloud. Distractors mix products across the Defender / Entra / Sentinel / Purview families. Less KQL, more reference-architecture decisions.
+- **SC-200 (Security Operations Analyst)** — heavy KQL. Items present a SigninLogs/SecurityEvent/DeviceProcessEvents snippet and ask for the KQL operator (where vs project vs summarize vs join), or ask which Sentinel analytic-rule template fits. Include real KQL syntax inline.
+- **SC-300 (Identity and Access Admin)** — heavy Conditional Access. Items frame CA policy design: which conditions (sign-in risk, named locations, device platform) + which grant controls (MFA, compliant device, app protection policy) + which session controls satisfy the requirement. Distinguish Conditional Access (Entra-level) from RBAC (Azure-level).
+- **SC-400 (Information Protection)** — Purview, DLP policies, sensitivity labels, retention. Items reference label scope, auto-labeling conditions, DLP rule design, data classification.
+- **AZ-500 (Azure Security Engineer)** — Azure-specific primitives. NSGs, Azure Firewall, Key Vault, Defender for Cloud recommendations + secure score, JIT VM access, PIM Azure roles. Distractors confuse Azure RBAC vs Entra ID roles vs Conditional Access scopes.
+- **AZ-104 / AZ-305 / AZ-700** — Azure ops/architect/network. Items reference ARM templates, Bicep, Azure Resource Manager hierarchy (Management Groups → Subscriptions → Resource Groups → Resources), ExpressRoute/VPN gateways.
+
+If EXAM TARGET is blank, default to SC-200 style (most popular).
+
 === BLUEPRINT STRUCTURE ===
 
 Each role-based exam has its own blueprint. SC-200 has 4 domains: Mitigate threats using Microsoft 365 Defender, Mitigate threats using Defender for Cloud, Mitigate threats using Microsoft Sentinel, Mitigate threats using Microsoft Defender for Endpoint. SC-300: Implement identities, Implement authentication and access management, Implement access management for apps, Plan and implement identity governance.
@@ -41,10 +54,11 @@ Populate \`metadata.domainWeights\` with the Microsoft Learn skills-measured per
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards
-- ≥80 quiz questions
-- ≥10 labs (role-based scenarios — KQL queries for SC-200, Conditional Access for SC-300, NSG/Firewall for AZ-500)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per domain
+- ≥120 flashcards
+- ≥120 quiz questions (Microsoft mix: ~70-80% multiplechoice, ~10% truefalse, ~10-15% fillblank for KQL operators / PowerShell cmdlets / Azure CLI commands)
+- ≥12 labs (role-based scenarios — KQL queries for SC-200, Conditional Access for SC-300, NSG/Firewall for AZ-500)
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per domain
+- Proportional coverage: items per domain match the Microsoft Learn skills-measured percentages (±5%); SC-200's "Mitigate threats using Microsoft Sentinel" is ~25-30% of the exam, so ~30-36 of 120 quiz items
 
 === STYLE GUIDANCE ===
 
@@ -76,7 +90,10 @@ Lab/PBQ artifacts to embed:
   "front": "Conditional Access: 'Conditions' vs 'Grant controls' vs 'Session controls'",
   "back": "Conditions: WHO (users/groups), WHAT (apps), HOW (sign-in risk, user risk, device platform, locations, client apps). Grant controls: applied at sign-in — block, require MFA, require compliant device, require Hybrid AAD-joined, require approved client app, require app protection policy, require terms of use, require password change. Session controls: applied during the session — app-enforced restrictions, Conditional Access App Control (sign-in via Defender for Cloud Apps), persistent browser session, sign-in frequency, customize continuous-access-evaluation. Manager mindset: conditions describe the situation; grant/session describe the action.",
   "hint": "Three knobs: who/what/when (conditions), pass/fail at sign-in (grant), and during-session enforcement (session).",
-  "objective": "SC-300 Domain 2"
+  "objective": "SC-300 Domain 2",
+  "domain": "Implement authentication and access management",
+  "difficulty": 3,
+  "bloomLevel": "understand"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -92,7 +109,11 @@ Lab/PBQ artifacts to embed:
     "Manual review of the Audit Logs blade"
   ],
   "correctIndex": 1,
-  "explanation": "Entra ID Protection includes 'atypical travel' / 'impossible travel' as a built-in risk detection. Connecting it to Sentinel surfaces those alerts without re-implementing the logic. Custom KQL is more work and reproduces what's already detected. CSV email and manual review are obviously inferior."
+  "explanation": "Option B (Entra ID Protection's built-in detection connected to Sentinel) is correct because Microsoft already ships an 'atypical travel' / 'impossible travel' risk detection that has been tuned on Microsoft's global sign-in telemetry — connecting it via the Entra ID Protection connector surfaces the alerts in Sentinel for free. Option A (custom KQL joining SigninLogs to itself) reproduces work that's already done and risks subtle bugs (timezone math, location-mapping). Option C (scheduled CSV email) is inferior on every dimension — latency, signal-to-noise, no integration with incident workflow. Option D (manual review of Audit Logs blade) doesn't scale and Audit Logs is the wrong table (sign-ins live in SigninLogs). Brave analyst, never rebuild what Microsoft already ships.",
+  "hint": "Two of these options are 'roll your own'; the BEST answer leverages a built-in detection that Microsoft has already tuned.",
+  "domain": "Mitigate threats using Microsoft Sentinel",
+  "difficulty": 3,
+  "bloomLevel": "apply"
 }
 
 ❌ BAD multiple-choice quiz:
@@ -114,6 +135,8 @@ Why this is bad: trivia, distractors are unrelated products. Microsoft exams tes
   "title": "Investigate a suspected compromised admin account in Microsoft Sentinel",
   "scenario": "Microsoft Sentinel raised an Entra ID Protection alert: user admin@contoso.com had a high-risk sign-in from Russia at 03:14 UTC, followed 22 minutes later by a successful sign-in from California. The account is assigned the Global Administrator role. The account does NOT have phishing-resistant MFA — it uses SMS OTP. You need to investigate and contain.",
   "objective": "SC-200 / SC-300",
+  "domain": "Mitigate threats using Microsoft Sentinel",
+  "difficulty": 4,
   "steps": [
     {
       "prompt": "Type the KQL query that returns all SigninLogs entries for admin@contoso.com in the last 24 hours, projecting time, country, IP, and result. Use the SigninLogs table.",

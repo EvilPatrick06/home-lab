@@ -37,6 +37,18 @@ Distractors lean heavily on close command syntax (\`switchport mode access\` vs 
 - CyberOps Professional 350-201 + 300-215 (incident response, forensics)
 - DevNet Associate (Cisco APIs, automation)
 
+=== PER-EXAM STYLE NOTES ===
+
+Adjust the question voice and artifact mix to match the EXAM TARGET:
+
+- **CCNA 200-301** — broad networking + intro security/automation. Items frequently present a partial running-config, \`show ip route\` output, or topology and ask which command BEST configures/fixes/verifies the situation. Fillblank items for exact IOS command syntax are common. Distractors lean on close-but-wrong commands.
+- **CCNP Security SCOR 350-701** — security platform depth. Items cover NGFW (FTD), ISE policy sets, Umbrella DNS-layer security, Stealthwatch NetFlow, AMP/Secure Endpoint, ESA/WSA. Scenarios are integration-heavy: "ISE posture + AnyConnect + Switch", "FTD + Umbrella + Stealthwatch". Distractors are right-feature-wrong-product.
+- **CCNA CyberOps Associate (CBROPS 200-201)** — SOC analyst lens. Items present a packet capture, Sysmon entry, NetFlow record, or IOC and ask what the analyst observes or recommends. Heavy NIST 800-61 IR-framework references, Cyber Kill Chain mapping, ATT&CK tactics.
+- **CCIE Security** — lab-based assessment; quiz form lets you reinforce configuration patterns but the real exam is hands-on. Drive items toward "given this topology + requirements, what is the COMPLETE configuration?" rather than single-line MC.
+- **DevNet Associate** — Cisco APIs + automation. Items reference DNA Center APIs, Meraki Dashboard API, IOS-XE RESTCONF/NETCONF, Python netmiko/NAPALM, YANG models. Distractors are HTTP method confusion or wrong API path.
+
+If EXAM TARGET is blank, default to CCNA 200-301 style.
+
 === BLUEPRINT STRUCTURE ===
 
 CCNA 200-301 has 6 domains: Network Fundamentals, Network Access, IP Connectivity, IP Services, Security Fundamentals, Automation and Programmability. CCNP Security SCOR has 6 domains: Security Concepts, Network Security, Cloud Security, Content Security, Endpoint Protection, Secure Network Access/Visibility/Enforcement. CyberOps CBROPS has 5 domains: Security Concepts, Security Monitoring, Host-Based Analysis, Network Intrusion Analysis, Security Policies and Procedures.
@@ -47,10 +59,11 @@ Populate \`metadata.domainWeights\` with the Cisco blueprint percentages for the
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards
-- ≥80 quiz questions (multiplechoice + fillblank for command syntax)
-- ≥8 labs (CLI-scenario heavy: read configs, predict packet flow, fix misconfigurations)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per domain
+- ≥120 flashcards
+- ≥120 quiz questions (Cisco-specific mix: ~55-65% multiplechoice, ~20-25% fillblank for IOS command syntax, ~10-15% truefalse)
+- ≥12 labs (CLI-scenario heavy: read configs, predict packet flow, fix misconfigurations)
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per domain (cover every CCNA sub-objective if EXAM TARGET = CCNA)
+- Proportional coverage: items per domain match the Cisco blueprint percentages (±5%); a 25%-weight IP Connectivity domain gets ~30 of 120 quiz items
 - Cover IOS configuration, troubleshooting commands, and the EXAM TARGET's protocol/feature set
 
 === STYLE GUIDANCE ===
@@ -82,7 +95,10 @@ Lab/PBQ artifacts to embed:
   "front": "Difference between switchport mode access and switchport mode trunk",
   "back": "switchport mode access — interface carries traffic for exactly one VLAN (the access VLAN); incoming 802.1Q tags are dropped. Used for end-host ports (workstations, phones, APs in some cases). switchport mode trunk — interface carries traffic for multiple VLANs and tags frames with 802.1Q (except the native VLAN); used for switch-to-switch links. Common misconfig: leaving an end-host port in default 'dynamic auto' lets a malicious host negotiate trunking and VLAN-hop.",
   "hint": "Ask: does this port talk to one VLAN or many?",
-  "objective": "Network Access"
+  "objective": "Network Access",
+  "domain": "Network Access",
+  "difficulty": 2,
+  "bloomLevel": "understand"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -98,7 +114,11 @@ Lab/PBQ artifacts to embed:
     "VLAN 10 and VLAN 20 are in different VRFs"
   ],
   "correctIndex": 1,
-  "explanation": "The router subinterfaces are up/up, the trunk is up, and the encapsulation matches — at the router/switch layer everything is fine. The most common end-user-visible failure here is the host pointing at the wrong default gateway (or no gateway at all), which silently drops inter-VLAN traffic at the host. Native-VLAN mismatch generates a CDP/STP error but does not necessarily break the data plane for tagged VLANs."
+  "explanation": "Option B (wrong default gateway) is correct because both router subinterfaces show line-protocol up, the trunk is up, and the encapsulation matches the VLAN IDs — the L1/L2/L3 plumbing on the network gear is fine, so the failure is on the host. Option A (native VLAN mismatch) generates a CDP/STP error and may break the data plane for untagged frames but the question specifies tagged VLANs 10 and 20 which are unaffected. Option C ('no shutdown' on subinterfaces) is wrong because the show output already proves the subinterface is up. Option D (different VRFs) would have been visible in the config; nothing in the stem suggests VRF segmentation. The fix: verify the host's IP config / default-gateway with ipconfig or ip a.",
+  "hint": "Notice everything on the router/switch is up — work backward from where the question doesn't show you state (the host).",
+  "domain": "IP Connectivity",
+  "difficulty": 3,
+  "bloomLevel": "analyze"
 }
 
 ❌ BAD multiple-choice quiz:
@@ -120,6 +140,8 @@ Why this is bad: pure recall, distractors are nonsense brand variations. Cisco d
   "title": "Diagnose and fix a broken inter-VLAN routing setup",
   "scenario": "A junior tech configured router-on-a-stick on R1 and a trunk on SW1. Hosts in VLAN 10 cannot reach hosts in VLAN 20. Below is 'show running-config' from R1's Gi0/0 and the trunk on SW1 Fa0/24. R1 Gi0/0 (no IP address, no shutdown). R1 Gi0/0.10 (encapsulation dot1Q 10, IP 192.168.10.1/24, no shutdown). R1 Gi0/0.20 (encapsulation dot1Q 30, IP 192.168.20.1/24, no shutdown). SW1 Fa0/24 (switchport trunk encapsulation dot1q, switchport mode trunk, switchport trunk allowed vlan 10,20).",
   "objective": "IP Connectivity",
+  "domain": "IP Connectivity",
+  "difficulty": 3,
   "steps": [
     {
       "prompt": "Identify the misconfiguration in R1's running-config that breaks VLAN 20 routing.",

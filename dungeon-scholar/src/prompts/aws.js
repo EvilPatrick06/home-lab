@@ -41,6 +41,19 @@ Distractors are typically other AWS services that *almost* fit (S3 vs EFS vs FSx
 - SysOps Admin SOA-C02, Developer Associate DVA-C02, Data Engineer DEA-C01
 - Machine Learning MLA-C01, Advanced Networking ANS-C01
 
+=== PER-EXAM STYLE NOTES ===
+
+Adjust the question voice and service mix to match the EXAM TARGET:
+
+- **Cloud Practitioner CLF-C02** — foundational, breadth over depth. Items reference single AWS services in simple business contexts. Distractors are unrelated services. Don't write multi-service architecture questions here — that's SAA territory.
+- **Solutions Architect Associate SAA-C03** — design across the Well-Architected pillars (Security/Reliability/Performance/Cost/Operational Excellence/Sustainability). Items are 2-4 service combinations: "company needs X with Y constraint — which architecture BEST satisfies?" Distractors mix services that *work* but lose on a pillar (cost, scale, operational overhead).
+- **Security Specialty SCS-C02** — deep IAM/KMS/GuardDuty/Macie/Detective/Inspector/Security Hub. Items reference incident-response scenarios on AWS, IAM policy traps, KMS grant edge cases, CloudTrail forensics. Include IAM/KMS policy JSON inline in scenarios.
+- **Solutions Architect Professional SAP-C02** — multi-account/Org/migration scale. Items reference 5+ accounts, Control Tower, SCPs, Resource Access Manager, hybrid connectivity, migration from on-prem. Distractors are single-account thinking.
+- **DevOps Engineer Pro DOP-C02** — CI/CD pipelines, deployment strategies (blue/green/canary), CodePipeline + CodeDeploy + CloudFormation/CDK. Items reference rollback automation, deployment health checks, IaC drift detection.
+- **SysOps Admin SOA-C02** — operations lens. Items reference CloudWatch alarms, Systems Manager, Auto Scaling tuning, AWS Config rules.
+
+If EXAM TARGET is blank, default to SAA-C03 style.
+
 === BLUEPRINT STRUCTURE ===
 
 AWS exams group objectives by service category or task domain. Security Specialty (SCS-C02) uses 6 domains: Threat Detection and Incident Response, Security Logging and Monitoring, Infrastructure Security, Identity and Access Management, Data Protection, Management and Security Governance. SAA-C03 uses 4 domains: Design Secure Architectures, Design Resilient Architectures, Design High-Performing Architectures, Design Cost-Optimized Architectures.
@@ -51,10 +64,11 @@ Populate \`metadata.domainWeights\` with the AWS exam guide percentages for the 
 
 === VOLUME + COVERAGE REQUIREMENTS ===
 
-- ≥80 flashcards
-- ≥80 quiz questions (mostly multiplechoice; AWS exams are MC-heavy)
-- ≥10 labs (service-scenario design exercises)
-- ≥5 flashcards, ≥5 quiz items, ≥1 lab per domain
+- ≥120 flashcards
+- ≥120 quiz questions (AWS-specific mix: ~80-90% multiplechoice, ~5-10% truefalse, ~5-10% fillblank for IAM action strings / KMS key-policy values / CLI commands)
+- ≥12 labs (service-scenario design exercises with IAM/KMS/bucket policy JSON inline)
+- ≥3 flashcards, ≥3 quiz items, ≥1 lab per domain
+- Proportional coverage: items per domain match the AWS exam guide percentages (±5%); SAA-C03 Security 30% → ~36 of 120 quiz items, Resilient 26% → ~31, High-Perf 24% → ~29, Cost-Optimized 20% → ~24
 - Cover the major service primitives the EXAM TARGET specifies — IAM, KMS, S3, VPC, EC2, RDS, Lambda, CloudTrail, CloudWatch, Config, GuardDuty, Security Hub, WAF/Shield/Network Firewall, etc.
 
 === STYLE GUIDANCE ===
@@ -88,7 +102,10 @@ Lab/PBQ artifacts to embed:
   "front": "S3 bucket encryption: SSE-S3 vs SSE-KMS vs SSE-C — when to use each",
   "back": "SSE-S3: AWS-managed keys, simplest, no per-request KMS cost. SSE-KMS: customer-managed CMK, key rotation, audit trail in CloudTrail, per-request KMS API cost (and KMS RPS limit may bottleneck high-throughput workloads). SSE-C: customer-supplied keys, AWS does not store the key — caller must supply on every request. Use SSE-KMS when you need granular access policies, CloudTrail audit, or cross-account decryption controls.",
   "hint": "Ask: who manages the key, who pays per request, who audits decrypt operations?",
-  "objective": "Domain 5 — Data Protection"
+  "objective": "Domain 5 — Data Protection",
+  "domain": "Data Protection",
+  "difficulty": 2,
+  "bloomLevel": "understand"
 }
 
 ✅ GOOD multiple-choice quiz:
@@ -104,7 +121,11 @@ Lab/PBQ artifacts to embed:
     "Single S3 bucket with an S3 bucket policy referencing aws:userid wildcards"
   ],
   "correctIndex": 2,
-  "explanation": "Per-tenant buckets with per-tenant IAM roles give the strongest isolation: a leaked role for tenant A cannot read tenant B's bucket. Option 1 leaks across all tenants if the shared role is compromised. Option 2 is operationally heavier and still relies on session-policy correctness at request time. Option 4 is fragile and bucket-policy-only enforcement is easy to misconfigure. Brave architect, defense-in-depth means separating the trust boundary at the resource level when feasible."
+  "explanation": "Option C (one bucket per tenant + per-tenant IAM role assumed via STS) is correct because it places the trust boundary at the resource level — a compromised role for tenant A cannot read tenant B's bucket no matter what session policy is applied. Option A (shared role + key prefixes) leaks across all tenants if the shared role is compromised — a single mistake exposes everyone. Option B (session policies derived from tenant ID at request time) is operationally heavier and depends on flawless session-policy construction at every request; a bug in the policy builder is a cross-tenant data leak. Option D (bucket-policy aws:userid wildcards) is fragile: bucket-policy-only enforcement is easy to misconfigure and a single typo opens the bucket. Brave architect, defense-in-depth means separating the trust boundary at the resource level when feasible.",
+  "hint": "Work backward: which option survives if a service account credential is stolen?",
+  "domain": "Data Protection",
+  "difficulty": 4,
+  "bloomLevel": "evaluate"
 }
 
 ❌ BAD multiple-choice quiz:
@@ -126,6 +147,8 @@ Why this is bad: pure recall, no scenario, no qualifier, distractors are differe
   "title": "Design encryption-at-rest for a HIPAA-regulated EHR workload",
   "scenario": "A healthcare startup is launching an EHR platform on AWS. PHI lands in S3 (uploaded patient documents), Aurora PostgreSQL (structured records), and EFS (clinician scratch space for PDF generation). Compliance requires: customer-managed key material, key rotation every 365 days, ability to revoke key access immediately if a contractor leaves, and CloudTrail audit of every decrypt operation.",
   "objective": "Domain 5 — Data Protection",
+  "domain": "Data Protection",
+  "difficulty": 4,
   "steps": [
     {
       "prompt": "Which AWS service satisfies all four compliance requirements with the LEAST integration work?",
