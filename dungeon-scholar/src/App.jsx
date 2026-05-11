@@ -23,6 +23,7 @@ import { DAILY_REWARDS, todayDateStr, dayDiff } from './services/devotion.js';
 import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHOLD } from './services/weakDomain.js';
 import { computeExamPace } from './services/examPace.js';
 import { computeExamPrediction, PREDICTION_HIGH_COVERAGE, PREDICTION_MEDIUM_COVERAGE } from './services/examPrediction.js';
+import { SRS_RATINGS, scheduleCard, dueCount, sortByDueness, filterDue } from './services/srs.js';
 
 const TITLES = [
   { min: 1, max: 4, name: 'Apprentice' },
@@ -1245,6 +1246,11 @@ export default function DungeonScholarApp() {
   // domain string. Cleared whenever the player navigates somewhere other than
   // 'quiz' / 'flashcards' so it doesn't carry over into a fresh, unfiltered run.
   const [domainFilter, setDomainFilter] = useState(null);
+  // 26g: when true, FlashcardsMode scopes the deck to due cards (FSRS
+  // scheduling). Reset on every navigation away from the flashcards
+  // screen so a casual "open scrolls" doesn't accidentally enter review
+  // mode.
+  const [reviewMode, setReviewMode] = useState(false);
   const fileInputRef = useRef(null);
 
   // Consume OAuth ?code=... on mount (returns false if no callback in URL).
@@ -1261,9 +1267,14 @@ export default function DungeonScholarApp() {
   // 25e2: Clear the Domain Study filter whenever the player navigates away
   // from Quiz/Flashcards. The filter is a per-launch decision, not sticky
   // state — re-entering Quiz from Home should give an unfiltered deck.
+  // 26g: same lifecycle for reviewMode — only valid while inside
+  // Flashcards.
   useEffect(() => {
     if (screen !== 'quiz' && screen !== 'flashcards') {
       setDomainFilter(null);
+    }
+    if (screen !== 'flashcards') {
+      setReviewMode(false);
     }
   }, [screen]);
 
@@ -1537,6 +1548,25 @@ export default function DungeonScholarApp() {
             ? { ...t, progress: { ...t.progress, ...updates } }
             : t
         ),
+      };
+    });
+  };
+
+  // 26g: per-card spaced-repetition state lives at
+  // `tome.progress.cardProgress[cardId]`. Updates target the active
+  // tome (the player can only review cards from the active tome).
+  const updateCardProgress = (cardId, nextState) => {
+    if (!cardId || !nextState) return;
+    setPlayerState(prev => {
+      if (!prev.activeTomeId) return prev;
+      return {
+        ...prev,
+        library: (prev.library || []).map(t => {
+          if (t.id !== prev.activeTomeId) return t;
+          const map = { ...((t.progress && t.progress.cardProgress) || {}) };
+          map[cardId] = nextState;
+          return { ...t, progress: { ...(t.progress || {}), cardProgress: map } };
+        }),
       };
     });
   };
@@ -2842,6 +2872,7 @@ export default function DungeonScholarApp() {
             onResetProgress={resetProgress}
             onOpenLibrary={() => setScreen('library')}
             onShowAchievements={() => setShowAchievements(true)}
+            onEnterReviews={() => { setReviewMode(true); trackModeUse('flashcards'); setScreen('flashcards'); }}
             onRestartTutorial={() => {
               setPlayerState(prev => ({
                 ...prev,
@@ -3008,9 +3039,12 @@ export default function DungeonScholarApp() {
             playerState={playerState}
             awardXP={awardXP}
             updateTomeProgress={updateTomeProgress}
+            updateCardProgress={updateCardProgress}
             checkAchievement={checkAchievement}
             domainFilter={domainFilter}
             onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
+            reviewMode={reviewMode}
+            onExitReviewMode={() => { setReviewMode(false); setScreen('home'); }}
           />
         )}
         {screen === 'quiz' && courseSet && (
@@ -3535,7 +3569,8 @@ function CollapsibleGroup({ title, icon, color = 'amber', defaultOpen = true, ch
   );
 }
 
-function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onResetProgress, onOpenLibrary, onRestartTutorial, onShowAchievements }) {
+function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onResetProgress, onOpenLibrary, onRestartTutorial, onShowAchievements, onEnterReviews }) {
+  const reviewsDue = dueCount(tomeProgress?.cardProgress || {}, courseSet?.flashcards || []);
   if (!courseSet) {
     return (
       <div className="space-y-6">
@@ -3797,6 +3832,15 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             icon={<Clock className="w-8 h-8" />}
             color="purple"
             onClick={() => { trackModeUse('practiceExam'); setScreen('practiceExam'); }}
+          />
+          <ModeCard
+            title={reviewsDue > 0 ? `✦ Reviews Due (${reviewsDue}) ✦` : 'Reviews Due'}
+            desc={reviewsDue > 0
+              ? `${reviewsDue} scroll${reviewsDue === 1 ? '' : 's'} await${reviewsDue === 1 ? 's' : ''} thy review — the spaced-repetition oracle hath scheduled them for today. Drill while memory is fresh.`
+              : `No scrolls due — return on the morrow. Every scroll thou ratest schedules its next visit.`}
+            icon={<RotateCcw className="w-8 h-8" />}
+            color={reviewsDue > 0 ? 'sapphire' : 'amber'}
+            onClick={() => { if (reviewsDue > 0) onEnterReviews?.(); }}
           />
         </div>
       </CollapsibleGroup>
@@ -4081,33 +4125,89 @@ function ModeCard({ title, desc, icon, color, onClick, featured }) {
   );
 }
 
-function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement, domainFilter, onExitFilter }) {
+function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode }) {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [reviewed, setReviewed] = useState(0);
+  // 26g: review-mode deck is frozen at entry — recomputing on every
+  // rating would shrink the deck (cards just rated have a future dueAt)
+  // and break the index. The frozen snapshot iterates linearly.
+  const [reviewDeck, setReviewDeck] = useState([]);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw flashcards if a parent hasn't provided one.
   const baseDeck = (cardsProp && cardsProp.length) ? cardsProp : (courseSet.flashcards || []);
+
+  useEffect(() => {
+    if (reviewMode) {
+      const map = tomeProgress?.cardProgress || {};
+      setReviewDeck(sortByDueness(filterDue(baseDeck, map), map));
+      setIndex(0);
+      setReviewed(0);
+      setFlipped(false);
+    }
+    // Don't reset on switching away from reviewMode — App-level state
+    // clears reviewMode on screen change.
+  }, [reviewMode]);
+
   // 25e2: Domain Study can launch this mode with a single-domain filter.
   // The filter applies on top of the App-level shuffle; if no card carries
   // a matching domain, the deck is empty and we surface a back-button.
   const cards = useMemo(() => {
+    if (reviewMode) return reviewDeck;
     if (!domainFilter) return baseDeck;
     return baseDeck.filter((c) => c && c.domain === domainFilter);
-  }, [baseDeck, domainFilter]);
+  }, [baseDeck, domainFilter, reviewMode, reviewDeck]);
   const card = cards[index];
 
+  // 26g: 4-button SRS rating. Schedules the card and advances. In review
+  // mode the index runs off the end of the (frozen) deck and we render
+  // the "reviews complete" celebration; in browse mode we cycle.
   const rate = (rating) => {
-    awardXP(rating === 'easy' ? 5 : rating === 'medium' ? 10 : 15);
+    const xp = rating === SRS_RATINGS.again ? 12 : rating === SRS_RATINGS.hard ? 10 : rating === SRS_RATINGS.good ? 8 : 5;
+    awardXP(xp);
     setReviewed(r => r + 1);
     const newCount = (tomeProgress?.cardsReviewed || 0) + 1;
     updateTomeProgress({ cardsReviewed: newCount });
+    if (card && updateCardProgress) {
+      const prev = (tomeProgress?.cardProgress || {})[card.id];
+      updateCardProgress(card.id, scheduleCard(prev, rating));
+    }
     const totalCardsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0) + 1;
     if (totalCardsAcrossLib >= 50) checkAchievement('card_shark');
     if (totalCardsAcrossLib >= 200) checkAchievement('card_master');
     setFlipped(false);
-    setIndex((index + 1) % cards.length);
+    if (reviewMode) {
+      setIndex(i => i + 1);
+    } else {
+      setIndex((index + 1) % cards.length);
+    }
   };
+
+  // 26g: review-mode completion celebration.
+  if (reviewMode && reviewDeck.length > 0 && index >= reviewDeck.length) {
+    return (
+      <div className="space-y-4 max-w-2xl mx-auto">
+        <div className="p-6 rounded text-center" style={{
+          background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          border: '3px double rgba(16, 185, 129, 0.6)',
+          boxShadow: '0 0 30px rgba(16, 185, 129, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
+        }}>
+          <div className="text-xs italic tracking-[0.25em] uppercase text-emerald-400 mb-2">⚜ Reviews Complete ⚜</div>
+          <div className="text-3xl font-bold italic text-amber-100" style={{ textShadow: '0 0 14px rgba(16, 185, 129, 0.5)' }}>
+            {reviewed} scroll{reviewed === 1 ? '' : 's'} reviewed
+          </div>
+          <div className="text-sm italic text-emerald-200 mt-2">
+            The oracle hath rescheduled each. Return on the morrow.
+          </div>
+        </div>
+        <button onClick={() => onExitReviewMode?.()}
+          className="w-full py-3 px-4 rounded font-bold italic border-2 border-amber-400 text-amber-100"
+          style={{ background: 'rgba(120, 53, 15, 0.7)' }}>
+          <Home className="w-4 h-4 inline mr-2" /> Return Home
+        </button>
+      </div>
+    );
+  }
 
   if (!card) return (
     <div className="space-y-4 max-w-2xl mx-auto">
@@ -4115,10 +4215,19 @@ function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, up
         <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
       )}
       <div className="text-center py-12 text-amber-600 italic">
-        {domainFilter
-          ? `No scrolls tagged "${domainFilter}" in this tome. Regenerate the tome with the updated prompt to populate flashcard domains.`
-          : 'No scrolls in this tome.'}
+        {reviewMode
+          ? 'No scrolls due for review — return on the morrow.'
+          : domainFilter
+            ? `No scrolls tagged "${domainFilter}" in this tome. Regenerate the tome with the updated prompt to populate flashcard domains.`
+            : 'No scrolls in this tome.'}
       </div>
+      {reviewMode && (
+        <button onClick={() => onExitReviewMode?.()}
+          className="w-full py-3 px-4 rounded font-bold italic border-2 border-amber-400 text-amber-100"
+          style={{ background: 'rgba(120, 53, 15, 0.7)' }}>
+          <Home className="w-4 h-4 inline mr-2" /> Return Home
+        </button>
+      )}
     </div>
   );
 
@@ -4126,6 +4235,12 @@ function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, up
     <div className="space-y-4 max-w-2xl mx-auto">
       {domainFilter && (
         <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
+      )}
+      {reviewMode && (
+        <div className="p-2 rounded text-center text-xs italic"
+          style={{ background: 'rgba(29, 78, 216, 0.35)', border: '1.5px solid rgba(59, 130, 246, 0.55)', color: '#bfdbfe' }}>
+          ✦ Review mode — {reviewDeck.length} scroll{reviewDeck.length === 1 ? '' : 's'} scheduled for today
+        </div>
       )}
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
@@ -4146,16 +4261,47 @@ function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, up
         </div>
       </div>
       {flipped && (
-        <div className="grid grid-cols-3 gap-2">
-          <button onClick={() => rate('hard')} className="py-3 rounded font-bold border-2 border-red-400 text-red-200 italic" style={{ background: 'rgba(127, 29, 29, 0.5)' }}>⚔ Difficult ⚔</button>
-          <button onClick={() => rate('medium')} className="py-3 rounded font-bold border-2 border-amber-400 text-amber-200 italic" style={{ background: 'rgba(120, 53, 15, 0.5)' }}>⚔ Familiar ⚔</button>
-          <button onClick={() => rate('easy')} className="py-3 rounded font-bold border-2 border-emerald-400 text-emerald-200 italic" style={{ background: 'rgba(6, 78, 59, 0.5)' }}>⚔ Mastered ⚔</button>
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button onClick={() => rate(SRS_RATINGS.again)}
+              className="py-3 rounded font-bold border-2 border-red-400 text-red-200 italic"
+              style={{ background: 'rgba(127, 29, 29, 0.55)' }}
+              title="I forgot completely — show this scroll again soon">
+              ⚔ Again
+            </button>
+            <button onClick={() => rate(SRS_RATINGS.hard)}
+              className="py-3 rounded font-bold border-2 border-amber-500 text-amber-200 italic"
+              style={{ background: 'rgba(146, 64, 14, 0.55)' }}
+              title="Recalled with struggle — short interval">
+              ⚔ Hard
+            </button>
+            <button onClick={() => rate(SRS_RATINGS.good)}
+              className="py-3 rounded font-bold border-2 border-emerald-400 text-emerald-200 italic"
+              style={{ background: 'rgba(6, 78, 59, 0.55)' }}
+              title="Recalled with effort — standard interval">
+              ⚔ Good
+            </button>
+            <button onClick={() => rate(SRS_RATINGS.easy)}
+              className="py-3 rounded font-bold border-2 border-yellow-300 text-yellow-100 italic"
+              style={{ background: 'rgba(120, 90, 8, 0.6)' }}
+              title="Instant recall — long interval">
+              ⚔ Easy
+            </button>
+          </div>
+          <div className="text-[10px] italic text-amber-700 text-center">
+            ✦ The Oracle of Memory schedules each scroll's next visit based on thy rating.
+          </div>
+        </>
       )}
-      {!flipped && (
+      {!flipped && !reviewMode && (
         <div className="flex gap-2">
           <button onClick={() => { setIndex((index - 1 + cards.length) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>← Prior</button>
           <button onClick={() => { setIndex((index + 1) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Skip →</button>
+        </div>
+      )}
+      {!flipped && reviewMode && (
+        <div className="text-[10px] italic text-amber-700 text-center">
+          ✦ Review mode — flip every scroll and rate it; the deck advances forward only.
         </div>
       )}
     </div>
