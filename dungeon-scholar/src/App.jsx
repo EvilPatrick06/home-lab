@@ -7,6 +7,7 @@ import { MergeChooser } from './components/MergeChooser.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
 import PromptModal from './components/PromptModal.jsx';
+import ExamMode from './components/ExamMode.jsx';
 // Polish: lazy-load DungeonExplore. It's the heaviest single component
 // (sprite drawers, generateMap, biome maps) and is only used when the
 // player enters a delve, so deferring its load shrinks the initial bundle.
@@ -1074,6 +1075,10 @@ const blankTomeProgress = () => ({
   // computes a daily-target pace so the player knows how many riddles a
   // day to attempt before the exam arrives.
   examDate: null,
+  // Phase 26e: capped history of timed practice-exam runs. Each entry:
+  // { startedAt, durationSec, totalCount, answered, correct, scorePct,
+  //   byDomain: { [domain]: { total, answered, correct } }, status }.
+  practiceExams: [],
 });
 
 // === Run History (Phase 10) ===
@@ -3040,6 +3045,15 @@ export default function DungeonScholarApp() {
             checkAchievement={checkAchievement}
           />
         )}
+        {screen === 'practiceExam' && courseSet && (
+          <ExamMode
+            courseSet={courseSet}
+            tomeProgress={tomeProgress}
+            updateTomeProgress={updateTomeProgress}
+            awardXP={awardXP}
+            onExit={() => setScreen('home')}
+          />
+        )}
         {screen === 'vault' && (
           <MistakeVault
             courseSet={courseSet}
@@ -3769,6 +3783,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             icon={<BookOpen className="w-8 h-8" />}
             color="emerald"
             onClick={() => setScreen('domainStudy')}
+          />
+          <ModeCard
+            title="The Trial of Hours"
+            desc="Sit a timed full-length mock exam. Riddles are drawn in proportion to the blueprint, the sands cannot be paused, and a verdict is rendered when thou dost submit."
+            icon={<Clock className="w-8 h-8" />}
+            color="purple"
+            onClick={() => { trackModeUse('practiceExam'); setScreen('practiceExam'); }}
           />
         </div>
       </CollapsibleGroup>
