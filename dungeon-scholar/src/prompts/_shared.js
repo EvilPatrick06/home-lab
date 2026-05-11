@@ -302,6 +302,71 @@ Hints permit mild fantasy flavor but the strategy embedded in them must be real.
 - Difficulty arc: easy → harder across the lab (warm-up step, then meat, then evaluation/synthesis)
 - Avoid pseudocode — write the actual command (e.g. \`aws iam simulate-principal-policy --policy-source-arn ...\`, not \`run the IAM simulator\`)
 
+=== INLINE ARTIFACTS — DIAGRAMS, CODE, LOGS (Phase 26f) ===
+
+The Dungeon Scholar reader renders Markdown-flavored fenced code blocks inside the textual fields below. Use them WHENEVER a visual artifact would help a candidate more than prose ever could (network topology, attack chain, packet capture, config excerpt, log line, CLI output, sequence diagram, file tree, regex). This applies to:
+
+- \`question\` (quiz stems)
+- \`explanation\` (quiz + lab steps)
+- \`scenario\` (labs) and step \`prompt\`
+- \`front\` / \`back\` on flashcards
+- \`knowledgeBase\` paragraphs
+
+Syntax — triple-backtick fenced blocks with an optional language tag:
+
+\\\`\\\`\\\`diagram
+   [Client] --HTTPS--> [WAF] --HTTP--> [App] --SQL--> [DB]
+                          \\\\               \\\\
+                           +---> [SIEM] <---+
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`bash
+$ tcpdump -i eth0 -nn 'tcp port 443' -c 5
+14:21:33.118 IP 10.0.0.4.51234 > 203.0.113.42.443: Flags [S], seq 0
+14:21:33.158 IP 203.0.113.42.443 > 10.0.0.4.51234: Flags [S.], seq 0, ack 1
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`yaml
+auth:
+  oidc:
+    issuer: https://login.example.com
+    clientId: app-prod
+    scopes: [openid, profile, email]
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`log
+[2026-04-12 03:14:07] auth.failed user=svc-deploy src=198.51.100.7 reason=invalid_credentials
+[2026-04-12 03:14:09] auth.failed user=svc-deploy src=198.51.100.7 reason=invalid_credentials
+[2026-04-12 03:14:11] auth.failed user=svc-deploy src=198.51.100.7 reason=invalid_credentials
+\\\`\\\`\\\`
+
+Recognized language tags (renderer styling differs slightly):
+
+- **\`ascii\` / \`diagram\` / \`topology\` / \`flow\`** — render with a dashed purple "diagram" border. Use these for ASCII art topology, attack chains, state machines, layered architectures.
+- **\`bash\` / \`powershell\` / \`cmd\` / \`shell\` / \`http\` / \`yaml\` / \`json\` / \`xml\` / \`sql\` / \`regex\` / \`config\` / \`log\` / \`text\`** — render as a code block with a solid amber border and a small uppercase language tag in the corner.
+- **(no language)** — same code-block styling, no language tag.
+
+Inline single-backtick spans render as a styled \`code\` chip — use for command names, IDs, file paths, port numbers, control IDs (\`AC.L2-3.1.1\`), short keys (\`Ctrl+Alt+Del\`).
+
+**When to reach for a fenced block:**
+- Network/architecture diagrams (\`diagram\` or \`topology\`)
+- Multi-line CLI output (\`bash\` / \`powershell\`)
+- Config excerpts longer than two lines (\`yaml\` / \`xml\` / \`json\` / \`config\`)
+- Log entries when the timing/sequence matters (\`log\`)
+- Regex / DSL expressions where escaping matters (\`regex\`)
+
+**When inline backticks suffice:**
+- Single command name (\`netstat -ano\`)
+- File path (\`/etc/passwd\`)
+- Control ID (\`SC.L2-3.13.6\`)
+- Port (\`tcp/443\`) or protocol token
+
+**Caveats:**
+- ASCII art must be aligned with monospace assumptions — use spaces only, never tabs. The renderer uses \`white-space: pre\` so misaligned art will look broken.
+- Keep fenced blocks short — one block ≤25 lines, ≤80 columns. Beyond that, the candidate skims past instead of reading.
+- Don't put fenced blocks inside flashcard \`hint\` (too small a UI surface to render well).
+- Do not nest fences. If you need to describe code-about-code, escape the inner backticks with prose.
+
 === ANTI-PATTERNS (NEVER GENERATE LIKE THIS) ===
 
 These patterns are common in low-effort question banks. Avoid all of them:

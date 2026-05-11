@@ -121,6 +121,23 @@ describe('shared prompt sections', () => {
     expect(SHARED_STYLE_RULES).toMatch(/Common-trap/i);
   });
 
+  it('SHARED_STYLE_RULES authorizes fenced inline artifacts (diagrams / code / logs) — 26f', () => {
+    // Phase 26f: the reader renders triple-backtick fenced blocks; the
+    // prompt must invite the AI to use them so diagrams, CLI snippets,
+    // configs, and log lines render as monospace artifacts instead of
+    // collapsing into unreadable prose.
+    expect(SHARED_STYLE_RULES).toMatch(/INLINE ARTIFACTS/i);
+    expect(SHARED_STYLE_RULES).toMatch(/fenced code blocks/i);
+    expect(SHARED_STYLE_RULES).toMatch(/diagram/);
+    expect(SHARED_STYLE_RULES).toMatch(/ascii/);
+    expect(SHARED_STYLE_RULES).toMatch(/bash/);
+    expect(SHARED_STYLE_RULES).toMatch(/yaml|json/);
+    // Spans use single backticks for inline code (commands, IDs, paths)
+    expect(SHARED_STYLE_RULES).toMatch(/inline backticks?/i);
+    // Caveats — keep ascii aligned + bounded line/column counts
+    expect(SHARED_STYLE_RULES).toMatch(/spaces only/i);
+  });
+
   it('SHARED_STYLE_RULES lists explicit anti-patterns', () => {
     // Prompt overhaul: 10 anti-patterns spelled out so the AI rejects
     // low-effort question shapes that creep in by default.

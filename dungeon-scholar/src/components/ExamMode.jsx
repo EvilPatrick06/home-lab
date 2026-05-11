@@ -20,6 +20,7 @@ import {
   gradeExamItem,
   summarizeExamResults,
 } from '../services/examSession.js';
+import RichContent from './RichContent.jsx';
 
 function formatClock(sec) {
   const s = Math.max(0, sec | 0);
@@ -250,7 +251,7 @@ export default function ExamMode({ courseSet, tomeProgress, updateTomeProgress, 
           {q.domain && (
             <div className="text-[10px] italic text-amber-700 tracking-wider uppercase mb-2">{q.domain}</div>
           )}
-          <div className="text-lg text-amber-50 italic mb-4 leading-relaxed">{q.question}</div>
+          <RichContent as="div" text={q.question} className="text-lg text-amber-50 italic mb-4 leading-relaxed" />
 
           {isMC && (
             <div className="space-y-2">
@@ -443,10 +444,12 @@ export default function ExamMode({ courseSet, tomeProgress, updateTomeProgress, 
                   <div key={w.i} className="p-2 rounded" style={{ background: 'rgba(10, 6, 4, 0.5)', border: '1px solid rgba(239, 68, 68, 0.35)' }}>
                     <div className="text-amber-100 mb-1">
                       <span className="text-amber-700 mr-1">Q{w.i + 1}.</span>
-                      {q.question}
+                      <RichContent as={null} text={q.question} />
                     </div>
                     <div className="text-emerald-200">✓ {correctLabel}</div>
-                    {q.explanation && <div className="text-amber-300 mt-1">{q.explanation}</div>}
+                    {q.explanation && (
+                      <RichContent as="div" text={q.explanation} className="text-amber-300 mt-1" />
+                    )}
                   </div>
                 );
               })}

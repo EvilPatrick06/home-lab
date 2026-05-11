@@ -7,7 +7,8 @@ import { MergeChooser } from './components/MergeChooser.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
 import PromptModal from './components/PromptModal.jsx';
-import ExamMode from './components/ExamMode.jsx';
+import RichContent from './components/RichContent.jsx';
+const ExamMode = React.lazy(() => import('./components/ExamMode.jsx'));
 // Polish: lazy-load DungeonExplore. It's the heaviest single component
 // (sprite drawers, generateMap, biome maps) and is only used when the
 // player enters a delve, so deferring its load shrinks the initial bundle.
@@ -3046,13 +3047,19 @@ export default function DungeonScholarApp() {
           />
         )}
         {screen === 'practiceExam' && courseSet && (
-          <ExamMode
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            updateTomeProgress={updateTomeProgress}
-            awardXP={awardXP}
-            onExit={() => setScreen('home')}
-          />
+          <React.Suspense fallback={
+            <div className="flex items-center justify-center py-24 text-amber-300 italic">
+              <Loader2 className="w-6 h-6 animate-spin mr-3" /> Summoning the trial...
+            </div>
+          }>
+            <ExamMode
+              courseSet={courseSet}
+              tomeProgress={tomeProgress}
+              updateTomeProgress={updateTomeProgress}
+              awardXP={awardXP}
+              onExit={() => setScreen('home')}
+            />
+          </React.Suspense>
         )}
         {screen === 'vault' && (
           <MistakeVault
@@ -4284,7 +4291,7 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
         border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
-        <div className="text-lg text-amber-50 mb-6 italic">{q.question}</div>
+        <RichContent as="div" text={q.question} className="text-lg text-amber-50 mb-6 italic" />
         {/* 26a: confidence calibration. Gate the answer choices behind a
             confidence rating so we can compare "how sure I was" vs "did I
             get it right". The rating locks once picked and is shown as a
@@ -4407,7 +4414,12 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
               {answered.oracleFeedback && (
                 <p className="text-sm text-amber-100/90 italic leading-relaxed">{answered.oracleFeedback}</p>
               )}
-              {q.explanation && <p className="text-sm text-amber-100/70 italic"><span className="text-purple-300">From the tome:</span> {q.explanation}</p>}
+              {q.explanation && (
+                <div className="text-sm text-amber-100/70 italic">
+                  <span className="text-purple-300">From the tome:</span>{' '}
+                  <RichContent as={null} text={q.explanation} />
+                </div>
+              )}
               {!answered.correct && q.correctAnswer !== undefined && (
                 <p className="text-sm text-amber-100/70 italic">The truth was: <span className="text-emerald-300">{isMC ? q.options[q.correctIndex] : isTF ? String(q.correctAnswer) : q.correctAnswer}</span></p>
               )}
@@ -4591,7 +4603,9 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           <h3 className="text-xl font-bold text-rose-300 italic">{selectedLab.title}</h3>
           {typeof selectedLab.difficulty === 'number' && <DifficultyStars value={selectedLab.difficulty} />}
         </div>
-        {selectedLab.scenario && <p className="text-sm text-amber-100/70 mb-4 italic">{selectedLab.scenario}</p>}
+        {selectedLab.scenario && (
+          <RichContent as="div" text={selectedLab.scenario} className="text-sm text-amber-100/70 mb-4 italic" />
+        )}
         <div className="text-xs text-amber-700 mb-3 italic flex items-center gap-2 flex-wrap">
           <span>⚔ Stage {step + 1} of {steps.length} ⚔</span>
           {currentStep && typeof currentStep.difficulty === 'number' && <DifficultyStars value={currentStep.difficulty} />}
@@ -4599,9 +4613,9 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
         </div>
         {currentStep && !feedback && (
           <div className="space-y-3">
-            <div className="p-4 rounded text-amber-50 italic" style={{ background: 'rgba(41, 12, 27, 0.7)', border: '1px solid rgba(190, 24, 93, 0.4)' }}>
-              {currentStep.prompt || currentStep.question}
-            </div>
+            <RichContent as="div" text={currentStep.prompt || currentStep.question}
+              className="p-4 rounded text-amber-50 italic"
+              style={{ background: 'rgba(41, 12, 27, 0.7)', border: '1px solid rgba(190, 24, 93, 0.4)' }} />
             {currentStep.options ? (
               <div className="space-y-2">
                 {currentStep.options.map((opt, i) => (
@@ -4659,7 +4673,10 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               <p className="text-sm text-amber-100/90 italic leading-relaxed">{feedback.oracleFeedback}</p>
             )}
             {feedback.explanation && (
-              <p className="text-sm text-amber-100/70 italic"><span className="text-purple-300">From the tome:</span> {feedback.explanation}</p>
+              <div className="text-sm text-amber-100/70 italic">
+                <span className="text-purple-300">From the tome:</span>{' '}
+                <RichContent as={null} text={feedback.explanation} />
+              </div>
             )}
             {feedback.awaitContinue && (
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-amber-900/40 flex-wrap">
