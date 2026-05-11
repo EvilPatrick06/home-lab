@@ -24,6 +24,7 @@ import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHO
 import { computeExamPace } from './services/examPace.js';
 import { computeExamPrediction, PREDICTION_HIGH_COVERAGE, PREDICTION_MEDIUM_COVERAGE } from './services/examPrediction.js';
 import { SRS_RATINGS, scheduleCard, dueCount, sortByDueness, filterDue } from './services/srs.js';
+import { computeRetentionCurve, computeMilestones } from './services/forgettingCurve.js';
 
 const TITLES = [
   { min: 1, max: 4, name: 'Apprentice' },
@@ -5894,6 +5895,37 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
     [isCombined, weights, stats],
   );
 
+  // 26h: memory-forecast aggregation. Build a flat list of SRS states
+  // for every flashcard in scope (single tome or combined). Cards
+  // without state are null entries — the helper filters them out of
+  // the average and the UI shows coverage so the player knows the
+  // forecast only covers rated scrolls.
+  const memoryStateList = useMemo(() => {
+    const tomes = isCombined ? library : (selectedTome ? [selectedTome] : []);
+    const list = [];
+    tomes.forEach((t) => {
+      const cards = (t.data && t.data.flashcards) || [];
+      const map = (t.progress && t.progress.cardProgress) || {};
+      cards.forEach((c) => {
+        if (c && typeof c.id === 'string') list.push(map[c.id] || null);
+      });
+    });
+    return list;
+  }, [isCombined, library, selectedTome]);
+  const memoryCoverage = useMemo(() => {
+    const total = memoryStateList.length;
+    const rated = memoryStateList.filter(Boolean).length;
+    return { total, rated };
+  }, [memoryStateList]);
+  const memoryCurve = useMemo(
+    () => computeRetentionCurve(memoryStateList, { maxDays: 30, samples: 31 }),
+    [memoryStateList],
+  );
+  const memoryMilestones = useMemo(
+    () => computeMilestones(memoryStateList),
+    [memoryStateList],
+  );
+
   const rampForPct = (pct) => (
     pct >= 90 ? { bg: 'rgba(245, 158, 11, 0.35)', border: '#fbbf24', text: '#fde047', fill: 'linear-gradient(to right, #f59e0b, #fde047)' } :
     pct >= 75 ? { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0', fill: 'linear-gradient(to right, #10b981, #34d399)' } :
@@ -6332,6 +6364,111 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             </div>
           )}
         </>
+      )}
+
+      {/* 26h: Memory Forecast — projects retrievability decay across all
+          flashcards in scope (single tome or aggregated across the
+          library). The SVG curve covers +0d → +30d; the four milestone
+          tiles surface Now / +1d / +7d / +30d for quick scanning. */}
+      {memoryCoverage.total > 0 && (
+        <div className="p-4 rounded" style={{
+          background: 'linear-gradient(135deg, rgba(29, 78, 216, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          border: '2px solid rgba(59, 130, 246, 0.55)',
+          boxShadow: '0 0 18px rgba(59, 130, 246, 0.15), inset 0 0 16px rgba(0,0,0,0.4)',
+        }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Brain className="w-5 h-5 text-sky-300" style={{ filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.55))' }} />
+            <h3 className="text-sm font-bold italic text-sky-200 tracking-wider">Memory Forecast</h3>
+            <div className="flex-1 h-px bg-gradient-to-r from-sky-700/40 to-transparent" />
+            <span className="text-[10px] italic text-amber-700 tracking-wider">
+              {memoryCoverage.rated} of {memoryCoverage.total} scrolls rated
+            </span>
+          </div>
+
+          {memoryCoverage.rated === 0 ? (
+            <div className="text-xs italic text-amber-700 py-3 text-center">
+              ✦ Rate scrolls in any tome to begin charting thy memory decay. The Oracle of Memory hath not yet seen thee study.
+            </div>
+          ) : (
+            <>
+              <div className="mb-3 relative pl-8 pr-2" style={{ height: '128px' }}>
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
+                  <defs>
+                    <linearGradient id="mem-curve-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" />
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <line x1="0" y1="25" x2="100" y2="25" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+                  <line x1="0" y1="50" x2="100" y2="50" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" strokeDasharray="2,2" vectorEffect="non-scaling-stroke" />
+                  <line x1="0" y1="75" x2="100" y2="75" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+                  {(() => {
+                    const validPoints = memoryCurve.filter(p => p.pct !== null);
+                    if (validPoints.length < 2) return null;
+                    const maxOffset = memoryCurve[memoryCurve.length - 1].offsetDays || 1;
+                    const pts = validPoints.map(p => `${(p.offsetDays / maxOffset) * 100},${100 - p.pct}`).join(' ');
+                    return (
+                      <>
+                        <polygon points={`0,100 ${pts} 100,100`} fill="url(#mem-curve-grad)" />
+                        <polyline points={pts} fill="none" stroke="#60a5fa" strokeWidth="1.4" vectorEffect="non-scaling-stroke" />
+                      </>
+                    );
+                  })()}
+                </svg>
+                <div className="absolute top-0 left-0 text-[9px] italic text-sky-700 select-none">100%</div>
+                <div className="absolute top-1/2 -translate-y-1/2 left-0 text-[9px] italic text-sky-700 select-none">50%</div>
+                <div className="absolute bottom-0 left-0 text-[9px] italic text-sky-700 select-none">0%</div>
+                <div className="absolute -bottom-4 left-8 text-[9px] italic text-sky-700 select-none">Now</div>
+                <div className="absolute -bottom-4 right-2 text-[9px] italic text-sky-700 select-none">+30d</div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2 mt-4 mb-2">
+                {memoryMilestones.map(m => {
+                  const label = m.offsetDays === 0 ? 'Now' : `+${m.offsetDays}d`;
+                  const pct = m.pct === null ? null : Math.round(m.pct);
+                  const color = pct === null ? '#71717a' :
+                    pct >= 75 ? '#a7f3d0' :
+                    pct >= 50 ? '#fde68a' :
+                    pct >= 25 ? '#fdba74' :
+                    '#fecaca';
+                  return (
+                    <div key={m.offsetDays} className="p-2 rounded text-center" style={{
+                      background: 'rgba(0,0,0,0.4)',
+                      border: '1px solid rgba(59, 130, 246, 0.4)',
+                    }}>
+                      <div className="text-[10px] uppercase tracking-wider italic font-bold text-sky-700">{label}</div>
+                      <div className="text-lg font-bold tabular-nums italic" style={{ color, textShadow: pct !== null ? `0 0 6px ${color}66` : 'none' }}>
+                        {pct === null ? '—' : `${pct}%`}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {(() => {
+                const nowPct = memoryMilestones[0]?.pct;
+                const wkPct = memoryMilestones[2]?.pct;
+                if (nowPct == null || wkPct == null) return null;
+                const nowR = Math.round(nowPct);
+                const wkR = Math.round(wkPct);
+                const drop = nowR - wkR;
+                let msg;
+                if (drop >= 25) {
+                  msg = `Memory drops sharply — ${nowR}% now → ${wkR}% by next week. Drill due scrolls today to hold the line.`;
+                } else if (drop >= 12) {
+                  msg = `Steady decay — ${nowR}% now → ${wkR}% over the next week. Light review keeps thee sharp.`;
+                } else if (drop >= 4) {
+                  msg = `Gentle slope — ${nowR}% now → ${wkR}% over the next week. Maintain thy rhythm.`;
+                } else {
+                  msg = `Memory holds firm — ${nowR}% now → ${wkR}% over the next week. The Oracle is well-pleased.`;
+                }
+                return (
+                  <div className="text-[11px] italic text-sky-200">✦ {msg}</div>
+                );
+              })()}
+            </>
+          )}
+        </div>
       )}
     </div>
   );
