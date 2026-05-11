@@ -20,6 +20,7 @@ import { SPELLS, findSpell } from './services/spells.js';
 import { DAILY_REWARDS, todayDateStr, dayDiff } from './services/devotion.js';
 import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHOLD } from './services/weakDomain.js';
 import { computeExamPace } from './services/examPace.js';
+import { computeExamPrediction, PREDICTION_HIGH_COVERAGE, PREDICTION_MEDIUM_COVERAGE } from './services/examPrediction.js';
 
 const TITLES = [
   { min: 1, max: 4, name: 'Apprentice' },
@@ -5700,6 +5701,15 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
   );
   const todayIso = todayDateStr();
 
+  // 26d: predicted exam score. Only meaningful with a single tome that
+  // declares a domainWeights blueprint. Combined view aggregates across
+  // tomes with different blueprints, so prediction would be apples-to-
+  // oranges nonsense.
+  const examPrediction = useMemo(
+    () => (!isCombined && weights) ? computeExamPrediction(stats, weights) : null,
+    [isCombined, weights, stats],
+  );
+
   const rampForPct = (pct) => (
     pct >= 90 ? { bg: 'rgba(245, 158, 11, 0.35)', border: '#fbbf24', text: '#fde047', fill: 'linear-gradient(to right, #f59e0b, #fde047)' } :
     pct >= 75 ? { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0', fill: 'linear-gradient(to right, #10b981, #34d399)' } :
@@ -5840,6 +5850,99 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           )}
         </div>
       )}
+
+      {/* 26d: Predicted Exam Score card. Single-tome with weights only —
+          Combined aggregates incompatible blueprints, and tomes without
+          domainWeights can't be weighted against a real exam shape. */}
+      {!isCombined && examPrediction && (() => {
+        const p = examPrediction;
+        const showRing = p.predictedPct !== null;
+        const ringPct = showRing ? p.predictedPct : 0;
+        const ringColor = !showRing ? '#71717a' :
+          ringPct >= 85 ? '#fbbf24' :
+          ringPct >= 70 ? '#10b981' :
+          ringPct >= 55 ? '#f59e0b' :
+          '#ef4444';
+        const confPalette = p.confidence === 'high'
+          ? { bg: 'rgba(16, 185, 129, 0.35)', border: '#10b981', text: '#a7f3d0' }
+          : p.confidence === 'medium'
+            ? { bg: 'rgba(245, 158, 11, 0.35)', border: '#fbbf24', text: '#fde68a' }
+            : p.confidence === 'low'
+              ? { bg: 'rgba(239, 68, 68, 0.30)', border: '#ef4444', text: '#fecaca' }
+              : { bg: 'rgba(63, 63, 70, 0.45)', border: '#a1a1aa', text: '#e4e4e7' };
+        return (
+          <div className="p-4 rounded" style={{
+            background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+            border: '2px solid rgba(129, 140, 248, 0.55)',
+            boxShadow: '0 0 18px rgba(129, 140, 248, 0.18), inset 0 0 16px rgba(0,0,0,0.4)',
+          }}>
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="w-5 h-5 text-indigo-300" style={{ filter: 'drop-shadow(0 0 6px rgba(129, 140, 248, 0.6))' }} />
+              <h3 className="text-sm font-bold italic text-indigo-200 tracking-wider">Predicted Exam Score</h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-indigo-700/40 to-transparent" />
+              <span className="text-[10px] italic px-2 py-0.5 rounded font-bold tracking-wider" style={{
+                background: confPalette.bg, color: confPalette.text, border: `1px solid ${confPalette.border}`,
+              }}>
+                {p.confidence === 'none' ? 'no data' : p.confidence}
+              </span>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="text-5xl font-bold tabular-nums italic" style={{
+                color: showRing ? confPalette.text : '#a1a1aa',
+                textShadow: showRing ? `0 0 14px ${ringColor}80` : 'none',
+              }}>
+                {showRing ? `${ringPct}%` : '—'}
+              </div>
+              <div className="flex-1 min-w-[200px]">
+                <div className="h-3 rounded overflow-hidden mb-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                  {showRing && (
+                    <div className="h-full transition-all" style={{ width: `${ringPct}%`, background: `linear-gradient(to right, ${ringColor}90, ${ringColor})` }} />
+                  )}
+                </div>
+                <div className="text-xs italic text-indigo-200">
+                  Based on <span className="font-bold">{p.sampledDomains}</span> of <span className="font-bold">{p.totalDomains}</span> domain{p.totalDomains === 1 ? '' : 's'} · <span className="font-bold">{p.coveragePct}%</span> of exam weight
+                </div>
+                {p.confidence === 'none' && (
+                  <div className="text-[10px] italic text-amber-700 mt-1">
+                    ✦ Answer 5+ riddles in any domain to receive a prediction.
+                  </div>
+                )}
+                {p.confidence === 'low' && (
+                  <div className="text-[10px] italic text-red-300 mt-1">
+                    ✦ Low coverage — the estimate is noisy. Sample more domains to firm it up.
+                  </div>
+                )}
+                {p.confidence === 'medium' && (
+                  <div className="text-[10px] italic text-amber-300 mt-1">
+                    ✦ Partial coverage — the missing domains could swing this either way.
+                  </div>
+                )}
+                {p.confidence === 'high' && (
+                  <div className="text-[10px] italic text-emerald-300 mt-1">
+                    ✦ Strong coverage — this estimate reflects most of the exam blueprint.
+                  </div>
+                )}
+              </div>
+            </div>
+            {p.missingDomains.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-indigo-700/40">
+                <div className="text-[10px] uppercase tracking-wider italic font-bold text-indigo-300 mb-1.5">
+                  Domains awaiting samples (≥5 each)
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {p.missingDomains.map(m => (
+                    <span key={m.domain} className="text-[10px] italic px-1.5 py-0.5 rounded" style={{
+                      background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.5)', color: '#c7d2fe',
+                    }}>
+                      {m.domain} · {m.weight}%
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {totals.total === 0 ? (
         <div className="text-center py-12 rounded" style={{ background: 'rgba(10, 6, 4, 0.6)', border: '2px dashed rgba(16, 185, 129, 0.4)' }}>
