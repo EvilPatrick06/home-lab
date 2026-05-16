@@ -1,7 +1,13 @@
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error'
 
+export type PeerRole = 'host' | 'player' | 'spectator'
+
 export interface PeerInfo {
   peerId: string
+  /** Stable per-installation identifier (localStorage-persisted UUID). Canonical identity for bans, registry filtering, and reconnect-resync. */
+  clientId: string
+  /** Functional role in the session. Filled in 29b as 'player' for joiners; spectator branch lands in 29e. */
+  role: PeerRole
   displayName: string
   characterId: string | null
   characterName: string | null

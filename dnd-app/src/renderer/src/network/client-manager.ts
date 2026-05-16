@@ -7,6 +7,7 @@ import {
   MAX_RETRY_MS,
   RECONNECT_DELAY_MS
 } from '../constants'
+import { getOrCreateClientId } from '../utils/client-id'
 import { logger } from '../utils/logger'
 import { createPeer, destroyPeer, getPeerId } from './peer-manager'
 import { validateNetworkMessage } from './schemas'
@@ -253,7 +254,9 @@ async function attemptConnection(
             payload: {
               displayName,
               characterId,
-              characterName
+              characterName,
+              clientId: getOrCreateClientId(),
+              role: 'player'
             }
           })
 

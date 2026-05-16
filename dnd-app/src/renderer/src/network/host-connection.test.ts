@@ -26,7 +26,7 @@ vi.mock('./host-message-handlers', () => ({
 
 import type { HostStateAccessors } from './host-connection'
 import { handleDisconnection, handleJoin, handleNewConnection } from './host-connection'
-import type { NetworkMessage, PeerInfo } from './types'
+import type { JoinPayload, NetworkMessage, PeerInfo } from './types'
 
 function createMockState(overrides: Partial<HostStateAccessors> = {}): HostStateAccessors {
   return {
@@ -39,6 +39,7 @@ function createMockState(overrides: Partial<HostStateAccessors> = {}): HostState
     messageRates: new Map(),
     getDisplayName: () => 'DM',
     getCampaignId: () => 'campaign-1',
+    getHostClientId: () => 'host-client-id',
     getModerationEnabled: () => false,
     getCustomBlockedWords: () => [],
     getGameStateProvider: () => null,
@@ -146,9 +147,15 @@ describe('handleJoin', () => {
     const joinCb = vi.fn()
     state.joinCallbacks.add(joinCb)
 
-    const joinMsg: NetworkMessage<{ displayName: string; characterId: string | null; characterName: string | null }> = {
+    const joinMsg: NetworkMessage<JoinPayload> = {
       type: 'player:join',
-      payload: { displayName: 'Alice', characterId: 'char-1', characterName: 'Elara' },
+      payload: {
+        displayName: 'Alice',
+        characterId: 'char-1',
+        characterName: 'Elara',
+        clientId: 'client-alice',
+        role: 'player'
+      },
       senderId: 'new-peer',
       senderName: 'Alice',
       timestamp: Date.now(),
@@ -174,9 +181,15 @@ describe('handleJoin', () => {
     const conn = createMockConn('new-peer')
     const state = createMockState()
 
-    const joinMsg: NetworkMessage<{ displayName: string; characterId: string | null; characterName: string | null }> = {
+    const joinMsg: NetworkMessage<JoinPayload> = {
       type: 'player:join',
-      payload: { displayName: 'A'.repeat(100), characterId: null, characterName: null },
+      payload: {
+        displayName: 'A'.repeat(100),
+        characterId: null,
+        characterName: null,
+        clientId: 'client-long',
+        role: 'player'
+      },
       senderId: 'new-peer',
       senderName: 'Long Name',
       timestamp: Date.now(),
@@ -197,9 +210,15 @@ describe('handleJoin', () => {
       bannedNames: new Set(['badplayer'])
     })
 
-    const joinMsg: NetworkMessage<{ displayName: string; characterId: string | null; characterName: string | null }> = {
+    const joinMsg: NetworkMessage<JoinPayload> = {
       type: 'player:join',
-      payload: { displayName: 'BadPlayer', characterId: null, characterName: null },
+      payload: {
+        displayName: 'BadPlayer',
+        characterId: null,
+        characterName: null,
+        clientId: 'client-bad',
+        role: 'player'
+      },
       senderId: 'new-peer',
       senderName: 'BadPlayer',
       timestamp: Date.now(),
@@ -218,9 +237,15 @@ describe('handleJoin', () => {
     const conn = createMockConn('new-peer')
     const state = createMockState()
 
-    const joinMsg: NetworkMessage<{ displayName: string; characterId: string | null; characterName: string | null }> = {
+    const joinMsg: NetworkMessage<JoinPayload> = {
       type: 'player:join',
-      payload: { displayName: undefined as unknown as string, characterId: null, characterName: null },
+      payload: {
+        displayName: undefined as unknown as string,
+        characterId: null,
+        characterName: null,
+        clientId: 'client-undef',
+        role: 'player'
+      },
       senderId: 'new-peer',
       senderName: '',
       timestamp: Date.now(),
@@ -240,9 +265,15 @@ describe('handleJoin', () => {
       getGameStateProvider: () => () => gameStateData
     })
 
-    const joinMsg: NetworkMessage<{ displayName: string; characterId: string | null; characterName: string | null }> = {
+    const joinMsg: NetworkMessage<JoinPayload> = {
       type: 'player:join',
-      payload: { displayName: 'Alice', characterId: null, characterName: null },
+      payload: {
+        displayName: 'Alice',
+        characterId: null,
+        characterName: null,
+        clientId: 'client-alice-2',
+        role: 'player'
+      },
       senderId: 'new-peer',
       senderName: 'Alice',
       timestamp: Date.now(),
@@ -268,9 +299,15 @@ describe('handleJoin', () => {
       }
     })
 
-    const joinMsg: NetworkMessage<{ displayName: string; characterId: string | null; characterName: string | null }> = {
+    const joinMsg: NetworkMessage<JoinPayload> = {
       type: 'player:join',
-      payload: { displayName: 'Alice', characterId: null, characterName: null },
+      payload: {
+        displayName: 'Alice',
+        characterId: null,
+        characterName: null,
+        clientId: 'client-alice-3',
+        role: 'player'
+      },
       senderId: 'new-peer',
       senderName: 'Alice',
       timestamp: Date.now(),
@@ -287,6 +324,8 @@ describe('handleDisconnection', () => {
     const state = createMockState()
     const peerInfo: PeerInfo = {
       peerId: 'peer-1',
+      clientId: 'client-peer-1',
+      role: 'player',
       displayName: 'Alice',
       characterId: null,
       characterName: null,
@@ -310,6 +349,8 @@ describe('handleDisconnection', () => {
     const state = createMockState()
     state.peerInfoMap.set('peer-1', {
       peerId: 'peer-1',
+      clientId: 'client-peer-1',
+      role: 'player',
       displayName: 'Alice',
       characterId: null,
       characterName: null,
@@ -328,6 +369,8 @@ describe('handleDisconnection', () => {
     state.leaveCallbacks.add(leaveCb)
     const peerInfo: PeerInfo = {
       peerId: 'peer-1',
+      clientId: 'client-peer-1',
+      role: 'player',
       displayName: 'Alice',
       characterId: null,
       characterName: null,
@@ -356,6 +399,8 @@ describe('handleDisconnection', () => {
     state.leaveCallbacks.add(badCb)
     state.peerInfoMap.set('peer-1', {
       peerId: 'peer-1',
+      clientId: 'client-peer-1',
+      role: 'player',
       displayName: 'Alice',
       characterId: null,
       characterName: null,

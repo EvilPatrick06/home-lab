@@ -26,6 +26,8 @@ describe('state-types', () => {
   it('PeerInfo interface satisfies expected shape', () => {
     const peer: import('./state-types').PeerInfo = {
       peerId: 'peer-1',
+      clientId: 'client-peer-1',
+      role: 'player',
       displayName: 'Alice',
       characterId: 'char-1',
       characterName: 'Elara',
@@ -41,6 +43,8 @@ describe('state-types', () => {
   it('PeerInfo supports optional color and isCoDM fields', () => {
     const peer: import('./state-types').PeerInfo = {
       peerId: 'peer-2',
+      clientId: 'client-peer-2',
+      role: 'host',
       displayName: 'Bob',
       characterId: null,
       characterName: null,
@@ -115,6 +119,8 @@ describe('state-types', () => {
       peers: [
         {
           peerId: 'host-1',
+          clientId: 'client-host-1',
+          role: 'host',
           displayName: 'DM',
           characterId: null,
           characterName: null,

@@ -33,7 +33,9 @@ const JoinPayloadSchema = z.object({
   displayName: z.string(),
   characterId: z.string().nullable(),
   characterName: z.string().nullable(),
-  color: z.string().optional()
+  color: z.string().optional(),
+  clientId: z.string().min(1).max(100),
+  role: z.enum(['player', 'spectator']).optional()
 })
 
 const ChatPayloadSchema = z.object({

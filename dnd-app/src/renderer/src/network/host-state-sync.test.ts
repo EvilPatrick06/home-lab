@@ -289,6 +289,8 @@ describe('heartbeat check', () => {
   it('marks peers as disconnected after HEARTBEAT_TIMEOUT_MS but before HEARTBEAT_REMOVE_MS', () => {
     const peerInfo = {
       peerId: 'timeout-peer',
+      clientId: 'client-timeout-peer',
+      role: 'player' as const,
       displayName: 'Bob',
       isHost: false,
       isReady: false,

@@ -23,7 +23,7 @@ describe('validateNetworkMessage', () => {
     const result = validateNetworkMessage(
       makeMessage({
         type: 'player:join',
-        payload: { displayName: 'Alice', characterId: null, characterName: null }
+        payload: { displayName: 'Alice', characterId: null, characterName: null, clientId: 'client-alice' }
       })
     )
     expect(result.success).toBe(true)

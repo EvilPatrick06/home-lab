@@ -155,6 +155,8 @@ export function handleClientMessage(
       const payload = message.payload as PeerInfo & { displayName: string }
       const newPeer: PeerInfo = {
         peerId: payload.peerId || message.senderId,
+        clientId: payload.clientId,
+        role: payload.role ?? 'player',
         displayName: payload.displayName,
         characterId: payload.characterId || null,
         characterName: payload.characterName || null,

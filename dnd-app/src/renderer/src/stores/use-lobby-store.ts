@@ -93,6 +93,8 @@ function persistChatHistory(campaignId: string, messages: ChatMessage[]): void {
 
 export interface LobbyPlayer {
   peerId: string
+  clientId: string
+  role: 'host' | 'player' | 'spectator'
   displayName: string
   characterId: string | null
   characterName: string | null

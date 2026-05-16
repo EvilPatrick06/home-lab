@@ -4,12 +4,13 @@ import { LobbyLayout } from '../components/lobby'
 import { Button, Modal } from '../components/ui'
 import { JOINED_SESSIONS_KEY, LAST_SESSION_KEY, LOBBY_COPY_TIMEOUT_MS } from '../constants'
 import { onClientMessage, setHostCampaignId } from '../network'
+import { useNetworkStore } from '../stores/network-store'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
-import { useNetworkStore } from '../stores/network-store'
 import type { Campaign } from '../types/campaign'
+import { getOrCreateClientId } from '../utils/client-id'
 import { logger } from '../utils/logger'
 import { useLobbyBridges } from './lobby/use-lobby-bridges'
 
@@ -136,6 +137,8 @@ export default function LobbyPage(): JSX.Element {
       hasInitialized.current = true
       addPlayer({
         peerId: localPeerId,
+        clientId: getOrCreateClientId(),
+        role: isHost ? 'host' : 'player',
         displayName,
         characterId: null,
         characterName: null,

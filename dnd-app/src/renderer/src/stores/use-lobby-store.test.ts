@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
 
+import { useNetworkStore } from './network-store'
 import type { ChatMessage, LobbyPlayer } from './use-lobby-store'
 import { useLobbyStore } from './use-lobby-store'
-import { useNetworkStore } from './network-store'
 
 describe('useLobbyStore', () => {
   const storageState = new Map<string, string>()
@@ -104,6 +104,8 @@ describe('useLobbyStore', () => {
   it('LobbyPlayer objects with required fields are accepted by addPlayer', () => {
     const player: LobbyPlayer = {
       peerId: 'peer-test-001',
+      clientId: 'client-test-001',
+      role: 'player',
       displayName: 'Gandalf',
       characterId: null,
       characterName: null,
@@ -120,6 +122,8 @@ describe('useLobbyStore', () => {
   it('LobbyPlayer optional fields (color, isCoDM, diceColors) are truly optional', () => {
     const minimal: LobbyPlayer = {
       peerId: 'peer-min',
+      clientId: 'client-min',
+      role: 'player',
       displayName: 'Frodo',
       characterId: 'char-1',
       characterName: 'Frodo Baggins',

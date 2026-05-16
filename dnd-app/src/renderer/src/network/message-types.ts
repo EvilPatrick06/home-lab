@@ -107,6 +107,10 @@ export interface JoinPayload {
   color?: string
   /** Game system ID the client supports (e.g. 'dnd5e'). Host rejects mismatches. */
   gameSystem?: string
+  /** Stable per-installation UUID — canonical identity for bans, registry filtering, and reconnect-resync (Phase 29b). */
+  clientId: string
+  /** Functional role at join time. Defaults to 'player'; spectator support lands in Phase 29e. */
+  role?: 'player' | 'spectator'
 }
 
 export interface ChatPayload {

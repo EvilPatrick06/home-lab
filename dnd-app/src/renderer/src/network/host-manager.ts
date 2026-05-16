@@ -1,6 +1,7 @@
 import type { DataConnection } from 'peerjs'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
 import { KICK_DELAY_MS, MAX_RECONNECT_ATTEMPTS } from '../constants'
+import { getOrCreateClientId } from '../utils/client-id'
 import { logger } from '../utils/logger'
 import { type HostStateAccessors, handleDisconnection, handleNewConnection } from './host-connection'
 import {
@@ -20,6 +21,7 @@ import type { BanPayload, KickPayload, NetworkMessage, PeerInfo } from './types'
 let hosting = false
 let inviteCode: string | null = null
 let displayName = ''
+let hostClientId = ''
 const sequenceCounter = { value: 0 }
 let campaignId: string | null = null
 
@@ -161,6 +163,7 @@ function getStateAccessors(): HostStateAccessors {
     messageRates,
     getDisplayName: () => displayName,
     getCampaignId: () => campaignId,
+    getHostClientId: () => hostClientId,
     getModerationEnabled: () => moderationEnabled,
     getCustomBlockedWords: () => customBlockedWords,
     getGameStateProvider: () => gameStateProvider,
@@ -187,6 +190,7 @@ export async function startHosting(hostDisplayName: string, existingInviteCode?:
   }
 
   displayName = hostDisplayName
+  hostClientId = getOrCreateClientId()
   sequenceCounter.value = 0
 
   // Use the provided invite code or generate a new one

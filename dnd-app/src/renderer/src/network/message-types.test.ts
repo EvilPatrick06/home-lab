@@ -59,7 +59,8 @@ describe('message-types', () => {
     const payload: import('./message-types').JoinPayload = {
       displayName: 'Alice',
       characterId: 'char-1',
-      characterName: 'Elara'
+      characterName: 'Elara',
+      clientId: 'client-alice'
     }
     expect(payload.displayName).toBe('Alice')
     expect(payload.characterId).toBe('char-1')
@@ -70,7 +71,8 @@ describe('message-types', () => {
     const payload: import('./message-types').JoinPayload = {
       displayName: 'Bob',
       characterId: null,
-      characterName: null
+      characterName: null,
+      clientId: 'client-bob'
     }
     expect(payload.characterId).toBeNull()
     expect(payload.characterName).toBeNull()

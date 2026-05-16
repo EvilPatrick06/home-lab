@@ -17,9 +17,11 @@ export interface HostStateAccessors {
   messageRates: Map<string, number[]>
   getDisplayName: () => string
   getCampaignId: () => string | null
+  /** Host's stable per-installation UUID. Stamped onto the host peer's PeerInfo so clients see consistent identity. (Phase 29b) */
+  getHostClientId: () => string
   getModerationEnabled: () => boolean
   getCustomBlockedWords: () => string[]
-  getGameStateProvider: () => (() => unknown) | null
+  getGameStateProvider: () => ((peerInfo: PeerInfo) => unknown) | null
   router: { handle: (msg: NetworkMessage) => void }
   joinCallbacks: Set<(peer: PeerInfo) => void>
   leaveCallbacks: Set<(peer: PeerInfo) => void>
@@ -207,6 +209,8 @@ export function handleJoin(
   state.connections.set(peerId, conn)
   const peerInfo: PeerInfo = {
     peerId,
+    clientId: message.payload.clientId,
+    role: message.payload.role ?? 'player',
     displayName: playerName,
     characterId,
     characterName,
@@ -223,6 +227,8 @@ export function handleJoin(
 
   const hostPeer: PeerInfo = {
     peerId: getPeerId() || '',
+    clientId: state.getHostClientId(),
+    role: 'host',
     displayName: state.getDisplayName(),
     characterId: null,
     characterName: null,
@@ -250,7 +256,9 @@ export function handleJoin(
       displayName: playerName,
       characterId,
       characterName,
-      peerId
+      peerId,
+      clientId: peerInfo.clientId,
+      role: peerInfo.role
     }),
     peerId
   )

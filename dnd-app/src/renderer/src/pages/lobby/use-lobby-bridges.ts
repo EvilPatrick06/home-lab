@@ -8,9 +8,9 @@ import type {
   SlowModePayload
 } from '../../network'
 import { onClientMessage, onHostMessage } from '../../network'
+import { useNetworkStore } from '../../stores/network-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/network-store'
 import type { Character } from '../../types/character'
 import { logger } from '../../utils/logger'
 
@@ -44,6 +44,8 @@ function usePeerSync(localPeerId: string | null): void {
       if (!existing) {
         lobby.addPlayer({
           peerId: peer.peerId,
+          clientId: peer.clientId,
+          role: peer.role,
           displayName: peer.displayName,
           characterId: peer.characterId,
           characterName: peer.characterName,
