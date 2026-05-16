@@ -2,6 +2,7 @@ import type { DataConnection } from 'peerjs'
 import { FILE_SIZE_LIMIT, JOIN_TIMEOUT_MS, MAX_DISPLAY_NAME_LENGTH, MESSAGE_SIZE_LIMIT } from '../constants'
 import { logger } from '../utils/logger'
 import { applyChatModeration, isClientAllowedMessageType, validateMessage } from './host-message-handlers'
+import type { BanClientEntry } from './host-state-sync'
 import { getPeerId } from './peer-manager'
 import { validateNetworkMessage } from './schemas'
 import type { BanPayload, JoinPayload, NetworkMessage, PeerInfo } from './types'
@@ -10,7 +11,8 @@ import type { BanPayload, JoinPayload, NetworkMessage, PeerInfo } from './types'
 export interface HostStateAccessors {
   connections: Map<string, DataConnection>
   peerInfoMap: Map<string, PeerInfo>
-  bannedPeers: Set<string>
+  /** Phase 29c: clientId-keyed ban map. Survives reconnect. */
+  bannedClients: Map<string, BanClientEntry>
   bannedNames: Set<string>
   chatMutedPeers: Map<string, number>
   lastHeartbeat: Map<string, number>
@@ -45,15 +47,10 @@ export function handleNewConnection(conn: DataConnection, state: HostStateAccess
   const peerId = conn.peer
   logger.debug('[HostManager] New connection from:', peerId)
 
-  if (state.bannedPeers.has(peerId)) {
-    logger.debug('[HostManager] Rejected banned peer:', peerId)
-    try {
-      conn.close()
-    } catch {
-      // Ignore close errors
-    }
-    return
-  }
+  // Phase 29c: ban check moved to handleJoin where the joinPayload.clientId is
+  // available (peerIds are per-session and not a stable identity). The
+  // join-timeout below still kicks any peer that doesn't send a valid join in
+  // time, so an idle banned client costs at most JOIN_TIMEOUT_MS of socket time.
 
   const joinTimeout = setTimeout(() => {
     logger.warn('[HostManager] Peer', peerId, 'did not send join message in time')
@@ -195,9 +192,33 @@ export function handleJoin(
       .slice(0, MAX_DISPLAY_NAME_LENGTH)
       .trim() || 'Unknown'
 
+  const joiningClientId = message.payload.clientId
+
+  // Phase 29c: clientId-based ban (survives reconnect) — primary check.
+  if (state.bannedClients.has(joiningClientId)) {
+    logger.debug(
+      '[HostManager] Rejected banned clientId:',
+      joiningClientId,
+      '(peer:',
+      peerId,
+      ', name:',
+      playerName,
+      ')'
+    )
+    const banPayload: BanPayload = { peerId, reason: 'Banned by DM' }
+    const banMsg = state.buildMessage('dm:ban-player', banPayload)
+    state.disconnectPeer(peerId, banMsg)
+    return
+  }
+
+  // Phase 29c: name-based fallback (catches users who clear localStorage and rejoin with the same alias).
   if (state.bannedNames.has(playerName.toLowerCase())) {
     logger.debug('[HostManager] Rejected banned name:', playerName, '(peer:', peerId, ')')
-    state.bannedPeers.add(peerId)
+    state.bannedClients.set(joiningClientId, {
+      clientId: joiningClientId,
+      lastAlias: playerName,
+      bannedAt: Date.now()
+    })
     state.bannedNames.add(playerName.toLowerCase())
     state.persistBans()
     const banPayload: BanPayload = { peerId, reason: 'Banned by DM' }

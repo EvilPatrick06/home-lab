@@ -135,6 +135,10 @@ export interface CampaignSettings {
   levelRange: { min: number; max: number }
   allowCharCreationInLobby: boolean
   optionalRules?: OptionalRules
+  /** Phase 29c: if true, hides this game from the public game-list registry. Clients still join with the invite code (used as a password for private games). Default false. */
+  isPrivate?: boolean
+  /** Phase 29c: cap on simultaneous spectators (separate from maxPlayers). Default 5; spectator branch lands in 29e. */
+  maxSpectators?: number
 }
 
 export interface CampaignPlayer {

@@ -56,6 +56,7 @@ export default function CampaignWizard(): JSX.Element {
   const [maxPlayers, setMaxPlayers] = useState(4)
   const [turnMode, setTurnMode] = useState<TurnMode>('initiative')
   const [lobbyMessage, setLobbyMessage] = useState('')
+  const [isPublic, setIsPublic] = useState(true)
   const [campaignType, setCampaignType] = useState<CampaignType>('custom')
   const [selectedAdventureId, setSelectedAdventureId] = useState<string | null>(null)
   const [customRules, setCustomRules] = useState<CustomRule[]>([])
@@ -219,7 +220,9 @@ export default function CampaignWizard(): JSX.Element {
           lobbyMessage: lobbyMessage.trim(),
           levelRange: selectedAdventure?.levelRange ?? { min: 1, max: 20 },
           allowCharCreationInLobby: true,
-          optionalRules: DEFAULT_OPTIONAL_RULES
+          optionalRules: DEFAULT_OPTIONAL_RULES,
+          isPrivate: !isPublic,
+          maxSpectators: 5
         },
         calendar: calendar ?? undefined,
         customAudio:
@@ -327,13 +330,14 @@ export default function CampaignWizard(): JSX.Element {
 
       {step === 1 && (
         <DetailsStep
-          data={{ name, description, maxPlayers, turnMode, lobbyMessage }}
+          data={{ name, description, maxPlayers, turnMode, lobbyMessage, isPublic }}
           onChange={(data) => {
             setName(data.name)
             setDescription(data.description)
             setMaxPlayers(data.maxPlayers)
             setTurnMode(data.turnMode)
             setLobbyMessage(data.lobbyMessage)
+            setIsPublic(data.isPublic)
           }}
         />
       )}

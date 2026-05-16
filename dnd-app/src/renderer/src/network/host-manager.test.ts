@@ -46,7 +46,9 @@ vi.mock('./host-state-sync', () => ({
   })),
   isRateLimited: vi.fn(() => false),
   isGlobalRateLimited: vi.fn(() => false),
-  loadPersistedBans: vi.fn(() => Promise.resolve()),
+  loadPersistedBans: vi.fn(() =>
+    Promise.resolve({ legacyMigrationSkipped: false, legacyPeerCount: 0 })
+  ),
   persistBans: vi.fn(),
   startHeartbeatCheck: vi.fn(),
   stopHeartbeatCheck: vi.fn()
@@ -78,8 +80,8 @@ import {
   broadcastExcluding,
   broadcastMessage,
   chatMutePeer,
+  getBannedClients,
   getBannedNames,
-  getBannedPeers,
   getCampaignId,
   getConnectedPeers,
   getInviteCode,
@@ -98,8 +100,8 @@ import {
   setModerationEnabled,
   startHosting,
   stopHosting,
+  unbanClient,
   unbanName,
-  unbanPeer,
   updatePeerInfo
 } from './host-manager'
 
@@ -274,8 +276,8 @@ describe('host-manager', () => {
   })
 
   describe('ban system', () => {
-    it('getBannedPeers returns empty array initially', () => {
-      expect(getBannedPeers()).toEqual([])
+    it('getBannedClients returns empty array initially', () => {
+      expect(getBannedClients()).toEqual([])
     })
 
     it('getBannedNames returns empty array initially', () => {
@@ -286,8 +288,8 @@ describe('host-manager', () => {
       expect(() => banPeer('unknown')).not.toThrow()
     })
 
-    it('unbanPeer does not throw', () => {
-      expect(() => unbanPeer('peer-1')).not.toThrow()
+    it('unbanClient does not throw', () => {
+      expect(() => unbanClient('client-1')).not.toThrow()
     })
 
     it('unbanName does not throw', () => {

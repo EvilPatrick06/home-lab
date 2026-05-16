@@ -7,6 +7,7 @@ interface DetailsData {
   maxPlayers: number
   turnMode: TurnMode
   lobbyMessage: string
+  isPublic: boolean
 }
 
 interface DetailsStepProps {
@@ -55,7 +56,9 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
               focus:outline-none focus:border-amber-500 transition-colors"
             value={data.maxPlayers}
             onChange={(e) => {
-              const val = Math.max(2, Math.min(8, parseInt(e.target.value, 10) || 2))
+              const raw = parseInt(e.target.value, 10)
+              const numeric = Number.isFinite(raw) ? raw : 2
+              const val = numeric < 2 ? 2 : numeric > 8 ? 8 : numeric
               update('maxPlayers', val)
             }}
           />
@@ -104,6 +107,42 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             value={data.lobbyMessage}
             onChange={(e) => update('lobbyMessage', e.target.value)}
           />
+        </div>
+
+        <div>
+          <label className="block text-gray-400 mb-2 text-sm">Visibility</label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => update('isPublic', true)}
+              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                ${
+                  data.isPublic
+                    ? 'border-amber-500 bg-amber-900/20'
+                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                }`}
+            >
+              <div className="font-semibold text-sm">Public</div>
+              <div className="text-xs text-gray-400 mt-1">
+                Announces to the game-list registry so anyone can find and join.
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => update('isPublic', false)}
+              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                ${
+                  !data.isPublic
+                    ? 'border-amber-500 bg-amber-900/20'
+                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                }`}
+            >
+              <div className="font-semibold text-sm">Private</div>
+              <div className="text-xs text-gray-400 mt-1">
+                Shown with a lock icon in the list; joiners must enter the invite code as a password.
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>

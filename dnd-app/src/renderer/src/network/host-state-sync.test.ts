@@ -134,30 +134,55 @@ describe('loadPersistedBans', () => {
     vi.clearAllMocks()
   })
 
-  it('loads peer ID bans and name bans from API', async () => {
+  it('loads clientId-keyed bans and name bans from API', async () => {
     mockLoadBans.mockResolvedValue({
-      peerIds: ['banned-1', 'banned-2'],
-      names: ['BadPlayer']
+      peerIds: [],
+      names: ['BadPlayer'],
+      clients: [
+        { clientId: 'cid-1', lastAlias: 'Alice', bannedAt: 1700000000 },
+        { clientId: 'cid-2', lastAlias: 'Bob', bannedAt: 1700000100 }
+      ]
     })
 
-    const bannedPeers = new Set<string>()
+    const bannedClients = new Map<string, { clientId: string; lastAlias: string; bannedAt: number }>()
     const bannedNames = new Set<string>()
     const ref = { value: false }
 
-    await loadPersistedBans('campaign-1', bannedPeers, bannedNames, ref)
+    const result = await loadPersistedBans('campaign-1', bannedClients, bannedNames, ref)
 
-    expect(bannedPeers.has('banned-1')).toBe(true)
-    expect(bannedPeers.has('banned-2')).toBe(true)
+    expect(bannedClients.has('cid-1')).toBe(true)
+    expect(bannedClients.has('cid-2')).toBe(true)
+    expect(bannedClients.get('cid-1')?.lastAlias).toBe('Alice')
     expect(bannedNames.has('badplayer')).toBe(true) // lowercased
     expect(ref.value).toBe(true)
+    expect(result.legacyMigrationSkipped).toBe(false)
+    expect(result.legacyPeerCount).toBe(0)
+  })
+
+  it('flags legacy migration when only peerIds present (pre-29c file)', async () => {
+    mockLoadBans.mockResolvedValue({
+      peerIds: ['old-peer-1', 'old-peer-2', 'old-peer-3'],
+      names: ['BadPlayer']
+    })
+
+    const bannedClients = new Map<string, { clientId: string; lastAlias: string; bannedAt: number }>()
+    const bannedNames = new Set<string>()
+    const ref = { value: false }
+
+    const result = await loadPersistedBans('campaign-1', bannedClients, bannedNames, ref)
+
+    expect(bannedClients.size).toBe(0) // ephemeral peerIds discarded
+    expect(bannedNames.has('badplayer')).toBe(true) // name-fallback preserved
+    expect(result.legacyMigrationSkipped).toBe(true)
+    expect(result.legacyPeerCount).toBe(3)
   })
 
   it('skips loading if bans already loaded', async () => {
-    const bannedPeers = new Set<string>()
+    const bannedClients = new Map<string, { clientId: string; lastAlias: string; bannedAt: number }>()
     const bannedNames = new Set<string>()
     const ref = { value: true }
 
-    await loadPersistedBans('campaign-1', bannedPeers, bannedNames, ref)
+    await loadPersistedBans('campaign-1', bannedClients, bannedNames, ref)
 
     expect(mockLoadBans).not.toHaveBeenCalled()
   })
@@ -165,24 +190,24 @@ describe('loadPersistedBans', () => {
   it('handles API errors gracefully', async () => {
     mockLoadBans.mockRejectedValue(new Error('Storage error'))
 
-    const bannedPeers = new Set<string>()
+    const bannedClients = new Map<string, { clientId: string; lastAlias: string; bannedAt: number }>()
     const bannedNames = new Set<string>()
     const ref = { value: false }
 
-    await expect(loadPersistedBans('campaign-1', bannedPeers, bannedNames, ref)).resolves.not.toThrow()
+    await expect(loadPersistedBans('campaign-1', bannedClients, bannedNames, ref)).resolves.not.toThrow()
     expect(ref.value).toBe(false)
   })
 
   it('handles empty ban lists', async () => {
     mockLoadBans.mockResolvedValue({ peerIds: [], names: [] })
 
-    const bannedPeers = new Set<string>()
+    const bannedClients = new Map<string, { clientId: string; lastAlias: string; bannedAt: number }>()
     const bannedNames = new Set<string>()
     const ref = { value: false }
 
-    await loadPersistedBans('campaign-1', bannedPeers, bannedNames, ref)
+    await loadPersistedBans('campaign-1', bannedClients, bannedNames, ref)
 
-    expect(bannedPeers.size).toBe(0)
+    expect(bannedClients.size).toBe(0)
     expect(bannedNames.size).toBe(0)
     expect(ref.value).toBe(true)
   })
@@ -193,29 +218,36 @@ describe('persistBans', () => {
     vi.clearAllMocks()
   })
 
-  it('saves bans via API', () => {
+  it('saves bans via API with clients array (peerIds always empty post-29c)', () => {
     mockSaveBans.mockResolvedValue(undefined)
 
-    const bannedPeers = new Set(['peer-1', 'peer-2'])
+    const bannedClients = new Map([
+      ['cid-1', { clientId: 'cid-1', lastAlias: 'Alice', bannedAt: 1700000000 }],
+      ['cid-2', { clientId: 'cid-2', lastAlias: 'Bob', bannedAt: 1700000100 }]
+    ])
     const bannedNames = new Set(['badplayer'])
 
-    persistBans('campaign-1', bannedPeers, bannedNames)
+    persistBans('campaign-1', bannedClients, bannedNames)
 
     expect(mockSaveBans).toHaveBeenCalledWith('campaign-1', {
-      peerIds: ['peer-1', 'peer-2'],
-      names: ['badplayer']
+      peerIds: [],
+      names: ['badplayer'],
+      clients: [
+        { clientId: 'cid-1', lastAlias: 'Alice', bannedAt: 1700000000 },
+        { clientId: 'cid-2', lastAlias: 'Bob', bannedAt: 1700000100 }
+      ]
     })
   })
 
   it('does nothing when campaignId is null', () => {
-    persistBans(null, new Set(), new Set())
+    persistBans(null, new Map(), new Set())
     expect(mockSaveBans).not.toHaveBeenCalled()
   })
 
   it('does not throw when saveBans rejects', () => {
     mockSaveBans.mockRejectedValue(new Error('Write error'))
     expect(() => {
-      persistBans('campaign-1', new Set(['peer-1']), new Set())
+      persistBans('campaign-1', new Map([['cid-1', { clientId: 'cid-1', lastAlias: 'A', bannedAt: 1 }]]), new Set())
     }).not.toThrow()
   })
 })

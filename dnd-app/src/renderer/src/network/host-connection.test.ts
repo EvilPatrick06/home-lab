@@ -32,7 +32,7 @@ function createMockState(overrides: Partial<HostStateAccessors> = {}): HostState
   return {
     connections: new Map(),
     peerInfoMap: new Map(),
-    bannedPeers: new Set(),
+    bannedClients: new Map(),
     bannedNames: new Set(),
     chatMutedPeers: new Map(),
     lastHeartbeat: new Map(),
@@ -78,17 +78,10 @@ function createMockConn(peerId: string) {
 }
 
 describe('handleNewConnection', () => {
-  it('rejects banned peers immediately', () => {
-    const conn = createMockConn('banned-peer')
-    const state = createMockState({
-      bannedPeers: new Set(['banned-peer'])
-    })
-
-    handleNewConnection(conn as never, state)
-
-    expect(conn.close).toHaveBeenCalled()
-    expect(conn.on).not.toHaveBeenCalled()
-  })
+  // Phase 29c: the immediate peerId-based ban check was removed. Ban
+  // enforcement now lives in handleJoin (clientId-keyed), so handleNewConnection
+  // accepts every incoming connection and relies on the join-timeout + handleJoin
+  // gate. See the "rejects banned clientId in handleJoin" test below.
 
   it('sets up event listeners for non-banned peers', () => {
     const conn = createMockConn('peer-1')
@@ -227,10 +220,39 @@ describe('handleJoin', () => {
 
     handleJoin('new-peer', conn as never, joinMsg, state)
 
-    expect(state.bannedPeers.has('new-peer')).toBe(true)
+    expect(state.bannedClients.has('client-bad')).toBe(true)
     expect(state.persistBans).toHaveBeenCalled()
     expect(state.disconnectPeer).toHaveBeenCalled()
     expect(state.peerInfoMap.has('new-peer')).toBe(false)
+  })
+
+  it('rejects joins whose clientId is in the bannedClients map', () => {
+    const conn = createMockConn('fresh-peer')
+    const state = createMockState({
+      bannedClients: new Map([
+        ['banned-cid', { clientId: 'banned-cid', lastAlias: 'Banned', bannedAt: Date.now() - 1000 }]
+      ])
+    })
+
+    const joinMsg: NetworkMessage<JoinPayload> = {
+      type: 'player:join',
+      payload: {
+        displayName: 'AnyAlias',
+        characterId: null,
+        characterName: null,
+        clientId: 'banned-cid',
+        role: 'player'
+      },
+      senderId: 'fresh-peer',
+      senderName: 'AnyAlias',
+      timestamp: Date.now(),
+      sequence: 0
+    }
+
+    handleJoin('fresh-peer', conn as never, joinMsg, state)
+
+    expect(state.disconnectPeer).toHaveBeenCalled()
+    expect(state.peerInfoMap.has('fresh-peer')).toBe(false)
   })
 
   it('uses "Unknown" when displayName is missing', () => {

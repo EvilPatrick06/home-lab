@@ -73,42 +73,71 @@ export function stopHeartbeatCheck(): void {
 
 // --- Ban persistence ---
 
+export interface BanClientEntry {
+  clientId: string
+  lastAlias: string
+  bannedAt: number
+}
+
+export interface BanMigrationResult {
+  /** True when the legacy ban file shape was found (peerIds present, clients absent). Host should surface a one-time DM alert about the soft-reset. */
+  legacyMigrationSkipped: boolean
+  /** Count of legacy peerId entries the host discarded (peerIds are ephemeral; name fallback in bannedNames preserves the practical block). */
+  legacyPeerCount: number
+}
+
 export async function loadPersistedBans(
   id: string,
-  bannedPeers: Set<string>,
+  bannedClients: Map<string, BanClientEntry>,
   bannedNames: Set<string>,
   bansLoadedRef: { value: boolean }
-): Promise<void> {
-  if (bansLoadedRef.value) return
+): Promise<BanMigrationResult> {
+  if (bansLoadedRef.value) return { legacyMigrationSkipped: false, legacyPeerCount: 0 }
   try {
     const bans = await window.api.loadBans(id)
-    for (const peerId of bans.peerIds) {
-      bannedPeers.add(peerId)
-    }
     for (const name of bans.names) {
       bannedNames.add(name.toLowerCase())
     }
-    if (bans.peerIds.length > 0 || bans.names.length > 0) {
+    let legacyMigrationSkipped = false
+    let legacyPeerCount = 0
+    if (Array.isArray(bans.clients)) {
+      for (const entry of bans.clients) {
+        bannedClients.set(entry.clientId, entry)
+      }
+    } else if (bans.peerIds.length > 0) {
+      legacyMigrationSkipped = true
+      legacyPeerCount = bans.peerIds.length
+    }
+    if (bans.clients?.length || bans.peerIds.length > 0 || bans.names.length > 0) {
       logger.debug(
         '[HostManager] Restored',
-        bans.peerIds.length,
-        'banned peers and',
+        bannedClients.size,
+        'clientId-keyed bans,',
+        legacyPeerCount,
+        'legacy peerId entries discarded,',
         bans.names.length,
-        'banned names for campaign'
+        'banned names'
       )
     }
     bansLoadedRef.value = true
+    return { legacyMigrationSkipped, legacyPeerCount }
   } catch (e) {
     logger.warn('[HostManager] Failed to load persisted bans:', e)
+    return { legacyMigrationSkipped: false, legacyPeerCount: 0 }
   }
 }
 
-export function persistBans(campaignId: string | null, bannedPeers: Set<string>, bannedNames: Set<string>): void {
+export function persistBans(
+  campaignId: string | null,
+  bannedClients: Map<string, BanClientEntry>,
+  bannedNames: Set<string>
+): void {
   if (!campaignId) return
   window.api
     .saveBans(campaignId, {
-      peerIds: Array.from(bannedPeers),
-      names: Array.from(bannedNames)
+      peerIds: [],
+      names: Array.from(bannedNames),
+      clients: Array.from(bannedClients.values())
     })
     .catch((e) => {
       logger.warn('[HostManager] Failed to persist bans:', e)

@@ -5,6 +5,7 @@ import { getOrCreateClientId } from '../utils/client-id'
 import { logger } from '../utils/logger'
 import { type HostStateAccessors, handleDisconnection, handleNewConnection } from './host-connection'
 import {
+  type BanClientEntry,
   buildMessage as buildMessageUtil,
   isGlobalRateLimited as isGlobalRateLimitedUtil,
   isRateLimited as isRateLimitedUtil,
@@ -34,7 +35,7 @@ const connections = new Map<string, DataConnection>()
 const peerInfoMap = new Map<string, PeerInfo>()
 
 // Ban system
-const bannedPeers = new Set<string>()
+const bannedClients = new Map<string, BanClientEntry>()
 const bannedNames = new Set<string>()
 const bansLoaded = { value: false }
 
@@ -114,7 +115,7 @@ function buildMessage<T>(type: NetworkMessage['type'], payload: T): NetworkMessa
 }
 
 function persistBans(): void {
-  persistBansUtil(campaignId, bannedPeers, bannedNames)
+  persistBansUtil(campaignId, bannedClients, bannedNames)
 }
 
 function disconnectPeer(peerId: string, message: NetworkMessage): void {
@@ -156,7 +157,7 @@ function getStateAccessors(): HostStateAccessors {
   return {
     connections,
     peerInfoMap,
-    bannedPeers,
+    bannedClients,
     bannedNames,
     chatMutedPeers,
     lastHeartbeat,
@@ -201,7 +202,13 @@ export async function startHosting(hostDisplayName: string, existingInviteCode?:
     hosting = true
 
     if (campaignId) {
-      await loadPersistedBans(campaignId, bannedPeers, bannedNames, bansLoaded)
+      const migration = await loadPersistedBans(campaignId, bannedClients, bannedNames, bansLoaded)
+      if (migration.legacyMigrationSkipped) {
+        pushDmAlert(
+          'info',
+          `Ban list migrated to clientId format. ${migration.legacyPeerCount} legacy peerId entries were dropped (peerIds are per-session). Name-based fallback bans preserved; re-ban any persistent troublemakers as they connect.`
+        )
+      }
     }
 
     // Listen for incoming data connections
@@ -294,7 +301,7 @@ export function stopHosting(): void {
   peerInfoMap.clear()
   messageRates.clear()
   globalMessageTimestamps.value = []
-  bannedPeers.clear()
+  bannedClients.clear()
   bannedNames.clear()
   chatMutedPeers.clear()
   lastHeartbeat.clear()
@@ -397,7 +404,13 @@ export function getInviteCode(): string | null {
 /** Set the campaign ID; also loads persisted bans. */
 export async function setCampaignId(id: string): Promise<void> {
   campaignId = id
-  await loadPersistedBans(id, bannedPeers, bannedNames, bansLoaded)
+  const migration = await loadPersistedBans(id, bannedClients, bannedNames, bansLoaded)
+  if (migration.legacyMigrationSkipped) {
+    pushDmAlert(
+      'info',
+      `Ban list migrated to clientId format. ${migration.legacyPeerCount} legacy peerId entries were dropped. Name-based fallback bans preserved.`
+    )
+  }
 }
 
 /** Get the campaign ID for this hosted game. */
@@ -405,24 +418,34 @@ export function getCampaignId(): string | null {
   return campaignId
 }
 
-/** Ban a peer — kicks them and prevents reconnection. */
+/** Ban a peer — kicks them and prevents reconnection (clientId-keyed; survives session). */
 export function banPeer(peerId: string): void {
-  bannedPeers.add(peerId)
   const peerInfo = peerInfoMap.get(peerId)
   if (peerInfo) {
+    bannedClients.set(peerInfo.clientId, {
+      clientId: peerInfo.clientId,
+      lastAlias: peerInfo.displayName,
+      bannedAt: Date.now()
+    })
     bannedNames.add(peerInfo.displayName.toLowerCase())
+  } else {
+    logger.warn('[HostManager] banPeer: no peerInfo for', peerId, '— name fallback only')
   }
   const banPayload: BanPayload = { peerId, reason: 'Banned by DM' }
   const banMsg = buildMessage('dm:ban-player', banPayload)
   disconnectPeer(peerId, banMsg)
-  logger.debug('[HostManager] Banned peer:', peerId, peerInfo ? `(name: ${peerInfo.displayName})` : '')
+  logger.debug(
+    '[HostManager] Banned peer:',
+    peerId,
+    peerInfo ? `(name: ${peerInfo.displayName}, clientId: ${peerInfo.clientId})` : ''
+  )
   persistBans()
 }
 
-/** Unban a peer — allows them to reconnect. */
-export function unbanPeer(peerId: string): void {
-  bannedPeers.delete(peerId)
-  logger.debug('[HostManager] Unbanned peer:', peerId)
+/** Unban a peer by their stable clientId. */
+export function unbanClient(clientId: string): void {
+  bannedClients.delete(clientId)
+  logger.debug('[HostManager] Unbanned client:', clientId)
   persistBans()
 }
 
@@ -433,9 +456,9 @@ export function unbanName(name: string): void {
   persistBans()
 }
 
-/** Get all currently banned peer IDs. */
-export function getBannedPeers(): string[] {
-  return Array.from(bannedPeers)
+/** Get all currently banned client entries (clientId + last alias + bannedAt). */
+export function getBannedClients(): BanClientEntry[] {
+  return Array.from(bannedClients.values())
 }
 
 /** Get all currently banned display names. */

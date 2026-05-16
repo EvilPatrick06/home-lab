@@ -62,9 +62,16 @@ interface GameStateStorageAPI {
   deleteGameState: (campaignId: string) => Promise<boolean>
 }
 
+interface BanClientEntry {
+  clientId: string
+  lastAlias: string
+  bannedAt: number
+}
+
 interface BanData {
   peerIds: string[]
   names: string[]
+  clients?: BanClientEntry[]
 }
 
 interface BanAPI {

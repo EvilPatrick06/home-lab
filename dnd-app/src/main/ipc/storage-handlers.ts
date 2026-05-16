@@ -283,7 +283,15 @@ export function registerStorageHandlers(): void {
 
   ipcMain.handle(
     IPC_CHANNELS.SAVE_BANS,
-    async (_event, campaignId: string, banData: { peerIds: string[]; names: string[] }) => {
+    async (
+      _event,
+      campaignId: string,
+      banData: {
+        peerIds: string[]
+        names: string[]
+        clients?: Array<{ clientId: string; lastAlias: string; bannedAt: number }>
+      }
+    ) => {
       return await saveBans(campaignId, banData)
     }
   )

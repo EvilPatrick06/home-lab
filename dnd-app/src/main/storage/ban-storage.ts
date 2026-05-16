@@ -5,9 +5,16 @@ import { isValidUUID } from '../../shared/utils/uuid'
 import { atomicWriteFile } from './atomic-write'
 import type { StorageResult } from './types'
 
+export interface BanClientEntry {
+  clientId: string
+  lastAlias: string
+  bannedAt: number
+}
+
 export interface BanData {
   peerIds: string[]
   names: string[]
+  clients?: BanClientEntry[]
 }
 
 function getBansDir(): string {
@@ -26,11 +33,22 @@ export async function loadBans(campaignId: string): Promise<StorageResult<BanDat
     const banPath = getBanPath(campaignId)
     const content = await readFile(banPath, 'utf-8')
     const parsed = JSON.parse(content)
+    const clients = Array.isArray(parsed.clients)
+      ? (parsed.clients as unknown[]).filter(
+          (c): c is BanClientEntry =>
+            typeof c === 'object' &&
+            c !== null &&
+            typeof (c as BanClientEntry).clientId === 'string' &&
+            typeof (c as BanClientEntry).lastAlias === 'string' &&
+            typeof (c as BanClientEntry).bannedAt === 'number'
+        )
+      : undefined
     return {
       success: true,
       data: {
         peerIds: Array.isArray(parsed.peerIds) ? (parsed.peerIds as string[]) : [],
-        names: Array.isArray(parsed.names) ? (parsed.names as string[]) : []
+        names: Array.isArray(parsed.names) ? (parsed.names as string[]) : [],
+        ...(clients ? { clients } : {})
       }
     }
   } catch {
@@ -45,7 +63,7 @@ export async function saveBans(campaignId: string, banData: BanData): Promise<St
   if (!banData || typeof banData !== 'object') {
     return { success: false, error: 'Invalid ban data: expected object' }
   }
-  const { peerIds, names } = banData
+  const { peerIds, names, clients } = banData
   if (!Array.isArray(peerIds) || !Array.isArray(names)) {
     return { success: false, error: 'Invalid peer IDs or names: expected array' }
   }
@@ -62,11 +80,32 @@ export async function saveBans(campaignId: string, banData: BanData): Promise<St
       return { success: false, error: 'Invalid name in list' }
     }
   }
+  if (clients !== undefined) {
+    if (!Array.isArray(clients) || clients.length > 1000) {
+      return { success: false, error: 'Invalid clients list' }
+    }
+    for (const c of clients) {
+      if (
+        !c ||
+        typeof c !== 'object' ||
+        typeof c.clientId !== 'string' ||
+        c.clientId.length === 0 ||
+        c.clientId.length > 100 ||
+        typeof c.lastAlias !== 'string' ||
+        c.lastAlias.length > 64 ||
+        typeof c.bannedAt !== 'number'
+      ) {
+        return { success: false, error: 'Invalid client entry in list' }
+      }
+    }
+  }
   try {
     const bansDir = getBansDir()
     await mkdir(bansDir, { recursive: true })
     const banPath = getBanPath(campaignId)
-    await atomicWriteFile(banPath, JSON.stringify({ peerIds, names }))
+    const payload: Record<string, unknown> = { peerIds, names }
+    if (clients !== undefined) payload.clients = clients
+    await atomicWriteFile(banPath, JSON.stringify(payload))
     return { success: true }
   } catch (err) {
     return { success: false, error: (err as Error).message }

@@ -50,8 +50,14 @@ const api = {
 
   // Ban storage
   loadBans: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.LOAD_BANS, campaignId),
-  saveBans: (campaignId: string, banData: { peerIds: string[]; names: string[] }) =>
-    ipcRenderer.invoke(IPC_CHANNELS.SAVE_BANS, campaignId, banData),
+  saveBans: (
+    campaignId: string,
+    banData: {
+      peerIds: string[]
+      names: string[]
+      clients?: Array<{ clientId: string; lastAlias: string; bannedAt: number }>
+    }
+  ) => ipcRenderer.invoke(IPC_CHANNELS.SAVE_BANS, campaignId, banData),
 
   // File I/O
   readFile: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.FS_READ, path),
