@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { BackButton, Button, Input, Spinner } from '../components/ui'
-import { AUTO_REJOIN_KEY, DISPLAY_NAME_KEY, JOINED_SESSIONS_KEY, LAST_SESSION_KEY } from '../constants'
+import {
+  AUTO_REJOIN_KEY,
+  DISPLAY_NAME_KEY,
+  INVITE_CODE_LENGTH,
+  JOINED_SESSIONS_KEY,
+  LAST_SESSION_KEY
+} from '../constants'
 import { useNetworkStore } from '../stores/network-store'
 import { logger } from '../utils/logger'
 
@@ -35,7 +41,7 @@ export default function JoinGamePage(): JSX.Element {
 
   const isValidInviteCode = (code: string): boolean => {
     const cleaned = code.trim().toUpperCase()
-    return cleaned.length === 8 && /^[A-Z0-9]+$/.test(cleaned)
+    return cleaned.length === INVITE_CODE_LENGTH && /^[A-Z0-9]+$/.test(cleaned)
   }
 
   const codeInvalid = inviteCode.trim().length > 0 && !isValidInviteCode(inviteCode)
@@ -180,14 +186,18 @@ export default function JoinGamePage(): JSX.Element {
             value={inviteCode}
             onChange={(e) => setInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
             onKeyDown={handleKeyDown}
-            placeholder="e.g. ABC123D4"
-            maxLength={10}
+            placeholder="e.g. ABC123"
+            maxLength={INVITE_CODE_LENGTH + 2}
             className={`w-full p-4 rounded-lg bg-gray-800 border text-gray-100
                        placeholder-gray-600 focus:outline-none transition-colors text-center
                        text-2xl font-mono font-bold tracking-[0.3em] uppercase
                        ${codeInvalid ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-amber-500'}`}
           />
-          {codeInvalid && <p className="mt-1 text-xs text-red-400 text-center">Invite code must be 8 characters.</p>}
+          {codeInvalid && (
+            <p className="mt-1 text-xs text-red-400 text-center">
+              Invite code must be {INVITE_CODE_LENGTH} characters.
+            </p>
+          )}
         </div>
 
         {/* Connection status indicator */}

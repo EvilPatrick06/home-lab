@@ -1,12 +1,13 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import HostNamePrompt from '../components/campaign/HostNamePrompt'
 import { BackButton, Button, Card, ConfirmDialog } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
 import { configureForCloud } from '../network'
 import { exportCampaignToFile } from '../services/io/campaign-io'
 import { exportEntities, importEntities, reIdItems } from '../services/io/entity-io'
-import { useCampaignStore } from '../stores/use-campaign-store'
 import { useNetworkStore } from '../stores/network-store'
+import { useCampaignStore } from '../stores/use-campaign-store'
 import type { Campaign } from '../types/campaign'
 import { GAME_SYSTEMS } from '../types/game-system'
 import type { MonsterStatBlock } from '../types/monster'
@@ -34,6 +35,8 @@ export default function CampaignDetailPage(): JSX.Element {
   const { hostGame } = useNetworkStore()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showCloudFallback, setShowCloudFallback] = useState(false)
+  const [showHostNamePrompt, setShowHostNamePrompt] = useState(false)
+  const [hostNameDefault, setHostNameDefault] = useState('')
   const [exporting, setExporting] = useState(false)
   const [starting, setStarting] = useState(false)
   const [linkedMonster, setLinkedMonster] = useState<MonsterStatBlock | null>(null)
@@ -49,6 +52,17 @@ export default function CampaignDetailPage(): JSX.Element {
     }
   }, [campaigns.length, loadCampaigns])
 
+  // Pre-load host displayName from settings so the Host Name prompt is one-click for repeat hosts.
+  useEffect(() => {
+    window.api
+      .loadSettings()
+      .then((settings) => {
+        const name = settings.userProfile?.displayName?.trim()
+        if (name) setHostNameDefault(name)
+      })
+      .catch((err) => logger.warn('[CampaignDetail] settings load failed:', err))
+  }, [])
+
   const handleDelete = async (): Promise<void> => {
     if (!id) return
     await deleteCampaign(id)
@@ -56,15 +70,39 @@ export default function CampaignDetailPage(): JSX.Element {
     navigate('/')
   }
 
-  const handleStartGame = async (): Promise<void> => {
+  const persistHostDisplayName = async (name: string): Promise<void> => {
+    try {
+      const settings = await window.api.loadSettings()
+      const profile = settings.userProfile ?? {
+        id: crypto.randomUUID(),
+        displayName: '',
+        createdAt: new Date().toISOString()
+      }
+      profile.displayName = name
+      await window.api.saveSettings({ ...settings, userProfile: profile })
+      setHostNameDefault(name)
+    } catch (err) {
+      logger.warn('[CampaignDetail] host name save failed:', err)
+    }
+  }
+
+  const handleStartGame = (): void => {
     if (!campaign) return
+    setShowHostNamePrompt(true)
+  }
+
+  const handleConfirmHostName = async (hostName: string): Promise<void> => {
+    if (!campaign) return
+    setShowHostNamePrompt(false)
+    await persistHostDisplayName(hostName)
+
     setStarting(true)
     try {
       const networkState = useNetworkStore.getState()
       if (networkState.role !== 'none') {
         networkState.disconnect()
       }
-      await hostGame('Dungeon Master', campaign.inviteCode)
+      await hostGame(hostName, campaign.inviteCode)
       navigate(`/lobby/${campaign.id}`)
     } catch (error) {
       logger.error('Failed to start game:', error)
@@ -85,7 +123,8 @@ export default function CampaignDetailPage(): JSX.Element {
       }
       configureForCloud()
       addToast('Connecting via cloud servers...', 'info')
-      await hostGame('Dungeon Master', campaign.inviteCode)
+      const fallbackName = hostNameDefault || 'Dungeon Master'
+      await hostGame(fallbackName, campaign.inviteCode)
       navigate(`/lobby/${campaign.id}`)
     } catch (error) {
       logger.error('Failed to start game via cloud:', error)
@@ -522,6 +561,13 @@ export default function CampaignDetailPage(): JSX.Element {
         variant="warning"
         onConfirm={handleCloudFallback}
         onCancel={() => setShowCloudFallback(false)}
+      />
+
+      <HostNamePrompt
+        open={showHostNamePrompt}
+        defaultName={hostNameDefault || 'Dungeon Master'}
+        onSubmit={handleConfirmHostName}
+        onCancel={() => setShowHostNamePrompt(false)}
       />
     </div>
   )
