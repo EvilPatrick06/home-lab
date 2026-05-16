@@ -228,10 +228,24 @@ function resolve5eReferencesFromDndApp(dndAppRoot) {
   if (existsSync(inside)) return inside
   const beside = join(dndAppRoot, '..', '5.5e References')
   if (existsSync(beside)) return beside
-  throw new Error('5.5e References/ not found (expected at repo root, next to dnd-app/)')
+  return null
 }
 
 const refsBase = resolve5eReferencesFromDndApp(ROOT)
+
+// `5.5e References/` is gitignored (user-supplied content). On CI runners
+// it isn't present, but the previously-built `resources/chunk-index.json`
+// is tracked in the repo. Skip the rebuild in that case — the tracked
+// index stays in place and ships with the build.
+if (!refsBase) {
+  const existingIndex = join(ROOT, 'resources', 'chunk-index.json')
+  if (existsSync(existingIndex)) {
+    console.log(`5.5e References/ not present (likely a CI build); keeping tracked ${existingIndex}.`)
+    process.exit(0)
+  }
+  throw new Error('5.5e References/ not found and no prebuilt resources/chunk-index.json present.')
+}
+
 const allChunks = []
 const sourceStats = []
 
