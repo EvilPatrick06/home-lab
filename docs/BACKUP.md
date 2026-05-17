@@ -5,10 +5,11 @@
 **Primary backup = git.** Since switching OSes on the dev machine, git is the source of truth. Everything that matters is in this repo.
 
 What's backed up via git:
-- All source code (dnd-app + bmo)
+- All source code (dnd-app + bmo + dungeon-scholar)
 - All BMO agents, services, web assets
 - D&D 5e content JSON (`dnd-app/src/renderer/public/data/5e/`)
 - BMO content data (`bmo/pi/data/{games,personality,5e,rag_data}/`)
+- Dungeon Scholar question banks (`dungeon-scholar/src/data/`)
 - Configs, docs, scripts, tests
 
 What's NOT backed up via git (gitignored):
@@ -40,6 +41,20 @@ User data (characters, campaigns) is in:
 - Linux: `~/.config/dnd-vtt/`
 
 These live outside the repo. Back them up separately if valuable. Consider syncing `%APPDATA%\dnd-vtt\` to cloud (OneDrive, Dropbox, iCloud).
+
+### dungeon-scholar (no Pi involvement)
+
+Build is purely from-source — `npm install && npm run build`. Cloud-sync state (optional) lives in Supabase; restore = re-auth.
+
+```bash
+git clone https://github.com/EvilPatrick06/home-lab.git
+cd home-lab/dungeon-scholar
+npm install
+cp .env.example .env.local       # add Supabase URL + anon key if using cloud sync
+npm run dev
+```
+
+Per-user progress that isn't on Supabase lives in browser `localStorage` — not backed up by the app. Browser export / import is the only path back.
 
 ### BMO on Raspberry Pi (fresh Pi)
 

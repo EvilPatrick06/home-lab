@@ -17,9 +17,10 @@ If you find a security issue in this repo, please **do NOT** open a public GitHu
 
 | Component | Version | Status |
 |---|---|---|
-| `dnd-app` | Current master | Supported |
+| `dnd-app` | v2.1.x (current: 2.1.16) | Supported |
 | `bmo` | Current master | Supported |
-| Older releases | — | Not supported; upgrade to master |
+| `dungeon-scholar` | Current master (deployed via Pages) | Supported |
+| Older `dnd-app` releases | — | Not supported; auto-update path nudges users to current |
 
 This is a solo project — patch speed depends on availability. Critical fixes will ship ASAP.
 
@@ -30,6 +31,8 @@ This is a solo project — patch speed depends on availability. Critical fixes w
 - **BMO runs as user `patrick`** (not root) — services with minimal systemd hardening (room to improve, see [`./SECURITY-LOG.md`](./SECURITY-LOG.md))
 - **No public internet exposure by default** — BMO runs on LAN only. Remote access via Cloudflare Tunnel or Tailscale (opt-in)
 - **Optional BMO API auth** — set `BMO_API_KEY` in `bmo/pi/.env` to require `Authorization: Bearer` (or Socket.IO `auth: { bmo_api_key: ... }`) for **non-localhost** clients. Localhost and `/health` stay open for the kiosk and health checks
+- **Game registry rate-limited** — `/api/games*` routes are capped at 30 req/min/IP via flask-limiter with a 4 KB body cap and `max_players` clamped to 1..20. Optional `BMO_REGISTRY_API_KEY` env var enforces a separate `X-Registry-Key` header for announce / heartbeat / patch / delete (orthogonal to `BMO_API_KEY`). CORS is `*` because the registry surface is intentionally LAN-public for game discovery
+- **PeerJS WebRTC** — same-LAN games use direct candidates by default (`iceTransportPolicy: 'all'`); cloud mode flips to relay-only when a TURN server is reachable. No public signaling unless `configureForCloud()` is explicitly called
 
 ## Threat model
 

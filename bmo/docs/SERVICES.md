@@ -48,12 +48,13 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 | `routine_service.py` | Cron-like scheduled tasks (daily briefing, etc.). |
 | `list_service.py` | Generic list management (shopping, TODO). |
 
-### D&D (2)
+### D&D (3)
 
 | Module | Purpose |
 |---|---|
 | `dnd_engine.py` | Dice roller, rules lookups, encounter-building helpers for `dnd_dm` agent. |
 | `campaign_memory.py` | SQLite-backed long-term campaign memory. `data/campaign_memory.db`. |
+| `game_registry.py` | In-memory directory of active multiplayer games (Phase 29f). Per-clientId banned-from-this-game flags, SSE subscriber queues, 30s GC tick / 60s TTL. Powers `/api/games*`. |
 
 ### AI / RAG (3)
 
@@ -126,6 +127,21 @@ Full map in source — use `grep "@app.route" bmo/pi/app.py` for current list.
 | `/api/discord/end-session` | POST | End session |
 | `/api/discord/initiative` | POST | Push initiative order to Discord channel |
 | `/api/discord/narrate` | POST | Narrate text to current session channel |
+
+### Game registry (Phase 29f — public LAN game discovery)
+
+| Path | Method | Purpose |
+|---|---|---|
+| `/api/games[?client_id=…]` | GET | List active games; each entry annotated with `banned_from_this_game` for the given clientId |
+| `/api/games` | POST | Register or replace an entry (rate-limited 30/min, 4 KB body cap) |
+| `/api/games/<code>` | PATCH | Merge a patch onto an existing entry (typically player/spectator counts) |
+| `/api/games/<code>` | DELETE | Deregister |
+| `/api/games/<code>/heartbeat` | POST | Refresh the 60 s entry TTL (hosts ping every 30 s) |
+| `/api/games/stream[?client_id=…]` | GET (SSE) | Live stream — initial `games:full` snapshot then `games:added` / `games:updated` / `games:removed` events |
+
+All `/api/games*` responses carry `Access-Control-Allow-Origin: *` + `Access-Control-Allow-Methods` + `Access-Control-Allow-Headers` so the Electron renderer's `file://` origin can fetch them. OPTIONS preflights are short-circuited with a 204 in `_bmo_optional_api_key`. Optional `BMO_REGISTRY_API_KEY` env enforces an `X-Registry-Key` header on announce / patch / delete / heartbeat (the GET + stream routes stay open).
+
+The Pi also advertises `_bmo._tcp` (port 5000) via `/etc/avahi/services/bmo.service` — the dnd-app's main process browses it with `bonjour-service` and emits a `BMO_RESOLVED_URL` IPC event to the renderer so the user never has to type the Pi URL into Settings.
 
 ### IDE
 

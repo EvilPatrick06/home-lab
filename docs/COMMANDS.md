@@ -13,8 +13,15 @@ npm start                      # same as `npm run preview`
 # Build
 npm run build                  # production build (→ out/)
 npm run build:index            # regenerate chunk index (run before release)
-npm run release                # full release: build + electron-builder + publish to GitHub
+npm run release                # Windows release: electron-builder + publish to GitHub
+npm run release:linux          # Linux AppImage release
+npm run release:all            # both platforms
 npm run build:win              # Windows-only build (no publish)
+npm run build:linux            # Linux-only build (no publish)
+npm run check:release          # mirror CI preflight gates before cutting a tag
+
+# Cutting a real release — keeps package.json + git tag in lockstep
+node scripts/release/cut.mjs X.Y.Z --notes-file=/tmp/vX.Y.Z-notes.md
 
 # Test
 npm test                       # vitest run
@@ -191,10 +198,20 @@ cd ~/home-lab/bmo/pi
 ./venv/bin/python -m pytest tests/agents/test_routing_accuracy.py -v
 ```
 
+## `cd dungeon-scholar/`
+
+```bash
+npm install
+npm run dev                    # http://localhost:5173
+npm run build                  # production bundle (Pages deploy reads this)
+npm run preview                # serve the production bundle locally
+npm test                       # vitest run
+```
+
 ## Docs quick-links
 
 - Architecture: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 - Glossary: [`GLOSSARY.md`](./GLOSSARY.md)
-- Known issues: [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) · [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) · [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) · [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md)
+- Known issues: [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) · [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) · [`ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md) · [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) · [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) · [`SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md)
 - BMO troubleshoot: [`../bmo/docs/TROUBLESHOOTING.md`](../bmo/docs/TROUBLESHOOTING.md)
 - BMO deploy: [`../bmo/docs/DEPLOY.md`](../bmo/docs/DEPLOY.md)

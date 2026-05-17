@@ -10,8 +10,10 @@ Solo-project conventions — open to PRs if they fit the direction.
 4. Skim the active logs so you don't re-discover tracked bugs:
    - [`./BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) — bmo bugs / debt
    - [`./ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) — dnd-app bugs / debt
+   - [`./ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md) — dungeon-scholar bugs / debt
    - [`./BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) — bmo gotchas / ideas
    - [`./SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) — dnd-app gotchas / ideas
+   - [`./SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md) — dungeon-scholar gotchas / ideas
 
 ## Dev setup
 
@@ -72,8 +74,9 @@ some stuff
 2. Make changes + add tests
 3. Run full check before pushing:
    ```bash
-   cd dnd-app && npm run lint && npx tsc --noEmit && npm test
+   cd dnd-app && npm run lint && npx tsc --noEmit -p tsconfig.web.json && npx tsc --noEmit -p tsconfig.node.json && npm test
    cd bmo/pi && ./venv/bin/python -m pytest
+   cd dungeon-scholar && npm test   # only if you touched dungeon-scholar
    ```
 4. Push branch
 5. Open PR with template (`../.github/PULL_REQUEST_TEMPLATE.md`)

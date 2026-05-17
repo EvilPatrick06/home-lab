@@ -375,7 +375,21 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `CLOUD_SYNC_CHECK_STATUS` | `cloud:sync-check-campaign` |
 | `CLOUD_SYNC_LIST_CAMPAIGNS` | `cloud:sync-list-campaigns` |
 
+### LAN Discovery (Phase 29g — mDNS / Bonjour)
 
+Renderer drives the main-process Bonjour publisher + browser. The main process owns the raw UDP socket (renderer is sandboxed). Hosted games are advertised on `_dndvtt._tcp`; the Pi advertises itself on `_bmo._tcp` so the client can resolve its URL without Bonjour Print Services on Windows.
+
+| Constant | Channel string | Direction |
+|---|---|---|
+| `LAN_START_SCAN` | `lan:start-scan` | renderer → main (invoke) |
+| `LAN_STOP_SCAN` | `lan:stop-scan` | renderer → main (invoke) |
+| `LAN_PUBLISH` | `lan:publish` | renderer → main (invoke) |
+| `LAN_UNPUBLISH` | `lan:unpublish` | renderer → main (invoke) |
+| `LAN_GAME_FOUND` | `lan:game-found` | main → renderer (push) |
+| `LAN_GAME_REMOVED` | `lan:game-removed` | main → renderer (push) |
+| `BMO_RESOLVED_URL` | `bmo:resolved-url` | main → renderer (push) |
+
+`window.api.lan.onBmoResolvedUrl((payload) => {...})` is the renderer's hook for the auto-discovered Pi URL — `payload = { url: string \| null }`.
 
 ---
 

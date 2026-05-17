@@ -23,7 +23,10 @@ Plain-English definitions for terms you'll see in this repo. Grouped by topic. B
 - **BMO Kiosk** — the BMO Pi's HDMI touchscreen UI (Chromium fullscreen).
 - **Discord DM Bot** — a Discord bot that relays between D&D players on Discord and the VTT
 - **VTT Sync Receiver** — HTTP server running inside the VTT that accepts callbacks from BMO
-- **dnd-app** — the Electron VTT (in `dnd-app/` dir). Confusingly also the repo name.
+- **dnd-app** — the Electron VTT (in `dnd-app/` dir).
+- **Dungeon Scholar** — exam-prep study app with D&D-themed gamification (in `dungeon-scholar/` dir). Unrelated to the VTT.
+- **Game registry** — the `/api/games*` REST + SSE surface on the Pi. Hosts announce themselves; clients browse the list. Phase 29f.
+- **GameList browser** — the in-VTT screen that merges LAN-discovered games (via mDNS) + Pi-registry games (via SSE) into one card grid. Phase 29g.
 
 ## AI / LLM
 
@@ -58,6 +61,11 @@ Plain-English definitions for terms you'll see in this repo. Grouped by topic. B
 - **three.js** — 3D rendering. dnd-app uses it for 3D dice.
 - **cannon-es** — physics engine. dnd-app uses it for dice physics.
 - **peerjs** — WebRTC peer-to-peer library. dnd-app uses it for multiplayer.
+- **bonjour-service** — Node mDNS / Zeroconf library. Main process uses it to publish `_dndvtt._tcp` (hosted game) + browse `_dndvtt._tcp` (other games) + browse `_bmo._tcp` (Pi auto-discovery).
+- **avahi** — Linux mDNS daemon. The Pi runs `avahi-daemon` to advertise itself (host `bmo.local`) + the `_bmo._tcp` service.
+- **mDNS** — multicast DNS, port 5353. Lets devices on the same LAN resolve `.local` names without a DNS server.
+- **msgpack** — compact binary serialization format. Used for multiplayer messages from v2.1.10 onward.
+- **SSE** — Server-Sent Events. One-way push from server to client over an HTTP connection. Used by the Pi game registry (`/api/games/stream`).
 - **zod** — TypeScript runtime type validation.
 
 ## Pi hardware / OS
@@ -88,8 +96,8 @@ Plain-English definitions for terms you'll see in this repo. Grouped by topic. B
 
 ## Our structure terms
 
-- **Monorepo** — one git repo containing multiple related projects. We have dnd-app + bmo in one.
-- **Domain** — a top-level folder representing one app/service boundary (`dnd-app/`, `bmo/`).
+- **Monorepo** — one git repo containing multiple related projects. We have dnd-app + bmo + dungeon-scholar in one.
+- **Project** / **Domain** — a top-level folder representing one app/service boundary (`dnd-app/`, `bmo/`, `dungeon-scholar/`).
 - **Canonical path** — the one true location for something. Non-canonical = bugged.
 - **Subpackage** — a Python dir with `__init__.py`. Counts as a namespace.
 - **Feature-based** — organized by what code does (inventory, combat, calendar). Opposite of type-based.

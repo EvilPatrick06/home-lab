@@ -62,9 +62,9 @@ npm run release:all             # Windows + Linux
 curl -fsSL https://github.com/EvilPatrick06/home-lab/releases/latest/download/install-linux.sh | bash
 ```
 
-Or download `dnd-vtt-2.0.0-x86_64.AppImage` directly, `chmod +x`, and run.
+Or download `dnd-vtt-<version>-x86_64.AppImage` directly from the [latest release](https://github.com/EvilPatrick06/home-lab/releases/latest), `chmod +x`, and run.
 
-Players install whichever artifact suits their OS from the GitHub Release. DM hosts session, players join via invite code.
+Players install whichever artifact suits their OS from the GitHub Release. DM hosts a session; players either pick the game from the in-app GameList browser (Phase 29g — LAN mDNS + Pi registry merged) or paste the invite code.
 
 ## BMO (Raspberry Pi)
 
@@ -180,6 +180,18 @@ If broken, check:
 - `bmo/docs/TROUBLESHOOTING.md`
 - The matching active log: `docs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs); also `docs/BMO-SUGGESTIONS-LOG.md` + `docs/SUGGESTIONS-LOG-DNDAPP.md` for design-gotchas / known-quirks
 - `journalctl -u bmo -f` + dnd-app logs (Help → Open Logs)
+
+## dungeon-scholar (optional)
+
+The exam-prep study app is fully independent — no Pi, no VTT, no shared state. Quick run:
+
+```bash
+cd dungeon-scholar
+npm install
+npm run dev        # http://localhost:5173
+```
+
+Deploys via GitHub Pages — see [`dungeon-scholar/README.md`](../dungeon-scholar/README.md).
 
 ## Next steps
 

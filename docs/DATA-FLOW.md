@@ -4,8 +4,8 @@ Where every kind of data lives, how it moves, and who owns it.
 
 ## Ownership rules
 
-- **Each domain owns its own storage.** dnd-app and bmo never read each other's files.
-- **Cross-domain data transfer = HTTP only.** (Not filesystem, not shared DB.)
+- **Each project owns its own storage.** dnd-app, bmo, and dungeon-scholar never read each other's files.
+- **Cross-project data transfer = HTTP only** (dnd-app ↔ bmo via `:5000`/`:5001`). dungeon-scholar talks only to Supabase if cloud sync is enabled.
 - **Public content = tracked in git.** Runtime state + secrets = gitignored.
 
 ## Data map
@@ -124,6 +124,18 @@ bmo/pi/data/memory/<project-hash>/MEMORY.md
 | Voice profiles | `bmo/pi/data/voice_profiles.json` (gitignored; migrates from legacy `.pkl` on load) |
 
 Model + clips are TRACKED (rare — training data usually isn't). Voice profiles are gitignored (private biometrics).
+
+### dungeon-scholar data
+
+| Kind | Location | Format |
+|---|---|---|
+| Question banks (per-exam) | `dungeon-scholar/src/data/*.json` | TS-exported JSON |
+| FSRS scheduler state | Browser `localStorage` (key `ds:study-state`) | JSON (per-device) |
+| Cloud-sync progress | Supabase Postgres (optional) | rows keyed on user UUID |
+| User auth tokens | Browser `localStorage` (Supabase JS client) | JSON |
+| Last-viewed deck / streak | Browser `localStorage` | JSON |
+
+No filesystem writes — everything is browser-local or Supabase-side. If a user clears their browser data without cloud sync configured, progress is lost.
 
 ### Secrets (never tracked)
 
