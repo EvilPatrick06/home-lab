@@ -786,7 +786,23 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           // fullscreen editor just to flip the active map.
           <select
             value={gameStore.activeMapId ?? ''}
-            onChange={(e) => gameStore.setActiveMap(e.target.value)}
+            onChange={(e) => {
+              const nextMapId = e.target.value
+              gameStore.setActiveMap(nextMapId)
+              // Phase 17x — fire the dm:map-change broadcast directly here
+              // as belt-and-suspenders alongside the game-sync subscriber
+              // (which also detects activeMapId changes). The
+              // subscriber-based path has been observed to miss broadcasts
+              // when the host has fast successive changes; the explicit
+              // sendMessage guarantees the client receives the switch.
+              const sendMessage = useNetworkStore.getState().sendMessage
+              const nextMap = gameStore.maps.find((m) => m.id === nextMapId)
+              if (nextMap) {
+                sendMessage('dm:map-change', { mapId: nextMapId, mapData: { ...nextMap } })
+              } else {
+                sendMessage('dm:map-change', { mapId: nextMapId })
+              }
+            }}
             className="bg-gray-900/80 backdrop-blur-sm border border-gray-700 text-gray-200 text-xs rounded-lg px-2 py-1.5
                        hover:border-amber-600/50 focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
             title="Switch active map"
