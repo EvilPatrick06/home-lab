@@ -191,6 +191,65 @@ describe('parseRichContent', () => {
       expect(out).toEqual([{ type: 'text', content: '$bad\nmath$' }]);
     });
   });
+
+  // Phase 38e: safe image markdown.
+  describe('image markdown with safe-source allowlist (Phase 38e)', () => {
+    it('extracts a data:image URL as an image node', () => {
+      const out = parseRichContent('see ![tiny](data:image/png;base64,iVBORw0KGgo=) below');
+      expect(out).toEqual([
+        { type: 'text', content: 'see ' },
+        { type: 'image', alt: 'tiny', src: 'data:image/png;base64,iVBORw0KGgo=' },
+        { type: 'text', content: ' below' },
+      ]);
+    });
+
+    it('accepts trusted https hosts (GitHub user images)', () => {
+      const out = parseRichContent('![diagram](https://user-images.githubusercontent.com/123/abc.png)');
+      expect(out).toEqual([
+        { type: 'image', alt: 'diagram', src: 'https://user-images.githubusercontent.com/123/abc.png' },
+      ]);
+    });
+
+    it('falls back to text for an untrusted host', () => {
+      const out = parseRichContent('![evil](https://random-host.example/x.png)');
+      expect(out).toEqual([
+        { type: 'text', content: '![evil](https://random-host.example/x.png)' },
+      ]);
+    });
+
+    it('falls back to text for http://', () => {
+      const out = parseRichContent('![insecure](http://user-images.githubusercontent.com/x.png)');
+      expect(out).toEqual([
+        { type: 'text', content: '![insecure](http://user-images.githubusercontent.com/x.png)' },
+      ]);
+    });
+
+    it('falls back to text for non-image data: URLs', () => {
+      const out = parseRichContent('![sneaky](data:text/html;base64,PHNjcmlwdD4=)');
+      expect(out).toEqual([
+        { type: 'text', content: '![sneaky](data:text/html;base64,PHNjcmlwdD4=)' },
+      ]);
+    });
+
+    it('rejects data:image/svg+xml (SVG can contain <script>)', () => {
+      const out = parseRichContent('![sneaky-svg](data:image/svg+xml;base64,PHN2Zy8+)');
+      expect(out).toEqual([
+        { type: 'text', content: '![sneaky-svg](data:image/svg+xml;base64,PHN2Zy8+)' },
+      ]);
+    });
+
+    it('allows an empty alt text', () => {
+      const out = parseRichContent('![](data:image/png;base64,iVBORw0KGgo=)');
+      expect(out).toEqual([
+        { type: 'image', alt: '', src: 'data:image/png;base64,iVBORw0KGgo=' },
+      ]);
+    });
+
+    it('still parses a non-image [link](url) the same way as before', () => {
+      const out = parseRichContent('see [docs](https://example.com)');
+      expect(out.map(n => n.type)).toEqual(['text', 'link']);
+    });
+  });
 });
 
 describe('isDiagramLanguage', () => {

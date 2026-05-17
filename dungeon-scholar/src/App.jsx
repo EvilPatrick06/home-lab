@@ -9775,7 +9775,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                 purple background) — NOT typeset LaTeX. Calling that out so
                 authors don't expect real KaTeX/MathJax output. */}
             <div className="text-[10px] italic text-amber-100/60 mt-1 leading-relaxed">
-              ⓘ Supported: <code className="text-amber-300">**bold**</code>, <code className="text-amber-300">*italic*</code>, <code className="text-amber-300">`inline code`</code>, <code className="text-amber-300">[link](url)</code>, <code className="text-amber-300">$math$</code> (styled span, not typeset), and fenced <code className="text-amber-300">```code```</code> blocks. (Headings, lists, tables, and images render as plain text.)
+              ⓘ Supported: <code className="text-amber-300">**bold**</code>, <code className="text-amber-300">*italic*</code>, <code className="text-amber-300">`inline code`</code>, <code className="text-amber-300">[link](url)</code>, <code className="text-amber-300">![alt](url)</code> images (data: or trusted hosts only), <code className="text-amber-300">$math$</code> (styled span, not typeset), and fenced <code className="text-amber-300">```code```</code> blocks. (Headings, lists, and tables render as plain text.)
             </div>
             {/* Phase 35a QA P1: legacy descriptions can exceed the limit. Show
                 an inline error + one-click Trim so the user has an explicit

@@ -109,6 +109,29 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
           {n.label}
         </a>,
       );
+    } else if (n.type === 'image') {
+      // Phase 38e: ![alt](url) — already URL-validated by the parser.
+      // Renders inline-block so a short alt text isn't visually
+      // disconnected from the surrounding prose.
+      runBuffer.push(
+        <img
+          key={`img${i}`}
+          src={n.src}
+          alt={n.alt}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          style={{
+            display: 'inline-block',
+            verticalAlign: 'middle',
+            maxWidth: '100%',
+            maxHeight: '18em',
+            border: '1px solid rgba(245, 158, 11, 0.4)',
+            borderRadius: '4px',
+            background: 'rgba(0,0,0,0.25)',
+            margin: '0.15em 0.2em',
+          }}
+        />,
+      );
     } else if (n.type === 'math') {
       // Phase 36d: $inline math$ — styled span, not KaTeX. Visual hint
       // only. Dollar signs are stripped (handled in the parser).
