@@ -2251,7 +2251,11 @@ export default function DungeonScholarApp() {
     });
   };
 
-  const removeFromVault = (id) => {
+  const removeFromVault = (idOrItem) => {
+    // Phase 42d round-9 P4: accept either the legacy id-string OR the full
+    // item object so the caller can pass the item for the undo toast.
+    const id = typeof idOrItem === 'string' ? idOrItem : idOrItem?.id;
+    const itemForUndo = typeof idOrItem === 'object' ? idOrItem : null;
     setPlayerState(prev => {
       if (!prev.activeTomeId) return prev;
       const newBanished = (prev.vaultBanished || 0) + 1;
@@ -2271,6 +2275,39 @@ export default function DungeonScholarApp() {
       }
       return next;
     });
+    // Phase 42d: undo toast — clicking it within ~4s restores the item to
+    // the active tome's vault and rolls back the +5 XP / +1 vaultBanished
+    // counter. Only available when caller passed the full item.
+    if (itemForUndo) {
+      const stem = (itemForUndo.question || itemForUndo.front || itemForUndo.term || itemForUndo.title || 'item').slice(0, 50);
+      showNotif(
+        `Vanquished: ${stem}${stem.length === 50 ? '…' : ''} · Undo?`,
+        'success',
+        () => {
+          setPlayerState(prev => {
+            if (!prev.activeTomeId) return prev;
+            const tomeNow = prev.library.find(t => t.id === prev.activeTomeId);
+            const vaultNow = tomeNow?.progress?.mistakeVault || [];
+            // Avoid duplicate restore if user spams undo.
+            if (vaultNow.some(v => v.id === id)) return prev;
+            return {
+              ...prev,
+              vaultBanished: Math.max(0, (prev.vaultBanished || 0) - 1),
+              xp: Math.max(0, (prev.xp || 0) - 5),
+              totalXp: Math.max(0, (prev.totalXp || 0) - 5),
+              gold: Math.max(0, (prev.gold || 0)),
+              library: prev.library.map(t =>
+                t.id === prev.activeTomeId
+                  ? { ...t, progress: { ...t.progress, mistakeVault: [...vaultNow, itemForUndo] } }
+                  : t
+              ),
+            };
+          });
+          showNotif('Restored to Tome of Failures', 'info', null, 1500);
+        },
+        4000,
+      );
+    }
   };
 
   const trackDungeonAttempt = () => {
@@ -3395,6 +3432,7 @@ export default function DungeonScholarApp() {
             recordAnswer={recordAnswer}
             updateTomeProgress={updateTomeProgress}
             checkAchievement={checkAchievement}
+            onPendingConfirm={setPendingConfirm}
           />
         )}
         {screen === 'chat' && courseSet && (
@@ -3721,7 +3759,11 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                         </button>
                       </div>
                     ) : (
-                      <h3 className="text-lg font-bold text-amber-200 italic truncate" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}>
+                      <h3
+                        className={`text-lg font-bold text-amber-200 italic truncate ${isActive ? 'pr-20' : ''}`}
+                        style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}
+                        title={meta.title || 'Untitled Tome'}
+                      >
                         {meta.title || 'Untitled Tome'}
                       </h3>
                     )}
@@ -5407,7 +5449,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   );
 }
 
-function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement, recordAnswer }) {
+function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement, recordAnswer, onPendingConfirm }) {
   const [selectedLab, setSelectedLab] = useState(null);
   const [step, setStep] = useState(0);
   const [textAnswer, setTextAnswer] = useState('');
@@ -5539,9 +5581,35 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
     }, 1500);
   };
 
+  // Phase 42a QA round-9 P1: confirm before destroying mid-trial progress.
+  // Re-uses the App-level ConfirmModal (same pattern as Trial of Hours
+  // abandon). Only fires when the user has actually progressed past
+  // stage 1 — first-stage exits don't lose anything meaningful.
+  const handleBackToTrials = () => {
+    if (step <= 0 || !onPendingConfirm) {
+      setSelectedLab(null);
+      setStep(0);
+      setFeedback(null);
+      return;
+    }
+    onPendingConfirm({
+      title: '⚗️ Abandon This Trial? ⚗️',
+      body: `Thou art on stage ${step + 1} of ${steps.length}. Stepping back now discards thy progress on this trial — the per-stage XP and gold thou hast earned remain, but the trial-completion credit for this attempt is forfeit.`,
+      confirmLabel: 'Abandon Trial',
+      cancelLabel: 'Keep Going',
+      confirmVariant: 'danger',
+      onConfirm: () => {
+        setSelectedLab(null);
+        setStep(0);
+        setFeedback(null);
+        setTextAnswer('');
+      },
+    });
+  };
+
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
-      <button onClick={() => setSelectedLab(null)} className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic">
+      <button onClick={handleBackToTrials} className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic">
         <ArrowLeft className="w-4 h-4" /> Back to Trials
       </button>
       <div className="rounded p-6 relative" style={{
@@ -6203,8 +6271,8 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
                 <div className="text-sm text-amber-100/70 mt-2 p-2 rounded italic" style={{ background: 'rgba(20, 12, 6, 0.6)', border: '1px solid rgba(120, 53, 15, 0.4)' }}>{item.explanation}</div>
               )}
             </div>
-            <button onClick={() => { onRemove(item.id); awardXP(5); }} className="px-3 py-1 rounded text-sm border-2 border-emerald-400 text-emerald-200" style={{ background: 'rgba(6, 78, 59, 0.5)' }}
-              title="Mark vanquished (+5 XP) — dismisses this entry"
+            <button onClick={() => { onRemove(item); awardXP(5); }} className="px-3 py-1 rounded text-sm border-2 border-emerald-400 text-emerald-200" style={{ background: 'rgba(6, 78, 59, 0.5)' }}
+              title="Mark vanquished (+5 XP) — dismisses this entry (undoable for a moment)"
               aria-label={`Mark vanquished and dismiss: ${(item.question || item.front || item.term || item.title || '').slice(0, 80)}`}>
               <Check className="w-4 h-4" aria-hidden="true" />
             </button>
@@ -9919,12 +9987,21 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <div className={`text-xs italic text-right mt-1 tabular-nums ${description.length > 600 ? 'text-red-300 font-bold' : 'text-amber-300'}`}>
               {description.length}/600
             </div>
-            {/* Phase 36e / 37e QA P5 + P3: surface the supported markdown
-                subset. $math$ renders as a styled span (italic monospace,
-                purple background) — NOT typeset LaTeX. Calling that out so
-                authors don't expect real KaTeX/MathJax output. */}
+            {/* Phase 36e / 37e / 42e QA P5 + P3 + round-9: surface the
+                supported markdown subset + render a live preview row that
+                also serves as a KaTeX lazy-load trigger so users can SEE
+                math typesetting actually working without having to save a
+                math expression themselves first. */}
             <div className="text-[10px] italic text-amber-100/60 mt-1 leading-relaxed">
               ⓘ Supported: <code className="text-amber-300">**bold**</code>, <code className="text-amber-300">*italic*</code>, <code className="text-amber-300">`inline code`</code>, <code className="text-amber-300">[link](url)</code>, <code className="text-amber-300">![alt](url)</code> images (data: or trusted hosts only), <code className="text-amber-300">$math$</code> (typeset via KaTeX, lazy-loaded on first use), and fenced <code className="text-amber-300">```code```</code> blocks. (Headings, lists, and tables render as plain text.)
+            </div>
+            <div className="text-[11px] italic text-amber-100/70 mt-1 leading-relaxed flex items-center gap-1 flex-wrap">
+              <span className="text-amber-700">Live preview:</span>
+              <RichContent
+                as="span"
+                text="**bold** · *italic* · `code` · [link](https://example.com) · $E=mc^2$"
+                className="text-amber-100/85 italic"
+              />
             </div>
             {/* Phase 35a QA P1 / 39d round-7: legacy descriptions can exceed
                 the limit. Show different messaging based on whether the user

@@ -313,10 +313,21 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 <div className="space-y-1 text-xs italic">
                   {past.slice(-5).reverse().map((rec, i) => {
                     const color = rec.scorePct >= 75 ? '#a7f3d0' : rec.scorePct >= 60 ? '#fde68a' : '#fecaca';
-                    // Phase 39e round-7 suggestion: abandoned trials get a
-                    // muted row (lower opacity, italic, no score-color tint)
-                    // so they don't pollute the score history visually.
-                    const isAbandoned = rec.status === 'abandoned';
+                    // Phase 39e / 42b round-7 + round-9: abandoned trials get
+                    // a muted row. 42b also infers abandoned-LIKE for legacy
+                    // rows that lack an explicit status='abandoned' tag —
+                    // any record with 0 answered, 0% score, and a very short
+                    // duration (<120s) was almost certainly walked away from
+                    // rather than legitimately submitted. The 30-riddle exam
+                    // can't realistically be Submit-with-0 in under 2 min.
+                    const isExplicitAbandoned = rec.status === 'abandoned';
+                    const looksAbandoned = !rec.status || (
+                      (rec.answered ?? 0) === 0 &&
+                      (rec.scorePct ?? 0) === 0 &&
+                      (rec.durationSec ?? 0) < 120 &&
+                      (rec.totalCount ?? 0) >= 5
+                    );
+                    const isAbandoned = isExplicitAbandoned || (rec.status !== 'submitted' && rec.status !== 'timeout' && looksAbandoned);
                     return (
                       <div
                         key={i}
