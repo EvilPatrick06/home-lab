@@ -1614,9 +1614,15 @@ def api_music_search():
 def api_music_play():
     """Play a song or resume. Round 2 #2 (2026-05-17): returns the actual
     post-play state so callers can detect "ok=true but is_playing=false"
-    failure modes (muted sink, no output device, VLC error)."""
+    failure modes (muted sink, no output device, VLC error).
+
+    Round 2 L (2026-05-17): auto-unmute the sink before starting playback
+    (user pressed play, intent is obvious). Opt out with {"no_unmute": true}
+    in the body for the edge case where the user wants to queue silently."""
     data = request.get_json(silent=True) or {}
     song = data.get("song")
+    if not data.get("no_unmute"):
+        _audio_unmute_sink()
     try:
         if song:
             music.play(song)
@@ -1647,8 +1653,11 @@ def api_music_play():
 
 @app.route("/api/music/play-queue", methods=["POST"])
 def api_music_play_queue():
+    """Play a queue of songs. Auto-unmutes sink (Round 2 L)."""
     data = request.json or {}
     songs = data.get("songs", [])
+    if not data.get("no_unmute"):
+        _audio_unmute_sink()
     music.play_queue(songs)
     return jsonify({"ok": True})
 
@@ -2822,19 +2831,30 @@ def api_volume_get():
     })
 
 
-@app.route("/api/audio/unmute", methods=["POST"])
-def api_audio_unmute():
-    """Unmute the default PipeWire sink (Round 2 #1 helper)."""
+def _audio_unmute_sink() -> bool:
+    """Unmute the default PipeWire sink. Returns True on success. Used by
+    api_audio_unmute + any code path that should auto-unmute before
+    producing audio (music play, alarm fire, TTS). Round 2 #1+L
+    (2026-05-17)."""
     try:
         import subprocess
         env = os.environ.copy()
         env["XDG_RUNTIME_DIR"] = "/run/user/1000"
         subprocess.run(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "0"],
                        capture_output=True, text=True, timeout=5, env=env)
-        state = _get_system_audio_state()
-        return jsonify({"ok": True, "muted": state["muted"], "volume": state["volume"]})
+        return True
     except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+        log.info(f"[audio] unmute failed: {e}")
+        return False
+
+
+@app.route("/api/audio/unmute", methods=["POST"])
+def api_audio_unmute():
+    """Unmute the default PipeWire sink (Round 2 #1 helper)."""
+    if not _audio_unmute_sink():
+        return jsonify({"ok": False, "error": "wpctl set-mute failed"}), 500
+    state = _get_system_audio_state()
+    return jsonify({"ok": True, "muted": state["muted"], "volume": state["volume"]})
 
 
 @app.route("/api/volume", methods=["POST"])
