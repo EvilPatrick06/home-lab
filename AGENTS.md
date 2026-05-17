@@ -61,7 +61,9 @@ cd dungeon-scholar && npm test && npm run build
 | BMO integration | HTTP client in `src/main/bmo-bridge.ts`. Receives callbacks on port 5001 via sync receiver. |
 | Tests | vitest. `.test.ts(x)` colocated. Run with `npm test`. |
 | Lint | biome (`dnd-app/biome.json`). Run `npm run lint`. |
-| Build | `npm run build` (electron-vite) → `npm run build:{win,linux,cross}` (electron-builder NSIS / AppImage+deb). `npm run release{,:linux,:all}` to publish. |
+| Build | `npm run build` (electron-vite) → `npm run build:{win,linux,cross}` (electron-builder NSIS / AppImage+deb). |
+| Release | **`npm run release:cut <X.Y.Z> --notes-file <path>`** is the canonical release flow. The helper bumps `package.json` + `package-lock.json`, commits, tags, pushes, pre-creates the GitHub release with notes. CI runs preflight (version-match + lint + tsc web/node + tests) → Win+Linux matrix build → verify-assets job (fails if any of the 6 expected artifacts is missing). See `dnd-app/scripts/release/cut.mjs` and `.github/workflows/release.yml`. |
+| Local pre-release check | `npm run check:release` (lint + tsc both configs + tests) — same gate the CI preflight runs. |
 
 ## bmo/ Guidelines
 

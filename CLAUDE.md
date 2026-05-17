@@ -107,6 +107,37 @@ Then:
 
 **Log even minor/optional out-of-scope items.** Patterns across "small" entries often reveal larger problems. Future Claude sessions grep the log for context; don't rely on commit messages alone. But minor items you're fixing right now don't belong in the log — just fix them.
 
+### Cutting a dnd-app release
+
+`dnd-app` releases are gated and versioned via a helper. **Don't tag manually** — version drift between `package.json` and the tag causes electron-builder to publish to the wrong release (this caused v2.0.1/v2.0.2/v2.1.0/v2.1.1/v2.1.2 to silently ship 0-3 of 8 expected assets before the helper landed).
+
+```bash
+# Write release notes to a temp file
+cat > /tmp/vX.Y.Z-notes.md <<'EOF'
+**Release summary.**
+... sub-phase scope, test plan, etc ...
+EOF
+
+# Stash any uncommitted edits (cut.mjs requires clean tree)
+git stash push -u -m "wip-during-release"
+
+# Bump + commit + tag + push + pre-create release with notes
+node dnd-app/scripts/release/cut.mjs X.Y.Z --notes-file /tmp/vX.Y.Z-notes.md
+#   or: cd dnd-app && npm run release:cut X.Y.Z --notes-file ...
+
+# Restore your WIP
+git stash pop
+```
+
+The Release workflow (`.github/workflows/release.yml`) runs on tag push:
+1. **preflight** — verifies `package.json` version matches the tag, runs `npm run lint`, `tsc --noEmit` (both web + node configs), `npm test`. Fails the whole release if anything is off.
+2. **build** matrix — Windows + Linux electron-builder uploads to the pre-existing release.
+3. **verify-assets** — fetches the release's assets, fails if any of the 6 expected files is missing (`dnd-vtt-${ver}-setup.exe`, `.blockmap`, `dnd-vtt-${ver}-x86_64.AppImage`, `latest.yml`, `latest-linux.yml`, `install-linux.sh`).
+
+Local pre-tag sanity check: `cd dnd-app && npm run check:release` (same gates as the CI preflight).
+
+Release titles are the bare version (`2.1.3`, no `v`); detailed notes go in `--notes-file`.
+
 ### Working with the running BMO
 
 BMO runs 24/7 as systemd services. Python changes require restart:
