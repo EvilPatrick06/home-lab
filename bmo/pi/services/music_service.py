@@ -15,6 +15,7 @@ STREAM_URL_TTL = 18000  # 5 hours — re-extract before expiry
 HISTORY_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/music_history.json")
 PLAY_COUNTS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/play_counts.json")
 PLAYBACK_STATE_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/playback_state.json")
+SETTINGS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/settings.json")
 MAX_HISTORY = 100
 
 # Valid output device names
@@ -24,6 +25,24 @@ OUTPUT_TV = "tv"       # Chromecast to TV
 
 class MusicService:
     """Manages music search, queue, and playback (local VLC + Chromecast)."""
+
+    @staticmethod
+    def _read_saved_music_volume() -> int:
+        """Read volume.music from settings.json. Round 3 #17 (2026-05-17):
+        seeds self._volume so /api/music/state agrees with /api/volume."""
+        try:
+            import json as _json
+            if os.path.exists(SETTINGS_FILE):
+                with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                    raw = _json.load(f)
+                vol = raw.get("volume.music")
+                if vol is None and isinstance(raw.get("volume"), dict):
+                    vol = raw["volume"].get("music")
+                if isinstance(vol, (int, float)):
+                    return max(0, min(100, int(vol)))
+        except Exception:
+            pass
+        return 50
 
     def __init__(self, smart_home=None, socketio=None, audio_service=None):
         self.smart_home = smart_home
@@ -45,7 +64,11 @@ class MusicService:
         self.shuffle: bool = False
         self.repeat: str = "off"  # "off", "all", "one"
         self.autoplay: bool = True  # When queue ends, play related songs
-        self._volume: int = 50  # Cached volume level
+        # Round 3 #17 (2026-05-17): seed from settings.json so /api/music/state
+        # and /api/volume agree from boot. Previously _volume hard-coded to 50
+        # while /api/volume read saved value (often 0) — disagreement was
+        # visible on every page load.
+        self._volume: int = self._read_saved_music_volume()
         self._playback_state_save_interval_sec: float = 5.0
         self._last_playback_state_save_ts: float = 0.0
         self._playback_intent: str | None = None  # "playing" | "paused" | None
@@ -171,20 +194,42 @@ class MusicService:
     # ── Search ───────────────────────────────────────────────────────
 
     def search(self, query: str, limit: int = 20) -> list[dict]:
-        """Search YouTube Music for songs."""
+        """Search YouTube Music for songs. Round 3 #15 (2026-05-17): log
+        the query so stale-results reports can be diagnosed from
+        journalctl. Never cache server-side — every call is a fresh
+        ytmusic.search."""
+        log.info(f"[music] search query={query!r} limit={limit}")
         results = self._ytmusic.search(query, filter="songs", limit=limit)
         return [self._format_result(r) for r in results if r.get("videoId")]
 
     @staticmethod
     def _format_result(item: dict) -> dict:
-        artists = ", ".join(a["name"] for a in item.get("artists", []))
+        # Round 3 #16 (2026-05-17): defensive artist extraction. The
+        # ytmusicapi sometimes returns garbage in the `artists` field
+        # (album titles, "Closed on Sunday"-style track-name fragments).
+        # We accept the first artist whose name doesn't suspiciously
+        # match the track or album title.
+        title = item.get("title", "Unknown")
+        album_name = item.get("album", {}).get("name", "") if item.get("album") else ""
+        raw_artists = item.get("artists", []) or []
+        names = []
+        for a in raw_artists:
+            n = (a or {}).get("name", "").strip()
+            if not n:
+                continue
+            # Filter out garbage: same as title, same as album, or matches
+            # the BMO-known "track title that crept into artist" pattern.
+            if n == title or n == album_name:
+                continue
+            names.append(n)
+        artists = ", ".join(names) if names else "Unknown Artist"
         thumbnails = item.get("thumbnails", [])
         thumbnail = thumbnails[-1]["url"] if thumbnails else ""
         return {
             "videoId": item["videoId"],
-            "title": item.get("title", "Unknown"),
+            "title": title,
             "artist": artists,
-            "album": item.get("album", {}).get("name", "") if item.get("album") else "",
+            "album": album_name,
             "duration": item.get("duration", ""),
             "thumbnail": thumbnail,
         }

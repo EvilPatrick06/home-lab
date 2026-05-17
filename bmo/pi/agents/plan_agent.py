@@ -35,17 +35,36 @@ Task: {task}
 
 {scratchpad_context}
 
+CRITICAL: BMO exposes a rich HTTP API for runtime state changes (LEDs,
+volume, music, scenes, calendar, timers, notifications, TV, etc.). If
+the user's task can be done by calling an existing endpoint, the plan
+MUST default to "call this endpoint" — NOT "write a Python script".
+Generating a throwaway script for a single API call is wasted work
+and produces files BMO has to maintain. Only write a script when the
+behavior is genuinely missing from the API surface AND requires
+multiple steps or persistence.
+
+Examples (Round 3 #5, 2026-05-17):
+  - "Set LEDs to purple breathing 40%" → POST /api/leds/state with
+    {state:"breathing", color:"purple", brightness:40}. NO script.
+  - "Pause music" → POST /api/music/pause. NO script.
+  - "Activate movie scene" → POST /api/scene/activate {scene:"movie"}. NO script.
+  - "Build a multi-step recurring routine" → use the routines API
+    AND/OR a Python script that wires multiple endpoints together.
+
 Write the plan in this EXACT format (BMO will parse it):
 
 ## Plan: [Task Title]
 
 ### Context
-Why this change is needed and what you found during exploration.
+Why this change is needed and what you found during exploration. If
+this is a state change that maps to an existing endpoint, name the
+endpoint here explicitly.
 
 ### Steps
 1. [ ] Step description (agent: code)
-   - Files: path/to/file.py
-   - Details: what to change
+   - Files: path/to/file.py    (omit "Files" if step is a single API call)
+   - Details: what to change OR which endpoint to hit + payload
 2. [ ] Step description (agent: test)
    ...
 
@@ -54,7 +73,7 @@ Why this change is needed and what you found during exploration.
 - Risk 2 and mitigation
 
 ### Verification
-- How to test the changes
+- How to test the changes (prefer curl + assert response, not "run the script")
 
 Write the plan to the scratchpad "Plan" section. Be specific about which agent should handle each step."""
 

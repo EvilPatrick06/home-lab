@@ -857,17 +857,20 @@ function bmo() {
         }
       });
       this.socket.on('conversation_mode', (data) => { this.conversationActive = data.active; });
-      // Round 2 #22 (2026-05-17): server broadcasts chat_cleared after
-      // /api/chat/clear so every connected tab refreshes its messages
-      // list without a manual reload.
+      // Round 2 #22 / Round 3 #7 (2026-05-17): server broadcasts
+      // chat_cleared after /api/chat/clear so every connected tab
+      // refreshes. Use .splice() instead of reassignment because Alpine
+      // misses some reassignment reactivity in nested-array cases.
       this.socket.on('chat_cleared', (data) => {
-        this.messages = [];
+        this.messages.splice(0, this.messages.length);
         this.status = 'idle';
         const note = data?.dnd_saved
           ? 'Campaign session saved! Chat cleared. Starting fresh.'
           : 'Chat cleared.';
         this.messages.push({ role: 'assistant', text: note });
         this.scrollChat();
+        // Toast on the current tab too — was silent before.
+        this.showNotification?.(note);
       });
       this.socket.on('scene_change', (data) => {
         // QA #13: backend now emits the full scenes list alongside the
@@ -915,12 +918,29 @@ function bmo() {
 
       // IDE SocketIO events removed — new IDE on port 5001
 
-      // Personality quips
+      // Personality quips (Round 3 #6, 2026-05-17): tag as ambient role
+      // + dedupe within 5 min so identical nudges don't double-fire and
+      // proactive turns are visually distinct from real assistant replies.
+      this._recentQuipTexts = this._recentQuipTexts || new Map();
       this.socket.on('bmo_quip', (data) => {
-        if (data.text) {
-          this.messages.push({ role: 'assistant', text: data.text });
-          this.scrollChat();
+        if (!data.text) return;
+        const norm = data.text.trim().toLowerCase();
+        const lastTs = this._recentQuipTexts.get(norm) || 0;
+        const now = Date.now();
+        if (now - lastTs < 5 * 60 * 1000) {
+          return;  // dedupe — same nudge fired within 5 min, drop
         }
+        this._recentQuipTexts.set(norm, now);
+        // GC old entries so the map doesn't grow unbounded
+        for (const [k, ts] of this._recentQuipTexts) {
+          if (now - ts > 30 * 60 * 1000) this._recentQuipTexts.delete(k);
+        }
+        this.messages.push({
+          role: 'ambient',
+          text: data.text,
+          isQuip: true,
+        });
+        this.scrollChat();
       });
     },
 
@@ -970,6 +990,10 @@ function bmo() {
       this.socket.emit('plan_reject', { client_timezone: this.clientTimezone });
       this.planMode = false;
       this.planStatus = 'idle';
+      // Round 3 #4 (2026-05-17): also revert mode selector to whatever the
+      // user actually had so the banner+selector agree. Plan-banner-was-
+      // stuck-after-cancel was the headline complaint.
+      if (this.selectedAgent === 'plan') this.selectedAgent = 'auto';
     },
 
     // ── Connection / Health (QA #6, #7, 2026-05-17) ───────────
@@ -2002,8 +2026,11 @@ function bmo() {
     },
 
     async toggleMotion() {
-      // Round 2 #21 (2026-05-17): explicit toast feedback so the user
-      // sees the state flip even if the button styling is subtle.
+      // Round 3 #10 (2026-05-17): read motion state back from the
+      // server's response so the button styling never disagrees with
+      // server reality. Use $nextTick to force Alpine to re-render the
+      // :class binding after the boolean flip (the OFF case sometimes
+      // didn't visually update without this).
       const next = !this.motionEnabled;
       this.motionEnabled = next;
       try {
@@ -2013,11 +2040,16 @@ function bmo() {
           body: JSON.stringify({ enabled: next }),
         });
         if (!res.ok) {
-          this.motionEnabled = !next;  // revert on failure
+          this.motionEnabled = !next;
           this.showNotification('Motion toggle failed', 'error');
           return;
         }
-        this.showNotification(next ? 'Motion detection: ON' : 'Motion detection: OFF');
+        try {
+          const data = await res.json();
+          if (typeof data?.enabled === 'boolean') this.motionEnabled = data.enabled;
+        } catch {}
+        this.$nextTick(() => { /* force re-render */ });
+        this.showNotification(this.motionEnabled ? 'Motion detection: ON' : 'Motion detection: OFF');
       } catch (e) {
         this.motionEnabled = !next;
         this.showNotification('Motion toggle failed: ' + (e.message || 'network'), 'error');
@@ -3033,25 +3065,28 @@ function bmo() {
     },
 
     async btScan() {
-      // Round 2 #25 (2026-05-17): explicit timeout reset so the button
-      // doesn't get stuck in "Scanning..." if the backend's bt_scan_result
-      // event never arrives. Records last-scan timestamp for display.
+      // Round 2 #25 / Round 3 #23 (2026-05-17): explicit timeout reset
+      // so the button doesn't stick in "Scanning..." if no event arrives.
+      // Suppress the "timed out" toast when devices DID arrive (the
+      // earlier message was contradictory — list was populated but
+      // banner said timeout).
       this.btScanning = true;
       this.btDevices = [];
       if (this._btScanTimeout) clearTimeout(this._btScanTimeout);
       this._btScanTimeout = setTimeout(() => {
         if (this.btScanning) {
           this.btScanning = false;
-          this.showNotification('Bluetooth scan timed out', 'error');
+          if ((this.btDevices?.length || 0) === 0) {
+            this.showNotification('Bluetooth scan timed out — no devices found', 'error');
+          }
         }
-      }, 20000);  // scan duration is 8s, give 20s headroom
+      }, 20000);
       try {
         await fetch('/api/audio/bluetooth/scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ duration: 8 }),
         });
-        // Results arrive via bt_scan_result socket event
       } catch {
         this.btScanning = false;
         if (this._btScanTimeout) clearTimeout(this._btScanTimeout);
@@ -3354,8 +3389,14 @@ function bmo() {
     // ── Wi-Fi Settings ────────────────────────────────────────
 
     async fetchWifiStatus() {
+      // Round 3 #18 (2026-05-17): Settings panel reads current_ssid /
+      // ip_address / internet / saved_networks — all on the DETAIL shape.
+      // The slim /api/wifi/status (31b public-surface trim) only has
+      // {ssid, connected}, so reading it here made every field show
+      // disconnected fallbacks. /api/wifi/status/detail is behind CF
+      // Access — appropriate for a Settings panel.
       try {
-        const res = await fetch('/api/wifi/status');
+        const res = await fetch('/api/wifi/status/detail');
         if (res.ok) this.wifiStatus = await res.json();
       } catch {}
     },

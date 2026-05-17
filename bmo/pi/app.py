@@ -90,7 +90,14 @@ def _cache_policy(response):
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-            "img-src 'self' data: blob:; "
+            # Round 3 #14 (2026-05-17): allow YouTube + Google Calendar
+            # thumbnail hosts so Music + Calendar cards aren't broken-image
+            # icons under our restrictive CSP. Limited to the specific
+            # hosts BMO renders from, not a wildcard.
+            "img-src 'self' data: blob: "
+            "https://yt3.googleusercontent.com "
+            "https://lh3.googleusercontent.com "
+            "https://i.ytimg.com; "
             "font-src 'self' data: https://cdn.jsdelivr.net; "
             "connect-src 'self' ws: wss:; "
             "frame-ancestors 'self'; "
@@ -2269,10 +2276,26 @@ def api_camera_stream():
 def api_camera_snapshot():
     if not camera:
         return jsonify({"error": "Camera service not available"}), 503
-    path = camera.take_snapshot()
+    # Round 3 #8 (2026-05-17): catch hardware-absent / capture-failure
+    # raises so the frontend gets a clean JSON error with the real
+    # reason instead of a generic Flask 500 HTML page.
+    try:
+        path = camera.take_snapshot()
+    except Exception as e:
+        log.info(f"[camera] snapshot failed: {e}")
+        return jsonify({"error": f"Camera error: {e}"}), 503
     # QA #19 (2026-05-17): returns the new /api/camera/snapshot/last URL
     # so the frontend can show an inline preview without guessing the path.
     return jsonify({"path": path, "preview_url": "/api/camera/snapshot/last"})
+
+
+# Round 3 #8 (2026-05-17): aliases for shorter/legacy URL forms QA
+# reported hitting. /snap and /capture both route to /snapshot now so
+# any stale or migrated caller gets a real response (not 404).
+app.add_url_rule("/api/camera/snap", view_func=api_camera_snapshot,
+                 methods=["POST"], endpoint="camera_snap_alias")
+app.add_url_rule("/api/camera/capture", view_func=api_camera_snapshot,
+                 methods=["POST"], endpoint="camera_capture_alias")
 
 
 @app.route("/api/camera/snapshot/last")
@@ -2306,7 +2329,20 @@ def api_camera_describe():
             import traceback
             log.info(f"[vision] Error: {e}")
             traceback.print_exc()
-            description = "Gemini vision failed or you are offline"
+            # Round 3 #9 (2026-05-17): split conflated "failed or offline"
+            # into specific failure-mode messaging so the user knows what
+            # action to take.
+            err_text = str(e).lower()
+            if "api key" in err_text or "credentials" in err_text:
+                description = "Vision unavailable: Gemini API key not configured. Ask the Pi admin."
+            elif "connection" in err_text or "network" in err_text or "timeout" in err_text or "resolve" in err_text:
+                description = "Vision unavailable: can't reach Gemini (network/timeout). Check internet."
+            elif "no camera" in err_text or "camera available" in err_text:
+                description = "Vision unavailable: camera hardware not detected."
+            elif "frame" in err_text:
+                description = "Vision unavailable: couldn't capture a camera frame."
+            else:
+                description = f"Vision failed: {str(e)[:120]}"
         socketio.emit("vision_result", {"description": description})
         log.info("[vision] Emitted vision_result")
 
@@ -2334,12 +2370,20 @@ def api_camera_ocr():
 
 @app.route("/api/camera/motion", methods=["POST"])
 def api_camera_motion():
+    """Toggle motion detection. Round 3 #10 (2026-05-17): return the
+    actual enabled state so the frontend can confirm against server
+    reality (UI was drifting from server on the second click)."""
+    if not camera:
+        return jsonify({"ok": False, "enabled": False, "error": "Camera service not available"}), 503
     data = request.json or {}
-    if data.get("enabled", True):
+    want = bool(data.get("enabled", True))
+    if want:
         camera.start_motion_detection()
     else:
         camera.stop_motion_detection()
-    return jsonify({"ok": True})
+    # Read back if camera exposes the state; else trust the requested value.
+    actual = bool(getattr(camera, "motion_active", want))
+    return jsonify({"ok": True, "enabled": actual})
 
 
 # ── Voice Enrollment API ──────────────────────────────────────────────
@@ -3529,7 +3573,13 @@ def api_chat_clear():
         socketio.emit("chat_cleared", {"ts": time.time(), "dnd_saved": dnd_was_active})
     except Exception:
         log.exception("[chat] failed to emit chat_cleared")
-    return jsonify({"ok": True, "dnd_saved": dnd_was_active})
+    # Round 3 #30 (2026-05-17): only include dnd_saved when meaningful.
+    # Previously always returned `false`, which read as "we tried and
+    # failed" rather than "no DnD context existed".
+    payload = {"ok": True}
+    if dnd_was_active:
+        payload["dnd_saved"] = True
+    return jsonify(payload)
 
 
 # ── Notes API ────────────────────────────────────────────────────────

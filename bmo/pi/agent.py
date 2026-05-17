@@ -134,10 +134,15 @@ def _local_chat(messages: list[dict], options: dict | None = None) -> str:
             "configuration."
         )
     try:
+        # Round 3 #36 (2026-05-17): keep_alive="30s" so the model unloads
+        # quickly after the request. Default 5min keep-alive was eating
+        # ~3.7GB RAM per gemma3:4b load and driving Pi RAM warnings.
+        # 30s is enough for follow-up turns to stay warm without pinning.
         response = ollama_client.chat(
             model=LOCAL_MODEL,
             messages=messages,
             options=options or OLLAMA_OPTIONS,
+            keep_alive="30s",
         )
         return response["message"]["content"]
     except ollama_client.ResponseError as e:

@@ -58,9 +58,17 @@
         <div x-show="showNotifications" @click.away="showNotifications = false"
              class="absolute top-10 right-0 w-72 bg-surface border border-surface-light rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
           <template x-for="(n, i) in notificationHistory" :key="i">
-            <div class="px-3 py-2.5 border-b border-surface-light last:border-0 text-sm">
-              <span x-text="n.text"></span>
-              <span class="text-text-dim ml-1" x-text="n.time"></span>
+            <!-- Round 3 #33 (2026-05-17): per-item dismiss on the bell
+                 dropdown (Settings panel got this in 37h; bell dropdown
+                 was missed). -->
+            <div class="px-3 py-2.5 border-b border-surface-light last:border-0 text-sm flex items-start gap-2">
+              <div class="flex-1 min-w-0">
+                <span x-text="n.text"></span>
+                <span class="text-text-dim ml-1" x-text="n.time"></span>
+              </div>
+              <button @click.stop="notificationHistory.splice(i, 1)"
+                      class="text-text-dim hover:text-rose-400 text-xs shrink-0"
+                      title="Dismiss">&times;</button>
             </div>
           </template>
           <div x-show="notificationHistory.length === 0" class="px-3 py-4 text-sm text-text-dim text-center">No notifications</div>
@@ -271,8 +279,13 @@
          :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
          class="h-full flex flex-col">
 
-      <!-- Agent indicator bar -->
-      <div x-show="agentUsed && agentUsed !== 'conversation'" class="px-3 py-1 bg-surface-light/50 border-b border-surface-light flex items-center gap-2 text-xs text-text-dim">
+      <!-- Agent indicator bar (Round 3 #2, 2026-05-17): only visible
+           WHILE the agent is actively working (status in {thinking,
+           yapping}). Previously stuck around forever after the reply
+           landed, polluting the chat header. The plan-mode panel below
+           covers the "in plan flow" case separately. -->
+      <div x-show="agentUsed && agentUsed !== 'conversation' && (status === 'thinking' || status === 'yapping')"
+           class="px-3 py-1 bg-surface-light/50 border-b border-surface-light flex items-center gap-2 text-xs text-text-dim">
         <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
         <span x-text="agentDisplayName || agentUsed"></span>
       </div>
@@ -306,10 +319,16 @@
 
       <div class="flex-1 overflow-y-auto p-3 space-y-2" id="chatScroll" x-ref="chatScroll">
         <template x-for="(msg, i) in messages" :key="i">
-          <div :class="msg.role === 'user' ? 'flex justify-end' : (msg.role === 'progress' ? 'flex justify-center' : 'flex justify-start')">
+          <div :class="msg.role === 'user' ? 'flex justify-end' : (msg.role === 'progress' || msg.role === 'ambient' ? 'flex justify-center' : 'flex justify-start')">
             <div class="rounded-xl px-3 py-2 text-base select-text"
-                 :class="msg.role === 'user' ? 'max-w-[75%] bg-accent text-surface-dark' : (msg.role === 'progress' ? (msg.failed ? 'text-xs text-red-400 italic' : 'text-xs text-text-dim italic') : (msg.isRecap ? 'max-w-[75%] bg-accent-dim/30 text-accent-light italic border border-accent-dim' : (msg.incomplete ? 'max-w-[75%] bg-surface-light text-text border border-amber-500/40' : 'max-w-[75%] bg-surface-light text-text')))">
-              <div x-show="msg.speaker && msg.role === 'user'" class="text-xs opacity-70 mb-0.5" x-text="msg.speaker"></div>
+                 :class="msg.role === 'user' ? 'max-w-[75%] bg-accent text-surface-dark' : (msg.role === 'progress' ? (msg.failed ? 'text-xs text-red-400 italic' : 'text-xs text-text-dim italic') : (msg.role === 'ambient' ? 'max-w-[80%] text-xs text-text-dim italic bg-surface-light/40 border border-surface-light/40 rounded-full px-3 py-1' : (msg.isRecap ? 'max-w-[75%] bg-accent-dim/30 text-accent-light italic border border-accent-dim' : (msg.incomplete ? 'max-w-[75%] bg-surface-light text-text border border-amber-500/40' : 'max-w-[75%] bg-surface-light text-text'))))">
+              <!-- Round 3 #3 (2026-05-17): only render the speaker tag
+                   when it's a voice-profile attribution (the D&D "as
+                   <player>" affordance). Plain "text" / "system" /
+                   "unknown" speakers are internal and never shown. -->
+              <div x-show="msg.role === 'user' && msg.speaker && msg.speaker.startsWith('voice:')"
+                   class="text-xs opacity-70 mb-0.5"
+                   x-text="(msg.speaker || '').replace('voice:', 'as ')"></div>
               <div class="select-text" x-text="msg.text"></div>
               <!-- QA #24 (2026-05-17): explicit "(interrupted)" pill when an
                    assistant message was persisted partial — usually because
@@ -371,12 +390,14 @@
     <div x-show="tab === 'music'"
          :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
          class="h-full flex flex-col p-3 gap-2">
-      <!-- Search (QA #18, 2026-05-17: explicit @keydown.enter so Enter
-           always submits even when the @input debounce path is mid-flight) -->
+      <!-- Search (Round 3 #13, 2026-05-17): bind on BOTH form submit
+           AND keydown.enter with .stop.prevent so the Enter key path
+           never races with @input's debounce. x-model.lazy keeps the
+           model in sync without firing extra @input events. -->
       <form @submit.prevent="searchMusic()" class="flex gap-2">
         <input x-model="musicQuery"
-               @input="searchMusicDebounced()"
-               @keydown.enter.prevent="searchMusic()"
+               @input.debounce.250ms="searchMusicDebounced()"
+               @keydown.enter.prevent.stop="searchMusic()"
                @focus="onMusicSearchFocus()"
                @blur="musicSearchFocused = false"
                type="text"
@@ -1179,8 +1200,10 @@
         </div>
       </div>
       </div><!-- /my-auto centering wrapper -->
-      <!-- Pairing overlay -->
-      <div x-show="!tvConnected" class="absolute inset-0 bg-surface-dark/95 z-10 flex flex-col items-center justify-center gap-3 p-4">
+      <!-- Pairing overlay (Round 3 #32, 2026-05-17): z-30 so the
+           overlay reliably sits above the disabled tile grid below.
+           Previously z-10 occasionally let the tiles peek through. -->
+      <div x-show="!tvConnected" class="absolute inset-0 bg-surface-dark/95 z-30 flex flex-col items-center justify-center gap-3 p-4">
         <div class="text-4xl">&#x1F4FA;</div>
         <template x-if="!tvPairing">
           <div class="text-center">
@@ -1258,7 +1281,13 @@
           </div>
           <input x-model="alarmLabel" type="text" placeholder="Label (optional)"
                  class="flex-1 bg-surface-light rounded-lg px-3 py-2 text-base text-text outline-none focus:ring-1 focus:ring-accent">
-          <button @click="createAlarmFromTime()" class="bg-accent text-surface-dark px-5 py-2 rounded-lg text-base font-medium">Set</button>
+          <!-- Round 3 #31 (2026-05-17): disable Set when time is 0:0,
+               which previously was the default and would have created
+               a midnight alarm. Valid hours are 1-12 (12-hour clock). -->
+          <button @click="createAlarmFromTime()"
+                  :disabled="!alarmHour || alarmHour < 1 || alarmHour > 12"
+                  :class="(!alarmHour || alarmHour < 1 || alarmHour > 12) ? 'bg-surface text-text-dim cursor-not-allowed' : 'bg-accent text-surface-dark'"
+                  class="px-5 py-2 rounded-lg text-base font-medium">Set</button>
         </div>
         <!-- Tag selector -->
         <div class="flex items-center justify-center gap-2">
@@ -1571,10 +1600,13 @@
             <template x-for="bt in btDevices" :key="bt.address">
               <div class="flex items-center gap-2 bg-surface rounded px-2 py-1.5">
                 <span class="text-sm flex-1 truncate" x-text="bt.name || bt.address"></span>
-                <!-- QA #17 + Round 2 #26 (2026-05-17): MAC tail revealed
-                     only when btShowMacs toggle is on, so onlookers can't
-                     see foreign devices' fragments without consent -->
-                <span x-show="btShowMacs" class="text-[10px] text-text-dim font-mono"
+                <!-- QA #17 + Round 2 #26 + Round 3 #24 (2026-05-17):
+                     show MAC tail only when toggle on OR when a
+                     duplicate name exists (so users can disambiguate
+                     two devices both named "ONE" without needing to
+                     flip Show MAC). -->
+                <span x-show="btShowMacs || btDevices.filter(x => (x.name||x.address) === (bt.name||bt.address)).length > 1"
+                      class="text-[10px] text-text-dim font-mono"
                       x-text="bt.address ? '··' + bt.address.slice(-5).replace(':','') : ''"></span>
                 <button @click="btPair(bt.address)" class="text-xs text-accent">Pair</button>
               </div>
@@ -1839,7 +1871,10 @@
         </div>
 
         <div class="text-xs text-text-dim mb-2" x-show="wifiStatus">
-          <div><span class="text-text-muted">Current:</span> <span x-text="wifiStatus?.current_ssid || 'Not connected'"></span></div>
+          <!-- Round 3 #18 (2026-05-17): if there's an IP but no SSID, the
+               Pi is on ethernet — say so instead of "Not connected". -->
+          <div><span class="text-text-muted">Current:</span>
+            <span x-text="wifiStatus?.current_ssid || (wifiStatus?.ip_address ? 'Connected (Ethernet)' : 'Not connected')"></span></div>
           <div><span class="text-text-muted">IP:</span> <span x-text="wifiStatus?.ip_address || '—'"></span></div>
           <div><span class="text-text-muted">Internet:</span> <span x-text="wifiStatus?.internet ? 'Online' : 'Offline'"></span></div>
           <div><span class="text-text-muted">Tailscale:</span> <span x-text="wifiStatus?.tailscale_ip || 'Not connected'"></span></div>
@@ -1979,8 +2014,18 @@
        @click="notification = null" x-text="notification">
   </div>
 
-  <!-- Camera Overlay (accessed from chat) -->
-  <div x-cloak x-show="showCameraOverlay" x-transition style="display:none"
+  <!-- Camera Overlay (accessed from chat). Round 3 #11/#12 (2026-05-17):
+       pointer-events-none on the leave transition + explicit tab='chat'
+       on close so the user can't accidentally land in IDE by clicking
+       during the fade-out. -->
+  <div x-cloak x-show="showCameraOverlay"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0"
+       x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-150 pointer-events-none"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       style="display:none"
        class="fixed inset-0 bg-surface-dark z-40 flex flex-col">
     <div class="flex-1 bg-black flex items-center justify-center relative overflow-hidden min-h-0">
       <img :src="showCameraOverlay ? '/api/camera/stream' : ''" class="w-full h-full object-contain" x-show="cameraActive" @error="cameraActive=false">
@@ -1992,7 +2037,11 @@
       <button @click="cameraDescribe()" class="bg-surface-light hover:bg-accent/20 px-4 py-2 rounded-lg text-sm">Describe</button>
       <button @click="toggleMotion()" class="px-4 py-2 rounded-lg text-sm"
               :class="motionEnabled ? 'bg-accent text-surface-dark' : 'bg-surface-light'">Motion</button>
-      <button @click="showCameraOverlay = false; visionResult = ''" class="bg-accent hover:bg-accent-light text-surface-dark px-4 py-2 rounded-lg text-sm font-medium">Back to Chat</button>
+      <!-- Round 3 #12: explicitly switch to chat tab on close so the user
+           doesn't accidentally land somewhere else if a tab button click
+           races the overlay teardown. -->
+      <button @click="showCameraOverlay = false; visionResult = ''; tab = 'chat'"
+              class="bg-accent hover:bg-accent-light text-surface-dark px-4 py-2 rounded-lg text-sm font-medium">Back to Chat</button>
     </div>
     <!-- QA #19 (2026-05-17): inline snap preview modal -->
     <div x-cloak x-show="showSnapPreview" @click.self="closeSnapPreview()"
@@ -2163,7 +2212,12 @@
         <p class="text-text-dim text-center mt-8 text-xl">Loading detailed status...</p>
       </template>
       <template x-if="detailedStatus">
-        <div class="space-y-5 font-mono max-w-4xl mx-auto" style="zoom:2;">
+        <!-- Round 3 #21 (2026-05-17): dropped `style="zoom:2"` — it doubled
+             the cost of every layout pass and combined with 30+ service
+             rows × 5 filtered iterations caused 15s+ freeze. Use larger
+             text classes instead; the touch-target sizing comes from
+             padding, not zoom. -->
+        <div class="space-y-5 font-mono max-w-4xl mx-auto text-lg">
           <!-- Overall -->
           <div class="bg-surface-light rounded-lg p-5">
             <div class="flex items-center gap-3 mb-2">

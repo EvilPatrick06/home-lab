@@ -286,8 +286,26 @@ class CodeAgent(BaseAgent):
                 pending_confirmations_out=pending_confirmations,
             )
         except Exception as e:
-            self._emit_progress("Synthesizing response", "failed", str(e)[:100])
-            return f"(Claude tool loop error: {e})", tool_calls_made[0], []
+            # Round 3 #1 (2026-05-17): never leak provider URLs / SDK
+            # internals to the user-facing chat. The full exception (which
+            # contains api.anthropic.com URLs) goes to logs only; the user
+            # sees a generic actionable message.
+            err_text = str(e)
+            print(f"[code_agent] tool loop error: {err_text}")
+            self._emit_progress("Synthesizing response", "failed", err_text[:100])
+            # Friendly messages by error shape — most common cases first.
+            lower = err_text.lower()
+            if "400" in err_text or "bad request" in lower:
+                msg = "BMO had trouble with that request — try a shorter prompt or rephrasing."
+            elif "401" in err_text or "unauthorized" in lower or "invalid_api_key" in lower:
+                msg = "BMO's AI provider key is invalid or missing. Ask the Pi admin to check the API key."
+            elif "429" in err_text or "rate limit" in lower:
+                msg = "BMO is rate-limited right now — try again in a minute."
+            elif "timeout" in lower or "timed out" in lower:
+                msg = "BMO's AI provider didn't respond in time. Try again."
+            else:
+                msg = "BMO ran into a problem completing this — try again, or ask in a different way."
+            return msg, tool_calls_made[0], []
 
         clean_text = self._make_chat_friendly(final_text)
         return clean_text, tool_calls_made[0], pending_confirmations

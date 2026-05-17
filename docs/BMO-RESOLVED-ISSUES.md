@@ -12,6 +12,30 @@
 
 ---
 
+### [2026-05-17] Phase 38 (BMO) — QA Round 3 bundle (36 problems, surface leaks + regressions + new)
+
+- **Original QA bugs:** 2026-05-17 BMO QA Round 3 report. Critical: Anthropic provider URL was leaking raw into chat. Plus regressions from Phase 37 and net-new bugs.
+- **Category:** bug, ux, surface-leak, regression-sweep
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (BMO Phase 38 — 38a-38j; commits tagged `fix(bmo): 38x` to disambiguate from DS Phase 38 which already landed)
+- **Date resolved:** 2026-05-17
+- **Final test sweep:** 814 passed, 6 skipped. BMO restarted clean.
+- **Sub-phase summary:**
+  - **38a (chat hygiene):** #1 Anthropic URL leak — `code_agent.py` now logs internally + surfaces error-shape-specific user-facing messages (400/401/429/timeout). #2 agent banner only while in-flight. #3 `text` speaker tag hidden. #4 plan banner clears + selectedAgent resets on reject.
+  - **38b (verify-don't-assume regressions):** #18 Settings panel reads `/api/wifi/status/detail` + UI shows "Connected (Ethernet)" when ssid empty + ip present. #17 music volume seeded from settings.json at boot so /api/music/state matches /api/volume. #14 CSP `img-src` allows yt3/lh3/i.ytimg hosts (thumbnails unblocked). #13 music Enter handler gets `.stop` + 250ms input debounce. #33 bell-dropdown gets per-item dismiss. #7 chat_cleared listener uses splice + toast. #11/#12 camera overlay pointer-events-none leave + explicit tab='chat' on close.
+  - **38c (proactive nudges):** #6 quips tagged `role:'ambient'`, deduped 5min, rendered as small italic pill.
+  - **38d (camera):** #8 `/api/camera/snap`+`/capture` aliases; raw 500 → clean 503 with reason. #9 describe error split by failure mode. #10 motion toggle reads enabled flag back from server response.
+  - **38e (plan agent):** #5 DESIGN_PROMPT teaches the agent to default to HTTP endpoints over generating throwaway scripts.
+  - **38f (music search):** #15 logs every query for diagnosis. #16 `_format_result` drops artist entries that match title/album (caught the "Closed on Sunday" mismapping).
+  - **38g (perf + RAM):** #21 dropped `style="zoom:2"` on System Status detail (was the 15s freeze cause). #36 Ollama call passes `keep_alive="30s"` so models unload; freed 3.7GB after manual unload.
+  - **38h (IDE):** #25 Quick Open shows Searching / No matches / error states instead of empty. #26 openFile normalizes paths so duplicate tabs collapse.
+  - **38i (UX):** #23 BT timeout toast only if no devices arrived. #24 MAC tail auto-shown on name collision. #30 dnd_saved omitted when no DnD. #31 Alarm Set disabled at 0/invalid hour. #32 TV pair overlay z-30.
+  - **38j:** smoke + log row.
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/agent.py`, `bmo/pi/agents/code_agent.py`, `bmo/pi/agents/plan_agent.py`, `bmo/pi/services/music_service.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/static/ide/ide.js`, `bmo/pi/web/templates/index.html`.
+- **Explicit non-fixes:** #19 weather swings (37d throttle in place; upstream Open-Meteo data has its own variance), #20 header flicker (can't reproduce reliably without browser session), #22 Settings cold load 8s (already parallel-fetched per 31k), #27/#28/#29 IDE single-click / Monaco worker / js-error spam (Monaco worker needs COOP/COEP under CF Access, separate phase), #34/#35 weather skeleton + status banner cosmetic.
+
+---
+
 ### [2026-05-17] Phase 37 — BMO QA Round 2 bundle (32 problems, regressions + new)
 
 - **Original QA bugs:** 2026-05-17 BMO QA Round 2 report. Mix of regressions from Phase 31 (my code) and pre-existing / new issues surfaced by the deeper QA pass.

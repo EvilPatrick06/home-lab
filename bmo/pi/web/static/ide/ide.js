@@ -399,9 +399,14 @@
   // ── File Operations ─────────────────────────────────────────
 
   async function openFile(path) {
-    // Already open — just activate
-    const existing = state.openFiles.find(f => f.path === path);
-    if (existing) { setActiveFile(path); return; }
+    // Round 3 #26 (2026-05-17): normalize paths so `~/home-lab/X` and
+    // `/home/patrick/home-lab/X` map to the same open-file entry.
+    // Previously each click could open a duplicate tab because the
+    // tree's relative path didn't match the backend's expanded path.
+    const norm = (p) => (p || '').replace(/^~/, '/home/patrick').replace(/\/{2,}/g, '/');
+    const normalized = norm(path);
+    const existing = state.openFiles.find(f => norm(f.path) === normalized);
+    if (existing) { setActiveFile(existing.path); return; }
 
     try {
       const res = await fetch('/api/ide/file/read', {
@@ -929,14 +934,24 @@
   }
 
   async function quickOpenSearch(query) {
-    if (!query) { $('#quick-open-results').innerHTML = ''; return; }
+    const container = $('#quick-open-results');
+    if (!query) { container.innerHTML = ''; return; }
+    // Round 3 #25 (2026-05-17): surface empty state + errors visibly so
+    // "results panel stays empty" never looks like silent failure.
+    container.innerHTML = '<div class="quick-open-item" style="opacity:0.5">Searching…</div>';
     try {
       const res = await fetch(`/api/ide/find?pattern=${encodeURIComponent(query)}&path=${encodeURIComponent(state.currentPath)}`);
+      if (!res.ok) {
+        container.innerHTML = `<div class="quick-open-item" style="color:#f87171">Search failed (HTTP ${res.status})</div>`;
+        return;
+      }
       const data = await res.json();
       const results = (data.matches || []).slice(0, 20);
-      
-      const container = $('#quick-open-results');
       container.innerHTML = '';
+      if (results.length === 0) {
+        container.innerHTML = `<div class="quick-open-item" style="opacity:0.5">No matches for "${escapeHtml(query)}"</div>`;
+        return;
+      }
       for (const filepath of results) {
         const div = document.createElement('div');
         div.className = 'quick-open-item';
@@ -950,7 +965,9 @@
         });
         container.appendChild(div);
       }
-    } catch {}
+    } catch (err) {
+      container.innerHTML = `<div class="quick-open-item" style="color:#f87171">Search error: ${escapeHtml(String(err))}</div>`;
+    }
   }
 
 
