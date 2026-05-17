@@ -6782,15 +6782,24 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             {p.missingDomains.length > 0 && (
               <div className="mt-3 pt-3 border-t border-indigo-700/40">
                 <div className="text-[10px] uppercase tracking-wider italic font-bold text-indigo-300 mb-1.5">
-                  Domains awaiting samples (≥5 each)
+                  Domains awaiting samples (≥5 each) — click to study
                 </div>
+                {/* Phase 38b suggestion: missing-domain chips are now
+                    one-click deep-links into a domain-filtered Quiz run.
+                    Sorted by exam weight (heaviest first) so the most
+                    impactful domain is the first option the user sees. */}
                 <div className="flex flex-wrap gap-1.5">
-                  {p.missingDomains.map(m => (
-                    <span key={m.domain} className="text-[10px] italic px-1.5 py-0.5 rounded" style={{
-                      background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.5)', color: '#c7d2fe',
-                    }}>
-                      {m.domain} · {m.weight}%
-                    </span>
+                  {[...p.missingDomains].sort((a, b) => (b.weight || 0) - (a.weight || 0)).map(m => (
+                    <button
+                      key={m.domain}
+                      onClick={() => onStudyDomain('quiz', m.domain)}
+                      title={`Study ${m.domain} riddles to unlock its prediction slot`}
+                      aria-label={`Study ${m.domain} domain — ${m.weight}% of exam weight`}
+                      className="text-[10px] italic px-1.5 py-0.5 rounded hover:brightness-125 transition" style={{
+                        background: 'rgba(67, 56, 202, 0.5)', border: '1px solid rgba(129, 140, 248, 0.7)', color: '#e0e7ff', cursor: 'pointer',
+                      }}>
+                      ↗ {m.domain} · {m.weight}%
+                    </button>
                   ))}
                 </div>
               </div>
@@ -7046,11 +7055,26 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               ✦ Rate scrolls in any tome to begin charting thy memory decay. The Oracle of Memory hath not yet seen thee study.
             </div>
           ) : memoryCoverage.rated < 10 ? (
-            /* Phase 30e / 33h QA #11 + suggestion: gate the curve until the
-               sample is large enough; consolidate the two-line progress copy
-               into one ("Rate 7 more scrolls to unlock — 3/10 rated"). */
-            <div className="text-xs italic text-sky-300 py-3 text-center">
-              ✦ Rate {10 - memoryCoverage.rated} more scroll{(10 - memoryCoverage.rated) === 1 ? '' : 's'} to unlock the decay curve ({memoryCoverage.rated}/10 rated).
+            /* Phase 30e / 33h / 38b QA #11 + suggestions: gate the curve
+               until the sample is large enough; consolidate progress copy;
+               add a deep-link CTA into Flashcards (Scrolls of Knowledge)
+               so the user can act on the unlock immediately. */
+            <div className="text-xs italic text-sky-300 py-3 text-center space-y-2">
+              <div>
+                ✦ Rate {10 - memoryCoverage.rated} more scroll{(10 - memoryCoverage.rated) === 1 ? '' : 's'} to unlock the decay curve ({memoryCoverage.rated}/10 rated).
+              </div>
+              <button
+                onClick={() => setScreen('flashcards')}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded text-xs italic font-bold hover:brightness-110"
+                style={{
+                  background: 'linear-gradient(to bottom, #38bdf8 0%, #0369a1 100%)',
+                  border: '2px solid rgba(56, 189, 248, 0.7)',
+                  color: '#e0f2fe',
+                  boxShadow: '0 0 10px rgba(56, 189, 248, 0.35)',
+                }}
+              >
+                <Scroll className="w-3.5 h-3.5" /> Start a {10 - memoryCoverage.rated}-scroll session →
+              </button>
             </div>
           ) : (
             <>
