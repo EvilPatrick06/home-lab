@@ -17,7 +17,7 @@
   { "key": "+", "ctrl": true, "action": "zoom-in", "description": "Zoom In", "category": "navigation" },
   { "key": "-", "ctrl": true, "action": "zoom-out", "description": "Zoom Out", "category": "navigation" },
   { "key": "0", "ctrl": true, "action": "zoom-fit", "description": "Zoom to Fit", "category": "navigation" },
-  { "key": "d", "action": "open-dice", "description": "Open Dice Roller", "category": "tools" },
+  { "key": "t", "action": "open-dice", "description": "Open Dice Roller (Throw)", "category": "tools" },
   { "key": "m", "action": "toggle-map-editor", "description": "Toggle Map Editor (DM)", "category": "tools" },
   { "key": "Escape", "action": "close-modal", "description": "Close Modal / Deselect", "category": "general" },
   { "key": "/", "action": "show-shortcuts", "description": "Show Shortcuts Reference", "category": "general" },

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import type { FilterConfig, SortDirection, SortField, SortOption } from '../../services/library-sort-filter'
 
 interface LibraryFilterBarProps {
@@ -20,6 +21,40 @@ export default function LibraryFilterBar({
   const activeFilterEntries = Object.entries(currentFilters).filter(([, vals]) => vals.length > 0)
   const unusedFilters = filterConfigs.filter((fc) => !(currentFilters[fc.field]?.length > 0))
 
+  // Phase 17k — controlled click-to-toggle filter menu. The previous
+  // implementation used CSS `group-hover:block` which closed the menu on
+  // any mouseleave between the button, the first submenu, and the
+  // value-list submenu — making selecting a filter value nearly
+  // impossible because the menu would close before the user's pointer
+  // reached its target. The new state-driven version stays open until
+  // the user clicks a value, clicks outside, or presses Escape.
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
+  const menuContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onDocClick = (e: MouseEvent): void => {
+      if (!menuContainerRef.current) return
+      if (!menuContainerRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+        setOpenSubmenu(null)
+      }
+    }
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false)
+        setOpenSubmenu(null)
+      }
+    }
+    document.addEventListener('mousedown', onDocClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [menuOpen])
+
   const handleRemoveFilter = (field: string): void => {
     const next = { ...currentFilters }
     delete next[field]
@@ -30,6 +65,10 @@ export default function LibraryFilterBar({
     const current = currentFilters[field] ?? []
     if (current.includes(value)) return
     onFilterChange({ ...currentFilters, [field]: [...current, value] })
+    // Close the menu after a successful pick so the user gets feedback
+    // their click landed. They can re-open it to add another filter.
+    setMenuOpen(false)
+    setOpenSubmenu(null)
   }
 
   const handleRemoveFilterValue = (field: string, value: string): void => {
@@ -59,6 +98,7 @@ export default function LibraryFilterBar({
           ))}
         </select>
         <button
+          type="button"
           onClick={() => onSortChange(currentSort.field, currentSort.direction === 'asc' ? 'desc' : 'asc')}
           className="px-1.5 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
           title={currentSort.direction === 'asc' ? 'Ascending' : 'Descending'}
@@ -81,8 +121,10 @@ export default function LibraryFilterBar({
             <span className="text-gray-500">{config?.label ?? field}:</span>
             {val}
             <button
+              type="button"
               onClick={() => handleRemoveFilterValue(field, val)}
               className="ml-0.5 hover:text-amber-200 cursor-pointer"
+              aria-label={`Remove filter ${config?.label ?? field}: ${val}`}
             >
               ×
             </button>
@@ -90,33 +132,64 @@ export default function LibraryFilterBar({
         ))
       })}
 
-      {/* Add filter dropdown */}
+      {/* Add filter dropdown (click-toggle, Phase 17k) */}
       {unusedFilters.length > 0 && (
-        <div className="relative group">
-          <button className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-400 hover:text-gray-200 transition-colors cursor-pointer">
+        <div className="relative" ref={menuContainerRef}>
+          <button
+            type="button"
+            onClick={() => {
+              setMenuOpen((v) => !v)
+              setOpenSubmenu(null)
+            }}
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+            className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
+          >
             + Filter
           </button>
-          <div className="absolute left-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 hidden group-hover:block min-w-[180px]">
-            {unusedFilters.map((fc) => (
-              <div key={fc.field} className="relative group/filter">
-                <div className="px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700 cursor-default flex items-center justify-between">
-                  {fc.label}
-                  <span className="text-gray-500">›</span>
-                </div>
-                <div className="absolute left-full top-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl hidden group-hover/filter:block min-w-[140px] max-h-60 overflow-y-auto">
-                  {fc.values.map((val) => (
+          {menuOpen && (
+            <div
+              role="menu"
+              className="absolute left-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px]"
+            >
+              {unusedFilters.map((fc) => {
+                const isSubOpen = openSubmenu === fc.field
+                return (
+                  <div key={fc.field} className="relative">
                     <button
-                      key={val}
-                      onClick={() => handleAddFilter(fc.field, val)}
-                      className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700 hover:text-amber-400 cursor-pointer"
+                      type="button"
+                      onClick={() => setOpenSubmenu(isSubOpen ? null : fc.field)}
+                      aria-expanded={isSubOpen}
+                      aria-haspopup="menu"
+                      className={`w-full px-3 py-1.5 text-xs text-left flex items-center justify-between transition-colors cursor-pointer ${
+                        isSubOpen ? 'bg-gray-700 text-amber-300' : 'text-gray-300 hover:bg-gray-700'
+                      }`}
                     >
-                      {val}
+                      {fc.label}
+                      <span className="text-gray-500">›</span>
                     </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+                    {isSubOpen && (
+                      <div
+                        role="menu"
+                        className="absolute left-full top-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl min-w-[140px] max-h-60 overflow-y-auto"
+                      >
+                        {fc.values.map((val) => (
+                          <button
+                            type="button"
+                            key={val}
+                            onClick={() => handleAddFilter(fc.field, val)}
+                            className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700 hover:text-amber-400 cursor-pointer"
+                          >
+                            {val}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
