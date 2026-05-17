@@ -313,20 +313,30 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 <div className="space-y-1 text-xs italic">
                   {past.slice(-5).reverse().map((rec, i) => {
                     const color = rec.scorePct >= 75 ? '#a7f3d0' : rec.scorePct >= 60 ? '#fde68a' : '#fecaca';
+                    // Phase 39e round-7 suggestion: abandoned trials get a
+                    // muted row (lower opacity, italic, no score-color tint)
+                    // so they don't pollute the score history visually.
+                    const isAbandoned = rec.status === 'abandoned';
                     return (
-                      <div key={i} className="flex items-center gap-3 text-amber-100">
+                      <div
+                        key={i}
+                        className={`flex items-center gap-3 text-amber-100 ${isAbandoned ? 'opacity-60 italic' : ''}`}
+                      >
                         <span className="text-amber-700 tabular-nums">{rec.startedAt ? new Date(rec.startedAt).toLocaleDateString() : '—'}</span>
                         <span>{rec.totalCount} riddles · {Math.floor((rec.durationSec || 0) / 60)}m {(rec.durationSec || 0) % 60}s</span>
-                        <span className="ml-auto font-bold tabular-nums" style={{ color }}>
+                        <span
+                          className="ml-auto font-bold tabular-nums"
+                          style={{ color: isAbandoned ? 'rgba(214, 211, 209, 0.6)' : color }}
+                        >
                           {rec.scorePct}%
                         </span>
                         {rec.status === 'timeout' && <span className="text-[10px] text-red-300 italic">timed out</span>}
-                        {/* Phase 36f QA round 5 suggestion: distinct badge for
+                        {/* Phase 36f / 39e QA round 5 + 7: distinct badge for
                             abandoned trials so users can tell them apart from
                             submitted-empty 0% records at a glance. */}
-                        {rec.status === 'abandoned' && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded italic" style={{
-                            background: 'rgba(127, 29, 29, 0.4)', border: '1px solid rgba(239, 68, 68, 0.55)', color: '#fecaca',
+                        {isAbandoned && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded not-italic" style={{
+                            background: 'rgba(63, 63, 70, 0.4)', border: '1px solid rgba(120, 113, 108, 0.55)', color: 'rgba(214, 211, 209, 0.85)',
                           }}>abandoned</span>
                         )}
                       </div>
