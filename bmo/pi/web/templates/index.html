@@ -1554,17 +1554,27 @@
         <div class="border-t border-surface pt-2 mt-2">
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-sm text-text-muted">Bluetooth</span>
-            <button @click="btScan()" :disabled="btScanning"
-                    class="text-sm px-3 py-1 rounded bg-surface text-accent disabled:opacity-50"
-                    x-text="btScanning ? 'Scanning...' : '&#x1F50D; Scan'"></button>
+            <div class="flex items-center gap-2">
+              <!-- Round 2 #25 (2026-05-17): last-scan timestamp pill -->
+              <span x-show="btLastScan" class="text-[10px] text-text-dim"
+                    x-text="btLastScan ? 'Last: ' + new Date(btLastScan).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''"></span>
+              <!-- Round 2 #26: show-MAC toggle (off by default) -->
+              <button @click="btShowMacs = !btShowMacs" class="text-[10px] px-2 py-0.5 rounded"
+                      :class="btShowMacs ? 'bg-accent/20 text-accent' : 'bg-surface text-text-dim'"
+                      x-text="btShowMacs ? 'Hide MAC' : 'Show MAC'"></button>
+              <button @click="btScan()" :disabled="btScanning"
+                      class="text-sm px-3 py-1 rounded bg-surface text-accent disabled:opacity-50"
+                      x-text="btScanning ? 'Scanning...' : '&#x1F50D; Scan'"></button>
+            </div>
           </div>
           <div class="space-y-1">
             <template x-for="bt in btDevices" :key="bt.address">
               <div class="flex items-center gap-2 bg-surface rounded px-2 py-1.5">
                 <span class="text-sm flex-1 truncate" x-text="bt.name || bt.address"></span>
-                <!-- QA #17 (2026-05-17): show last 4 of MAC so multiple
-                     devices named "ONE" are distinguishable -->
-                <span class="text-[10px] text-text-dim font-mono"
+                <!-- QA #17 + Round 2 #26 (2026-05-17): MAC tail revealed
+                     only when btShowMacs toggle is on, so onlookers can't
+                     see foreign devices' fragments without consent -->
+                <span x-show="btShowMacs" class="text-[10px] text-text-dim font-mono"
                       x-text="bt.address ? '··' + bt.address.slice(-5).replace(':','') : ''"></span>
                 <button @click="btPair(bt.address)" class="text-xs text-accent">Pair</button>
               </div>
@@ -1632,6 +1642,10 @@
                 <div class="text-xs text-text-dim" x-text="n.device + ' · ' + new Date(n.timestamp * 1000).toLocaleTimeString()"></div>
               </div>
               <button @click="replyToNotification(n)" class="text-xs text-accent shrink-0">Reply</button>
+              <!-- Round 2 #29 (2026-05-17): per-item dismiss -->
+              <button @click="dismissKdeNotification(n)"
+                      class="text-xs text-text-dim hover:text-rose-400 shrink-0"
+                      title="Dismiss">&times;</button>
             </div>
           </template>
         </div>
@@ -1883,7 +1897,13 @@
 
         <!-- Routines -->
         <div class="bg-surface-light rounded-xl p-3">
-          <div class="text-sm text-text-dim uppercase tracking-wider mb-2">Routines</div>
+          <!-- Round 2 #31 (2026-05-17): top-of-panel + Create CTA so the
+               empty state isn't only reachable by scrolling. -->
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-sm text-text-dim uppercase tracking-wider">Routines</div>
+            <button @click="showRoutineEditor = true"
+                    class="text-xs text-accent hover:text-accent-light">+ Create routine</button>
+          </div>
           <div class="space-y-1.5">
             <template x-for="routine in routines" :key="routine.id">
               <div class="flex items-center justify-between gap-2 text-sm">
@@ -1898,7 +1918,10 @@
                 </div>
               </div>
             </template>
-            <div x-show="routines.length === 0" class="text-sm text-text-dim text-center py-1">No routines configured</div>
+            <div x-show="routines.length === 0" class="text-sm text-text-dim text-center py-2">
+              No routines yet —
+              <button @click="showRoutineEditor = true" class="text-accent underline">create your first one</button>
+            </div>
           </div>
         </div>
 

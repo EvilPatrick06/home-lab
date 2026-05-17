@@ -124,6 +124,14 @@ function bmo() {
     // top-of-app banner so silent-play failures are obvious from any tab.
     systemAudioMuted: false,
 
+    // QA Round 2 #25, #26 (2026-05-17): BT scan UX.
+    btLastScan: 0,            // ms since epoch of last successful scan
+    btShowMacs: false,        // off-by-default → privacy hygiene
+    _btScanTimeout: null,     // safety timeout id (resets stuck "Scanning...")
+
+    // QA Round 2 #31 (2026-05-17): routines editor visibility (CTA opens it).
+    showRoutineEditor: false,
+
     // QA #15 (2026-05-17): track weather freshness for the "updated Xm ago" pill.
     _weatherFetchedAt: 0,
 
@@ -766,6 +774,8 @@ function bmo() {
       this.socket.on('bt_scan_result', (data) => {
         this.btDevices = data.devices || [];
         this.btScanning = false;
+        this.btLastScan = Date.now();
+        if (this._btScanTimeout) clearTimeout(this._btScanTimeout);
       });
 
       this.socket.on('vision_result', (data) => {
@@ -1781,6 +1791,20 @@ function bmo() {
         this.showNotification('Fill in start time or mark as all day');
         return;
       }
+      // Round 2 #24 (2026-05-17): inline validation feedback for common
+      // wrong-state cases. Duration must be > 0; date must be parseable.
+      if (!e.allDay) {
+        const dur = parseFloat(e.durationHrs);
+        if (!isFinite(dur) || dur <= 0) {
+          this.showNotification('Duration must be greater than 0 hours');
+          return;
+        }
+      }
+      const checkDate = new Date(e.allDay ? e.date : `${e.date}T${e.startTime || '12:00'}:00`);
+      if (isNaN(checkDate.getTime())) {
+        this.showNotification('Date / time is invalid');
+        return;
+      }
 
       const body = {
         summary: e.summary,
@@ -2758,6 +2782,9 @@ function bmo() {
 
     get statusText() {
       return {
+        // Round 2 #32 (2026-05-17): idle copy stays the same but the
+        // styling (statusTextColor below) is now muted-text not accent-
+        // green so it no longer reads as a clickable link.
         idle: 'What can BMO do for you?',
         listening: 'BMO is listening...',
         thinking: 'BMO is thinking!',
@@ -2770,7 +2797,9 @@ function bmo() {
 
     get statusTextColor() {
       return {
-        idle: 'text-green-400',
+        // Round 2 #32 (2026-05-17): idle = muted, not green — the green
+        // styling made the static prompt read as a clickable link.
+        idle: 'text-text-muted',
         listening: 'text-blue-400',
         thinking: 'text-amber-400',
         yapping: 'text-orange-400',
@@ -3002,8 +3031,18 @@ function bmo() {
     },
 
     async btScan() {
+      // Round 2 #25 (2026-05-17): explicit timeout reset so the button
+      // doesn't get stuck in "Scanning..." if the backend's bt_scan_result
+      // event never arrives. Records last-scan timestamp for display.
       this.btScanning = true;
       this.btDevices = [];
+      if (this._btScanTimeout) clearTimeout(this._btScanTimeout);
+      this._btScanTimeout = setTimeout(() => {
+        if (this.btScanning) {
+          this.btScanning = false;
+          this.showNotification('Bluetooth scan timed out', 'error');
+        }
+      }, 20000);  // scan duration is 8s, give 20s headroom
       try {
         await fetch('/api/audio/bluetooth/scan', {
           method: 'POST',
@@ -3011,7 +3050,10 @@ function bmo() {
           body: JSON.stringify({ duration: 8 }),
         });
         // Results arrive via bt_scan_result socket event
-      } catch { this.btScanning = false; }
+      } catch {
+        this.btScanning = false;
+        if (this._btScanTimeout) clearTimeout(this._btScanTimeout);
+      }
     },
 
     async btPair(address) {
@@ -3197,6 +3239,13 @@ function bmo() {
           });
         } catch {}
       }, 150);
+    },
+
+    dismissKdeNotification(n) {
+      // Round 2 #29 (2026-05-17): per-item dismiss — local only, since
+      // KDE notifications are read from a daemon. Removing locally hides
+      // the entry; backend may re-emit if the daemon re-broadcasts.
+      this.kdeNotifications = this.kdeNotifications.filter(x => x.id !== n.id);
     },
 
     async clearKdeNotifications() {

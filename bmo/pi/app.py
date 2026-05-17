@@ -818,12 +818,33 @@ def health():
     return jsonify({"status": "ok"})
 
 
+_HEALTH_SCHEMA_VERSION = 1
+_HEALTH_REQUIRED_KEYS = ("overall", "services", "pi_stats", "down_services", "down_required_services")
+
+
 @app.route("/api/health/full")
 def api_health_full():
-    """Return full health status from HealthChecker (Pi stats + service checks)."""
-    if health_checker:
-        return jsonify(health_checker.get_status())
-    return jsonify({"overall": "unknown", "services": {}, "pi_stats": {}})
+    """Return full health status from HealthChecker (Pi stats + service checks).
+
+    Round 2 #30 (2026-05-17): stable, versioned schema. Every documented
+    key is guaranteed present (with sensible defaults). Schema version is
+    in the `schema_version` field; consumers should treat absence of any
+    documented key as `null`/empty, never as "feature removed"."""
+    raw = health_checker.get_status() if health_checker else {}
+    payload = {
+        "schema_version": _HEALTH_SCHEMA_VERSION,
+        "overall": raw.get("overall", "unknown"),
+        "services": raw.get("services", {}) or {},
+        "pi_stats": raw.get("pi_stats", {}) or {},
+        "down_services": raw.get("down_services", []) or [],
+        "down_required_services": raw.get("down_required_services", []) or [],
+    }
+    # Pass through any additional keys the checker emits (forward-compat)
+    # but document the canonical set above.
+    for k, v in raw.items():
+        if k not in payload:
+            payload[k] = v
+    return jsonify(payload)
 
 
 def _wifi_interface() -> str:
