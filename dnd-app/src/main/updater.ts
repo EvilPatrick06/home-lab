@@ -103,19 +103,22 @@ function performInstall(isSilent: boolean): void {
     }
   }
 
-  // Give the windows ~250 ms to flush close handlers + persisted
-  // state, THEN invoke quitAndInstall. Empirically this is enough
-  // for the renderer to drain its IPC queue and for storage writes
-  // to hit disk.
+  // Give the windows ~1500 ms to flush close handlers + persisted state
+  // AND for the OS to fully release the file handle on dnd-vtt.exe.
+  // Was 250 ms (v2.1.16) — wasn't enough on every Windows config: NSIS
+  // would try to overwrite the still-locked .exe, the install would
+  // silently abort, and the relaunch would bring back the old version.
+  // 1500 ms is empirically enough headroom on every machine tested.
   setTimeout(() => {
     try {
       const autoUpdater = getAutoUpdater()
+      logToFile('INFO', '[updater] calling quitAndInstall now')
       autoUpdater.quitAndInstall(isSilent, true)
     } catch (err) {
       logToFile('ERROR', '[updater] quitAndInstall failed, forcing quit:', String(err))
       app.quit()
     }
-  }, 250)
+  }, 1500)
 }
 
 /**
@@ -181,6 +184,13 @@ export function registerUpdateHandlers(): void {
       const autoUpdater = getAutoUpdater()
       const pendingVersion = currentStatus.version
 
+      // Force full re-download (no differential / blockmap patching).
+      // With the 1.7 GB installer (Ollama bundle), differential updates
+      // are slow AND occasionally corrupt across structural changes
+      // (e.g. v2.0 → v2.1 when signAndEditExecutable flipped). A full
+      // re-download is bandwidth-expensive but reliable.
+      autoUpdater.disableDifferentialDownload = true
+
       autoUpdater.removeAllListeners('download-progress')
       autoUpdater.on('download-progress', (progress: { percent: number }) => {
         currentStatus = { state: 'downloading', percent: Math.round(progress.percent) }
@@ -204,8 +214,14 @@ export function registerUpdateHandlers(): void {
     // Reply to the renderer FIRST, then schedule the install on the
     // next tick so the renderer's await resolves cleanly before any
     // quit sequence begins.
-    const prefs = await loadAutoUpdatePrefs()
-    setImmediate(() => performInstall(prefs.autoInstallSilent))
+    //
+    // Always pass isSilent=true on this path. The user has already
+    // explicitly clicked "Restart and install" in the app — there's
+    // no value in popping another NSIS wizard on top of that. With
+    // oneClick=false in our nsis config, a non-silent install shows
+    // the full wizard, and any cancel/close-X aborts the install and
+    // relaunches the OLD version (the bug user reported in v2.1.23).
+    setImmediate(() => performInstall(true))
     return { state: 'installing' as const }
   })
 }
@@ -247,6 +263,7 @@ async function runAutoUpdateFlow(prefs: AutoUpdatePrefs): Promise<void> {
 
     if (!prefs.autoDownloadUpdates) return
 
+    autoUpdater.disableDifferentialDownload = true
     autoUpdater.removeAllListeners('download-progress')
     autoUpdater.on('download-progress', (progress: { percent: number }) => {
       currentStatus = { state: 'downloading', percent: Math.round(progress.percent) }
