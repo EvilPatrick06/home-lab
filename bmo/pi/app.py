@@ -2088,11 +2088,19 @@ def api_calendar_auth_callback():
         if not code:
             return jsonify({"error": "Could not extract auth code"}), 400
 
-        redirect_uri = (
-            f"{request.host_url.rstrip('/')}/api/calendar/auth/callback"
-            if browser_callback
-            else "urn:ietf:wg:oauth:2.0:oob"
-        )
+        # Same X-Forwarded-Proto / X-Forwarded-Host handling as the auth/url
+        # builder (31b). Without this the token-exchange redirect_uri sends
+        # http:// while Google saw https:// during the initial /auth — they
+        # must match byte-for-byte or Google returns invalid_grant.
+        if browser_callback:
+            fwd_proto = (request.headers.get("X-Forwarded-Proto") or "").strip().lower()
+            scheme = fwd_proto if fwd_proto in ("http", "https") else (request.scheme or "http")
+            fwd_host = (request.headers.get("X-Forwarded-Host") or "").strip()
+            host = fwd_host or request.host
+            redirect_uri = f"{scheme}://{host}/api/calendar/auth/callback"
+        else:
+            redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+        log.info(f"[calendar] Token-exchange POST: client_id_tail=...{client_id[-15:]}, redirect_uri={redirect_uri}, code_tail=...{code[-6:]}")
         token_resp = http_requests.post(
             "https://oauth2.googleapis.com/token",
             data={
@@ -2106,11 +2114,13 @@ def api_calendar_auth_callback():
         )
         if token_resp.status_code != 200:
             detail = token_resp.text[:600]
+            log.info(f"[calendar] Token exchange failed ({token_resp.status_code}): {detail}")
             message = f"Token exchange failed ({token_resp.status_code}): {detail}"
             if browser_callback:
                 html = _calendar_auth_html(False, message)
                 return Response(html, mimetype="text/html"), 400
             return jsonify({"error": message}), 400
+        log.info("[calendar] Token exchange succeeded — writing token.json")
 
         token_data = token_resp.json()
         merged_token_data = _calendar_merge_token_data(token_data, existing_token_data)
