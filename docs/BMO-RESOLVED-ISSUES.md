@@ -12,6 +12,23 @@
 
 ---
 
+### [2026-05-17] Phase 31f — Camera inline preview, /api/leds + /api/face aliases, Bluetooth MAC tail
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #17, #19, #20, #21.
+- **Category:** bug, ux, api-surface
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31f)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **#17 (BT scan duplicate "ONE" names with no MAC visible):** Backend already dedupes by address, but the frontend listing only showed `bt.name`. Both BT lists (Audio devices + Mic inputs sections) now display `··<last-4-of-MAC>` in a small dim font next to the name. Multiple devices named "ONE" become distinguishable: `ONE ··A6:B3` / `ONE ··12:34`.
+  - **#19 (Camera Snap opens 405 tab):** `bmo.js:cameraSnap()` was opening `/api/camera/snapshot?download=1` in a new tab — that route is POST-only, so a GET returned 405. Now POSTs the snapshot and pops an inline modal over the camera overlay with `<img>` + Download/Close buttons. New `/api/camera/snapshot/last` GET endpoint serves the most-recent snapshot from `camera.last_snapshot_path` (tracked by `take_snapshot()`).
+  - **#20 (Camera Describe fails silently):** `cameraDescribe()` previously caught any error into a generic "Could not describe scene". Now surfaces the backend's `error` field verbatim (e.g. "Describe failed: Gemini vision failed or you are offline") so the user can tell what went wrong.
+  - **#21 (LED + face endpoints undiscoverable / 404 on /api/leds and /api/face):** Added `app.add_url_rule` aliases for `/api/leds`, `/api/leds/status`, `/api/leds/state`, `/api/leds/color`, `/api/leds/mode`, `/api/leds/brightness`, `/api/face/expression` (GET+POST). Existing singular `/api/led/*` + `/api/oled/*` paths retained for back-compat. Documented inline in `app.py` as the canonical surface for new integrators.
+- **Verified:** `pytest tests/test_app_endpoints.py` → 31 passed. Live: `curl /api/leds` returns `{ok:true, brightness:0, color:{...}, mode:"breathing", state:"ready"}`; `curl /api/face/expression` returns `{expression:"idle"}`; `/api/camera/snapshot/last` returns 404 when no snapshot exists (camera hardware absent on this Pi at restart — endpoint plumbing verified).
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/hardware/camera_service.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`.
+
+---
+
 ### [2026-05-17] Phase 31e — Scene state sync, Controls hydration skeleton, weather freshness, sticky mini-player
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #13, #14, #15, #16.

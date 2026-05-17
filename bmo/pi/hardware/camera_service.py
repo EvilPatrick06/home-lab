@@ -211,6 +211,10 @@ class CameraService:
         filename = f"snapshot_{int(time.time())}.jpg"
         path = os.path.join(SNAPSHOTS_DIR, filename)
         cv2.imwrite(path, frame)
+        # QA #19 (2026-05-17): track last snapshot so /api/camera/snapshot/last
+        # can serve it for inline preview without the user having to know the
+        # generated filename.
+        self.last_snapshot_path = path
         return path
 
     # ── Face Recognition ─────────────────────────────────────────────

@@ -1514,6 +1514,10 @@
             <template x-for="bt in btDevices" :key="bt.address">
               <div class="flex items-center gap-2 bg-surface rounded px-2 py-1.5">
                 <span class="text-sm flex-1 truncate" x-text="bt.name || bt.address"></span>
+                <!-- QA #17 (2026-05-17): show last 4 of MAC so multiple
+                     devices named "ONE" are distinguishable -->
+                <span class="text-[10px] text-text-dim font-mono"
+                      x-text="bt.address ? '··' + bt.address.slice(-5).replace(':','') : ''"></span>
                 <button @click="btPair(bt.address)" class="text-xs text-accent">Pair</button>
               </div>
             </template>
@@ -1652,6 +1656,8 @@
             <template x-for="bt in btDevices" :key="'mic-bt-' + bt.address">
               <div class="flex items-center gap-2 bg-surface rounded px-2 py-1.5">
                 <span class="text-sm flex-1 truncate" x-text="bt.name || bt.address"></span>
+                <span class="text-[10px] text-text-dim font-mono"
+                      x-text="bt.address ? '··' + bt.address.slice(-5).replace(':','') : ''"></span>
                 <button @click="btPair(bt.address)" class="text-xs text-accent">Pair</button>
               </div>
             </template>
@@ -1914,6 +1920,15 @@
       <button @click="toggleMotion()" class="px-4 py-2 rounded-lg text-sm"
               :class="motionEnabled ? 'bg-accent text-surface-dark' : 'bg-surface-light'">Motion</button>
       <button @click="showCameraOverlay = false; visionResult = ''" class="bg-accent hover:bg-accent-light text-surface-dark px-4 py-2 rounded-lg text-sm font-medium">Back to Chat</button>
+    </div>
+    <!-- QA #19 (2026-05-17): inline snap preview modal -->
+    <div x-cloak x-show="showSnapPreview" @click.self="closeSnapPreview()"
+         class="absolute inset-0 z-50 bg-black/90 flex flex-col items-center justify-center gap-3">
+      <img :src="snapPreviewUrl" class="max-h-[78vh] max-w-[94vw] rounded-lg shadow-2xl" alt="Snapshot preview">
+      <div class="flex gap-3">
+        <a :href="snapPreviewUrl" download class="bg-surface-light text-text px-4 py-2 rounded-lg text-sm">Download</a>
+        <button @click="closeSnapPreview()" class="bg-accent text-surface-dark px-4 py-2 rounded-lg text-sm font-medium">Close</button>
+      </div>
     </div>
   </div>
 

@@ -2119,8 +2119,29 @@ def api_camera_stream():
 
 @app.route("/api/camera/snapshot", methods=["POST"])
 def api_camera_snapshot():
+    if not camera:
+        return jsonify({"error": "Camera service not available"}), 503
     path = camera.take_snapshot()
-    return jsonify({"path": path})
+    # QA #19 (2026-05-17): returns the new /api/camera/snapshot/last URL
+    # so the frontend can show an inline preview without guessing the path.
+    return jsonify({"path": path, "preview_url": "/api/camera/snapshot/last"})
+
+
+@app.route("/api/camera/snapshot/last")
+def api_camera_snapshot_last():
+    """Serve the most-recent snapshot. QA #19 (2026-05-17): replaces the
+    legacy `GET /api/camera/snapshot?download=1` which returned 405 because
+    the POST-only handler swallowed GET."""
+    if not camera:
+        return jsonify({"error": "Camera service not available"}), 503
+    path = getattr(camera, "last_snapshot_path", None)
+    if not path or not os.path.exists(path):
+        return jsonify({"error": "no snapshot available — call POST /api/camera/snapshot first"}), 404
+    return send_from_directory(
+        os.path.dirname(path),
+        os.path.basename(path),
+        mimetype="image/jpeg",
+    )
 
 
 @app.route("/api/camera/describe", methods=["POST"])
@@ -2410,6 +2431,28 @@ def api_oled_expression_set():
     expression = data.get("expression", "idle")
     _sync_expression(expression)
     return jsonify({"ok": True, "expression": expression})
+
+
+# ── Phase 31f LED + face plural aliases (QA #21, 2026-05-17) ──────────
+# The 2026-05-17 QA report expected /api/leds/* and /api/face/* to exist
+# alongside the original singular /api/led/* and /api/oled/* surfaces.
+# These url_rule aliases preserve back-compat while documenting the
+# canonical pluralized names. New integrators should prefer the plural
+# forms; the singular forms stay forever for the existing UI + bots.
+app.add_url_rule("/api/leds", view_func=api_led_status, endpoint="leds_status_alias")
+app.add_url_rule("/api/leds/status", view_func=api_led_status, endpoint="leds_status_alt_alias")
+app.add_url_rule("/api/leds/state", view_func=api_led_state,
+                 methods=["POST"], endpoint="leds_state_alias")
+app.add_url_rule("/api/leds/color", view_func=api_led_color,
+                 methods=["POST"], endpoint="leds_color_alias")
+app.add_url_rule("/api/leds/mode", view_func=api_led_mode,
+                 methods=["POST"], endpoint="leds_mode_alias")
+app.add_url_rule("/api/leds/brightness", view_func=api_led_brightness,
+                 methods=["POST"], endpoint="leds_brightness_alias")
+app.add_url_rule("/api/face/expression", view_func=api_oled_expression_get,
+                 endpoint="face_expression_get_alias")
+app.add_url_rule("/api/face/expression", view_func=api_oled_expression_set,
+                 methods=["POST"], endpoint="face_expression_post_alias")
 
 
 # ── Discord DM Bot Bridge API ─────────────────────────────────────

@@ -126,6 +126,10 @@ function bmo() {
     // QA #16 (2026-05-17): persistent mini-player visibility derives from
     // musicState.song existence; no separate state field needed.
 
+    // QA #19 (2026-05-17): inline snap preview.
+    showSnapPreview: false,
+    snapPreviewUrl: '',
+
     // Weather
     weather: { temperature: null, description: '', icon: 'clear', feels_like: null },
 
@@ -1829,16 +1833,26 @@ function bmo() {
     },
 
     async cameraDescribe() {
-      this.visionResult = 'Looking...';
+      // QA #20 (2026-05-17): surface backend errors verbatim instead of a
+      // generic "Could not describe scene". Result still arrives via
+      // vision_result socket event on success.
+      this.visionResult = 'Looking…';
       try {
-        await fetch('/api/camera/describe', {
+        const res = await fetch('/api/camera/describe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: 'What do you see? Describe briefly.' }),
         });
-        // Result arrives via vision_result socket event
-      } catch {
-        this.visionResult = 'Could not describe scene';
+        if (!res.ok) {
+          let msg = `Describe failed (HTTP ${res.status})`;
+          try {
+            const data = await res.json();
+            if (data && data.error) msg = `Describe failed: ${data.error}`;
+          } catch {}
+          this.visionResult = msg;
+        }
+      } catch (e) {
+        this.visionResult = `Could not describe scene: ${e.message || 'network'}`;
       }
     },
 
@@ -2531,10 +2545,30 @@ function bmo() {
       } catch {}
     },
 
-    // ── Camera Snap (download) ───────────────────────────────
+    // ── Camera Snap (inline preview, QA #19, 2026-05-17) ─────
 
-    cameraSnap() {
-      window.open('/api/camera/snapshot?download=1', '_blank');
+    async cameraSnap() {
+      // Was: window.open('/api/camera/snapshot?download=1', '_blank')
+      // GET on a POST-only route returned 405 in a new tab. Now POSTs and
+      // displays the most-recent snapshot inline over the camera overlay.
+      try {
+        const res = await fetch('/api/camera/snapshot', { method: 'POST' });
+        if (!res.ok) {
+          this.showNotification('Snapshot failed', 'error');
+          return;
+        }
+        const data = await res.json();
+        const url = (data.preview_url || '/api/camera/snapshot/last') + `?ts=${Date.now()}`;
+        this.snapPreviewUrl = url;
+        this.showSnapPreview = true;
+      } catch (e) {
+        this.showNotification('Snapshot failed: ' + (e.message || 'network'), 'error');
+      }
+    },
+
+    closeSnapPreview() {
+      this.showSnapPreview = false;
+      this.snapPreviewUrl = '';
     },
 
     // ── Formatters ────────────────────────────────────────────
