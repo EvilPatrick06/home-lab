@@ -815,11 +815,33 @@ def favicon():
     return resp
 
 
+def _static_mtime(rel_path: str) -> int:
+    """Return mtime of a static file (for cache-busting URLs). Round 4+1
+    (2026-05-17): use per-file mtime so browsers only refetch when the
+    file actually changed — not every page load (which defeated caching)
+    and not stale-for-an-hour either."""
+    try:
+        return int(os.path.getmtime(
+            os.path.join(app.static_folder, rel_path)
+        ))
+    except OSError:
+        return int(time.time())  # safe fallback — always-fresh
+
+
 @app.route("/")
 def index():
     kiosk_mode = request.args.get("kiosk", "").strip().lower() in {"1", "true", "yes", "on"}
-    asset_v = int(time.time())
-    return render_template("index.html", kiosk_mode=kiosk_mode, asset_v=asset_v)
+    # Per-file mtime as cache-bust. Each restart of BMO that changed any
+    # static file gets a fresh URL; unchanged files keep their cache hit.
+    asset_v = _static_mtime("js/bmo.js")  # legacy single token for css already in template
+    return render_template(
+        "index.html",
+        kiosk_mode=kiosk_mode,
+        asset_v=asset_v,
+        js_v=_static_mtime("js/bmo.js"),
+        css_v=_static_mtime("css/bmo.css"),
+        tailwind_v=_static_mtime("css/tailwind.css"),
+    )
 
 
 @app.route("/ide")

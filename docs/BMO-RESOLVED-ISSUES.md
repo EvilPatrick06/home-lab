@@ -12,6 +12,25 @@
 
 ---
 
+### [2026-05-17] Phase 41 (BMO) — Static cache-busting (root cause of "QA still reproduces after fixes shipped")
+
+- **Original symptom:** User re-ran the Round 4 QA report against the production deployment after Phase 39+40 shipped and reported the SAME bugs — even though my curl verification showed every fix WAS live in the served files.
+- **Category:** caching, deployment
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (BMO Phase 41 — single commit)
+- **Date resolved:** 2026-05-17
+- **Root cause:** `Cache-Control: public, max-age=3600, must-revalidate` on `/static/*` means browsers serve cached `bmo.js` for up to 1 hour WITHOUT revalidating. The previous `?v={{ asset_v }}` template variable was `int(time.time())` — but only applied to CSS, NOT to `bmo.js`. So `bmo.js` was a static URL → browser cached → user saw fixes from prior session for up to an hour after each commit.
+- **Fix:** Per-file mtime cache-bust for every static asset URL:
+  - `app.py` adds `_static_mtime(rel)` helper, passes `js_v=_static_mtime("js/bmo.js")` + `css_v` + `tailwind_v` to the template.
+  - `index.html` references each asset with its own version token: `bmo.js?v={{ js_v }}`, `bmo.css?v={{ css_v }}`, `tailwind.css?v={{ tailwind_v }}`.
+  - Result: editing only `bmo.js` bumps just its v=; CSS keeps its cache hit. Restart without file changes → same v= → cache hit.
+- **Verified:** `pytest tests/test_app_endpoints.py` → 31 passed. Served HTML now shows `bmo.js?v=1779040637`, `bmo.css?v=1776994328`, `tailwind.css?v=1776994328` — each their own mtime.
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/web/templates/index.html`.
+- **Why this matters:** Every prior Phase 39/40 fix verified live via curl, but the user's browser was serving the old `bmo.js` from cache. The QA report wasn't wrong — the user genuinely was seeing the old behavior in their browser. This fix means future BMO restarts that include any static-asset change automatically reach active sessions.
+- **Verification path forward:** When the user retests after this commit lands and the next restart, they'll fetch the new bmo.js (different v= than what they cached). All Phase 39+40 fixes will surface.
+
+---
+
 ### [2026-05-17] Phase 40 (BMO) — Carry-forward sweep: actually fix the 3 items I deflected in 39
 
 - **Original QA bugs:** QA Round 4 carry-forwards (#15 header flicker, #17 weather drift, #20 Monaco worker fallback warning) that I dismissed in Phase 39 as "can't reproduce" / "upstream variance" / "may still appear under strict CSP". User said "fix anyway" — same pattern as the `feedback_do_all_means_actually_do_all` memo.

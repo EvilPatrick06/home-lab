@@ -6,10 +6,14 @@
   <meta name="referrer" content="no-referrer">
   <title>BMO</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/static/css/tailwind.css?v={{ asset_v }}">
+  <!-- Round 4+1 (2026-05-17): cache-bust each asset by its own mtime
+       so changes propagate to active sessions without forcing a
+       hard-refresh. The `max-age=3600` cache header is fine; the URL
+       changes when the file changes, so the browser refetches. -->
+  <link rel="stylesheet" href="/static/css/tailwind.css?v={{ tailwind_v }}">
   <script defer src="/static/js/socket.io.min.js"></script>
   <script defer src="/static/js/alpine.min.js"></script>
-  <link rel="stylesheet" href="/static/css/bmo.css?v={{ asset_v }}">
+  <link rel="stylesheet" href="/static/css/bmo.css?v={{ css_v }}">
 </head>
 <body class="bg-surface-dark text-text select-none flex flex-col h-screen{% if kiosk_mode %} kiosk-mode{% endif %}" x-data="bmo()" x-init="init()">
 
@@ -2434,6 +2438,8 @@
     </div>
   </div>
 
-  <script src="/static/js/bmo.js?v={{ asset_v }}"></script>
+  <!-- Round 4+1 (2026-05-17): per-file mtime cache-bust so a fresh BMO
+       restart's bmo.js reaches the user even within max-age=3600. -->
+  <script src="/static/js/bmo.js?v={{ js_v }}"></script>
 </body>
 </html>
