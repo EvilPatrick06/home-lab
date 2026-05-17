@@ -63,6 +63,8 @@ export const MESSAGE_TYPES = [
   'chat:whisper-received',
   'chat:announcement',
   'player:color-change',
+  'player:color-confirm',
+  'player:color-rejected',
   'player:time-request',
   'player:turn-end',
   'player:roll-result',
@@ -231,6 +233,15 @@ export interface CoDMPayload {
 
 export interface ColorChangePayload {
   color: string
+}
+
+export interface ColorConfirmPayload {
+  color: string
+}
+
+export interface ColorRejectedPayload {
+  color: string
+  reason: 'taken'
 }
 
 export interface ChatFilePayload {

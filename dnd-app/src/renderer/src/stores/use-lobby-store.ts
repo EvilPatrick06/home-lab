@@ -101,6 +101,12 @@ export interface LobbyPlayer {
   isReady: boolean
   isHost: boolean
   color?: string
+  /**
+   * Phase 29d: true once the player has explicitly confirmed their color via
+   * ColorConfirmButton (host echoed back a player:color-change for them). The
+   * Ready button stays disabled until this flips true.
+   */
+  colorConfirmed?: boolean
   isCoDM?: boolean
   diceColors?: DiceColors
   status?: 'connected' | 'reconnecting' | 'disconnected'

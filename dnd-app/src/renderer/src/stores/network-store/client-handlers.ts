@@ -4,6 +4,7 @@ import type {
   ChatTimeoutPayload,
   CoDMPayload,
   ColorChangePayload,
+  ColorRejectedPayload,
   ConditionUpdatePayload,
   DiceResultPayload,
   DiceRevealPayload,
@@ -231,7 +232,36 @@ export function handleClientMessage(
     case 'player:color-change': {
       const payload = message.payload as ColorChangePayload
       get().updatePeer(message.senderId, { color: payload.color })
-      useLobbyStore.getState().updatePlayer(message.senderId, { color: payload.color })
+      // Phase 29d: an authoritative color-change from the host is the signal
+      // that the player's pick was accepted — flip colorConfirmed so the Ready
+      // button unlocks for the local player and other clients see the same
+      // state for every peer.
+      useLobbyStore.getState().updatePlayer(message.senderId, {
+        color: payload.color,
+        colorConfirmed: true
+      })
+      break
+    }
+
+    case 'player:color-rejected': {
+      // Phase 29d: the host rejected our color-confirm because another peer
+      // already holds that color. Revert any optimistic local change by
+      // clearing colorConfirmed so the Ready button stays disabled until the
+      // player picks a different color. Local UI also surfaces a toast/system
+      // message via the chat (rendered from the host's broadcast or here).
+      const payload = message.payload as ColorRejectedPayload
+      const localId = get().localPeerId
+      if (localId) {
+        useLobbyStore.getState().updatePlayer(localId, { colorConfirmed: false })
+      }
+      useLobbyStore.getState().addChatMessage({
+        id: `color-rej-local-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+        senderId: 'system',
+        senderName: 'System',
+        content: `Color ${payload.color} is already taken — pick a different color.`,
+        timestamp: Date.now(),
+        isSystem: true
+      })
       break
     }
 

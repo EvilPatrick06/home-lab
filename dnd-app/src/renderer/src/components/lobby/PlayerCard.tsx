@@ -15,6 +15,8 @@ interface PlayerCardProps {
   onPromoteCoDM?: () => void
   onDemoteCoDM?: () => void
   onColorChange?: (color: string) => void
+  /** Phase 29d: colors currently held by *other* peers — disable those in the picker. */
+  usedByOtherPeers?: ReadonlySet<string>
 }
 
 export default memo(function PlayerCard({
@@ -29,7 +31,8 @@ export default memo(function PlayerCard({
   onChatTimeout,
   onPromoteCoDM,
   onDemoteCoDM,
-  onColorChange
+  onColorChange,
+  usedByOtherPeers
 }: PlayerCardProps): JSX.Element {
   const avatarLetter = player.displayName.charAt(0).toUpperCase()
   const [showColorPicker, setShowColorPicker] = useState(false)
@@ -152,20 +155,31 @@ export default memo(function PlayerCard({
       {/* Color picker — shown when local user clicks their avatar */}
       {showColorPicker && isLocal && onColorChange && (
         <div className="flex flex-wrap gap-1.5 ml-[3.25rem] mt-1">
-          {PLAYER_COLORS.map((color) => (
-            <button
-              key={color}
-              onClick={() => {
-                onColorChange(color)
-                setShowColorPicker(false)
-              }}
-              className={`w-5 h-5 rounded-full border-2 transition-colors cursor-pointer ${
-                player.color === color ? 'border-white' : 'border-transparent hover:border-gray-400'
-              }`}
-              style={{ backgroundColor: color }}
-              title={color}
-            />
-          ))}
+          {PLAYER_COLORS.map((color) => {
+            // Phase 29d: gray out colors taken by other peers (excluding self).
+            const taken = usedByOtherPeers?.has(color) ?? false
+            const isSelected = player.color === color
+            return (
+              <button
+                key={color}
+                onClick={() => {
+                  if (taken) return
+                  onColorChange(color)
+                  setShowColorPicker(false)
+                }}
+                disabled={taken}
+                title={taken ? `${color} (taken)` : color}
+                className={`w-5 h-5 rounded-full border-2 transition-colors ${
+                  isSelected
+                    ? 'border-white cursor-pointer'
+                    : taken
+                      ? 'border-transparent opacity-30 cursor-not-allowed'
+                      : 'border-transparent hover:border-gray-400 cursor-pointer'
+                }`}
+                style={{ backgroundColor: color }}
+              />
+            )
+          })}
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import type {
   BuyItemPayload,
   ColorChangePayload,
+  ColorConfirmPayload,
   HaggleRequestPayload,
   InspectRequestPayload,
   JournalAddPayload,
@@ -93,11 +94,64 @@ export function handleHostMessage(
     }
 
     case 'player:color-change': {
+      // Phase 29d: clients should send player:color-confirm instead so the host
+      // can enforce uniqueness. We keep this handler for backward-compat (older
+      // clients) — but it bypasses the uniqueness check, matching pre-29d behavior.
       const colorPayload = message.payload as ColorChangePayload
       get().updatePeer(fromPeerId, { color: colorPayload.color })
-      useLobbyStore.getState().updatePlayer(fromPeerId, { color: colorPayload.color })
+      useLobbyStore.getState().updatePlayer(fromPeerId, { color: colorPayload.color, colorConfirmed: true })
       updatePeerInfo(fromPeerId, { color: colorPayload.color })
       broadcastExcluding(message, fromPeerId)
+      break
+    }
+
+    case 'player:color-confirm': {
+      // Phase 29d: authoritative color uniqueness check. If the requested color
+      // is held by another peer, reject; otherwise apply + broadcast the
+      // authoritative color-change so all clients (including the sender) see
+      // the same outcome and set colorConfirmed=true.
+      const confirmPayload = message.payload as ColorConfirmPayload
+      const players = useLobbyStore.getState().players
+      const senderInfo = getPeerInfo(fromPeerId)
+      const conflict = players.find((p) => p.peerId !== fromPeerId && p.color === confirmPayload.color)
+
+      if (conflict) {
+        // Reject the sender's pick.
+        sendToPeer(fromPeerId, {
+          type: 'player:color-rejected' as MessageType,
+          payload: { color: confirmPayload.color, reason: 'taken' },
+          senderId: getPeerId() || '',
+          senderName: get().displayName,
+          timestamp: Date.now(),
+          sequence: 0
+        })
+        // Surface a system chat note so the DM (and the sender) see the contention.
+        useLobbyStore.getState().addChatMessage({
+          id: `color-rej-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+          senderId: 'system',
+          senderName: 'System',
+          content: `${senderInfo?.displayName ?? 'A player'}'s color pick was already taken — they'll need to choose a different color.`,
+          timestamp: Date.now(),
+          isSystem: true
+        })
+        break
+      }
+
+      // Accept: persist locally + broadcast authoritative change.
+      get().updatePeer(fromPeerId, { color: confirmPayload.color })
+      useLobbyStore.getState().updatePlayer(fromPeerId, {
+        color: confirmPayload.color,
+        colorConfirmed: true
+      })
+      updatePeerInfo(fromPeerId, { color: confirmPayload.color })
+      broadcastMessage({
+        type: 'player:color-change' as MessageType,
+        payload: { color: confirmPayload.color },
+        senderId: fromPeerId,
+        senderName: senderInfo?.displayName ?? '',
+        timestamp: Date.now(),
+        sequence: 0
+      })
       break
     }
 

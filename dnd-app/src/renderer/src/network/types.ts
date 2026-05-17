@@ -10,6 +10,8 @@ export type {
   ChatTimeoutPayload,
   CoDMPayload,
   ColorChangePayload,
+  ColorConfirmPayload,
+  ColorRejectedPayload,
   ConditionUpdatePayload,
   DiceResultPayload,
   DiceRevealPayload,

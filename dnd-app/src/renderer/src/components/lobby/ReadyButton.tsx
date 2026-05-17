@@ -17,6 +17,9 @@ export default function ReadyButton(): JSX.Element {
   const localPlayer = players.find((p) => p.peerId === localPeerId)
   const isReady = localPlayer?.isReady ?? false
   const everyoneReady = allReady()
+  // Phase 29d: Ready can't be toggled until the player has explicitly
+  // confirmed their color (forces a deliberate pick, avoids color collisions).
+  const colorConfirmed = localPlayer?.colorConfirmed === true
 
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const connectedPeerIds = useNetworkStore((s) => s.peers.map((p) => p.peerId))
@@ -38,6 +41,8 @@ export default function ReadyButton(): JSX.Element {
   }, [sceneStatus])
 
   const handleToggleReady = (): void => {
+    // Phase 29d: refuse the toggle if color hasn't been confirmed.
+    if (!colorConfirmed) return
     if (localPeerId) {
       const newReady = !isReady
       setPlayerReady(localPeerId, newReady)
@@ -73,14 +78,18 @@ export default function ReadyButton(): JSX.Element {
         <button
           aria-label={isReady ? 'Mark as not ready' : 'Mark as ready'}
           onClick={handleToggleReady}
-          className={`w-full py-2 rounded-lg font-medium text-sm transition-all cursor-pointer
+          disabled={!colorConfirmed}
+          title={!colorConfirmed ? 'Confirm your color first' : undefined}
+          className={`w-full py-2 rounded-lg font-medium text-sm transition-all
             ${
-              isReady
-                ? 'bg-green-600/30 border border-green-600 text-green-400'
-                : 'bg-transparent border border-gray-600 text-gray-400 hover:border-green-600 hover:text-green-400'
+              !colorConfirmed
+                ? 'bg-transparent border border-gray-700 text-gray-600 cursor-not-allowed'
+                : isReady
+                  ? 'bg-green-600/30 border border-green-600 text-green-400 cursor-pointer'
+                  : 'bg-transparent border border-gray-600 text-gray-400 hover:border-green-600 hover:text-green-400 cursor-pointer'
             }`}
         >
-          {isReady ? 'DM Ready' : 'Mark Ready'}
+          {!colorConfirmed ? 'Confirm Color First' : isReady ? 'DM Ready' : 'Mark Ready'}
         </button>
         <div className="flex flex-col gap-1 w-full">
           <button
@@ -135,14 +144,18 @@ export default function ReadyButton(): JSX.Element {
     <button
       aria-label={isReady ? 'Mark as not ready' : 'Mark as ready'}
       onClick={handleToggleReady}
-      className={`w-full py-3 rounded-lg font-bold text-lg transition-all cursor-pointer
+      disabled={!colorConfirmed}
+      title={!colorConfirmed ? 'Confirm your color first' : undefined}
+      className={`w-full py-3 rounded-lg font-bold text-lg transition-all
         ${
-          isReady
-            ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30'
-            : 'bg-transparent border-2 border-green-600 text-green-400 hover:bg-green-900/20'
+          !colorConfirmed
+            ? 'bg-transparent border-2 border-gray-700 text-gray-600 cursor-not-allowed'
+            : isReady
+              ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30 cursor-pointer'
+              : 'bg-transparent border-2 border-green-600 text-green-400 hover:bg-green-900/20 cursor-pointer'
         }`}
     >
-      {isReady ? 'Ready!' : 'Ready'}
+      {!colorConfirmed ? 'Confirm Color First' : isReady ? 'Ready!' : 'Ready'}
     </button>
   )
 }

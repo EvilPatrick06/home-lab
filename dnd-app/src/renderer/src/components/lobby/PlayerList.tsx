@@ -100,9 +100,12 @@ export default function PlayerList(): JSX.Element {
   }
 
   const handleColorChange = (color: string): void => {
+    // Phase 29d: optimistic local change only — the actual host-confirmed change
+    // happens when the player clicks ColorConfirmButton (sends player:color-confirm).
+    // Clearing `colorConfirmed` here ensures the Ready button re-locks if the player
+    // picks a new color after already confirming a previous one.
     if (localPeerId) {
-      updatePlayer(localPeerId, { color })
-      sendMessage('player:color-change', { color })
+      updatePlayer(localPeerId, { color, colorConfirmed: false })
     }
   }
 
@@ -138,6 +141,11 @@ export default function PlayerList(): JSX.Element {
         ) : (
           sortedPlayers.map((player) => {
             const isLocal = player.peerId === localPeerId
+            // Phase 29d: pass colors held by *other* peers so the local player's
+            // picker can gray them out.
+            const usedByOthers = new Set(
+              players.filter((p) => p.peerId !== player.peerId && p.color).map((p) => p.color!)
+            )
             return (
               <PlayerCard
                 key={player.peerId}
@@ -159,6 +167,7 @@ export default function PlayerList(): JSX.Element {
                   isHostView && !isLocal && !player.isHost ? () => handleDemoteCoDM(player.peerId) : undefined
                 }
                 onColorChange={isLocal ? handleColorChange : undefined}
+                usedByOtherPeers={isLocal ? usedByOthers : undefined}
               />
             )
           })

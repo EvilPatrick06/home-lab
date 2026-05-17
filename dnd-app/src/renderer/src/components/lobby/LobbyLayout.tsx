@@ -4,7 +4,7 @@ import { useNetworkStore } from '../../stores/network-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { CharacterSelector, ChatPanel, PlayerList, ReadyButton } from '.'
+import { CharacterSelector, ChatPanel, ColorConfirmButton, PlayerList, ReadyButton } from '.'
 import DiscordLink from './DiscordLink'
 
 export default function LobbyLayout(): JSX.Element {
@@ -51,6 +51,9 @@ export default function LobbyLayout(): JSX.Element {
 
         {/* Discord link */}
         {campaign?.discordInviteUrl && <DiscordLink url={campaign.discordInviteUrl} />}
+
+        {/* Color-confirm gate (Phase 29d) — must click before Ready unlocks */}
+        <ColorConfirmButton />
 
         {/* Ready button */}
         <ReadyButton />

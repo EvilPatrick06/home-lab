@@ -214,6 +214,15 @@ const ColorChangePayloadSchema = z.object({
   color: z.string()
 })
 
+const ColorConfirmPayloadSchema = z.object({
+  color: z.string()
+})
+
+const ColorRejectedPayloadSchema = z.object({
+  color: z.string(),
+  reason: z.literal('taken')
+})
+
 const ChatFilePayloadSchema = z.object({
   fileName: z.string(),
   fileType: z.string(),
@@ -487,6 +496,8 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'player:buy-item': BuyItemPayloadSchema,
   'player:sell-item': SellItemPayloadSchema,
   'player:color-change': ColorChangePayloadSchema,
+  'player:color-confirm': ColorConfirmPayloadSchema,
+  'player:color-rejected': ColorRejectedPayloadSchema,
   'player:time-request': TimeRequestPayloadSchema,
   'player:turn-end': TurnEndPayloadSchema,
   'player:roll-result': RollResultPayloadSchema,
