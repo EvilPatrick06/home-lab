@@ -67,6 +67,13 @@ export default function TablesPanel(): JSX.Element {
   }, [loadTables])
 
   const rollOnTable = (table: TableEntry): void => {
+    // Phase 17af — previously every error branch did `result = '...'; return`
+    // which skipped the addChatMessage below, so empty / invalid tables
+    // silently did nothing on click (looked "broken"). Now every branch
+    // either falls through to write `result` + `rollInfo` and then the
+    // shared addChatMessage call below runs, OR sets `result` to an
+    // explanatory message and lets the shared call surface it. No more
+    // silent no-ops on click.
     let result: string
     let rollInfo = ''
 
@@ -74,61 +81,56 @@ export default function TablesPanel(): JSX.Element {
       const arrayData = table.data as string[]
       if (arrayData.length === 0) {
         result = 'No entries in table'
-        return
+      } else {
+        const roll = Math.floor(Math.random() * arrayData.length) + 1
+        result = arrayData[roll - 1]
+        rollInfo = `1d${arrayData.length} = ${roll}`
       }
-      const roll = Math.floor(Math.random() * arrayData.length) + 1
-      result = arrayData[roll - 1]
-      rollInfo = `1d${arrayData.length} = ${roll}`
     } else if (table.type === 'diceTable') {
       const diceTable = table.data as { die: string; entries: Array<{ roll: string; [key: string]: unknown }> }
       const formula = diceTable.die.replace('d', '') // Extract number from "d100"
       const rollResult = rollFormula(`1d${formula}`)
       if (!rollResult) {
         result = 'Invalid dice formula'
-        return
-      }
-
-      // Find matching entry
-      const matchedEntry = diceTable.entries.find((entry) => {
-        const rollRange = entry.roll
-        if (rollRange.includes('-')) {
-          const [min, max] = rollRange.split('-').map(Number)
-          return rollResult.total >= min && rollResult.total <= max
-        } else {
+      } else {
+        // Find matching entry
+        const matchedEntry = diceTable.entries.find((entry) => {
+          const rollRange = entry.roll
+          if (rollRange.includes('-')) {
+            const [min, max] = rollRange.split('-').map(Number)
+            return rollResult.total >= min && rollResult.total <= max
+          }
           return rollResult.total === parseInt(rollRange, 10)
-        }
-      })
+        })
 
-      result = matchedEntry
-        ? String(matchedEntry[Object.keys(matchedEntry).find((k) => k !== 'roll')!] || 'Unknown')
-        : 'No matching entry'
-      rollInfo = `${rollResult.formula}: ${rollResult.total}`
+        result = matchedEntry
+          ? String(matchedEntry[Object.keys(matchedEntry).find((k) => k !== 'roll')!] || 'Unknown')
+          : 'No matching entry'
+        rollInfo = `${rollResult.formula}: ${rollResult.total}`
+      }
     } else if (table.type === 'nested') {
       // For nested tables like npcTraits, pick a random sub-table and then random entry
       const nestedData = table.data as Record<string, unknown>
       const subKeys = Object.keys(nestedData)
       if (subKeys.length === 0) {
         result = 'No sub-tables available'
-        return
+      } else {
+        const randomSubKey = subKeys[Math.floor(Math.random() * subKeys.length)]
+        const subTable = nestedData[randomSubKey] as unknown[]
+        if (!Array.isArray(subTable) || subTable.length === 0) {
+          result = 'Invalid sub-table'
+        } else {
+          const roll = Math.floor(Math.random() * subTable.length) + 1
+          result = String(subTable[roll - 1])
+          rollInfo = `${randomSubKey} 1d${subTable.length} = ${roll}`
+        }
       }
-
-      const randomSubKey = subKeys[Math.floor(Math.random() * subKeys.length)]
-      const subTable = nestedData[randomSubKey] as unknown[]
-
-      if (!Array.isArray(subTable) || subTable.length === 0) {
-        result = 'Invalid sub-table'
-        return
-      }
-
-      const roll = Math.floor(Math.random() * subTable.length) + 1
-      result = String(subTable[roll - 1])
-      rollInfo = `${randomSubKey} 1d${subTable.length} = ${roll}`
     } else {
       result = 'Unsupported table type'
-      return
     }
 
-    // Add to chat
+    // Add to chat — always fires now, so the user gets feedback regardless
+    // of which branch produced `result`.
     addChatMessage({
       id: crypto.randomUUID(),
       senderId: 'system',
