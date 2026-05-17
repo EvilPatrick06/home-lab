@@ -314,7 +314,21 @@ export default function LibraryPage(): JSX.Element {
     Promise.all(allCats.map((cat) => loadCategoryItems(cat, []).catch(() => [] as LibraryItem[])))
       .then((results) => {
         if (cancelled) return
-        const allItems = results.flat()
+        // Phase 17n — homebrew entries live in the library store, not in
+        // the on-disk per-category data files that `loadCategoryItems`
+        // pulls from. Without this they got silently excluded from the
+        // favorites view even when explicitly favorited. Project them
+        // into LibraryItem shape and add to the pool the favorites
+        // filter walks over.
+        const hbItems: LibraryItem[] = homebrewEntries.map((e) => ({
+          id: e.id,
+          name: e.name,
+          category: e.type as LibraryCategory,
+          source: 'homebrew' as const,
+          summary: summarizeItem(e.data as Record<string, unknown>, e.type as LibraryCategory),
+          data: { ...e.data, _homebrewId: e.id, _basedOn: e.basedOn, _createdAt: e.createdAt }
+        }))
+        const allItems = [...results.flat(), ...hbItems]
         const matched = allItems.filter((item) => favorites.has(item.id))
         const recentMatched = recentlyViewed.filter(
           (item) => favorites.has(item.id) && !matched.some((m) => m.id === item.id)
@@ -331,7 +345,7 @@ export default function LibraryPage(): JSX.Element {
     return () => {
       cancelled = true
     }
-  }, [showFavorites, favorites, recentlyViewed])
+  }, [showFavorites, favorites, recentlyViewed, homebrewEntries])
 
   // Sort/filter config for current category
   const sortOptions = useMemo(() => getSortOptions(selectedCategory ?? 'global'), [selectedCategory])

@@ -1,4 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
+import { addToast } from '../../hooks/use-toast'
+import { logger } from '../../utils/logger'
 
 interface AudioPlayerItemProps {
   item: {
@@ -20,11 +22,16 @@ export default function AudioPlayerItem({
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(0)
+  // Phase 17n — surface a friendly "no source" badge instead of failing
+  // silently when the audio entry has no usable path (the common shape
+  // of a half-finished homebrew custom-audio entry).
+  const [missingSource, setMissingSource] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const animRef = useRef<number>(0)
 
   const subcategory = (item.data.subcategory as string) ?? ''
   const path = (item.data.path as string) ?? ''
+  const hasPath = typeof path === 'string' && path.trim().length > 0
 
   const updateProgress = useCallback((): void => {
     const audio = audioRef.current
@@ -37,10 +44,24 @@ export default function AudioPlayerItem({
   const handleToggle = useCallback(
     (e: React.MouseEvent): void => {
       e.stopPropagation()
+      // Phase 17n — guard against missing/empty audio path. Older
+      // homebrew custom-audio entries shipped without a path field,
+      // which would silently `new Audio('')` and fail. Surface it as a
+      // toast + inline badge instead.
+      if (!hasPath) {
+        if (!missingSource) setMissingSource(true)
+        addToast(`No audio source for "${item.name}"`, 'error')
+        return
+      }
       if (!audioRef.current) {
         const audio = new Audio(path)
         audioRef.current = audio
         audio.addEventListener('loadedmetadata', () => setDuration(audio.duration))
+        audio.addEventListener('error', () => {
+          logger.warn('[AudioPlayerItem] Failed to load audio:', path)
+          addToast(`Failed to load audio: ${item.name}`, 'error')
+          setPlaying(false)
+        })
         audio.addEventListener('ended', () => {
           setPlaying(false)
           setProgress(0)
@@ -54,12 +75,25 @@ export default function AudioPlayerItem({
         setPlaying(false)
         cancelAnimationFrame(animRef.current)
       } else {
-        audio.play()
+        // Phase 17n — `audio.play()` returns a Promise that rejects when
+        // the user-gesture / network / decode fails. Without `.catch()`
+        // the rejection became an unhandled-promise console error and
+        // the UI lied about being "playing". Show the user what
+        // happened.
+        const result = audio.play()
+        if (result && typeof result.then === 'function') {
+          result.catch((err: unknown) => {
+            logger.warn('[AudioPlayerItem] audio.play() failed:', err)
+            addToast(`Could not play "${item.name}"`, 'error')
+            setPlaying(false)
+            cancelAnimationFrame(animRef.current)
+          })
+        }
         setPlaying(true)
         animRef.current = requestAnimationFrame(updateProgress)
       }
     },
-    [playing, path, updateProgress]
+    [playing, path, hasPath, updateProgress, item.name, missingSource]
   )
 
   const formatTime = (sec: number): string => {
@@ -90,6 +124,14 @@ export default function AudioPlayerItem({
           <span className="text-[10px] bg-gray-700/60 text-gray-400 px-1.5 py-0.5 rounded-full flex-shrink-0">
             {subcategory.replace(/\//g, ' › ')}
           </span>
+          {(!hasPath || missingSource) && (
+            <span
+              className="text-[10px] bg-red-900/40 text-red-300 px-1.5 py-0.5 rounded-full flex-shrink-0"
+              title="No audio source path was provided for this entry"
+            >
+              No source
+            </span>
+          )}
         </div>
 
         {/* Progress bar */}
