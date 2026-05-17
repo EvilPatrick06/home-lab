@@ -11,7 +11,7 @@ import { logToFile } from './log'
 import { registerPluginProtocol, registerPluginScheme } from './plugins/plugin-protocol'
 import { registerCoreBooks } from './storage/book-storage'
 import { loadSettings } from './storage/settings-storage'
-import { maybeAutoCheckOnLaunch, registerUpdateHandlers } from './updater'
+import { isUpdateInProgress, maybeAutoCheckOnLaunch, registerUpdateHandlers } from './updater'
 
 // ── Unhandled Error Handlers ──
 
@@ -276,6 +276,17 @@ app.whenReady().then(async () => {
 })
 
 app.on('window-all-closed', () => {
+  // CRITICAL: bail out if an install is in flight. performInstall (updater.ts)
+  // closes every BrowserWindow and *then* schedules quitAndInstall on a
+  // 1500 ms timer to give file handles time to release. If we let
+  // app.quit() fire here the moment the last window closes, the app exits
+  // *before* the timeout runs — quitAndInstall is never invoked, the
+  // installer never spawns, the app reopens at the same version, the
+  // auto-update flow rediscovers the same pending update, and the user is
+  // stuck in an infinite "restart → no install → re-detect → restart" loop
+  // on both Linux and Windows. This was the v2.1.34-era bug the user
+  // reported across both platforms.
+  if (isUpdateInProgress()) return
   if (process.platform !== 'darwin') {
     app.quit()
   }

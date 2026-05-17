@@ -38,6 +38,22 @@ export type UpdateStatus =
 
 let currentStatus: UpdateStatus = { state: 'idle' }
 
+/**
+ * Set when an install is in flight. `window-all-closed` in main/index.ts
+ * normally calls `app.quit()` the moment the last BrowserWindow closes —
+ * but performInstall *intentionally* closes every window first and then
+ * waits 1500 ms before calling `quitAndInstall`. Without this flag, the
+ * close-all-windows step preempts our timeout: app.quit() runs, the
+ * installer is never spawned, the app exits cleanly, and on next launch
+ * the auto-update flow rediscovers the same pending update — the
+ * infinite-update-loop bug the user reported on BOTH Windows and Linux.
+ */
+let installInProgress = false
+
+export function isUpdateInProgress(): boolean {
+  return installInProgress
+}
+
 function broadcastStatus(): void {
   for (const win of BrowserWindow.getAllWindows()) {
     if (!win.isDestroyed()) {
@@ -93,12 +109,25 @@ async function loadAutoUpdatePrefs(): Promise<AutoUpdatePrefs> {
 function performInstall(isSilent: boolean): void {
   logToFile('INFO', `[updater] performInstall(isSilent=${isSilent}, isForceRunAfter=true)`)
 
+  // Flag the in-install state so `window-all-closed` (in main/index.ts)
+  // doesn't fire `app.quit()` underneath us when we close every window
+  // below. Without this, app.quit() runs before our 1500 ms setTimeout
+  // ever fires quitAndInstall and the installer never spawns.
+  installInProgress = true
+
   for (const win of BrowserWindow.getAllWindows()) {
     if (!win.isDestroyed()) {
       try {
-        win.close()
+        // win.destroy() instead of win.close() — InGamePage registers a
+        // `beforeunload` listener that calls preventDefault() to warn the
+        // user about losing an active game session. That's the right
+        // default for the in-game close button, but it blocks our
+        // programmatic close during a controlled install. destroy() skips
+        // beforeunload and close events entirely and tears the window down
+        // immediately, so quitAndInstall can fire reliably.
+        win.destroy()
       } catch (err) {
-        logToFile('WARN', '[updater] window.close() failed during install:', String(err))
+        logToFile('WARN', '[updater] window.destroy() failed during install:', String(err))
       }
     }
   }
@@ -116,9 +145,24 @@ function performInstall(isSilent: boolean): void {
       autoUpdater.quitAndInstall(isSilent, true)
     } catch (err) {
       logToFile('ERROR', '[updater] quitAndInstall failed, forcing quit:', String(err))
+      installInProgress = false
       app.quit()
     }
   }, 1500)
+
+  // Safety net: if `quitAndInstall` doesn't actually take effect within
+  // 10 seconds (issue #50200, #884 — quitAndInstall sometimes returns
+  // successfully without spawning the installer process), force-relaunch
+  // the app so the user isn't stuck on a blank screen. Clearing the flag
+  // here lets window-all-closed take its normal app.quit() path again.
+  setTimeout(() => {
+    if (installInProgress) {
+      logToFile('WARN', '[updater] quitAndInstall did not quit within 10s — forcing relaunch')
+      installInProgress = false
+      app.relaunch()
+      app.exit(0)
+    }
+  }, 10_000)
 }
 
 /**
@@ -198,7 +242,15 @@ export function registerUpdateHandlers(): void {
       })
 
       await autoUpdater.downloadUpdate()
-      autoUpdater.autoInstallOnAppQuit = true
+      // autoInstallOnAppQuit = false (was true). electron-builder Issues
+      // #2317, #2493, #6418 document a known infinite-update-loop where
+      // setting this to true fires the install on every app.quit without
+      // the 1500 ms file-handle-release wait we use in performInstall.
+      // The install silently fails on file lock, user reopens to the
+      // same version, the loop repeats. Installs MUST go through our
+      // controlled performInstall path (triggered by the user clicking
+      // "Restart and install").
+      autoUpdater.autoInstallOnAppQuit = false
       currentStatus = { state: 'downloaded', version: pendingVersion }
       broadcastStatus()
       return currentStatus
