@@ -3,18 +3,35 @@ import * as THREE from 'three'
 
 // ─── Constants ────────────────────────────────────────────────
 
+// Phase 17aa — tuning pass on the dice physics. The user reported the
+// animation was "very wonky, too fast, and unstable". Two changes:
+//   - Bumped LINEAR_DAMPING + ANGULAR_DAMPING from 0.3 → 0.5 so the dice
+//     slow down sooner once they're rolling. With lower damping the
+//     tumble was visibly chaotic and the dice ricocheted off walls many
+//     times before settling.
+//   - Bumped SETTLE_THRESHOLD from 0.05 → 0.1 so a die that's still
+//     drifting slowly counts as settled instead of jittering for a few
+//     more frames.
+//   - Lowered FRICTION slightly (0.6 → 0.55) so the dice slide a touch
+//     less aggressively when they hit the floor.
+//   - Bumped MAX_SETTLE_TIME from 4 s → 4.5 s so the very-slow cases
+//     don't get cut off mid-tumble. The settle-frame check still wins
+//     for normal rolls, so this only affects edge cases.
+// Geometry / texture concerns (numbers not centered, sides not evenly
+// sized) live in dice-meshes.ts / dice-textures.ts — out of scope for
+// the physics file; logged as a follow-up.
 const GRAVITY = -40
 const FLOOR_Y = 0
 const WALL_DISTANCE = 4
 const WALL_HEIGHT = 3
 const DIE_MASS = 1
 const RESTITUTION = 0.3
-const FRICTION = 0.6
-const LINEAR_DAMPING = 0.3
-const ANGULAR_DAMPING = 0.3
-const SETTLE_THRESHOLD = 0.05
+const FRICTION = 0.55
+const LINEAR_DAMPING = 0.5
+const ANGULAR_DAMPING = 0.5
+const SETTLE_THRESHOLD = 0.1
 const SETTLE_FRAMES = 15
-const MAX_SETTLE_TIME = 4000
+const MAX_SETTLE_TIME = 4500
 
 // ─── Types ────────────────────────────────────────────────────
 
