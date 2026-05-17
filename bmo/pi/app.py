@@ -1576,13 +1576,37 @@ def api_music_search():
 
 @app.route("/api/music/play", methods=["POST"])
 def api_music_play():
+    """Play a song or resume. Round 2 #2 (2026-05-17): returns the actual
+    post-play state so callers can detect "ok=true but is_playing=false"
+    failure modes (muted sink, no output device, VLC error)."""
     data = request.get_json(silent=True) or {}
     song = data.get("song")
-    if song:
-        music.play(song)
-    else:
-        music.play()  # Resume
-    return jsonify({"ok": True})
+    try:
+        if song:
+            music.play(song)
+        else:
+            music.play()  # Resume
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"music.play failed: {e}"}), 500
+    # Read back state so the client doesn't have to poll separately to
+    # detect silent-failure (audio sink muted, output device missing).
+    try:
+        state = music.get_state()
+    except Exception:
+        state = {}
+    audio_state = _get_system_audio_state()
+    warning = None
+    if audio_state["muted"]:
+        warning = "system audio sink is muted — playback will be silent"
+    elif state.get("is_playing") is False:
+        warning = "playback did not start — check output device / VLC state"
+    return jsonify({
+        "ok": True,
+        "is_playing": bool(state.get("is_playing")),
+        "muted": audio_state["muted"],
+        "volume": audio_state["volume"],
+        "warning": warning,
+    })
 
 
 @app.route("/api/music/play-queue", methods=["POST"])
@@ -2695,7 +2719,17 @@ def api_discord_dm_status():
 # ── Volume API ───────────────────────────────────────────────────────
 
 def _get_system_volume() -> int:
-    """Read PipeWire system volume as 0-100 integer."""
+    """Read PipeWire system volume as 0-100 integer. See _get_system_audio_state
+    for the muted flag (Round 2 #1)."""
+    return _get_system_audio_state()["volume"]
+
+
+def _get_system_audio_state() -> dict:
+    """Return {volume:int, muted:bool} for the default PipeWire sink.
+
+    Round 2 #1 (2026-05-17): the volume endpoint reported 0% when the sink
+    was muted, hiding the actual blocker. Now exposes muted as a separate
+    flag so the UI can show a banner instead of silently looking quiet."""
     try:
         import subprocess
         env = os.environ.copy()
@@ -2703,12 +2737,16 @@ def _get_system_volume() -> int:
         r = subprocess.run(["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"],
                            capture_output=True, text=True, timeout=5, env=env)
         # Output: "Volume: 0.25" or "Volume: 0.25 [MUTED]"
-        parts = r.stdout.strip().split()
+        out = r.stdout.strip()
+        parts = out.split()
         if len(parts) >= 2:
-            return int(float(parts[1]) * 100)
+            return {
+                "volume": int(float(parts[1]) * 100),
+                "muted": "[MUTED]" in out.upper(),
+            }
     except Exception:
         pass
-    return _load_setting("volume.system", 25)
+    return {"volume": _load_setting("volume.system", 25), "muted": False}
 
 
 def _set_system_volume(level: int):
@@ -2726,7 +2764,7 @@ def _set_system_volume(level: int):
 
 @app.route("/api/volume")
 def api_volume_get():
-    """Get all volume levels."""
+    """Get all volume levels + system audio mute state (Round 2 #1)."""
     music_vol = _load_setting("volume.music", 50)
     if music:
         try:
@@ -2736,14 +2774,31 @@ def api_volume_get():
         except Exception:
             pass
     alarm_vol = timers.alarm_volume if timers and timers.alarm_volume is not None else _load_setting("volume.alarms", 80)
+    audio_state = _get_system_audio_state()
     return jsonify({
-        "system": _get_system_volume(),
+        "system": audio_state["volume"],
+        "muted": audio_state["muted"],  # Round 2 #1: surface mute state
         "music": music_vol,
         "voice": getattr(voice, "_speak_volume", 80) if voice else 80,
         "effects": _load_setting("volume.effects", 80),
         "notifications": _load_setting("volume.notifications", 80),
         "alarms": alarm_vol,
     })
+
+
+@app.route("/api/audio/unmute", methods=["POST"])
+def api_audio_unmute():
+    """Unmute the default PipeWire sink (Round 2 #1 helper)."""
+    try:
+        import subprocess
+        env = os.environ.copy()
+        env["XDG_RUNTIME_DIR"] = "/run/user/1000"
+        subprocess.run(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "0"],
+                       capture_output=True, text=True, timeout=5, env=env)
+        state = _get_system_audio_state()
+        return jsonify({"ok": True, "muted": state["muted"], "volume": state["volume"]})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/api/volume", methods=["POST"])

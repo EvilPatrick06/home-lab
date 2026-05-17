@@ -120,6 +120,10 @@ function bmo() {
     // toggle flicker where they render off then jump to true.
     controlsLoaded: false,
 
+    // QA Round 2 #1 (2026-05-17): system audio mute state — drives a
+    // top-of-app banner so silent-play failures are obvious from any tab.
+    systemAudioMuted: false,
+
     // QA #15 (2026-05-17): track weather freshness for the "updated Xm ago" pill.
     _weatherFetchedAt: 0,
 
@@ -2748,6 +2752,8 @@ function bmo() {
           // Sync musicState volume from saved settings (API is source of truth)
           if (vols.music !== undefined) this.musicState.volume = vols.music;
           this.volumeLevels = vols;
+          // Round 2 #1: surface muted state on the banner.
+          this.systemAudioMuted = !!vols.muted;
         }
         if (statusRes.ok) this.systemStatus = await statusRes.json();
         if (notifRes.ok) {
