@@ -21,6 +21,19 @@ const DEFAULT_BASE_URL = 'http://bmo.local:5000'
 const HEARTBEAT_INTERVAL_MS = 30_000
 const BACKOFF_LADDER_MS = [1_000, 2_000, 4_000, 8_000, 16_000, 30_000]
 
+// Phase 29g+ auto-discovery: the main process publishes the BMO Pi
+// base URL it discovered via _bmo._tcp mDNS browse. We cache it here
+// so renderer fetches use the resolved IP without needing the OS to
+// resolve `bmo.local` (Windows requires Bonjour Print Services for
+// that, which most users don't have installed).
+let discoveredBmoUrl: string | null = null
+
+if (typeof window !== 'undefined' && window.api?.lan?.onBmoResolvedUrl) {
+  window.api.lan.onBmoResolvedUrl(({ url }) => {
+    discoveredBmoUrl = url
+  })
+}
+
 export interface RegistryGameEntry {
   source: 'pi'
   invite_code: string
@@ -71,13 +84,18 @@ function resolveBase(input?: string | null): string {
 async function getBaseUrl(override?: string): Promise<string> {
   if (override) return resolveBase(override)
   if (typeof window === 'undefined' || !window.api?.loadSettings) {
-    return DEFAULT_BASE_URL
+    return discoveredBmoUrl ? resolveBase(discoveredBmoUrl) : DEFAULT_BASE_URL
   }
   try {
     const settings = await window.api.loadSettings()
-    return resolveBase(settings?.bmoPiBaseUrl)
+    if (settings?.bmoPiBaseUrl?.trim()) {
+      return resolveBase(settings.bmoPiBaseUrl)
+    }
+    // No explicit override → prefer the mDNS-discovered URL so Windows
+    // users without Bonjour Print Services can still reach the Pi.
+    return discoveredBmoUrl ? resolveBase(discoveredBmoUrl) : DEFAULT_BASE_URL
   } catch {
-    return DEFAULT_BASE_URL
+    return discoveredBmoUrl ? resolveBase(discoveredBmoUrl) : DEFAULT_BASE_URL
   }
 }
 

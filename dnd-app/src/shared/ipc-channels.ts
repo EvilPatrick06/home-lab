@@ -238,7 +238,11 @@ export const IPC_CHANNELS = {
   LAN_PUBLISH: 'lan:publish',
   LAN_UNPUBLISH: 'lan:unpublish',
   LAN_GAME_FOUND: 'lan:game-found',
-  LAN_GAME_REMOVED: 'lan:game-removed'
+  LAN_GAME_REMOVED: 'lan:game-removed',
+  // Emitted by main when the BMO Pi is discovered (or disappears) via
+  // _bmo._tcp mDNS browse. Lets the renderer auto-configure the Pi base
+  // URL without the user installing Bonjour Print Services on Windows.
+  BMO_RESOLVED_URL: 'bmo:resolved-url'
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

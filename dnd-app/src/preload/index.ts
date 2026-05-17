@@ -239,6 +239,14 @@ const api = {
       const listener = (_e: IpcRendererEvent, entry: Record<string, unknown>) => cb(entry)
       ipcRenderer.on(IPC_CHANNELS.LAN_GAME_REMOVED, listener)
       return () => ipcRenderer.removeListener(IPC_CHANNELS.LAN_GAME_REMOVED, listener)
+    },
+    // Phase 29g+ auto-discovery: main publishes the BMO Pi base URL it
+    // resolved via _bmo._tcp mDNS browse. Renderer's registry-client
+    // listens and uses it when no explicit Settings override is set.
+    onBmoResolvedUrl: (cb: (payload: { url: string | null }) => void) => {
+      const listener = (_e: IpcRendererEvent, payload: { url: string | null }) => cb(payload)
+      ipcRenderer.on(IPC_CHANNELS.BMO_RESOLVED_URL, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.BMO_RESOLVED_URL, listener)
     }
   },
 

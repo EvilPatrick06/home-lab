@@ -4,8 +4,12 @@
  *
  * Emits `http(s)://<host>:*` and `ws(s)://<host>:*` so any port on that host is allowed
  * (router DHCP, dev proxies, or explicit port in env).
+ *
+ * Includes both the resolved URL (settings/env/default) and any
+ * mDNS-discovered Pi URL so a Windows user without Bonjour Print
+ * Services can fetch the registry without manual Settings config.
  */
-import { BMO_PI_URL_DEFAULT, getBmoBaseUrl } from './bmo-config'
+import { BMO_PI_URL_DEFAULT, getBmoBaseUrl, getDiscoveredBmoUrl } from './bmo-config'
 
 /** Host part suitable for CSP (IPv6 literals need brackets). */
 function cspHostPart(hostname: string): string {
@@ -37,5 +41,10 @@ export function bmoCspConnectFragmentForBaseUrl(baseUrl: string | undefined): st
 }
 
 export function bmoCspConnectFragment(): string {
-  return bmoCspConnectFragmentForBaseUrl(getBmoBaseUrl())
+  const primary = bmoCspConnectFragmentForBaseUrl(getBmoBaseUrl())
+  const discovered = getDiscoveredBmoUrl()
+  if (!discovered) return primary
+  const extra = bmoCspConnectFragmentForBaseUrl(discovered)
+  if (!extra || extra === primary) return primary
+  return `${primary}${extra}`
 }

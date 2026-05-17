@@ -359,7 +359,11 @@ sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot
 sudo systemctl enable avahi-daemon
 sudo systemctl restart avahi-daemon
 
-# Publish HTTP + SSH via mDNS service discovery
+# Publish HTTP + SSH + _bmo._tcp via mDNS service discovery.
+# The dedicated `_bmo._tcp` type lets the dnd-app's main process discover
+# the Pi without the user having to type a URL into Settings or install
+# Bonjour Print Services on Windows (which would otherwise be needed to
+# resolve `bmo.local`). See dnd-app/src/main/lan-discovery.ts.
 sudo mkdir -p /etc/avahi/services
 sudo tee /etc/avahi/services/bmo.service > /dev/null << 'EOF'
 <?xml version="1.0" standalone='no'?>
@@ -370,6 +374,12 @@ sudo tee /etc/avahi/services/bmo.service > /dev/null << 'EOF'
     <type>_http._tcp</type>
     <port>5000</port>
     <txt-record>path=/</txt-record>
+  </service>
+  <service>
+    <type>_bmo._tcp</type>
+    <port>5000</port>
+    <txt-record>has_registry=true</txt-record>
+    <txt-record>version=1</txt-record>
   </service>
   <service>
     <type>_ssh._tcp</type>

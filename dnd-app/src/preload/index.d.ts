@@ -704,6 +704,7 @@ interface LanAPI {
   unpublish: () => Promise<{ ok: boolean }>
   onGameFound: (cb: (entry: LanGameEntry) => void) => () => void
   onGameRemoved: (cb: (entry: LanRemovedEntry) => void) => () => void
+  onBmoResolvedUrl: (cb: (payload: { url: string | null }) => void) => () => void
 }
 
 declare global {

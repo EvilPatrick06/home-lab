@@ -20,14 +20,18 @@ import {
   type ValidatedLanGameFound,
   type ValidatedLanPublish
 } from '../shared/ipc-schemas'
+import { setDiscoveredBmoUrl } from './bmo-config'
 import { logToFile } from './log'
 
 const SERVICE_TYPE = 'dndvtt'
+const BMO_SERVICE_TYPE = 'bmo'
 
 let bonjour: Bonjour | null = null
 let published: Service | null = null
 let browser: ReturnType<Bonjour['find']> | null = null
+let bmoBrowser: ReturnType<Bonjour['find']> | null = null
 const knownByFqdn = new Map<string, ValidatedLanGameFound>()
+const knownBmoFqdns = new Set<string>()
 
 function getBonjour(): Bonjour {
   if (!bonjour) bonjour = new Bonjour()
@@ -135,7 +139,53 @@ export function startLanScan(): { ok: boolean } {
       invite_code: last?.invite_code
     })
   })
+  startBmoDiscovery()
   return { ok: true }
+}
+
+/**
+ * Browse for the BMO Pi's `_bmo._tcp` service. The Pi advertises this
+ * via its avahi configuration (see bmo/setup-bmo.sh). On discovery we
+ * set the resolved URL in bmo-config + broadcast BMO_RESOLVED_URL to
+ * the renderer so the registry-client can use it without the user
+ * having to install Bonjour Print Services on Windows or type a URL
+ * into Settings.
+ */
+function startBmoDiscovery(): void {
+  if (bmoBrowser) return
+  bmoBrowser = getBonjour().find({ type: BMO_SERVICE_TYPE })
+  bmoBrowser.on('up', (service: Service) => {
+    // Prefer an IPv4 address — that's what Electron's fetch can use
+    // without depending on the host OS's mDNS resolver.
+    const ipv4 = (service.addresses ?? []).find((a) => /^\d+\.\d+\.\d+\.\d+$/.test(a))
+    const host = ipv4 ?? service.host ?? service.fqdn
+    if (!host) return
+    const url = `http://${host}:${service.port ?? 5000}`
+    knownBmoFqdns.add(service.fqdn)
+    setDiscoveredBmoUrl(url)
+    broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url })
+    logToFile('INFO', `[lan-discovery] BMO Pi discovered at ${url}`)
+  })
+  bmoBrowser.on('down', (service: Service) => {
+    knownBmoFqdns.delete(service.fqdn)
+    if (knownBmoFqdns.size === 0) {
+      setDiscoveredBmoUrl(null)
+      broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url: null })
+      logToFile('INFO', '[lan-discovery] BMO Pi went away')
+    }
+  })
+}
+
+function stopBmoDiscovery(): void {
+  if (!bmoBrowser) return
+  try {
+    bmoBrowser.stop()
+  } catch {
+    // best-effort
+  }
+  bmoBrowser = null
+  knownBmoFqdns.clear()
+  setDiscoveredBmoUrl(null)
 }
 
 export function stopLanScan(): void {
@@ -148,6 +198,7 @@ export function stopLanScan(): void {
   }
   browser = null
   knownByFqdn.clear()
+  stopBmoDiscovery()
 }
 
 export function teardownLanDiscovery(): void {
