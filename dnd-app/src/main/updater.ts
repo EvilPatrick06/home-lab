@@ -133,14 +133,22 @@ export function registerUpdateHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.UPDATE_INSTALL, async () => {
-    try {
-      const autoUpdater = getAutoUpdater()
-      autoUpdater.quitAndInstall(true, true)
-    } catch (err) {
-      // quitAndInstall failed — force quit so the downloaded update can run on next launch
-      logToFile('ERROR', 'quitAndInstall failed, forcing quit:', String(err))
-      app.quit()
-    }
+  ipcMain.handle(IPC_CHANNELS.UPDATE_INSTALL, () => {
+    // Defer the actual install to the next tick so this IPC handler
+    // returns first — otherwise the renderer is mid-await when Electron
+    // tears the process down for the quit, which presents as the
+    // window crashing. Users had to click "Update & Restart" 1–3 times
+    // because each crash left the installer dangling.
+    setImmediate(() => {
+      try {
+        const autoUpdater = getAutoUpdater()
+        autoUpdater.quitAndInstall(true, true)
+      } catch (err) {
+        // quitAndInstall failed — force quit so the downloaded update can run on next launch
+        logToFile('ERROR', 'quitAndInstall failed, forcing quit:', String(err))
+        app.quit()
+      }
+    })
+    return { state: 'installing' as const }
   })
 }
