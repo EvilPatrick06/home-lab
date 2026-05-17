@@ -1072,6 +1072,11 @@ const blankTomeProgress = () => ({
   mistakeVault: [],
   chatHistory: [],
   runHistory: [],            // Phase 10: per-tome list of completed/failed dungeon runs
+  // Phase 30e QA #10: per-domain answer counts for the Domain Codex. Bumped
+  // by recordAnswer for every answered item that carries a `domain` tag —
+  // covers Quiz, Riddles, Flashcards, Labs, and Oracle paths, not just
+  // dungeon delves (which were previously the Codex's only data source).
+  domainStats: {},           // { [domain]: { total, correct } }
   // Phase 26a: confidence calibration. Each bucket counts answer events
   // where the user rated their confidence + whether the answer was correct.
   // Used by the Domain Study screen's Calibration section to surface
@@ -2124,6 +2129,23 @@ export default function DungeonScholarApp() {
                 mistakeVault: [...(t.progress?.mistakeVault || []), { ...item, addedAt: Date.now() }],
               },
             };
+          }),
+        };
+      }
+
+      // Phase 30e QA #10: bump per-domain answer stats so the Domain Codex
+      // can credit Quiz/Riddle/Flashcard/Lab activity, not just dungeon
+      // delves. Skipped when item has no `domain` (legacy or non-tagged).
+      const itemDomain = item && typeof item.domain === 'string' ? item.domain : null;
+      if (itemDomain && prev.activeTomeId) {
+        next = {
+          ...next,
+          library: next.library.map(t => {
+            if (t.id !== prev.activeTomeId) return t;
+            const ds = { ...(t.progress?.domainStats || {}) };
+            const cur = ds[itemDomain] || { total: 0, correct: 0 };
+            ds[itemDomain] = { total: cur.total + 1, correct: cur.correct + (correct ? 1 : 0) };
+            return { ...t, progress: { ...t.progress, domainStats: ds } };
           }),
         };
       }
@@ -5938,6 +5960,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
     const buckets = {};
     const tomes = isCombined ? library : (selectedTome ? [selectedTome] : []);
     tomes.forEach(t => {
+      // Source 1: dungeon-delve question log (the historical Codex source).
       ((t.progress?.runHistory) || []).forEach(run => {
         (run.questionLog || []).forEach(q => {
           const key = q.domain || 'Uncategorized';
@@ -5945,6 +5968,18 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           buckets[key].total += 1;
           if (q.correct) buckets[key].correct += 1;
         });
+      });
+      // Phase 30e QA #10: source 2 — per-domain answer stats from every
+      // non-delve answer path (Quiz, Riddles, Flashcards, Labs). Populated
+      // by recordAnswer for tomes that have at least one domain-tagged
+      // answer since Phase 30e shipped. Older data is unrecoverable.
+      const ds = t.progress?.domainStats || {};
+      Object.entries(ds).forEach(([domain, agg]) => {
+        if (!agg || typeof agg !== 'object') return;
+        const key = domain || 'Uncategorized';
+        if (!buckets[key]) buckets[key] = { domain: key, total: 0, correct: 0 };
+        buckets[key].total += Number(agg.total) || 0;
+        buckets[key].correct += Number(agg.correct) || 0;
       });
     });
     return Object.values(buckets).map(b => ({ ...b, accuracy: b.total ? b.correct / b.total : 0 }));
@@ -6535,6 +6570,17 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           {memoryCoverage.rated === 0 ? (
             <div className="text-xs italic text-amber-700 py-3 text-center">
               ✦ Rate scrolls in any tome to begin charting thy memory decay. The Oracle of Memory hath not yet seen thee study.
+            </div>
+          ) : memoryCoverage.rated < 10 ? (
+            /* Phase 30e QA #11: gate the curve until the sample is large enough
+               to be meaningful. Below 10 rated scrolls the forecast was drawing
+               a confident-looking line from 3 data points, misleading the user
+               about coverage. Show the progress + a clear "needs N more" hint. */
+            <div className="text-xs italic text-amber-700 py-3 text-center space-y-2">
+              <div>✦ Forecast unlocks at 10 rated scrolls — {memoryCoverage.rated}/10 so far.</div>
+              <div className="text-amber-100/70">
+                Continue rating scrolls (any tome) to unlock the decay curve.
+              </div>
             </div>
           ) : (
             <>
