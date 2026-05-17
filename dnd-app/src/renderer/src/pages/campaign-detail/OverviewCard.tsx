@@ -19,6 +19,8 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
     lobbyMessage: '',
     discordInviteUrl: ''
   })
+  // Draft string for the maxPlayers number input — clamp onBlur, see DetailsStep for context.
+  const [maxPlayersDraft, setMaxPlayersDraft] = useState('4')
 
   const openOverviewEdit = (): void => {
     setOverviewForm({
@@ -31,6 +33,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
       lobbyMessage: campaign.settings.lobbyMessage,
       discordInviteUrl: campaign.discordInviteUrl ?? ''
     })
+    setMaxPlayersDraft(String(campaign.settings.maxPlayers))
     setShowOverviewEdit(true)
   }
 
@@ -124,11 +127,13 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
               <label className="block text-gray-400 text-xs mb-1">Max Players</label>
               <input
                 type="number"
-                value={overviewForm.maxPlayers}
-                onChange={(e) => {
-                  const raw = parseInt(e.target.value, 10)
+                value={maxPlayersDraft}
+                onChange={(e) => setMaxPlayersDraft(e.target.value)}
+                onBlur={() => {
+                  const raw = parseInt(maxPlayersDraft, 10)
                   const numeric = Number.isFinite(raw) ? raw : 1
                   const clamped = numeric < 1 ? 1 : numeric > 8 ? 8 : numeric
+                  setMaxPlayersDraft(String(clamped))
                   setOverviewForm((f) => ({ ...f, maxPlayers: clamped }))
                 }}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"

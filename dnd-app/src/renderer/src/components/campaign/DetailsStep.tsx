@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { TurnMode } from '../../types/campaign'
 import { Input } from '../ui'
 
@@ -19,6 +20,13 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
   const update = <K extends keyof DetailsData>(key: K, value: DetailsData[K]): void => {
     onChange({ ...data, [key]: value })
   }
+
+  // Draft string for the maxPlayers number input — keeps "-99" et al visible during typing
+  // and clamps onBlur. Per-keystroke clamping reads "-", "9", "9" as 1, 19, 60 (max).
+  const [maxPlayersDraft, setMaxPlayersDraft] = useState(() => String(data.maxPlayers))
+  useEffect(() => {
+    setMaxPlayersDraft(String(data.maxPlayers))
+  }, [data.maxPlayers])
 
   return (
     <div>
@@ -54,11 +62,13 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             max={8}
             className="w-24 p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
               focus:outline-none focus:border-amber-500 transition-colors"
-            value={data.maxPlayers}
-            onChange={(e) => {
-              const raw = parseInt(e.target.value, 10)
+            value={maxPlayersDraft}
+            onChange={(e) => setMaxPlayersDraft(e.target.value)}
+            onBlur={() => {
+              const raw = parseInt(maxPlayersDraft, 10)
               const numeric = Number.isFinite(raw) ? raw : 2
               const val = numeric < 2 ? 2 : numeric > 8 ? 8 : numeric
+              setMaxPlayersDraft(String(val))
               update('maxPlayers', val)
             }}
           />

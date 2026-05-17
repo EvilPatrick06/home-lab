@@ -224,7 +224,7 @@ function KeybindingEditor(): JSX.Element {
                   {isCustom(shortcut.action) && (
                     <button
                       onClick={() => resetKeybinding(shortcut.action)}
-                      className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+                      className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
                     >
                       Reset
                     </button>
@@ -874,6 +874,10 @@ export default function SettingsPage(): JSX.Element {
   // Auto-save settings
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(() => AutoSave.getConfig().enabled)
   const [autoSaveInterval, setAutoSaveInterval] = useState(() => AutoSave.getConfig().intervalMs / 60000)
+  // Draft string so users can type intermediate states like "-" or "1" → "12" without
+  // each keystroke being clamped (which made "-99" snap to MAX after the user only meant MIN).
+  // Clamping happens onBlur, against the final string.
+  const [autoSaveIntervalDraft, setAutoSaveIntervalDraft] = useState(() => String(autoSaveInterval))
 
   // Accessibility store
   const uiScale = useAccessibilityStore((s) => s.uiScale)
@@ -1020,7 +1024,7 @@ export default function SettingsPage(): JSX.Element {
                 handleMutedChange(false)
                 handleEnabledChange(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Audio Defaults
             </button>
@@ -1094,7 +1098,7 @@ export default function SettingsPage(): JSX.Element {
                 setScreenReaderMode(false)
                 setTooltipsEnabled(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Accessibility Defaults
             </button>
@@ -1206,7 +1210,7 @@ export default function SettingsPage(): JSX.Element {
                 handleGridOpacityChange(40)
                 handleGridColorChange('#ffffff')
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Grid Defaults
             </button>
@@ -1272,7 +1276,7 @@ export default function SettingsPage(): JSX.Element {
                 NotificationService.setEnabled(true)
                 NotificationService.setSoundEnabled(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Notification Defaults
             </button>
@@ -1366,9 +1370,10 @@ export default function SettingsPage(): JSX.Element {
               onClick={() => {
                 setAutoSaveEnabled(true)
                 setAutoSaveInterval(5)
+                setAutoSaveIntervalDraft('5')
                 AutoSave.setConfig({ enabled: true, intervalMs: 300000 })
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Auto-Save Defaults
             </button>
@@ -1396,12 +1401,14 @@ export default function SettingsPage(): JSX.Element {
                 type="number"
                 min={1}
                 max={60}
-                value={autoSaveInterval}
-                onChange={(e) => {
-                  const raw = Number(e.target.value)
+                value={autoSaveIntervalDraft}
+                onChange={(e) => setAutoSaveIntervalDraft(e.target.value)}
+                onBlur={() => {
+                  const raw = parseInt(autoSaveIntervalDraft, 10)
                   const numeric = Number.isFinite(raw) ? raw : 1
                   const val = numeric < 1 ? 1 : numeric > 60 ? 60 : numeric
                   setAutoSaveInterval(val)
+                  setAutoSaveIntervalDraft(String(val))
                   AutoSave.setConfig({ intervalMs: val * 60000 })
                 }}
                 disabled={!autoSaveEnabled}
