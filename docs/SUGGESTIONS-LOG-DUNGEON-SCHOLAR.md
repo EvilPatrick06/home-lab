@@ -21,16 +21,19 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
-### [2026-05-17] QA16 — Full light theme / high-contrast variant
+### [2026-05-17] QA16 → partially resolved 2026-05-17 (Phase 34b)
 
-- **Category:** future-idea
+- **Category:** future-idea (full-rewrite scope)
 - **Severity:** low
 - **Domain:** dungeon-scholar
 - **Discovered by:** Claude Code (Opus 4.7) during Phase 30 QA review
+- **Status:** PARTIALLY RESOLVED 2026-05-17 (Phase 34b — commit `4d304b6`)
 
-The app is dark-mode-only with low-contrast dim gold-on-dark-brown text in places (card descriptions, "Set thy exam date" hints, daily-quest reward text). Phase 30i did a minimal contrast bump on the most-touched copy but the broader theme work is its own phase. Consider either a true light theme + toggle or a deeper systematic contrast audit of every `text-amber-*/N` opacity used against the brown background.
+Phase 34b shipped a Dark / Light (experimental) / Match System toggle in Bardic Settings. The light variant is intentionally PARTIAL — only the body background gradient + vignette/noise overlays swap; the dungeon panels themselves stay dark by design (they're part of the brand identity, and inline-style refactor would be its own multi-day project).
 
-**Files:** `dungeon-scholar/src/index.css`, every dim-amber text site across `src/App.jsx`.
+A FULL light theme — every panel re-themed via CSS variables — remains a future-idea. Scope: extract every inline `style={{ background, border, color }}` across `src/App.jsx` into CSS custom properties, then swap them under `[data-theme="light"]`. Estimated ~200-400 sites.
+
+**Files:** `dungeon-scholar/src/App.jsx` (every inline-style site), `dungeon-scholar/src/index.css` (custom-property scaffold).
 
 ---
 
