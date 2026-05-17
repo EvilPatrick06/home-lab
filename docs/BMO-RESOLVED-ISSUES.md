@@ -12,6 +12,22 @@
 
 ---
 
+### [2026-05-17] Phase 31c — IDE /file/create honors content, /folder/create endpoint, sandbox roots surfaced
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #8, #9, #10.
+- **Category:** bug, data-loss, api-design
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31c)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **#9 (file/create silently drops content):** `routes/ide.py:api_ide_file_create` now reads the `content` field, refuses silent clobber of an existing file (409), and returns `bytes_written` (UTF-8 byte count). The previous handler always opened the file with `f` then immediately closed it, leaving any provided body on the floor.
+  - **#10 (folder-only create returns 500):** new `routes/ide.py:api_ide_folder_create` accepts trailing-slash paths cleanly. `is_dir=True` on `/file/create` still works for legacy callers; the dedicated `/folder/create` is the clean primitive.
+  - **#8 (path-scheme inconsistency):** `/api/ide/tree` now embeds `sandbox_roots` (the resolved abs paths the blueprint will accept) and `resolved_path` in its response. New `/api/ide/sandbox/roots` returns just the roots for renderers that need a header tooltip. Windows-proxy responses keep the same shape with an empty `sandbox_roots` for consistency.
+- **Verified:** `pytest tests/test_ide_blueprint.py` → 9/9 passed (file content, empty-create, clobber refusal, missing-path 400, unicode byte count, folder trailing-slash, folder idempotent, folder missing-path, sandbox-roots). Smoke: `curl /api/ide/sandbox/roots` returns `["/home/patrick/home-lab","/home/patrick/.bmo_ide_workspace","/tmp"]`; `curl POST /api/ide/file/create '{"path":"/tmp/x","content":"hello smoke test"}'` returns `bytes_written:16` (file lands in BMO's `PrivateTmp` namespace).
+- **Touched files:** `bmo/pi/routes/ide.py`, `bmo/pi/tests/test_ide_blueprint.py` (new).
+
+---
+
 ### [2026-05-17] Phase 31b — Calendar OAuth HTTPS, health circuit-breaker, CF Access banner, wifi/status slim
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #5, #6, #7, #33.

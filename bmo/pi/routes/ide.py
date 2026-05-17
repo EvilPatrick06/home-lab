@@ -255,17 +255,38 @@ def _proxy_to_windows(op: str, params: dict, timeout: float = 10.0) -> dict:
 
 @ide_bp.route("/tree")
 def api_ide_tree():
-    """List directory contents for the file tree."""
+    """List directory contents for the file tree.
+
+    QA #8 (2026-05-17): the tree never surfaced which sandbox root it was
+    rooted at, so callers guessed wrong paths and either 404'd or wrote to
+    the wrong place. The response now embeds `sandbox_roots` (the absolute
+    paths the IDE will accept) alongside the listing payload."""
     path = request.args.get("path", "~")
     machine = request.args.get("machine", "pi")
     if machine == "win":
-        return jsonify(_proxy_to_windows("list_directory", {"path": path}))
+        result = _proxy_to_windows("list_directory", {"path": path})
+        if isinstance(result, dict):
+            result.setdefault("sandbox_roots", [])
+        return jsonify(result)
     try:
         path = _ide_safe_path(path)
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return jsonify({"error": str(e), "sandbox_roots": list(_IDE_ALLOWED_ROOTS)}), 403
     from dev.dev_tools import list_directory
-    return jsonify(list_directory(path))
+    listing = list_directory(path)
+    if isinstance(listing, dict):
+        listing["sandbox_roots"] = list(_IDE_ALLOWED_ROOTS)
+        listing["resolved_path"] = path
+    return jsonify(listing)
+
+
+@ide_bp.route("/sandbox/roots")
+def api_ide_sandbox_roots():
+    """Return the IDE's allowed root paths (machine: pi only).
+
+    Lets the IDE pane render an unambiguous "Roots: X, Y, Z" header so
+    users typing free-form paths know what's accepted."""
+    return jsonify({"roots": list(_IDE_ALLOWED_ROOTS)})
 
 
 @ide_bp.route("/file/read", methods=["POST"])
@@ -339,13 +360,24 @@ def api_ide_file_edit():
 
 @ide_bp.route("/file/create", methods=["POST"])
 def api_ide_file_create():
-    """Create a new file or directory."""
+    """Create a new file (with optional initial content) or directory.
+
+    QA #9 (2026-05-17): the body's `content` field was silently dropped; new
+    files were created empty. Now honors `content` for file creates and
+    returns `bytes_written`. QA #10: dedicated `/folder/create` endpoint
+    accepts trailing-slash paths cleanly.
+    """
     data = request.json or {}
     path = data.get("path", "")
-    is_dir = data.get("is_dir", False)
+    is_dir = bool(data.get("is_dir", False))
+    content = data.get("content", "")
     machine = data.get("machine", "pi")
     if machine == "win":
-        return jsonify(_proxy_to_windows("create_file", {"path": path, "is_dir": is_dir}))
+        return jsonify(_proxy_to_windows(
+            "create_file", {"path": path, "is_dir": is_dir, "content": content}
+        ))
+    if not path:
+        return jsonify({"error": "path required"}), 400
     try:
         path = _ide_safe_path(path)
     except PermissionError as e:
@@ -353,14 +385,49 @@ def api_ide_file_create():
     try:
         if is_dir:
             os.makedirs(path, exist_ok=True)
-        else:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, "w", encoding="utf-8") as f:
-                pass
-        return jsonify({"success": True, "path": path})
-    except Exception:
-        log.info("[ide.file.create] error")
-        return jsonify({"error": "create failed"}), 500
+            return jsonify({"success": True, "path": path, "is_dir": True})
+        parent = os.path.dirname(path)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
+        # Refuse silent clobber — callers that need an overwrite use file/write.
+        if os.path.exists(path):
+            return jsonify({"error": "file already exists; use file/write to overwrite"}), 409
+        text_content = content if isinstance(content, str) else ""
+        with open(path, "w", encoding="utf-8") as f:
+            if text_content:
+                f.write(text_content)
+        return jsonify({
+            "success": True,
+            "path": path,
+            "bytes_written": len(text_content.encode("utf-8")),
+        })
+    except OSError as e:
+        log.info(f"[ide.file.create] error: {e}")
+        return jsonify({"error": f"create failed: {e}"}), 500
+
+
+@ide_bp.route("/folder/create", methods=["POST"])
+def api_ide_folder_create():
+    """Create a directory. Accepts trailing-slash paths (QA #10, 2026-05-17)."""
+    data = request.json or {}
+    raw_path = (data.get("path", "") or "").rstrip("/")
+    machine = data.get("machine", "pi")
+    if machine == "win":
+        return jsonify(_proxy_to_windows(
+            "create_file", {"path": raw_path, "is_dir": True, "content": ""}
+        ))
+    if not raw_path:
+        return jsonify({"error": "path required"}), 400
+    try:
+        path = _ide_safe_path(raw_path)
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
+    try:
+        os.makedirs(path, exist_ok=True)
+        return jsonify({"success": True, "path": path, "is_dir": True})
+    except OSError as e:
+        log.info(f"[ide.folder.create] error: {e}")
+        return jsonify({"error": f"create failed: {e}"}), 500
 
 
 @ide_bp.route("/file/rename", methods=["POST"])
