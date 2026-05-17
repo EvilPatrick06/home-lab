@@ -19,6 +19,67 @@ function formatLabel(key: string): string {
 
 const EDITABLE_SKIP = new Set(['id', '_homebrewId', '_basedOn', '_createdAt', 'tokenSize', 'source'])
 
+/**
+ * Phase 17o — default field shape per category for from-scratch homebrew
+ * creation. Previously the modal started with only `{ name, description }`,
+ * forcing the user to hand-add per-type fields like `path` for audio,
+ * `level/school` for spells, etc. — and the user might not know which
+ * fields the base type expected. This map seeds the form with the
+ * minimum-viable shape so a homebrew of a given category renders + behaves
+ * like a base entry of the same category.
+ *
+ * Values are intentionally empty (or 0) — the user fills them in. Anything
+ * not seeded here can still be added via the existing "Add custom field"
+ * affordance.
+ */
+const CATEGORY_DEFAULT_FIELDS: Partial<Record<LibraryCategory, Record<string, unknown>>> = {
+  // The sounds category drives AudioPlayerItem (Phase 17n) which reads
+  // `item.data.path` to construct the Audio() src.
+  sounds: { name: '', description: '', path: '', subcategory: '' },
+  spells: {
+    name: '',
+    description: '',
+    level: 0,
+    school: '',
+    components: '',
+    range: '',
+    duration: '',
+    classes: [] as string[]
+  },
+  monsters: {
+    name: '',
+    description: '',
+    cr: 0,
+    ac: 10,
+    hp: 1,
+    speed: { walk: 30 },
+    abilityScores: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 }
+  },
+  creatures: { name: '', description: '', cr: 0, ac: 10, hp: 1 },
+  npcs: { name: '', description: '', role: 'neutral', personality: '', motivation: '' },
+  'magic-items': { name: '', description: '', rarity: 'common', requiresAttunement: false, weight: 0 },
+  weapons: { name: '', description: '', damage: '1d6', damageType: 'slashing', weight: 0, value: 0, properties: [] },
+  armor: { name: '', description: '', armorType: 'medium', ac: 10, weight: 0, value: 0 },
+  gear: { name: '', description: '', weight: 0, value: 0 },
+  tools: { name: '', description: '', weight: 0, value: 0 },
+  vehicles: { name: '', description: '', speed: 0, capacity: 0 },
+  mounts: { name: '', description: '', speed: 30, hp: 1, ac: 10 },
+  trinkets: { name: '', description: '' },
+  feats: { name: '', description: '', prerequisite: '' },
+  backgrounds: { name: '', description: '', skillProficiencies: [] as string[], languages: 0 },
+  species: { name: '', description: '', size: 'Medium', speed: 30, traits: [] as string[] },
+  classes: { name: '', description: '', hitDie: 8, primaryAbility: '' },
+  subclasses: { name: '', description: '', parentClass: '' },
+  conditions: { name: '', description: '' },
+  actions: { name: '', description: '' },
+  poisons: { name: '', description: '', cost: 0, save: 'CON 10' },
+  diseases: { name: '', description: '', save: 'CON 10' },
+  traps: { name: '', description: '', detect: 'DC 10', damage: '1d6' },
+  hazards: { name: '', description: '', damage: '1d6', save: 'DEX 10' },
+  portraits: { name: '', description: '', path: '' },
+  maps: { name: '', description: '', path: '' }
+} as const
+
 export default function HomebrewCreateModal({
   category,
   existingItem,
@@ -29,9 +90,13 @@ export default function HomebrewCreateModal({
   const isEditing = !!existingItem?.data._homebrewId
   const basedOn = existingItem?.data._basedOn as string | undefined
 
+  // Phase 17o — when creating from scratch (no existingItem), seed the
+  // form with the category's expected default fields so the user gets
+  // type-appropriate inputs instead of just name + description. Falls back
+  // to `{ name, description }` for any unknown category.
   const initialData: Record<string, unknown> = existingItem
     ? Object.fromEntries(Object.entries(existingItem.data).filter(([k]) => !EDITABLE_SKIP.has(k)))
-    : { name: '', description: '' }
+    : { ...(CATEGORY_DEFAULT_FIELDS[category] ?? { name: '', description: '' }) }
 
   const [formData, setFormData] = useState<Record<string, unknown>>(initialData)
   const [newFieldKey, setNewFieldKey] = useState('')
