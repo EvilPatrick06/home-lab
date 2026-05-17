@@ -3836,17 +3836,19 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                         targets, so screen-reader users can distinguish them
                         across multiple cards. `title=` stays for sighted
                         mouse-hover tooltip. */}
-                    {/* Phase 38d: pin/unpin toggle. Pinned tomes float to the
-                        top of the Library, useful once the user has 5+. */}
+                    {/* Phase 38d / 41b: pin/unpin toggle with an inline text
+                        label so users discover the feature without inspecting
+                        the icon's state. Title= still appears on mouse hover. */}
                     <button
                       onClick={() => onTogglePin?.(tome.id)}
-                      className={`px-3 py-2 rounded text-sm border-2 hover:bg-amber-900/30 ${tome.pinned ? 'border-amber-400 text-amber-200' : 'border-amber-700 text-amber-400'}`}
+                      className={`px-3 py-2 rounded text-sm border-2 hover:bg-amber-900/30 flex items-center gap-1.5 ${tome.pinned ? 'border-amber-400 text-amber-200' : 'border-amber-700 text-amber-400'}`}
                       style={{ background: tome.pinned ? 'rgba(120, 53, 15, 0.7)' : 'rgba(41, 24, 12, 0.7)' }}
                       title={tome.pinned ? `Unpin "${meta.title || 'this tome'}" from top` : `Pin "${meta.title || 'this tome'}" to top`}
                       aria-label={tome.pinned ? `Unpin tome "${meta.title || 'untitled'}" from the top` : `Pin tome "${meta.title || 'untitled'}" to the top`}
                       aria-pressed={!!tome.pinned}
                     >
                       <Star className="w-4 h-4" aria-hidden="true" style={{ fill: tome.pinned ? '#fde047' : 'transparent' }} />
+                      <span className="text-[10px] italic">{tome.pinned ? 'Pinned' : 'Pin'}</span>
                     </button>
                     <button
                       onClick={() => onShare(tome.id)}
@@ -4864,6 +4866,9 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   // with the old deck's index → wrong riddle. Saving the full deck order
   // and reconstructing it is robust to id absence.
   const [sessionDeck, setSessionDeck] = useState(null);
+  // Phase 41c round-8 suggestion: brief inline "· resumed" indicator on
+  // the riddle counter for ~3s after restore — quieter than the toast.
+  const [resumedRecently, setResumedRecently] = useState(false);
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
@@ -4965,11 +4970,15 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     }
     // Phase 38c suggestion: fire a toast so the user knows the
     // refresh-resume worked (otherwise the silent restore looks
-    // suspiciously like a fresh start).
+    // suspiciously like a fresh start). Phase 41c also flips an inline
+    // "· resumed" indicator on the riddle counter that auto-clears after
+    // ~3s — quieter signal that doesn't depend on the toast.
     if (positioned) {
       const restoredProgress = typeof saved.progressCount === 'number' ? saved.progressCount : 0;
       const restoredStreak = typeof saved.streak === 'number' ? saved.streak : 0;
       onResumeNotify?.({ kind: 'quiz', progressCount: restoredProgress, streak: restoredStreak, total: questions.length, riddleId: restoredQuestion?.id || null });
+      setResumedRecently(true);
+      setTimeout(() => setResumedRecently(false), 3000);
     }
     setRestored(true);
   }, [questions, baseDeck, tomeId, domainFilter, restored]);
@@ -5156,6 +5165,11 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
           🔮 Riddle {Math.min(progressCount + 1, questions.length)} of {questions.length}
+          {resumedRecently && (
+            <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded not-italic ml-1" style={{
+              background: 'rgba(6, 78, 59, 0.45)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
+            }} aria-live="polite">· resumed</span>
+          )}
           {/* Phase 35c QA P4: per-riddle difficulty only. The tome-avg
               fallback (Phase 32e) was visually identical across every riddle
               and gave the misleading impression that the difficulty was
