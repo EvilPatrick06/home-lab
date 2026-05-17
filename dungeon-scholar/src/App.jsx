@@ -2838,11 +2838,15 @@ export default function DungeonScholarApp() {
       )}
 
       {notification && (
-        // Phase 38a: clickable notifications when an onClick is attached
-        // (achievement / title unlocks deep-link to Hall of Glory). Default
-        // notifs just render as before with no pointer cursor.
+        // Phase 38a/39b: clickable notifications + SR a11y. role=status +
+        // aria-live=polite so screen-reader users hear resume/success
+        // events. Toast position moved from top-4 to top-20 so it lands
+        // below the header chrome instead of overlapping the gold counter.
+        // Width capped (max-w-md) so long messages don't stretch across
+        // the gold pill / library / inventory icons.
         <div
-          role={notification.onClick ? 'button' : undefined}
+          role={notification.onClick ? 'button' : 'status'}
+          aria-live="polite"
           tabIndex={notification.onClick ? 0 : undefined}
           onClick={() => {
             if (!notification.onClick) return;
@@ -2857,7 +2861,7 @@ export default function DungeonScholarApp() {
               setNotification(null);
             }
           }}
-          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded border-2 backdrop-blur-md ${
+          className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-md px-6 py-3 rounded border-2 backdrop-blur-md text-center ${
             notification.type === 'levelup' ? 'bg-amber-900/80 border-amber-400 text-amber-100' :
             notification.type === 'achievement' ? 'bg-purple-900/80 border-purple-400 text-purple-100' :
             notification.type === 'xp' ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100' :
