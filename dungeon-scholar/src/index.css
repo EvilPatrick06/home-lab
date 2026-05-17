@@ -2,18 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Phase 30f QA #13: restore a visible focus indicator. Tailwind's preflight
- * sets `outline: none` on all elements, which combined with custom buttons
- * that don't reapply a ring meant the focused-button computed style was
- * `outline-style: none` even though `outline-color` was set. Use
- * :focus-visible so mouse clicks don't trigger the ring (only keyboard /
- * programmatic focus). The amber-300 colour matches the theme; !important
- * defeats the Tailwind preflight override. */
+/* Phase 30f / 32c QA #13: visible focus indicator on every focusable
+ * element. The Phase 30f attempt used the `outline` shorthand with
+ * `!important`, but the 2026-05-17 QA re-run showed `outline-style: none`
+ * was still computed — either headless / programmatic focus didn't trigger
+ * `:focus-visible`, or browser engines were treating the shorthand
+ * !important inconsistently. Phase 32c switches to individual longhands
+ * with !important AND covers both `:focus` and `:focus-visible` so the
+ * indicator appears on keyboard, programmatic, AND mouse focus (the latter
+ * is a small visual tradeoff in exchange for WCAG-correct behaviour). */
 @layer base {
+  *:focus,
   *:focus-visible {
-    outline: 2px solid #fde047 !important;
-    outline-offset: 2px;
-    border-radius: 2px;
+    outline-width: 2px !important;
+    outline-style: solid !important;
+    outline-color: #fde047 !important;
+    outline-offset: 2px !important;
   }
 }
 
