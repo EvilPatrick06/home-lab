@@ -33,7 +33,7 @@ function formatClock(sec) {
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 }
 
-export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomeProgress, awardXP, onExit }) {
+export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomeProgress, awardXP, onExit, onResumeNotify }) {
   const weights = courseSet?.metadata?.domainWeights || null;
   const quizPool = useMemo(
     () => (courseSet?.quiz || []).filter(q => q && typeof q.id === 'string'),
@@ -214,8 +214,14 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     setSample(saved.sample);
     setAnswers(Array.isArray(saved.answers) ? saved.answers : new Array(saved.sample.length).fill(null));
     setCurrentIdx(typeof saved.currentIdx === 'number' ? saved.currentIdx : 0);
-    setSecondsLeft(Math.max(0, Math.ceil((saved.deadlineMs - Date.now()) / 1000)));
+    const remainingSec = Math.max(0, Math.ceil((saved.deadlineMs - Date.now()) / 1000));
+    setSecondsLeft(remainingSec);
     setPhase('inProgress');
+    // Phase 38c: notify the user resume worked so the timer reappearing
+    // mid-page-load doesn't look mysterious.
+    const mins = Math.floor(remainingSec / 60);
+    const secs = remainingSec % 60;
+    onResumeNotify?.({ kind: 'exam', remainingLabel: `${mins}:${String(secs).padStart(2, '0')}`, total: saved.sample.length, currentIdx: typeof saved.currentIdx === 'number' ? saved.currentIdx : 0 });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setAnswerAt = (idx, val) => {

@@ -3320,6 +3320,7 @@ export default function DungeonScholarApp() {
             onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
             reviewMode={reviewMode}
             onExitReviewMode={() => { setReviewMode(false); setScreen('home'); }}
+            onResumeNotify={(info) => showNotif(`Resumed Scroll ${info.index + 1} of ${info.total}`, 'success')}
           />
         )}
         {screen === 'quiz' && courseSet && (
@@ -3335,6 +3336,10 @@ export default function DungeonScholarApp() {
             updateTomeProgress={updateTomeProgress}
             domainFilter={domainFilter}
             onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
+            onResumeNotify={(info) => showNotif(
+              `Resumed Riddle ${Math.min(info.progressCount + 1, info.total)} of ${info.total}${info.streak > 0 ? ` · Streak ${info.streak}` : ''}`,
+              'success',
+            )}
           />
         )}
         {screen === 'lab' && courseSet && (
@@ -3369,6 +3374,10 @@ export default function DungeonScholarApp() {
               updateTomeProgress={updateTomeProgress}
               awardXP={awardXP}
               onExit={() => setScreen('home')}
+              onResumeNotify={(info) => showNotif(
+                `Resumed trial — Riddle ${info.currentIdx + 1} of ${info.total} · ${info.remainingLabel} left`,
+                'success',
+              )}
             />
           </React.Suspense>
         )}
@@ -4492,7 +4501,7 @@ function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disab
   );
 }
 
-function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode }) {
+function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode, onResumeNotify }) {
   // Phase 33b QA P2: defer resume until `cards` is populated, and prefer
   // cardId over raw index — App.jsx reshuffles each session so saved index
   // would land on a different scroll.
@@ -4542,12 +4551,19 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
     if (!saved) { setRestored(true); return; }
     if (saved.tomeId && tomeId && saved.tomeId !== tomeId) { setRestored(true); return; }
     let positioned = false;
+    let restoredIndex = 0;
     if (saved.cardId) {
       const pos = cards.findIndex(c => c?.id === saved.cardId);
-      if (pos >= 0) { setIndex(pos); positioned = true; }
+      if (pos >= 0) { setIndex(pos); restoredIndex = pos; positioned = true; }
     }
     if (!positioned && typeof saved.index === 'number' && saved.index >= 0 && saved.index < cards.length) {
       setIndex(saved.index);
+      restoredIndex = saved.index;
+      positioned = true;
+    }
+    if (positioned) {
+      // Phase 38c: notify the user that resume worked.
+      onResumeNotify?.({ kind: 'flashcards', index: restoredIndex, total: cards.length });
     }
     setRestored(true);
   }, [cards, tomeId, reviewMode, domainFilter, restored]);
@@ -4732,7 +4748,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   );
 }
 
-function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter }) {
+function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter, onResumeNotify }) {
   const [index, setIndex] = useState(0);
   // Phase 35d QA P3: user-facing session progress counter, decoupled from
   // deck position. Increments only on `next()` so a refresh-resume (which
@@ -4804,6 +4820,15 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     }
     if (!positioned && typeof saved.index === 'number' && saved.index >= 0 && saved.index < questions.length) {
       setIndex(saved.index);
+      positioned = true;
+    }
+    // Phase 38c suggestion: fire a toast so the user knows the
+    // refresh-resume worked (otherwise the silent restore looks
+    // suspiciously like a fresh start).
+    if (positioned) {
+      const restoredProgress = typeof saved.progressCount === 'number' ? saved.progressCount : 0;
+      const restoredStreak = typeof saved.streak === 'number' ? saved.streak : 0;
+      onResumeNotify?.({ kind: 'quiz', progressCount: restoredProgress, streak: restoredStreak, total: questions.length });
     }
     setRestored(true);
   }, [questions, tomeId, domainFilter, restored]);
