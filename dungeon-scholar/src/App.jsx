@@ -3661,45 +3661,55 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                         ⚔ Continue Studying
                       </button>
                     )}
+                    {/* Phase 33d QA P4: every icon-only button gets an
+                        aria-label that names the action AND the tome it
+                        targets, so screen-reader users can distinguish them
+                        across multiple cards. `title=` stays for sighted
+                        mouse-hover tooltip. */}
                     <button
                       onClick={() => onShare(tome.id)}
                       className="px-3 py-2 rounded text-sm border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
                       style={{ background: 'rgba(31, 12, 41, 0.7)' }}
-                      title="Share this tome"
+                      title={`Share "${meta.title || 'this tome'}"`}
+                      aria-label={`Share tome "${meta.title || 'untitled'}"`}
                     >
-                      <Share2 className="w-4 h-4" />
+                      <Share2 className="w-4 h-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => onEditMetadata(tome.id)}
                       className="px-3 py-2 rounded text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
                       style={{ background: 'rgba(41, 24, 12, 0.7)' }}
-                      title="Edit metadata"
+                      title={`Edit metadata for "${meta.title || 'this tome'}"`}
+                      aria-label={`Edit metadata for tome "${meta.title || 'untitled'}"`}
                     >
-                      <Tag className="w-4 h-4" />
+                      <Tag className="w-4 h-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => startRename(tome)}
                       className="px-3 py-2 rounded text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
                       style={{ background: 'rgba(41, 24, 12, 0.7)' }}
-                      title="Rename"
+                      title={`Rename "${meta.title || 'this tome'}"`}
+                      aria-label={`Rename tome "${meta.title || 'untitled'}"`}
                     >
-                      <Edit2 className="w-4 h-4" />
+                      <Edit2 className="w-4 h-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => onDuplicate(tome.id)}
                       className="px-3 py-2 rounded text-sm border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
                       style={{ background: 'rgba(12, 41, 27, 0.7)' }}
-                      title="Duplicate (fresh progress)"
+                      title={`Duplicate "${meta.title || 'this tome'}" with fresh progress`}
+                      aria-label={`Duplicate tome "${meta.title || 'untitled'}" with fresh progress`}
                     >
-                      <Copy className="w-4 h-4" />
+                      <Copy className="w-4 h-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => setConfirmDelete(tome.id)}
                       className="px-3 py-2 rounded text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30"
                       style={{ background: 'rgba(41, 12, 12, 0.6)' }}
-                      title="Banish tome"
+                      title={`Banish "${meta.title || 'this tome'}"`}
+                      aria-label={`Banish tome "${meta.title || 'untitled'}"`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" aria-hidden="true" />
                     </button>
                   </div>
                 )}
