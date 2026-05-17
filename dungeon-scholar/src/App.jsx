@@ -9563,13 +9563,42 @@ function MetadataEditModal({ tome, onSave, onClose }) {
           <div>
             <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">⚔ DESCRIPTION</label>
             <textarea value={description}
-              onChange={(e) => setDescription(e.target.value.slice(0, 600))}
-              maxLength={600} rows={2}
+              onChange={(e) => {
+                // Phase 35a QA P1: only block ADDING past the limit. If the
+                // existing value already exceeds the limit (legacy data), let
+                // the user keep / shorten it but not grow past the current
+                // length. The Save button is gated separately when over.
+                const next = e.target.value;
+                if (next.length > 600 && next.length > description.length) return;
+                setDescription(next);
+              }}
+              rows={2}
               className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
               style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
-            <div className="text-xs italic text-amber-300 text-right mt-1 tabular-nums">
+            <div className={`text-xs italic text-right mt-1 tabular-nums ${description.length > 600 ? 'text-red-300 font-bold' : 'text-amber-300'}`}>
               {description.length}/600
             </div>
+            {/* Phase 35a QA P1: legacy descriptions can exceed the limit. Show
+                an inline error + one-click Trim so the user has an explicit
+                resolution path (the form was previously stuck in a red-counter
+                state with Save still enabled but undocumented auto-truncate). */}
+            {description.length > 600 && (
+              <div className="mt-2 p-2 rounded text-xs italic flex items-center gap-2 flex-wrap" style={{
+                background: 'rgba(127, 29, 29, 0.4)', border: '1px solid rgba(239, 68, 68, 0.6)', color: '#fecaca',
+              }}>
+                <span className="flex-1">
+                  ⚠ Description is {description.length - 600} char{description.length - 600 === 1 ? '' : 's'} over the limit. Trim before saving.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setDescription(description.slice(0, 600))}
+                  className="px-3 py-1 rounded border border-red-400 text-red-100 hover:bg-red-900/40"
+                  style={{ background: 'rgba(127, 29, 29, 0.6)' }}
+                >
+                  Trim to 600
+                </button>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -9610,8 +9639,11 @@ function MetadataEditModal({ tome, onSave, onClose }) {
           </div>
         </div>
         <div className="p-4 border-t border-amber-700/50 flex gap-2">
-          <button onClick={onClose} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Cancel</button>
-          <button onClick={submit} className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+          <button onClick={onClose} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }} aria-label="Cancel metadata edit">Cancel</button>
+          <button onClick={submit}
+            disabled={description.length > 600 || title.length > 200}
+            title={description.length > 600 ? `Trim description ${description.length - 600} chars before saving` : (title.length > 200 ? 'Trim title before saving' : undefined)}
+            className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)' }}>
             <Check className="w-4 h-4" /> Save Metadata
           </button>
