@@ -5,3 +5,16 @@ if command -v gitleaks >/dev/null 2>&1; then
 else
   echo "gitleaks not on PATH; skipping secret scan (see docs/CONTRIBUTING.md)" >&2
 fi
+
+# Mirror project READMEs to root copies so GitHub renders them as Markdown.
+# If a project README is staged, re-mirror and re-stage the root copy.
+repo_root="$(git rev-parse --show-toplevel)"
+sync_script="$repo_root/scripts/sync-root-readmes.sh"
+if [ -x "$sync_script" ]; then
+  staged_readmes=$(git diff --cached --name-only -- \
+    bmo/README.md dnd-app/README.md dungeon-scholar/README.md || true)
+  if [ -n "$staged_readmes" ]; then
+    "$sync_script" >/dev/null
+    git add -- bmo-README.md dnd-app-README.md dungeon-scholar-README.md
+  fi
+fi
