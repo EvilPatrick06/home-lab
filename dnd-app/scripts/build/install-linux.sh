@@ -31,6 +31,7 @@ DISPLAY_NAME="D&D Virtual Tabletop"
 INSTALL_DIR="${HOME}/Applications"
 DESKTOP_DIR="${HOME}/.local/share/applications"
 ICON_DIR="${HOME}/.local/share/icons/hicolor/512x512/apps"
+EXTRACT_DIR="${HOME}/.local/share/${APP_NAME}/runtime"
 BIN_DIR="${HOME}/.local/bin"
 DEST="${INSTALL_DIR}/${APP_NAME}.AppImage"
 LAUNCHER="${BIN_DIR}/${APP_NAME}"
@@ -95,6 +96,9 @@ cat > "${LAUNCHER}" <<'LAUNCHER_EOF'
 set -e
 
 APPIMAGE="__APPIMAGE_PATH__"
+EXTRACT_DIR="__EXTRACT_DIR__"
+APPRUN="${EXTRACT_DIR}/AppRun"
+
 FLAGS=(--no-sandbox)
 
 # No DRI render nodes → no GPU. Force CPU rendering so the renderer
@@ -109,17 +113,33 @@ if [[ "${XDG_SESSION_TYPE:-}" == "wayland" ]]; then
   FLAGS+=(--ozone-platform=x11)
 fi
 
-# First-run AppImage extraction can take 10-30s with no terminal output.
-# Without this hint, users assume the launch hung and Ctrl+C. Only
-# print when stdout is a tty (not when launched from the app menu).
-if [[ -t 1 ]]; then
-  echo "Starting D&D Virtual Tabletop..."
-  echo "(first launch can take 10-30s — extracting AppImage to /tmp)"
+# Re-extract the AppImage if the runtime is missing or stale. The
+# installer pre-extracts during install, so this branch only fires
+# after an electron-updater auto-update replaces the AppImage on disk
+# — at which point we want the new contents, not the old extracted
+# copy. Without pre-extraction every launch FUSE-mounts /tmp, adding
+# 2-5 s; with it, AppRun starts in ~500 ms.
+if [[ ! -x "${APPRUN}" ]] || [[ "${APPIMAGE}" -nt "${APPRUN}" ]]; then
+  if [[ -t 1 ]]; then
+    echo "Updating extracted runtime (one-time, ~10-30 s)..."
+  fi
+  extract_parent=$(mktemp -d)
+  if (cd "${extract_parent}" && "${APPIMAGE}" --appimage-extract >/dev/null 2>&1); then
+    rm -rf "${EXTRACT_DIR}"
+    mkdir -p "$(dirname "${EXTRACT_DIR}")"
+    mv "${extract_parent}/squashfs-root" "${EXTRACT_DIR}"
+    rmdir "${extract_parent}" 2>/dev/null || true
+  else
+    # Extraction failed — fall back to running the AppImage directly.
+    # User pays the FUSE-mount cost but the app still launches.
+    rm -rf "${extract_parent}"
+    exec "${APPIMAGE}" "${FLAGS[@]}" "$@"
+  fi
 fi
 
-exec "${APPIMAGE}" "${FLAGS[@]}" "$@"
+exec "${APPRUN}" "${FLAGS[@]}" "$@"
 LAUNCHER_EOF
-sed -i "s|__APPIMAGE_PATH__|${DEST}|" "${LAUNCHER}"
+sed -i "s|__APPIMAGE_PATH__|${DEST}|; s|__EXTRACT_DIR__|${EXTRACT_DIR}|" "${LAUNCHER}"
 chmod +x "${LAUNCHER}"
 ok "Added ${LAUNCHER} (wraps the AppImage with auto-detected flags)"
 
@@ -156,6 +176,24 @@ if ! echo "${PATH}" | tr ':' '\n' | grep -qx "${BIN_DIR}"; then
     info "Run this manually:    echo '${path_export}' >> ~/.bashrc"
     info "Or use the full path: ${LAUNCHER}"
   fi
+fi
+
+bold "==> Pre-extracting AppImage runtime"
+# Eliminates first-launch FUSE-mount cost (~10-30 s the first time, plus
+# 2-5 s every time after that). The launcher detects mtime drift and
+# re-extracts after an electron-updater update.
+info "Extracting to ${EXTRACT_DIR}"
+info "(adds ~200 MB on disk; without this, every launch FUSE-mounts /tmp)"
+extract_parent=$(mktemp -d)
+if (cd "${extract_parent}" && "${DEST}" --appimage-extract >/dev/null 2>&1); then
+  rm -rf "${EXTRACT_DIR}"
+  mkdir -p "$(dirname "${EXTRACT_DIR}")"
+  mv "${extract_parent}/squashfs-root" "${EXTRACT_DIR}"
+  rmdir "${extract_parent}" 2>/dev/null || true
+  ok "Pre-extracted (first launch will be ~0.5 s instead of ~10-30 s)"
+else
+  rm -rf "${extract_parent}"
+  err "Pre-extract failed — launcher will fall back to AppImage mount."
 fi
 
 bold "==> Extracting app icon"
