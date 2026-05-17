@@ -1036,6 +1036,66 @@ const formatStoryAction = (counter, target) => {
   return `${a.icon} ${a.verb} ${target} ${noun}`;
 };
 
+// Phase 44d round-11 suggestion: React error boundary. A component crash
+// (e.g., the Phase 43e hook-order regression that triggered React #310 on
+// LabMode entry) would otherwise unmount the entire app to a white page.
+// The boundary catches the render error, surfaces a recoverable panel,
+// and lets the user navigate back to Hearth without a full reload.
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    // eslint-disable-next-line no-console
+    console.error('[Dungeon Scholar] ErrorBoundary caught:', error, info);
+  }
+  resetError = () => {
+    this.setState({ hasError: false, error: null });
+    if (typeof this.props.onReset === 'function') {
+      try { this.props.onReset(); } catch { /* ignore */ }
+    }
+  };
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    const message = (this.state.error && (this.state.error.message || String(this.state.error))) || 'Unknown error';
+    return (
+      <div className="max-w-2xl mx-auto my-12 p-6 rounded relative" style={{
+        background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.92) 0%, rgba(20, 6, 6, 0.97) 100%)',
+        border: '3px double rgba(220, 38, 38, 0.7)',
+        boxShadow: '0 0 40px rgba(220, 38, 38, 0.3)',
+      }} role="alert" aria-live="assertive">
+        <div className="text-xs italic tracking-[0.25em] uppercase text-red-300 mb-3">⚠ Something went wrong ⚠</div>
+        <h2 className="text-2xl font-bold text-red-200 italic mb-3">A spell misfired in this chamber</h2>
+        <p className="text-sm italic text-amber-100 mb-4">
+          The page thou wast viewing crashed unexpectedly. Thy saved progress is safe —
+          step back to the Hearth and try again, or refresh the page if the problem persists.
+        </p>
+        <details className="mb-4 text-xs italic text-amber-100/70">
+          <summary className="cursor-pointer hover:text-amber-100">Technical details</summary>
+          <pre className="mt-2 p-2 rounded overflow-x-auto text-[10px] whitespace-pre-wrap" style={{
+            background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(120, 53, 15, 0.4)', color: '#fde68a',
+          }}>{message}</pre>
+        </details>
+        <div className="flex gap-2 flex-wrap">
+          <button onClick={this.resetError} className="px-4 py-2 rounded text-sm font-bold italic border-2 border-amber-300 text-amber-950"
+            style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)' }}>
+            ← Return to Hearth
+          </button>
+          <button onClick={() => { if (typeof window !== 'undefined') window.location.reload(); }}
+            className="px-4 py-2 rounded text-sm italic border-2 border-amber-700 text-amber-200"
+            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+            Reload page
+          </button>
+        </div>
+      </div>
+    );
+  }
+}
+
 // Phase 37b QA P2: Escape-to-close hook for modal dialogs. ConfirmModal
 // already had its own; this lets every other modal opt in with one line.
 // No-op when onEscape is falsy.
@@ -1593,19 +1653,19 @@ export default function DungeonScholarApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerState.activeTomeId]);
 
-  // Phase 38a/39c/43a: showNotif with optional onClick (deep-links) and
-  // timeoutMs. 43a fixes a clobber: prior version queued a NEW setTimeout
-  // every call without canceling pending ones — toast A's 4s timer would
-  // fire while toast B was showing and clear B early. The shared ref
-  // ensures only ONE dismissal timer is live at any moment, so a long-
-  // running undo toast can't be killed by an earlier setTimeout.
+  // Phase 38a/39c/43a/44c: showNotif with optional onClick (deep-links),
+  // timeoutMs, and hover/focus pause. 43a fixes the multi-toast clobber
+  // (single shared timer). 44c stores the timeoutMs on the notification
+  // itself so the toast render can rearm the timer on hover-out / blur
+  // — effectively pausing the auto-dismiss while the user is reading or
+  // about to click an undo affordance.
   const notifTimeoutRef = useRef(null);
   const showNotif = (msg, type = 'info', onClick = null, timeoutMs = 3000) => {
     if (notifTimeoutRef.current) {
       clearTimeout(notifTimeoutRef.current);
       notifTimeoutRef.current = null;
     }
-    setNotification({ msg, type, onClick });
+    setNotification({ msg, type, onClick, timeoutMs });
     notifTimeoutRef.current = setTimeout(() => {
       setNotification(null);
       notifTimeoutRef.current = null;
@@ -2291,6 +2351,8 @@ export default function DungeonScholarApp() {
     // counter. Only available when caller passed the full item.
     if (itemForUndo) {
       const stem = (itemForUndo.question || itemForUndo.front || itemForUndo.term || itemForUndo.title || 'item').slice(0, 50);
+      // Phase 44c: 4s → 8s default; pause-on-hover/focus handled in the
+      // notification render block.
       showNotif(
         `Vanquished: ${stem}${stem.length === 50 ? '…' : ''} · Undo`,
         'success',
@@ -2316,7 +2378,7 @@ export default function DungeonScholarApp() {
           });
           showNotif('Restored to Tome of Failures', 'info', null, 1500);
         },
-        4000,
+        8000,
       );
     }
   };
@@ -2898,12 +2960,13 @@ export default function DungeonScholarApp() {
       )}
 
       {notification && (
-        // Phase 38a/39b: clickable notifications + SR a11y. role=status +
-        // aria-live=polite so screen-reader users hear resume/success
-        // events. Toast position moved from top-4 to top-20 so it lands
-        // below the header chrome instead of overlapping the gold counter.
-        // Width capped (max-w-md) so long messages don't stretch across
-        // the gold pill / library / inventory icons.
+        // Phase 38a/39b/44c: clickable notifications + SR a11y + hover/
+        // focus pause. role=status + aria-live=polite so SR users hear
+        // resume/success events. Toast at top-20 below header chrome.
+        // Width capped at max-w-md. 44c: pointer hover or keyboard focus
+        // pauses the auto-dismiss timer (clears notifTimeoutRef on enter,
+        // re-arms on leave) so the user has time to actually click "Undo"
+        // on a vault vanquish.
         <div
           role={notification.onClick ? 'button' : 'status'}
           aria-live="polite"
@@ -2912,6 +2975,34 @@ export default function DungeonScholarApp() {
             if (!notification.onClick) return;
             try { notification.onClick(); } catch { /* ignore */ }
             setNotification(null);
+          }}
+          onMouseEnter={() => {
+            if (notifTimeoutRef.current) {
+              clearTimeout(notifTimeoutRef.current);
+              notifTimeoutRef.current = null;
+            }
+          }}
+          onMouseLeave={() => {
+            if (notifTimeoutRef.current || !notification) return;
+            const remaining = notification.timeoutMs || 3000;
+            notifTimeoutRef.current = setTimeout(() => {
+              setNotification(null);
+              notifTimeoutRef.current = null;
+            }, remaining);
+          }}
+          onFocus={() => {
+            if (notifTimeoutRef.current) {
+              clearTimeout(notifTimeoutRef.current);
+              notifTimeoutRef.current = null;
+            }
+          }}
+          onBlur={() => {
+            if (notifTimeoutRef.current || !notification) return;
+            const remaining = notification.timeoutMs || 3000;
+            notifTimeoutRef.current = setTimeout(() => {
+              setNotification(null);
+              notifTimeoutRef.current = null;
+            }, remaining);
           }}
           onKeyDown={(e) => {
             if (!notification.onClick) return;
@@ -3118,6 +3209,7 @@ export default function DungeonScholarApp() {
         </header>
 
         <main id="main-content" tabIndex={-1}>
+        <ErrorBoundary onReset={() => setScreen('home')}>
         <div className="mb-6 p-4 rounded relative" style={{
           background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.9) 0%, rgba(20, 12, 6, 0.9) 100%)',
           border: '2px solid rgba(180, 83, 9, 0.5)',
@@ -3552,6 +3644,7 @@ export default function DungeonScholarApp() {
             onClose={() => setShowTitles(false)}
           />
         )}
+        </ErrorBoundary>
         </main>
       </div>
     </div>
@@ -5495,6 +5588,35 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   const labs = courseSet.labs || [];
   const labProgress = tomeProgress?.labProgress || {};
 
+  // Phase 44a round-11 P1 CRITICAL FIX: ALL hooks must run on every render
+  // regardless of `selectedLab` state. The Phase 43e version put this
+  // useRef + useEffect AFTER the `if (!selectedLab) return ...` early
+  // return — list view ran N hooks, detail view ran N+2, triggering React
+  // error #310 ("Rendered more hooks than during the previous render")
+  // and unmounting the entire app. Now declared above the early return;
+  // the ref's content is updated conditionally further down where
+  // `submitStep` is in scope. The listener body guards on `s.options`
+  // being an array, so the no-op behavior on the list screen is preserved.
+  const labKeyRef = useRef(null);
+  useEffect(() => {
+    const onKey = (e) => {
+      const s = labKeyRef.current;
+      if (!s || !Array.isArray(s.options) || s.feedback) return;
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const key = e.key.toLowerCase();
+      let idx = -1;
+      if (/^[1-9]$/.test(key)) idx = Number(key) - 1;
+      else if (/^[a-z]$/.test(key)) idx = key.charCodeAt(0) - 97;
+      if (idx >= 0 && idx < s.options.length) {
+        e.preventDefault();
+        s.submitStep?.(idx === s.correctIndex);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   if (!selectedLab) {
     return (
       <div className="space-y-3 max-w-3xl mx-auto">
@@ -5663,34 +5785,16 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
     }, 1500);
   };
 
-  // Phase 43e round-10 P5: hotkey support inside a lab stage. Mirrors the
-  // Riddles pattern — 1-9 / A-Z indexes the current step's options array.
-  // Listener reads from a ref so it doesn't churn on every render.
-  const labKeyRef = useRef(null);
+  // Phase 43e / 44a: sync labKeyRef.current with current closure values
+  // each render so the keydown listener (declared at the top of LabMode)
+  // sees fresh options / correctIndex / submitStep. Only runs in the
+  // detail view (after the early return), so submitStep is in scope.
   labKeyRef.current = {
     options: currentStep?.options,
     correctIndex: currentStep?.correctIndex,
     feedback,
     submitStep,
   };
-  useEffect(() => {
-    const onKey = (e) => {
-      const s = labKeyRef.current;
-      if (!s || !Array.isArray(s.options) || s.feedback) return;
-      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const key = e.key.toLowerCase();
-      let idx = -1;
-      if (/^[1-9]$/.test(key)) idx = Number(key) - 1;
-      else if (/^[a-z]$/.test(key)) idx = key.charCodeAt(0) - 97;
-      if (idx >= 0 && idx < s.options.length) {
-        e.preventDefault();
-        s.submitStep?.(idx === s.correctIndex);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
 
   // Phase 42a QA round-9 P1: confirm before destroying mid-trial progress.
   // Re-uses the App-level ConfirmModal (same pattern as Trial of Hours

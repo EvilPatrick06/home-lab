@@ -339,7 +339,10 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                           className="ml-auto font-bold tabular-nums"
                           style={{ color: isAbandoned ? 'rgba(214, 211, 209, 0.6)' : color }}
                         >
-                          {rec.scorePct}%
+                          {/* Phase 44b round-11: abandoned rows render "—"
+                              instead of "0%" so the score column doesn't
+                              pollute averages or imply a real attempt. */}
+                          {isAbandoned ? '—' : `${rec.scorePct}%`}
                         </span>
                         {rec.status === 'timeout' && <span className="text-[10px] text-red-300 italic">timed out</span>}
                         {/* Phase 36f / 39e QA round 5 + 7: distinct badge for
