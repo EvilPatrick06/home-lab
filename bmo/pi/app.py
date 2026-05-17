@@ -63,6 +63,22 @@ def _cache_policy(response):
         "Permissions-Policy",
         "camera=(self), microphone=(self), geolocation=()",
     )
+
+    # Phase 29g registry CORS: the dnd-app Electron renderer fetches the
+    # /api/games* endpoints from a `file://` origin (or a different LAN
+    # IP than the Pi). Without ACAO, browsers refuse the response and
+    # the GameList shows "No Pi registry connected" even though the Pi
+    # is reachable. The registry surface is intentionally LAN-public
+    # (announce/list/stream are how clients discover hosted games), so
+    # `*` is the correct policy here — auth on these routes is gated by
+    # the optional BMO_REGISTRY_API_KEY header check, not by origin.
+    if (request.path or "").startswith("/api/games"):
+        response.headers.setdefault("Access-Control-Allow-Origin", "*")
+        response.headers.setdefault("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
+        response.headers.setdefault(
+            "Access-Control-Allow-Headers", "Content-Type, X-Registry-Key, Authorization"
+        )
+        response.headers.setdefault("Access-Control-Max-Age", "600")
     if "text/html" in response.content_type:
         # 'unsafe-eval' is REQUIRED: Alpine.js compiles its `x-data` / `@click`
         # / `x-show` expressions via `new AsyncFunction(expr)` at runtime, which
@@ -182,9 +198,15 @@ def _bmo_bearer_authorized() -> bool:
 
 @app.before_request
 def _bmo_optional_api_key():
+    p = request.path or ""
+    # Phase 29g registry CORS preflight: browsers fire OPTIONS for any
+    # POST/PATCH/DELETE with non-simple headers (Content-Type:
+    # application/json, X-Registry-Key, etc.). Short-circuit those so
+    # the actual route's method allowlist doesn't 405 them.
+    if request.method == "OPTIONS" and p.startswith("/api/games"):
+        return ("", 204)
     if not BMO_API_KEY:
         return None
-    p = request.path or ""
     if p in ("/health", "/favicon.ico") or p.startswith("/static/"):
         return None
     if _bmo_client_is_trusted_localhost():
