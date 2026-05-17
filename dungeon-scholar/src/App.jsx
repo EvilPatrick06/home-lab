@@ -3169,6 +3169,15 @@ export default function DungeonScholarApp() {
             onDuplicate={duplicateTome}
             onShare={(id) => setShareTomeId(id)}
             onEditMetadata={(id) => setEditMetadataTomeId(id)}
+            onTogglePin={(id) => {
+              // Phase 38d round-3 suggestion: pin/unpin a tome so it floats
+              // to the top of the Library — useful once a user has 5+ tomes
+              // and the active-only badge isn't enough navigation.
+              setPlayerState(prev => ({
+                ...prev,
+                library: prev.library.map(t => t.id === id ? { ...t, pinned: !t.pinned } : t),
+              }));
+            }}
             onImport={() => fileInputRef.current?.click()}
             onPaste={() => setShowPasteModal(true)}
             onImportCode={() => setShowImportCodeModal(true)}
@@ -3474,7 +3483,7 @@ function OrnatePanel({ children, color = 'amber', className = '', glow = true })
   );
 }
 
-function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onImport, onPaste, onImportCode, onShowPrompt, setScreen, claimableQuestCount = 0 }) {
+function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onTogglePin, onImport, onPaste, onImportCode, onShowPrompt, setScreen, claimableQuestCount = 0 }) {
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -3491,7 +3500,14 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
     setRenamingId(null);
   };
 
-  const sorted = [...playerState.library].sort((a, b) => (b.lastOpened || 0) - (a.lastOpened || 0));
+  // Phase 38d round-3 suggestion: pinned tomes float to the top; remaining
+  // tomes keep the lastOpened recency sort.
+  const sorted = [...playerState.library].sort((a, b) => {
+    const ap = a.pinned ? 1 : 0;
+    const bp = b.pinned ? 1 : 0;
+    if (ap !== bp) return bp - ap;
+    return (b.lastOpened || 0) - (a.lastOpened || 0);
+  });
 
   return (
     <div className="space-y-6">
@@ -3780,6 +3796,18 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                         targets, so screen-reader users can distinguish them
                         across multiple cards. `title=` stays for sighted
                         mouse-hover tooltip. */}
+                    {/* Phase 38d: pin/unpin toggle. Pinned tomes float to the
+                        top of the Library, useful once the user has 5+. */}
+                    <button
+                      onClick={() => onTogglePin?.(tome.id)}
+                      className={`px-3 py-2 rounded text-sm border-2 hover:bg-amber-900/30 ${tome.pinned ? 'border-amber-400 text-amber-200' : 'border-amber-700 text-amber-400'}`}
+                      style={{ background: tome.pinned ? 'rgba(120, 53, 15, 0.7)' : 'rgba(41, 24, 12, 0.7)' }}
+                      title={tome.pinned ? `Unpin "${meta.title || 'this tome'}" from top` : `Pin "${meta.title || 'this tome'}" to top`}
+                      aria-label={tome.pinned ? `Unpin tome "${meta.title || 'untitled'}" from the top` : `Pin tome "${meta.title || 'untitled'}" to the top`}
+                      aria-pressed={!!tome.pinned}
+                    >
+                      <Star className="w-4 h-4" aria-hidden="true" style={{ fill: tome.pinned ? '#fde047' : 'transparent' }} />
+                    </button>
                     <button
                       onClick={() => onShare(tome.id)}
                       className="px-3 py-2 rounded text-sm border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
