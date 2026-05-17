@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { usePlayerState } from './hooks/usePlayerState.js';
 import { hasMeaningfulData } from './services/persistence.js';
+import {
+  saveSession,
+  loadSession,
+  clearSession,
+  SESSION_KIND,
+} from './services/sessionResume.js';
 import { SignInButton } from './components/SignInButton.jsx';
 import { consumeOAuthCallback, signOut } from './services/supabase.js';
 import { useAuth } from './hooks/useAuth.js';
@@ -2797,7 +2803,20 @@ export default function DungeonScholarApp() {
             </button>
             {screen !== 'home' && (
               <button
-                onClick={() => setScreen('home')}
+                onClick={() => {
+                  // Phase 30b QA #4: warn before abandoning an active exam.
+                  // ExamMode also installs a beforeunload listener for the
+                  // refresh/close-tab case; this handles in-app navigation.
+                  if (screen === 'practiceExam') {
+                    const saved = loadSession(SESSION_KIND.EXAM);
+                    if (saved && saved.deadlineMs > Date.now()) {
+                      const ok = window.confirm('Abandon this trial? Progress will be lost — the sands cannot be paused.');
+                      if (!ok) return;
+                      clearSession(SESSION_KIND.EXAM);
+                    }
+                  }
+                  setScreen('home');
+                }}
                 className="px-3 py-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500 flex items-center gap-2 text-amber-200"
               >
                 <Home className="w-4 h-4" /> Hearth
@@ -3063,6 +3082,7 @@ export default function DungeonScholarApp() {
         {screen === 'flashcards' && courseSet && (
           <FlashcardsMode
             courseSet={courseSet}
+            tomeId={playerState.activeTomeId}
             cards={shuffledActivities.flashcards}
             tomeProgress={tomeProgress}
             playerState={playerState}
@@ -3079,6 +3099,7 @@ export default function DungeonScholarApp() {
         {screen === 'quiz' && courseSet && (
           <QuizMode
             courseSet={courseSet}
+            tomeId={playerState.activeTomeId}
             questions={shuffledActivities.quiz}
             tomeProgress={tomeProgress}
             playerState={playerState}
@@ -3117,6 +3138,7 @@ export default function DungeonScholarApp() {
           }>
             <ExamMode
               courseSet={courseSet}
+              tomeId={playerState.activeTomeId}
               tomeProgress={tomeProgress}
               updateTomeProgress={updateTomeProgress}
               awardXP={awardXP}
@@ -4154,8 +4176,19 @@ function ModeCard({ title, desc, icon, color, onClick, featured }) {
   );
 }
 
-function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode }) {
-  const [index, setIndex] = useState(0);
+function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode }) {
+  // Phase 30b QA #2: resume index from a saved session if it belongs to this
+  // tome and is in range. Review-mode decks are dynamic (filtered to due
+  // cards) so resume is intentionally skipped for them — they reset to 0.
+  const [index, setIndex] = useState(() => {
+    if (reviewMode) return 0;
+    const saved = loadSession(SESSION_KIND.FLASHCARDS);
+    if (!saved) return 0;
+    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) return 0;
+    const total = (cardsProp && cardsProp.length) ? cardsProp.length : (courseSet?.flashcards?.length || 0);
+    if (typeof saved.index !== 'number' || saved.index < 0 || saved.index >= total) return 0;
+    return saved.index;
+  });
   const [flipped, setFlipped] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   // 26g: review-mode deck is frozen at entry — recomputing on every
@@ -4187,6 +4220,14 @@ function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, up
     return baseDeck.filter((c) => c && c.domain === domainFilter);
   }, [baseDeck, domainFilter, reviewMode, reviewDeck]);
   const card = cards[index];
+
+  // Phase 30b QA #2: persist the current index in non-review browse mode so
+  // a refresh resumes at the same scroll. Review mode is skipped because its
+  // deck is a dynamic snapshot of due cards — the index isn't portable.
+  useEffect(() => {
+    if (reviewMode || domainFilter) return;
+    saveSession(SESSION_KIND.FLASHCARDS, { tomeId: tomeId ?? null, index });
+  }, [index, tomeId, reviewMode, domainFilter]);
 
   // 26g: 4-button SRS rating. Schedules the card and advances. In review
   // mode the index runs off the end of the (frozen) deck and we render
@@ -4337,8 +4378,18 @@ function FlashcardsMode({ courseSet, cards: cardsProp, tomeProgress, awardXP, up
   );
 }
 
-function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter }) {
-  const [index, setIndex] = useState(0);
+function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter }) {
+  // Phase 30b QA #2: resume index from a saved session if it belongs to this
+  // tome and is still in range. Otherwise start at 0. Lazy initializer so
+  // we don't briefly flash the first question before snapping forward.
+  const [index, setIndex] = useState(() => {
+    const saved = loadSession(SESSION_KIND.QUIZ);
+    if (!saved) return 0;
+    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) return 0;
+    const total = (questionsProp && questionsProp.length) ? questionsProp.length : (courseSet?.quiz?.length || 0);
+    if (typeof saved.index !== 'number' || saved.index < 0 || saved.index >= total) return 0;
+    return saved.index;
+  });
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
@@ -4357,6 +4408,15 @@ function QuizMode({ courseSet, questions: questionsProp, tomeProgress, awardXP, 
     return baseDeck.filter((q) => q && q.domain === domainFilter);
   }, [baseDeck, domainFilter]);
   const q = questions[index];
+
+  // Phase 30b QA #2: persist the current index whenever it changes so a
+  // refresh-mid-quiz can resume where the user left off. Skip persistence
+  // when a domain filter is active — the filtered deck shape isn't stable
+  // across refreshes and a saved index would map to a different question.
+  useEffect(() => {
+    if (domainFilter) return;
+    saveSession(SESSION_KIND.QUIZ, { tomeId: tomeId ?? null, index });
+  }, [index, tomeId, domainFilter]);
 
   const handleAnswer = (correct, extra = {}) => {
     setAnswered({ correct, confidence, ...extra });

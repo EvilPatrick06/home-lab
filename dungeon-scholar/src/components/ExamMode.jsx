@@ -20,6 +20,12 @@ import {
   gradeExamItem,
   summarizeExamResults,
 } from '../services/examSession.js';
+import {
+  saveSession,
+  loadSession,
+  clearSession,
+  SESSION_KIND,
+} from '../services/sessionResume.js';
 import RichContent from './RichContent.jsx';
 
 function formatClock(sec) {
@@ -27,7 +33,7 @@ function formatClock(sec) {
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 }
 
-export default function ExamMode({ courseSet, tomeProgress, updateTomeProgress, awardXP, onExit }) {
+export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomeProgress, awardXP, onExit }) {
   const weights = courseSet?.metadata?.domainWeights || null;
   const quizPool = useMemo(
     () => (courseSet?.quiz || []).filter(q => q && typeof q.id === 'string'),
@@ -45,6 +51,10 @@ export default function ExamMode({ courseSet, tomeProgress, updateTomeProgress, 
 
   const startedAtRef = useRef(null);
   const totalSecondsRef = useRef(0);
+  // Phase 30b: deadline-based timer (absolute timestamp) so tab-pauses,
+  // off-thread throttling, and refreshes can't pause the clock — matches
+  // the in-product copy "the sands cannot be paused".
+  const deadlineMsRef = useRef(null);
   const submitExamRef = useRef(null);
 
   const startExam = (preset) => {
@@ -52,11 +62,14 @@ export default function ExamMode({ courseSet, tomeProgress, updateTomeProgress, 
     if (target < 5) return;
     const picked = pickStratifiedSample(quizPool, weights || {}, target);
     if (picked.length === 0) return;
+    const totalSec = preset.minutes * 60;
+    const deadline = Date.now() + totalSec * 1000;
     setSample(picked);
     setAnswers(new Array(picked.length).fill(null));
     setCurrentIdx(0);
-    setSecondsLeft(preset.minutes * 60);
-    totalSecondsRef.current = preset.minutes * 60;
+    setSecondsLeft(totalSec);
+    totalSecondsRef.current = totalSec;
+    deadlineMsRef.current = deadline;
     startedAtRef.current = Date.now();
     setTextInput('');
     setShowSubmitConfirm(false);
@@ -81,24 +94,84 @@ export default function ExamMode({ courseSet, tomeProgress, updateTomeProgress, 
     awardXP?.(10 + summary.correct, `Mock exam: ${summary.scorePct}%`);
     setResultsSummary({ ...summary, durationSec: elapsedSec, status: reason });
     setShowSubmitConfirm(false);
+    // Phase 30b: exam done → clear the persisted in-progress session.
+    clearSession(SESSION_KIND.EXAM);
     setPhase('results');
   };
   submitExamRef.current = doSubmit;
 
   useEffect(() => {
     if (phase !== 'inProgress') return undefined;
-    const id = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          clearInterval(id);
-          submitExamRef.current?.('timeout');
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((deadlineMsRef.current - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+      if (remaining === 0) {
+        submitExamRef.current?.('timeout');
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [phase]);
+
+  // Phase 30b QA #2/4: persist in-progress exam state on every change so a
+  // refresh / accidental tab close can pick up where the user left off.
+  useEffect(() => {
+    if (phase !== 'inProgress') return;
+    if (!deadlineMsRef.current) return;
+    saveSession(SESSION_KIND.EXAM, {
+      tomeId: tomeId ?? null,
+      deadlineMs: deadlineMsRef.current,
+      totalSeconds: totalSecondsRef.current,
+      startedAt: startedAtRef.current,
+      sample,
+      answers,
+      currentIdx,
+    });
+  }, [phase, sample, answers, currentIdx, tomeId]);
+
+  // Phase 30b QA #4: warn before unload while an exam is active. Browsers
+  // ignore the custom message but still surface their own "leave site?"
+  // dialog, which is enough to prevent silent abandonment via refresh /
+  // tab-close.
+  useEffect(() => {
+    if (phase !== 'inProgress') return;
+    const handler = (e) => {
+      e.preventDefault();
+      e.returnValue = 'Abandon this trial? Progress will be lost — the sands cannot be paused.';
+      return e.returnValue;
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [phase]);
+
+  // Phase 30b QA #2: on mount, resume an in-progress exam if one exists for
+  // this tome and its deadline hasn't already elapsed. Otherwise clear stale
+  // session data (deadline elapsed or tome switched) so 'setup' is fresh.
+  useEffect(() => {
+    const saved = loadSession(SESSION_KIND.EXAM);
+    if (!saved) return;
+    if (tomeId && saved.tomeId && saved.tomeId !== tomeId) {
+      clearSession(SESSION_KIND.EXAM);
+      return;
+    }
+    if (!saved.deadlineMs || saved.deadlineMs <= Date.now()) {
+      clearSession(SESSION_KIND.EXAM);
+      return;
+    }
+    if (!Array.isArray(saved.sample) || saved.sample.length === 0) {
+      clearSession(SESSION_KIND.EXAM);
+      return;
+    }
+    deadlineMsRef.current = saved.deadlineMs;
+    totalSecondsRef.current = saved.totalSeconds || 0;
+    startedAtRef.current = saved.startedAt || Date.now();
+    setSample(saved.sample);
+    setAnswers(Array.isArray(saved.answers) ? saved.answers : new Array(saved.sample.length).fill(null));
+    setCurrentIdx(typeof saved.currentIdx === 'number' ? saved.currentIdx : 0);
+    setSecondsLeft(Math.max(0, Math.ceil((saved.deadlineMs - Date.now()) / 1000)));
+    setPhase('inProgress');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setAnswerAt = (idx, val) => {
     setAnswers((prev) => {
