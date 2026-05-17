@@ -45,7 +45,15 @@ Installs the AppImage to `~/.local/bin/dnd-vtt`, adds a `.desktop` launcher, and
 **Option B — manual AppImage:**
 1. Download `dnd-vtt-<version>-x86_64.AppImage`.
 2. `chmod +x dnd-vtt-*.AppImage`
-3. Run it: `./dnd-vtt-*.AppImage`
+3. Run it: `./dnd-vtt-*.AppImage --no-sandbox`
+
+> **Why `--no-sandbox`?** Electron's chrome-sandbox binary needs to be setuid root, and AppImages can't ship a setuid binary. Ubuntu 24.04+ also blocks unprivileged user namespaces via AppArmor by default, which breaks the alternate sandbox path. `--no-sandbox` is the standard workaround for Electron AppImages and what `install-linux.sh` writes into the `.desktop` entry automatically. If you want the full sandbox, set up an AppArmor profile for the AppImage (see [Electron docs](https://www.electronjs.org/docs/latest/tutorial/sandbox#linux)).
+
+> **AppImage exits immediately with no window?** You're probably missing one of the runtime libraries Electron expects. Install them all in one shot:
+> ```bash
+> sudo apt install libfuse2 libnss3 libgbm1 libasound2 libgtk-3-0
+> ```
+> Then re-run. `install-linux.sh` runs an `ldconfig` check and prints the apt line for the libs that are actually missing on your system.
 
 ### macOS
 

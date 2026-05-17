@@ -61,12 +61,19 @@ ok "Downloaded + made executable"
 
 bold "==> Adding desktop entry"
 mkdir -p "${DESKTOP_DIR}"
+# --no-sandbox: Electron's chrome-sandbox binary must be setuid root to run
+# with the default sandbox. AppImages can't ship a setuid binary, and most
+# Ubuntu/Debian installs since 24.04 also block unprivileged userns via
+# AppArmor — so by default the AppImage aborts on launch. Disabling the
+# sandbox is the standard workaround for end-user Electron AppImages and
+# is what most other electron-builder distros do too. If you want the
+# full sandbox, see the AppArmor-profile note in the dnd-app README.
 cat > "${DESKTOP_DIR}/${APP_NAME}.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=${DISPLAY_NAME}
 Comment=D&D Virtual Tabletop — Electron desktop app for D&D 5e
-Exec=${DEST}
+Exec=${DEST} --no-sandbox
 Icon=${APP_NAME}
 Categories=Game;RolePlaying;
 Terminal=false
@@ -75,8 +82,32 @@ EOF
 update-desktop-database "${DESKTOP_DIR}" 2>/dev/null || true
 ok "Added ${DESKTOP_DIR}/${APP_NAME}.desktop"
 
+# Sanity-check common runtime deps. AppImages need libfuse2 on Ubuntu/Debian;
+# Electron needs the GTK/Nss/Xss/Alsa stack. We don't auto-apt-install (this
+# script intentionally avoids sudo), but we surface the gap with a copy-
+# paste-able install line so the user isn't left guessing.
+missing_libs=()
+need_lib() {
+  if ! ldconfig -p | grep -q "$1"; then
+    missing_libs+=("$2")
+  fi
+}
+need_lib "libfuse.so.2" "libfuse2"
+need_lib "libnss3.so"   "libnss3"
+need_lib "libgbm.so.1"  "libgbm1"
+need_lib "libasound.so.2" "libasound2"
+need_lib "libgtk-3.so.0" "libgtk-3-0"
+
+if [[ ${#missing_libs[@]} -gt 0 ]]; then
+  echo
+  err "Missing libraries: ${missing_libs[*]}"
+  err "Install with: sudo apt install ${missing_libs[*]}"
+  err "Then re-run the AppImage."
+  echo
+fi
+
 bold "==> Done"
-info "Run from terminal:  ${DEST}"
+info "Run from terminal:  ${DEST} --no-sandbox"
 info "Or launch from your app menu: ${DISPLAY_NAME}"
 echo
 info "Local AI (optional, for Ollama):"
