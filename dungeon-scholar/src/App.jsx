@@ -5824,8 +5824,8 @@ ${fullKb}
               <h3 className="text-lg font-bold text-red-300 italic flex items-center gap-2">
                 <Trash2 className="w-5 h-5" /> Clear Chat History
               </h3>
-              <button onClick={() => setShowClearConfirm(false)} className="p-2 hover:bg-red-900/30 rounded text-red-300">
-                <X className="w-4 h-4" />
+              <button onClick={() => setShowClearConfirm(false)} className="p-2 hover:bg-red-900/30 rounded text-red-300" aria-label="Cancel clearing chat history">
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
             <div className="p-4">
@@ -9455,8 +9455,8 @@ function ImportCodeModal({ onClose, onSubmit }) {
           <h3 className="text-xl font-bold text-purple-300 flex items-center gap-2 italic">
             <Hash className="w-5 h-5" /> ✦ Import Share Code ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded text-purple-300">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded text-purple-300" aria-label="Close import share code dialog">
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
         <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
@@ -9542,8 +9542,8 @@ function MetadataEditModal({ tome, onSave, onClose }) {
           <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
             <Tag className="w-5 h-5" /> ✦ Edit Tome Metadata ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close edit metadata dialog">
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
         <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
@@ -9673,8 +9673,8 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
           <h3 className="text-xl font-bold text-red-300 flex items-center gap-2 italic">
             <Skull className="w-5 h-5" /> ⚠ Erase Thy Saga ⚠
           </h3>
-          <button onClick={onCancel} className="p-2 hover:bg-red-900/30 rounded text-red-300">
-            <X className="w-5 h-5" />
+          <button onClick={onCancel} className="p-2 hover:bg-red-900/30 rounded text-red-300" aria-label="Cancel and close erase saga dialog">
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
         <div className="p-4 flex flex-col gap-3">
@@ -9839,8 +9839,8 @@ function PasteTomeModal({ onClose, onSubmit }) {
           <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
             <Copy className="w-5 h-5" /> ✦ Paste Tome Text ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close paste tome dialog">
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
         <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
@@ -9930,7 +9930,7 @@ function AchievementsModal({ playerState, onClose }) {
           <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
             <Trophy className="w-5 h-5" /> ⚔ Hall of Glory ({playerState.achievements.length}/{ACHIEVEMENTS.length}) ⚔
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close Hall of Glory"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
         <div className="p-4 overflow-y-auto flex-1 space-y-5">
           {categoryOrder.filter(c => grouped[c]).map(cat => {
@@ -9978,7 +9978,7 @@ function TitlesModal({ playerState, onSelect, onClose }) {
       }}>
         <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
           <h3 className="text-xl font-bold text-amber-300 italic">⚔ Choose Thy Title ⚔</h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close choose title dialog"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
         <div className="p-4 overflow-y-auto flex-1 space-y-4">
           <div>
