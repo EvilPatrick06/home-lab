@@ -673,6 +673,39 @@ interface DiscordAPI {
   sendMessage: (text: string, campaignName?: string) => Promise<{ success: boolean; error?: string }>
 }
 
+interface LanGameEntry {
+  source: 'lan'
+  invite_code: string
+  name: string
+  host_display_name: string
+  host_client_id: string
+  current_players: number
+  max_players: number
+  current_spectators: number
+  max_spectators: number
+  game_system: string
+  is_private: boolean
+  peer_id: string
+  port: number
+  host?: string
+  addresses?: string[]
+}
+
+interface LanRemovedEntry {
+  source: 'lan'
+  peer_id: string
+  invite_code?: string
+}
+
+interface LanAPI {
+  startScan: () => Promise<{ ok: boolean; error?: string }>
+  stopScan: () => Promise<{ ok: boolean }>
+  publish: (entry: Record<string, unknown>) => Promise<{ ok: boolean; error?: string }>
+  unpublish: () => Promise<{ ok: boolean }>
+  onGameFound: (cb: (entry: LanGameEntry) => void) => () => void
+  onGameRemoved: (cb: (entry: LanRemovedEntry) => void) => () => void
+}
+
 declare global {
   interface Window {
     api: CharacterAPI &
@@ -697,6 +730,7 @@ declare global {
         plugins: PluginAPI
         cloudSync: CloudSyncAPI
         discord: DiscordAPI
+        lan: LanAPI
         getVersion: () => Promise<string>
         // BMO Pi Bridge
         bmoStartDm: (campaignId: string) => Promise<{ ok?: boolean; error?: string }>

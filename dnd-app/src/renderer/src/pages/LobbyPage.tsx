@@ -3,7 +3,14 @@ import { useNavigate, useParams } from 'react-router'
 import { LobbyLayout } from '../components/lobby'
 import { Button, Modal } from '../components/ui'
 import { JOINED_SESSIONS_KEY, LAST_SESSION_KEY, LOBBY_COPY_TIMEOUT_MS } from '../constants'
-import { onClientMessage, setHostCampaignId, setHostCaps } from '../network'
+import {
+  onClientMessage,
+  setHostCampaignId,
+  setHostCaps,
+  startHostAnnounce,
+  stopHostAnnounce,
+  updateHostAnnounce
+} from '../network'
 import { useNetworkStore } from '../stores/network-store'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
@@ -133,6 +140,45 @@ export default function LobbyPage(): JSX.Element {
       setHostCaps(campaign.settings?.maxPlayers ?? 8, campaign.settings?.maxSpectators ?? 5)
     }
   }, [isHost, campaign])
+
+  // Phase 29g: announce the hosted game to LAN (always) + Pi registry
+  // (public games only). Heartbeat refreshes the Pi TTL every 30s; we
+  // unpublish + deregister when the host leaves the lobby.
+  useEffect(() => {
+    if (!isHost || !campaign || !inviteCode || !localPeerId || !displayName) return
+    let cancelled = false
+    void startHostAnnounce({
+      invite_code: inviteCode,
+      name: campaign.name || 'Untitled Game',
+      host_display_name: displayName,
+      host_client_id: getOrCreateClientId(),
+      current_players: 1,
+      max_players: campaign.settings?.maxPlayers ?? 8,
+      current_spectators: 0,
+      max_spectators: campaign.settings?.maxSpectators ?? 5,
+      game_system: campaign.system || 'dnd5e',
+      is_private: campaign.settings?.isPrivate ?? false,
+      peer_id: localPeerId
+    }).catch((err) => logger.warn('[Lobby] announce failed:', err))
+    return () => {
+      cancelled = true
+      void stopHostAnnounce()
+      void cancelled
+    }
+  }, [isHost, campaign, inviteCode, localPeerId, displayName])
+
+  // Keep the registry entry's player/spectator counts in sync with the lobby.
+  const lobbyPlayers = useLobbyStore((s) => s.players)
+  useEffect(() => {
+    if (!isHost || !inviteCode) return
+    let players = 0
+    let spectators = 0
+    for (const p of lobbyPlayers) {
+      if (p.role === 'spectator') spectators++
+      else players++
+    }
+    void updateHostAnnounce({ current_players: players, current_spectators: spectators })
+  }, [isHost, inviteCode, lobbyPlayers])
 
   useEffect(() => {
     if (campaignId) {

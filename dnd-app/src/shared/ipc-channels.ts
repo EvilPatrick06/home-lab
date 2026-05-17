@@ -230,7 +230,15 @@ export const IPC_CHANNELS = {
   CLOUD_SYNC_STATUS: 'cloud:sync-status',
   CLOUD_SYNC_BACKUP: 'cloud:sync-backup',
   CLOUD_SYNC_CHECK_STATUS: 'cloud:sync-check-campaign',
-  CLOUD_SYNC_LIST_CAMPAIGNS: 'cloud:sync-list-campaigns'
+  CLOUD_SYNC_LIST_CAMPAIGNS: 'cloud:sync-list-campaigns',
+
+  // === LAN Discovery (Phase 29g — mDNS / Bonjour) ===
+  LAN_START_SCAN: 'lan:start-scan',
+  LAN_STOP_SCAN: 'lan:stop-scan',
+  LAN_PUBLISH: 'lan:publish',
+  LAN_UNPUBLISH: 'lan:unpublish',
+  LAN_GAME_FOUND: 'lan:game-found',
+  LAN_GAME_REMOVED: 'lan:game-removed'
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

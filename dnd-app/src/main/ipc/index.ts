@@ -11,6 +11,7 @@ import { registerBmoSyncHandlers } from './bmo-sync-handlers'
 import { registerCloudSyncHandlers } from './cloud-sync-handlers'
 import { registerDiscordHandlers } from './discord-handlers'
 import { registerGameDataHandlers } from './game-data-handlers'
+import { registerLanHandlers } from './lan-handlers'
 import { registerPluginHandlers } from './plugin-handlers'
 import { registerStorageHandlers } from './storage-handlers'
 
@@ -214,4 +215,7 @@ export function registerIpcHandlers(): void {
 
   // --- BMO Pi Bridge: Sync receiver & handlers ---
   registerBmoSyncHandlers()
+
+  // --- LAN discovery (mDNS / Bonjour) for multiplayer game browser ---
+  registerLanHandlers()
 }

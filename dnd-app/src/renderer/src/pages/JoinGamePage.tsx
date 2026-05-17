@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { GameList, PasswordPrompt, UsernamePrompt } from '../components/lobby'
 import { BackButton, Button, Input, Spinner } from '../components/ui'
 import {
   AUTO_REJOIN_KEY,
@@ -8,55 +9,132 @@ import {
   JOINED_SESSIONS_KEY,
   LAST_SESSION_KEY
 } from '../constants'
+import { type LanEvent, startLanScan, stopLanScan, subscribeToLan } from '../network/lan-discovery'
+import { listGames, type RegistryEvent, type RegistryGameEntry, subscribeToRegistry } from '../network/registry-client'
 import { useNetworkStore } from '../stores/network-store'
+import { getOrCreateClientId } from '../utils/client-id'
 import { logger } from '../utils/logger'
+
+type PendingTarget = {
+  game: RegistryGameEntry
+  role: 'player' | 'spectator'
+} | null
 
 export default function JoinGamePage(): JSX.Element {
   const navigate = useNavigate()
   const { connectionState, error, joinGame, setError, campaignId } = useNetworkStore()
 
-  const [inviteCode, setInviteCode] = useState('')
+  // ── Local state ────────────────────────────────────────────────────
   const [displayName, setDisplayName] = useState(() => {
     try {
       return localStorage.getItem(DISPLAY_NAME_KEY) || ''
-    } catch (e) {
-      logger.warn('[JoinGame] localStorage read failed:', e)
+    } catch {
       return ''
     }
   })
+  const [manualInviteCode, setManualInviteCode] = useState('')
+  const [showManualForm, setShowManualForm] = useState(false)
   const [waitingForCampaign, setWaitingForCampaign] = useState(false)
-
-  // Keep localStorage in sync with canonical settings.json source of truth (mount once)
-  useEffect(() => {
-    window.api.loadSettings().then((settings) => {
-      if (settings.userProfile?.displayName) {
-        setDisplayName(settings.userProfile.displayName)
-        localStorage.setItem(DISPLAY_NAME_KEY, settings.userProfile.displayName)
-      }
-    })
-  }, [])
-
-  // Clear stale connection error when user edits invite code or display name.
-  useEffect(() => {
-    if (error) setError(null)
-    // We intentionally depend ONLY on the inputs, not on 'error' itself, so that
-    // touching an input always clears the error without re-firing on the clear.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error, setError])
+  const [registryGames, setRegistryGames] = useState<RegistryGameEntry[]>([])
+  const [lanGames, setLanGames] = useState<RegistryGameEntry[]>([])
+  const [registryConnected, setRegistryConnected] = useState(false)
+  const [pendingTarget, setPendingTarget] = useState<PendingTarget>(null)
+  const [showUsernamePrompt, setShowUsernamePrompt] = useState(false)
+  const [pwTarget, setPwTarget] = useState<{ game: RegistryGameEntry; role: 'player' | 'spectator' } | null>(null)
 
   const navigatedRef = useRef(false)
   const autoRejoinTriggered = useRef(false)
 
-  const isValidInviteCode = (code: string): boolean => {
-    const cleaned = code.trim().toUpperCase()
-    return cleaned.length === INVITE_CODE_LENGTH && /^[A-Z0-9]+$/.test(cleaned)
-  }
+  // ── Initial load: sync displayName + bootstrap discovery ──────────
+  useEffect(() => {
+    void window.api.loadSettings().then((settings) => {
+      const profileName = settings.userProfile?.displayName
+      if (profileName) {
+        setDisplayName(profileName)
+        try {
+          localStorage.setItem(DISPLAY_NAME_KEY, profileName)
+        } catch {
+          // ignore localStorage failures
+        }
+      }
+    })
+  }, [])
 
-  const codeInvalid = inviteCode.trim().length > 0 && !isValidInviteCode(inviteCode)
-  const canConnect = isValidInviteCode(inviteCode) && displayName.trim().length > 0
-  const isConnecting = connectionState === 'connecting' || waitingForCampaign
+  // Pi registry: one-shot listing for fallback + SSE subscribe.
+  useEffect(() => {
+    const clientId = getOrCreateClientId()
+    let cancelled = false
 
-  // Auto-rejoin: pre-fill from last session and connect automatically
+    listGames(clientId)
+      .then((games) => {
+        if (cancelled) return
+        setRegistryGames(games)
+        setRegistryConnected(true)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        logger.warn('[JoinGame] registry list failed:', err)
+        setRegistryConnected(false)
+      })
+
+    const unsubscribe = subscribeToRegistry(
+      clientId,
+      (event: RegistryEvent) => {
+        if (cancelled) return
+        setRegistryConnected(true)
+        if (event.type === 'snapshot') {
+          setRegistryGames(event.games)
+        } else if (event.type === 'added' || event.type === 'updated') {
+          setRegistryGames((prev) => {
+            const map = new Map(prev.map((g) => [g.invite_code, g]))
+            map.set(event.game.invite_code, event.game)
+            return Array.from(map.values())
+          })
+        } else if (event.type === 'removed') {
+          setRegistryGames((prev) => prev.filter((g) => g.invite_code !== event.inviteCode))
+        }
+      },
+      (err) => {
+        logger.warn('[JoinGame] registry stream error:', err.message)
+        setRegistryConnected(false)
+      }
+    )
+
+    return () => {
+      cancelled = true
+      unsubscribe()
+    }
+  }, [])
+
+  // LAN discovery: ask main to start scanning and subscribe to found/removed.
+  useEffect(() => {
+    void startLanScan().catch((err) => logger.warn('[JoinGame] LAN scan start failed:', err))
+    const unsubscribe = subscribeToLan((event: LanEvent) => {
+      if (event.type === 'found') {
+        setLanGames((prev) => {
+          const map = new Map(prev.map((g) => [g.invite_code, g]))
+          map.set(event.game.invite_code, event.game)
+          return Array.from(map.values())
+        })
+      } else {
+        setLanGames((prev) => prev.filter((g) => g.peer_id !== event.peerId))
+      }
+    })
+    return () => {
+      unsubscribe()
+      void stopLanScan()
+    }
+  }, [])
+
+  // Merge registry + LAN, dedup by peer_id (registry wins — it has the live counts).
+  const mergedGames = useMemo(() => {
+    const byPeer = new Map<string, RegistryGameEntry>()
+    for (const g of lanGames) byPeer.set(g.peer_id, g)
+    for (const g of registryGames) byPeer.set(g.peer_id, g)
+    return Array.from(byPeer.values())
+  }, [lanGames, registryGames])
+
+  // ── Auto-rejoin (preserved from old page) ─────────────────────────
   useEffect(() => {
     if (autoRejoinTriggered.current) return
     try {
@@ -70,10 +148,8 @@ export default function JoinGamePage(): JSX.Element {
       if (!session.inviteCode || !session.displayName) return
 
       autoRejoinTriggered.current = true
-      setInviteCode(session.inviteCode)
       setDisplayName(session.displayName)
 
-      // Defer the connection attempt to next tick so state is applied
       setTimeout(async () => {
         try {
           setError(null)
@@ -89,23 +165,22 @@ export default function JoinGamePage(): JSX.Element {
     }
   }, [joinGame, setError])
 
-  // When host sends game:state-full with campaignId, navigate to the real lobby URL
+  // ── Connection navigation ─────────────────────────────────────────
   useEffect(() => {
     if (waitingForCampaign && campaignId && !navigatedRef.current) {
       navigatedRef.current = true
       setWaitingForCampaign(false)
-
-      // Persist session info for future rejoin
       try {
+        const inviteCodeNow = useNetworkStore.getState().inviteCode || ''
+        const displayNameNow = useNetworkStore.getState().displayName || displayName
         const session = {
-          inviteCode: inviteCode.trim() || useNetworkStore.getState().inviteCode || '',
-          displayName: displayName || useNetworkStore.getState().displayName || '',
+          inviteCode: inviteCodeNow,
+          displayName: displayNameNow,
           campaignId,
           campaignName: '',
           timestamp: Date.now()
         }
         localStorage.setItem(LAST_SESSION_KEY, JSON.stringify(session))
-
         const raw = localStorage.getItem(JOINED_SESSIONS_KEY)
         const sessions: (typeof session)[] = raw ? JSON.parse(raw) : []
         const filtered = sessions.filter((s) => s.campaignId !== campaignId)
@@ -114,12 +189,10 @@ export default function JoinGamePage(): JSX.Element {
       } catch (e) {
         logger.warn('[JoinGame] Failed to save session:', e)
       }
-
       navigate(`/lobby/${campaignId}`)
     }
-  }, [waitingForCampaign, campaignId, navigate, inviteCode, displayName])
+  }, [waitingForCampaign, campaignId, navigate, displayName])
 
-  // Fallback: if connected but no campaignId after 15s, show error instead of navigating to a broken URL
   useEffect(() => {
     if (!waitingForCampaign) return
     const timeout = setTimeout(() => {
@@ -133,126 +206,178 @@ export default function JoinGamePage(): JSX.Element {
     return () => clearTimeout(timeout)
   }, [waitingForCampaign])
 
-  const handleConnect = async (): Promise<void> => {
-    if (!canConnect || isConnecting) return
-
-    setError(null)
-    navigatedRef.current = false
-
+  // ── Connect helper used by all entry paths ────────────────────────
+  const persistDisplayName = useCallback(async (name: string): Promise<void> => {
     try {
-      localStorage.setItem(DISPLAY_NAME_KEY, displayName.trim())
-
+      localStorage.setItem(DISPLAY_NAME_KEY, name)
       const settings = await window.api.loadSettings()
       const profile = settings.userProfile ?? {
         id: crypto.randomUUID(),
         displayName: '',
         createdAt: new Date().toISOString()
       }
-      profile.displayName = displayName.trim()
+      profile.displayName = name
       await window.api.saveSettings({ ...settings, userProfile: profile })
     } catch (e) {
       logger.warn('[JoinGame] display name sync failed:', e)
     }
+  }, [])
 
-    try {
-      await joinGame(inviteCode.trim().toUpperCase(), displayName.trim())
-      setWaitingForCampaign(true)
-    } catch (error) {
-      logger.error('[JoinGame] Failed to join game:', error)
-    }
-  }
+  const connectWithCode = useCallback(
+    async (code: string, name: string) => {
+      setError(null)
+      navigatedRef.current = false
+      await persistDisplayName(name)
+      try {
+        await joinGame(code.trim().toUpperCase(), name.trim())
+        setWaitingForCampaign(true)
+      } catch (err) {
+        logger.error('[JoinGame] join failed:', err)
+      }
+    },
+    [joinGame, persistDisplayName, setError]
+  )
 
-  const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if (e.key === 'Enter' && canConnect && !isConnecting) {
-      handleConnect()
-    }
-  }
+  // ── Entry points ──────────────────────────────────────────────────
+  const tryConnectGame = useCallback(
+    (game: RegistryGameEntry, role: 'player' | 'spectator') => {
+      if (!displayName.trim()) {
+        setPendingTarget({ game, role })
+        setShowUsernamePrompt(true)
+        return
+      }
+      if (game.is_private) {
+        setPwTarget({ game, role })
+        return
+      }
+      void connectWithCode(game.invite_code, displayName.trim())
+    },
+    [displayName, connectWithCode]
+  )
+
+  const handleJoin = useCallback((game: RegistryGameEntry) => tryConnectGame(game, 'player'), [tryConnectGame])
+  const handleSpectate = useCallback((game: RegistryGameEntry) => tryConnectGame(game, 'spectator'), [tryConnectGame])
+
+  const handleUsernameSubmit = useCallback(
+    (name: string) => {
+      setDisplayName(name)
+      setShowUsernamePrompt(false)
+      if (pendingTarget) {
+        const target = pendingTarget
+        setPendingTarget(null)
+        if (target.game.is_private) {
+          setPwTarget(target)
+        } else {
+          void connectWithCode(target.game.invite_code, name)
+        }
+      }
+    },
+    [pendingTarget, connectWithCode]
+  )
+
+  const handlePasswordSubmit = useCallback(
+    (code: string) => {
+      const target = pwTarget
+      setPwTarget(null)
+      if (target && code === target.game.invite_code) {
+        void connectWithCode(code, displayName.trim())
+      } else {
+        setError('Invalid invite code for that game.')
+      }
+    },
+    [pwTarget, displayName, connectWithCode, setError]
+  )
+
+  const manualValid =
+    manualInviteCode.trim().length === INVITE_CODE_LENGTH && /^[A-Z0-9]+$/.test(manualInviteCode.trim().toUpperCase())
+
+  const handleManualConnect = useCallback(() => {
+    if (!manualValid || !displayName.trim()) return
+    void connectWithCode(manualInviteCode.trim().toUpperCase(), displayName.trim())
+  }, [manualInviteCode, manualValid, displayName, connectWithCode])
+
+  const isConnecting = connectionState === 'connecting' || waitingForCampaign
 
   return (
     <div className="p-8 h-screen overflow-y-auto">
       <BackButton />
 
       <h1 className="text-3xl font-bold mb-2">Join Game</h1>
-      <p className="text-gray-500 mb-8">Enter the invite code from your Dungeon Master to join their game.</p>
+      <p className="text-gray-500 mb-6">Pick a game from the list, or enter an invite code from your DM.</p>
 
-      <div className="max-w-md space-y-6">
-        {/* Display name */}
+      <div className="flex items-center gap-3 mb-4">
         <Input
           label="Display Name"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          onKeyDown={handleKeyDown}
           placeholder="Enter your name"
           maxLength={30}
+          className="max-w-xs"
         />
-
-        {/* Invite code */}
-        <div>
-          <label className="block text-gray-400 mb-2 text-sm">Invite Code</label>
-          <input
-            type="text"
-            value={inviteCode}
-            onChange={(e) => setInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
-            onKeyDown={handleKeyDown}
-            placeholder="e.g. ABC123"
-            maxLength={INVITE_CODE_LENGTH + 2}
-            className={`w-full p-4 rounded-lg bg-gray-800 border text-gray-100
-                       placeholder-gray-600 focus:outline-none transition-colors text-center
-                       text-2xl font-mono font-bold tracking-[0.3em] uppercase
-                       ${codeInvalid ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-amber-500'}`}
-          />
-          {codeInvalid && (
-            <p className="mt-1 text-xs text-red-400 text-center">
-              Invite code must be {INVITE_CODE_LENGTH} characters.
-            </p>
-          )}
-        </div>
-
-        {/* Connection status indicator */}
-        {isConnecting && (
-          <div className="flex items-center gap-3 p-4 rounded-lg bg-amber-900/20 border border-amber-700/30">
-            <Spinner size="sm" />
-            <span className="text-sm text-amber-300">
-              {waitingForCampaign ? 'Connected! Waiting for campaign data...' : 'Connecting to host...'}
-            </span>
-          </div>
-        )}
-
-        {/* Error display */}
-        {error && (
-          <div className="flex items-start gap-3 p-4 rounded-lg bg-red-900/20 border border-red-700/30">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <div>
-              <p className="text-sm text-red-300 font-medium">Connection Failed</p>
-              <p className="text-xs text-red-400/70 mt-1">{error}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Connect button */}
-        <Button onClick={handleConnect} disabled={!canConnect || isConnecting} className="w-full py-3 text-lg">
-          {isConnecting ? 'Connecting...' : 'Connect'}
+        <div className="flex-1" />
+        <Button variant="secondary" onClick={() => setShowManualForm((v) => !v)} className="text-sm">
+          {showManualForm ? 'Hide invite code' : 'Have an invite code?'}
         </Button>
-
-        {/* Help text */}
-        <div className="border border-dashed border-gray-700 rounded-lg p-5 text-center">
-          <p className="text-sm text-gray-500">
-            Ask your Dungeon Master for an invite code to join their game. The code is displayed in the lobby when they
-            create a session.
-          </p>
-        </div>
       </div>
+
+      {showManualForm && (
+        <div className="flex items-end gap-2 mb-6">
+          <div className="flex-1 max-w-sm">
+            <label className="block text-gray-400 mb-1 text-xs uppercase tracking-wider">Invite Code</label>
+            <input
+              type="text"
+              value={manualInviteCode}
+              onChange={(e) => setManualInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
+              placeholder="e.g. ABC123"
+              maxLength={INVITE_CODE_LENGTH + 2}
+              className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 text-gray-100 font-mono tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500"
+            />
+          </div>
+          <Button onClick={handleManualConnect} disabled={!manualValid || !displayName.trim() || isConnecting}>
+            Connect
+          </Button>
+        </div>
+      )}
+
+      {isConnecting && (
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-900/20 border border-amber-700/30 mb-4">
+          <Spinner size="sm" />
+          <span className="text-sm text-amber-300">
+            {waitingForCampaign ? 'Connected! Waiting for campaign data...' : 'Connecting to host...'}
+          </span>
+        </div>
+      )}
+
+      {error && (
+        <div className="p-3 rounded-lg bg-red-900/20 border border-red-700/30 mb-4">
+          <p className="text-sm text-red-300 font-medium">Connection failed</p>
+          <p className="text-xs text-red-400/70 mt-1">{error}</p>
+        </div>
+      )}
+
+      <GameList
+        games={mergedGames}
+        registryConnected={registryConnected}
+        onJoin={handleJoin}
+        onSpectate={handleSpectate}
+      />
+
+      {showUsernamePrompt && (
+        <UsernamePrompt
+          onSubmit={handleUsernameSubmit}
+          onCancel={() => {
+            setShowUsernamePrompt(false)
+            setPendingTarget(null)
+          }}
+        />
+      )}
+      {pwTarget && (
+        <PasswordPrompt
+          gameName={pwTarget.game.name}
+          onSubmit={handlePasswordSubmit}
+          onCancel={() => setPwTarget(null)}
+        />
+      )}
     </div>
   )
 }

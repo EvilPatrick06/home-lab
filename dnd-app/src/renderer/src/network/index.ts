@@ -10,6 +10,8 @@ export {
 } from './client-manager'
 // Game sync
 export { startGameSync, stopGameSync } from './game-sync'
+// Host announce / discovery lifecycle (Phase 29g)
+export { isHostAnnouncing, startHostAnnounce, stopHostAnnounce, updateHostAnnounce } from './host-announce'
 // Host manager
 export {
   banPeer,

@@ -224,6 +224,24 @@ const api = {
 
   // Auto-update
 
+  // LAN discovery (mDNS / Bonjour) — Phase 29g
+  lan: {
+    startScan: () => ipcRenderer.invoke(IPC_CHANNELS.LAN_START_SCAN),
+    stopScan: () => ipcRenderer.invoke(IPC_CHANNELS.LAN_STOP_SCAN),
+    publish: (entry: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.LAN_PUBLISH, entry),
+    unpublish: () => ipcRenderer.invoke(IPC_CHANNELS.LAN_UNPUBLISH),
+    onGameFound: (cb: (entry: Record<string, unknown>) => void) => {
+      const listener = (_e: IpcRendererEvent, entry: Record<string, unknown>) => cb(entry)
+      ipcRenderer.on(IPC_CHANNELS.LAN_GAME_FOUND, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.LAN_GAME_FOUND, listener)
+    },
+    onGameRemoved: (cb: (entry: Record<string, unknown>) => void) => {
+      const listener = (_e: IpcRendererEvent, entry: Record<string, unknown>) => cb(entry)
+      ipcRenderer.on(IPC_CHANNELS.LAN_GAME_REMOVED, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.LAN_GAME_REMOVED, listener)
+    }
+  },
+
   // Settings
   saveSettings: (settings: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.SAVE_SETTINGS, settings),
   loadSettings: () => ipcRenderer.invoke(IPC_CHANNELS.LOAD_SETTINGS),
