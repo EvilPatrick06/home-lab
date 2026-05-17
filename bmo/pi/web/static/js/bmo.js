@@ -1976,12 +1976,26 @@ function bmo() {
     },
 
     async toggleMotion() {
-      this.motionEnabled = !this.motionEnabled;
-      await fetch('/api/camera/motion', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled: this.motionEnabled }),
-      });
+      // Round 2 #21 (2026-05-17): explicit toast feedback so the user
+      // sees the state flip even if the button styling is subtle.
+      const next = !this.motionEnabled;
+      this.motionEnabled = next;
+      try {
+        const res = await fetch('/api/camera/motion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: next }),
+        });
+        if (!res.ok) {
+          this.motionEnabled = !next;  // revert on failure
+          this.showNotification('Motion toggle failed', 'error');
+          return;
+        }
+        this.showNotification(next ? 'Motion detection: ON' : 'Motion detection: OFF');
+      } catch (e) {
+        this.motionEnabled = !next;
+        this.showNotification('Motion toggle failed: ' + (e.message || 'network'), 'error');
+      }
     },
 
     // ── Timers ────────────────────────────────────────────────
@@ -2682,10 +2696,18 @@ function bmo() {
       // Was: window.open('/api/camera/snapshot?download=1', '_blank')
       // GET on a POST-only route returned 405 in a new tab. Now POSTs and
       // displays the most-recent snapshot inline over the camera overlay.
+      // Round 2 #19 (2026-05-17): surface backend error string verbatim
+      // so "Camera service not available" / "No camera available" tells
+      // the user the actual blocker.
       try {
         const res = await fetch('/api/camera/snapshot', { method: 'POST' });
         if (!res.ok) {
-          this.showNotification('Snapshot failed', 'error');
+          let msg = `Snapshot failed (${res.status})`;
+          try {
+            const data = await res.json();
+            if (data?.error) msg = `Snapshot failed: ${data.error}`;
+          } catch {}
+          this.showNotification(msg, 'error');
           return;
         }
         const data = await res.json();
