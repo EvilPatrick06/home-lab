@@ -37,3 +37,21 @@
   text-decoration: none;
   box-shadow: 0 0 0 2px #92400e;
 }
+
+/* Phase 34b QA P10: light theme. PARTIAL — only swaps the page-level
+ * background gradient + dims the noise/vignette overlays. Dungeon panels
+ * stay dark by design (they're part of the brand identity). The data-theme
+ * attribute is set on documentElement by an effect in DungeonScholarApp.
+ * Selector targets the outermost gradient container the app renders. */
+html[data-theme="light"] body {
+  background: #fef3c7; /* amber-100 base parchment */
+}
+html[data-theme="light"] .dungeon-bg-root {
+  background: radial-gradient(ellipse at top, #fef3c7 0%, #fde68a 50%, #fcd34d 100%) !important;
+}
+/* Dim the noise + vignette overlays so they don't make light mode muddy. */
+html[data-theme="light"] .dungeon-bg-noise,
+html[data-theme="light"] .dungeon-bg-vignette,
+html[data-theme="light"] .dungeon-bg-corners {
+  opacity: 0 !important;
+}

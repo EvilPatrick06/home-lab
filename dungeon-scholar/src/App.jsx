@@ -1137,6 +1137,11 @@ const DEFAULT_STATE = {
   studyStreak: 0,
   dailyChallengeDate: null,
   dailyChallengeCompleted: false,
+  // Phase 34b QA P10: theme preference. 'dark' (default) | 'light' | 'system'.
+  // 'system' tracks prefers-color-scheme. Applied via data-theme on the root.
+  // Light theme is intentionally PARTIAL — only the body background swaps to
+  // parchment; the dungeon panels stay dark by design.
+  theme: 'dark',
   // Library system
   library: [],
   activeTomeId: null,
@@ -1302,6 +1307,30 @@ export default function DungeonScholarApp() {
   // Phase 21: prime the audio context on first user gesture so BGM/SFX
   // don't fail silently due to browser auto-play policies.
   useEffect(() => { armOnFirstGesture(); }, []);
+
+  // Phase 34b QA P10: apply theme to the root element. Re-evaluates on
+  // explicit preference change AND on OS preference change (when 'system').
+  useEffect(() => {
+    const apply = () => {
+      const pref = playerState.theme || 'dark';
+      let effective = pref;
+      if (pref === 'system') {
+        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        effective = prefersLight ? 'light' : 'dark';
+      }
+      document.documentElement.setAttribute('data-theme', effective);
+    };
+    apply();
+    if (playerState.theme !== 'system' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-color-scheme: light)');
+    const onChange = () => apply();
+    try { mq.addEventListener('change', onChange); }
+    catch { mq.addListener?.(onChange); }
+    return () => {
+      try { mq.removeEventListener('change', onChange); }
+      catch { mq.removeListener?.(onChange); }
+    };
+  }, [playerState.theme]);
 
   // 25e2: Clear the Domain Study filter whenever the player navigates away
   // from Quiz/Flashcards. The filter is a per-launch decision, not sticky
@@ -2738,17 +2767,17 @@ export default function DungeonScholarApp() {
   const xpPercent = (playerState.xp / xpNeeded) * 100;
 
   return (
-    <div className="min-h-screen text-amber-50 relative overflow-hidden" style={{
+    <div className="min-h-screen text-amber-50 relative overflow-hidden dungeon-bg-root" style={{
       fontFamily: "'Cinzel', 'Trajan Pro', Georgia, serif",
       background: 'radial-gradient(ellipse at top, #1a0e08 0%, #0a0604 50%, #000000 100%)',
     }}>
-      <div className="fixed inset-0 opacity-[0.04] pointer-events-none" style={{
+      <div className="fixed inset-0 opacity-[0.04] pointer-events-none dungeon-bg-noise" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
       }} />
-      <div className="fixed inset-0 pointer-events-none" style={{
+      <div className="fixed inset-0 pointer-events-none dungeon-bg-vignette" style={{
         background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%)',
       }} />
-      <div className="fixed inset-0 pointer-events-none" style={{
+      <div className="fixed inset-0 pointer-events-none dungeon-bg-corners" style={{
         background: 'radial-gradient(circle at 20% 80%, rgba(255,140,0,0.08), transparent 40%), radial-gradient(circle at 80% 20%, rgba(220,38,38,0.06), transparent 40%)',
       }} />
 
@@ -3047,6 +3076,7 @@ export default function DungeonScholarApp() {
             onOpenLibrary={() => setScreen('library')}
             onShowAchievements={() => setShowAchievements(true)}
             onEnterReviews={() => { setReviewMode(true); trackModeUse('flashcards'); setScreen('flashcards'); }}
+            onSetTheme={(t) => setPlayerState(prev => ({ ...prev, theme: t }))}
             onRestartTutorial={() => {
               setPlayerState(prev => ({
                 ...prev,
@@ -3762,7 +3792,7 @@ function CollapsibleGroup({ title, icon, color = 'amber', defaultOpen = true, ch
   );
 }
 
-function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onResetProgress, onOpenLibrary, onRestartTutorial, onShowAchievements, onEnterReviews }) {
+function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onResetProgress, onOpenLibrary, onRestartTutorial, onShowAchievements, onEnterReviews, onSetTheme }) {
   const reviewsDue = dueCount(tomeProgress?.cardProgress || {}, courseSet?.flashcards || []);
   if (!courseSet) {
     return (
@@ -3907,6 +3937,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
         </OrnatePanel>
 
         <AudioPanel />
+        <ThemePanel currentTheme={playerState.theme || 'dark'} onSetTheme={onSetTheme} />
       </div>
     );
   }
@@ -4182,6 +4213,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
         </OrnatePanel>
 
         <AudioPanel />
+        <ThemePanel currentTheme={playerState.theme || 'dark'} onSetTheme={onSetTheme} />
       </CollapsibleGroup>
     </div>
   );
@@ -4237,6 +4269,49 @@ function AudioPanel() {
           </label>
         </div>
       </div>
+    </OrnatePanel>
+  );
+}
+
+// Phase 34b QA P10: theme picker — Dark (default) / Light (experimental) /
+// Match System. Persisted in playerState.theme; applied via data-theme on
+// the root element by an effect in DungeonScholarApp. The "light" variant
+// is intentionally partial — only the body background swaps to parchment;
+// dungeon panels stay dark by design. CSS in index.css.
+function ThemePanel({ currentTheme, onSetTheme }) {
+  const opts = [
+    { id: 'dark', label: '🌙 Dark', desc: 'The default dungeon palette.' },
+    { id: 'light', label: '☀ Light', desc: 'Parchment background, dim-light reading. Experimental.' },
+    { id: 'system', label: '🖥 Match System', desc: 'Follows your OS color preference.' },
+  ];
+  return (
+    <OrnatePanel color="amber">
+      <h3 className="text-lg font-bold mb-3 text-amber-300 flex items-center gap-2 italic">
+        <Settings className="w-5 h-5" /> ✦ Visual Theme ✦
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        {opts.map(o => {
+          const active = currentTheme === o.id;
+          return (
+            <button
+              key={o.id}
+              onClick={() => onSetTheme?.(o.id)}
+              aria-pressed={active}
+              className={`text-left p-3 rounded border-2 italic transition ${active ? 'border-amber-300 text-amber-100' : 'border-amber-700 text-amber-200 hover:border-amber-500'}`}
+              style={{
+                background: active ? 'rgba(120, 53, 15, 0.5)' : 'rgba(41, 24, 12, 0.7)',
+                boxShadow: active ? '0 0 12px rgba(245, 158, 11, 0.4)' : 'none',
+              }}
+            >
+              <div className="text-sm font-bold">{o.label}</div>
+              <div className="text-[10px] italic text-amber-200/70 mt-1">{o.desc}</div>
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-[10px] italic text-amber-700/80 mt-3">
+        ⓘ Light mode is experimental — the dungeon panels keep their dark palette by design (they&apos;re part of the brand). Only the page background changes.
+      </p>
     </OrnatePanel>
   );
 }
