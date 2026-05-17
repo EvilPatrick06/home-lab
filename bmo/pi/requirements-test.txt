@@ -56,7 +56,7 @@ ruff==0.15.12
     # via -r requirements-test.in
 typing-extensions==4.15.0
     # via pytest-asyncio
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   requests
     #   responses
