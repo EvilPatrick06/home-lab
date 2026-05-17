@@ -120,10 +120,15 @@ function EditableHP({
 function CompletionBadge(): JSX.Element {
   const characterName = useBuilderStore((s) => s.characterName)
   const buildSlots = useBuilderStore((s) => s.buildSlots)
+  const backgroundAbilityBonuses = useBuilderStore((s) => s.backgroundAbilityBonuses)
 
   const completionInfo = useMemo(() => {
     let completed = 0
-    const total = 6
+    // 7 foundation steps: name, ancestry, class, background, ability scores,
+    // skill choices, and background ability bonuses (3 points). The badge must
+    // stay short of "green" until all of these are satisfied — Save Character
+    // will still refuse for these reasons even when fewer are missing.
+    const total = 7
     if (characterName.trim()) completed++
     const ancestrySlot = buildSlots.find((s) => s.category === 'ancestry')
     if (ancestrySlot?.selectedId) completed++
@@ -135,8 +140,12 @@ function CompletionBadge(): JSX.Element {
     if (abilitySlot?.selectedId) completed++
     const skillSlot = buildSlots.find((s) => s.id === 'skill-choices')
     if (skillSlot?.selectedId) completed++
+    if (bgSlot?.selectedId) {
+      const bonusTotal = Object.values(backgroundAbilityBonuses).reduce((a, b) => a + b, 0)
+      if (bonusTotal === 3) completed++
+    }
     return { completed, total }
-  }, [characterName, buildSlots])
+  }, [characterName, buildSlots, backgroundAbilityBonuses])
 
   const { completed, total } = completionInfo
   const color =
@@ -298,7 +307,15 @@ export default function CharacterSummaryBar5e(): JSX.Element {
         <div className="min-w-0">
           <div className="font-semibold truncate text-gray-100">{characterName || 'Unnamed Character'}</div>
           <div className="text-xs text-gray-500 truncate">
-            Lv {targetLevel} {speciesSlot?.selectedName ?? '???'} {classSlot?.selectedName ?? '???'}
+            {(() => {
+              const cls = classSlot?.selectedName
+              const sp = speciesSlot?.selectedName
+              const lv = `Lv ${targetLevel}`
+              if (cls && sp) return `${lv} ${sp} ${cls}`
+              if (cls) return `${lv} ${cls} — pick a species`
+              if (sp) return `${lv} ${sp} — pick a class`
+              return `${lv} — pick a class`
+            })()}
           </div>
         </div>
       </div>
@@ -340,7 +357,7 @@ export default function CharacterSummaryBar5e(): JSX.Element {
           {['fortitude', 'reflex', 'will'].map((save, i) => {
             const abilities = ['constitution', 'dexterity', 'wisdom']
             const val = stats5e.savingThrows[abilities[i]] ?? 0
-            const labels = ['Fort', 'Ref', 'Will']
+            const labels = ['CON', 'DEX', 'WIS']
             return (
               <div key={save} className="text-center min-w-[36px]">
                 <div className="text-xs text-gray-500">{labels[i]}</div>

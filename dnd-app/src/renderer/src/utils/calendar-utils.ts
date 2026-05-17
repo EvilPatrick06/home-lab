@@ -109,7 +109,9 @@ export function formatInGameDate(totalSeconds: number, config: CalendarConfig): 
     return `Day ${parts.dayOfMonth}`
   }
 
-  return `${parts.dayOfMonth} ${parts.monthName} ${parts.year} ${config.yearLabel}`
+  // Suppress the redundant trailing 'Year' label so we don't print '1492 Year'.
+  const suffix = !config.yearLabel || config.yearLabel.toLowerCase() === 'year' ? '' : ` ${config.yearLabel}`
+  return `${parts.dayOfMonth} ${parts.monthName}, ${parts.year}${suffix}`
 }
 
 /**

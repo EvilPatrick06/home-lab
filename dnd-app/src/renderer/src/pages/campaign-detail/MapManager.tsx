@@ -164,8 +164,9 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
                       <span className="text-gray-500 text-xs ml-2">
                         {map.grid.type} grid, {map.grid.cellSize}px
                       </span>
-                      <span className="text-gray-600 text-xs ml-1">
-                        {map.width}x{map.height}
+                      <span className="text-gray-600 text-xs ml-2">·</span>
+                      <span className="text-gray-600 text-xs ml-2">
+                        {map.width}×{map.height}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 ml-2">
@@ -182,7 +183,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
                         onClick={() => handleDeleteMap(map.id)}
                         className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
                       >
-                        Del
+                        Delete
                       </button>
                     </div>
                   </div>

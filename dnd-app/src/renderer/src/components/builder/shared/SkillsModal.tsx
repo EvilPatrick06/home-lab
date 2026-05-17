@@ -125,11 +125,6 @@ export default function SkillsModal(): JSX.Element {
           <button
             onClick={confirmSkills}
             disabled={!isConfirmed && selectedSkills.length < maxSkills}
-            title={
-              !isConfirmed && selectedSkills.length < maxSkills
-                ? `Select ${maxSkills - selectedSkills.length} more skill(s)`
-                : undefined
-            }
             className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
               isConfirmed
                 ? 'bg-green-700 text-green-200'

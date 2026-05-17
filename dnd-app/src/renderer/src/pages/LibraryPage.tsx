@@ -230,13 +230,20 @@ export default function LibraryPage(): JSX.Element {
 
     // Apply search filter
     if (debouncedSearch.trim()) {
+      // Weight name far higher than summary so partial summary matches don't bury
+      // exact name matches. After fuse re-orders by relevance, re-apply the user's
+      // chosen sort so the visible order matches the sort dropdown.
       const fuse = new Fuse(items, {
-        keys: ['name', 'summary'],
-        threshold: 0.3,
-        distance: 100,
+        keys: [
+          { name: 'name', weight: 1 },
+          { name: 'summary', weight: 0.2 }
+        ],
+        threshold: 0.2,
+        distance: 60,
         ignoreLocation: true
       })
       items = fuse.search(debouncedSearch).map((result) => result.item)
+      items = sortItems(items, sortField, sortDirection)
     }
 
     return items

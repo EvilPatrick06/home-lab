@@ -36,6 +36,14 @@ export default function JoinGamePage(): JSX.Element {
     })
   }, [])
 
+  // Clear stale connection error when user edits invite code or display name.
+  useEffect(() => {
+    if (error) setError(null)
+    // We intentionally depend ONLY on the inputs, not on 'error' itself, so that
+    // touching an input always clears the error without re-firing on the clear.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inviteCode, displayName])
+
   const navigatedRef = useRef(false)
   const autoRejoinTriggered = useRef(false)
 

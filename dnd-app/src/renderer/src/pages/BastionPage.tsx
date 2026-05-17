@@ -170,7 +170,7 @@ export default function BastionPage(): JSX.Element {
           )}
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
             + New Bastion
           </button>
