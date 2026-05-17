@@ -58,16 +58,34 @@ export default memo(function DiceResult({
           ))}
         </div>
 
-        {/* Total */}
-        <div className="ml-auto">
-          <span
-            className={`text-xl font-bold font-mono ${
-              isCritical ? 'text-green-400' : isFumble ? 'text-red-400' : 'text-amber-400'
-            }`}
-          >
-            {total}
-          </span>
-        </div>
+        {/* Phase 17z — explicit base + modifier = total breakdown.
+            Previously this component only rendered the final `total`, so the
+            user couldn't see the modifier was even applied — they suspected
+            the dice tray's modifier wasn't getting carried into chat (it was,
+            but the visual didn't surface it). The modifier is derived from
+            `total - sum(rolls)` (always exact) and rendered as a `+M` / `-M`
+            chip + the explicit base sum + the total. Same field used by
+            both DM and player views; same source of truth as the tray. */}
+        {(() => {
+          const base = rolls.reduce((s, r) => s + r, 0)
+          const modifier = total - base
+          const totalColor = isCritical ? 'text-green-400' : isFumble ? 'text-red-400' : 'text-amber-400'
+          return (
+            <div className="ml-auto flex items-center gap-1.5 font-mono">
+              {modifier !== 0 && (
+                <>
+                  <span className="text-[11px] text-gray-500">{base}</span>
+                  <span className={`text-[11px] ${modifier > 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                    {modifier > 0 ? '+' : ''}
+                    {modifier}
+                  </span>
+                  <span className="text-[11px] text-gray-500">=</span>
+                </>
+              )}
+              <span className={`text-xl font-bold ${totalColor}`}>{total}</span>
+            </div>
+          )
+        })()}
       </div>
 
       {isCritical && <p className="text-[10px] text-green-400 font-semibold mt-1">NATURAL 20 - CRITICAL!</p>}

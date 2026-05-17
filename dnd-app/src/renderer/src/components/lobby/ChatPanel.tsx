@@ -84,7 +84,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage })
 
   // Dice roll messages
   if (msg.isDiceRoll && msg.diceResult) {
-    const { formula, total, rolls } = msg.diceResult
+    const { total, rolls } = msg.diceResult
     return (
       <div className="px-4 py-2">
         <div className="flex items-baseline gap-2 mb-1">
@@ -98,25 +98,44 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage })
           <span className="text-xs text-gray-500">{msg.content}</span>
         </div>
         <div className="ml-14 bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 inline-block">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              {rolls.map((roll, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center justify-center w-7 h-7 rounded bg-gray-700
-                             text-sm font-mono font-bold text-gray-200"
-                >
-                  {roll}
-                </span>
-              ))}
-              {formula.includes('+') && <span className="text-sm text-gray-400 ml-1">+{formula.split('+')[1]}</span>}
-              {formula.includes('-') && (
-                <span className="text-sm text-gray-400 ml-1">{formula.slice(formula.indexOf('-'))}</span>
-              )}
-            </div>
-            <span className="text-gray-500 text-sm">&rarr;</span>
-            <span className="text-sm font-semibold text-amber-400">{total}</span>
-          </div>
+          {/* Phase 17z — explicit base + modifier = total breakdown.
+              Previously we extracted the modifier by string-splitting the
+              formula on '+' / '-', which was brittle for compound formulas
+              (e.g. 1d6+1d4+3 → wrong split). Compute the modifier from the
+              total/rolls directly so the display always matches the
+              authoritative dice-engine result. */}
+          {(() => {
+            const base = rolls.reduce((s, r) => s + r, 0)
+            const modifier = total - base
+            return (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  {rolls.map((roll, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center justify-center w-7 h-7 rounded bg-gray-700
+                                 text-sm font-mono font-bold text-gray-200"
+                    >
+                      {roll}
+                    </span>
+                  ))}
+                  {modifier !== 0 && (
+                    <span className={`text-sm font-mono ml-1 ${modifier > 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                      {modifier > 0 ? '+' : ''}
+                      {modifier}
+                    </span>
+                  )}
+                </div>
+                <span className="text-gray-500 text-sm">&rarr;</span>
+                <span className="text-sm font-semibold text-amber-400">{total}</span>
+                {modifier !== 0 && (
+                  <span className="text-[11px] text-gray-500 font-mono" title="base + modifier = total">
+                    ({base} {modifier > 0 ? '+' : '−'} {Math.abs(modifier)} = {total})
+                  </span>
+                )}
+              </div>
+            )
+          })()}
         </div>
       </div>
     )
