@@ -289,22 +289,58 @@ def api_ide_sandbox_roots():
     return jsonify({"roots": list(_IDE_ALLOWED_ROOTS)})
 
 
-@ide_bp.route("/file/read", methods=["POST"])
+@ide_bp.route("/file/read", methods=["GET", "POST"])
 def api_ide_file_read():
-    """Read a file's contents."""
-    data = request.json or {}
-    path = data.get("path", "")
-    machine = data.get("machine", "pi")
+    """Read a file's contents.
+
+    QA #11 Round 2 (2026-05-17): also accept GET with `?path=...` because
+    that's the natural shape for a read endpoint. Previously POST-only,
+    so testers who tried GET got 405 and concluded the endpoint was
+    missing entirely. Both methods now return identical JSON
+    {content, language, lines, error?}.
+
+    Optional query/body params: limit (max bytes, default 50_000),
+    offset (start byte, default 0)."""
+    if request.method == "GET":
+        path = (request.args.get("path") or "").strip()
+        machine = (request.args.get("machine") or "pi").strip()
+        try:
+            limit = int(request.args.get("limit") or 50000)
+        except (TypeError, ValueError):
+            limit = 50000
+        try:
+            offset = int(request.args.get("offset") or 0)
+        except (TypeError, ValueError):
+            offset = 0
+    else:
+        data = request.json or {}
+        path = (data.get("path") or "").strip()
+        machine = (data.get("machine") or "pi").strip()
+        try:
+            limit = int(data.get("limit", 50000))
+        except (TypeError, ValueError):
+            limit = 50000
+        try:
+            offset = int(data.get("offset", 0))
+        except (TypeError, ValueError):
+            offset = 0
+    if not path:
+        return jsonify({"error": "path required"}), 400
     if machine == "win":
-        result = _proxy_to_windows("read_file", {"path": path, "limit": 50000})
+        result = _proxy_to_windows("read_file", {"path": path, "limit": limit, "offset": offset})
     else:
         try:
             path = _ide_safe_path(path)
         except PermissionError as e:
             return jsonify({"error": str(e)}), 403
         from dev.dev_tools import read_file
-        result = read_file(path, limit=50000)
-    if "error" not in result:
+        # dev_tools.read_file signature: read_file(path, limit, offset)
+        try:
+            result = read_file(path, limit=limit, offset=offset)
+        except TypeError:
+            # offset support landed later in dev_tools; fall back if unavailable.
+            result = read_file(path, limit=limit)
+    if isinstance(result, dict) and "error" not in result:
         result["language"] = _detect_language(path)
     return jsonify(result)
 

@@ -135,3 +135,34 @@ def test_sandbox_roots_endpoint(ide_client):
     body = _json(res)
     assert "roots" in body
     assert str(tmp_path.resolve()) in body["roots"]
+
+
+# ── QA Round 2 #11: /file/read also accepts GET ───────────────────────────────
+
+def test_file_read_get_method(ide_client):
+    """QA Round 2 #11 (2026-05-17): GET form returns the same shape as POST.
+    Previously POST-only → testers got 405 + concluded the endpoint was
+    missing. Both methods now serve the same response."""
+    client, tmp_path = ide_client
+    target = tmp_path / "read-me.txt"
+    target.write_text("hello world", encoding="utf-8")
+    res = client.get(f"/api/ide/file/read?path={target}")
+    assert res.status_code == 200
+    body = _json(res)
+    assert body.get("content") == "hello world" or "hello world" in (body.get("content") or "")
+
+
+def test_file_read_post_still_works(ide_client):
+    client, tmp_path = ide_client
+    target = tmp_path / "read-me.txt"
+    target.write_text("hello world", encoding="utf-8")
+    res = client.post("/api/ide/file/read", json={"path": str(target)})
+    assert res.status_code == 200
+    body = _json(res)
+    assert "hello world" in (body.get("content") or "")
+
+
+def test_file_read_missing_path_400(ide_client):
+    client, _ = ide_client
+    res = client.get("/api/ide/file/read")
+    assert res.status_code == 400
