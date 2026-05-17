@@ -316,8 +316,11 @@ export default function LobbyPage(): JSX.Element {
           )}
         </div>
 
-        {/* Invite code */}
-        {inviteCode && (
+        {/* Invite code — shown only for private games. Public games are
+            discoverable via the GameList browser, so surfacing a code is
+            both unnecessary and misleading (it suggests gate-keeping
+            that doesn't exist). */}
+        {inviteCode && campaign?.settings?.isPrivate === true && (
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-500 uppercase tracking-wide">Invite Code:</span>
             <button
@@ -338,6 +341,13 @@ export default function LobbyPage(): JSX.Element {
               </svg>
             </button>
             {codeCopied && <span className="text-xs text-green-400 animate-pulse">Copied!</span>}
+          </div>
+        )}
+        {isHost && campaign?.settings?.isPrivate === false && (
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-wider bg-emerald-900/40 text-emerald-300 px-2 py-0.5 rounded-full">
+              Public — listed in browser
+            </span>
           </div>
         )}
       </div>

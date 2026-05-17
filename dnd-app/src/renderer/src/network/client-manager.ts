@@ -243,10 +243,19 @@ async function attemptConnection(
           serialization: 'raw'
         })
 
-        // Connection timeout
+        // Connection timeout. By the time we hit this branch, PeerJS has
+        // resolved the host's peer ID (otherwise `peer-unavailable` would
+        // have fired below) — we just couldn't establish the WebRTC data
+        // channel. That's almost always a firewall / NAT / STUN issue, not
+        // a wrong code. Phrase the error to reflect that so users don't
+        // chase ghosts.
         const timeout = setTimeout(() => {
           conn.close()
-          reject(new Error('Connection to host timed out'))
+          reject(
+            new Error(
+              "Found that game but couldn't open a data channel. Likely a firewall or NAT issue — try a different network or ask the host to check theirs."
+            )
+          )
         }, CONNECTION_TIMEOUT_MS)
 
         conn.on('open', () => {
@@ -421,7 +430,11 @@ async function attemptConnection(
         peer.on('error', (err) => {
           clearTimeout(timeout)
           if (err.type === 'peer-unavailable') {
-            reject(new Error('Invalid invite code. No game found with that code.'))
+            reject(
+              new Error(
+                'No game found with that invite code. Double-check the code, or ask the host whether their session is still running.'
+              )
+            )
           } else if (!connected) {
             reject(new Error(`Connection failed: ${err.message}`))
           }

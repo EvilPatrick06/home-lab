@@ -183,7 +183,7 @@ describe('client-manager', () => {
         return mockPeerInstance
       })
 
-      await expect(connectToHost('BADCODE', 'Alice')).rejects.toThrow('Invalid invite code')
+      await expect(connectToHost('BADCODE', 'Alice')).rejects.toThrow('No game found with that invite code')
     })
   })
 

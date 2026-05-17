@@ -107,10 +107,13 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
     setShowInspirationTransfer(false)
   }
 
-  // Get other 5e characters that don't have inspiration (for transfer)
-  const transferTargets = useCharacterStore((s) =>
-    s.characters.filter((c) => c.id !== character.id && is5eCharacter(c) && !c.heroicInspiration)
-  )
+  // Get other 5e characters that don't have inspiration (for transfer).
+  // Select the raw array (stable ref) and filter in the body — selecting
+  // a `.filter()` result directly would return a fresh array every call,
+  // which useSyncExternalStore treats as a changed snapshot and loops
+  // until React throws #185 "Maximum update depth exceeded".
+  const allCharacters = useCharacterStore((s) => s.characters)
+  const transferTargets = allCharacters.filter((c) => c.id !== character.id && is5eCharacter(c) && !c.heroicInspiration)
 
   return (
     <div className="flex items-start gap-4 mb-6">

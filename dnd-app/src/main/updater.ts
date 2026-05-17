@@ -139,10 +139,19 @@ export function registerUpdateHandlers(): void {
     // tears the process down for the quit, which presents as the
     // window crashing. Users had to click "Update & Restart" 1–3 times
     // because each crash left the installer dangling.
+    //
+    // quitAndInstall args: (isSilent, isForceRunAfter).
+    //   - isSilent=true ran the NSIS installer silently but had a known
+    //     race on Windows where UAC dialogs / installer-stub timing
+    //     could leave the new app unlaunched even with isForceRunAfter.
+    //   - isSilent=false shows the installer UI briefly (~1 sec), which
+    //     synchronises the post-install relaunch reliably across the
+    //     Win10 / Win11 install paths we see in the field.
     setImmediate(() => {
       try {
         const autoUpdater = getAutoUpdater()
-        autoUpdater.quitAndInstall(true, true)
+        logToFile('INFO', '[updater] quitAndInstall(isSilent=false, isForceRunAfter=true) — relaunching after install')
+        autoUpdater.quitAndInstall(false, true)
       } catch (err) {
         // quitAndInstall failed — force quit so the downloaded update can run on next launch
         logToFile('ERROR', 'quitAndInstall failed, forcing quit:', String(err))
