@@ -3106,18 +3106,34 @@ export default function DungeonScholarApp() {
                 />
               </div>
             </div>
+            {/* Phase 40a QA P1: each counter now has an aria-label + title
+                that names what it actually tracks. The visible label stays
+                short for the dungeon aesthetic, but hover / screen reader
+                gets the precise definition so users don't expect the
+                Quest-Board claim count when they see "QUESTS". The
+                Dungeon-Delve label is renamed "DELVES" — clearer mapping
+                to the in-product Dungeon Delve concept, and avoids the
+                quest-board collision that triggered the QA report. */}
             <div className="flex gap-4 text-sm">
-              <div className="text-center">
+              <div className="text-center" title={`Riddles answered correctly (lifetime): ${playerState.totalCorrect}`} aria-label={`Victories — ${playerState.totalCorrect} correct riddles answered, lifetime`}>
                 <div className="text-emerald-400 font-bold text-lg" style={{ textShadow: '0 0 8px rgba(16, 185, 129, 0.5)' }}>{playerState.totalCorrect}</div>
                 <div className="text-xs text-amber-700 tracking-wider">VICTORIES</div>
               </div>
-              <div className="text-center">
+              <div
+                className="text-center"
+                title={`Dungeon Delve runs completed across all tomes (Quest Board claims are tracked separately on the Quest Board itself)`}
+                aria-label={`Delves — ${playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)} Dungeon Delve runs completed across all tomes. Not the same as Quest Board claims.`}
+              >
                 <div className="text-purple-400 font-bold text-lg" style={{ textShadow: '0 0 8px rgba(168, 85, 247, 0.5)' }}>
                   {playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)}
                 </div>
-                <div className="text-xs text-amber-700 tracking-wider">QUESTS</div>
+                <div className="text-xs text-amber-700 tracking-wider">DELVES</div>
               </div>
-              <div className="text-center">
+              <div
+                className="text-center"
+                title={`Dungeon-lord bosses defeated across all tomes`}
+                aria-label={`Dragons — ${playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)} dungeon-lord bosses defeated across all tomes`}
+              >
                 <div className="text-red-400 font-bold text-lg" style={{ textShadow: '0 0 8px rgba(239, 68, 68, 0.5)' }}>
                   {playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)}
                 </div>
@@ -5926,7 +5942,7 @@ ${fullKb}
         </div>
       </div>
 
-      <div className="flex-1 rounded-t p-4 overflow-y-auto space-y-3 relative" style={{
+      <div className="flex-1 rounded-t p-4 overflow-y-auto overscroll-contain space-y-3 relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.85) 0%, rgba(20, 12, 6, 0.95) 100%)',
         border: '2px solid rgba(245, 158, 11, 0.5)',
         borderBottom: 'none',
@@ -9627,7 +9643,7 @@ function ShareTomeModal({ tome, onClose }) {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
+        <div className="p-4 overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3">
           <p className="text-sm text-amber-100/85 italic">
             &ldquo;Share <span className="text-amber-300 font-bold">{tome.data.metadata.title}</span> with fellow scholars. They may import it via the Hash sigil (Share Code) or by loading the downloaded JSON file.&rdquo;
           </p>
@@ -9750,7 +9766,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
-        <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
+        <div className="p-4 overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3">
           <p className="text-sm text-amber-100/80 italic">
             "Paste the sacred share code from a fellow scholar below. The code shall be deciphered and the tome added to thy library."
           </p>
@@ -9848,7 +9864,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
-        <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
+        <div className="p-4 overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3">
           <div>
             <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">⚔ TITLE</label>
             <input type="text" value={title}
@@ -10172,7 +10188,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
-        <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
+        <div className="p-4 overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3">
           <p className="text-sm text-amber-100/80 italic">
             "Paste the tome's sacred text below. Code-block fences (```json) shall be stripped automatically. Only valid tome JSON shall be accepted."
           </p>
@@ -10262,7 +10278,7 @@ function AchievementsModal({ playerState, onClose }) {
           </h3>
           <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close Hall of Glory"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
-        <div className="p-4 overflow-y-auto flex-1 space-y-5">
+        <div className="p-4 overflow-y-auto overscroll-contain flex-1 space-y-5">
           {categoryOrder.filter(c => grouped[c]).map(cat => {
             const achievements = grouped[cat];
             const unlockedCount = achievements.filter(a => playerState.achievements.includes(a.id)).length;
@@ -10311,7 +10327,7 @@ function TitlesModal({ playerState, onSelect, onClose }) {
           <h3 className="text-xl font-bold text-amber-300 italic">⚔ Choose Thy Title ⚔</h3>
           <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close choose title dialog"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
-        <div className="p-4 overflow-y-auto flex-1 space-y-4">
+        <div className="p-4 overflow-y-auto overscroll-contain flex-1 space-y-4">
           <div>
             <h4 className="text-sm text-amber-600 mb-2 tracking-[0.3em] italic">⚜ TITLES OF RANK ⚜</h4>
             <div className="space-y-2">
