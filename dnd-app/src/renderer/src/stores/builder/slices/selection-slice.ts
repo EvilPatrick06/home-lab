@@ -287,11 +287,21 @@ export const createSelectionSlice: StateCreator<BuilderState, [], [], SelectionS
               equipment.length === 1
                 ? equipment[0].items.map((name: string) => ({ name, quantity: 1, source: cls.name }))
                 : []
+            // Phase 17l — preserve entries whose source is independent of the
+            // selected class (e.g. `'trinket'`, `'background'`, `'manual'`).
+            // Previously a class change re-set `classEquipment` to just the
+            // class-grant items, wiping the player's rolled trinket and
+            // forcing them to re-roll. Class-grant items themselves
+            // (`source === cls.name` of the OLD class) are dropped, since
+            // the new class brings its own grant list.
+            const preservedItems = get().classEquipment.filter(
+              (item) => item.source === 'trinket' || item.source === 'background' || item.source === 'manual'
+            )
             const targetLvl = get().targetLevel
             const cantripsMax = getCantripsKnown(optionId, targetLvl)
             const preparedMax = getPreparedSpellMax(optionId, targetLvl) ?? 0
             set({
-              classEquipment: autoItems,
+              classEquipment: [...preservedItems, ...autoItems],
               classSkillOptions: cls.coreTraits.skillProficiencies.from,
               classEquipmentChoice: equipment.length === 1 ? equipment[0].label : null, // reset when class changes — user must choose
               classExtraLangCount: optionId === 'rogue' ? 1 : optionId === 'ranger' ? 2 : 0,

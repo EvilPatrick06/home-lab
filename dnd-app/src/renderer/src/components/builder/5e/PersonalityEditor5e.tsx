@@ -26,10 +26,12 @@ export default function PersonalityEditor5e(): JSX.Element {
                 onClick={() => {
                   const traits = rollPersonalityTraits(abilityScores, backgroundAbilityBonuses, characterAlignment)
                   if (traits.length === 0) return
-                  const result = traits.join(', ')
-                  const current = characterPersonality.trim()
-                  const updated = current ? `${current}, ${result}` : result
-                  useBuilderStore.setState({ characterPersonality: updated })
+                  // Phase 17l — replace rather than append. The old "current,
+                  // result" concat path accumulated duplicates every time
+                  // the user clicked Roll. The button reads as "give me
+                  // ideas," not "append more text", so we replace; users
+                  // who liked an earlier suggestion can hand-edit it.
+                  useBuilderStore.setState({ characterPersonality: traits.join(', ') })
                 }}
                 className="text-[10px] px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
               >
