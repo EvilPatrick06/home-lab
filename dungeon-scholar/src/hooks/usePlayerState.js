@@ -4,6 +4,7 @@ import {
   saveToLocalStorage,
   hasMeaningfulData,
   hashState,
+  semanticHashState,
   migrateIfNeeded,
   CURRENT_SCHEMA_VER,
   loadSyncMeta,
@@ -281,13 +282,17 @@ export function usePlayerState(defaultState, user = null) {
         const lastSync = meta.lastSyncedAt;
         const wasDirty = !!meta.dirty;
 
-        // Identical-content guard: when both sides already match byte-for-byte
-        // there is no real divergence — suppress the MergeChooser branches
-        // that would otherwise force an arbitrary pick. Applied surgically to
-        // the two chooser paths only; the dirty-push branch is intentionally
-        // untouched so that a dirty-but-currently-equal state still records a
-        // sync via pushSave for any updated_at metadata.
-        const localCloudIdentical = hashState(local) === hashState(cloudData);
+        // Identical-content guard: when local and cloud match on every
+        // user-observable counter, suppress the MergeChooser branches that
+        // would otherwise force an arbitrary pick. Phase 33a switched from
+        // strict hashState (which captured internal noise like mistakeVault
+        // timestamps from independent device backfills) to semanticHashState
+        // (which fingerprints just level/XP/per-tome counters). This is the
+        // right level for "did the user actually diverge?" — bit-exact equality
+        // would falsely flag two devices that did the same things in slightly
+        // different orders. Applied surgically to chooser paths only; the
+        // dirty-push branch is intentionally untouched.
+        const localCloudIdentical = semanticHashState(local) === semanticHashState(cloudData);
 
         if (!lastSync) {
           if (localCloudIdentical) {

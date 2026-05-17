@@ -4,6 +4,7 @@ import {
   saveToLocalStorage,
   hasMeaningfulData,
   hashState,
+  semanticHashState,
   STORAGE_KEY,
   CURRENT_SCHEMA_VER,
   migrateIfNeeded,
@@ -136,6 +137,65 @@ describe('persistence', () => {
       const cyclic = { level: 1 };
       cyclic.self = cyclic;
       expect(hashState(cyclic)).toBe('');
+    });
+  });
+
+  describe('semanticHashState', () => {
+    it('returns equal hashes when user-observable state matches but internal noise differs (Phase 33a — mistakeVault timestamps)', () => {
+      // Same level / totals / tome counts but mistakeVault entries have
+      // different `addedAt` timestamps (e.g., backfill ran at different
+      // wall-clock times on different devices). The chooser should NOT
+      // fire on this kind of difference.
+      const a = {
+        level: 4, totalXp: 944, totalCorrect: 68, gold: 196,
+        library: [{ id: 't1', progress: {
+          cardsReviewed: 12, quizAnswered: 68, runsCompleted: 0,
+          mistakeVault: [
+            { id: 'q1', addedAt: 1700000000000 },
+            { id: 'q2', addedAt: 1700000005000 },
+          ],
+        } }],
+      };
+      const b = {
+        level: 4, totalXp: 944, totalCorrect: 68, gold: 196,
+        library: [{ id: 't1', progress: {
+          cardsReviewed: 12, quizAnswered: 68, runsCompleted: 0,
+          mistakeVault: [
+            { id: 'q1', addedAt: 1700009999999 }, // ← different timestamp
+            { id: 'q2', addedAt: 1700009999998 },
+          ],
+        } }],
+      };
+      expect(semanticHashState(a)).toBe(semanticHashState(b));
+    });
+
+    it('returns different hashes when user-observable state differs', () => {
+      const a = { level: 4, totalCorrect: 68, library: [{ id: 't1', progress: {} }] };
+      const b = { level: 5, totalCorrect: 68, library: [{ id: 't1', progress: {} }] }; // level change
+      expect(semanticHashState(a)).not.toBe(semanticHashState(b));
+    });
+
+    it('returns different hashes when per-tome counters differ', () => {
+      const a = { level: 4, library: [{ id: 't1', progress: { quizAnswered: 5 } }] };
+      const b = { level: 4, library: [{ id: 't1', progress: { quizAnswered: 6 } }] };
+      expect(semanticHashState(a)).not.toBe(semanticHashState(b));
+    });
+
+    it('ignores library array order (tomes are sorted by id)', () => {
+      const a = { level: 4, library: [
+        { id: 't1', progress: { quizAnswered: 5 } },
+        { id: 't2', progress: { quizAnswered: 3 } },
+      ] };
+      const b = { level: 4, library: [
+        { id: 't2', progress: { quizAnswered: 3 } },
+        { id: 't1', progress: { quizAnswered: 5 } },
+      ] };
+      expect(semanticHashState(a)).toBe(semanticHashState(b));
+    });
+
+    it('returns empty string for null/undefined', () => {
+      expect(semanticHashState(null)).toBe('');
+      expect(semanticHashState(undefined)).toBe('');
     });
   });
 });

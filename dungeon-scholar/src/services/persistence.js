@@ -88,6 +88,52 @@ export function hashState(state) {
   }
 }
 
+// Phase 33a fix for QA P1: even with stable key sorting, hashState diverges
+// on internal noise that the user can't see — mistakeVault.addedAt timestamps
+// from independent device backfills, chatHistory ordering, lastOpened, etc.
+// `semanticHashState` fingerprints ONLY user-observable counters and per-tome
+// progress totals, so the MergeChooser fires only on real divergence.
+//
+// Use this for the chooser short-circuit; use full hashState for cases where
+// we genuinely need bit-exact equivalence.
+export function semanticHashState(state) {
+  if (!state || typeof state !== 'object') return '';
+  try {
+    const library = Array.isArray(state.library) ? state.library : [];
+    const fingerprint = {
+      level: state.level ?? 1,
+      totalXp: state.totalXp ?? 0,
+      totalCorrect: state.totalCorrect ?? 0,
+      totalAnswered: state.totalAnswered ?? 0,
+      gold: state.gold ?? 0,
+      currentStreak: state.currentStreak ?? 0,
+      tutorialStarted: !!state.tutorialStarted,
+      tutorialCompleted: !!state.tutorialCompleted,
+      tutorialStepIndex: state.tutorialStepIndex ?? 0,
+      libraryCount: library.length,
+      activeTomeId: state.activeTomeId ?? null,
+      achievementsCount: Array.isArray(state.achievements) ? state.achievements.length : 0,
+      unlockedTitlesCount: Array.isArray(state.unlockedTitles) ? state.unlockedTitles.length : 0,
+      tomes: library
+        .map((t) => ({
+          id: t?.id ?? '',
+          cardsReviewed: t?.progress?.cardsReviewed ?? 0,
+          quizAnswered: t?.progress?.quizAnswered ?? 0,
+          labsAttempted: t?.progress?.labsAttempted ?? 0,
+          labsCompleted: t?.progress?.labsCompleted ?? 0,
+          runsCompleted: t?.progress?.runsCompleted ?? 0,
+          bossesDefeated: t?.progress?.bossesDefeated ?? 0,
+          oracleMessages: t?.progress?.oracleMessages ?? 0,
+          mistakeCount: Array.isArray(t?.progress?.mistakeVault) ? t.progress.mistakeVault.length : 0,
+        }))
+        .sort((a, b) => a.id.localeCompare(b.id)),
+    };
+    return stableStringify(fingerprint) || '';
+  } catch {
+    return '';
+  }
+}
+
 export function migrateIfNeeded(state, schemaVer) {
   if (!state) return state;
   let next = state;
