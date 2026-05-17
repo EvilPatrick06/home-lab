@@ -88,7 +88,15 @@ def _cache_policy(response):
         response.headers.setdefault(
             "Content-Security-Policy",
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io; "
+            # Round 4 #20 (2026-05-17): added `blob:` to script-src so
+            # Monaco's worker shim (URL.createObjectURL(Blob([...]))) can
+            # actually load under CF Access. Without it the shim fails
+            # silently and Monaco falls back to main-thread workers (the
+            # "Could not create web worker(s)" warning). worker-src is
+            # added separately for completeness — modern browsers split
+            # worker URLs into their own directive.
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdn.socket.io; "
+            "worker-src 'self' blob: https://cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
             # Round 3 #14 (2026-05-17): allow YouTube + Google Calendar
             # thumbnail hosts so Music + Calendar cards aren't broken-image

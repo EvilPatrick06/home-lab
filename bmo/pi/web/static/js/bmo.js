@@ -114,7 +114,10 @@ function bmo() {
     // connectionState: 'online' | 'offline' | 'cf_expired'.
     // healthSummary: pill text reflecting /api/health/full overall.
     connectionState: 'online',
-    healthSummary: 'BMO',
+    // Round 4 #15 (2026-05-17): seed from localStorage so the header
+    // pill never starts empty/flicker on tab navigation. Updated on
+    // every pollHealth and persisted on every update.
+    healthSummary: (typeof localStorage !== 'undefined' && localStorage.getItem('bmo_health_summary')) || 'BMO',
     _healthPoll: null,
 
     // QA #14 (2026-05-17): Controls/Settings hydration gate. Templates show
@@ -145,7 +148,15 @@ function bmo() {
     snapPreviewUrl: '',
 
     // Weather
-    weather: { temperature: null, description: '', icon: 'clear', feels_like: null },
+    // Round 4 #15 (2026-05-17): seed weather from localStorage so the
+    // header temperature pill doesn't flash null between navigations.
+    weather: (() => {
+      try {
+        const cached = localStorage.getItem('bmo_weather_cached');
+        if (cached) return JSON.parse(cached);
+      } catch {}
+      return { temperature: null, description: '', icon: 'clear', feels_like: null };
+    })(),
 
     // Next event
     nextEvent: null,
@@ -647,6 +658,8 @@ function bmo() {
         this._weatherFetchedAt = Date.now() / 1000;
         if (data.timezone) this.timezone = data.timezone;
         if (data.location_label) this.locationLabel = data.location_label;
+        // Round 4 #15: persist so the header pill seeds from cache on reload.
+        try { localStorage.setItem('bmo_weather_cached', JSON.stringify(data)); } catch {}
       });
       this.socket.on('location_update', (data) => {
         if (data.timezone) this.timezone = data.timezone;
@@ -1034,18 +1047,24 @@ function bmo() {
         if (!res.ok) return;
         const data = await res.json();
         const overall = (data.overall || '').toLowerCase();
+        let next;
         if (overall === 'critical') {
           const failing = Object.entries(data.services || {})
             .filter(([_, s]) => (s.status || '').toLowerCase() === 'down')
             .map(([name]) => name.replace(/^svc_|^google_/, ''))
             .slice(0, 2)
             .join(',');
-          this.healthSummary = failing ? `BMO ⚠ ${failing}` : 'BMO ⚠';
+          next = failing ? `BMO ⚠ ${failing}` : 'BMO ⚠';
         } else if (overall === 'warning' || overall === 'degraded') {
-          this.healthSummary = 'BMO ⚠';
+          next = 'BMO ⚠';
         } else {
-          this.healthSummary = 'BMO';
+          next = 'BMO';
         }
+        this.healthSummary = next;
+        // Round 4 #15: persist across page navigations so the pill seeds
+        // with the last-known value instead of flickering 'BMO' for one
+        // tick. localStorage write is cheap; debouncing not needed.
+        try { localStorage.setItem('bmo_health_summary', next); } catch {}
       } catch {
         // Network failure — keep last summary; connection pill flips via apiFetch.
       }
@@ -2325,10 +2344,15 @@ function bmo() {
       } catch {}
     },
 
-    // QA #15: "updated 2m ago" pill on the weather card.
+    // QA #15 + Round 4 #17 (2026-05-17): "updated Xm ago" pill reads
+    // weather.as_of (server-side cache stamp), not client _weatherFetchedAt
+    // (which was always "just now" because the browser fetches every page
+    // load). Now the user can SEE the server has cached for 4 minutes
+    // and the displayed temp is therefore stable.
     weatherUpdatedAgo() {
-      if (!this._weatherFetchedAt) return '';
-      const m = Math.floor((Date.now() / 1000 - this._weatherFetchedAt) / 60);
+      const stamp = this.weather?.as_of || this._weatherFetchedAt;
+      if (!stamp) return '';
+      const m = Math.floor((Date.now() / 1000 - stamp) / 60);
       if (m < 1) return 'just now';
       if (m < 60) return `${m}m ago`;
       const h = Math.floor(m / 60);

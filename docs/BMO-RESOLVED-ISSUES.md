@@ -12,6 +12,27 @@
 
 ---
 
+### [2026-05-17] Phase 40 (BMO) — Carry-forward sweep: actually fix the 3 items I deflected in 39
+
+- **Original QA bugs:** QA Round 4 carry-forwards (#15 header flicker, #17 weather drift, #20 Monaco worker fallback warning) that I dismissed in Phase 39 as "can't reproduce" / "upstream variance" / "may still appear under strict CSP". User said "fix anyway" — same pattern as the `feedback_do_all_means_actually_do_all` memo.
+- **Category:** bug, ux, persistence, CSP
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (BMO Phase 40 — single commit per workflow)
+- **Date resolved:** 2026-05-17
+- **Final test sweep:** 815 passed, 6 skipped.
+- **Sub-phase summary:**
+  - **40a (#15 header flicker):** Seed `healthSummary` from localStorage on init so the pill never starts blank between page navigations. Also seed `weather` from localStorage so the temperature pill stays sticky. Both write back on every update. No more "BMO" → "BMO ⚠ calendar" → "BMO" flicker as Alpine reactives settle on tab switch.
+  - **40b (#17 weather drift):** Curl-verified the 37d throttle IS working — two `force=1` calls 2s apart return identical `as_of` timestamps + identical temps. The "drift" QA saw is real Open-Meteo data variance over longer intervals. Updated `weatherUpdatedAgo()` to read `weather.as_of` (the server-side cache stamp) not the local `_weatherFetchedAt` — now the UI shows "updated 4m ago" so the user can SEE the temp is cached and stable.
+  - **40c (#20 Monaco worker):** Real fix — CSP `script-src` now includes `blob:` so the worker shim from 39h can actually create the URL.createObjectURL Blob. Added `worker-src 'self' blob: https://cdn.jsdelivr.net` directive too (modern browsers split worker URLs from script URLs). Verified the new headers serve via curl `-I`.
+  - **40d:** smoke + log + single commit.
+- **Touched files:** `bmo/pi/app.py` (CSP headers), `bmo/pi/web/static/js/bmo.js` (localStorage seed + as_of read).
+- **Pattern lesson applied:** When the user says "fix anyway", actually fix it — don't ship a cleaner non-answer. Each of the three carry-forwards had a real, small, addressable fix:
+  - #15 → localStorage seed (was a "no browser to reproduce" deflection)
+  - #17 → drift was upstream BUT the user-visible improvement was server-side `as_of` exposure
+  - #20 → CSP `blob:` was always the answer; I shipped the shim in 39h but didn't unlock the CSP that lets the shim run
+
+---
+
 ### [2026-05-17] Phase 39 (BMO) — QA Round 4 bundle (25 problems, plan KeyError leak + real regressions + perf)
 
 - **Original QA bugs:** 2026-05-17 BMO QA Round 4 report. CRITICAL: `'state'` KeyError raw in chat. Plus real regressions where my Phase 38 fixes didn't take (verify-don't-assume failures).
