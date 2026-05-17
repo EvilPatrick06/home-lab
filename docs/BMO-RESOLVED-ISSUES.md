@@ -12,6 +12,23 @@
 
 ---
 
+### [2026-05-17] Phase 31h — Unified face_state machine, idle/ambient suppression, fade + exit hint
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #26, #27, #28.
+- **Category:** bug, ux, architecture
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31h)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **#28 (web screensaver face ≠ OLED face, drift):** New `services/face_state.py` defines a `FaceState` singleton with the canonical `EXPRESSIONS` enum (idle, happy, surprised, sleepy, concerned, excited, thinking, speaking, listening, error, looking_around). `init_face_state(socketio)` is called at app boot. `_sync_expression` now routes every expression through `FACE.set(name)` which normalizes synonyms (yapping→speaking, sad→concerned, neutral→idle) and emits a `face_state` SocketIO event in addition to the legacy `expression` event. Frontend `socket.on('face_state')` flips `_faceStateAuthoritative` true on first receipt so legacy `status` + `expression` events stop fighting the unified source. Web canvas + OLED now derive from the same normalized expression simultaneously. **Partial-but-load-bearing fix:** the underlying visual fidelity gap (web canvas uses procedural face vs. OLED uses sprite) is documented but not closed — the state machine is now unified, the asset-level redesign is deferred.
+  - **#26 (idle/ambient steals modal/audio/timer screen):** `_shouldSuppressAmbient()` checks for open modals (`showStatusDetail`, `tvPairing`, `showLyrics`, `showCameraOverlay`, `showSnapPreview`, `showAlarmSchedule`, `sceneEditing`), or a timer with `remaining <= 60`. `resetIdleTimer` re-schedules instead of entering ambient when suppression is active. `exitAmbient($event)` swallows the dismissing tap via `event.stopPropagation()` so it doesn't fall through to underlying UI.
+  - **#27 (ambient entry/exit jarring, no hint):** Overlay now has 700ms ease-out enter + 300ms ease-in leave Alpine transitions. Permanent low-contrast "Tap to exit" hint pinned at bottom of overlay.
+- **Verified:** `pytest tests/test_face_state.py tests/test_app_endpoints.py` → 40 passed (9 new face_state tests cover enum membership, normalize, synonyms, event emission, snapshot). BMO restarted, `/health` ok.
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/services/face_state.py` (new), `bmo/pi/tests/test_face_state.py` (new), `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`.
+- **Deferred:** Full BMO-face visual redesign (canonical show-style proportions, rounded-corner eye sprites, shared keyframe atlas) — out of scope for one sub-phase, tracked separately in `BMO-SUGGESTIONS-LOG.md`. The state machine unification means a future asset-level redesign drops in without re-plumbing.
+
+---
+
 ### [2026-05-17] Phase 31g — Music search Enter, refresh-rehydrate now-playing, volume live readout
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #18, #23, #32.

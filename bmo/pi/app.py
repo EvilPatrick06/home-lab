@@ -263,6 +263,12 @@ if _sio_mode not in ("gevent", "threading", "eventlet"):
     _sio_mode = "gevent"
 socketio = SocketIO(app, async_mode=_sio_mode, cors_allowed_origins="*")
 
+# QA #28 (2026-05-17): unified face state machine. Initialized before
+# init_services() runs so _sync_expression can hand off cleanly. Singleton
+# accessed as services.face_state.FACE; emits `face_state` SocketIO events.
+from services.face_state import init_face_state
+init_face_state(socketio=socketio)
+
 # ── Services (lazy-initialized) ─────────────────────────────────────
 
 voice = None
@@ -753,14 +759,21 @@ def init_services():
 
 
 def _sync_expression(expression: str):
-    """Sync OLED face + LED controller to match expression, emit to web clients."""
+    """Sync OLED face + LED controller to match expression, emit to web clients.
+
+    QA #28 (2026-05-17): also routes through services.face_state so the web
+    ambient renderer and OLED both derive from a single normalized
+    expression. Legacy `expression` event still emitted for older clients.
+    """
+    from services.face_state import FACE
+    norm = FACE.set(expression) if FACE else (expression or "idle")
     if oled_face:
-        oled_face.set_expression(expression)
+        oled_face.set_expression(norm)
     if led_controller:
         from hardware.led_controller import led_state_for_expression
-        led_state = led_state_for_expression(expression)
+        led_state = led_state_for_expression(norm)
         led_controller.set_state(led_state)
-    socketio.emit("expression", {"expression": expression})
+    socketio.emit("expression", {"expression": norm})
 
 
 # ── Pages ────────────────────────────────────────────────────────────

@@ -656,10 +656,25 @@ function bmo() {
       this.socket.on('timers_tick', (data) => { this.timerItems = data; });
       this.socket.on('status', (data) => {
         this.status = data.state;
-        this._faceState = data.state;
+        // QA #28: keep _faceState in sync with status BUT defer to
+        // face_state events when they arrive (unified source of truth).
+        if (!this._faceStateAuthoritative) this._faceState = data.state;
       });
       this.socket.on('expression', (data) => {
-        if (data.expression) this._faceEmotion = data.expression;
+        // Legacy event — face_state below supersedes when present.
+        if (data.expression && !this._faceStateAuthoritative) {
+          this._faceEmotion = data.expression;
+        }
+      });
+      // QA #28 (2026-05-17): unified face state. When the server speaks
+      // this, both the web ambient canvas and the OLED render the same
+      // expression. We mark `_faceStateAuthoritative` true on first receipt
+      // so legacy `status`/`expression` events stop fighting it.
+      this.socket.on('face_state', (data) => {
+        if (!data || !data.expression) return;
+        this._faceStateAuthoritative = true;
+        this._faceState = data.expression;
+        this._faceEmotion = data.expression;
       });
 
       this.socket.on('chat_response', (data) => {
@@ -3515,12 +3530,41 @@ function bmo() {
 
     // ── Ambient/Idle Mode ────────────────────────────────────
 
+    // QA #26 (2026-05-17): suppression rules. Ambient should NOT take over
+    // the screen while a modal is open, audio is actively playing, or a
+    // timer is about to fire (last 60 seconds). Without this, the
+    // screensaver hijacked the TV-pair PIN dialog mid-handshake and
+    // covered the timer ring-down.
+    _shouldSuppressAmbient() {
+      if (this.showStatusDetail || this.tvPairing || this.showLyrics) return true;
+      if (this.showCameraOverlay || this.showSnapPreview) return true;
+      if (this.showAlarmSchedule || this.sceneEditing !== null) return true;
+      if (this.musicState?.song && this.musicState?.is_playing) {
+        // Allow now_playing ambient mode here — covered by enterAmbient picking
+        // 'now_playing' rather than 'bmo_face'. Don't suppress outright.
+      }
+      if (Array.isArray(this.timerItems)) {
+        for (const t of this.timerItems) {
+          if (!t.fired && typeof t.remaining === 'number' && t.remaining > 0 && t.remaining <= 60) return true;
+        }
+      }
+      return false;
+    },
+
     resetIdleTimer() {
       if (this.ambientActive) {
         this.ambientActive = false;
       }
       clearTimeout(this._idleTimer);
-      this._idleTimer = setTimeout(() => this.enterAmbient(), this._idleTimeout);
+      this._idleTimer = setTimeout(() => {
+        if (this._shouldSuppressAmbient()) {
+          // Reschedule instead of entering — caller will reset again on
+          // the next user interaction. Short retry so we re-check soon.
+          this.resetIdleTimer();
+          return;
+        }
+        this.enterAmbient();
+      }, this._idleTimeout);
     },
 
     enterAmbient() {
@@ -3530,14 +3574,22 @@ function bmo() {
         this.ambientMode = 'bmo_face';
       }
       this.ambientActive = true;
+      // QA #27: smooth fade-in handled by Tailwind's transition class on
+      // the overlay; canvas init runs after the next tick.
       if (this.ambientMode === 'bmo_face') {
         this.$nextTick(() => this.initFaceCanvas());
       }
     },
 
-    exitAmbient() {
+    exitAmbient(event) {
       this._stopFaceAnimation();
       this.ambientActive = false;
+      // QA #26: swallow the dismissing tap so it doesn't fall through to
+      // underlying UI (otherwise the same touch that wakes the screen
+      // also activates whichever button was under the overlay).
+      if (event && typeof event.stopPropagation === 'function') {
+        event.stopPropagation();
+      }
       this.resetIdleTimer();
     },
 

@@ -65,12 +65,17 @@
   <!-- Content Area -->
   <main class="flex-1 overflow-hidden min-h-0 relative">
 
-    <!-- Ambient/Idle Mode Overlay -->
-    <div x-show="ambientActive" @click="exitAmbient()" @touchstart="exitAmbient()"
+    <!-- Ambient/Idle Mode Overlay (QA #27: smoother fade both directions
+         + visible "tap to exit" hint; QA #26: exitAmbient swallows the tap
+         so it doesn't fall through to underlying UI) -->
+    <div x-show="ambientActive" @click="exitAmbient($event)" @touchstart="exitAmbient($event)"
          class="absolute inset-0 z-50 bg-surface-dark flex items-center justify-center cursor-pointer"
-         x-transition:enter="transition ease-out duration-500"
+         x-transition:enter="transition ease-out duration-700"
          x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100">
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
       <!-- Clock mode -->
       <div x-show="ambientMode === 'clock'" class="text-center">
         <div class="text-6xl font-mono text-accent-light mb-2" x-text="clock"></div>
@@ -92,6 +97,10 @@
       <div x-show="ambientMode === 'bmo_face'" class="text-center">
         <canvas id="bmo-face-canvas" class="mx-auto" style="image-rendering: pixelated;" width="320" height="240"></canvas>
         <div class="text-xs text-text-dim mt-4" x-text="clock"></div>
+      </div>
+      <!-- QA #27: tap-to-exit hint, low-contrast so it doesn't compete -->
+      <div class="absolute bottom-6 inset-x-0 text-center text-[11px] text-text-dim tracking-wide">
+        Tap to exit
       </div>
     </div>
 
