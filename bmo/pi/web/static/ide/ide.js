@@ -870,7 +870,7 @@
         return;
       }
       logEl.innerHTML = commits.map(c =>
-        `<div class="git-log-entry"><span class="git-hash">${escapeHtml(c.hash)}</span><span class="git-log-msg">${_escapeHtml(c.message)}</span></div>`
+        `<div class="git-log-entry"><span class="git-hash">${escapeHtml(c.hash)}</span><span class="git-log-msg">${escapeHtml(c.message)}</span></div>`
       ).join('');
     } catch (e) { logEl.innerHTML = '<p style="font-size:11px;color:var(--text-dim)">Failed to load log</p>'; }
   }
@@ -1096,12 +1096,7 @@
 
 
   // ── Utilities ───────────────────────────────────────────────
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
+  // (escapeHtml defined as a const at module top — Round 2 #8, 2026-05-17)
 
   function flashStatus(text) {
     const el = $('#file-status');
@@ -1732,7 +1727,7 @@
       <div class="job-card-top">
         <span class="job-card-icon">${icon}</span>
         <div class="job-card-info">
-          <div class="job-card-name">${_escapeHtml(name)}</div>
+          <div class="job-card-name">${escapeHtml(name)}</div>
           <div class="job-card-status" id="job-status-${job.id}">${statusText}</div>
         </div>
         <span class="job-status-badge ${statusClass}">${job.status}</span>
@@ -1862,7 +1857,7 @@
             const icon = typeIcons[entry.type] || '\ud83d\udccc';
             const card = document.createElement('div');
             card.className = `activity-card activity-${entry.type}`;
-            card.innerHTML = `<span class="activity-icon">${icon}</span><span class="activity-text">${_escapeHtml(entry.content)}</span>`;
+            card.innerHTML = `<span class="activity-icon">${icon}</span><span class="activity-text">${escapeHtml(entry.content)}</span>`;
             chatEl.appendChild(card);
           }
           chatEl.scrollTop = chatEl.scrollHeight;
@@ -1906,7 +1901,7 @@
       try { rendered = marked.parse(text); } catch (_e) { rendered = null; }
     }
     if (!rendered) {
-      rendered = _escapeHtml(text)
+      rendered = escapeHtml(text)
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
         .replace(/`([^`]+)`/g, '<code>$1</code>')
@@ -2034,7 +2029,7 @@
     const icon = typeIcons[data.type] || '📌';
     const card = document.createElement('div');
     card.className = `activity-card activity-${data.type}`;
-    card.innerHTML = `<span class="activity-icon">${icon}</span><span class="activity-text">${_escapeHtml(data.content)}</span>`;
+    card.innerHTML = `<span class="activity-icon">${icon}</span><span class="activity-text">${escapeHtml(data.content)}</span>`;
     chatEl.appendChild(card);
     chatEl.scrollTop = chatEl.scrollHeight;
   }
@@ -2065,7 +2060,7 @@
     if (role === 'assistant' && agent) {
       html += `<div class="agent-badge">${getAgentIcon(agent)} ${agent}</div>`;
     }
-    let safe = _escapeHtml(text)
+    let safe = escapeHtml(text)
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/`([^`]+)`/g, '<code>$1</code>')
@@ -2130,7 +2125,7 @@
         <div class="job-card-top">
           <span class="job-card-icon">${icon}</span>
           <div class="job-card-info">
-            <div class="job-card-name">${_escapeHtml(name)}</div>
+            <div class="job-card-name">${escapeHtml(name)}</div>
             <div class="job-card-status">📦 Archived</div>
           </div>
           <span class="job-status-badge archived">archived</span>
@@ -2194,8 +2189,8 @@
     toast.innerHTML = `
       <span class="toast-icon">${icon}</span>
       <div class="toast-body">
-        <div class="toast-title">${_escapeHtml(name)}</div>
-        <div class="toast-message">${_escapeHtml(message)}</div>
+        <div class="toast-title">${escapeHtml(name)}</div>
+        <div class="toast-message">${escapeHtml(message)}</div>
       </div>
       <button class="toast-close">✕</button>
       <div class="toast-progress"></div>
@@ -2231,13 +2226,7 @@
   }
 
   // ── Utility ───────────────────────────────────────────────
-
-  function _escapeHtml(text) {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
+  // (escapeHtml defined as a const at module top — Round 2 #8, 2026-05-17)
 
   function _syncModeButtons(mode) {
     document.querySelectorAll('.mode-btn').forEach(b => {
@@ -2268,7 +2257,7 @@
     msg.className = 'chat-msg system mode-change-request';
 
     const initiator = agentInitiated ? '🤖 Agent' : '👤 You';
-    const reasonText = reason ? `<br><span style="color:var(--text-muted);font-size:11px">Reason: ${_escapeHtml(reason)}</span>` : '';
+    const reasonText = reason ? `<br><span style="color:var(--text-muted);font-size:11px">Reason: ${escapeHtml(reason)}</span>` : '';
 
     msg.innerHTML = `
       <div class="mode-change-card">

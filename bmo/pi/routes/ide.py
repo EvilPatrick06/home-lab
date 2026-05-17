@@ -476,6 +476,30 @@ def api_ide_file_delete():
         return jsonify({"error": "delete failed"}), 500
 
 
+@ide_bp.route("/folder/delete", methods=["POST"])
+def api_ide_folder_delete():
+    """Delete a directory tree (Round 2 #12, 2026-05-17). Refuses to
+    operate on a file path — use /file/delete for those."""
+    data = request.json or {}
+    raw_path = (data.get("path", "") or "").rstrip("/")
+    if not raw_path:
+        return jsonify({"error": "path required"}), 400
+    try:
+        path = _ide_safe_path(raw_path)
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
+    if not os.path.exists(path):
+        return jsonify({"error": "not found"}), 404
+    if not os.path.isdir(path):
+        return jsonify({"error": "not a directory — use /file/delete"}), 400
+    try:
+        _shutil.rmtree(path)
+        return jsonify({"success": True, "path": path})
+    except OSError as e:
+        log.info(f"[ide.folder.delete] error: {e}")
+        return jsonify({"error": f"delete failed: {e}"}), 500
+
+
 @ide_bp.route("/search")
 def api_ide_search():
     """Global grep search."""
