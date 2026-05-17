@@ -145,6 +145,37 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     return () => window.removeEventListener('beforeunload', handler);
   }, [phase]);
 
+  // Phase 30g QA #12: keyboard answer hotkeys for MC + TF riddles in the
+  // exam. 1-9 / A-Z select an MC option; T / F select truefalse. Keep state
+  // captured in a ref so the listener doesn't churn.
+  const examKeyRef = useRef(null);
+  examKeyRef.current = { phase, sample, currentIdx, setAnswerAt: null };
+  useEffect(() => {
+    const onKey = (e) => {
+      const s = examKeyRef.current;
+      if (!s || s.phase !== 'inProgress') return;
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const q = s.sample[s.currentIdx];
+      if (!q) return;
+      const key = e.key.toLowerCase();
+      if (Array.isArray(q.options)) {
+        let idx = -1;
+        if (/^[1-9]$/.test(key)) idx = Number(key) - 1;
+        else if (/^[a-z]$/.test(key)) idx = key.charCodeAt(0) - 97;
+        if (idx >= 0 && idx < q.options.length) {
+          e.preventDefault();
+          s.setAnswerAt?.(s.currentIdx, idx);
+        }
+      } else if (q.type === 'truefalse') {
+        if (key === 't') { e.preventDefault(); s.setAnswerAt?.(s.currentIdx, true); }
+        else if (key === 'f') { e.preventDefault(); s.setAnswerAt?.(s.currentIdx, false); }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   // Phase 30b QA #2: on mount, resume an in-progress exam if one exists for
   // this tome and its deadline hasn't already elapsed. Otherwise clear stale
   // session data (deadline elapsed or tome switched) so 'setup' is fresh.
@@ -180,6 +211,10 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
       return copy;
     });
   };
+
+  // Phase 30g: keep examKeyRef in sync so the keydown listener sees latest
+  // sample/index/setAnswerAt.
+  examKeyRef.current = { phase, sample, currentIdx, setAnswerAt };
 
   const goTo = (delta) => {
     const next = Math.min(Math.max(0, currentIdx + delta), sample.length - 1);
@@ -325,6 +360,14 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             <div className="text-[10px] italic text-amber-700 tracking-wider uppercase mb-2">{q.domain}</div>
           )}
           <RichContent as="div" text={q.question} className="text-lg text-amber-50 italic mb-4 leading-relaxed" />
+          {/* Phase 30g QA #12: keyboard hotkey hint for the in-progress exam. */}
+          <div className="text-[11px] italic text-amber-700/70 mb-3">
+            {Array.isArray(q.options)
+              ? `⌨ Hotkeys: 1–${q.options.length} or A–${String.fromCharCode(64 + q.options.length)} to pick`
+              : q.type === 'truefalse'
+                ? '⌨ Hotkeys: T for True · F for False'
+                : ''}
+          </div>
 
           {isMC && (
             <div className="space-y-2">

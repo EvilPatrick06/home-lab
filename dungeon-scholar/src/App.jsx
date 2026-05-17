@@ -4492,6 +4492,44 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     saveSession(SESSION_KIND.QUIZ, { tomeId: tomeId ?? null, index });
   }, [index, tomeId, domainFilter]);
 
+  // Phase 30g QA #12: keyboard answers for Riddles. 1/2/3 picks confidence;
+  // after confidence is set, 1-9 or A-Z indexes MC options, T/F picks
+  // true/false. The listener reads from a ref that's updated every render
+  // (assigned AFTER handleAnswer is declared, below this block, via
+  // refreshKeyRef()) so the listener always sees the latest closure.
+  // Inputs/textareas are skipped so typing in the fill-in-blank doesn't
+  // misfire.
+  const keyRef = useRef(null);
+  useEffect(() => {
+    const onKey = (e) => {
+      const s = keyRef.current;
+      if (!s || !s.q || s.answered) return;
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!s.confidence) {
+        if (e.key === '1') { e.preventDefault(); s.setConfidence('low'); return; }
+        if (e.key === '2') { e.preventDefault(); s.setConfidence('med'); return; }
+        if (e.key === '3') { e.preventDefault(); s.setConfidence('high'); return; }
+        return;
+      }
+      const key = e.key.toLowerCase();
+      if (s.isMC) {
+        let idx = -1;
+        if (/^[1-9]$/.test(key)) idx = Number(key) - 1;
+        else if (/^[a-z]$/.test(key)) idx = key.charCodeAt(0) - 97;
+        if (idx >= 0 && idx < s.q.options.length) {
+          e.preventDefault();
+          s.handleAnswer?.(idx === s.q.correctIndex);
+        }
+      } else if (s.isTF) {
+        if (key === 't') { e.preventDefault(); s.handleAnswer?.(s.q.correctAnswer === true); }
+        else if (key === 'f') { e.preventDefault(); s.handleAnswer?.(s.q.correctAnswer === false); }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const handleAnswer = (correct, extra = {}) => {
     setAnswered({ correct, confidence, ...extra });
     recordAnswer(correct, q, { confidence });
@@ -4566,6 +4604,19 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     setConfidence(null);
     setIndex((index + 1) % questions.length);
   };
+
+  // Phase 30g: keep keyRef in sync with the latest closure values so the
+  // keydown listener always uses fresh handleAnswer / state.
+  keyRef.current = {
+    q,
+    isMC: q && q.options && Array.isArray(q.options),
+    isTF: q && q.type === 'truefalse',
+    answered,
+    confidence,
+    handleAnswer,
+    setConfidence,
+  };
+
   if (!q) return (
     <div className="space-y-4 max-w-3xl mx-auto">
       {domainFilter && (
@@ -4604,6 +4655,19 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         </span>
         <span className="flex items-center gap-1"><Flame className="w-4 h-4 text-orange-400" /> Streak: {streak}</span>
       </div>
+      {/* Phase 30g QA #12: keyboard hotkey legend. Hidden once the riddle
+          is answered to reduce noise. */}
+      {!answered && (
+        <div className="text-[11px] italic text-amber-100/60 text-center">
+          {!confidence
+            ? '⌨ Hotkeys: 1 Uncertain · 2 Likely · 3 Confident'
+            : (q.options && Array.isArray(q.options))
+              ? '⌨ Hotkeys: 1–' + q.options.length + ' or A–' + String.fromCharCode(64 + q.options.length) + ' to pick an answer'
+              : q.type === 'truefalse'
+                ? '⌨ Hotkeys: T for True · F for False'
+                : ''}
+        </div>
+      )}
       <div className="rounded p-6 relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
         border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',

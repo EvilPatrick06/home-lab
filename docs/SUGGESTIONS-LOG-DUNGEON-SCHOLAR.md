@@ -296,20 +296,6 @@ Throughout App.jsx and components. Decorative icons make screen readers double-a
 
 ---
 
-### [2026-05-12] L2 — No keyboard shortcuts for quiz answer selection
-
-- **Category:** UX
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** Claude Code (Opus 4.7)
-- **During:** Phase 27 audit
-
-1/2/3/4 for MC, T/F for TF — would speed power users dramatically. Phase 27j.
-
-**Files:** `dungeon-scholar/src/App.jsx:4486–4498` (MC/TF buttons in QuizMode)
-
----
-
 ### [2026-05-12] L1 — Header buttons have ~36×36 px tap targets (WCAG 2.5.5 wants ≥44×44)
 
 - **Category:** UX, a11y

@@ -13,6 +13,28 @@
 
 ---
 
+### [2026-05-17] L2 — No keyboard shortcuts for quiz answer selection
+
+- **Original category:** UX
+- **Original severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** Claude Code (Opus 4.7)
+- **During:** Phase 27 audit
+- **Resolved by:** Claude Code (Opus 4.7)
+- **Date resolved:** 2026-05-17 (Phase 30g)
+
+**Problem:** No keyboard shortcuts for picking an MC option, true/false, or confidence. The 2026-05-17 Dungeon Scholar QA report (#12) re-confirmed that keys 1-4 / A-D were inert during Riddles, hurting accessibility and power-user speed.
+
+**Resolution:** Added window-scoped keydown listeners to QuizMode (in App.jsx) and ExamMode that:
+- 1 / 2 / 3 pick confidence (Uncertain / Likely / Confident) when the picker is shown.
+- 1-9 or A-Z index MC options, scoped to the actual options array length.
+- T / F pick true/false on truefalse riddles.
+- Inputs/textareas are skipped (so typing in fill-in-blank doesn't misfire).
+- Modifier keys (Ctrl/Meta/Alt) are skipped (so browser shortcuts stay intact).
+Visible hotkey hint legend rendered above the answer choices in both surfaces.
+
+---
+
 ### [2026-05-17] L6 — No keyboard focus ring (Tailwind defaults)
 
 - **Original category:** UX, a11y
