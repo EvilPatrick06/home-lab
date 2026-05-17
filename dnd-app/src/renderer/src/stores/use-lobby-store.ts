@@ -201,9 +201,22 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
       const existingByClientId = player.clientId ? state.players.find((p) => p.clientId === player.clientId) : undefined
       const existing = existingByPeerId ?? existingByClientId
       if (existing) {
+        // Phase 17c — preserve the existing characterId / characterName on
+        // re-add by clientId (rejoin path). The incoming `player` payload
+        // may not carry them, but the player's last pick is still valid
+        // and should survive the reconnect. (Mirrors the color
+        // preservation pattern already on this line below.)
         return {
           players: state.players.map((p) =>
-            p === existing ? { ...existing, ...player, color: existing.color || player.color } : p
+            p === existing
+              ? {
+                  ...existing,
+                  ...player,
+                  color: existing.color || player.color,
+                  characterId: player.characterId ?? existing.characterId,
+                  characterName: player.characterName ?? existing.characterName
+                }
+              : p
           )
         }
       }

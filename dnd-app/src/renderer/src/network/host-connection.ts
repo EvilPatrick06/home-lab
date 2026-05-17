@@ -285,6 +285,11 @@ export function handleJoin(
   // and broadcast traffic getting routed to dead connections. Find any
   // existing entry with the same clientId, close its connection, and drop
   // it from all peer-keyed maps before we add the fresh one.
+  // Phase 17c — also remember the stale entry's characterId/characterName
+  // so the rejoiner retains their previous PC selection even if their
+  // client didn't include it in the new join payload.
+  let priorCharacterId: string | null = null
+  let priorCharacterName: string | null = null
   for (const [existingPeerId, existingPeer] of Array.from(state.peerInfoMap.entries())) {
     if (existingPeer.clientId === joiningClientId && existingPeerId !== peerId) {
       logger.debug(
@@ -296,6 +301,8 @@ export function handleJoin(
         peerId,
         ')'
       )
+      if (priorCharacterId === null) priorCharacterId = existingPeer.characterId
+      if (priorCharacterName === null) priorCharacterName = existingPeer.characterName
       const oldConn = state.connections.get(existingPeerId)
       if (oldConn) {
         try {
@@ -316,8 +323,12 @@ export function handleJoin(
     clientId: message.payload.clientId,
     role: message.payload.role ?? 'player',
     displayName: playerName,
-    characterId,
-    characterName,
+    // Phase 17c — fall back to the prior peer's characterId/Name when the
+    // re-join payload omits them (common: a client that closed without
+    // persisting its last selection still gets to keep its previously
+    // confirmed PC across reconnect).
+    characterId: characterId ?? priorCharacterId,
+    characterName: characterName ?? priorCharacterName,
     isReady: false,
     isHost: false,
     // Phase 29j: snapshot the joining peer's wire-format capabilities so

@@ -26,12 +26,33 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
   const localPeerId = useNetworkStore((s) => s.localPeerId)
   const localPlayer = useLobbyStore((s) => s.players.find((p) => p.peerId === localPeerId))
   const isCoDM = localPlayer?.isCoDM ?? false
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  // Phase 17c — Source the current selection from the lobby store so the
+  // PC stays selected across remounts (settings open/close, page nav,
+  // rejoin). Previously this was local useState which reset to `null` on
+  // every remount, forcing the player to re-pick their character every
+  // time they opened settings or rejoined the lobby.
+  //
+  // Convention: `characterId === ''` means an explicit "No Character"
+  // pick by DM / CoDM (mapped to the `__none__` sentinel below);
+  // `characterId === null` means "haven't picked yet";
+  // valid UUID means that PC is selected.
+  const lobbyCharacterId = localPlayer?.characterId ?? null
+  const initialSelectedId: string | null = lobbyCharacterId === '' ? '__none__' : lobbyCharacterId
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId)
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     loadCharacters()
   }, [loadCharacters])
+
+  // Sync local selection with lobby store on changes (e.g., authoritative
+  // echo from host after a player:character-select, or rejoin restore).
+  // selectedId is intentionally included to satisfy exhaustive-deps; the
+  // `next !== selectedId` guard prevents the loop.
+  useEffect(() => {
+    const next: string | null = lobbyCharacterId === '' ? '__none__' : lobbyCharacterId
+    if (next !== selectedId) setSelectedId(next)
+  }, [lobbyCharacterId, selectedId])
 
   const selectedCharacter = selectedId === '__none__' ? null : characters.find((c) => c.id === selectedId)
   const selectedSummary = selectedCharacter ? getCharacterSummary(selectedCharacter) : null
