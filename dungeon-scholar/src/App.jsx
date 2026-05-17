@@ -1261,6 +1261,12 @@ export default function DungeonScholarApp() {
   const { user } = useAuth();
   const [playerState, setPlayerState, sync] = usePlayerState(DEFAULT_STATE, user);
   const [notification, setNotification] = useState(null);
+  // Phase 33c QA P3: pending in-app confirmation (replaces window.confirm
+  // which was unreliable — headless QA tools auto-dismissed it, making the
+  // Trial-of-Hours abandon guard look silent). When non-null, renders an
+  // in-DOM alertdialog; user resolves via Abandon (calls .onConfirm) or
+  // Keep going (just clears the state).
+  const [pendingConfirm, setPendingConfirm] = useState(null);
   const [showPromptModal, setShowPromptModal] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showTitles, setShowTitles] = useState(false);
@@ -2768,6 +2774,25 @@ export default function DungeonScholarApp() {
         />
       )}
 
+      {/* Phase 33c QA P3: in-DOM abandon confirm. Visible to test tools and
+          screen readers; survives auto-dismiss heuristics that suppressed the
+          earlier window.confirm. */}
+      {pendingConfirm && (
+        <ConfirmModal
+          title={pendingConfirm.title}
+          body={pendingConfirm.body}
+          confirmLabel={pendingConfirm.confirmLabel}
+          cancelLabel={pendingConfirm.cancelLabel}
+          confirmVariant={pendingConfirm.confirmVariant}
+          onConfirm={() => {
+            const fn = pendingConfirm.onConfirm;
+            setPendingConfirm(null);
+            try { fn?.(); } catch { /* ignore */ }
+          }}
+          onCancel={() => setPendingConfirm(null)}
+        />
+      )}
+
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded border-2 backdrop-blur-md ${
           notification.type === 'levelup' ? 'bg-amber-900/80 border-amber-400 text-amber-100' :
@@ -2890,15 +2915,24 @@ export default function DungeonScholarApp() {
             {screen !== 'home' && (
               <button
                 onClick={() => {
-                  // Phase 30b QA #4: warn before abandoning an active exam.
-                  // ExamMode also installs a beforeunload listener for the
-                  // refresh/close-tab case; this handles in-app navigation.
+                  // Phase 33c QA P3: in-app abandon confirm (replaces the
+                  // earlier window.confirm — headless QA tools auto-dismissed
+                  // it, making the Trial-of-Hours guard look silent).
                   if (screen === 'practiceExam') {
                     const saved = loadSession(SESSION_KIND.EXAM);
                     if (saved && saved.deadlineMs > Date.now()) {
-                      const ok = window.confirm('Abandon this trial? Progress will be lost — the sands cannot be paused.');
-                      if (!ok) return;
-                      clearSession(SESSION_KIND.EXAM);
+                      setPendingConfirm({
+                        title: '⚖ Abandon Thy Trial? ⚖',
+                        body: 'Thy timed trial is still in flight — the sands cannot be paused. Stepping away now discards thy progress on this attempt.',
+                        confirmLabel: 'Abandon Trial',
+                        cancelLabel: 'Keep Going',
+                        confirmVariant: 'danger',
+                        onConfirm: () => {
+                          clearSession(SESSION_KIND.EXAM);
+                          setScreen('home');
+                        },
+                      });
+                      return;
                     }
                   }
                   // Phase 32a QA #2: clear quiz/flashcards session on explicit
@@ -9516,6 +9550,88 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
             }}
           >
             ⚔ Erase Saga ⚔
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Phase 33c QA P3: generic in-DOM confirmation modal — replaces window.confirm
+// which was unreliable across headless / test environments. Includes an
+// alertdialog role + descriptive aria attributes so screen readers announce
+// it correctly. The destructive (danger) variant uses red styling.
+function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Cancel', confirmVariant = 'default', onConfirm, onCancel }) {
+  const cancelRef = useRef(null);
+  // Auto-focus the safer (cancel) action on open so Enter doesn't accidentally
+  // confirm a destructive choice the user hasn't read.
+  useEffect(() => {
+    cancelRef.current?.focus();
+  }, []);
+  // Escape always cancels.
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel?.();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onCancel]);
+  const confirmIsDanger = confirmVariant === 'danger';
+  return (
+    <div
+      className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="ds-confirm-title"
+      aria-describedby="ds-confirm-body"
+    >
+      <div className="rounded max-w-md w-full overflow-hidden flex flex-col relative" style={{
+        background: confirmIsDanger
+          ? 'linear-gradient(135deg, rgba(80, 20, 20, 0.97) 0%, rgba(20, 6, 6, 0.99) 100%)'
+          : 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+        border: confirmIsDanger
+          ? '3px double rgba(220, 38, 38, 0.7)'
+          : '3px double rgba(245, 158, 11, 0.6)',
+        boxShadow: confirmIsDanger
+          ? '0 0 40px rgba(220, 38, 38, 0.4)'
+          : '0 0 40px rgba(245, 158, 11, 0.3)',
+      }}>
+        <div className="p-4 border-b border-amber-700/40">
+          <h3 id="ds-confirm-title" className={`text-xl font-bold italic ${confirmIsDanger ? 'text-red-300' : 'text-amber-300'}`}>
+            {title}
+          </h3>
+        </div>
+        <div className="p-4">
+          <p id="ds-confirm-body" className="text-sm italic text-amber-100/90 leading-relaxed">
+            {body}
+          </p>
+        </div>
+        <div className="p-4 border-t border-amber-700/40 flex gap-2">
+          <button
+            ref={cancelRef}
+            onClick={onCancel}
+            className="flex-1 py-3 rounded font-bold italic border-2 border-amber-700 text-amber-200"
+            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+          >
+            {cancelLabel}
+          </button>
+          <button
+            onClick={onConfirm}
+            aria-label={confirmLabel}
+            className={`flex-1 py-3 rounded font-bold italic border-2 ${confirmIsDanger ? 'border-red-300 text-amber-50' : 'border-amber-300 text-amber-950'}`}
+            style={{
+              background: confirmIsDanger
+                ? 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)'
+                : 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
+              boxShadow: confirmIsDanger
+                ? '0 0 18px rgba(220, 38, 38, 0.5)'
+                : '0 0 18px rgba(245, 158, 11, 0.5)',
+            }}
+          >
+            {confirmLabel}
           </button>
         </div>
       </div>
