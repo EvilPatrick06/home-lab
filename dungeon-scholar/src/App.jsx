@@ -2788,25 +2788,31 @@ export default function DungeonScholarApp() {
           {/* Phase 30f QA #14: navigation landmark for the action-button row. */}
           <nav aria-label="Primary" className="flex items-center gap-3 text-sm">
             {/* Gold pill */}
+            {/* Phase 30h QA #15/#20: each header counter now carries an aria-label
+                that names the destination AND inlines the count, so the icon-to-page
+                mapping is unambiguous for screen-reader + tooltip users. Counts read
+                from the same source-of-truth expressions the destination pages use. */}
             <div
               className="px-3 py-2 rounded border-2 border-amber-700/60 flex items-center gap-2"
               style={{
                 background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.5), rgba(41, 24, 12, 0.85))',
                 boxShadow: '0 0 10px rgba(245, 158, 11, 0.15), inset 0 0 10px rgba(0,0,0,0.4)',
               }}
-              title="Gold"
+              title={`Gold: ${playerState.gold || 0}`}
+              aria-label={`Gold: ${playerState.gold || 0}`}
             >
-              <Coins className="w-4 h-4 text-amber-300" style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }} />
+              <Coins className="w-4 h-4 text-amber-300" style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }} aria-hidden="true" />
               <span className="text-amber-200 font-bold italic tabular-nums">{playerState.gold || 0}</span>
             </div>
             <button
               onClick={() => setScreen('quests')}
               className="p-2 hover:bg-purple-900/30 rounded transition border-2 border-purple-700/50 hover:border-purple-500 relative"
-              title="Quest Board"
+              title={claimableQuestCount > 0 ? `Quest Board (${claimableQuestCount} ready to claim)` : 'Quest Board'}
+              aria-label={claimableQuestCount > 0 ? `Open Quest Board, ${claimableQuestCount} reward${claimableQuestCount === 1 ? '' : 's'} ready to claim` : 'Open Quest Board'}
             >
-              <ScrollText className="w-5 h-5 text-purple-300" />
+              <ScrollText className="w-5 h-5 text-purple-300" aria-hidden="true" />
               {claimableQuestCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-purple-500 text-amber-50 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-purple-300 animate-pulse">
+                <span className="absolute -top-1 -right-1 bg-purple-500 text-amber-50 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-purple-300 animate-pulse" aria-hidden="true">
                   {claimableQuestCount}
                 </span>
               )}
@@ -2814,43 +2820,52 @@ export default function DungeonScholarApp() {
             <button
               onClick={() => setScreen('library')}
               className="p-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500 relative"
-              title="Library"
+              title={`Library (${playerState.library.length} tome${playerState.library.length === 1 ? '' : 's'})`}
+              aria-label={`Open Library, ${playerState.library.length} tome${playerState.library.length === 1 ? '' : 's'}`}
             >
-              <Library className="w-5 h-5 text-amber-400" />
+              <Library className="w-5 h-5 text-amber-400" aria-hidden="true" />
               {playerState.library.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-amber-300">
+                <span className="absolute -top-1 -right-1 bg-amber-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-amber-300" aria-hidden="true">
                   {playerState.library.length}
                 </span>
               )}
             </button>
-            <button
-              onClick={() => setScreen('inventory')}
-              className="p-2 hover:bg-emerald-900/30 rounded transition border-2 border-emerald-700/50 hover:border-emerald-500 relative"
-              title="Inventory"
-            >
-              <Package className="w-5 h-5 text-emerald-300" />
-              {(() => {
-                const total = Object.values(playerState.inventory || {}).reduce((s, n) => s + (n || 0), 0);
-                return total > 0 ? (
-                  <span className="absolute -top-1 -right-1 bg-emerald-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-emerald-300">
-                    {total}
-                  </span>
-                ) : null;
-              })()}
-            </button>
+            {(() => {
+              // Phase 30h QA #20: derive once, use everywhere — same expression
+              // The Hoard page (InventoryScreen line ~7016) uses for "N items stowed",
+              // so the badge and the destination page can never disagree.
+              const inventoryCount = Object.values(playerState.inventory || {}).reduce((s, n) => s + (n || 0), 0);
+              return (
+                <button
+                  onClick={() => setScreen('inventory')}
+                  className="p-2 hover:bg-emerald-900/30 rounded transition border-2 border-emerald-700/50 hover:border-emerald-500 relative"
+                  title={`The Hoard (${inventoryCount} item${inventoryCount === 1 ? '' : 's'} stowed)`}
+                  aria-label={`Open The Hoard, ${inventoryCount} item${inventoryCount === 1 ? '' : 's'} stowed`}
+                >
+                  <Package className="w-5 h-5 text-emerald-300" aria-hidden="true" />
+                  {inventoryCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-emerald-300" aria-hidden="true">
+                      {inventoryCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })()}
             <button
               onClick={() => setScreen('shop')}
               className="p-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500"
               title="Marketplace"
+              aria-label="Open Marketplace"
             >
-              <ShoppingBag className="w-5 h-5 text-amber-300" />
+              <ShoppingBag className="w-5 h-5 text-amber-300" aria-hidden="true" />
             </button>
             <button
               onClick={() => setShowAchievements(true)}
               className="p-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500"
               title="Hall of Glory"
+              aria-label="Open Hall of Glory (achievements)"
             >
-              <Trophy className="w-5 h-5 text-amber-400" />
+              <Trophy className="w-5 h-5 text-amber-400" aria-hidden="true" />
             </button>
             {screen !== 'home' && (
               <button

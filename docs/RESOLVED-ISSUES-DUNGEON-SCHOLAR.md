@@ -13,6 +13,22 @@
 
 ---
 
+### [2026-05-17] M1 — Header icon-buttons have only `title=`, no `aria-label`
+
+- **Original category:** UX, a11y
+- **Original severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** Claude Code (Opus 4.7)
+- **During:** Phase 27 audit
+- **Resolved by:** Claude Code (Opus 4.7)
+- **Date resolved:** 2026-05-17 (Phase 30h)
+
+**Problem:** Header icon-only buttons (Quest Board, Library, Inventory, Marketplace, Hall of Glory) relied on `title=` for their accessible name. `title` is announced inconsistently across screen readers and not at all on iOS Safari. The 2026-05-17 Dungeon Scholar QA report (#15) re-confirmed: "3 of 34 buttons have no accessible name". QA #20 separately reported the badge counts vs. destination-page numbers can disagree — the icon-to-page mapping was opaque.
+
+**Resolution:** Added `aria-label` to every header button (Gold pill, Quest Board, Library, The Hoard, Marketplace, Hall of Glory). Each label names the destination AND inlines the current count where applicable (e.g., "Open Library, 3 tomes" / "Open The Hoard, 5 items stowed" / "Open Quest Board, 2 rewards ready to claim"). Decorative icons inside each button now carry `aria-hidden="true"` so screen readers don't double-read. The inventory count is derived once via the SAME expression InventoryScreen uses for its "N items stowed" copy, so the badge and the destination page can never disagree (QA #20 fix).
+
+---
+
 ### [2026-05-17] L2 — No keyboard shortcuts for quiz answer selection
 
 - **Original category:** UX

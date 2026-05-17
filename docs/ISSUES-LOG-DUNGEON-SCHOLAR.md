@@ -308,24 +308,6 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ---
 
-### [2026-05-12] M1 — Header icon-buttons have only `title=`, no `aria-label`
-
-- **Category:** UX, a11y
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** Claude Code (Opus 4.7)
-- **During:** Phase 27 audit
-
-**Description:** Five buttons (Quests, Library, Inventory, Shop, Achievements) rely on `title` for their accessible name. `title` is announced inconsistently across screen readers and not at all on iOS Safari. The badge counts on Quests / Library / Inventory are meaningful but read as raw numbers without context.
-
-**Proposed fix:**
-- [ ] Add `aria-label="Quest Board (N claimable)"` etc., dynamic on the badge count
-- [ ] Keep the title= attribute for sighted-mouse-user tooltip
-
-**Related files:** `dungeon-scholar/src/App.jsx:2717–2769`
-
----
-
 ## Low
 
 *(low-severity items moved to `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` per logging convention — see L1–L18 entries there)*
