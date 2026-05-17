@@ -4554,10 +4554,11 @@ function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disab
 }
 
 function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode, onResumeNotify }) {
-  // Phase 33b QA P2: defer resume until `cards` is populated, and prefer
-  // cardId over raw index — App.jsx reshuffles each session so saved index
-  // would land on a different scroll.
+  // Phase 33b/39a QA P2: defer resume until `cards` is populated. 39a
+  // adds deck-order persistence so the resumed index points to the saved
+  // card even when ids are missing or duplicated.
   const [index, setIndex] = useState(0);
+  const [sessionDeck, setSessionDeck] = useState(null);
   const [flipped, setFlipped] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   // 26g: review-mode deck is frozen at entry — recomputing on every
@@ -4583,11 +4584,14 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   // 25e2: Domain Study can launch this mode with a single-domain filter.
   // The filter applies on top of the App-level shuffle; if no card carries
   // a matching domain, the deck is empty and we surface a back-button.
+  // Phase 39a: sessionDeck overrides baseDeck when restored from a session
+  // (only in non-review, non-filter mode).
   const cards = useMemo(() => {
     if (reviewMode) return reviewDeck;
-    if (!domainFilter) return baseDeck;
-    return baseDeck.filter((c) => c && c.domain === domainFilter);
-  }, [baseDeck, domainFilter, reviewMode, reviewDeck]);
+    const deck = sessionDeck || baseDeck;
+    if (!domainFilter) return deck;
+    return deck.filter((c) => c && c.domain === domainFilter);
+  }, [sessionDeck, baseDeck, domainFilter, reviewMode, reviewDeck]);
   const card = cards[index];
 
   // Phase 33b/37a QA P2: resume from session. See QuizMode's restore for
@@ -4604,7 +4608,31 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
     if (saved.tomeId && tomeId && saved.tomeId !== tomeId) { setRestored(true); return; }
     let positioned = false;
     let restoredIndex = 0;
-    if (saved.cardId) {
+    // Phase 39a: prefer saved.deckIds — reconstructs exact deck order.
+    if (Array.isArray(saved.deckIds) && saved.deckIds.length > 0) {
+      const byId = new Map();
+      for (const item of baseDeck) {
+        if (item?.id) byId.set(item.id, item);
+      }
+      const ordered = [];
+      const seen = new Set();
+      for (const id of saved.deckIds) {
+        const item = byId.get(id);
+        if (item && !seen.has(id)) { ordered.push(item); seen.add(id); }
+      }
+      for (const item of baseDeck) {
+        if (item?.id && !seen.has(item.id)) { ordered.push(item); seen.add(item.id); }
+      }
+      if (ordered.length > 0) {
+        setSessionDeck(ordered);
+        const wantedIdx = typeof saved.index === 'number' && saved.index >= 0 && saved.index < ordered.length
+          ? saved.index : 0;
+        setIndex(wantedIdx);
+        restoredIndex = wantedIdx;
+        positioned = true;
+      }
+    }
+    if (!positioned && saved.cardId) {
       const pos = cards.findIndex(c => c?.id === saved.cardId);
       if (pos >= 0) { setIndex(pos); restoredIndex = pos; positioned = true; }
     }
@@ -4618,11 +4646,11 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       onResumeNotify?.({ kind: 'flashcards', index: restoredIndex, total: cards.length });
     }
     setRestored(true);
-  }, [cards, tomeId, reviewMode, domainFilter, restored]);
+  }, [cards, baseDeck, tomeId, reviewMode, domainFilter, restored]);
 
-  // Phase 30b/33b/37a QA P2: persist the current index + card id in
-  // non-review browse mode. Gated on `restored` so first-render-with-empty-
-  // cards doesn't overwrite the saved session with defaults.
+  // Phase 30b/33b/37a/39a QA P2/P1: persist the current index + card id +
+  // deck-order in non-review browse mode. Gated on `restored` so first-
+  // render-with-empty-cards doesn't overwrite the saved session.
   useEffect(() => {
     if (!restored) return;
     if (reviewMode || domainFilter) return;
@@ -4630,6 +4658,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       tomeId: tomeId ?? null,
       index,
       cardId: cards[index]?.id ?? null,
+      deckIds: cards.map(c => c?.id || null),
     });
   }, [restored, index, tomeId, reviewMode, domainFilter, cards]);
 
@@ -4807,6 +4836,14 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   // restores the index via questionId and may land at a different deck
   // position in the new shuffle) doesn't make the counter jump.
   const [progressCount, setProgressCount] = useState(0);
+  // Phase 39a QA round-7 P1: session deck — when restored from saved
+  // deckIds, this overrides the parent's freshly-shuffled deck so the
+  // resumed index actually points to the saved riddle. Prior fixes saved
+  // a single questionId, but findIndex(...questionId) returned -1 in some
+  // tomes (missing/non-unique ids) and silently fell through to setIndex
+  // with the old deck's index → wrong riddle. Saving the full deck order
+  // and reconstructing it is robust to id absence.
+  const [sessionDeck, setSessionDeck] = useState(null);
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
@@ -4818,12 +4855,15 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   const [confidence, setConfidence] = useState(null);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
+  // Phase 39a: sessionDeck (when set by a resume) overrides the parent's
+  // shuffle so the saved index points to the right riddle.
   const baseDeck = (questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || []);
   // 25e2: Domain Study can launch this mode with a single-domain filter.
   const questions = useMemo(() => {
-    if (!domainFilter) return baseDeck;
-    return baseDeck.filter((q) => q && q.domain === domainFilter);
-  }, [baseDeck, domainFilter]);
+    const deck = sessionDeck || baseDeck;
+    if (!domainFilter) return deck;
+    return deck.filter((q) => q && q.domain === domainFilter);
+  }, [sessionDeck, baseDeck, domainFilter]);
   const q = questions[index];
 
   // Phase 33b/35d/37a QA P2/P3/round-6-P1: resume from session.
@@ -4861,17 +4901,46 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     if (typeof saved.streak === 'number' && saved.streak >= 0) {
       setStreak(saved.streak);
     }
-    // Position: prefer questionId, fall back to raw index.
+    // Phase 39a QA P1: prefer saved.deckIds — reconstruct the exact deck
+    // order the user was navigating, then the saved index naturally points
+    // at the right riddle. Falls back to questionId-in-current-shuffle and
+    // then raw-index for legacy sessions that lack deckIds.
     let positioned = false;
-    if (saved.questionId) {
+    let restoredQuestion = null;
+    if (Array.isArray(saved.deckIds) && saved.deckIds.length > 0) {
+      const byId = new Map();
+      for (const item of baseDeck) {
+        if (item?.id) byId.set(item.id, item);
+      }
+      const ordered = [];
+      const seen = new Set();
+      for (const id of saved.deckIds) {
+        const item = byId.get(id);
+        if (item && !seen.has(id)) { ordered.push(item); seen.add(id); }
+      }
+      for (const item of baseDeck) {
+        if (item?.id && !seen.has(item.id)) { ordered.push(item); seen.add(item.id); }
+      }
+      if (ordered.length > 0) {
+        setSessionDeck(ordered);
+        const wantedIdx = typeof saved.index === 'number' && saved.index >= 0 && saved.index < ordered.length
+          ? saved.index : 0;
+        setIndex(wantedIdx);
+        restoredQuestion = ordered[wantedIdx];
+        positioned = true;
+      }
+    }
+    if (!positioned && saved.questionId) {
       const pos = questions.findIndex(q => q?.id === saved.questionId);
       if (pos >= 0) {
         setIndex(pos);
+        restoredQuestion = questions[pos];
         positioned = true;
       }
     }
     if (!positioned && typeof saved.index === 'number' && saved.index >= 0 && saved.index < questions.length) {
       setIndex(saved.index);
+      restoredQuestion = questions[saved.index];
       positioned = true;
     }
     // Phase 38c suggestion: fire a toast so the user knows the
@@ -4880,15 +4949,17 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     if (positioned) {
       const restoredProgress = typeof saved.progressCount === 'number' ? saved.progressCount : 0;
       const restoredStreak = typeof saved.streak === 'number' ? saved.streak : 0;
-      onResumeNotify?.({ kind: 'quiz', progressCount: restoredProgress, streak: restoredStreak, total: questions.length });
+      onResumeNotify?.({ kind: 'quiz', progressCount: restoredProgress, streak: restoredStreak, total: questions.length, riddleId: restoredQuestion?.id || null });
     }
     setRestored(true);
-  }, [questions, tomeId, domainFilter, restored]);
+  }, [questions, baseDeck, tomeId, domainFilter, restored]);
 
-  // Phase 30b/33b/35d/37a QA #2/P3/round-6-P1: persist QUIZ session — but
-  // ONLY after the restore attempt has run (or been skipped). The `restored`
-  // flag is the gate; without it the render-1 persist would overwrite the
-  // saved session with default state before restore could read it.
+  // Phase 30b/33b/35d/37a/39a QA #2/P3/round-6-P1/round-7-P1: persist QUIZ
+  // session — gated on the `restored` flag so render-1 persist can't
+  // overwrite the saved session before render-2 restore reads it. Saves
+  // the full deck of question IDs so the resume can reconstruct the exact
+  // deck order on next refresh (prior versions only saved a single
+  // questionId which silently fell back to wrong-position when not found).
   useEffect(() => {
     if (!restored) return;
     if (domainFilter) return;
@@ -4896,6 +4967,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       tomeId: tomeId ?? null,
       index,
       questionId: questions[index]?.id ?? null,
+      deckIds: questions.map(qq => qq?.id || null),
       confidence,
       progressCount,
       streak,
