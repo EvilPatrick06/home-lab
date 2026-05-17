@@ -100,23 +100,50 @@ if [[ "${XDG_SESSION_TYPE:-}" == "wayland" ]]; then
   FLAGS+=(--ozone-platform=x11)
 fi
 
+# First-run AppImage extraction can take 10-30s with no terminal output.
+# Without this hint, users assume the launch hung and Ctrl+C. Only
+# print when stdout is a tty (not when launched from the app menu).
+if [[ -t 1 ]]; then
+  echo "Starting D&D Virtual Tabletop..."
+  echo "(first launch can take 10-30s — extracting AppImage to /tmp)"
+fi
+
 exec "${APPIMAGE}" "${FLAGS[@]}" "$@"
 LAUNCHER_EOF
 sed -i "s|__APPIMAGE_PATH__|${DEST}|" "${LAUNCHER}"
 chmod +x "${LAUNCHER}"
 ok "Added ${LAUNCHER} (wraps the AppImage with auto-detected flags)"
 
-# Warn if ~/.local/bin isn't on PATH so the "run from terminal" hint at
-# the end actually works in a fresh shell. Print the exact one-liner the
-# user can paste, not a hand-wavy "add to your profile" hint.
+# Make sure ~/.local/bin is on PATH so the "run from terminal" hint at
+# the end actually works. We auto-append to ~/.bashrc (and ~/.profile
+# for login shells / non-bash users like fish, zsh-with-bashrc-source,
+# Debian's default `dash` /bin/sh as login shell). Idempotent: we look
+# for our marker line before adding it, so re-running install-linux.sh
+# doesn't pile up duplicate exports.
 if ! echo "${PATH}" | tr ':' '\n' | grep -qx "${BIN_DIR}"; then
+  added_to=""
+  path_marker='# dnd-vtt installer: ensure ~/.local/bin is on PATH'
+  path_export='export PATH="$HOME/.local/bin:$PATH"'
+  for rc in "${HOME}/.bashrc" "${HOME}/.profile"; do
+    if [[ -f "${rc}" ]] && ! grep -Fq "${path_marker}" "${rc}"; then
+      printf '\n%s\n%s\n' "${path_marker}" "${path_export}" >> "${rc}"
+      added_to="${added_to}${rc} "
+    fi
+  done
   echo
-  info "Note: ${BIN_DIR} isn't on your PATH yet."
-  info "To run \`${APP_NAME}\` from any terminal, paste this and restart your shell:"
-  info ""
-  info "    echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
-  info ""
-  info "Or just use the full path: ${LAUNCHER}"
+  if [[ -n "${added_to}" ]]; then
+    ok "Added ${BIN_DIR} to PATH in: ${added_to}"
+    info "Restart your terminal, OR run this in the current shell to pick it up immediately:"
+    info ""
+    info "    source ~/.bashrc"
+    info ""
+    info "Until then, use the full path: ${LAUNCHER}"
+  else
+    info "Note: ${BIN_DIR} isn't on your PATH yet."
+    info "Couldn't auto-append to ~/.bashrc or ~/.profile (do they exist?)."
+    info "Run this manually:    echo '${path_export}' >> ~/.bashrc"
+    info "Or use the full path: ${LAUNCHER}"
+  fi
 fi
 
 bold "==> Extracting app icon"
