@@ -40,14 +40,27 @@ The release ships two Linux paths — pick one.
 ```bash
 curl -fsSL https://github.com/EvilPatrick06/home-lab/releases/latest/download/install-linux.sh | bash
 ```
-Installs the AppImage to `~/.local/bin/dnd-vtt`, adds a `.desktop` launcher, and wires up auto-update.
+What it does:
+- Downloads the AppImage to `~/Applications/dnd-vtt.AppImage`.
+- Writes a launcher at `~/.local/bin/dnd-vtt` that auto-detects your environment and tacks on the right flags (`--no-sandbox` always, `--disable-gpu` if no GPU/DRI nodes — fixes VM hangs — `--ozone-platform=x11` on Wayland sessions).
+- Adds a desktop entry so the app shows up in your menu.
+- Prints a copy-pasteable `apt install` line for any missing runtime libs (libfuse2, libnss3, libgbm1, libasound2, libgtk-3-0).
+
+After install, run from terminal as `dnd-vtt` or launch from your app menu.
 
 **Option B — manual AppImage:**
 1. Download `dnd-vtt-<version>-x86_64.AppImage`.
 2. `chmod +x dnd-vtt-*.AppImage`
 3. Run it: `./dnd-vtt-*.AppImage --no-sandbox`
 
+If you're in a VM or any environment with no GPU, also add `--disable-gpu`:
+```bash
+./dnd-vtt-*.AppImage --no-sandbox --disable-gpu
+```
+
 > **Why `--no-sandbox`?** Electron's chrome-sandbox binary needs to be setuid root, and AppImages can't ship a setuid binary. Ubuntu 24.04+ also blocks unprivileged user namespaces via AppArmor by default, which breaks the alternate sandbox path. `--no-sandbox` is the standard workaround for Electron AppImages and what `install-linux.sh` writes into the `.desktop` entry automatically. If you want the full sandbox, set up an AppArmor profile for the AppImage (see [Electron docs](https://www.electronjs.org/docs/latest/tutorial/sandbox#linux)).
+
+> **Why `--disable-gpu` in a VM?** Electron's `drmGetDevices2()` returns no devices on hosts without DRI render nodes (most VMs without GPU passthrough). Without this flag, Electron hangs on GPU init and never paints a window. The Option A launcher checks `/dev/dri/renderD*` at launch time and adds the flag automatically.
 
 > **AppImage exits immediately with no window?** You're probably missing one of the runtime libraries Electron expects. Install them all in one shot:
 > ```bash
