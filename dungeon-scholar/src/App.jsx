@@ -1672,6 +1672,32 @@ export default function DungeonScholarApp() {
     }, timeoutMs);
   };
 
+  // Phase 45d: window-level Ctrl+Z / Cmd+Z global hotkey. Triggers the
+  // active notification's onClick (Undo for vault vanquish) when one is
+  // showing. Keyboard-only users get a reliable undo without having to
+  // mouse to the toast within its visible window. Skip when focus is in
+  // a text input so we don't hijack native undo in textareas/contentedit.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!(e.key === 'z' || e.key === 'Z')) return;
+      if (!(e.ctrlKey || e.metaKey)) return;
+      if (e.shiftKey || e.altKey) return; // leave Ctrl+Shift+Z for redo
+      const t = e.target;
+      const tag = t && t.tagName ? t.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || (t && t.isContentEditable)) return;
+      if (!notification || typeof notification.onClick !== 'function') return;
+      e.preventDefault();
+      try { notification.onClick(); } catch { /* ignore */ }
+      if (notifTimeoutRef.current) {
+        clearTimeout(notifTimeoutRef.current);
+        notifTimeoutRef.current = null;
+      }
+      setNotification(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [notification]);
+
   const updateProgress = (updates) => {
     setPlayerState(prev => {
       const next = { ...prev, ...updates };
@@ -2351,10 +2377,11 @@ export default function DungeonScholarApp() {
     // counter. Only available when caller passed the full item.
     if (itemForUndo) {
       const stem = (itemForUndo.question || itemForUndo.front || itemForUndo.term || itemForUndo.title || 'item').slice(0, 50);
-      // Phase 44c: 4s → 8s default; pause-on-hover/focus handled in the
-      // notification render block.
+      // Phase 44c: 4s → 8s default. Phase 45d: 8s → 10s + Ctrl+Z global
+      // hotkey (see notification effect below). Hover/focus pause stays
+      // in the notification render block.
       showNotif(
-        `Vanquished: ${stem}${stem.length === 50 ? '…' : ''} · Undo`,
+        `Vanquished: ${stem}${stem.length === 50 ? '…' : ''} · Undo (Ctrl+Z)`,
         'success',
         () => {
           setPlayerState(prev => {
@@ -2378,7 +2405,7 @@ export default function DungeonScholarApp() {
           });
           showNotif('Restored to Tome of Failures', 'info', null, 1500);
         },
-        8000,
+        10000,
       );
     }
   };
@@ -7374,11 +7401,21 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             </div>
           )}
 
-          {/* Per-domain rows */}
+          {/* Per-domain rows. Phase 45b: gate the color ramp behind a
+              sample-size threshold so a 6/6 = 100% row doesn't read as
+              "mastered" when the sample is tiny. Below DOMAIN_VERDICT_MIN_SAMPLE
+              attempts, switch to a muted gray palette and show a "needs
+              N more for verdict" tag — the raw correct/total + accuracy
+              are still displayed, but the visual signal of "high mastery"
+              is reserved for samples large enough to mean it. */}
           <div className="space-y-2">
             {sortedStats.map(s => {
+              const DOMAIN_VERDICT_MIN_SAMPLE = 10;
+              const lowSample = s.total < DOMAIN_VERDICT_MIN_SAMPLE;
               const pct = Math.round(s.accuracy * 100);
-              const ramp = rampForPct(pct);
+              const rampReal = rampForPct(pct);
+              const rampMuted = { bg: 'rgba(63, 63, 70, 0.30)', border: 'rgba(161, 161, 170, 0.55)', text: '#e4e4e7', fill: 'linear-gradient(to right, #71717a, #a1a1aa)' };
+              const ramp = lowSample ? rampMuted : rampReal;
               const weight = weights ? Number(weights[s.domain] || 0) : 0;
               const showWeight = !!weights && weight > 0;
               const hasQuiz = quizDomainSet.has(s.domain);
@@ -7391,6 +7428,15 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                       {showWeight && (
                         <span className="text-[10px] italic tracking-wider px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,0,0,0.4)', color: ramp.text, border: `1px solid ${ramp.border}` }}>
                           {weight}% of exam
+                        </span>
+                      )}
+                      {lowSample && (
+                        <span
+                          className="text-[10px] italic tracking-wider px-1.5 py-0.5 rounded"
+                          title={`Color ramp gates at ${DOMAIN_VERDICT_MIN_SAMPLE}+ attempts so a tiny perfect sample doesn't read as mastery. Practice ${DOMAIN_VERDICT_MIN_SAMPLE - s.total} more for a stable verdict.`}
+                          style={{ background: 'rgba(0,0,0,0.4)', color: '#fde68a', border: '1px solid rgba(245, 158, 11, 0.6)' }}
+                        >
+                          low sample · {DOMAIN_VERDICT_MIN_SAMPLE - s.total} more for verdict
                         </span>
                       )}
                     </div>
@@ -7456,16 +7502,21 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                   const correct = tile.correct;
                   const pct = total > 0 ? Math.round((correct / total) * 100) : null;
                   // Verdict: where does observed accuracy sit vs the ideal for this bucket?
+                  // Phase 45c: previous rule set had coverage gaps — Confident
+                  // at diff ∈ [-15, -5) and Uncertain at diff ∈ (5, 15] both
+                  // fell through to `verdict = null`, so a user with 5+
+                  // ratings still saw no label. Replaced with a single
+                  // |diff| ≤ 15 calibrated band per bucket so every sample
+                  // ≥5 ratings receives a verdict. Signed-diff branches
+                  // distinguish over/underconfident at the edges.
                   let verdict = null;
                   if (pct !== null && total >= 5) {
                     const diff = pct - ideal;
-                    if (key === 'high' && diff < -15) verdict = 'overconfident';
-                    else if (key === 'high' && diff >= -5) verdict = 'calibrated';
-                    else if (key === 'low' && diff > 15) verdict = 'underconfident';
-                    else if (key === 'low' && diff <= 5) verdict = 'calibrated';
-                    else if (key === 'med' && Math.abs(diff) <= 12) verdict = 'calibrated';
-                    else if (key === 'med' && diff < -12) verdict = 'overconfident';
-                    else if (key === 'med' && diff > 12) verdict = 'underconfident';
+                    const within = Math.abs(diff) <= 15;
+                    if (within) verdict = 'calibrated';
+                    else if (key === 'high') verdict = 'overconfident'; // pct far below 90 → claimed Confident but missed
+                    else if (key === 'low') verdict = diff > 0 ? 'underconfident' : 'calibrated'; // pct far above 50 with Uncertain = underconfident
+                    else verdict = diff < 0 ? 'overconfident' : 'underconfident';
                   }
                   return (
                     <div key={key} className="p-2.5 rounded" style={{
@@ -7523,9 +7574,14 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             {/* Phase 33h: when forecast is locked, hide the redundant
                 "X of Y scrolls rated" badge — the same number is in the
                 consolidated unlock message below. Keep it visible once
-                the curve is drawing. */}
+                the curve is drawing. Phase 45a: title attribute clarifies
+                that the count is Flashcard SRS ratings only — confidence
+                ratings on Quiz riddles don't feed this curve. */}
             {memoryCoverage.rated >= 10 && (
-              <span className="text-[10px] italic text-amber-700 tracking-wider">
+              <span
+                className="text-[10px] italic text-amber-700 tracking-wider"
+                title="Counts unique Scrolls of Knowledge (Flashcards) rated Again/Hard/Good/Easy. Riddle confidence ratings do not count here."
+              >
                 {memoryCoverage.rated} of {memoryCoverage.total} scrolls rated
               </span>
             )}
@@ -7533,16 +7589,17 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
 
           {memoryCoverage.rated === 0 ? (
             <div className="text-xs italic text-amber-700 py-3 text-center">
-              ✦ Rate scrolls in any tome to begin charting thy memory decay. The Oracle of Memory hath not yet seen thee study.
+              ✦ Open Scrolls of Knowledge (Flashcards) and rate cards Again/Hard/Good/Easy to begin charting thy memory decay. Riddle confidence ratings do not feed this curve.
             </div>
           ) : memoryCoverage.rated < 10 ? (
             /* Phase 30e / 33h / 38b QA #11 + suggestions: gate the curve
                until the sample is large enough; consolidate progress copy;
                add a deep-link CTA into Flashcards (Scrolls of Knowledge)
-               so the user can act on the unlock immediately. */
+               so the user can act on the unlock immediately. Phase 45a:
+               clarify that only Flashcard SRS ratings count. */
             <div className="text-xs italic text-sky-300 py-3 text-center space-y-2">
               <div>
-                ✦ Rate {10 - memoryCoverage.rated} more scroll{(10 - memoryCoverage.rated) === 1 ? '' : 's'} to unlock the decay curve ({memoryCoverage.rated}/10 rated).
+                ✦ Rate {10 - memoryCoverage.rated} more scroll{(10 - memoryCoverage.rated) === 1 ? '' : 's'} in <span className="text-sky-200 font-bold">Scrolls of Knowledge</span> to unlock the decay curve ({memoryCoverage.rated}/10 rated). Riddle confidence ratings do not count.
               </div>
               <button
                 onClick={() => setScreen('flashcards')}
